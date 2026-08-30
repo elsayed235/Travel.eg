@@ -1,5 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { AppRoute, JourneyStage } from '../types';
+import { DEFAULT_ROUTE, routeFromUrl, urlFromRoute, type RouteParams } from '../lib/routeUrl';
+
+/**
+ * The address bar is the source of truth for which page is open.
+ *
+ * Reading it in a lazy useState initialiser rather than an effect matters:
+ * an effect runs after the first paint, so a deep link would flash the
+ * homepage before correcting itself.
+ */
+const readLocation = (): { route: AppRoute; params: RouteParams } =>
+  typeof window === 'undefined'
+    ? { route: DEFAULT_ROUTE, params: {} }
+    : routeFromUrl(window.location.pathname, window.location.search);
 
 export interface UIContextType {
   currentRoute: AppRoute;
@@ -28,10 +41,16 @@ export interface UIContextType {
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentRoute, setCurrentRoute] = useState<AppRoute>('/home');
-  const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
-  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>(() => readLocation().route);
+  const [selectedDayId, setSelectedDayId] = useState<number | null>(
+    () => readLocation().params.dayId ?? null
+  );
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
+    () => readLocation().params.activityId ?? null
+  );
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    () => readLocation().params.bookingId ?? null
+  );
   const [journeyStage, setJourneyStage] = useState<JourneyStage>('discover');
   const [activeDayGiPrompt, setActiveDayGiPrompt] = useState<string | null>(null);
   const [activePersonaMode, setActivePersonaMode] = useState<'PRE_TRIP' | 'IN_DAHAB'>('PRE_TRIP');
@@ -81,6 +100,20 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     });
   }, [showToast]);
 
+  /**
+   * Moves the address bar to match a route.
+   *
+   * Skipping an unchanged URL is not just tidiness: re-tapping the current nav
+   * tab would otherwise stack duplicate history entries, and the traveler would
+   * need several Back presses to leave a page they visited once.
+   */
+  const pushRoute = useCallback((route: AppRoute, params?: RouteParams) => {
+    if (typeof window === 'undefined') return;
+    const next = urlFromRoute(route, params);
+    if (`${window.location.pathname}${window.location.search}` === next) return;
+    window.history.pushState({ route }, '', next);
+  }, []);
+
   const navigateTo = useCallback(
     (
       route: AppRoute,
@@ -90,19 +123,70 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       if (params?.dayId !== undefined) setSelectedDayId(params.dayId);
       if (params?.activityId !== undefined) setSelectedActivityId(params.activityId);
       if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
+      pushRoute(route, params);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    []
+    [pushRoute]
+  );
+
+  /**
+   * Exposed on the context (and re-exported by TripContext) in place of the raw
+   * useState setter, so that a direct setCurrentRoute call cannot leave the
+   * address bar pointing at a different page than the one on screen.
+   */
+  const setRoute = useCallback(
+    (route: AppRoute) => {
+      setCurrentRoute(route);
+      pushRoute(route);
+    },
+    [pushRoute]
   );
 
   const openDayGiWithPrompt = useCallback(
     (prompt: string) => {
       setActiveDayGiPrompt(prompt);
       setCurrentRoute('/daygi');
+      pushRoute('/daygi');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    []
+    [pushRoute]
   );
+
+  /**
+   * Back and Forward.
+   *
+   * This restores state FROM the URL and deliberately does not push: pushing
+   * here would append a new entry instead of consuming one, and the Back button
+   * would never make progress.
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onPopState = () => {
+      const { route, params } = readLocation();
+      setCurrentRoute(route);
+      setSelectedDayId(params.dayId ?? null);
+      setSelectedActivityId(params.activityId ?? null);
+      setSelectedBookingId(params.bookingId ?? null);
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  /**
+   * Canonicalises the entry URL once, so an unrecognised path that resolved to
+   * /home does not stay visible in the address bar — otherwise a later Back
+   * press would return to a URL that never rendered.
+   */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const { route, params } = readLocation();
+    const canonical = urlFromRoute(route, params);
+    if (`${window.location.pathname}${window.location.search}` !== canonical) {
+      window.history.replaceState({ route }, '', canonical);
+    }
+  }, []);
 
   // Sync stage with route if relevant
   useEffect(() => {
@@ -120,7 +204,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const value = useMemo<UIContextType>(
     () => ({
       currentRoute,
-      setCurrentRoute,
+      setCurrentRoute: setRoute,
       selectedDayId,
       setSelectedDayId,
       selectedActivityId,
@@ -143,6 +227,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }),
     [
       currentRoute,
+      setRoute,
       selectedDayId,
       selectedActivityId,
       selectedBookingId,
