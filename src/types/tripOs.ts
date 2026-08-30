@@ -182,7 +182,13 @@ export interface TripReadinessSummary {
 }
 
 export interface BudgetCostDriver {
-  category: 'Accommodation' | 'Activities & Diving' | 'Transfers & Logistics' | 'Dining & Local';
+  /**
+   * Free text, because the breakdown is computed from the trip's own items now
+   * and the commerce engine sells six verticals — the closed set of four here
+   * could not describe a wellness or dining line at all. It was only ever
+   * satisfiable because the whole breakdown was a fixed object.
+   */
+  category: string;
   categoryAr: string;
   amountEGP: number;
   percentage: number;

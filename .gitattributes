@@ -1,0 +1,19 @@
+# Normalise line endings so a Windows checkout and a Linux CI runner agree.
+# Without this, every file Git touches shows up as modified on Windows and
+# the CI diff is noise.
+* text=auto eol=lf
+
+# Binary and generated files Git must not rewrite.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.mp4 binary
+*.pdf binary
+
+# Lockfiles are generated; collapse them in diffs and reviews.
+package-lock.json -diff linguist-generated
+bun.lock          -diff linguist-generated
