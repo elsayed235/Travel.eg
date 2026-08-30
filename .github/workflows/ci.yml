@@ -1,0 +1,81 @@
+name: CI
+
+# Every job here runs against a fresh checkout, which is the point: the
+# repository once carried an unanchored `data/` ignore rule that excluded
+# src/data/ and server/data/ as collateral, so the committed tree did not
+# type-check even though the developer's working copy did. Only a clean
+# checkout catches that class of bug.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Type-check, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run lint
+
+      # The suite swaps the Database singleton onto an in-memory adapter in
+      # tests/setup.ts and installs an fs tripwire, so it never touches
+      # data/dahab_db.json. Baseline to hold: 19 files, 257 tests.
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # The seed datasets are read at boot, and importDahabLocalCommerce()
+      # throws when dahab_local_commerce.json is missing. Asserting on the
+      # files directly turns "the container will not start" into a failed
+      # step with an obvious cause.
+      - name: Verify boot-critical seed data is present
+        run: |
+          set -e
+          for f in data/dahab_local_commerce.json data/instagram/dahab_instagram_sources.json; do
+            test -s "$f" || { echo "::error file=$f::missing or empty; the server cannot boot without it"; exit 1; }
+          done
+          echo "Seed datasets present."
+
+      # Guards the reverse mistake: runtime state carries live session tokens,
+      # traveler contact details and supplier payout IBANs, and must never be
+      # committed.
+      - name: Verify runtime state is not committed
+        run: |
+          set -e
+          leaked=$(git ls-files -- 'data/dahab_db.json' 'data/locks/*' 'data/*.seq' '.env' || true)
+          if [ -n "$leaked" ]; then
+            echo "::error::runtime state or secrets are tracked:"; echo "$leaked"; exit 1
+          fi
+          echo "No runtime state tracked."
+
+      - name: Report client bundle sizes
+        if: always()
+        run: |
+          echo "### Client bundle" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          ls -lhS dist/assets/*.js dist/assets/*.css 2>/dev/null | awk '{print $5, $9}' | head -15 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
