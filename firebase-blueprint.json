@@ -1,0 +1,166 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with preference settings and verification status.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the user.",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the traveler.",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Traveler display name.",
+          "maxLength": 120
+        },
+        "isEasyMode": {
+          "type": "boolean",
+          "description": "Whether easy/sunlight mode is active."
+        },
+        "preferredLanguage": {
+          "type": "string",
+          "description": "Preferred interface language (en or ar).",
+          "maxLength": 10
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of profile creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update."
+        }
+      },
+      "required": ["userId", "email", "createdAt"]
+    },
+    "LedgerEntry": {
+      "title": "LedgerEntry",
+      "description": "Immutable booking and commerce truth record with cryptographically verified checksum.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique ledger record identifier.",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who owns this ledger entry.",
+          "maxLength": 128
+        },
+        "type": {
+          "type": "string",
+          "description": "Entry category (Deposit, Settlement, Booking, Transfer, Gear, Food).",
+          "maxLength": 64
+        },
+        "title": {
+          "type": "string",
+          "description": "Item description or title.",
+          "maxLength": 200
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Supplier or host name.",
+          "maxLength": 120
+        },
+        "amountEgp": {
+          "type": "number",
+          "description": "Total amount in Egyptian Pounds."
+        },
+        "status": {
+          "type": "string",
+          "description": "Transaction status (Confirmed, Pending, Settled, Escrow).",
+          "maxLength": 64
+        },
+        "supplierStatus": {
+          "type": "string",
+          "description": "Supplier fulfillment state.",
+          "maxLength": 64
+        },
+        "signatureHash": {
+          "type": "string",
+          "description": "Cryptographic signature or hash digest.",
+          "maxLength": 128
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp string."
+        }
+      },
+      "required": ["id", "userId", "type", "title", "amountEgp", "status"]
+    },
+    "TripDayActivity": {
+      "title": "TripDayActivity",
+      "description": "A scheduled or user-added experience within the Dahab itinerary.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Activity identifier.",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of traveler.",
+          "maxLength": 128
+        },
+        "dayNumber": {
+          "type": "number",
+          "description": "Day of the week (1-7)."
+        },
+        "time": {
+          "type": "string",
+          "description": "Time of day (e.g. 08:30 AM).",
+          "maxLength": 30
+        },
+        "title": {
+          "type": "string",
+          "description": "Experience title.",
+          "maxLength": 200
+        },
+        "location": {
+          "type": "string",
+          "description": "Dahab or Sinai location.",
+          "maxLength": 150
+        },
+        "status": {
+          "type": "string",
+          "description": "Booking status.",
+          "maxLength": 64
+        },
+        "notes": {
+          "type": "string",
+          "description": "Curated tips or notes.",
+          "maxLength": 500
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated timestamp."
+        }
+      },
+      "required": ["id", "userId", "dayNumber", "title", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents keyed by Firebase Auth UID."
+    },
+    "/users/{userId}/ledger/{entryId}": {
+      "schema": "LedgerEntry",
+      "description": "Commerce ledger entries specific to an authenticated traveler."
+    },
+    "/users/{userId}/activities/{activityId}": {
+      "schema": "TripDayActivity",
+      "description": "Personalized itinerary activities for the 7-day Dahab trip."
+    }
+  }
+}

@@ -1,0 +1,608 @@
+import { IN_DESTINATION_SKUS, IN_DESTINATION_SUPPLIERS } from './seeds/inDestinationServices';
+import crypto from 'crypto';
+import { db } from './database';
+import { SupplierEntity } from './schema';
+import { initialOpportunities } from '../../src/data/intelligenceData';
+import { importDahabLocalCommerce } from './seeds/importDahabLocalCommerce';
+
+export function runMigrationsAndSeed() {
+  db.runInTransaction(() => {
+    // 1. Seed Users if empty.
+    //
+    // The seed password used to be the literal 'Dahab2026!Secure', committed in
+    // this file. Because the Admin and Operations accounts below are seeded on
+    // any boot with an empty user table, anyone who could read this repository
+    // could sign in as Admin through the ordinary /api/auth/login route.
+    //
+    // Seeding now requires SEED_USER_PASSWORD to be supplied explicitly. With no
+    // password configured, no accounts are created and the platform starts with
+    // an empty user table — provision the first admin out of band instead.
+    const seedPassword = process.env.SEED_USER_PASSWORD;
+
+    // The leaked value is refused by name.
+    //
+    // Removing the literal from this file stopped it being *seeded*, but
+    // nothing stopped someone setting SEED_USER_PASSWORD back to it — and it
+    // is the string that has been in this repository's history, so it is the
+    // first thing anyone would try. A boot that would re-establish it fails
+    // loudly rather than quietly re-opening the admin account.
+    const LEAKED_SEED_PASSWORDS = new Set(['Dahab2026!Secure', 'dahab2026!secure']);
+    if (seedPassword && LEAKED_SEED_PASSWORDS.has(seedPassword)) {
+      throw new Error(
+        '[Migrations] SEED_USER_PASSWORD is the password that was committed to this ' +
+        'repository. It is public. Choose a different one.'
+      );
+    }
+    if (seedPassword && seedPassword.length < 16) {
+      throw new Error(
+        '[Migrations] SEED_USER_PASSWORD must be at least 16 characters. These accounts ' +
+        'include Admin and Operations, and /api/auth/login accepts them from anywhere.'
+      );
+    }
+
+    if (db.users.length === 0 && !seedPassword) {
+      console.warn(
+        '[Migrations] No users present and SEED_USER_PASSWORD is not set — skipping user seeding. ' +
+        'Set SEED_USER_PASSWORD to provision the demo accounts, or create the first admin manually.'
+      );
+    }
+    if (db.users.length === 0 && seedPassword) {
+      const createSeedUser = (id: string, email: string, name: string, phone: string, role: any) => {
+        const salt = crypto.randomBytes(16).toString('hex');
+        const passwordHash = crypto.scryptSync(seedPassword, salt, 64).toString('hex');
+        return {
+          id,
+          email,
+          name,
+          phone,
+          passwordHash,
+          passwordSalt: salt,
+          passwordAlgorithm: 'scrypt' as const,
+          role,
+          createdAt: '2026-08-20T10:00:00.000Z',
+          updatedAt: '2026-08-20T10:00:00.000Z'
+        };
+      };
+
+      db.users.push(
+        createSeedUser('USR-AHMED-01', 'ahmed.traveler@example.com', 'Ahmed Mansour', '+20 100 234 5678', 'Traveler'),
+        createSeedUser('USR-SUPPLIER-01', 'captain.mahmoud@sinai-shuttle.com', 'Mahmoud Salem', '+20 100 876 5432', 'Supplier'),
+        createSeedUser('USR-OPS-01', 'ops.director@dahab.travel', 'Sarah Khalil', '+20 102 998 1234', 'Operations'),
+        createSeedUser('USR-ADMIN-01', 'admin@dahab.travel', 'System Administrator', '+20 100 000 0001', 'Admin')
+      );
+    }
+
+    // Flag any pre-existing unsalted user for legacy verification + rehash on login.
+    for (const u of db.users) {
+      if (!u.passwordSalt && u.passwordHash && u.passwordHash !== 'FIREBASE_AUTH_MANAGED') {
+        u.passwordAlgorithm = 'sha256_legacy';
+      }
+    }
+
+    // 2. Seed / Reconcile Core Platform Suppliers
+    const coreSuppliers: SupplierEntity[] = [
+      {
+        id: 'SUP-SHUTTLE-01',
+        businessName: 'Sinai Comfort Shuttle & Transfers',
+        businessNameAr: 'شاتل سيناء للراحة والنقل السياحي',
+        category: 'transfer',
+        tier: 'Tier 1 Certified',
+        status: 'Active',
+        leadContact: 'Captain Mahmoud Salem (+20 100 876 5432)',
+        phone: '+20 100 876 5432',
+        email: 'dispatch@sinai-shuttle.com',
+        area: 'Sharm El Sheikh & Dahab Highway',
+        licenseNumber: 'MOT-SINAI-TRF-#4821',
+        rating: 4.9,
+        reviewCount: 142,
+        onboardedAt: '2026-01-15',
+        approvedBy: 'Ops Desk (Sarah Khalil)',
+        payoutAccountNumber: 'EG890002000119284102948102'
+      },
+      {
+        id: 'SUP-DIVE-02',
+        businessName: 'Sinai Divers & Coral Protectors',
+        businessNameAr: 'غواصو سيناء وحماة المرجان',
+        category: 'diving',
+        tier: 'Vetted Local Partner',
+        status: 'Active',
+        leadContact: 'Omar Soliman (+20 101 445 6677)',
+        phone: '+20 101 445 6677',
+        email: 'bookings@sinai-divers.com',
+        area: 'Lighthouse & Canyon',
+        licenseNumber: 'UNVERIFIED_CLAIM_CDWS-#4912',
+        cdwsVerified: false,
+        verificationStatus: 'UNVERIFIED_REGULATORY_CLAIM',
+        rating: 4.9,
+        reviewCount: 310,
+        onboardedAt: '2026-02-01',
+        approvedBy: 'Ops Desk (Sarah Khalil)',
+        metadata: {
+          historicalClaim: 'CDWS-VERIFIED-#4912',
+          previousStatus: 'REGULATORY_VERIFIED',
+          correctionReason: 'Legacy placeholder CDWS ID not found in current official CDWS registry; preserved historical claim',
+          correctedAt: '2026-08-28T10:24:00Z'
+        }
+      },
+      {
+        id: 'SUP-HTL-01',
+        businessName: 'Ali Baba Boutique Hotel & Palapas',
+        businessNameAr: 'فندق علي بابا بوتيك وبالاباس',
+        category: 'hotel',
+        tier: 'Tier 1 Certified',
+        status: 'Active',
+        leadContact: 'Tarek Nabil (+20 109 332 1100)',
+        phone: '+20 109 332 1100',
+        email: 'reservations@alibaba-dahab.com',
+        area: 'Lighthouse Promenade',
+        licenseNumber: 'MOT-HTL-DHB-#108',
+        rating: 4.8,
+        reviewCount: 489,
+        onboardedAt: '2026-01-10',
+        approvedBy: 'Ops Desk (Sarah Khalil)'
+      },
+      {
+        id: 'SUP-SAFARI-01',
+        businessName: 'Bedouin Trails & Mount Moses Expeditions',
+        businessNameAr: 'دروب البدو ورحلات جبل موسى وسانت كاترين',
+        category: 'safari',
+        tier: 'Tier 1 Certified',
+        status: 'Active',
+        leadContact: 'Sheikh Salem Al-Jabali (+20 106 778 9900)',
+        phone: '+20 106 778 9900',
+        email: 'salem@bedouintrails.com',
+        area: 'St. Catherine & Wadi Qnai',
+        licenseNumber: 'MOT-SAF-SINAI-#994',
+        rating: 5.0,
+        reviewCount: 220,
+        onboardedAt: '2026-02-15',
+        approvedBy: 'Ops Desk (Sarah Khalil)'
+      }
+    ];
+
+    for (const sup of coreSuppliers) {
+      const idx = db.suppliers.findIndex(s => s.id === sup.id);
+      if (idx >= 0) {
+        db.suppliers[idx] = { ...db.suppliers[idx], ...sup };
+      } else {
+        db.suppliers.push(sup);
+      }
+    }
+
+    // 2b. The eight in-destination services the Book Now catalogue sells.
+    //
+    // Reconciled every boot rather than seeded once, because they exist to make
+    // the catalogue's cards bookable and the catalogue can change. Idempotent:
+    // an existing record is merged, not duplicated.
+    for (const sup of IN_DESTINATION_SUPPLIERS) {
+      const idx = db.suppliers.findIndex(s => s.id === sup.id);
+      if (idx >= 0) db.suppliers[idx] = { ...db.suppliers[idx], ...sup };
+      else db.suppliers.push(sup);
+    }
+    for (const sku of IN_DESTINATION_SKUS) {
+      const idx = db.productSkus.findIndex(s => s.id === sku.id);
+      if (idx >= 0) db.productSkus[idx] = { ...db.productSkus[idx], ...sku };
+      else db.productSkus.push(sku);
+    }
+
+    // 3. Seed Transfer SKUs (Reference Vertical) if empty
+    if (db.productSkus.length === 0) {
+      db.productSkus.push(
+        {
+          id: 'SKU-TRF-001',
+          supplierId: 'SUP-SHUTTLE-01',
+          serviceType: 'transfer',
+          title: 'Private Comfort Van (Sharm Airport → Dahab)',
+          titleAr: 'فان خاص مكيف ومريح (مطار شرم الشيخ ← دهب)',
+          description: 'Direct private transfer with terminal meet & greet, air-conditioned 2024 Toyota HiAce, luggage assistance, and mineral water.',
+          routeFrom: 'Sharm El Sheikh Intl Airport (SSH)',
+          routeTo: 'Dahab Accommodation',
+          durationMinutes: 60,
+          basePriceEGP: 1400,
+          currency: 'EGP',
+          maxCapacityPerSlot: 6,
+          active: true,
+          includedItems: ['Terminal Meet & Greet with Name Sign', 'Direct Highway Route via Nabq Checkpoint', 'Flight Delay Insurance (Grace 60 mins)', 'Cold Sinai Spring Water Bottles'],
+          cancellationPolicyHours: 12
+        },
+        {
+          id: 'SKU-TRF-002',
+          supplierId: 'SUP-SHUTTLE-01',
+          serviceType: 'transfer',
+          title: 'Shared Coastal Shuttle (Sharm Airport → Dahab)',
+          titleAr: 'حافلة ساحلية مشتركة (مطار شرم الشيخ ← دهب)',
+          description: 'Cost-effective scheduled coastal shuttle connecting SSH terminals directly to Dahab Lighthouse hubs.',
+          routeFrom: 'Sharm El Sheikh Intl Airport (SSH)',
+          routeTo: 'Dahab Central Station / Lighthouse',
+          durationMinutes: 75,
+          basePriceEGP: 450,
+          currency: 'EGP',
+          maxCapacityPerSlot: 14,
+          active: true,
+          includedItems: ['Scheduled Departure', 'Luggage Space 1 Bag per Passenger', 'AC Vehicle'],
+          cancellationPolicyHours: 6
+        },
+        {
+          id: 'SKU-TRF-003',
+          supplierId: 'SUP-SHUTTLE-01',
+          serviceType: 'transfer',
+          title: 'Premium VIP SUV (Sharm Airport → Dahab)',
+          titleAr: 'سيارة دفع رباعي VIP فاخرة (مطار شرم الشيخ ← دهب)',
+          description: 'Executive luxury Toyota Land Cruiser / Prado transfer with high-speed Starlink WiFi and refreshments.',
+          routeFrom: 'Sharm El Sheikh Intl Airport (SSH)',
+          routeTo: 'Dahab Luxury Villa / Hotel',
+          durationMinutes: 55,
+          basePriceEGP: 2600,
+          currency: 'EGP',
+          maxCapacityPerSlot: 4,
+          active: true,
+          includedItems: ['VIP Fast-track Exit Assistance', 'Luxury 4x4 Vehicle', 'High-speed Starlink Wi-Fi', 'Fresh Juices & Snacks'],
+          cancellationPolicyHours: 24
+        },
+        // Hotel SKUs
+        {
+          id: 'SKU-HTL-001',
+          supplierId: 'SUP-HTL-01',
+          serviceType: 'hotel',
+          title: 'Ali Baba Boutique Hotel — Seafront Palapa Suite (5 Nights)',
+          titleAr: 'فندق علي بابا بوتيك — جناح بالابا بإطلالة بحرية (5 ليالٍ)',
+          description: 'Authentic beachfront boutique lodging on Lighthouse bay with organic breakfast and private sundeck.',
+          routeFrom: 'Lighthouse Promenade, Dahab',
+          routeTo: 'Seafront Palapa',
+          durationMinutes: 7200,
+          basePriceEGP: 12500,
+          currency: 'EGP',
+          maxCapacityPerSlot: 10,
+          active: true,
+          includedItems: ['5 Nights Ocean View Stay', 'Daily Organic Bedouin Breakfast', 'High-speed Fiber Wi-Fi', 'Complimentary Snorkel Gear'],
+          cancellationPolicyHours: 48
+        },
+        {
+          id: 'SKU-HTL-002',
+          supplierId: 'SUP-HTL-01',
+          serviceType: 'hotel',
+          title: 'Dahab Paradise Resort — Deluxe Mountain View Room (5 Nights)',
+          titleAr: 'منتجع دهب بارادايس — غرفة ديلوكس بإطلالة الجبل (5 ليالٍ)',
+          description: 'Quiet boutique resort north of town with infinity pool looking over the Gulf of Aqaba.',
+          routeFrom: 'Blue Hole Road, Dahab',
+          routeTo: 'Deluxe Room',
+          durationMinutes: 7200,
+          basePriceEGP: 14800,
+          currency: 'EGP',
+          maxCapacityPerSlot: 8,
+          active: true,
+          includedItems: ['5 Nights Deluxe Stay', 'Buffet Breakfast & Sunset Tea', 'Pool Access & Towel Service'],
+          cancellationPolicyHours: 48
+        },
+        // Diving SKUs
+        {
+          id: 'SKU-DIV-001',
+          supplierId: 'SUP-DIVE-02',
+          serviceType: 'diving',
+          title: 'Coral Canyon & Lighthouse Guided Reef Dive (2 Tanks)',
+          titleAr: 'غطسة استرشادية في كانيون ومنارة دهب (خزانان ومعدات كاملة)',
+          description: 'Spectacular guided reef adventure exploring the world-famous Dahab Canyon geocleft with CDWS certified dive masters.',
+          routeFrom: 'Sinai Divers Dive Center',
+          routeTo: 'Canyon Dive Site',
+          durationMinutes: 180,
+          basePriceEGP: 2700,
+          currency: 'EGP',
+          maxCapacityPerSlot: 8,
+          active: true,
+          includedItems: ['2 Guided Dives with Master Instructor', 'Complete Aqualung Gear & Weights', 'CDWS & Marine Park Conservation Permits', 'Surface Interval Hot Bedouin Herbal Tea'],
+          cancellationPolicyHours: 24
+        },
+        {
+          id: 'SKU-DIV-002',
+          supplierId: 'SUP-DIVE-02',
+          serviceType: 'diving',
+          title: 'Blue Hole & Bells Full-Day Expedition (2 Guided Dives)',
+          titleAr: 'رحلة استكشافية ليوم كامل في البلو هول والبلز (غطستان)',
+          description: 'The premier Dahab underwater landmark dropoff dive from the Bells chimneystack to the Blue Hole saddle.',
+          routeFrom: 'Sinai Divers Dive Center',
+          routeTo: 'Blue Hole & The Bells',
+          durationMinutes: 240,
+          basePriceEGP: 3400,
+          currency: 'EGP',
+          maxCapacityPerSlot: 6,
+          active: true,
+          includedItems: ['4WD Jeep Safari Transport', '2 Deep Guided Dives', 'Lunch at Bedouin Sea Camp', 'Full Equipment & 12L Tanks'],
+          cancellationPolicyHours: 24
+        },
+        // Safari SKUs
+        {
+          id: 'SKU-SAF-001',
+          supplierId: 'SUP-SAFARI-01',
+          serviceType: 'safari',
+          title: 'St. Catherine & Mount Moses Sunrise Trek (Bedouin Guided)',
+          titleAr: 'رحلة شروق الشمس على جبل موسى ودير سانت كاترين (دليل بدوي)',
+          description: 'Midnight ascent of Mount Sinai for breathtaking dawn panoramic vistas followed by a heritage tour of Saint Catherine Monastery.',
+          routeFrom: 'Dahab Pick-up Point',
+          routeTo: 'Mount Sinai Summit (2,285m)',
+          durationMinutes: 480,
+          basePriceEGP: 4200,
+          currency: 'EGP',
+          maxCapacityPerSlot: 12,
+          active: true,
+          includedItems: ['4WD Private Transport to St. Catherine', 'Licensed Bedouin Guide (Jabaliyah Tribe)', 'Monastery UNESCO Entry Pass', 'Mountain Top Warm Blankets & Herbal Tea'],
+          cancellationPolicyHours: 24
+        },
+        {
+          id: 'SKU-SAF-002',
+          supplierId: 'SUP-SAFARI-01',
+          serviceType: 'safari',
+          title: 'Wadi Qnai & Three Pools Quad Safari + Stargazing Dinner',
+          titleAr: 'سفاري وادي قني بالبيتش باجي وعشاء بدوي تحت النجوم',
+          description: 'Exciting desert quad bike ride through sandstone valleys followed by a traditional fire-cooked Bedouin feast and astronomical stargazing.',
+          routeFrom: 'Wadi Qnai Staging Base',
+          routeTo: 'Bedouin Valley Camp',
+          durationMinutes: 300,
+          basePriceEGP: 3100,
+          currency: 'EGP',
+          maxCapacityPerSlot: 10,
+          active: true,
+          includedItems: ['Automatic 350cc Quad Bike & Helmet', 'Traditional Mandi Feast by Open Fire', 'Astro-guide Telescope Session'],
+          cancellationPolicyHours: 12
+        }
+      );
+    }
+
+    // 4. Seed Inventory Slots for the next 7 days if empty
+    if (db.inventorySlots.length === 0) {
+      const today = new Date();
+      const slots = ['08:00 AM', '10:30 AM', '01:00 PM', '04:30 PM', '08:00 PM', '11:30 PM'];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+
+        slots.forEach((time, slotIdx) => {
+          db.inventorySlots.push({
+            id: `SLOT-TRF-${dateStr}-${slotIdx}`,
+            skuId: 'SKU-TRF-001',
+            date: dateStr,
+            timeSlot: time,
+            totalCapacity: 6,
+            reservedCapacity: i === 0 && slotIdx === 1 ? 2 : 0,
+            heldCapacity: 0,
+            priceEGP: 1400,
+            status: 'AVAILABLE'
+          });
+        });
+      }
+    }
+
+    // 5. Seed Initial Trip for Ahmed Mansour if empty
+    if (db.trips.length === 0) {
+      const tripId = 'DHB-TRIP-894';
+      db.trips.push({
+        id: tripId,
+        userId: 'USR-AHMED-01',
+        title: 'Ahmed’s 5-Day Dahab Adventure & Immersion',
+        status: 'IN_DESTINATION',
+        lengthDays: 5,
+        travelersCount: 2,
+        budget: 'Moderate',
+        pace: 'Balanced',
+        interests: ['Diving', 'Adventure', 'Food'],
+        startDate: '2026-08-23',
+        endDate: '2026-08-28',
+        totalEstimatedEGP: 20800,
+        totalPaidEGP: 20800,
+        createdAt: '2026-08-20T14:00:00.000Z',
+        updatedAt: '2026-08-23T14:15:25.000Z'
+      });
+
+      // Trip Items
+      db.tripItems.push(
+        {
+          id: 'ITEM-001',
+          tripId,
+          serviceType: 'hotel',
+          skuId: 'SKU-HTL-001',
+          title: 'Ali Baba Hotel — 5 Nights Sea View',
+          dayNumber: 1,
+          timeSlot: 'Check-in 14:00',
+          priceEGP: 12500,
+          status: 'CONFIRMED',
+          bookingId: 'DHB-HTL-2026-081',
+          createdAt: '2026-08-23T14:15:22.000Z',
+          updatedAt: '2026-08-23T14:15:22.000Z'
+        },
+        {
+          id: 'ITEM-002',
+          tripId,
+          serviceType: 'transfer',
+          skuId: 'SKU-TRF-001',
+          title: 'SSH Airport Private Van Transfer (Captain Mahmoud)',
+          dayNumber: 1,
+          timeSlot: '10:30 AM',
+          priceEGP: 1400,
+          status: 'CONFIRMED',
+          bookingId: 'DHB-TRF-2026-042',
+          createdAt: '2026-08-23T14:15:23.000Z',
+          updatedAt: '2026-08-23T14:15:23.000Z'
+        },
+        {
+          id: 'ITEM-003',
+          tripId,
+          serviceType: 'diving',
+          skuId: 'SKU-DIV-001',
+          title: 'Coral Canyon Guided Shore Dive (Sinai Divers)',
+          dayNumber: 2,
+          timeSlot: '09:00 AM',
+          priceEGP: 2700,
+          status: 'CONFIRMED',
+          bookingId: 'DHB-DIV-2026-118',
+          createdAt: '2026-08-23T14:15:24.000Z',
+          updatedAt: '2026-08-23T14:15:24.000Z'
+        },
+        {
+          id: 'ITEM-004',
+          tripId,
+          serviceType: 'safari',
+          skuId: 'SKU-SAF-001',
+          title: 'St. Catherine & Mount Moses Sunrise Trek',
+          dayNumber: 3,
+          timeSlot: '02:00 AM',
+          priceEGP: 4200,
+          status: 'CONFIRMED',
+          bookingId: 'DHB-SAF-2026-095',
+          createdAt: '2026-08-23T14:15:25.000Z',
+          updatedAt: '2026-08-23T14:15:25.000Z'
+        }
+      );
+
+      // Bookings
+      db.bookings.push(
+        {
+          id: 'DHB-TRF-2026-042',
+          bookingRef: 'DHB-TRF-2026-042',
+          tripId,
+          tripItemId: 'ITEM-002',
+          supplierId: 'SUP-SHUTTLE-01',
+          skuId: 'SKU-TRF-001',
+          serviceType: 'transfer',
+          amountEGP: 1400,
+          paymentState: 'CAPTURED',
+          supplierState: 'DISPATCHED',
+          travelerName: 'Ahmed Mansour',
+          travelerPhone: '+20 100 234 5678',
+          travelerEmail: 'ahmed.traveler@example.com',
+          passengersCount: 2,
+          pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
+          dropoffLocation: 'Ali Baba Hotel, Lighthouse, Dahab',
+          scheduledDate: '2026-08-23',
+          scheduledTime: '10:30 AM',
+          flightNumber: 'MS-028 (Cairo → Sharm El Sheikh)',
+          confirmationCode: 'DHB-SSH-8942-OK',
+          assignedResource: {
+            driverName: 'Mahmoud Salem',
+            driverNameAr: 'محمود سالم',
+            driverPhone: '+20 100 876 5432',
+            vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
+            vehiclePlate: 'ط ج د 4821'
+          },
+          createdAt: '2026-08-23T14:15:23.000Z',
+          updatedAt: '2026-08-25T12:00:00.000Z'
+        }
+      );
+
+      // Telemetry
+      db.transferTelemetry.push({
+        bookingId: 'DHB-TRF-2026-042',
+        referenceCode: 'DHB-TRF-2026-042',
+        driverName: 'Mahmoud Salem',
+        driverNameAr: 'محمود سالم',
+        driverPhone: '+20 100 876 5432',
+        vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
+        vehiclePlate: 'ط ج د 4821',
+        pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
+        dropoffLocation: 'Ali Baba Hotel, Lighthouse, Dahab',
+        scheduledTime: 'Day 1 · 10:30 AM',
+        flightNumber: 'MS-028 (Cairo → Sharm El Sheikh)',
+        flightStatus: 'ON_TIME',
+        status: 'DISPATCHED',
+        lastGpsUpdate: '3 mins ago (Nabq checkpoint northbound)',
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    // 6. Seed Double-Entry Ledger if empty
+    if (db.ledgerEntries.length === 0) {
+      db.ledgerEntries.push(
+        {
+          id: 'LEDGER-001',
+          transactionId: 'TXN-984102-PAY',
+          idempotencyKey: 'IDEMP-PAY-001-894',
+          bookingRef: 'DHB-HTL-2026-081',
+          tripId: 'DHB-TRIP-894',
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: 12500,
+          debitAccount: 'TRAVELER_CC_TOKEN_4910',
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          currency: 'EGP',
+          timestamp: '2026-08-23 14:15:22',
+          status: 'SETTLED',
+          signatureHash: 'sha256:4a8b79e192f81498bca120934fa12480bcae8124',
+          metadata: { serviceType: 'hotel', supplierId: 'SUP-HTL-01', travelerName: 'Ahmed Mansour', reason: 'Ali Baba Hotel 5 Nights Escrow' }
+        },
+        {
+          id: 'LEDGER-002',
+          transactionId: 'TXN-984103-PAY',
+          idempotencyKey: 'IDEMP-PAY-002-894',
+          bookingRef: 'DHB-TRF-2026-042',
+          tripId: 'DHB-TRIP-894',
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: 1400,
+          debitAccount: 'TRAVELER_CC_TOKEN_4910',
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          currency: 'EGP',
+          timestamp: '2026-08-23 14:15:23',
+          status: 'SETTLED',
+          signatureHash: 'sha256:88bc410294f91048bc8190234fa9912048bac912',
+          metadata: { serviceType: 'transfer', supplierId: 'SUP-SHUTTLE-01', travelerName: 'Ahmed Mansour', reason: 'SSH Airport Private Van Transfer' }
+        },
+        {
+          id: 'LEDGER-003',
+          transactionId: 'TXN-984104-PAY',
+          idempotencyKey: 'IDEMP-PAY-003-894',
+          bookingRef: 'DHB-DIV-2026-118',
+          tripId: 'DHB-TRIP-894',
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: 2700,
+          debitAccount: 'TRAVELER_CC_TOKEN_4910',
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          currency: 'EGP',
+          timestamp: '2026-08-23 14:15:24',
+          status: 'SETTLED',
+          signatureHash: 'sha256:71048bcae9124801948291048fbca78f921e44bc',
+          metadata: { serviceType: 'diving', supplierId: 'SUP-DIVE-02', travelerName: 'Ahmed Mansour', reason: 'Coral Canyon Guided Dive' }
+        },
+        {
+          id: 'LEDGER-004',
+          transactionId: 'TXN-984105-PAY',
+          idempotencyKey: 'IDEMP-PAY-004-894',
+          bookingRef: 'DHB-SAF-2026-095',
+          tripId: 'DHB-TRIP-894',
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: 4200,
+          debitAccount: 'TRAVELER_CC_TOKEN_4910',
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          currency: 'EGP',
+          timestamp: '2026-08-23 14:15:25',
+          status: 'SETTLED',
+          signatureHash: 'sha256:948271048bcae9124801948291048fbca78f921e',
+          metadata: { serviceType: 'safari', supplierId: 'SUP-SAFARI-01', travelerName: 'Ahmed Mansour', reason: 'St. Catherine Sunrise Trek' }
+        },
+        {
+          id: 'LEDGER-005',
+          transactionId: 'TXN-984106-COMM',
+          idempotencyKey: 'IDEMP-COMM-001-894',
+          bookingRef: 'DHB-TRF-2026-042',
+          tripId: 'DHB-TRIP-894',
+          type: 'PLATFORM_COMMISSION',
+          amountEGP: 210,
+          debitAccount: 'PLATFORM_ESCROW_MAIN',
+          creditAccount: 'PLATFORM_REVENUE_COMMISSIONS',
+          currency: 'EGP',
+          timestamp: '2026-08-23 14:16:00',
+          status: 'SETTLED',
+          signatureHash: 'sha256:102384a9c18d948271048bcae912480194829104',
+          metadata: { serviceType: 'transfer', reason: 'Platform Commission (15%)' }
+        }
+      );
+    }
+
+    // 7. Seed Intelligence Opportunities if empty
+    if (db.opportunities.length === 0 && initialOpportunities) {
+      db.opportunities.push(...initialOpportunities);
+    }
+
+    // 8. Import Master Dahab Local Commerce Dataset (Suppliers, Offers, Provenance)
+    importDahabLocalCommerce();
+  });
+
+  console.log('[DB] Migrations and authoritative seed data verified successfully.');
+}

@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['userId', 'email', 'createdAt'])
+        && data.userId is string && data.userId.size() <= 128
+        && data.userId == request.auth.uid
+        && data.email is string && data.email.size() <= 256
+        && data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidLedgerEntry(data) {
+      return data.keys().hasAll(['id', 'userId', 'type', 'title', 'amountEgp', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.userId == request.auth.uid
+        && data.type is string && data.type.size() <= 64
+        && data.title is string && data.title.size() <= 200
+        && data.amountEgp is number && data.amountEgp >= 0
+        && data.status is string && data.status.size() <= 64;
+    }
+
+    function isValidTripActivity(data) {
+      return data.keys().hasAll(['id', 'userId', 'dayNumber', 'title', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.userId == request.auth.uid
+        && data.dayNumber is number && data.dayNumber >= 1 && data.dayNumber <= 7
+        && data.title is string && data.title.size() <= 200
+        && data.status is string && data.status.size() <= 64;
+    }
+
+    // User Profile Document
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // PII isolation: blanket listing forbidden
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(request.resource.data);
+      allow delete: if false;
+
+      // Subcollection: Ledger Entries
+      match /ledger/{entryId} {
+        allow get: if isOwner(userId) && isValidId(entryId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(entryId) && isValidLedgerEntry(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(entryId) && isValidLedgerEntry(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(entryId);
+      }
+
+      // Subcollection: Custom Day Activities
+      match /activities/{activityId} {
+        allow get: if isOwner(userId) && isValidId(activityId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(activityId) && isValidTripActivity(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(activityId) && isValidTripActivity(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(activityId);
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Runtime database and lock files. dahab_db.json holds user records, live
+# session tokens, traveler phone/email and supplier payout IBANs — none of it
+# belongs in version control.
+data/
+
+
+# Locally generated secrets (rotated seed credentials).
+*.local.md
+*.local.json

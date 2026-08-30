@@ -1,0 +1,189 @@
+export type TemporalState = 'CURRENT' | 'HISTORICAL' | 'FUTURE' | 'SEASONAL' | 'EXPIRED' | 'UNKNOWN';
+
+export type SourceType = 
+  | 'AUTHORITATIVE' 
+  | 'APPROVED_OPERATIONAL' 
+  | 'VERIFIED_LOCAL' 
+  | 'GOOGLE_MAPS' 
+  | 'MARKETPLACE' 
+  | 'COMMUNITY' 
+  | 'INFERENCE';
+
+export type ConfidenceTier = 'VERY_HIGH' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INSUFFICIENT';
+
+export type ConflictClassification = 'BENIGN' | 'TEMPORAL' | 'SCOPE_DIFFERENCE' | 'TRUE_CONFLICT' | 'UNRESOLVED';
+
+export type EntityResolutionMatchStatus = 'EXACT' | 'HIGH_CONFIDENCE' | 'REVIEW_REQUIRED' | 'DISTINCT' | 'DUPLICATE' | 'UNKNOWN';
+
+export type DkosAccessMethodType = 'WALK' | 'SHORE' | 'BOAT' | 'VEHICLE' | '4X4' | 'CAMEL' | 'HIKE' | 'MIXED' | 'UNKNOWN';
+
+export type BookNowEligibility = 'BOOK_NOW' | 'REQUEST_NOW' | 'DISCOVER_ONLY' | 'WALK_IN' | 'PLAN_LATER' | 'UNKNOWN';
+
+export type BusinessOperationalStatus = 'OBSERVED' | 'CANDIDATE' | 'UNDER_REVIEW' | 'VERIFIED' | 'ACTIVE' | 'SUSPENDED' | 'REJECTED';
+
+export type RuleCategory = 'GENERAL_TRAVEL_KNOWLEDGE' | 'REGULATORY' | 'SAFETY_CRITICAL';
+
+export interface ResearchSourceRecord {
+  id: string;
+  name: string;
+  sourceType: SourceType;
+  authorityWeight: number; // 0.0 - 1.0
+  publisher: string;
+  documentRef?: string;
+  url?: string;
+  lastAudited: string;
+  revalidationIntervalDays: number;
+}
+
+export interface EvidenceNode {
+  id: string;
+  factId: string;
+  sourceId: string;
+  claim: string;
+  observedAt: string;
+  verifiedAt: string;
+  rawPayload?: any;
+  confidence: number;
+  authorityScore: number;
+  independenceId: string;
+  notes?: string;
+}
+
+export interface TemporalFact<T = any> {
+  id: string;
+  subjectId: string;
+  subjectType: string;
+  predicate: string;
+  value: T;
+  primarySourceId: string;
+  sourceType: SourceType;
+  observedAt: string;
+  verifiedAt: string;
+  validFrom: string;
+  validUntil?: string;
+  confidence: number;
+  confidenceTier: ConfidenceTier;
+  status: TemporalState;
+  supersedesFactId?: string;
+  supersededByFactId?: string;
+  verificationOwner: string;
+  notes?: string;
+}
+
+export interface ConflictSet {
+  id: string;
+  entityId: string;
+  property: string;
+  claimA: {
+    value: any;
+    sourceId: string;
+    observedAt: string;
+    authorityScore: number;
+  };
+  claimB: {
+    value: any;
+    sourceId: string;
+    observedAt: string;
+    authorityScore: number;
+  };
+  classification: ConflictClassification;
+  explanation: string;
+  resolvedValue?: any;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  status: 'OPEN' | 'RESOLVED' | 'AUTO_RECONCILED';
+}
+
+export interface SpatialCoordinates {
+  lat: number;
+  lng: number;
+  zone: string;
+  subArea?: string;
+  precisionMeters?: number;
+}
+
+export interface KnowledgeEntity {
+  id: string;
+  canonicalName: string;
+  canonicalNameAr: string;
+  aliases: string[];
+  entityType: 'PLACE' | 'REEF' | 'EXPEDITION' | 'VENUE' | 'SUPPLIER' | 'EMERGENCY' | 'ZONE';
+  coordinates: SpatialCoordinates;
+  bookNowEligibility: BookNowEligibility;
+  operationalStatus: BusinessOperationalStatus;
+  primarySourceId: string;
+  confidence: number;
+  createdAt: string;
+  updatedAt: string;
+  metadata?: Record<string, any>;
+}
+
+/**
+ * The destination knowledge the backend publishes at /api/dahab/*.
+ *
+ * These mirror PlaceEntity, ActivityDetailEntity and DiningVenueEntity in
+ * server/db/schema.ts. They are declared here rather than imported from the
+ * server because the dependency arrow must not point that way — the audit's
+ * ARCH-4 — and because these are the *wire* shapes, which is a narrower
+ * commitment than the storage shapes.
+ *
+ * The whole corpus — 17 places, 22 activities, the dining venues — was
+ * reachable and unused: every page rendered its own hardcoded copy instead.
+ */
+export interface DahabPlace {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  aliases: string[];
+  arabicNames: string[];
+  areaId: string;
+  category: string;
+  coordinates: SpatialCoordinates;
+  operationalStatus: BusinessOperationalStatus;
+  descriptionEn: string;
+  descriptionAr: string;
+  /** When the record was last checked. Rendered instead of an invented rating. */
+  verifiedAt: string;
+}
+
+export interface DahabActivity {
+  id: string;
+  skuId?: string;
+  titleEn: string;
+  titleAr: string;
+  category: 'diving' | 'safari' | 'water_sport' | 'wellness' | 'culture' | 'food';
+  placeId: string;
+  areaId: string;
+  durationMinutes: number;
+  accessMethod: DkosAccessMethodType;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  experienceLevelRequired: string;
+  basePriceEGP: number;
+  bookingMode: BookNowEligibility;
+  supplierId?: string;
+  seasonalityMonths: number[];
+  preparationTips: string[];
+  preparationTipsAr: string[];
+}
+
+export interface DahabDiningVenue {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  areaId: string;
+  coordinates: SpatialCoordinates;
+  cuisine: string[];
+  priceBand: 'Budget ($)' | 'Moderate ($$)' | 'Premium ($$$)';
+  averageMealPriceEGP: number;
+  seatingStyle: string;
+  dietaryOptions: {
+    vegan: boolean;
+    vegetarian: boolean;
+    halal: boolean;
+    freshSeafoodCatch: boolean;
+  };
+  wifiNomadFriendly: boolean;
+  openingHours: string;
+  bookingEligibility: BookNowEligibility;
+  supplierId?: string;
+}
