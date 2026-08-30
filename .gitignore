@@ -7,10 +7,26 @@ coverage/
 .env*
 !.env.example
 
-# Runtime database and lock files. dahab_db.json holds user records, live
-# session tokens, traveler phone/email and supplier payout IBANs — none of it
-# belongs in version control.
-data/
+# data/ holds two very different kinds of file, so it is ignored by default
+# and the seed datasets are re-admitted one by one below. Ignore-by-default is
+# deliberate: the failure mode of forgetting to list a new file here is "it did
+# not get committed", not "traveler PII was published".
+#
+# Every rule below is anchored with a leading slash. The unanchored form
+# ("data/") matches a directory of that name at ANY depth, which silently
+# excluded src/data/ and server/data/ — 8 source files that server.ts and the
+# trip planner import from, so a fresh clone did not compile.
+#
+# Runtime state — never commit. dahab_db.json holds user records, live session
+# tokens, traveler phone/email and supplier payout IBANs. locks/ and
+# fencing_sequence.seq are per-process artifacts, and daygi_*.json is telemetry.
+/data/*
+
+# Seed datasets — must be committed. runMigrationsAndSeed() reads these at boot
+# and importDahabLocalCommerce() THROWS when the first one is missing, so a
+# checkout without them cannot start the server at all.
+!/data/dahab_local_commerce.json
+!/data/instagram/
 
 
 # Locally generated secrets (rotated seed credentials).
