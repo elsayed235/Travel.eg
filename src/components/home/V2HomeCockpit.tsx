@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, lazy, Suspense } from 'react';
 import {
   Compass,
   Luggage,
@@ -37,16 +37,29 @@ const HOME_SECTIONS: HomeSection[] = [
   { id: 'final-cta-section', label: 'Get started', labelAr: 'ابدأ' }
 ];
 import { SinaiRadarWidget } from '../common/SinaiRadarWidget';
-import { InteractiveSinaiMap } from '../common/InteractiveSinaiMap';
 import { AiTravelAssistant } from '../common/AiTravelAssistant';
 import { CuratedStoriesRail } from '../common/CuratedStoriesRail';
 import { DahabGallerySection } from '../gallery/DahabGallerySection';
 import { DahabWeekCompanionDeck } from './DahabWeekCompanionDeck';
-import { DahabSpatialContextMap } from '../maps/DahabSpatialContextMap';
 import { NextBestActionBanner } from './NextBestActionBanner';
 import { FinalCTA } from '../FinalCTA';
 import { resolveHomepageComposition } from '../../services/homepageCompositionResolver';
 import { useTheme } from '../../context/ThemeContext';
+
+/**
+ * The only static importer of @vis.gl/react-google-maps was this file, and this
+ * file is the homepage — which App.tsx loads eagerly. So the maps SDK sat on
+ * the critical path for every visitor, including the ones who never saw a map:
+ * the component below renders behind composition.flags.showSpatialMap, and the
+ * SDK downloaded whether that flag was on or not.
+ *
+ * vite.config.ts already gives the SDK its own vendor-maps chunk and says it
+ * should load "only on the pages that draw a map". A static import defeated
+ * that, because a preload link is emitted for the entry's whole static graph.
+ */
+const DahabSpatialContextMap = lazy(() =>
+  import('../maps/DahabSpatialContextMap').then(m => ({ default: m.DahabSpatialContextMap }))
+);
 import {
   PreArrivalPrepCard,
   EarlyArrivalHubCard,
@@ -471,7 +484,11 @@ export const V2HomeCockpit: React.FC<V2HomeCockpitProps> = ({ onOpenQuickBook })
       {/* ========================================================================= */}
       {/* 8. DAHAB SPATIAL CONTEXT & REAL-TIME TERRAIN RADAR                        */}
       {/* ========================================================================= */}
-      {composition.flags.showSpatialMap && <DahabSpatialContextMap />}
+      {composition.flags.showSpatialMap && (
+        <Suspense fallback={null}>
+          <DahabSpatialContextMap />
+        </Suspense>
+      )}
 
       {/* ========================================================================= */}
       {/* 9. EMBEDDED SINAI TRAVEL INTELLIGENCE ASSISTANT                           */}
