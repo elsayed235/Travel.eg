@@ -291,10 +291,14 @@ export function computeNextBestActions(context: {
     actions.push({
       id: 'nba-departure-transfer',
       type: 'Head to pickup',
-      title: 'SSH Airport Transfer Pickup at Ali Baba Hotel (14:30)',
-      titleAr: 'توصيلة مطار شرم الشيخ من فندق علي بابا (٢:٣٠ ظهراً)',
-      description: 'Toyota HiAce Comfort Van with Driver Mahmoud Salem. Arrive 2.5 hours before flight MS-028.',
-      descriptionAr: 'سيارة تويوتا مريحة ومكيفة مع السائق محمود سالم للوصول للمطار قبل الرحلة بساعتين ونصف.',
+      title: 'Airport transfer pickup',
+      titleAr: 'موعد عربية المطار',
+      // Named "Driver Mahmoud Salem", a Toyota HiAce and "flight MS-028" — a
+      // driver nobody had assigned and a flight this platform never collected.
+      // The traveler's own booking carries the time, the supplier and the
+      // contact; this action points them at it.
+      description: 'Check your transfer booking for the pickup time and the supplier’s contact.',
+      descriptionAr: 'راجع حجز الانتقال عشان تشوف الميعاد وبيانات المزوّد.',
       urgency: 'HIGH',
       actionLabel: 'Track Driver Location & Contact',
       actionLabelAr: 'تتبع موقع السيارة وتواصل مع السائق',

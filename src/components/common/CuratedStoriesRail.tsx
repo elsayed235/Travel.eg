@@ -1,4 +1,6 @@
 import React from 'react';
+import { api } from '../../services/api';
+import { useApiResource } from '../../hooks/useApiResource';
 import {
   Sparkles,
   Heart,
@@ -44,6 +46,10 @@ interface StoryExperience {
   };
 }
 
+/**
+ * The offline fallback. These come from GET /api/dahab/content/stories now,
+ * served from server/db/seeds/editorialContent.ts.
+ */
 const DAHAB_STORIES: StoryExperience[] = [
   {
     id: 'story-blue-lagoon',
@@ -159,7 +165,16 @@ const DAHAB_STORIES: StoryExperience[] = [
   },
 ];
 
+/** Stable so useApiResource does not re-request on every render. */
+const fetchCuratedStories = (signal: AbortSignal) => api.getCuratedStories(signal);
+
 export const CuratedStoriesRail: React.FC = () => {
+  /** Served content, with the compiled copy above as the offline fallback. */
+  const remote = useApiResource(fetchCuratedStories);
+  const stories = remote.data?.stories?.length
+    ? (remote.data.stories as unknown as StoryExperience[])
+    : DAHAB_STORIES;
+
   const { addActivityToDay, savedItems, toggleSaveItem } = useTrip();
   const { language, isRTL } = useLanguage();
   const isAr = language === 'ar';
@@ -208,7 +223,7 @@ export const CuratedStoriesRail: React.FC = () => {
 
           {/* Grid of Editorial Visual Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {DAHAB_STORIES.map((story) => {
+            {stories.map((story) => {
               const isSaved = savedItems.includes(story.id);
               const cardTitle = isAr ? story.titleAr : story.title;
               const cardCategory = isAr ? story.categoryAr : story.category;

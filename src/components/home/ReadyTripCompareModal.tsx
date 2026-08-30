@@ -1,5 +1,6 @@
 import React from 'react';
-import { READY_TRIP_PROGRAMS, ReadyTripProgram } from '../../data/readyTripsData';
+import type { ReadyTripProgram } from '../../data/readyTripsData';
+import { useReadyProgrammes } from '../../hooks/useReadyProgrammes';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { analytics } from '../../services/analytics';
 import { X, Check, ArrowRight, Zap, Clock, DollarSign, Sparkles } from 'lucide-react';
@@ -15,6 +16,9 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
   onClose,
   onSelectProgram
 }) => {
+  // Served content, with the compiled array as the offline fallback.
+  const programmes = useReadyProgrammes();
+
   const { language, t, isRTL } = useLanguage();
 
   if (!isOpen) return null;
@@ -86,7 +90,7 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
             </div>
 
             {/* 5 Program Cards */}
-            {READY_TRIP_PROGRAMS.map((prog) => (
+            {programmes.map((prog) => (
               <div
                 key={prog.id}
                 className="col-span-1 bg-[#FDFBF7] rounded-2xl p-3.5 border border-[#1A1A1A]/8 hover:border-[#5A5A40] transition-all flex flex-col justify-between"

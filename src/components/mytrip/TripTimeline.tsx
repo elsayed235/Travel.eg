@@ -32,7 +32,7 @@ import {
   CheckCircle2,
   CalendarCheck
 } from 'lucide-react';
-import { TimelineDay, TimelineActivity, AHMED_TRIP_DAYS } from './myTripData';
+import { TimelineDay, TimelineActivity } from './myTripData';
 import { useTrip } from '../../context/TripContext';
 import { formatTripDateRange } from '../../utils/tripDates';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -87,7 +87,11 @@ export const TripTimeline: React.FC<TripTimelineProps> = ({
   // Local state for dynamically updated activities initialized from context or props
   const initialDays = propTripDays && propTripDays.length > 0 
     ? propTripDays 
-    : (contextTripDays && contextTripDays.length > 0 ? contextTripDays : AHMED_TRIP_DAYS);
+    // Was `: AHMED_TRIP_DAYS` — the demo persona's hand-written five days,
+    // shown as the itinerary to any traveler who had not planned one, down to
+    // a note about "departure flight MS 305". An empty timeline renders its
+    // own empty state below.
+    : (contextTripDays ?? []);
   const [daysData, setDaysData] = useState<TimelineDay[]>(initialDays);
 
   const toggleDay = (dayNum: number) => {

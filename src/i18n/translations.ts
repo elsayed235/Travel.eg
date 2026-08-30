@@ -81,7 +81,10 @@ export const TRANSLATIONS: Translations = {
   'live.sunsetRating': { en: 'Sunset Magic', ar: 'أجواء الغروب' },
   'live.bestTimeCanyon': { en: 'BEST WINDOW TO DIVE CANYON', ar: 'أحسن ميعاد لغطسة الكانيون' },
   'live.canyonTime': { en: '09:00 AM — 12:30 PM', ar: '٠٩:٠٠ ص — ١٢:٣٠ م' },
-  'live.canyonReason': { en: 'Crystal 25m+ visibility with gentle current and high morning light.', ar: 'رؤية ممتازة فوق ٢٥ متر مع تيار هادي وشمس صباحية رايقة.' },
+  // Was "Crystal 25m+ visibility with gentle current" — a measurement and a
+  // current reading, neither of which anything observes. What is left is the
+  // light, which follows from the time of day.
+  'live.canyonReason': { en: 'High morning light reaches into the canyon.', ar: 'شمس الصبح بتدخل جوّه الكانيون وبتنوّره.' },
   'live.bestTimeKite': { en: 'BEST KITE WINDOW AT LAGOON', ar: 'أحسن وقت للكايت في اللاجونا' },
   'live.kiteTime': { en: '01:30 PM — 05:00 PM', ar: '٠١:٣٠ م — ٠٥:٠٠ م' },
   'live.kiteReason': { en: 'Steady 18 knots north-westerly wind over flat turquoise water.', ar: 'هوا شمالي غربي مظبوط ١٨ عقدة والمية فلات تماماً.' },
@@ -190,7 +193,7 @@ export const TRANSLATIONS: Translations = {
   // =========================================================================
   'emergency.title': { en: '24/7 Sinai Emergency & Medical', ar: 'طوارئ دهب وغرفة الضغط ٢٤ ساعة' },
   'emergency.hyperbaric': { en: 'Dahab Hyperbaric Chamber', ar: 'غرفة علاج الضغط وطوارئ الغطس' },
-  'emergency.hyperbaricDesc': { en: 'Dr. Adel Taher On-Duty · +20 69 364 0536', ar: 'دكتور عادل طاهر (طبيب مناوب) · ٠٦٩٣٦٤٠٥٣٦' },
+  'emergency.hyperbaricDesc': { en: 'Dahab Hyperbaric Medical Center · +20 69 364 0536', ar: 'مركز دهب لطب الأعماق · ٠٦٩٣٦٤٠٥٣٦' },
   'emergency.hospital': { en: 'Dahab Central Specialist Clinic', ar: 'مستشفى دهب المركزي التخصصي' },
   'emergency.police': { en: 'Sinai Tourist Police Hotline', ar: 'شرطة السياحة بسيناء (١٢٦)' },
   'emergency.lostLocation': { en: "I'm Lost / Need Taxi Dispatch", ar: 'أنا تايه ومحتاج تاكسي يجيلي فوراً' },

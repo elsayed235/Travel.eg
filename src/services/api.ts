@@ -1,6 +1,8 @@
 import { apiErrorFrom, readJson } from './apiError';
 import type {
   CommerceServiceType,
+  DahabCuratedStory,
+  DahabGalleryPhoto,
   SupportMessage,
   DahabActivity,
   DahabDiningVenue,
@@ -119,6 +121,30 @@ export const api = {
       res,
       'Could not load your support messages.'
     );
+  },
+
+  // 0b. Editorial content
+  //
+  // Gallery photographs, curated stories and the ready-made programmes used to
+  // be compiled into the components that rendered them, so a copy change meant
+  // a rebuild and a deploy.
+
+  async getGalleryPhotos(signal?: AbortSignal): Promise<{ photos: DahabGalleryPhoto[] }> {
+    const res = await fetchWithTimeout('/api/dahab/content/gallery', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load the Dahab gallery.');
+    return await readJson<{ photos: DahabGalleryPhoto[] }>(res, 'Could not load the Dahab gallery.');
+  },
+
+  async getCuratedStories(signal?: AbortSignal): Promise<{ stories: DahabCuratedStory[] }> {
+    const res = await fetchWithTimeout('/api/dahab/content/stories', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load the Dahab stories.');
+    return await readJson<{ stories: DahabCuratedStory[] }>(res, 'Could not load the Dahab stories.');
+  },
+
+  async getReadyProgrammes(signal?: AbortSignal): Promise<{ programmes: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/content/programmes', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load the ready-made trips.');
+    return await readJson<{ programmes: unknown[] }>(res, 'Could not load the ready-made trips.');
   },
 
   // 0a. Destination knowledge

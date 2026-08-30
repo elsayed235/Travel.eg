@@ -15,7 +15,6 @@ import {
   INITIAL_TRIP_FIT,
   INITIAL_TRADE_OFF_OPTIONS,
   INITIAL_DAY_INTELLIGENCE,
-  INITIAL_TRIP_HEALTH,
   INITIAL_TRIP_READINESS,
   INITIAL_BUDGET_BREAKDOWN,
   PLAN_VARIANTS,
@@ -219,8 +218,12 @@ export const TripOsProvider: React.FC<{
           warningCount: remainingWarning,
           infoCount: remainingInfo,
           status: remainingCritical > 0 ? 'conflict' : remainingWarning > 0 ? 'attention' : 'good',
-          statusLabel: remainingCritical === 0 && remainingWarning === 0 ? 'All Systems Green' : prev.statusLabel,
-          statusLabelAr: remainingCritical === 0 && remainingWarning === 0 ? 'الجدول متناسق تماماً' : prev.statusLabelAr,
+          // Was "All Systems Green" / "الجدول متناسق تماماً" the moment the
+          // last conflict was dismissed locally. Dismissing a warning in the UI
+          // is not the same as the trip being checked and found sound, and the
+          // label the service computed is what the panel should keep saying.
+          statusLabel: prev.statusLabel,
+          statusLabelAr: prev.statusLabelAr,
           conflicts: updatedConflicts
         };
       });

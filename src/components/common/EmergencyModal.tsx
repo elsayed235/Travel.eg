@@ -40,7 +40,9 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
       color: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
       tag: language === 'ar' ? 'غرفة علاج ضغط الغوص (معتمدة)' : 'Diving Decompression Chamber',
       title: language === 'ar' ? 'مركز دهب لطب الأعماق والضغط' : 'Dahab Hyperbaric Medical Center',
-      doctor: language === 'ar' ? 'طبيب مناوب على مدار ٢٤ ساعة' : 'Dr. Adel Taher On-Duty 24/7',
+      // The chamber is real and the number is its own; who is on shift is a
+      // rota nothing here reads, so it is no longer asserted.
+      doctor: language === 'ar' ? 'مركز دهب لطب الأعماق' : 'Dahab Hyperbaric Medical Center',
       phone: '+20693640536',
       displayPhone: '+20 69 364 0536',
       location: language === 'ar' ? 'مدخل دهب، طريق المسبط' : 'Dahab Entrance, Mashraba Road',

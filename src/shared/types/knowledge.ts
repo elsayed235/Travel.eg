@@ -187,3 +187,63 @@ export interface DahabDiningVenue {
   bookingEligibility: BookNowEligibility;
   supplierId?: string;
 }
+
+
+/**
+ * Editorial content served from /api/dahab/content/*.
+ *
+ * These lived inside the components that rendered them, so a copy change meant
+ * a rebuild and a deploy. Declared here as the wire shapes, taken verbatim from
+ * those components — the same records, the same fields. Each component keeps
+ * its own copy as the offline fallback.
+ */
+export interface DahabGalleryPhoto {
+  id: string;
+  title: string;
+  titleAr: string;
+  spot: string;
+  spotAr: string;
+  category: 'diving' | 'sunset' | 'desert' | 'lagoon' | 'bedouin' | 'local';
+  categoryLabel: string;
+  categoryLabelAr: string;
+  imageUrl: string;
+  photographer: string;
+  resolution: string;
+  description: string;
+  descriptionAr: string;
+  bestTime: string;
+  bestTimeAr: string;
+  tags: string[];
+  depthOrHeight?: string;
+}
+
+export interface DahabCuratedStory {
+  id: string;
+  title: string;
+  titleAr: string;
+  category: string;
+  categoryAr: string;
+  tagline: string;
+  taglineAr: string;
+  duration: string;
+  durationAr: string;
+  location: string;
+  locationAr: string;
+  /** Absent: nothing measures a rating. Was an invented 4.8–5.0. */
+  rating?: number;
+  image: string;
+  description: string;
+  descriptionAr: string;
+  activityToAdd: {
+    time: string;
+    title: string;
+    titleAr: string;
+    type: 'Activity' | 'Experience' | 'Dining' | 'Leisure';
+    location: string;
+    locationAr: string;
+    notes: string;
+    notesAr: string;
+    duration: string;
+    durationAr: string;
+  };
+}

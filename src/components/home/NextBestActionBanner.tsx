@@ -30,8 +30,21 @@ export const NextBestActionBanner: React.FC<NextBestActionBannerProps> = ({ onOp
     goldenJourneys,
     navigateTo,
     trackJourneyEvent,
-    showToast
+    showToast,
+    authRole,
+    isSignedIn
   } = useTrip();
+
+  /**
+   * The Golden Journeys browser is internal QA tooling.
+   *
+   * It lists seven scenarios with `status: 'PASSED'`, a "verifiedEvidence"
+   * line, and system actions describing a driver and a flight number that were
+   * written into travelerJourneyEngine.ts — none of it about the reader's trip.
+   * It sat on the homepage for every traveler. Same treatment as the 18-stage
+   * simulator, which was gated for the same reason.
+   */
+  const isStaff = isSignedIn && (authRole === 'Operations' || authRole === 'Admin');
 
   const { language, isRTL } = useLanguage();
   const [isGoldenSuiteOpen, setIsGoldenSuiteOpen] = useState(false);
@@ -103,6 +116,7 @@ export const NextBestActionBanner: React.FC<NextBestActionBannerProps> = ({ onOp
             <span>{travelerContext.currentTime.timeFormatted}</span>
           </div>
 
+          {isStaff && (
           <button
             type="button"
             onClick={() => setIsGoldenSuiteOpen(true)}
@@ -111,6 +125,7 @@ export const NextBestActionBanner: React.FC<NextBestActionBannerProps> = ({ onOp
             <PlayCircle className="w-3.5 h-3.5 text-[#F4C36C] group-hover:scale-110 transition-transform" />
             <span>{language === 'ar' ? 'المسارات الذهبية (A-G)' : 'Golden Journeys (A-G)'}</span>
           </button>
+          )}
         </div>
       </div>
 

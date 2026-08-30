@@ -502,11 +502,9 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   </span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
-                  <Eye className="w-4 h-4 text-[#52C4B7] mx-auto" />
-                  <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block font-['Outfit',sans-serif]">Visibility</span>
-                  <span className="font-bold text-sm text-[#F7F3EA]">Great (25m+)</span>
-                </div>
+                {/* Removed: a "Visibility · Great (25m+)" tile. Nothing
+                    measures underwater visibility, and this is a panel a diver
+                    reads on the morning of a dive. */}
 
                 <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
                   <Sun className="w-4 h-4 text-[#F4C36C] mx-auto" />

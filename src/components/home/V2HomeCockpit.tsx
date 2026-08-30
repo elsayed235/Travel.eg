@@ -289,6 +289,24 @@ export const V2HomeCockpit: React.FC<V2HomeCockpitProps> = ({ onOpenQuickBook })
       {/* ========================================================================= */}
       <HomeSectionNav sections={HOME_SECTIONS} />
 
+      {/*
+        The page's own title, for the compositions that do not render the hero.
+
+        The cinematic hero carries the <h1> and is deliberately suppressed once
+        a trip is booked — "to prioritize operational trip readiness" — which
+        left the homepage with no h1 at all in that mode. That path had never
+        actually run before: the composition resolver was told
+        `isAuthenticated: Boolean(user)`, the Firebase user, which is
+        permanently null here, so every traveler got PUBLIC_ANONYMOUS and the
+        hero always rendered. Visually hidden, because the composition below
+        leads with the trip cockpit rather than a title.
+      */}
+      {!composition.flags.showHero && (
+        <h1 className="sr-only">
+          {language === 'ar' ? 'رحلتك في دهب' : 'Your Dahab trip'}
+        </h1>
+      )}
+
       {/* ========================================================================= */}
       {/* 1. IMMERSIVE CINEMATIC HERO COCKPIT (SECTION 1: FIRST VISUAL ANCHOR)     */}
       {/* ========================================================================= */}

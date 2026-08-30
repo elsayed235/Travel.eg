@@ -628,11 +628,10 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               <span className="text-[var(--text-secondary)]">{language === 'ar' ? 'حرارة البحر' : 'Water Temp'}</span>
             </div>
 
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
-              <span className="font-semibold text-[var(--accent-secondary)]">25m+ Peak</span>
-              <span className="text-[var(--text-secondary)]">{language === 'ar' ? 'نقاء المرجان' : 'Coral Visibility'}</span>
-            </div>
+            {/* Removed: a "25m+ Peak · Coral Visibility" chip. Nothing measures
+                underwater visibility here — no buoy and no dive-centre feed —
+                and it sat beside the air and water temperatures, which are
+                real readings, so it read as one too. */}
 
             <div className="hidden md:flex items-center gap-1.5 text-[var(--text-secondary)]">
               <span>{language === 'ar' ? 'الغروب:' : 'Sunset:'}</span>

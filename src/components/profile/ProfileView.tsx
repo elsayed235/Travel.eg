@@ -29,7 +29,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { NEAR_ME_DATA } from '../explore/ExploreView';
 
 export const ProfileView: React.FC = () => {
-  const { profile, setProfile, savedItems, toggleSaveItem, navigateTo, showToast, sessionUser, isSignedIn, allTrips, activeTrip } = useTrip();
+  const { profile, setProfile, savedItems, toggleSaveItem, navigateTo, showToast, sessionUser, isSignedIn, allTrips, activeTrip, bookings } = useTrip();
   const { language, isRTL, t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'saved' | 'history' | 'settings'>('profile');
@@ -95,6 +95,10 @@ export const ProfileView: React.FC = () => {
       })
       .sort((a, b) => (b.endDate || b.updatedAt).localeCompare(a.endDate || a.updatedAt));
   }, [allTrips, activeTrip]);
+
+  /** The hotel and the next activity on the active trip, from its bookings. */
+  const accommodation = bookings.find(b => b.serviceType === 'hotel')?.subtitle;
+  const nextScheduled = bookings.find(b => b.serviceType !== 'hotel')?.subtitle;
 
   /** "04 Nov – 09 Nov 2024 (5 days)" from the trip's own dates. */
   const tripDateLabel = (trip: TripEntity): string => {
@@ -169,7 +173,8 @@ export const ProfileView: React.FC = () => {
               },
               { 
                 id: 'history', 
-                label: language === 'ar' ? 'الرحلات السابقة (٢)' : 'Past Trips (2)' 
+                // Was a hardcoded "(2)", matching the two invented entries.
+                label: language === 'ar' ? `الرحلات السابقة (${pastTrips.length})` : `Past Trips (${pastTrips.length})` 
               },
               { 
                 id: 'settings', 
@@ -356,25 +361,42 @@ export const ProfileView: React.FC = () => {
                 <span>{language === 'ar' ? 'الرحلة النشطة الآن' : 'Active Journey'}</span>
               </div>
 
+              {/*
+                The active trip card. Was entirely fixed: "5 Days in Dahab",
+                "October 12 – October 16 · 2 Travelers · Balanced Pace",
+                "Dahab Bay Hotel (4 nights)" and "The Canyon Coral Dive" as the
+                next scheduled activity — shown under the heading "Active
+                Journey" to every traveler.
+              */}
               <div className="space-y-1">
                 <h2 className="font-bold text-xl text-[#F7F3EA] font-['Outfit',sans-serif]">
-                  {language === 'ar' ? '٥ أيام ساحرة في دهب' : '5 Days in Dahab'}
+                  {activeTrip?.title || (language === 'ar' ? 'لسه مفيش رحلة نشطة' : 'No active trip yet')}
                 </h2>
                 <p className="text-xs text-[#E7D3AE]/80">
-                  {language === 'ar' ? '١٢ – ١٦ أكتوبر · مسافران · ريتم متوازن' : 'October 12 – October 16 · 2 Travelers · Balanced Pace'}
+                  {activeTrip
+                    ? [
+                        tripDateLabel(activeTrip),
+                        `${activeTrip.travelersCount} ${language === 'ar' ? 'مسافرين' : 'travellers'}`,
+                        activeTrip.pace
+                      ].join(' · ')
+                    : language === 'ar'
+                      ? 'ابدأ رحلة عشان تظهر هنا'
+                      : 'Start a trip and it will appear here'}
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#04171D]/60 border border-white/10 space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-[#E7D3AE]/70">{language === 'ar' ? 'الإقامة:' : 'Accommodations:'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'فندق دهب باي (٤ ليالي)' : 'Dahab Bay Hotel (4 nights)'}</span>
+              {activeTrip && (
+                <div className="p-4 rounded-2xl bg-[#04171D]/60 border border-white/10 space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-[#E7D3AE]/70">{language === 'ar' ? 'الإقامة:' : 'Accommodations:'}</span>
+                    <span className="font-bold text-[#F7F3EA]">{accommodation || '—'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#E7D3AE]/70">{language === 'ar' ? 'النشاط القادم:' : 'Next Scheduled:'}</span>
+                    <span className="font-bold text-[#E7A83B]">{nextScheduled || '—'}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[#E7D3AE]/70">{language === 'ar' ? 'النشاط القادم:' : 'Next Scheduled:'}</span>
-                  <span className="font-bold text-[#E7A83B]">{language === 'ar' ? 'غطسة الكانيون المرجانية' : 'The Canyon Coral Dive'}</span>
-                </div>
-              </div>
+              )}
 
               <button
                 type="button"

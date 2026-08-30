@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { READY_TRIP_PROGRAMS, ReadyTripProgram } from '../../data/readyTripsData';
+import type { ReadyTripProgram } from '../../data/readyTripsData';
+import { useReadyProgrammes } from '../../hooks/useReadyProgrammes';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { analytics } from '../../services/analytics';
@@ -30,6 +31,9 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
   onOpenCompare,
   onOpenQuiz
 }) => {
+  // Served content, with the compiled array as the offline fallback.
+  const programmes = useReadyProgrammes();
+
   const { language, t, isRTL } = useLanguage();
   const { isDark } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -42,7 +46,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
     { id: 'slow', label: 'Slow & Wellness', labelAr: 'روقان وهدوء', icon: Compass },
   ];
 
-  const filteredPrograms = READY_TRIP_PROGRAMS.filter((prog) => {
+  const filteredPrograms = programmes.filter((prog) => {
     if (activeCategory === 'all') return true;
     if (activeCategory === 'popular') return prog.id === 'dahab-first-timer' || prog.id === 'couples-escape';
     if (activeCategory === 'adventure') return prog.id === 'dahab-adventure';

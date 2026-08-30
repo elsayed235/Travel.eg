@@ -334,13 +334,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               <div className="text-base font-extrabold text-slate-900 mt-1">24°C · Calm</div>
             </div>
 
-            <div className="bg-[#F6F0E6]/90 p-3 rounded-2xl border border-amber-900/10 text-left">
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />
-                <span>Coral Visibility</span>
-              </div>
-              <div className="text-base font-extrabold text-emerald-800 mt-1">25m+ Peak</div>
-            </div>
+            {/* Removed: a "Coral Visibility · 25m+ Peak" tile. Nothing measures
+                underwater visibility here, and it sat beside the real
+                temperature readings so it read as one. */}
 
             <div className="bg-[#F6F0E6]/90 p-3 rounded-2xl border border-amber-900/10 text-left">
               <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">

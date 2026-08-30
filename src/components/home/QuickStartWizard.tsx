@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
-import { READY_TRIP_PROGRAMS, ReadyTripProgram } from '../../data/readyTripsData';
+import type { ReadyTripProgram } from '../../data/readyTripsData';
+import { useReadyProgrammes } from '../../hooks/useReadyProgrammes';
 import { analytics } from '../../services/analytics';
 import {
   Sparkles,
@@ -39,6 +40,9 @@ export const QuickStartWizard: React.FC<QuickStartWizardProps> = ({
   onOpenBuildMyself,
   onDismissToPathways
 }) => {
+  // Served content, with the compiled array as the offline fallback.
+  const programmes = useReadyProgrammes();
+
   const { language, t, isRTL } = useLanguage();
   const { updateProfile } = useTrip();
 
@@ -54,32 +58,32 @@ export const QuickStartWizard: React.FC<QuickStartWizardProps> = ({
     switch (selectedVibe) {
       case 'adventure':
         return {
-          program: READY_TRIP_PROGRAMS.find(p => p.id === 'dahab-adventure') || READY_TRIP_PROGRAMS[1],
+          program: programmes.find(p => p.id === 'dahab-adventure') || programmes[1],
           reasonEn: 'Balanced canyon hikes, quad biking, and Bedouin dinners without physical overload.',
           reasonAr: 'تجمع بين سفاري الكانيون، بيتش باجي الغروب، وعشاء الجبل بدون إجهاد.'
         };
       case 'diving':
         return {
-          program: READY_TRIP_PROGRAMS.find(p => p.id === 'diving-week') || READY_TRIP_PROGRAMS[3],
+          program: programmes.find(p => p.id === 'diving-week') || programmes[3],
           reasonEn: 'World-class shore dives at Blue Hole & Canyon with dedicated rest days.',
           reasonAr: 'أشهر غطسات البلو هول والكانيون مع فترات راحة كافية بين الغطسات.'
         };
       case 'couples':
         return {
-          program: READY_TRIP_PROGRAMS.find(p => p.id === 'couples-escape') || READY_TRIP_PROGRAMS[4],
+          program: programmes.find(p => p.id === 'couples-escape') || programmes[4],
           reasonEn: 'Intimate beachfront boutique stays, romantic candlelight dinners, and calm lagoon days.',
           reasonAr: 'إقامة رايقة ع البحر مباشرة مع عشاء رومانسي وأجواء هادية وخاصة.'
         };
       case 'relax':
         return {
-          program: READY_TRIP_PROGRAMS.find(p => p.id === 'slow-dahab') || READY_TRIP_PROGRAMS[2],
+          program: programmes.find(p => p.id === 'slow-dahab') || programmes[2],
           reasonEn: 'Unhurried seaside cafes, snorkeling at your own pace, and zero morning alarms.',
           reasonAr: 'روقان كامل على الممشى، سنوركلينج براحتك، وبدون أي مواعيد تصحيك بدري.'
         };
       case 'highlights':
       default:
         return {
-          program: READY_TRIP_PROGRAMS.find(p => p.id === 'dahab-first-timer') || READY_TRIP_PROGRAMS[0],
+          program: programmes.find(p => p.id === 'dahab-first-timer') || programmes[0],
           reasonEn: 'The classic Dahab introduction: Blue Hole, Ras Abu Galum, Laguna sunset, and verified seafood.',
           reasonAr: 'أفضل بداية لدهب: البلو هول، رأس أبو جالوم، غروب اللاجونا، وأشهى سمك طازة.'
         };

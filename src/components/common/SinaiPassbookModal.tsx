@@ -51,13 +51,20 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
   const passId = 'SINAI-DHB-' + (profile.name ? profile.name.slice(0, 3).toUpperCase() : 'AHM') + '-894';
   const duration = tripBrief.durationDays || 5;
 
-  // Bedouin driver details fallback
+  /**
+   * The assigned driver, or nothing.
+   *
+   * Every field fell back to an invented one — "Captain Mahmoud Salem
+   * (El-Mezeina)", +20 100 876 5432, a Toyota HiAce, plate ط ج د 4821 — so a
+   * traveler whose booking no supplier had accepted still got a name, a phone
+   * number and a numberplate to look for at the airport.
+   */
   const driver = {
-    name: transferTracking.driverName || 'Captain Mahmoud Salem (El-Mezeina)',
-    nameAr: transferTracking.driverNameAr || 'كابتن محمود سالم (قبيلة المزينة)',
-    phone: transferTracking.driverPhone || '+20 100 876 5432',
-    vehicle: transferTracking.vehicleModel || 'Toyota HiAce Comfort Van 4x4',
-    plate: transferTracking.vehiclePlate || 'ط ج د 4821 (جنوب سيناء)'
+    name: transferTracking.driverName || '',
+    nameAr: transferTracking.driverNameAr || '',
+    phone: transferTracking.driverPhone || '',
+    vehicle: transferTracking.vehicleModel || '',
+    plate: transferTracking.vehiclePlate || ''
   };
 
   // Auto-persist passbook to offline storage on mount or change

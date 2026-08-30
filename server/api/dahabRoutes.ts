@@ -1,3 +1,8 @@
+import {
+  CURATED_STORIES,
+  GALLERY_PHOTOS,
+  READY_TRIP_PROGRAMMES
+} from '../db/seeds/editorialContent';
 import { Router, Response } from 'express';
 import {
   stringParam,
@@ -948,5 +953,30 @@ dahabRouter.get('/commerce/autonomous-status', (req: AuthenticatedRequest, res: 
   });
 });
 
+// ---------------------------------------------------------------------------
+// Editorial content
+//
+// The gallery, the curated stories and the ready-made programmes used to live
+// inside the components that rendered them, so changing a photograph caption
+// meant a rebuild and a deploy. They are the same records, served from
+// server/db/seeds/editorialContent.ts.
+//
+// Public: this is marketing copy about Dahab, shown before anyone signs in.
+// ---------------------------------------------------------------------------
 
+dahabRouter.get('/content/gallery', (req: AuthenticatedRequest, res: Response) => {
+  res.json({ status: 'success', count: GALLERY_PHOTOS.length, photos: GALLERY_PHOTOS, correlationId: req.correlationId });
+});
 
+dahabRouter.get('/content/stories', (req: AuthenticatedRequest, res: Response) => {
+  res.json({ status: 'success', count: CURATED_STORIES.length, stories: CURATED_STORIES, correlationId: req.correlationId });
+});
+
+dahabRouter.get('/content/programmes', (req: AuthenticatedRequest, res: Response) => {
+  res.json({
+    status: 'success',
+    count: READY_TRIP_PROGRAMMES.length,
+    programmes: READY_TRIP_PROGRAMMES,
+    correlationId: req.correlationId
+  });
+});

@@ -28,6 +28,15 @@ export interface ReadyTripProgram {
   dayByDay: DayPlanItem[];
 }
 
+/**
+ * The offline fallback.
+ *
+ * These programmes are served from GET /api/dahab/content/programmes
+ * (server/db/seeds/editorialContent.ts) and reached through
+ * `useReadyProgrammes`. Three components used to import this array directly,
+ * so a price change meant a rebuild and a deploy. Kept here so a failed request
+ * degrades the page rather than emptying it.
+ */
 export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
   {
     id: 'dahab-first-timer',

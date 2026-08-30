@@ -123,7 +123,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
    * shown "Confirmed ✓" with a booking reference that existed nowhere.
    */
   const [settlementError, setSettlementError] = useState<string | null>(null);
-  const [smsDispatched, setSmsDispatched] = useState<boolean>(true);
+  // Removed: `smsDispatched`, which defaulted to true and was never read after
+  // the client-side SMS dispatch above was taken out.
 
   // Success view details toggle & share modal
   const [showDetailsVoucher, setShowDetailsVoucher] = useState<boolean>(false);
@@ -197,27 +198,22 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
         supplierId: 'SUP-SHUTTLE-01'
       });
 
-      // Dispatch real/simulated SMS alerts to Driver and Dive Center via Twilio Gateway
-      try {
-        await api.sendSmsDispatch({
-          to: '+20 100 876 5432',
-          recipientName: 'Mahmoud Salem (Driver)',
-          recipientRole: 'DRIVER',
-          bookingRef: `DHB-TRIP-2026`,
-          message: `🚨 Dahab Shuttle: Confirmed transfer for ${billingName} (${billingPhone}). Airport SSH T1 -> ${selectedHotel?.name || 'Dahab'}. Payment: ${paymentMethod.toUpperCase()}`
-        });
+      /*
+        Removed: two SMS dispatches fired from the browser on every checkout.
 
-        await api.sendSmsDispatch({
-          to: billingPhone,
-          recipientName: billingName,
-          recipientRole: 'TRAVELER',
-          bookingRef: `DHB-TRIP-2026`,
-          message: `🌴 Dahab Travel: Trip confirmed! Payment via ${paymentMethod === 'card' ? `${cardGateway} Card` : paymentMethod === 'wallet' ? `${walletProvider.toUpperCase()} Wallet` : paymentMethod === 'instapay' ? 'InstaPay' : 'Arrival'}. Driver assigned.`
-        });
-        setSmsDispatched(true);
-      } catch (smsErr) {
-        console.warn('SMS gateway dispatch note:', smsErr);
-      }
+        The first texted a hardcoded number, +20 100 876 5432, addressed to
+        "Mahmoud Salem (Driver)" — a driver nobody had assigned, at a number
+        written into this file — telling them a transfer was confirmed. The
+        second told the traveler "Driver assigned", which was not true either:
+        a booking now starts at PENDING_CONFIRMATION and carries no assignment
+        until the supplier accepts it.
+
+        Neither could have worked in any case. /api/sms/* is restricted to
+        Operations and Admin, so a traveler's call returns 403 — and the failure
+        was swallowed into a console warning while `setSmsDispatched(true)`
+        never ran. Supplier dispatch belongs on the server, after checkout, to
+        the supplier the SKU actually resolves to.
+      */
 
       // Update local ledger
       const debitAccount = paymentMethod === 'card'

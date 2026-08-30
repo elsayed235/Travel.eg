@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { api } from '../../services/api';
+import { useApiResource } from '../../hooks/useApiResource';
 import {
   Camera,
   MapPin,
@@ -39,6 +41,14 @@ export interface DahabPhotoItem {
   depthOrHeight?: string;
 }
 
+/**
+ * The offline fallback.
+ *
+ * These photographs now come from GET /api/dahab/content/gallery, served from
+ * server/db/seeds/editorialContent.ts, so a caption change no longer needs a
+ * rebuild. This copy is what the section shows when that request fails — the
+ * same pattern Explore and Food use.
+ */
 export const DAHAB_GALLERY_PHOTOS: DahabPhotoItem[] = [
   {
     id: 'photo-blue-hole-bells',
@@ -210,7 +220,14 @@ export const DAHAB_GALLERY_PHOTOS: DahabPhotoItem[] = [
   },
 ];
 
+/** Stable so useApiResource does not re-request on every render. */
+const fetchGalleryPhotos = (signal: AbortSignal) => api.getGalleryPhotos(signal);
+
 export const DahabGallerySection: React.FC = () => {
+  /** Served content, with the compiled copy above as the offline fallback. */
+  const remote = useApiResource(fetchGalleryPhotos);
+  const photos = remote.data?.photos?.length ? remote.data.photos : DAHAB_GALLERY_PHOTOS;
+
   const { language, isRTL } = useLanguage();
   const { showToast } = useTrip();
 
@@ -231,8 +248,8 @@ export const DahabGallerySection: React.FC = () => {
   ];
 
   const filteredPhotos = activeCategory === 'all'
-    ? DAHAB_GALLERY_PHOTOS
-    : DAHAB_GALLERY_PHOTOS.filter((p) => p.category === activeCategory);
+    ? photos
+    : photos.filter((p) => p.category === activeCategory);
 
   const toggleLike = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
