@@ -20,10 +20,34 @@ export class DistributedLockService {
   private waitQueues: Map<string, Array<() => void>> = new Map();
   private defaultOwner: string;
   private locksDir: string;
+  private lastFileSweepAt = 0;
 
-  private constructor(customOwner?: string) {
+  /**
+   * Grace period before an unreadable lock file is treated as an orphan.
+   *
+   * tryAcquire creates the file with openSync(path, 'wx') and writes the lease
+   * a moment later, so there is a window in which it exists but is empty or
+   * half-written. Deleting it inside that window would hand the same lock to
+   * two owners. The window is microseconds wide; five minutes sits far outside
+   * it, and anything still unreadable after that came from a process that died
+   * part-way through acquiring.
+   */
+  private static readonly ORPHAN_GRACE_MS = 5 * 60_000;
+
+  /**
+   * The disk sweep walks a directory and stats files, so it runs on a much
+   * slower cadence than the in-memory pass. Leftover files waste space; they do
+   * not block anyone, because an expired file is already reclaimed on demand by
+   * tryAcquire.
+   */
+  private static readonly FILE_SWEEP_INTERVAL_MS = 60_000;
+
+  private constructor(customOwner?: string, customLocksDir?: string) {
     this.defaultOwner = customOwner || `proc-${process.pid}-${crypto.randomBytes(3).toString('hex')}`;
-    this.locksDir = path.join(process.cwd(), 'data', 'locks');
+    // customLocksDir exists so a test can point a throwaway instance at its own
+    // directory. Without it the only lock directory is the real data/locks, and
+    // a test of the sweep would be deleting files belonging to a running server.
+    this.locksDir = customLocksDir || path.join(process.cwd(), 'data', 'locks');
     try {
       if (!fs.existsSync(this.locksDir)) {
         fs.mkdirSync(this.locksDir, { recursive: true });
@@ -31,6 +55,11 @@ export class DistributedLockService {
     } catch {}
     // Background garbage collection of expired leases every 5 seconds
     setInterval(() => this.cleanupExpiredLocks(), 5000).unref();
+
+    // One sweep at construction clears what the previous run left behind. A
+    // crash between acquire and release leaks the file permanently otherwise,
+    // because nothing revisits a key that is never acquired again.
+    this.sweepExpiredLockFiles();
   }
 
   private getLockFilePath(lockKey: string): string {
@@ -48,8 +77,8 @@ export class DistributedLockService {
   /**
    * Factory method to create isolated service instances for multi-process or multi-client simulation.
    */
-  public static createInstance(owner: string): DistributedLockService {
-    return new DistributedLockService(owner);
+  public static createInstance(owner: string, locksDir?: string): DistributedLockService {
+    return new DistributedLockService(owner, locksDir);
   }
 
   /**
@@ -302,9 +331,88 @@ export class DistributedLockService {
     }
   }
 
+  /**
+   * Removes expired and orphaned .lock files from data/locks.
+   *
+   * cleanupExpiredLocks() below drops expired rows from db.locks, but nothing
+   * ever removed the files that mirror them. tryAcquire only unlinks a stale
+   * file when the SAME key is acquired again, and many keys are used exactly
+   * once — the swarm slots are literally `lock:swarm:slot:<timestamp>`. So the
+   * directory grew without bound: 75 files were found here, left by processes
+   * that had exited hours earlier.
+   *
+   * A file holding a lease that has not yet expired is never touched; that file
+   * IS the lock, and removing it would let a second owner in.
+   *
+   * Returns the number of files removed.
+   */
+  public sweepExpiredLockFiles(): number {
+    const now = Date.now();
+    let removed = 0;
+
+    let entries: string[];
+    try {
+      entries = fs.readdirSync(this.locksDir);
+    } catch {
+      // The directory is created in the constructor; if it is unreadable there
+      // is nothing to sweep and nothing to report.
+      this.lastFileSweepAt = now;
+      return 0;
+    }
+
+    for (const entry of entries) {
+      if (!entry.endsWith('.lock')) continue;
+      const filePath = path.join(this.locksDir, entry);
+
+      let expiresAt: number | null = null;
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        if (content.trim().length > 0) {
+          const parsed = JSON.parse(content);
+          if (parsed && typeof parsed.expiresAt === 'number') {
+            expiresAt = parsed.expiresAt;
+          }
+        }
+      } catch {
+        // Unreadable, or being written right now. The mtime check below decides.
+      }
+
+      if (expiresAt !== null) {
+        if (expiresAt > now) continue;
+      } else if (now - this.fileMtimeMs(filePath) < DistributedLockService.ORPHAN_GRACE_MS) {
+        continue;
+      }
+
+      try {
+        fs.unlinkSync(filePath);
+        removed++;
+      } catch {
+        // Raced with another sweeper, or with the owner's own release. Either
+        // way the file is gone or not ours to force.
+      }
+    }
+
+    this.lastFileSweepAt = now;
+    return removed;
+  }
+
+  private fileMtimeMs(filePath: string): number {
+    try {
+      return fs.statSync(filePath).mtimeMs;
+    } catch {
+      // Treat a file we cannot stat as brand new, so the grace period protects
+      // it rather than the sweep deleting something it cannot reason about.
+      return Date.now();
+    }
+  }
+
   private cleanupExpiredLocks() {
     const now = Date.now();
     const expiredKeys: string[] = [];
+
+    if (now - this.lastFileSweepAt >= DistributedLockService.FILE_SWEEP_INTERVAL_MS) {
+      this.sweepExpiredLockFiles();
+    }
 
     db.runInTransaction(() => {
       const remaining: DistributedLockEntity[] = [];
