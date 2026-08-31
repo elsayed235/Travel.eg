@@ -3,6 +3,7 @@ import { DollarSign, CheckCircle2, AlertTriangle, Shield, RefreshCw, ArrowRight,
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { ConfirmDialog } from './ConfirmDialog';
+import { Pagination, usePagination } from './Pagination';
 
 export default function CommerceControl() {
   const { language } = useLanguage();
@@ -51,6 +52,8 @@ export default function CommerceControl() {
   const totalCommission = ledgerEntries
     .filter((e: any) => e.type === 'PLATFORM_COMMISSION')
     .reduce((acc: number, e: any) => acc + (e.amountEGP || 0), 0);
+
+  const { page: ledgerPage, setPage: setLedgerPage, totalPages: ledgerTotalPages, paginatedItems: ledgerPaginated, totalItems: ledgerTotalItems, pageSize: ledgerPageSize } = usePagination(ledgerEntries, 20);
 
   return (
     <div className="space-y-4">
@@ -189,6 +192,7 @@ export default function CommerceControl() {
               <div className="text-[11px] text-white/30 mt-1">Financial records will appear here after bookings.</div>
             </div>
           ) : (
+            <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[11px] font-mono">
                 <thead className="bg-white/5 text-white/50 uppercase tracking-wider border-b border-white/8">
@@ -202,7 +206,7 @@ export default function CommerceControl() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {ledgerEntries.map((entry: any) => (
+                  {ledgerPaginated.map((entry: any) => (
                     <tr key={entry.id} className="hover:bg-white/5 transition-colors">
                       <td className="py-2.5 px-3">
                         <div className="text-[#52C4B7] font-bold">{entry.id}</div>
@@ -230,6 +234,12 @@ export default function CommerceControl() {
                 </tbody>
               </table>
             </div>
+            {ledgerTotalPages > 1 && (
+              <div className="px-3 py-2 border-t border-white/5">
+                <Pagination page={ledgerPage} totalPages={ledgerTotalPages} totalItems={ledgerTotalItems} pageSize={ledgerPageSize} onPageChange={setLedgerPage} />
+              </div>
+            )}
+            </>
           )}
         </div>
       )}

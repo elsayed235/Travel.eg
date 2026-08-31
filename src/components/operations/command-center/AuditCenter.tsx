@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, CheckCircle2, User, Clock, Shield, RefreshCw, Download, Filter } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { Pagination, usePagination } from './Pagination';
 
 export default function AuditCenter() {
   const { language } = useLanguage();
@@ -27,6 +28,8 @@ export default function AuditCenter() {
     if (actorFilter && !e.actor?.toLowerCase().includes(actorFilter.toLowerCase())) return false;
     return true;
   });
+
+  const { page, setPage, totalPages, paginatedItems, totalItems, pageSize } = usePagination(filtered, 50);
 
   const uniqueActions = [...new Set(events.map(e => e.action).filter(Boolean))].slice(0, 20);
   const uniqueEntities = [...new Set(events.map(e => e.entityType).filter(Boolean))].slice(0, 20);
@@ -103,7 +106,7 @@ export default function AuditCenter() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filtered.slice(0, 100).map((event: any) => (
+                {paginatedItems.map((event: any) => (
                   <React.Fragment key={event.id}>
                     <tr className="hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setExpandedId(expandedId === event.id ? null : event.id)}>
                       <td className="py-2.5 px-3 text-white/40">{event.timestamp ? new Date(event.timestamp).toLocaleString() : '—'}</td>
@@ -132,6 +135,9 @@ export default function AuditCenter() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="px-3 py-2 border-t border-white/5">
+            <Pagination page={page} totalPages={totalPages} totalItems={totalItems} pageSize={pageSize} onPageChange={setPage} />
           </div>
         </div>
       )}
