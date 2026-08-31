@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -29,6 +29,7 @@ import {
   Info
 } from 'lucide-react';
 import { ConfirmedBookingItem, AHMED_BOOKINGS } from '../mytrip/myTripData';
+import { api } from '../../services/api';
 
 interface PreArrivalBriefingProps {
   onBackToMyTrip: () => void;
@@ -45,6 +46,24 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
   const [detailModal, setDetailModal] = useState<{
     type: 'transfer' | 'hotel' | 'diving' | 'checklist' | 'help' | null;
   }>({ type: null });
+
+  // Regulations fetched from backend
+  interface RegulationItem { id: string; titleEn: string; titleAr: string; descriptionEn: string; descriptionAr: string; authority: string; effectiveDate: string; }
+  const [regulations, setRegulations] = useState<RegulationItem[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    api.getRegulations(controller.signal)
+      .then((data) => {
+        if (data.regulations?.length) {
+          setRegulations((data.regulations as RegulationItem[]).slice(0, 5));
+        }
+      })
+      .catch(() => {
+        // No-op — static content already shows
+      });
+    return () => controller.abort();
+  }, []);
 
   // Confirmation state for "I'm Ready"
   const [isReadyModalOpen, setIsReadyModalOpen] = useState(false);
@@ -793,6 +812,33 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 <span>Help Me Now</span>
               </button>
             </div>
+
+            {/* 6. LOCAL REGULATIONS */}
+            {regulations.length > 0 && (
+              <div
+                id="briefing-regulations-card"
+                className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xs space-y-3"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#13312B] text-[#F4C36C] flex items-center justify-center flex-shrink-0 border border-white/10">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#F7F3EA]">Local Regulations</h3>
+                    <p className="text-[11px] text-[#D2E3DE]/60">Official directives for South Sinai</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {regulations.map((reg) => (
+                    <div key={reg.id} className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
+                      <span className="font-bold text-[11px] text-[#F4C36C] block">{reg.titleEn}</span>
+                      <span className="text-[10px] text-[#D2E3DE]/70 leading-relaxed block line-clamp-2">{reg.descriptionEn}</span>
+                      <span className="text-[9px] text-[#D2E3DE]/40">{reg.authority} · {reg.effectiveDate}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

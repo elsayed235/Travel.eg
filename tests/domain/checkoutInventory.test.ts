@@ -182,6 +182,51 @@ describe('checkout and the itinerary', () => {
     expect(db.tripItems[0].priceEGP).toBe(1200);
   });
 
+  it('does not match a line whose skuId is a location string, as Add to Trip used to write', () => {
+    // The defect this whole seam exists to fix. addActivityToDay sent
+    // `skuId: activity.location` — 'Blue Hole, Dahab' — so the line could never
+    // be matched to the booking that fulfils it, and checkout silently created
+    // a second line for the same experience. The traveler saw their dive twice:
+    // once as a plan they could not book, once as a booking they did not plan.
+    db.tripItems.push({
+      id: 'ITEM-LOCATION-AS-SKU',
+      tripId: 'TRIP-TEST',
+      serviceType: 'diving',
+      skuId: 'Blue Hole, Dahab',
+      title: 'Planned dive',
+      dayNumber: 2,
+      priceEGP: 1200,
+      status: 'SUGGESTED',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z'
+    });
+    checkout();
+
+    expect(db.tripItems).toHaveLength(2);
+    expect(db.tripItems.find(i => i.id === 'ITEM-LOCATION-AS-SKU')?.bookingId).toBeUndefined();
+  });
+
+  it('does not match a line that carries no product at all', () => {
+    // An experience with no inventory behind it is added to the trip as a plan
+    // and stays one. It must not be adopted by an unrelated booking.
+    db.tripItems.push({
+      id: 'ITEM-NO-SKU',
+      tripId: 'TRIP-TEST',
+      serviceType: 'diving',
+      skuId: '',
+      title: 'Ralph’s German Bakery',
+      dayNumber: 2,
+      priceEGP: 0,
+      status: 'SUGGESTED',
+      createdAt: '2026-08-01T00:00:00.000Z',
+      updatedAt: '2026-08-01T00:00:00.000Z'
+    });
+    checkout();
+
+    expect(db.tripItems.find(i => i.id === 'ITEM-NO-SKU')?.status).toBe('SUGGESTED');
+    expect(db.tripItems.find(i => i.id === 'ITEM-NO-SKU')?.bookingId).toBeUndefined();
+  });
+
   it('does not invent a driver, guide or vehicle for a booking nobody has accepted', () => {
     // Every transfer used to be created carrying "Mahmoud Salem", a phone
     // number and plate ط ج د 4821; every dive an invented PADI instructor.

@@ -68,6 +68,35 @@ export function requiredAmountEGP(value: unknown, field: string, maxEGP = 1_000_
   return amount;
 }
 
+/**
+ * A price that is allowed to be nothing.
+ *
+ * requiredAmountEGP refuses zero, which is right for a payment — nobody is
+ * charged 0 EGP — and wrong for a plan. An itinerary line for a beach, a
+ * sunset walk or a free reef entry costs nothing, and rejecting it stopped a
+ * traveler from planning any of them: "priceEGP must be greater than zero".
+ *
+ * The trip-items endpoint already treated an *absent* price as 0, so the same
+ * value was accepted when omitted and refused when stated. This makes the two
+ * agree.
+ */
+export function planAmountEGP(value: unknown, field: string, maxEGP = 1_000_000): number {
+  const amount = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(amount)) {
+    throw new InvalidRequestBodyError(field, 'must be a number.');
+  }
+  if (amount < 0) {
+    throw new InvalidRequestBodyError(field, 'must not be negative.');
+  }
+  if (amount > maxEGP) {
+    throw new InvalidRequestBodyError(field, `must not exceed ${maxEGP} EGP.`);
+  }
+  if (Math.round(amount * 100) !== amount * 100) {
+    throw new InvalidRequestBodyError(field, 'must not have more than two decimal places.');
+  }
+  return amount;
+}
+
 export function requiredCount(value: unknown, field: string, min = 1, max = 100): number {
   const count = typeof value === 'number' ? value : Number(value);
   if (!Number.isInteger(count)) {

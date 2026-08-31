@@ -314,6 +314,11 @@ export function buildTimelineDays(trip: TripEntity, items: TripItemWithSupplier[
         id: item.id,
         time: item.timeSlot || '',
         title: item.title,
+        // Carried so the timeline can offer to book an item that is only
+        // suggested. Empty string rather than absent is how the server stores
+        // "no product", so it is normalised away here.
+        skuId: item.skuId || undefined,
+        serviceType: item.serviceType,
         type: ACTIVITY_TYPE_BY_SERVICE[item.serviceType] || 'Activity',
         status: ACTIVITY_STATUS_BY_ITEM[item.status] || 'Suggested',
         location: item.supplier?.area,

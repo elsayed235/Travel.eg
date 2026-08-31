@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import {
   Globe,
@@ -126,6 +126,49 @@ export const MarketIntelligenceView: React.FC = () => {
   const [candidatePromotionStep, setCandidatePromotionStep] = useState<SupplierLifecycleStage>('Candidate');
   const [reviewerNotes, setReviewerNotes] = useState<string>('');
   const [isCrawling, setIsCrawling] = useState(false);
+
+  // Fetch real source health on mount to replace hardcoded initialSources
+  useEffect(() => {
+    const controller = new AbortController();
+    api.getMarketSourceHealth(controller.signal)
+      .then((data) => {
+        if (data.sources?.length) {
+          setSources(data.sources as IntelligenceSource[]);
+        }
+      })
+      .catch(() => {}); // fallback to initialSources
+    return () => controller.abort();
+  }, []);
+
+  // Fetch real market alerts on mount
+  useEffect(() => {
+    const controller = new AbortController();
+    api.getMarketAlerts(controller.signal)
+      .then((data) => {
+        if (data.alerts?.length) {
+          setChangeEvents(prev => {
+            const existing = new Set(prev.map(e => e.id));
+            const newEvents = (data.alerts as ChangeRadarEvent[]).filter(e => !existing.has(e.id));
+            return newEvents.length > 0 ? [...newEvents, ...prev] : prev;
+          });
+        }
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+
+  // Fetch real market jobs on mount
+  useEffect(() => {
+    const controller = new AbortController();
+    api.getMarketJobs(controller.signal)
+      .then((data) => {
+        if (data.jobs?.length) {
+          setCrawls(data.jobs as CrawlJob[]);
+        }
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   /**
    * Runs the real market refresh.

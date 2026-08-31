@@ -1,4 +1,9 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
+import type { RouteParams } from '../lib/routeUrl';
+import {
+  deriveTravelerLifecycle,
+  type TravelerLifecycleSnapshot
+} from '../services/travelerLifecycleResolver';
 import {
   AppRoute,
   JourneyStage,
@@ -78,6 +83,22 @@ export interface TripContextType {
   setSelectedActivityId: (activityId: string | null) => void;
   selectedBookingId: string | null;
   setSelectedBookingId: (bookingId: string | null) => void;
+  selectedProgramSlug: string | null;
+  setSelectedProgramSlug: (slug: string | null) => void;
+  selectedExperienceSlug: string | null;
+  /** The product a checkout page should open on, from the address bar. */
+  selectedSkuId: string | null;
+  /**
+   * Where this traveler is, and what that implies — one snapshot, shared.
+   *
+   * This was computed inside homepageCompositionResolver and therefore existed
+   * only on the homepage. Every other surface had to guess from the route,
+   * which is why the pre-arrival briefing, the arrival flow, the daily
+   * companion, departure and post-trip were reachable only by typing their
+   * URL: nothing else in the app knew the traveler had reached them.
+   */
+  lifecycle: TravelerLifecycleSnapshot;
+  setSelectedExperienceSlug: (slug: string | null) => void;
   journeyStage: JourneyStage;
   setJourneyStage: (stage: JourneyStage) => void;
   isEasyMode: boolean;
@@ -85,7 +106,10 @@ export interface TripContextType {
   toggleEasyMode: () => void;
   toast: string | null;
   showToast: (msg: string) => void;
-  navigateTo: (route: AppRoute, params?: { dayId?: number; activityId?: string; bookingId?: string }) => void;
+  navigateTo: (route: AppRoute, params?: RouteParams) => void;
+  /** Returns to the previous page, or home on a cold entry. See UIContext. */
+  goBack: () => void;
+  canGoBack: boolean;
   activeDayGiPrompt: string | null;
   setActiveDayGiPrompt: (prompt: string | null) => void;
   openDayGiWithPrompt: (prompt: string) => void;
@@ -98,8 +122,9 @@ export interface TripContextType {
   updateProfile: (updates: Partial<TravelerProfile>) => void;
   tripDays: TimelineDay[];
   setTripDays: React.Dispatch<React.SetStateAction<TimelineDay[]>>;
-  addActivityToDay: (dayNumber: number, activity: TimelineActivity) => void;
-  removeActivityFromDay: (dayNumber: number, activityId: string) => void;
+  /** Resolves once the item is stored, so a caller can await it. See ItineraryContext. */
+  addActivityToDay: (dayNumber: number, activity: TimelineActivity) => Promise<void>;
+  removeActivityFromDay: (dayNumber: number, activityId: string) => Promise<void>;
   updateActivityInDay: (dayNumber: number, activityId: string, updates: Partial<TimelineActivity>) => void;
   shiftActivityBetweenDays: (activityId: string, fromDay: number, toDay: number, newTimeSlot?: string) => void;
   activeFoodOrder: FoodOrderItem | null;
@@ -330,6 +355,33 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ui.showToast('تمت إعادة الضبط للوضع العام المجهول.');
   }, [auth, itinerary, commerce, ui]);
 
+  /**
+   * Derived once, here, from the traveler's real trip and bookings. The
+   * homepage keeps its own composition logic on top of this, but no longer
+   * owns the only copy of it.
+   */
+  const lifecycle = useMemo<TravelerLifecycleSnapshot>(
+    () =>
+      deriveTravelerLifecycle({
+        journeyStage: ui.journeyStage,
+        profile: itinerary.profile,
+        tripDays: itinerary.tripDays,
+        bookings: commerce.bookings,
+        transferTracking: commerce.transferTracking,
+        travelerContext,
+        isAuthenticated: auth.isSignedIn
+      }),
+    [
+      ui.journeyStage,
+      itinerary.profile,
+      itinerary.tripDays,
+      commerce.bookings,
+      commerce.transferTracking,
+      travelerContext,
+      auth.isSignedIn
+    ]
+  );
+
   const value: TripContextType = useMemo(
     () => ({
       // UI & Navigation
@@ -341,6 +393,14 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSelectedActivityId: ui.setSelectedActivityId,
       selectedBookingId: ui.selectedBookingId,
       setSelectedBookingId: ui.setSelectedBookingId,
+      selectedProgramSlug: ui.selectedProgramSlug,
+      setSelectedProgramSlug: ui.setSelectedProgramSlug,
+      selectedExperienceSlug: ui.selectedExperienceSlug,
+      selectedSkuId: ui.selectedSkuId,
+      goBack: ui.goBack,
+      canGoBack: ui.canGoBack,
+      lifecycle,
+      setSelectedExperienceSlug: ui.setSelectedExperienceSlug,
       journeyStage: ui.journeyStage,
       setJourneyStage: ui.setJourneyStage,
       isEasyMode: ui.isEasyMode,
@@ -468,6 +528,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       itinerary,
       travelerContext,
       nextBestActions,
+      lifecycle,
       trackJourneyEvent,
       loadDemoSimulation,
       resetToAnonymousState

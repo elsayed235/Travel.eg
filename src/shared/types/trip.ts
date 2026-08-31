@@ -98,6 +98,17 @@ export interface TimelineActivity {
   title: string;
   type: TimelineActivityType;
   status: TimelineActivityStatus;
+  /**
+   * The commerce product behind this line, when there is one.
+   *
+   * This is what makes an itinerary line bookable: the checkout matches an
+   * unbooked trip item to its booking **by skuId**, so a line carrying one can
+   * be turned into a real booking and a line without one cannot. It was absent
+   * entirely, which is why "confirm" on the timeline could only mint a fake
+   * reference locally.
+   */
+  skuId?: string;
+  serviceType?: string;
   location?: string;
   notes?: string;
   duration?: string;

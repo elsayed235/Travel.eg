@@ -597,7 +597,7 @@ export const TRANSLATIONS: Translations = {
   'tripEntry.resume.cta': { en: 'Open Itinerary', ar: 'افتح جدول الرحلة' },
   'tripEntry.resume.startNew': { en: 'Or start a new trip', ar: 'أو ابدأ رحلة جديدة' },
 
-  // Program details & modal
+  // Program details & dedicated page
   'readyTrip.planTitle': { en: 'Your Dahab Plan', ar: 'خطة رحلتك إلى دهب' },
   'readyTrip.bookNow': { en: 'Start This Trip', ar: 'ابدأ الرحلة دي' },
   'readyTrip.customize': { en: 'Customize', ar: 'تعديل وتخصيص' },
@@ -609,6 +609,29 @@ export const TRANSLATIONS: Translations = {
   'readyTrip.perPerson': { en: 'per person for full trip', ar: 'للفرد للرحلة بالكامل' },
   'readyTrip.intensity': { en: 'Activity Intensity', ar: 'مستوى الحركة' },
   'readyTrip.freeTime': { en: 'Free Relaxation Time', ar: 'وقت راحة واسترخاء' },
+
+  // Dedicated Program Detail Page Experience
+  'programPage.backToDiscovery': { en: 'Back to Trip Discovery', ar: 'الرجوع لاكتشاف الرحلات' },
+  'programPage.breadcrumbHome': { en: 'Home', ar: 'الرئيسية' },
+  'programPage.breadcrumbReady': { en: 'Ready Programs', ar: 'البرامج الجاهزة' },
+  'programPage.fieldTested': { en: 'Field-Tested Sinai Curation', ar: 'برنامج معتمد ومختبر ميدانياً' },
+  'programPage.verifiedGuides': { en: 'Verified by local Dahab guides', ar: 'مجربة وموثقة من خبراء دهب' },
+  'programPage.startThisTrip': { en: 'Start This Trip', ar: 'ابدأ الرحلة دي' },
+  'programPage.customizeThisTrip': { en: 'Customize Itinerary', ar: 'تعديل وتخصيص الجدول' },
+  'programPage.daysScheduled': { en: 'Days of Curated Flow', ar: 'أيام مبرمجة بروقان' },
+  'programPage.overviewTitle': { en: 'Experience Overview', ar: 'نظرة عامة على التجربة' },
+  'programPage.whoIsThisFor': { en: 'Who is it for?', ar: 'الرحلة دي مناسبة لمين؟' },
+  'programPage.includedTitle': { en: 'What is included in this plan', ar: 'إيه اللي مشمول في البرنامج' },
+  'programPage.customizableTitle': { en: 'What you can customize anytime', ar: 'حاجات تقدر تعدلها في أي وقت' },
+  'programPage.dayByDayTitle': { en: 'Day-by-Day Dahab Journey', ar: 'تفاصيل الرحلة يوماً بيوم' },
+  'programPage.exploreOtherPrograms': { en: 'Explore other curated programs', ar: 'استكشف برامج سياحية تانية' },
+  'programPage.viewOtherProgram': { en: 'View Program', ar: 'استكشف البرنامج' },
+  'programPage.startingFrom': { en: 'Starting from', ar: 'تبدأ من' },
+  'programPage.perPersonEstimate': { en: 'per person · starting estimate', ar: 'للفرد · تقدير مبدئي' },
+  'programPage.allFivePrograms': { en: 'All 5 Programs', ar: 'كل البرامج الـ ٥' },
+  'programPage.lockRates': { en: 'Locked fair rates · Zero surprise markup', ar: 'أسعار عادلة ثابتة وبدون أي رسوم خفية' },
+  'programPage.instantStart': { en: 'Instant start · Adds directly to your Dahab itinerary', ar: 'بداية فورية · تنضاف لجدول رحلتك بضغطة واحدة' },
+  'programPage.programNotFound': { en: 'Program not found. Showing our featured curation.', ar: 'البرنامج غير موجود. نعرض لك البرنامج الأبرز.' },
   // =========================================================================
   // 27. TRIP PLANNER WIZARD (STEPS 1-5 & FLOW)
   // =========================================================================
@@ -861,6 +884,113 @@ export const TRANSLATIONS: Translations = {
   'itinerary.sidebar.balancedPace': { en: 'Balanced', ar: 'متوازن' },
   'itinerary.sidebar.interests': { en: 'Selected Interests', ar: 'اهتماماتك' },
   'itinerary.sidebar.guaranteeTitle': { en: 'Sinai Local Host Guarantee', ar: 'ضمان المضيف المحلي في سيناء' },
-  'itinerary.sidebar.guaranteeDesc': { en: 'All diving centers, desert drivers, and boat captains are vetted local Dahab professionals who prioritize safety and authentic hospitality.', ar: 'كل مراكز الغطس وسواقين الصحرا وقباطنة المراكب محليين من دهب ومتحقَّق منهم، وبيحطوا الأمان والضيافة الأصلية في الأول.' }
+  'itinerary.sidebar.guaranteeDesc': { en: 'All diving centers, desert drivers, and boat captains are vetted local Dahab professionals who prioritize safety and authentic hospitality.', ar: 'كل مراكز الغطس وسواقين الصحرا وقباطنة المراكب محليين من دهب ومتحقَّق منهم، وبيحطوا الأمان والضيافة الأصلية في الأول.' },
+
+  // =========================================================================
+  // 17. GLOBAL EXPERIENCE DETAIL PAGE SYSTEM
+  // =========================================================================
+  'experienceDetail.breadcrumbHome': { en: 'Home', ar: 'الرئيسية' },
+  'experienceDetail.breadcrumbExplore': { en: 'Explore Dahab', ar: 'استكشف دهب' },
+  'experienceDetail.backToExplore': { en: 'Back to Explore', ar: 'الرجوع للاستكشاف' },
+  'experienceDetail.verifiedOperator': { en: 'Verified Sinai Operator', ar: 'مُشغّل سيناوي موثوق' },
+  'experienceDetail.overviewTitle': { en: 'Experience Overview', ar: 'نظرة عامة على التجربة' },
+  'experienceDetail.whyItFitsTitle': { en: 'Why It Fits Your Dahab Trip', ar: 'ليه التجربة دي مناسبة لرحلتك؟' },
+  'experienceDetail.localGuideNote': { en: "Local Sinai Guide's Note", ar: 'نصيحة الدليل السيناوي المحلي' },
+  'experienceDetail.quickFactsTitle': { en: 'Key Specifications', ar: 'المواصفات والتفاصيل الأساسية' },
+  'experienceDetail.duration': { en: 'Duration', ar: 'المدة' },
+  'experienceDetail.difficulty': { en: 'Skill / Level', ar: 'المستوى المطلوب' },
+  'experienceDetail.accessMethod': { en: 'Access Method', ar: 'طريقة الوصول' },
+  'experienceDetail.optimalTime': { en: 'Best Timing', ar: 'أفضل توقيت' },
+  'experienceDetail.startingPrice': { en: 'Price Estimate', ar: 'السعر التقديري' },
+  // The commerce seam. An experience with real inventory behind it can now be
+  // bought from the page that describes it; one without says so plainly rather
+  // than offering a button that leads nowhere.
+  'experienceDetail.bookNow': { en: 'Book this experience', ar: 'احجز التجربة دي' },
+  'experienceDetail.bookNowShort': { en: 'Book now', ar: 'احجز الآن' },
+  'experienceDetail.adding': { en: 'Adding…', ar: 'جاري الإضافة…' },
+  'experienceDetail.addThenBookHint': {
+    en: 'This goes on your day as a plan. You can book it from My Trip whenever you are ready.',
+    ar: 'هتتضاف كخطة مقترحة في اليوم ده — تقدر تحجزها من صفحة رحلتي في أي وقت.'
+  },
+  'experienceDetail.notBookableTitle': { en: 'Not bookable online yet', ar: 'لسه مش متاح الحجز أونلاين' },
+  'experienceDetail.notBookableBody': {
+    en: 'We do not sell this one through the app yet, so we will not pretend to. Add it to your trip to plan around it, and arrange the details on the day.',
+    ar: 'التجربة دي لسه مش بتتباع من خلال التطبيق، وعشان كده مش هنقول غير كده. ضيفها لرحلتك عشان تخطط حواليها ورتب التفاصيل في يومها.'
+  },
+  'experienceDetail.highlightsTitle': { en: "What You'll Experience", ar: 'أبرز ما ستعيشه في هذه التجربة' },
+  'experienceDetail.includedTitle': { en: "What's Included", ar: 'ما يشمله الحجز' },
+  'experienceDetail.notIncludedTitle': { en: "What's Not Included & What to Bring", ar: 'غير مشمول وما يجب إحضاره' },
+  'experienceDetail.preparationTitle': { en: 'Preparation & Safety Tips', ar: 'إرشادات الاستعداد والسلامة' },
+  'experienceDetail.environmentalSignals': { en: 'Live Sinai Conditions', ar: 'حالة البحر والطقس المباشرة' },
+  'experienceDetail.waterTemp': { en: 'Water Temp', ar: 'حرارة المياه' },
+  'experienceDetail.visibility': { en: 'Visibility', ar: 'وضوح الرؤية' },
+  'experienceDetail.windCondition': { en: 'Wind / Swell', ar: 'حالة الرياح والأمواج' },
+  'experienceDetail.addToItinerary': { en: 'Add to My Trip', ar: 'إضافة إلى رحلتي' },
+  'experienceDetail.selectDay': { en: 'Select Day to Place in Itinerary', ar: 'اختر اليوم لإضافتها في جدولك' },
+  'experienceDetail.day': { en: 'Day', ar: 'اليوم' },
+  'experienceDetail.timeSlot': { en: 'Preferred Time Window', ar: 'الفترة المفضلة' },
+  'experienceDetail.morning': { en: 'Morning (09:00 AM)', ar: 'صباحاً (٠٩:٠٠ ص)' },
+  'experienceDetail.afternoon': { en: 'Afternoon (02:00 PM)', ar: 'ظهراً (٠٢:٠٠ م)' },
+  'experienceDetail.sunset': { en: 'Sunset Golden Hour (05:00 PM)', ar: 'وقت الغروب (٠٥:٠٠ م)' },
+  'experienceDetail.evening': { en: 'Evening Starlight (08:00 PM)', ar: 'سهرة مسائية (٠٨:٠٠ م)' },
+  'experienceDetail.addedSuccess': { en: 'Added to your itinerary successfully ✓', ar: 'تمت الإضافة إلى جدول رحلتك بنجاح ✓' },
+  'experienceDetail.bookDirectly': { en: 'Book / Reserve Now', ar: 'احجز الآن مباشرة' },
+  'experienceDetail.trustGuarantee': { en: '100% Vetted Local Partner · Fair Dahab Rates · Free Rescheduling', ar: 'شريك محلي معتمد ١٠٠٪ · أسعار دهب العادلة · مرونة كاملة في تعديل الموعد' },
+  'experienceDetail.relatedTitle': { en: 'Similar Experiences in Dahab', ar: 'تجارب وأنشطة مشابهة في دهب' },
+  'experienceDetail.notFoundTitle': { en: 'Experience Not Found', ar: 'التجربة غير موجودة' },
+  'experienceDetail.notFoundDesc': { en: "The experience or spot you're looking for could not be found or has moved.", ar: 'لم نتمكن من العثور على التجربة أو المكان المطلوب أو ربما تم تغيير الرابط.' },
+  'experienceDetail.browseAll': { en: 'Browse All Dahab Spots', ar: 'تصفح جميع أماكن وتجارب دهب' },
+
+  // =========================================================================
+  // 18. MY TRIP COMMAND CENTER & TIMELINE DASHBOARD
+  // =========================================================================
+  'myTrip.title': { en: 'Your Dahab Journey', ar: 'رحلتك لدهب' },
+  'myTrip.confirmedBadge': { en: 'Trip Confirmed & Synchronized ✓', ar: 'الرحلة مؤكدة ومتزامنة ✓' },
+  'myTrip.preTripStage': { en: 'Pre-Arrival Preparation', ar: 'مرحلة التجهيز للرحلة' },
+  'myTrip.inDahabStage': { en: 'Live in Dahab Mode 🌊', ar: 'أنت دلوقتي في دهب 🌊' },
+  'myTrip.manageTrip': { en: 'Manage Trip', ar: 'إدارة الرحلة' },
+  'myTrip.shareItinerary': { en: 'Share Itinerary', ar: 'مشاركة الجدول' },
+  'myTrip.offlinePack': { en: 'Offline Pack', ar: 'بيانات بدون نت' },
+  'myTrip.addActivity': { en: 'Add Experience', ar: 'إضافة نشاط' },
+  
+  // Tabs
+  'myTrip.tabTimeline': { en: 'Daily Itinerary', ar: 'جدول الأيام والمغامرات' },
+  'myTrip.tabBookings': { en: 'Bookings & Budget', ar: 'الحجوزات والميزانية' },
+  'myTrip.tabTools': { en: 'Dahab Concierge & Tools', ar: 'أدوات المسافر والمساعد الذكي' },
+
+  // Next Up Card
+  'myTrip.nextUpTitle': { en: 'Next Up in Dahab', ar: 'القادم في رحلتك' },
+  'myTrip.tomorrowInDahab': { en: 'Tomorrow in Dahab', ar: 'غداً في دهب' },
+  'myTrip.directions': { en: 'Get Directions', ar: 'الاتجاهات' },
+  'myTrip.contactHost': { en: 'WhatsApp Guide', ar: 'تواصل مع الدليل' },
+  'myTrip.weatherCalm': { en: '28°C · Sunny · Calm Red Sea Swell', ar: '٢٨°م · مشمس · البحر الأحمر هادي وصافي' },
+
+  // Timeline Controls
+  'myTrip.allDays': { en: 'All Days', ar: 'كل الأيام' },
+  'myTrip.day': { en: 'Day', ar: 'اليوم' },
+  'myTrip.expandAll': { en: 'Expand All', ar: 'فتح الكل' },
+  'myTrip.collapseAll': { en: 'Collapse All', ar: 'طي الكل' },
+  'myTrip.emptyDay': { en: 'No activities planned for this day yet.', ar: 'مفيش أنشطة مجدولة لليوم ده لسه.' },
+  'myTrip.exploreSpots': { en: 'Explore Dahab Spots', ar: 'استكشف أنشطة وأماكن دهب' },
+  'myTrip.confirmed': { en: 'Confirmed ✓', ar: 'مؤكد ✓' },
+  'myTrip.suggested': { en: 'Suggested', ar: 'مقترح' },
+  'myTrip.shiftDay': { en: 'Move Day', ar: 'نقل ليوم آخر' },
+  'myTrip.remove': { en: 'Remove', ar: 'حذف' },
+  'myTrip.viewDetails': { en: 'Details', ar: 'التفاصيل' },
+
+  // Bookings & Logistics
+  'myTrip.bookingsTitle': { en: 'Confirmed Vouchers & Transport', ar: 'حجوزاتك وقسائم الانتقال' },
+  'myTrip.budgetTitle': { en: 'Trip Budget & Expenses', ar: 'ميزانية ومصروفات الرحلة' },
+  'myTrip.spent': { en: 'Spent', ar: 'المصروف' },
+  'myTrip.remaining': { en: 'Remaining', ar: 'المتبقي' },
+  'myTrip.totalBudget': { en: 'Total Estimated', ar: 'إجمالي التكلفة' },
+  'myTrip.groupTravel': { en: 'Travel Companions & Split', ar: 'سفر الصحاب ومشاركة التكاليف' },
+  'myTrip.inviteFriend': { en: 'Invite Companions', ar: 'دعوة أصحابك' },
+
+  // Quick Tools
+  'myTrip.foodNow': { en: 'Food Now & Beach Delivery', ar: 'أكل ومشروبات واصلة لمكانك' },
+  'myTrip.whatShouldIDo': { en: 'What Should I Do Now?', ar: 'أعمل إيه دلوقتي بروقان؟' },
+  'myTrip.briefing': { en: 'Pre-Arrival Briefing', ar: 'دليل وتعليمات قبل السفر' },
+  'myTrip.sosEmergency': { en: '24/7 SOS & Medical Help', ar: 'طوارئ سيناء وغرفة الضغط ٢٤ ساعة' }
 };
 

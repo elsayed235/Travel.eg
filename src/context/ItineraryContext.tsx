@@ -12,6 +12,8 @@ import { useAuth } from './AuthContext';
 import { useUI } from './UIContext';
 import { useCommerce } from './CommerceContext';
 import { buildTimelineDays } from '../services/tripBookingMapper';
+import { createPlanningTrip } from '../services/tripLifecycle';
+import { api } from '../services/api';
 
 export interface ItineraryContextType {
   profile: TravelerProfile;
@@ -19,8 +21,15 @@ export interface ItineraryContextType {
   updateProfile: (updates: Partial<TravelerProfile>) => void;
   tripDays: TimelineDay[];
   setTripDays: React.Dispatch<React.SetStateAction<TimelineDay[]>>;
-  addActivityToDay: (dayNumber: number, activity: TimelineActivity) => void;
-  removeActivityFromDay: (dayNumber: number, activityId: string) => void;
+  /**
+   * Puts an experience on the traveler's itinerary, for real.
+   *
+   * Async and rejection-free: it resolves once the server has the item (or once
+   * it is known that the server does not), so a caller can await it to show a
+   * spinner. It reports failure through a toast rather than by throwing.
+   */
+  addActivityToDay: (dayNumber: number, activity: TimelineActivity) => Promise<void>;
+  removeActivityFromDay: (dayNumber: number, activityId: string) => Promise<void>;
   updateActivityInDay: (dayNumber: number, activityId: string, updates: Partial<TimelineActivity>) => void;
   shiftActivityBetweenDays: (activityId: string, fromDay: number, toDay: number, newTimeSlot?: string) => void;
   activeFoodOrder: FoodOrderItem | null;
@@ -38,9 +47,9 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [activeFoodOrder, setActiveFoodOrder] = useState<FoodOrderItem | null>(null);
   const [savedItems, setSavedItems] = useState<string[]>([]);
 
-  const { user, sessionUser } = useAuth();
-  const { showToast } = useUI();
-  const { activeTrip, activeTripItems } = useCommerce();
+  const { user, sessionUser, isSignedIn, setIntendedRoute } = useAuth();
+  const { showToast, navigateTo } = useUI();
+  const { activeTrip, activeTripItems, openTrip, reloadTrip } = useCommerce();
 
   /**
    * Fill the traveler's identity and trip settings from the session and their
@@ -102,21 +111,117 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setProfile(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const addActivityToDay = useCallback(
-    (dayNumber: number, activity: TimelineActivity) => {
-      setTripDays(prevDays =>
-        prevDays.map(day => {
-          if (day.dayNumber === dayNumber) {
-            return {
-              ...day,
-              activities: [...day.activities, activity]
-            };
-          }
-          return day;
-        })
-      );
+  /**
+   * Puts an activity on a day, creating the day when the itinerary has no such
+   * day yet.
+   *
+   * The previous version was a plain `prevDays.map(...)`: with no matching day
+   * it returned the list untouched and the activity was simply lost. Since
+   * `tripDays` is empty for any traveler without a trip, that was the ordinary
+   * case, and it happened underneath a toast that said "Added ✓".
+   */
+  const placeActivity = useCallback(
+    (days: TimelineDay[], dayNumber: number, activity: TimelineActivity): TimelineDay[] => {
+      if (days.some(day => day.dayNumber === dayNumber)) {
+        return days.map(day =>
+          day.dayNumber === dayNumber
+            ? { ...day, activities: [...day.activities, activity] }
+            : day
+        );
+      }
 
-      // Cloud persistence if user is authenticated
+      const newDay: TimelineDay = {
+        dayNumber,
+        dateStr: `Day ${dayNumber}`,
+        title: `Day ${dayNumber}`,
+        subtitle: '1 booking',
+        activities: [activity]
+      };
+      return [...days, newDay].sort((a, b) => a.dayNumber - b.dayNumber);
+    },
+    []
+  );
+
+  /**
+   * Adds an experience to the traveler's real trip.
+   *
+   * What this replaces, in order: an update to client state only, which vanished
+   * on refresh; a fire-and-forget backend write whose `.catch` showed the *same
+   * success toast* as the success path, so a failed save was indistinguishable
+   * from a saved one; a `skuId` filled with the activity's **location string**,
+   * which meant the checkout — which matches an unbooked item to its booking by
+   * skuId — could never link the two and instead created a duplicate line; and
+   * no refresh afterwards, so the server's own item never appeared.
+   */
+  const addActivityToDay = useCallback(
+    async (dayNumber: number, activity: TimelineActivity): Promise<void> => {
+      // A trip belongs to somebody. There is nothing to add this to otherwise,
+      // and the server would reject the write regardless.
+      if (!isSignedIn) {
+        setIntendedRoute('/my-trip');
+        showToast('Sign in to add this to your trip.');
+        navigateTo('/auth/sign-in');
+        return;
+      }
+
+      let trip = activeTrip;
+
+      if (!trip) {
+        try {
+          trip = await createPlanningTrip({
+            title: 'My Dahab Trip',
+            idPrefix: 'TRIP-DAHAB',
+            lengthDays: profile.lengthDays,
+            travelersCount: profile.travelersCount,
+            budget: profile.budget,
+            pace: profile.pace,
+            interests: profile.interests
+          });
+          openTrip(trip.id);
+        } catch (error: unknown) {
+          showToast(
+            `Could not start a trip for this: ${error instanceof Error ? error.message : 'please try again'}`
+          );
+          return;
+        }
+      }
+
+      // Shown immediately, removed again below if the server refuses it.
+      setTripDays(prevDays => placeActivity(prevDays, dayNumber, activity));
+
+      try {
+        await api.addTripItem(trip.id, {
+          title: activity.title,
+          dayNumber,
+          timeSlot: activity.time || 'All Day',
+          // The activity's own vertical when it has one. 'activity' is the
+          // catch-all the server already defaults to.
+          serviceType: activity.serviceType || 'activity',
+          // The real product, or nothing at all. Never the location string.
+          skuId: activity.skuId,
+          priceEGP: activity.priceEGP ?? 0
+        });
+
+        showToast(`Added "${activity.title}" to Day ${dayNumber} ✓`);
+        // Replaces the optimistic entry with the server's, which carries the
+        // real item id and its SUGGESTED status — both of which the Book and
+        // Remove actions need.
+        reloadTrip();
+      } catch (error: unknown) {
+        setTripDays(prevDays =>
+          prevDays.map(day =>
+            day.dayNumber === dayNumber
+              ? { ...day, activities: day.activities.filter(a => a.id !== activity.id) }
+              : day
+          )
+        );
+        showToast(
+          `"${activity.title}" was not added: ${error instanceof Error ? error.message : 'please try again'}`
+        );
+        return;
+      }
+
+      // Firebase cloud persistence if user is authenticated
       if (user?.uid) {
         void loadFirebase().then(firebase => firebase.persistActivityToCloud(
           {
@@ -133,14 +238,36 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           user.uid
         )).catch(() => {});
       }
-
-      showToast(`Added "${activity.title}" to Day ${dayNumber} ✓`);
     },
-    [user, showToast]
+    [
+      activeTrip,
+      isSignedIn,
+      navigateTo,
+      openTrip,
+      placeActivity,
+      profile,
+      reloadTrip,
+      setIntendedRoute,
+      showToast,
+      user
+    ]
   );
 
+  /**
+   * Removes an activity from the itinerary.
+   *
+   * `activityId` is the **server's** trip item id, which is what
+   * buildTimelineDays puts on each timeline entry. The previous version sent
+   * whatever id the caller had minted client-side — `exp-1756…` from the
+   * experience page — which no stored item could ever match, so the row came
+   * off the screen and stayed in the database.
+   */
   const removeActivityFromDay = useCallback(
-    (dayNumber: number, activityId: string) => {
+    async (dayNumber: number, activityId: string): Promise<void> => {
+      const removed = tripDays
+        .find(day => day.dayNumber === dayNumber)
+        ?.activities.find(activity => activity.id === activityId);
+
       setTripDays(prevDays =>
         prevDays.map(day => {
           if (day.dayNumber === dayNumber) {
@@ -152,9 +279,27 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           return day;
         })
       );
-      showToast('Activity removed from itinerary');
+
+      if (!activeTrip) {
+        showToast('Activity removed from itinerary');
+        return;
+      }
+
+      try {
+        await api.removeTripItem(activeTrip.id, activityId);
+        showToast('Activity removed from itinerary');
+        reloadTrip();
+      } catch (error: unknown) {
+        // Put it back. A row that is still stored must still be on screen.
+        if (removed) {
+          setTripDays(prevDays => placeActivity(prevDays, dayNumber, removed));
+        }
+        showToast(
+          `Could not remove that: ${error instanceof Error ? error.message : 'please try again'}`
+        );
+      }
     },
-    [showToast]
+    [activeTrip, placeActivity, reloadTrip, showToast, tripDays]
   );
 
   const updateActivityInDay = useCallback(

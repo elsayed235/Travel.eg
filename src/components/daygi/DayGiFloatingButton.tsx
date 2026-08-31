@@ -1,0 +1,66 @@
+import React from 'react';
+import { Sparkles } from 'lucide-react';
+import { useTrip } from '../../context/TripContext';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
+
+/**
+ * The way into DayGI.
+ *
+ * It used to be a fourth tab in the global navbar, beside Discover, My Trip and
+ * Dahab Live — which put a thing you reach for when you are stuck at the same
+ * weight as the places you live in, and spent a quarter of the top-level
+ * navigation on it.
+ *
+ * It sits on the opposite side from SinaiFloatingQuickDock deliberately: that
+ * corner already holds the tools pill and the SOS button, and a third circle in
+ * the same stack is a corner nobody can aim at.
+ */
+export const DayGiFloatingButton: React.FC = () => {
+  const { currentRoute, navigateTo } = useTrip();
+  const { language, isRTL } = useLanguage();
+  const { isDark } = useTheme();
+
+  // Nothing to offer from the page it opens.
+  if (currentRoute === '/daygi' || currentRoute === '/ai-director') return null;
+
+  const label = language === 'ar' ? 'اسأل دايجي' : 'Ask DayGI';
+
+  return (
+    <button
+      type="button"
+      id="daygi-floating-button"
+      onClick={() => navigateTo('/daygi')}
+      aria-label={label}
+      dir={isRTL ? 'rtl' : 'ltr'}
+      /*
+       * Clears the mobile tab bar and the sticky booking bar the same way the
+       * quick dock does, so the three of them sit on one line rather than
+       * overlapping on a phone.
+       */
+      className={`group fixed bottom-[148px] md:bottom-6 start-4 sm:start-6 z-40 h-12 rounded-full
+        flex items-center gap-2 ps-3.5 pe-3.5
+        shadow-[0_6px_20px_-4px_rgba(8,23,20,0.45)]
+        transition-[background-color,transform,box-shadow] duration-200
+        hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-4px_rgba(8,23,20,0.5)]
+        active:translate-y-0 active:scale-[0.97]
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+        ${
+          isDark
+            ? 'bg-[#13312B] text-[#F7F3EA] border border-[#52C4B7]/35 hover:bg-[#1a4038] focus-visible:ring-[#52C4B7] focus-visible:ring-offset-[#081714]'
+            : 'bg-white text-[#122420] border border-[#122420]/10 hover:bg-[#FAF7F0] focus-visible:ring-[#0F6F78] focus-visible:ring-offset-[#FBF9F5]'
+        }`}
+    >
+      <Sparkles className="w-5 h-5 shrink-0 text-[#20A89A]" aria-hidden="true" />
+
+      {/*
+       * The label is present for a pointer and gone on a phone, where the
+       * corner is scarce and the icon has to carry it. aria-label above means
+       * the control is named either way.
+       */}
+      <span className="hidden lg:inline text-xs font-bold whitespace-nowrap" aria-hidden="true">
+        {label}
+      </span>
+    </button>
+  );
+};

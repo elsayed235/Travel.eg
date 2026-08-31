@@ -4,6 +4,7 @@ import {
   requiredString,
   optionalString,
   requiredAmountEGP,
+  planAmountEGP,
   requiredCount,
   requiredCalendarDate,
   requiredArray,
@@ -220,5 +221,41 @@ describe('every error is a 400', () => {
     try { requiredString(undefined, 'tripId'); } catch (e) { error = e as InvalidRequestBodyError; }
     expect(error?.status).toBe(400);
     expect(error?.title).toBe('Invalid Request');
+  });
+});
+
+describe('planAmountEGP', () => {
+  /**
+   * A trip item is a plan, not a payment. Free things exist — a beach, a
+   * sunset walk, a reef you swim out to — and requiring a price above zero
+   * stopped a traveler from planning any of them: adding "Eel Garden Sunset
+   * Guided Snorkel" from Explore failed with "priceEGP must be greater than
+   * zero". The same endpoint already treated an *absent* price as 0, so the
+   * value was accepted when omitted and refused when stated.
+   */
+  it('accepts a free line', () => {
+    expect(planAmountEGP(0, 'priceEGP')).toBe(0);
+  });
+
+  it('still refuses a negative price', () => {
+    expect(() => planAmountEGP(-1, 'priceEGP')).toThrow(InvalidRequestBodyError);
+  });
+
+  it('accepts a real price', () => {
+    expect(planAmountEGP(3400, 'priceEGP')).toBe(3400);
+  });
+
+  it('refuses something that is not a number', () => {
+    expect(() => planAmountEGP('free', 'priceEGP')).toThrow(InvalidRequestBodyError);
+    expect(() => planAmountEGP(undefined, 'priceEGP')).toThrow(InvalidRequestBodyError);
+  });
+
+  it('keeps the ceiling and the two-decimal rule', () => {
+    expect(() => planAmountEGP(2_000_000, 'priceEGP')).toThrow(InvalidRequestBodyError);
+    expect(() => planAmountEGP(10.005, 'priceEGP')).toThrow(InvalidRequestBodyError);
+  });
+
+  it('leaves requiredAmountEGP strict, because a payment of zero is still wrong', () => {
+    expect(() => requiredAmountEGP(0, 'amountEGP')).toThrow(InvalidRequestBodyError);
   });
 });

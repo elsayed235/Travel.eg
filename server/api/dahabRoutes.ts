@@ -22,8 +22,26 @@ import { marketFreshnessService } from '../services/marketFreshnessService';
 import { autonomousDataOpsService } from '../services/autonomousDataOpsService';
 import { AuthenticatedRequest } from '../middleware/correlationMiddleware';
 import { db } from '../db/database';
+import { resolveBookability } from '../services/bookabilityReconciler';
 
 export const dahabRouter = Router();
+
+/**
+ * Attaches what it takes to actually sell an activity.
+ *
+ * The catalogue used to hand out `skuId` and `bookingMode` and leave every
+ * consumer to work out on its own whether either could be trusted — none could,
+ * see bookabilityReconciler. `bookable` is the single answer: a resolved
+ * product when one exists, null when the activity cannot be transacted online.
+ *
+ * `basePriceEGP` inside it is the SKU's, not the activity's, because that is
+ * the amount checkout charges. The two disagree today: the Blue Hole activity
+ * is priced 2,200 EGP in the corpus and SKU-DIV-002 sells it for 3,400.
+ */
+const withBookability = <T extends { skuId?: string }>(activity: T) => ({
+  ...activity,
+  bookable: resolveBookability(activity.skuId)
+});
 
 /**
  * GET /api/dahab/context
@@ -32,7 +50,7 @@ export const dahabRouter = Router();
 dahabRouter.get('/context', (req: AuthenticatedRequest, res: Response) => {
   const conditions = dahabKnowledgeOs.getLiveConditions();
   const areas = dahabKnowledgeOs.getAllAreas();
-  const highlights = db.activities.slice(0, 4);
+  const highlights = db.activities.slice(0, 4).map(withBookability);
 
   res.json({
     status: 'success',
@@ -163,7 +181,7 @@ dahabRouter.get('/activities', (req: AuthenticatedRequest, res: Response) => {
   res.json({
     status: 'success',
     count: activities.length,
-    activities,
+    activities: activities.map(withBookability),
     correlationId: req.correlationId
   });
 });
@@ -183,7 +201,7 @@ dahabRouter.get('/activities/:id', (req: AuthenticatedRequest, res: Response) =>
 
   res.json({
     status: 'success',
-    activity,
+    activity: withBookability(activity),
     correlationId: req.correlationId
   });
 });

@@ -20,7 +20,8 @@ import {
   Sparkles,
   Edit3,
   Save,
-  DollarSign
+  DollarSign,
+  LogOut
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { formatTripDateRange } from '../../utils/tripDates';
@@ -29,7 +30,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { NEAR_ME_DATA } from '../explore/ExploreView';
 
 export const ProfileView: React.FC = () => {
-  const { profile, setProfile, savedItems, toggleSaveItem, navigateTo, showToast, sessionUser, isSignedIn, allTrips, activeTrip, bookings } = useTrip();
+  const { profile, setProfile, savedItems, toggleSaveItem, navigateTo, showToast, sessionUser, isSignedIn, allTrips, activeTrip, bookings, signOut } = useTrip();
   const { language, isRTL, t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'profile' | 'saved' | 'history' | 'settings'>('profile');
@@ -406,6 +407,39 @@ export const ProfileView: React.FC = () => {
                 {language === 'ar' ? 'الانتقال لجدول الرحلة الذكي ←' : 'Go to My Trip Hub →'}
               </button>
             </div>
+
+            {/*
+              Signing out.
+
+              Also reachable from the account menu in the header, but this is
+              where people look for it — and until now the platform had no way
+              out at all: a traveler could sign in and never sign out, which on
+              a shared device leaves the next person holding their bookings,
+              their payment history and their passport field.
+            */}
+            {isSignedIn && (
+              <div className="rounded-3xl p-6 border border-[#142126]/10 bg-white space-y-3">
+                <div>
+                  <h3 className="font-bold text-sm text-[#142126] font-['Outfit',sans-serif]">
+                    {language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}
+                  </h3>
+                  <p className="text-xs text-[#142126]/70 leading-relaxed mt-1">
+                    {language === 'ar'
+                      ? 'هينهي الجلسة على الجهاز ده. رحلتك وحجوزاتك محفوظة وهتلاقيها لما ترجع تدخل.'
+                      : 'Ends your session on this device. Your trip and bookings are saved and will be here when you sign back in.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  id="profile-signout-btn"
+                  onClick={() => void signOut()}
+                  className="min-h-[44px] px-5 rounded-full border border-[#C0553C]/40 text-[#C0553C] hover:bg-[#C0553C]/10 text-xs font-bold transition-colors cursor-pointer flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" aria-hidden="true" />
+                  <span>{language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}</span>
+                </button>
+              </div>
+            )}
 
           </div>
         )}

@@ -27,7 +27,7 @@ interface SearchResultItem {
   subtitle: string;
   subtitleAr?: string;
   route: AppRoute;
-  actionParams?: { dayId?: number; activityId?: string; bookingId?: string };
+  actionParams?: { dayId?: number; activityId?: string; bookingId?: string; experienceSlug?: string; programSlug?: string };
 }
 
 /**
@@ -47,7 +47,8 @@ const NAVIGATION_CATALOG: SearchResultItem[] = [
     categoryAr: 'تجارب',
     subtitle: '100m coral sinkhole, world premier freediving & dive wall',
     subtitleAr: 'أشهر بقعة غطس وحر بالعالم مع جدار مرجاني مهيب',
-    route: '/explore',
+    route: '/experiences',
+    actionParams: { experienceSlug: 'near-blue-hole' },
   },
   {
     id: 's-canyon',
@@ -181,7 +182,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
       categoryAr: 'أماكن',
       subtitle: place.descriptionEn,
       subtitleAr: place.descriptionAr,
-      route: '/explore'
+      route: '/experiences',
+      actionParams: { experienceSlug: place.id }
     })),
     ...(corpus.data?.activities ?? []).map<SearchResultItem>(activity => ({
       id: `activity-${activity.id}`,
@@ -191,7 +193,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
       categoryAr: 'تجارب',
       subtitle: `${activity.difficulty} · ${activity.basePriceEGP} EGP`,
       subtitleAr: `${activity.difficulty} · ${activity.basePriceEGP} ج.م`,
-      route: '/explore'
+      route: '/experiences',
+      actionParams: { experienceSlug: activity.id }
     })),
     ...(corpus.data?.venues ?? []).map<SearchResultItem>(venue => ({
       id: `venue-${venue.id}`,

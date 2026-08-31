@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   HelpCircle, 
   ArrowLeft, 
@@ -85,6 +85,27 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   // both languages. The name comes from the session now, and is simply omitted
   // when there is none.
   const { profile, user, sessionUser, activeTrip } = useTrip();
+  // Emergency resources fetched from backend
+  const [emergencyHotlines, setEmergencyHotlines] = useState<Array<{ service: string; number: string }>>([
+    { service: 'Hyperbaric Chamber Emergency', number: '+20 122 212 4840 / 137' },
+    { service: 'Dahab Central Hospital ER', number: '123 / +20 69 3640212' },
+    { service: 'Tourism Police Emergency', number: '126 / +20 69 3640103' },
+  ]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    api.getEmergencyResources(controller.signal)
+      .then((data) => {
+        if (data.emergencyHotlines?.length) {
+          setEmergencyHotlines(data.emergencyHotlines);
+        }
+      })
+      .catch(() => {
+        // Fallback hotlines already in state — no action needed
+      });
+    return () => controller.abort();
+  }, []);
+
   const [isSendingSupport, setIsSendingSupport] = useState<boolean>(false);
   // First name only: a greeting reads as a greeting, not as a record
   // lookup. "جعان يا Ahmed Mansour؟" is not how anyone is addressed.
@@ -819,33 +840,24 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   : 'If you need immediate voice assistance or roadside coordination, connect directly to our 24/7 Dahab dispatch desk.'}
               </p>
 
-              {/* Ops Desk Dialer */}
-              <a 
-                href="tel:+20693640991"
-                className="p-3.5 rounded-2xl bg-[#13312B] hover:bg-[#1b423a] border border-white/10 flex items-center justify-between transition-colors block cursor-pointer group"
-              >
-                <div>
-                  <span className="text-[11px] text-[#D2E3DE]/60 uppercase font-bold block">{language === 'ar' ? 'رقم العمليات والطوارئ (مكتب دهب):' : 'Local Ops Desk Number:'}</span>
-                  <span className="font-mono text-base font-bold text-[#F4C36C] group-hover:text-amber-300 transition-colors">+20 (0) 69 364 0991</span>
-                </div>
-                <div className="w-9 h-9 rounded-xl bg-[#F4C36C]/20 text-[#F4C36C] flex items-center justify-center">
-                  <PhoneForwarded className="w-4 h-4" />
-                </div>
-              </a>
-
-              {/* Bedouin Lead Driver Dialer */}
-              <a 
-                href="tel:+201008765432"
-                className="p-3.5 rounded-2xl bg-[#13312B] hover:bg-[#1b423a] border border-white/10 flex items-center justify-between transition-colors block cursor-pointer group"
-              >
-                <div>
-                  <span className="text-[11px] text-[#D2E3DE]/60 uppercase font-bold block">{language === 'ar' ? 'كابتن النقل البدوي (محمود سالم):' : 'Bedouin Lead Driver (Capt. Mahmoud):'}</span>
-                  <span className="font-mono text-sm font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">+20 100 876 5432</span>
-                </div>
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <Car className="w-4 h-4" />
-                </div>
-              </a>
+              {/* Emergency hotlines from backend */}
+              <div className="space-y-2">
+                {emergencyHotlines.map((hotline, idx) => (
+                  <a
+                    key={idx}
+                    href={`tel:${hotline.number.replace(/[^+\d]/g, '')}`}
+                    className="p-3 rounded-2xl bg-[#13312B] hover:bg-[#1b423a] border border-white/10 flex items-center justify-between transition-colors block cursor-pointer group"
+                  >
+                    <div>
+                      <span className="text-[11px] text-[#D2E3DE]/60 uppercase font-bold block">{hotline.service}</span>
+                      <span className="font-mono text-sm font-bold text-[#F4C36C] group-hover:text-amber-300 transition-colors">{hotline.number}</span>
+                    </div>
+                    <div className="w-9 h-9 rounded-xl bg-[#F4C36C]/20 text-[#F4C36C] flex items-center justify-center">
+                      <PhoneForwarded className="w-4 h-4" />
+                    </div>
+                  </a>
+                ))}
+              </div>
 
               {/* Email & GPS Actions */}
               <div className="grid grid-cols-2 gap-2 pt-1">

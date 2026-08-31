@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { db } from '../db/database';
+import { reconcileTripStatus } from './tripStatusReconciler';
 import type { CommerceServiceType } from '../db/schema';
 import { HoldEntity, BookingEntity, InventorySlotEntity, ProductSkuEntity } from '../db/schema';
 import { paymentService } from './paymentService';
@@ -485,10 +486,19 @@ export class CommerceService {
       // Update Trip totals
       const trip = db.trips.find(t => t.id === params.tripId);
       if (trip) {
-        trip.status = 'CONFIRMED';
         trip.totalPaidEGP += totalAmountEGP;
         trip.updatedAt = now;
       }
+
+      // Advance the trip's own lifecycle from what is now true of it.
+      //
+      // This was `trip.status = 'CONFIRMED'`, unconditionally, which could only
+      // ever move a trip forwards by accident. A traveler already in Dahab
+      // (IN_DESTINATION) who booked a massage was sent *back* to CONFIRMED and
+      // dropped out of the in-destination experience; a cancelled trip was
+      // quietly revived by any booking against it. reconcileTripStatus only
+      // moves forward and refuses to touch a terminal trip.
+      reconcileTripStatus(params.tripId, params.travelerName);
 
       db.logAudit(params.travelerName, 'Traveler', 'MULTI_CHECKOUT_COMPLETED', 'Trip', params.tripId, {
         totalAmountEGP,

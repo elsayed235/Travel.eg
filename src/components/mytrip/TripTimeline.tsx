@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { TimelineDay, TimelineActivity } from './myTripData';
 import { useTrip } from '../../context/TripContext';
+import { analytics } from '../../services/analytics';
 import { formatTripDateRange } from '../../utils/tripDates';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -63,7 +64,7 @@ export const TripTimeline: React.FC<TripTimelineProps> = ({
   onViewBriefing,
   onShowToast,
 }) => {
-  const { tripDays: contextTripDays, activeTrip } = useTrip();
+  const { tripDays: contextTripDays, activeTrip, navigateTo } = useTrip();
   const { isRTL } = useLanguage();
   const { isDark } = useTheme();
   
@@ -115,25 +116,32 @@ export const TripTimeline: React.FC<TripTimelineProps> = ({
     }
   };
 
-  // Convert a suggestion to Confirmed status interactively
-  const handleConfirmSuggestion = (dayNum: number, actId: string, actTitle: string) => {
-    setDaysData((prevDays) =>
-      prevDays.map((d) => {
-        if (d.dayNumber !== dayNum) return d;
-        return {
-          ...d,
-          activities: d.activities.map((a) => {
-            if (a.id !== actId) return a;
-            return {
-              ...a,
-              status: 'Booked ✓',
-              bookingRef: `DHB-${Math.floor(1000 + Math.random() * 9000)}`,
-            };
-          }),
-        };
-      })
-    );
-    toast(`"${actTitle}" confirmed & added to your Dahab wallet! ✓`);
+  /**
+   * Takes an itinerary line to checkout.
+   *
+   * This replaces a handler that flipped the line to 'Booked ✓' in local state
+   * and stamped it with `DHB-${Math.floor(1000 + Math.random() * 9000)}` — a
+   * booking reference invented in the browser, for a booking that did not
+   * exist, shown to the traveler as a confirmation. Nothing was reserved,
+   * nobody was paid, no supplier was told, and it was gone on refresh.
+   *
+   * A line becomes booked when the server says so. The checkout matches this
+   * item to the booking it creates by `skuId`, so the same line comes back
+   * confirmed with the real reference on it.
+   */
+  const handleBookActivity = (act: TimelineActivity) => {
+    if (!act.skuId) {
+      // No product behind this line. Says so instead of pretending.
+      toast(`"${act.title}" is not bookable online — arrange it on the day.`);
+      return;
+    }
+
+    analytics.track('booking_started', {
+      sourceMode: 'my_trip_timeline',
+      metadata: { skuId: act.skuId, serviceType: act.serviceType }
+    } as any);
+
+    navigateTo('/book-now', { skuId: act.skuId });
   };
 
   // Activity type icon helper
@@ -803,14 +811,16 @@ export const TripTimeline: React.FC<TripTimelineProps> = ({
 
                                 {isPending && (
                                   <>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleConfirmSuggestion(day.dayNumber, act.id, act.title)}
-                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EA8E75] hover:bg-[#DE7C62] text-[#3B1B10] text-xs font-extrabold shadow-md transition-colors cursor-pointer"
-                                    >
-                                      <CheckCircle2 className="w-3.5 h-3.5" />
-                                      <span>Confirm Slot &amp; Lock</span>
-                                    </button>
+                                    {act.skuId && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleBookActivity(act)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EA8E75] hover:bg-[#DE7C62] text-[#3B1B10] text-xs font-extrabold shadow-md transition-colors cursor-pointer"
+                                      >
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        <span>Book &amp; Confirm</span>
+                                      </button>
+                                    )}
 
                                     <button
                                       type="button"
@@ -831,18 +841,18 @@ export const TripTimeline: React.FC<TripTimelineProps> = ({
 
                                 {act.status === 'Suggested' && (
                                   <>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleConfirmSuggestion(day.dayNumber, act.id, act.title)}
-                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-xs transition-colors cursor-pointer ${
-                                        isDark 
-                                          ? 'bg-[#13312B] hover:bg-white/10 text-[#F7F3EA] border-white/15' 
-                                          : 'bg-stone-100 hover:bg-stone-200 text-[#122420] border-[#122420]/10'
-                                      }`}
-                                    >
-                                      <BookmarkPlus className="w-3.5 h-3.5 text-[#EA8E75]" />
-                                      <span>Confirm &amp; Reserve</span>
-                                    </button>
+                                    {act.skuId && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleBookActivity(act)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#20A89A] hover:bg-[#52C4B7] text-[#081714] text-xs font-extrabold shadow-md transition-colors cursor-pointer"
+                                      >
+                                        <BookmarkPlus className="w-3.5 h-3.5" />
+                                        <span>
+                                          Book{act.priceEGP ? ` · ${act.priceEGP.toLocaleString()} EGP` : ''}
+                                        </span>
+                                      </button>
+                                    )}
 
                                     <button
                                       type="button"

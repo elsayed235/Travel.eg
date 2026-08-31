@@ -82,6 +82,61 @@ export interface TravelerLifecycleSnapshot {
 }
 
 // ============================================================================
+// 2b. WHERE THE TRAVELER ACTUALLY IS
+// ============================================================================
+
+/** Dahab's calendar date, matching how trips store startDate/endDate. */
+export function dahabToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Cairo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(now);
+}
+
+/**
+ * The traveler's stage, read from their trip.
+ *
+ * `journeyStage` used to be set from `currentRoute` — opening /home made you
+ * 'discover', opening /departure made you 'departure'. That is which page is
+ * open, not where anybody is in their trip, and since the whole lifecycle
+ * resolver below keys off this value, the entire notion of "where the traveler
+ * is" was really just "what they last clicked". A traveler standing in Dahab
+ * who tapped Home became a discovery-mode visitor.
+ *
+ * The trip is the honest source: its status is now advanced server-side from
+ * committed bookings and its own dates (see server/services/tripStatusReconciler).
+ */
+export function journeyStageFromTrip(
+  trip: { status: string; startDate?: string; endDate?: string } | null | undefined,
+  today: string = dahabToday()
+): JourneyStage {
+  if (!trip) return 'discover';
+
+  switch (trip.status) {
+    case 'DRAFT':
+      return 'plan';
+    case 'PLANNED':
+      // There is a plan; what it needs next is to be booked.
+      return 'book';
+    case 'CONFIRMED':
+      // Booked and not yet travelling. The trip only leaves CONFIRMED on the
+      // morning it starts, so this always means "before departure".
+      return 'prepare';
+    case 'IN_DESTINATION':
+      // The first day is its own thing — airport transfer, check-in, the first
+      // two hours — and the rest of the trip is not.
+      return trip.startDate && today === trip.startDate ? 'arrive' : 'experience';
+    case 'COMPLETED':
+      return 'post_trip';
+    case 'CANCELLED':
+    default:
+      return 'discover';
+  }
+}
+
+// ============================================================================
 // 3. DETERMINISTIC LIFECYCLE RESOLVER
 // ============================================================================
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildTimelineDays,
   buildTravelerBookings,
   selectActiveTrip,
   travelerStatusOf,
@@ -195,5 +196,56 @@ describe('selectActiveTrip', () => {
     const cancelled = trip({ id: 'X', status: 'CANCELLED', updatedAt: '2026-08-29T00:00:00.000Z' });
     const confirmed = trip({ id: 'OK', status: 'CONFIRMED', updatedAt: '2026-01-01T00:00:00.000Z' });
     expect(selectActiveTrip([cancelled, confirmed])?.id).toBe('OK');
+  });
+});
+
+describe('buildTimelineDays', () => {
+  /**
+   * The timeline is where a planned line becomes a bookable one. That needs two
+   * things carried through from the stored item: the status, so a line that is
+   * only suggested is not drawn as confirmed, and the skuId, which is what the
+   * Book action sends to checkout and what checkout matches the resulting
+   * booking back to. Neither used to survive the mapping.
+   */
+  it('carries the product id, so the line can be booked', () => {
+    const days = buildTimelineDays(trip(), [
+      item({ id: 'ITEM-DIVE', skuId: 'SKU-DIV-002', status: 'SUGGESTED', dayNumber: 2 })
+    ]);
+
+    expect(days[0].activities[0].skuId).toBe('SKU-DIV-002');
+    expect(days[0].activities[0].serviceType).toBe('hotel');
+  });
+
+  it('leaves skuId absent when the item has no product behind it', () => {
+    // The server stores "no product" as an empty string. An empty string is not
+    // a SKU, and a Book button must not appear for one.
+    const days = buildTimelineDays(trip(), [item({ skuId: '', status: 'SUGGESTED' })]);
+
+    expect(days[0].activities[0].skuId).toBeUndefined();
+  });
+
+  it('shows a suggested item as suggested, not as booked', () => {
+    const days = buildTimelineDays(trip(), [item({ status: 'SUGGESTED', bookingId: undefined })]);
+
+    expect(days[0].activities[0].status).toBe('Suggested');
+    expect(days[0].activities[0].bookingRef).toBeUndefined();
+  });
+
+  it('shows the real reference once the item is actually booked', () => {
+    const days = buildTimelineDays(trip(), [
+      item({ status: 'BOOKED', bookingId: 'DHB-DIV-2026-118' })
+    ]);
+
+    expect(days[0].activities[0].status).toBe('Booked ✓');
+    expect(days[0].activities[0].bookingRef).toBe('DHB-DIV-2026-118');
+  });
+
+  it('groups items into their own days, in order', () => {
+    const days = buildTimelineDays(trip(), [
+      item({ id: 'ITEM-D3', dayNumber: 3 }),
+      item({ id: 'ITEM-D1', dayNumber: 1 })
+    ]);
+
+    expect(days.map(d => d.dayNumber)).toEqual([1, 3]);
   });
 });

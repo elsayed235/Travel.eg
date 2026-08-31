@@ -78,9 +78,19 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode; showToast?: (msg: string) => void }> = ({
+export const AuthProvider: React.FC<{
+  children: React.ReactNode;
+  showToast?: (msg: string) => void;
+  /**
+   * Where to send the traveler after signing out. Injected rather than read
+   * from useUI, because AuthProvider renders below UIProvider and cannot use
+   * the hook — the same reason showToast is passed in.
+   */
+  onSignedOut?: () => void;
+}> = ({
   children,
-  showToast
+  showToast,
+  onSignedOut
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authRole, setAuthRole] = useState<AuthRole>('Traveler');
@@ -322,19 +332,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode; showToast?: (ms
     }
   }, [showToast]);
 
+  /**
+   * Ends the session, on the server and here.
+   *
+   * Nothing in the UI called this until now: the platform could be signed into
+   * and not out of. POST /api/auth/logout revokes the session and clears the
+   * HttpOnly cookie; setting `sessionUser` to null is what makes the rest of
+   * the app forget the traveler — CommerceContext drops their trip, bookings
+   * and ledger, and ItineraryContext resets the profile, both keyed on it.
+   *
+   * The server call comes first. If it fails the local state is cleared anyway:
+   * a traveler who pressed "sign out" on a shared machine must not be left
+   * looking at their own bookings because a request timed out. The cookie is
+   * HttpOnly, so the browser cannot clear it here — hence the warning below,
+   * which tells them the truth rather than reporting success.
+   */
   const signOut = useCallback(async (): Promise<void> => {
+    let serverAcknowledged = true;
     try {
-      (await loadFirebase()).signOutTraveler().catch(() => { /* no firebase user is fine */ });
       await api.logout();
-      setUser(null);
-      setSessionUser(null);
-      setAuthRole('Traveler');
-      setIsCloudSynced(false);
-      if (showToast) showToast('You have signed out safely.');
-    } catch (err: any) {
-      if (showToast) showToast('Failed to sign out. Please try again.');
+    } catch {
+      serverAcknowledged = false;
     }
-  }, [showToast]);
+
+    // Only touch the Firebase SDK when there is a Firebase user to sign out.
+    // It is 750 kB, and on a deployment without Firebase Admin credentials
+    // there never is one — this used to fetch the whole SDK on every sign-out.
+    if (user) {
+      try {
+        await (await loadFirebase()).signOutTraveler();
+      } catch {
+        /* no federated session is fine */
+      }
+    }
+
+    setUser(null);
+    setSessionUser(null);
+    setAuthRole('Traveler');
+    setIsCloudSynced(false);
+    setIntendedRoute('/my-trip');
+
+    if (showToast) {
+      showToast(
+        serverAcknowledged
+          ? 'Signed out.'
+          : 'Signed out on this device, but the server could not be reached — sign out again when you are back online.'
+      );
+    }
+
+    onSignedOut?.();
+  }, [showToast, user, onSignedOut]);
 
   // See the note in UIContext: a stable value object is what keeps TripContext's
   // memo from being invalidated on every render.

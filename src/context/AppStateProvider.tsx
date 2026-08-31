@@ -16,8 +16,18 @@ import { TripProvider } from './TripContext';
  * below UIProvider, so the hook can only be read from a component in between.
  */
 const AuthProviderWithToast: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { showToast } = useUI();
-  return <AuthProvider showToast={showToast}>{children}</AuthProvider>;
+  const { showToast, navigateTo } = useUI();
+  return (
+    <AuthProvider
+      showToast={showToast}
+      // Signing out on a private page — /profile, /bookings, /my-trip — would
+      // otherwise leave the traveler looking at the signed-out state of a page
+      // that is no longer theirs to be on.
+      onSignedOut={() => navigateTo('/home')}
+    >
+      {children}
+    </AuthProvider>
+  );
 };
 
 /**

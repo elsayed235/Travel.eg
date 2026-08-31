@@ -23,6 +23,13 @@ export interface UIContextType {
   setSelectedActivityId: (activityId: string | null) => void;
   selectedBookingId: string | null;
   setSelectedBookingId: (bookingId: string | null) => void;
+  selectedProgramSlug: string | null;
+  setSelectedProgramSlug: (slug: string | null) => void;
+  selectedExperienceSlug: string | null;
+  setSelectedExperienceSlug: (slug: string | null) => void;
+  /** The product a checkout page should open on, from the address bar. */
+  selectedSkuId: string | null;
+  setSelectedSkuId: (skuId: string | null) => void;
   journeyStage: JourneyStage;
   setJourneyStage: (stage: JourneyStage) => void;
   isEasyMode: boolean;
@@ -30,7 +37,19 @@ export interface UIContextType {
   toggleEasyMode: () => void;
   toast: string | null;
   showToast: (msg: string) => void;
-  navigateTo: (route: AppRoute, params?: { dayId?: number; activityId?: string; bookingId?: string }) => void;
+  navigateTo: (route: AppRoute, params?: RouteParams) => void;
+  /**
+   * Returns to wherever the traveler came from.
+   *
+   * Real history, not a hardcoded parent: a page reached from three different
+   * places has three different "backs", and sending everyone to /home from a
+   * screen they opened mid-task loses their place. Falls back to /home only
+   * when there is nothing of ours behind — a deep link, or a fresh tab — where
+   * going back would leave the app entirely.
+   */
+  goBack: () => void;
+  /** False on a cold entry, when goBack has nowhere of ours to return to. */
+  canGoBack: boolean;
   activeDayGiPrompt: string | null;
   setActiveDayGiPrompt: (prompt: string | null) => void;
   openDayGiWithPrompt: (prompt: string) => void;
@@ -51,6 +70,23 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
     () => readLocation().params.bookingId ?? null
   );
+  const [selectedProgramSlug, setSelectedProgramSlug] = useState<string | null>(
+    () => readLocation().params.programSlug ?? null
+  );
+  const [selectedExperienceSlug, setSelectedExperienceSlug] = useState<string | null>(
+    () => readLocation().params.experienceSlug ?? null
+  );
+  const [selectedSkuId, setSelectedSkuId] = useState<string | null>(
+    () => readLocation().params.skuId ?? null
+  );
+  /**
+   * Whether this session has navigated inside the app yet.
+   *
+   * window.history.length cannot answer this — it counts entries from before
+   * the app was opened, so it is >1 on any tab that has been used at all and
+   * `back()` would walk out to whatever site preceded us.
+   */
+  const [canGoBack, setCanGoBack] = useState<boolean>(false);
   const [journeyStage, setJourneyStage] = useState<JourneyStage>('discover');
   const [activeDayGiPrompt, setActiveDayGiPrompt] = useState<string | null>(null);
   const [activePersonaMode, setActivePersonaMode] = useState<'PRE_TRIP' | 'IN_DAHAB'>('PRE_TRIP');
@@ -117,13 +153,25 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const navigateTo = useCallback(
     (
       route: AppRoute,
-      params?: { dayId?: number; activityId?: string; bookingId?: string }
+      params?: RouteParams
     ) => {
       setCurrentRoute(route);
       if (params?.dayId !== undefined) setSelectedDayId(params.dayId);
       if (params?.activityId !== undefined) setSelectedActivityId(params.activityId);
       if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
+      if (params?.programSlug !== undefined) setSelectedProgramSlug(params.programSlug);
+      if (params?.experienceSlug !== undefined) setSelectedExperienceSlug(params.experienceSlug);
+      // Cleared when navigating without one, so a stale sku cannot make a later
+      // visit to Book Now open on a product the traveler did not choose.
+      setSelectedSkuId(params?.skuId ?? null);
+      // pushRoute skips a no-op navigation, so only count the ones that
+      // actually add an entry — otherwise re-tapping the current tab would
+      // arm a back button with nothing behind it.
+      const willPush =
+        typeof window !== 'undefined' &&
+        `${window.location.pathname}${window.location.search}` !== urlFromRoute(route, params);
       pushRoute(route, params);
+      if (willPush) setCanGoBack(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     [pushRoute]
@@ -141,6 +189,18 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     },
     [pushRoute]
   );
+
+  const goBack = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    if (canGoBack) {
+      // popstate restores the route and consumes the entry, so Back does not
+      // grow the stack the way navigating to the previous page would.
+      window.history.back();
+      return;
+    }
+    setCurrentRoute(DEFAULT_ROUTE);
+    pushRoute(DEFAULT_ROUTE);
+  }, [canGoBack, pushRoute]);
 
   const openDayGiWithPrompt = useCallback(
     (prompt: string) => {
@@ -168,6 +228,9 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       setSelectedDayId(params.dayId ?? null);
       setSelectedActivityId(params.activityId ?? null);
       setSelectedBookingId(params.bookingId ?? null);
+      setSelectedProgramSlug(params.programSlug ?? null);
+      setSelectedExperienceSlug(params.experienceSlug ?? null);
+      setSelectedSkuId(params.skuId ?? null);
     };
 
     window.addEventListener('popstate', onPopState);
@@ -188,10 +251,18 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   }, []);
 
-  // Sync stage with route if relevant
+  /**
+   * A few routes are an act, not a location.
+   *
+   * Opening the planner really does mean "I am planning right now", so those
+   * still set the stage. `'/home' -> 'discover'` was removed: home is where
+   * everyone goes, and resetting the stage there sent a traveler standing in
+   * Dahab back to discovery mode on every tap of the logo. Where the traveler
+   * *is* comes from their trip — see journeyStageFromTrip, pushed in
+   * CommerceContext — and that must not be overwritten by navigation.
+   */
   useEffect(() => {
-    if (currentRoute === '/home') setJourneyStage('discover');
-    else if (currentRoute === '/trip-builder') setJourneyStage('plan');
+    if (currentRoute === '/trip-builder') setJourneyStage('plan');
     else if (currentRoute === '/trip-preview') setJourneyStage('preview');
     else if (currentRoute === '/departure') setJourneyStage('departure');
     else if (currentRoute === '/post-trip') setJourneyStage('post_trip');
@@ -211,6 +282,12 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       setSelectedActivityId,
       selectedBookingId,
       setSelectedBookingId,
+      selectedProgramSlug,
+      setSelectedProgramSlug,
+      selectedExperienceSlug,
+      setSelectedExperienceSlug,
+      selectedSkuId,
+      setSelectedSkuId,
       journeyStage,
       setJourneyStage,
       isEasyMode,
@@ -219,6 +296,8 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       toast,
       showToast,
       navigateTo,
+      goBack,
+      canGoBack,
       activeDayGiPrompt,
       setActiveDayGiPrompt,
       openDayGiWithPrompt,
@@ -231,12 +310,17 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       selectedDayId,
       selectedActivityId,
       selectedBookingId,
+      selectedProgramSlug,
+      selectedExperienceSlug,
+      selectedSkuId,
       journeyStage,
       isEasyMode,
       toggleEasyMode,
       toast,
       showToast,
       navigateTo,
+      goBack,
+      canGoBack,
       activeDayGiPrompt,
       openDayGiWithPrompt,
       activePersonaMode

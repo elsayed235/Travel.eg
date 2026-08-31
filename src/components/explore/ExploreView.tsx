@@ -167,9 +167,22 @@ export const NEAR_ME_DATA: NearMeItem[] = [
  * re-request on every render.
  */
 const fetchDestinationCorpus = (signal: AbortSignal) =>
-  Promise.all([api.getDahabActivities(signal), api.getDahabPlaces(signal)]).then(
-    ([activities, places]) => ({ activities: activities.activities, places: places.places })
-  );
+  Promise.all([
+    api.getDahabActivities(signal).catch(() => ({ activities: [] })),
+    api.getDahabPlaces(signal).catch(() => ({ places: [] })),
+    api.getDahabAreas(signal).catch(() => ({ areas: [] }))
+  ]).then(([activities, places, areas]) => ({
+    activities: activities.activities,
+    places: places.places,
+    areas: areas.areas as Array<{
+      id: string; nameEn: string; nameAr: string;
+      atmosphere: string; atmosphereAr: string;
+      walkabilityScore: number;
+      noiseProfile: string;
+      transportFriction: string;
+      stayProfile: string; eveningProfile: string;
+    }>
+  }));
 
 export const ExploreView: React.FC = () => {
   // `trip` was destructured but never used, and has never existed on the context.
@@ -177,7 +190,7 @@ export const ExploreView: React.FC = () => {
   const { language, isRTL } = useLanguage();
   const { isDark } = useTheme();
 
-  const [activeTab, setActiveTab] = useState<'near_me' | 'categories'>('near_me');
+  const [activeTab, setActiveTab] = useState<'near_me' | 'areas' | 'categories'>('near_me');
   const [nearMeFilter, setNearMeFilter] = useState<'all' | 'food' | 'coffee' | 'beach' | 'experience' | 'nightlife'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -187,8 +200,6 @@ export const ExploreView: React.FC = () => {
   // Quick Add modal
   const [itemToAdd, setItemToAdd] = useState<any | null>(null);
   const [isDaySelectorOpen, setIsDaySelectorOpen] = useState(false);
-  const [selectedPlaceDetail, setSelectedPlaceDetail] = useState<NearMeItem | null>(null);
-  const [targetDayForAdd, setTargetDayForAdd] = useState<number>(2);
 
   const tabListRef = useRef<HTMLDivElement>(null);
 
@@ -215,49 +226,39 @@ export const ExploreView: React.FC = () => {
     setIsDaySelectorOpen(true);
   };
 
-  const confirmAddActivityToTargetDay = (dayNumber: number) => {
+  const handleOpenExperienceDetail = (item: NearMeItem) => {
+    navigateTo('/experiences', { experienceSlug: item.id });
+  };
+
+  const confirmAddActivityToTargetDay = async (dayNumber: number) => {
     if (!itemToAdd) return;
-    
-    // Was built with `category`/`cost`/`bookingStatus` — none of which exist on
-    // TimelineActivity — and without the required id, type and status. The
-    // resulting activities had no id, so they could not be removed or updated,
-    // and rendered with a blank status.
-    addActivityToDay(dayNumber, {
+
+    const priceEGP = typeof itemToAdd.basePriceEGP === 'number' ? itemToAdd.basePriceEGP : 0;
+
+    setIsDaySelectorOpen(false);
+    setItemToAdd(null);
+
+    // No success message here. addActivityToDay is the only caller that knows
+    // whether the write reached the server, and it reports the outcome itself.
+    // Announcing success from both places is how "was not added" and "added
+    // successfully" ended up on screen together.
+    await addActivityToDay(dayNumber, {
       id: `explore-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       title: language === 'ar' && itemToAdd.nameAr ? itemToAdd.nameAr : itemToAdd.name || itemToAdd.title,
       time: '04:30 PM',
       type: 'Exploration',
-      status: 'Added ✓',
+      status: itemToAdd.skuId ? 'Suggested' : 'Added ✓',
+      // Carried so this line can be booked from the trip timeline later.
+      // Without them, anything added from Explore was a dead end.
+      skuId: itemToAdd.skuId,
+      serviceType: itemToAdd.serviceType,
+      priceEGP,
       location: language === 'ar' && itemToAdd.locationAr ? itemToAdd.locationAr : itemToAdd.location || 'Dahab Promenade',
-      notes: itemToAdd.priceLevel ? `${itemToAdd.priceLevel} · approx. 150 EGP` : 'Free / Moderate',
+      // Was `approx. 150 EGP` on every card regardless of what it actually costs.
+      notes: priceEGP > 0
+        ? `${itemToAdd.priceLevel || ''} · ${priceEGP.toLocaleString()} EGP`.trim()
+        : (language === 'ar' ? 'دخول مجاني' : 'Free entry')
     });
-
-    setIsDaySelectorOpen(false);
-    setItemToAdd(null);
-    showToast(
-      language === 'ar' 
-        ? `تمت إضافة "${itemToAdd.nameAr || itemToAdd.name || itemToAdd.title}" إلى اليوم ${dayNumber} بنجاح ✓`
-        : `Added "${itemToAdd.name || itemToAdd.title}" to Day ${dayNumber} successfully ✓`
-    );
-  };
-
-  const handleAddNearMeToTrip = (place: NearMeItem, dayNumber: number = 2) => {
-    addActivityToDay(dayNumber, {
-      id: `nearme-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      title: language === 'ar' && place.nameAr ? place.nameAr : place.name,
-      time: '04:00 PM',
-      type: place.category === 'food' ? 'Dining' : 'Exploration',
-      status: 'Added ✓',
-      location: language === 'ar' && place.locationAr ? place.locationAr : place.location,
-      notes: `${place.priceLevel} · approx. 150-300 EGP`,
-    });
-
-    setSelectedPlaceDetail(null);
-    showToast(
-      language === 'ar' 
-        ? `تمت إضافة "${place.nameAr || place.name}" إلى اليوم ${dayNumber} في جدولك ✓` 
-        : `Added "${place.name}" to Day ${dayNumber} itinerary ✓`
-    );
   };
 
   /**
@@ -275,6 +276,10 @@ export const ExploreView: React.FC = () => {
     if (!corpus.data || corpus.data.activities.length === 0) return NEAR_ME_DATA;
     return buildExploreItems(corpus.data.activities, corpus.data.places, language === 'ar');
   }, [corpus.data, language]);
+
+  const areaProfiles = useMemo(() => {
+    return corpus.data?.areas ?? [];
+  }, [corpus.data]);
 
   const filteredNearMe = useMemo(() => {
     const cleanQuery = sanitizeText(searchQuery).toLowerCase().trim();
@@ -496,12 +501,13 @@ export const ExploreView: React.FC = () => {
                 <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className={`font-serif font-bold text-lg leading-snug ${
+                      <h3 className={`font-serif font-bold text-lg leading-snug cursor-pointer hover:text-[#20A89A] transition-colors ${
                         isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
-                      }`}>
+                      }`}
+                      onClick={() => handleOpenExperienceDetail(place)}
+                      >
                         {language === 'ar' && place.nameAr ? place.nameAr : place.name}
                       </h3>
-                      {/* Was always rendered, over a hardcoded 4.6–4.9. */}
                       {typeof place.rating === 'number' && (
                         <div className="flex items-center gap-1 text-xs font-bold text-[#F4C36C] flex-shrink-0">
                           <Star className="w-3.5 h-3.5 fill-current" />
@@ -530,7 +536,8 @@ export const ExploreView: React.FC = () => {
                   }`}>
                     <button
                       type="button"
-                      onClick={() => setSelectedPlaceDetail(place)}
+                      id={`explore-card-details-btn-${place.id}`}
+                      onClick={() => handleOpenExperienceDetail(place)}
                       className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
                         isDark
                           ? 'bg-[#13312B] hover:bg-[#1a4038] text-[#D2E3DE] hover:text-[#F7F3EA] border-white/5'
@@ -543,6 +550,7 @@ export const ExploreView: React.FC = () => {
 
                     <button
                       type="button"
+                      id={`explore-card-add-btn-${place.id}`}
                       onClick={() => handleQuickAddClick(place)}
                       className="flex-1 py-2.5 rounded-xl bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
                     >
@@ -556,137 +564,56 @@ export const ExploreView: React.FC = () => {
           })}
         </div>
 
-      </main>
-
-      {/* PLACE DETAIL MODAL */}
-      {selectedPlaceDetail && (
-        <div 
-          dir={isRTL ? 'rtl' : 'ltr'}
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setSelectedPlaceDetail(null)}
-        
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="explore-view-dialog-1-title"
-    >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className={`rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border space-y-5 animate-in zoom-in-95 duration-200 ${
-              isDark ? 'bg-[#0E2520] border-white/10 text-[#F7F3EA]' : 'bg-white border-[#122420]/15 text-[#122420]'
-            }`}
-          >
-            <div className="relative h-56 w-full overflow-hidden bg-black/40">
-              <img 
-                src={selectedPlaceDetail.image} 
-                alt="" 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
-              
-              <button
-                type="button"
-                onClick={() => setSelectedPlaceDetail(null)}
-                className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/90 transition-all cursor-pointer`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="absolute bottom-4 inset-x-4">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#F4C36C] block">
-                  {language === 'ar' && selectedPlaceDetail.tagAr ? selectedPlaceDetail.tagAr : selectedPlaceDetail.tag}
-                </span>
-                <h3 id="explore-view-dialog-1-title" className="text-2xl font-serif font-bold text-white leading-tight">
-                  {language === 'ar' && selectedPlaceDetail.nameAr ? selectedPlaceDetail.nameAr : selectedPlaceDetail.name}
-                </h3>
-              </div>
+        {/* Area Profiles Section */}
+        {areaProfiles.length > 0 && (
+          <section className="space-y-4 pt-6 border-t border-[#122420]/10 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-[#20A89A]" />
+              <h2 className={`text-lg font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                {language === 'ar' ? 'مناطق دهب' : 'Dahab Areas'}
+              </h2>
             </div>
-
-            <div className="p-6 pt-0 space-y-4">
-              <p className={`text-xs sm:text-sm leading-relaxed ${
-                isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'
-              }`}>
-                {language === 'ar' && selectedPlaceDetail.descriptionAr ? selectedPlaceDetail.descriptionAr : selectedPlaceDetail.description}
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className={`p-3 rounded-2xl border ${
-                  isDark ? 'bg-[#13312B] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-                }`}>
-                  <span className={`block text-[11px] mb-0.5 ${isDark ? 'text-[#D2E3DE]/60' : 'text-[#4A635D]'}`}>{language === 'ar' ? 'مواعيد العمل:' : 'Opening Hours:'}</span>
-                  <span className={`font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                    {language === 'ar' && selectedPlaceDetail.openHoursAr ? selectedPlaceDetail.openHoursAr : selectedPlaceDetail.openHours}
-                  </span>
-                </div>
-                <div className={`p-3 rounded-2xl border ${
-                  isDark ? 'bg-[#13312B] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-                }`}>
-                  <span className={`block text-[11px] mb-0.5 ${isDark ? 'text-[#D2E3DE]/60' : 'text-[#4A635D]'}`}>{language === 'ar' ? 'المسافة والمشي:' : 'Distance & Walk:'}</span>
-                  <span className="font-bold text-[#EA8E75]">
-                    {selectedPlaceDetail.distance} ({selectedPlaceDetail.walkMinutes} {language === 'ar' ? 'دقيقة' : 'mins'})
-                  </span>
-                </div>
-              </div>
-
-              {/* Day Selector */}
-              <div className={`space-y-2 pt-2 border-t ${isDark ? 'border-white/10' : 'border-[#122420]/10'}`}>
-                <span className={`text-xs font-bold block ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                  {language === 'ar' ? 'حدد اليوم لإضافة النشاط لجدولك:' : 'Select which day to add this to:'}
-                </span>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setTargetDayForAdd(d)}
-                      className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        targetDayForAdd === d
-                          ? 'bg-[#F4C36C] text-[#081714] shadow-xs'
-                          : isDark
-                          ? 'bg-[#13312B] text-[#D2E3DE] hover:bg-[#1a4038] border border-white/5'
-                          : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD] border border-[#122420]/10'
-                      }`}
-                    >
-                      {language === 'ar' ? `يوم ${d}` : `Day ${d}`}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex items-center gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    showToast(
-                      language === 'ar'
-                        ? `تم فتح الخريطة إلى ${selectedPlaceDetail.nameAr || selectedPlaceDetail.name}`
-                        : `Directions opened for ${selectedPlaceDetail.name}`
-                    );
-                  }}
-                  className={`flex-1 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 border ${
+            <p className={`text-xs ${isDark ? 'text-[#D2E3DE]/70' : 'text-[#4A635D]'}`}>
+              {language === 'ar'
+                ? 'استكشف المناطق المختلفة في دهب بناءً على الأجواء والمشي والأنشطة المتاحة.'
+                : 'Explore Dahab neighborhoods by atmosphere, walkability, and available activities.'}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {areaProfiles.map((area) => (
+                <div
+                  key={area.id}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md ${
                     isDark
-                      ? 'bg-[#13312B] hover:bg-[#1a4038] text-[#D2E3DE] border-white/10'
-                      : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420] border-[#122420]/10'
+                      ? 'bg-[#0E2520] border-white/10 hover:border-[#20A89A]/40'
+                      : 'bg-white border-[#122420]/10 hover:border-[#20A89A]'
                   }`}
                 >
-                  <Navigation className="w-3.5 h-3.5 text-[#20A89A]" />
-                  <span>{language === 'ar' ? 'الاتجاهات' : 'Get Directions'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleAddNearMeToTrip(selectedPlaceDetail, targetDayForAdd)}
-                  className="flex-1 py-3 rounded-2xl bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? `إضافة لليوم ${targetDayForAdd}` : `Add to Day ${targetDayForAdd}`}</span>
-                </button>
-              </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className={`font-serif font-bold text-sm ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                      {language === 'ar' ? area.nameAr : area.nameEn}
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full bg-[#20A89A]/15 text-[#20A89A] text-[10px] font-bold">
+                      {area.walkabilityScore}/10
+                    </span>
+                  </div>
+                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[#D2E3DE]/70' : 'text-[#4A635D]'}`}>
+                    {language === 'ar' ? area.atmosphereAr : area.atmosphere}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2 text-[10px]">
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[#13312B] text-[#D2E3DE]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                      {area.noiseProfile}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[#13312B] text-[#D2E3DE]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                      {area.transportFriction}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
-      )}
+          </section>
+        )}
+
+      </main>
 
       {/* QUICK ADD TO TARGET DAY MODAL */}
       {isDaySelectorOpen && itemToAdd && (

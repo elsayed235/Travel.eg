@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { api } from '../../services/api';
 import {
   Waves,
@@ -35,6 +35,8 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { ConfirmedBookingItem, TimelineActivity } from '../../types';
 import { IN_DESTINATION_SERVICES, InDestinationServiceOption, BookNowCategory } from './BookNowCommerceModal';
 import { INITIAL_LIVE_DAHAB_CONDITIONS } from '../../data/dahabGeography';
+import { analytics } from '../../services/analytics';
+import type { ProductSkuEntity } from '../../shared';
 
 export const BookNowCommerceView: React.FC = () => {
   const {
@@ -48,7 +50,9 @@ export const BookNowCommerceView: React.FC = () => {
     isSignedIn,
     sessionUser,
     activeTrip,
-    setIntendedRoute
+    setIntendedRoute,
+    selectedSkuId,
+    reloadTrip
   } = useTrip();
   const { language, isRTL } = useLanguage();
   /** Why the instant booking failed, if it did. Shown instead of a voucher. */
@@ -61,6 +65,9 @@ export const BookNowCommerceView: React.FC = () => {
 
   // Currently configuring service for checkout
   const [activeService, setActiveService] = useState<InDestinationServiceOption | null>(null);
+  /** Set when this page was opened on a product that is not one of the eight cards. */
+  const [requestedSku, setRequestedSku] = useState<ProductSkuEntity | null>(null);
+  const [skuLookupFailed, setSkuLookupFailed] = useState<boolean>(false);
 
   // Booking configuration options
   const [guestsCount, setGuestsCount] = useState<number>(1);
@@ -74,6 +81,119 @@ export const BookNowCommerceView: React.FC = () => {
   // Completed voucher state
   const [confirmedBooking, setConfirmedBooking] = useState<ConfirmedBookingItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  /**
+   * Opens this page on the product the traveler actually chose.
+   *
+   * Book Now only ever opened on its own grid of eight hardcoded cards, so
+   * "book this experience" and "book this itinerary line" had nowhere to point
+   * and therefore did not exist. A `sku` in the URL is resolved here: first
+   * against the eight cards, then — for anything that came from the catalogue
+   * rather than this file — against the live inventory the server serves.
+   */
+  useEffect(() => {
+    if (!selectedSkuId) {
+      setRequestedSku(null);
+      setSkuLookupFailed(false);
+      return;
+    }
+
+    const card = IN_DESTINATION_SERVICES.find(svc => svc.skuId === selectedSkuId);
+    if (card) {
+      setActiveService(card);
+      setRequestedSku(null);
+      setSkuLookupFailed(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    let cancelled = false;
+
+    void (async () => {
+      // The vertical is not known from the id, so the verticals that have
+      // inventory are asked in turn. Small and cached by the browser; a
+      // dedicated by-id endpoint would be better if this grows.
+      const verticals = ['diving', 'safari', 'transfer', 'hotel', 'wellness', 'dining'];
+      for (const vertical of verticals) {
+        try {
+          const { skus } = await api.getInventory(vertical, controller.signal);
+          const match = skus.find(sku => sku.id === selectedSkuId);
+          if (match && !cancelled) {
+            setRequestedSku(match);
+            setSkuLookupFailed(false);
+            return;
+          }
+        } catch {
+          // Try the next vertical; the failure is reported once, below.
+        }
+      }
+      if (!cancelled) {
+        setRequestedSku(null);
+        setSkuLookupFailed(true);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [selectedSkuId]);
+
+  /**
+   * The chosen product rendered as a card, so the rest of this page — pricing,
+   * guest count, checkout — works on it unchanged.
+   *
+   * Only fields the SKU actually carries are filled. The editorial texture the
+   * eight hardcoded cards have (what to bring, meeting point, the supplier's
+   * phone) has no equivalent on a SKU, and inventing it here is what would put
+   * a fabricated meeting point in front of somebody who has paid.
+   */
+  const skuAsService: InDestinationServiceOption | null = useMemo(() => {
+    if (!requestedSku) return null;
+    return {
+      id: requestedSku.id,
+      category:
+        requestedSku.serviceType === 'transfer'
+          ? 'transport'
+          : requestedSku.serviceType === 'diving'
+          ? 'watersports'
+          : requestedSku.serviceType === 'dining'
+          ? 'dining'
+          : requestedSku.serviceType === 'wellness'
+          ? 'wellness'
+          : 'tonight',
+      title: requestedSku.title,
+      titleAr: requestedSku.titleAr,
+      subtitle: [requestedSku.routeFrom, requestedSku.routeTo].filter(Boolean).join(' → '),
+      subtitleAr: [requestedSku.routeFrom, requestedSku.routeTo].filter(Boolean).join(' ← '),
+      description: requestedSku.description,
+      descriptionAr: requestedSku.description,
+      basePriceEGP: requestedSku.basePriceEGP,
+      currency: requestedSku.currency,
+      durationStr: requestedSku.durationMinutes ? `${requestedSku.durationMinutes} minutes` : '',
+      durationStrAr: requestedSku.durationMinutes ? `${requestedSku.durationMinutes} دقيقة` : '',
+      pickupWindow: '',
+      pickupWindowAr: '',
+      availabilityBadge: 'Instant Ready',
+      availabilityBadgeAr: 'متاح للحجز',
+      locationArea: requestedSku.routeTo || 'Dahab',
+      locationAreaAr: requestedSku.routeTo || 'دهب',
+      supplierName: requestedSku.supplierId,
+      supplierNameAr: requestedSku.supplierId,
+      supplierPhone: '',
+      meetingPoint: requestedSku.routeFrom || '',
+      meetingPointAr: requestedSku.routeFrom || '',
+      icon: Compass,
+      whatToBring: requestedSku.includedItems || [],
+      whatToBringAr: requestedSku.includedItems || [],
+      skuId: requestedSku.id,
+      serviceType: requestedSku.serviceType as InDestinationServiceOption['serviceType']
+    };
+  }, [requestedSku]);
+
+  useEffect(() => {
+    if (skuAsService) setActiveService(skuAsService);
+  }, [skuAsService]);
 
   // Categories definition
   const categories: { id: BookNowCategory; labelEn: string; labelAr: string; icon: any }[] = [
@@ -267,6 +387,17 @@ export const BookNowCommerceView: React.FC = () => {
 
       setIsSubmitting(false);
       setConfirmedBooking(newBooking);
+
+      analytics.track('booking_completed', {
+        sourceMode: selectedSkuId ? 'sku_deeplink' : 'book_now_grid',
+        metadata: { skuId: activeService.skuId, bookingRef: bookingId }
+      } as any);
+
+      // The itinerary line this booking fulfils was flipped to CONFIRMED
+      // server-side; without re-reading the trip, My Trip keeps showing it as
+      // merely suggested until the traveler reloads the page by hand.
+      reloadTrip();
+
       showToast(
         language === 'ar'
           ? `تم تأكيد حجز ${activeService.titleAr} بنجاح! رقم القسيمة: ${confirmationCode}`
@@ -871,6 +1002,21 @@ export const BookNowCommerceView: React.FC = () => {
             ) : (
               /* Default Empty State Prompt */
               <div className="bg-white rounded-3xl p-6 border border-[#142126]/10 text-center space-y-3">
+                {/*
+                  A link pointed here naming a product that is not on sale. Saying
+                  so beats silently showing the grid, which would leave the traveler
+                  believing they were configuring the thing they clicked.
+                */}
+                {skuLookupFailed && (
+                  <div
+                    role="alert"
+                    className="text-start p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs"
+                  >
+                    {language === 'ar'
+                      ? 'التجربة اللي اخترتها مش متاحة للحجز دلوقتي. اختار من الخدمات المتاحة تحت.'
+                      : 'That experience is not available to book right now. Pick from the services below instead.'}
+                  </div>
+                )}
                 <div className="w-12 h-12 rounded-2xl bg-[#0F6F78]/10 text-[#0F6F78] flex items-center justify-center mx-auto">
                   <Receipt className="w-6 h-6" />
                 </div>

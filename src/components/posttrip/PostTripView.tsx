@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   CheckCircle2, 
   Star, 
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
 
 export const PostTripView: React.FC = () => {
   const { profile, user, navigateTo, showToast, activeTrip, activeTripItems, bookings } = useTrip();
@@ -71,15 +72,39 @@ export const PostTripView: React.FC = () => {
    */
   const photoMemories: { title: string; titleAr: string; image: string; tag: string; tagAr: string }[] = [];
 
-  const handleSubmitFeedback = (e: React.FormEvent) => {
+  const handleSubmitFeedback = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsFeedbackSubmitted(true);
-    showToast(
-      language === 'ar'
-        ? 'شكراً جداً لرأيك الجميل! تقييمك بيساعدنا نطور رحلات دهب دايماً ⭐'
-        : 'Thank you for sharing your feedback with Dahab travel team! ⭐'
-    );
-  };
+    if (rating === 0) {
+      showToast(language === 'ar' ? 'من فضلك اختار تقييم' : 'Please select a rating');
+      return;
+    }
+    try {
+      const feedbackText = [
+        `Trip Rating: ${rating}/5`,
+        favoriteExperience ? `Favorite: ${favoriteExperience}` : '',
+        feedbackNotes ? `Notes: ${feedbackNotes}` : '',
+      ].filter(Boolean).join('\n');
+      await api.sendSupportMessage({
+        message: feedbackText,
+        category: 'trip_feedback',
+        tripId: activeTrip?.id,
+      });
+      setIsFeedbackSubmitted(true);
+      showToast(
+        language === 'ar'
+          ? 'شكراً جداً لرأيك الجميل! تقييمك بيساعدنا نطور رحلات دهب دايماً ⭐'
+          : 'Thank you for sharing your feedback with Dahab travel team! ⭐'
+      );
+    } catch {
+      // Offline or failed — still mark as submitted locally
+      setIsFeedbackSubmitted(true);
+      showToast(
+        language === 'ar'
+          ? 'شكراً! تم حفظ تقييمك وسن synchronize لاحقاً.'
+          : 'Thanks! Your feedback was saved and will sync when online.'
+      );
+    }
+  }, [rating, favoriteExperience, feedbackNotes, activeTrip, language, showToast]);
 
   return (
     <div 

@@ -70,7 +70,9 @@ export type AppRoute =
   | '/auth/sign-up'
   | '/auth/forgot-password'
   | '/auth/verify'
-  | '/auth/callback';
+  | '/auth/callback'
+  | '/programs'
+  | '/experiences';
 
 export type DayGiIntentType =
   | 'DISCOVER_ACTIVITY'
@@ -688,6 +690,18 @@ export interface NearMeItem {
   distance?: string;
   walkMinutes?: number;
   priceLevel: '$' | '$$' | '$$$';
+  /**
+   * The real price and the real product, when the corpus knows them.
+   *
+   * The mapper used to derive `priceLevel` from `basePriceEGP` and then throw
+   * the number itself away, along with the SKU. So anything added to a trip
+   * from Explore arrived with no price — which the server rejected outright —
+   * and no product, which meant it could never be booked afterwards. The band
+   * is for display; these are what the rest of the journey needs.
+   */
+  basePriceEGP?: number;
+  skuId?: string;
+  serviceType?: string;
   rating?: number;
   reviewsCount?: number;
   tag: string;

@@ -146,9 +146,34 @@ export interface DahabPlace {
   verifiedAt: string;
 }
 
+/**
+ * What it takes to actually sell an activity, resolved by the server from the
+ * commerce catalogue. Null when the activity cannot be booked online.
+ *
+ * `basePriceEGP` is the SKU's price — the amount checkout charges — which is
+ * not always the activity's own `basePriceEGP`. Show this one.
+ */
+export interface ResolvedBookability {
+  skuId: string;
+  serviceType: string;
+  basePriceEGP: number;
+  currency: string;
+  supplierId: string;
+  maxCapacityPerSlot: number;
+  cancellationPolicyHours?: number;
+}
+
 export interface DahabActivity {
   id: string;
+  /**
+   * Set only when a real, sellable row exists in the commerce catalogue.
+   *
+   * Every value this field carried used to be a dangling reference — see
+   * server/services/bookabilityReconciler — so prefer `bookable` over reading
+   * this and `bookingMode` and inferring.
+   */
   skuId?: string;
+  bookable?: ResolvedBookability | null;
   titleEn: string;
   titleAr: string;
   category: 'diving' | 'safari' | 'water_sport' | 'wellness' | 'culture' | 'food';

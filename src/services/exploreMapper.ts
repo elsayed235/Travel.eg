@@ -65,6 +65,12 @@ export function activityToNearMeItem(
     nameAr: activity.titleAr,
     category: CATEGORY_BY_ACTIVITY[activity.category] ?? 'experience',
     priceLevel: priceLevelOf(activity.basePriceEGP),
+    // The SKU's price when there is one, because that is what checkout charges
+    // and the two disagree (the Blue Hole activity is written up at 2,200 EGP
+    // and SKU-DIV-002 sells it for 3,400).
+    basePriceEGP: activity.bookable?.basePriceEGP ?? activity.basePriceEGP,
+    skuId: activity.bookable?.skuId,
+    serviceType: activity.bookable?.serviceType,
     // The tag carries what the record actually knows: how long it takes and
     // who it suits.
     tag: `${formatDuration(activity.durationMinutes, false)} · ${activity.difficulty}`,

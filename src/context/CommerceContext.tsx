@@ -9,6 +9,7 @@ import { useUI } from './UIContext';
 import { api } from '../services/api';
 import { ApiError } from '../services/apiError';
 import { buildTravelerBookings, selectActiveTrip } from '../services/tripBookingMapper';
+import { journeyStageFromTrip } from '../services/travelerLifecycleResolver';
 import type { TripEntity, TripItemWithSupplier } from '../shared';
 
 /**
@@ -203,7 +204,7 @@ export const CommerceProvider: React.FC<{
   const [transferTracking, setTransferTracking] = useState<TransferTrackingRecord>(DEFAULT_ANONYMOUS_TRANSFER);
 
   const { user, sessionUser } = useAuth();
-  const { showToast } = useUI();
+  const { showToast, setJourneyStage } = useUI();
 
   // Sync with Firestore Cloud Ledger when user is active
   useEffect(() => {
@@ -240,6 +241,20 @@ export const CommerceProvider: React.FC<{
       unsubscribe?.();
     };
   }, [user]);
+
+  /**
+   * Tells the rest of the app where this traveler is.
+   *
+   * The stage used to be set from the current route, which meant it described
+   * the page rather than the person: a traveler in Dahab who tapped Home was
+   * reclassified as a discovery-mode visitor, and every surface that keys off
+   * the stage — the homepage composition, the lifecycle snapshot, the persona
+   * mode — followed them backwards. It is derived from the trip here because
+   * this is where the trip lives.
+   */
+  useEffect(() => {
+    setJourneyStage(journeyStageFromTrip(activeTrip));
+  }, [activeTrip, setJourneyStage]);
 
   const reloadTrip = useCallback(() => setTripReloadToken(token => token + 1), []);
 

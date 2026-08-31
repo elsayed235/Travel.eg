@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Compass,
   Luggage,
@@ -12,7 +12,8 @@ import {
   ArrowRight,
   ChevronDown,
   Palette,
-  Check
+  Check,
+  LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTrip } from '../../context/TripContext';
@@ -32,6 +33,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     navigateTo,
     user,
     sessionUser,
+    signOut,
     isSignedIn,
     profile,
     authRole
@@ -42,6 +44,30 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
   // Branching on it meant a traveler who signed in with email and password (the
   // only path that works) saw "Sign In" forever, and an Operations user never
   // saw the console. The server session is what "signed in" means.
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  // A menu that only closes by clicking its own trigger is a menu people leave
+  // open. Pointerdown rather than click, so it closes before the thing behind
+  // it is activated.
+  useEffect(() => {
+    if (!isAccountMenuOpen) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setIsAccountMenuOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsAccountMenuOpen(false);
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isAccountMenuOpen]);
+
   const signedInName =
     sessionUser?.name || user?.displayName || profile.name || sessionUser?.email || user?.email || '';
 
@@ -69,7 +95,10 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
   const navLinks: { route: AppRoute; labelKey: string; labelEn: string; labelAr: string; icon: React.FC<{ className?: string }> }[] = [
     { route: '/home', labelKey: 'nav.discover', labelEn: 'Discover', labelAr: 'استكشف', icon: Compass },
     { route: '/my-trip', labelKey: 'nav.myTrip', labelEn: 'My Trip', labelAr: 'رحلتي', icon: Luggage },
-    { route: '/daygi', labelKey: 'nav.aiDirector', labelEn: 'AI Director', labelAr: 'المخرج الذكي', icon: Sparkles },
+    // DayGI is reached from its own floating button (DayGiFloatingButton), not
+    // from here: it is what you open when you are stuck, not one of the four
+    // places the traveler lives in, and it was taking a quarter of the
+    // top-level navigation to say so.
     { route: '/live', labelKey: 'nav.dahabLive', labelEn: 'Dahab Live', labelAr: 'دهب لايف', icon: Activity },
   ];
 
@@ -79,9 +108,6 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     }
     if (route === '/my-trip') {
       return currentRoute.startsWith('/my-trip');
-    }
-    if (route === '/daygi') {
-      return currentRoute === '/daygi' || currentRoute === '/ai-director';
     }
     return currentRoute === route;
   };
@@ -256,22 +282,90 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
 
               {/* 4. Sign In / Profile Avatar */}
               {isSignedIn ? (
-                <button
-                  type="button"
-                  id="header-profile-btn"
-                  onClick={() => navigateTo('/profile')}
-                  title={`Signed in as ${signedInName || 'Traveler'}`}
-                  className={`h-8 px-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
-                    isDark
-                      ? 'bg-white/10 hover:bg-white/20 border-white/15 text-[#F7F3EA]'
-                      : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 border-[#122420]/10 text-[#122420]'
-                  }`}
-                >
-                  <span className="w-2 h-2 rounded-full bg-[#20A89A] animate-pulse" />
-                  <span className="max-w-[70px] truncate text-[12px] font-bold">
-                    {signedInName.split(' ')[0] || (language === 'ar' ? 'حسابي' : 'Account')}
-                  </span>
-                </button>
+                /*
+                  The account menu.
+                  
+                  This was a single button that went to /profile. Nothing
+                  anywhere in the app called signOut — the platform could be
+                  signed into and not out of, which on a shared or borrowed
+                  device leaves the next person holding someone's bookings,
+                  payment history and passport field.
+                */
+                <div className="relative" ref={accountMenuRef}>
+                  <button
+                    type="button"
+                    id="header-profile-btn"
+                    onClick={() => setIsAccountMenuOpen(open => !open)}
+                    aria-haspopup="menu"
+                    aria-expanded={isAccountMenuOpen}
+                    title={`Signed in as ${signedInName || 'Traveler'}`}
+                    className={`h-8 px-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
+                      isDark
+                        ? 'bg-white/10 hover:bg-white/20 border-white/15 text-[#F7F3EA]'
+                        : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 border-[#122420]/10 text-[#122420]'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-[#20A89A]" />
+                    <span className="max-w-[70px] truncate text-[12px] font-bold">
+                      {signedInName.split(' ')[0] || (language === 'ar' ? 'حسابي' : 'Account')}
+                    </span>
+                    <ChevronDown
+                      className={`w-3 h-3 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  {isAccountMenuOpen && (
+                    <div
+                      role="menu"
+                      aria-label={language === 'ar' ? 'قائمة الحساب' : 'Account menu'}
+                      className="absolute end-0 mt-2 w-56 rounded-2xl border shadow-2xl overflow-hidden z-50"
+                      style={{
+                        background: 'var(--surface-card)',
+                        borderColor: 'var(--border-subtle)'
+                      }}
+                    >
+                      <div
+                        className="px-4 py-3 border-b text-[12px]"
+                        style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
+                      >
+                        <span className="block font-bold" style={{ color: 'var(--text-primary)' }}>
+                          {signedInName || (language === 'ar' ? 'حسابي' : 'Account')}
+                        </span>
+                        {sessionUser?.email && <span className="block truncate">{sessionUser.email}</span>}
+                      </div>
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsAccountMenuOpen(false);
+                          navigateTo('/profile');
+                        }}
+                        className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        <User className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>{language === 'ar' ? 'الملف الشخصي' : 'Profile'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        id="header-signout-btn"
+                        onClick={() => {
+                          setIsAccountMenuOpen(false);
+                          void signOut();
+                        }}
+                        className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 border-t"
+                        style={{ color: 'var(--accent-danger, #C0553C)', borderColor: 'var(--border-subtle)' }}
+                      >
+                        <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>{language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <button
                   type="button"

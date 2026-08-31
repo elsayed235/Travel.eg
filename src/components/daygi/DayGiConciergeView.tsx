@@ -27,7 +27,9 @@ import {
   MapPin, 
   Clock, 
   CheckCircle2, 
-  ArrowRight, 
+  ArrowRight,
+  ArrowLeft,
+  Home, 
   Utensils, 
   Compass, 
   Calendar, 
@@ -92,7 +94,9 @@ export const DayGiConciergeView: React.FC = () => {
     showToast,
     user,
     isSignedIn,
-    activeTrip
+    activeTrip,
+    goBack,
+    canGoBack
   } = useTrip();
 
   /**
@@ -170,55 +174,27 @@ export const DayGiConciergeView: React.FC = () => {
     {
       id: 'msg-welcome',
       sender: 'daygi',
-      text: lang === 'ar' 
-        ? `أهلاً يا ${profile.name || 'صديق دهب'}! أنا دايجي ٣.٠، طبقة تشغيل وإدارة رحلتك الاستباقية في دهب.
-مراقب دائم لصحة الرحلة والطقس، أفهم تفضيلاتك وقيودك تلقائياً، وأنسق مهامك المعقدة بخطوات موثقة وآمنة.`
-        : `Welcome ${profile.name || 'explorer'}! I'm DayGI 3.0, the proactive operating layer for your Dahab journey.
-I monitor trip health, track structured memory & preferences, and orchestrate multi-step plans with verified execution.`,
-      timestamp: 'Just now',
-      responsePayload: {
-        replyText: 'DayGI 3.0 Proactive Trip Operating Layer active. Health score 94/100 (GOOD). 3 relaxation options, smart morning briefings, and non-destructive schedule adjustments ready.',
-        replyTextAr: 'طبقة تشغيل دايجي ٣.٠ نشطة. مؤشر صحة الرحلة ٩٤/١٠٠ (ممتاز). خيارات الاسترخاء بعد الأنشطة، والموجز الصباحي، وإعادة الجدولة الآمنة جاهزة.',
-        whyThis: 'Continuously auditing 7 trip health criteria against live CDWS marine telemetry, Cloud SQL ledger, and supplier SLAs.',
-        whyThisAr: 'فحص فوري مستمر لـ ٧ معايير معتمدة بالتكامل مع رصد غرفة الغوص البحرية ودفتر الحسابات وتوافر الموردين.',
-        actionType: 'DAILY_BRIEFING',
-        actionRisk: 'READ_ONLY',
-        actionTitle: 'Live Dahab Operating Overview & Marine Brief',
-        actionTitleAr: 'نظرة تشغيلية عامة وموجز البحر المباشر',
-        mode: 'DISCOVER',
-        parsedIntent: {
-          intent: 'DAILY_BRIEFING',
-          confidence: 0.99,
-          requires_confirmation: false,
-          parameters: {}
-        },
-        actionData: {
-          dailyBriefing: {
-            dateFormatted: 'Today · Dahab Coastal Zone',
-            timeline: [
-              { time: '08:30 AM', title: 'Bedouin Breakfast & Seafront Coffee at Ralphs', titleAr: 'إفطار بدوي ومخبوزات طازجة في رالفز', type: 'MEAL' },
-              { time: '10:30 AM', title: 'Lighthouse Protected Reef Snorkeling', titleAr: 'سنوركلينج شاطئي هادئ في اللايتهاوس', type: 'ACTIVITY' },
-              { time: '01:30 PM', title: 'Fresh Catch Grilled Seafood at Ali Baba', titleAr: 'غداء سمك طازج وإطلالة بحرية في علي بابا', type: 'MEAL' },
-              { time: '05:30 PM', title: 'Sunset Gathering at Eel Garden Seating', titleAr: 'جلسة شاي بالحبق ومتابعة الغروب في إيل جاردن', type: 'RELAX' }
-            ],
-            freeWindows: [
-              { start: '03:00 PM', end: '05:00 PM', durationMins: 120, location: 'Lighthouse Promenade' }
-            ],
-            conditionsNote: 'CDWS Green Flag: Visibility > 25m, Gentle NE breeze (9 knots), calm waters.',
-            conditionsNoteAr: 'الراية الخضراء مرفوعة: وضوح الرؤية أكثر من ٢٥ متراً، والرياح لطيفة ٩ عقد، مثالية للبحر.'
-          }
-        },
-        sourceConfidence: {
-          source: 'VERIFIED_FACT',
-          freshness: 'Live (Synchronized with Active Itinerary)',
-          confidenceScore: 0.99
-        },
-        suggestedFollowUps: [
-          { textEn: 'Post-dive calm spots ("عايز حاجة هادية بعد الغطس")', textAr: 'عايز حاجة هادية بعد الغطس', query: 'عايز حاجة هادية بعد الغطس' },
-          { textEn: 'What changed in my trip?', textAr: 'إيه اللي اتغير في الرحلة؟', query: 'إيه اللي اتغير في الرحلة؟' },
-          { textEn: 'Save 2000 EGP on budget', textAr: 'وفّرلي 2000 جنيه من الميزانية', query: 'وفّرلي 2000 جنيه' }
-        ]
-      }
+      /*
+       * A greeting, and nothing else.
+       *
+       * This message used to ship a fabricated `responsePayload` presented as
+       * measured fact to every visitor, signed in or not: a hardcoded
+       * "Health score 94/100", a rationale claiming to audit "live CDWS marine
+       * telemetry, Cloud SQL ledger, and supplier SLAs" (none of which this
+       * system reads), a `sourceConfidence` of VERIFIED_FACT / 0.99 marked
+       * "Live (Synchronized with Active Itinerary)", and a four-item daily
+       * briefing — breakfast at Ralphs, Lighthouse snorkeling, lunch at Ali
+       * Baba, sunset at Eel Garden — with times, shown as *today's plan* to
+       * people who have no trip at all.
+       *
+       * An assistant's first message sets what its later ones are worth.
+       */
+      text: lang === 'ar'
+        ? `أهلاً${profile.name ? ' يا ' + profile.name : ''} 👋
+اسألني عن أي حاجة في رحلتك — تروح فين دلوقتي، تغيّر إيه، أو تحجز إيه.`
+        : `Hi${profile.name ? ' ' + profile.name : ''} 👋
+Ask me anything about your trip — where to go now, what to change, what to book.`,
+      timestamp: 'Just now'
     }
   ]);
 
@@ -694,7 +670,14 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
   /* ----------------------------------------------------------------
      Derived view state for the command bar and the desktop context rail.
      ---------------------------------------------------------------- */
-  const healthScore = tripHealth?.score ?? 94;
+  /*
+   * Null until the server has actually scored this trip.
+   *
+   * This was `?? 94`, so a signed-out visitor with no trip was shown
+   * "94% — Every booking is confirmed and nothing clashes" about bookings
+   * that do not exist. A score is a measurement or it is nothing.
+   */
+  const healthScore = tripHealth?.score ?? null;
   const openIssues = tripHealth?.issues?.length ?? 0;
   const liveSuggestions = proactiveSuggestions.filter((s) => !s.dismissed);
   const activeTasks = orchestratedTasks.filter(
@@ -794,8 +777,6 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
 
-      {/* Top Sinai Topographic Aura */}
-      <div className="absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[var(--dg-teal)]/12 via-[var(--dg-gold)]/5 to-transparent pointer-events-none" aria-hidden="true" />
 
       {/*
         Command bar.
@@ -812,50 +793,71 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
           {/* Row 1 — identity, trip health, session controls */}
           <div className="flex items-center justify-between gap-3 py-3">
 
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-[var(--dg-gold)] to-[var(--dg-teal)] flex items-center justify-center text-[var(--dg-gold-ink)] shadow-lg">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                {/* The full name does not fit beside the status controls on a
-                    phone; it degraded to a truncated "د…". Short name there,
-                    full name from sm up. */}
-                <h1 className="text-[15px] sm:text-base font-bold text-[var(--dg-text)] tracking-tight flex items-center gap-2 min-w-0">
-                  <span className="truncate">
-                    <span className="sm:hidden">{lang === 'ar' ? 'دايجي' : 'DayGI'}</span>
-                    <span className="hidden sm:inline">{lang === 'ar' ? 'دايجي — طبقة تشغيل الرحلة' : 'DayGI — Trip Operating Layer'}</span>
-                  </span>
-                  <span className="dg-num hidden sm:inline shrink-0 bg-[var(--dg-teal)]/15 text-[var(--dg-teal)] text-[11px] font-mono px-1.5 py-0.5 rounded border border-[var(--dg-teal)]/35">3.0</span>
-                </h1>
-                <p className="text-xs text-[var(--dg-muted)] truncate hidden sm:block">
-                  {lang === 'ar'
-                    ? 'يتابع رحلتك لحظة بلحظة، يفتكر تفضيلاتك، وينفّذ المهام خطوة بخطوة بعد موافقتك'
-                    : 'Watches your trip live, remembers your preferences, and runs multi-step tasks only after you approve'}
-                </p>
-              </div>
+            {/*
+              A name, and that is all.
+
+              This carried a gradient tile, a "3.0" version chip and a line of
+              positioning copy — "Watches your trip live, remembers your
+              preferences, and runs multi-step tasks only after you approve" —
+              re-read on every visit by someone who is here to ask one
+              question. A product describes itself once, in onboarding, not
+              permanently above the thing it does.
+            */}
+            <div className="flex items-center gap-1.5 min-w-0">
+              {/*
+                The way out.
+
+                DayGI is opened from a floating button on top of whatever the
+                traveler was doing, and it no longer has a navbar tab holding
+                its place — so without this, closing it means guessing which of
+                Discover, My Trip or Dahab Live they came from. It returns to
+                the actual previous page, and reads "Home" instead of "Back"
+                when there is no previous page to promise.
+              */}
+              <button
+                type="button"
+                onClick={goBack}
+                aria-label={
+                  canGoBack
+                    ? (lang === 'ar' ? 'رجوع للصفحة السابقة' : 'Back to the previous page')
+                    : (lang === 'ar' ? 'الرئيسية' : 'Home')
+                }
+                className="dg-focus -ms-1.5 w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] transition-colors"
+              >
+                {canGoBack
+                  ? <ArrowLeft className="w-4.5 h-4.5 rtl:rotate-180" aria-hidden="true" />
+                  : <Home className="w-4.5 h-4.5" aria-hidden="true" />}
+              </button>
+
+              <h1 className="text-base font-semibold text-[var(--dg-text)] tracking-tight truncate min-w-0">
+                {lang === 'ar' ? 'دايجي' : 'DayGI'}
+              </h1>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
 
-              {/* Trip health — the single most important status on this screen */}
-              <button
-                onClick={() => setHealthModalOpen(true)}
-                className="dg-focus h-9 bg-[var(--dg-ok)]/12 hover:bg-[var(--dg-ok)]/22 border border-[var(--dg-ok)]/40 text-[var(--dg-ok)] text-xs font-bold px-3 rounded-xl flex items-center gap-2 transition-colors"
-                aria-label={lang === 'ar' ? `صحة الرحلة ${healthScore} بالمئة — افتح تقرير الفحص` : `Trip health ${healthScore} percent — open the audit report`}
-              >
-                <HeartPulse className="w-4 h-4 shrink-0" aria-hidden="true" />
-                <span className="dg-num">{healthScore}%</span>
-                <span className="hidden sm:inline">{lang === 'ar' ? 'صحة الرحلة' : 'Trip Health'}</span>
-              </button>
+              {/*
+                Shown only once the server has actually scored this trip.
+                It used to fall back to a hardcoded 94% and render in
+                confident green for a signed-out visitor with no bookings.
+              */}
+              {healthScore !== null && (
+                <button
+                  onClick={() => setHealthModalOpen(true)}
+                  className="dg-focus h-9 px-3 rounded-lg text-xs font-medium text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] flex items-center gap-1.5 transition-colors"
+                  aria-label={lang === 'ar' ? `صحة الرحلة ${healthScore} بالمئة — افتح تقرير الفحص` : `Trip health ${healthScore} percent — open the audit report`}
+                >
+                  <HeartPulse className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span className="dg-num">{healthScore}%</span>
+                </button>
+              )}
 
-              {/* Structured memory */}
               <button
                 onClick={() => setMemoryModalOpen(true)}
-                className="dg-focus h-9 flex items-center gap-2 bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] border border-[var(--dg-line)] px-3 rounded-xl text-xs font-medium text-[var(--dg-text-2)] hover:text-[var(--dg-text)] transition-colors"
-                aria-label={lang === 'ar' ? 'ذاكرة التفضيلات المنظمة' : 'Structured preference memory'}
+                className="dg-focus w-9 h-9 rounded-lg flex items-center justify-center text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] transition-colors"
+                aria-label={lang === 'ar' ? 'ذاكرة التفضيلات المنظمة' : 'What DayGI remembers about you'}
               >
-                <Brain className="w-4 h-4 text-[var(--dg-gold)] shrink-0" aria-hidden="true" />
-                <span className="hidden md:inline">{lang === 'ar' ? 'ذاكرة التفضيلات' : 'Memory'}</span>
+                <Brain className="w-4 h-4 shrink-0" aria-hidden="true" />
               </button>
 
               {/* Language */}
@@ -867,14 +869,14 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
                 <button
                   onClick={() => setLang('ar')}
                   aria-pressed={lang === 'ar'}
-                  className={`dg-focus px-2.5 h-7 rounded-lg text-xs transition-colors ${lang === 'ar' ? 'bg-[var(--dg-gold)] text-[var(--dg-gold-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
+                  className={`dg-focus px-2.5 h-7 rounded-lg text-xs transition-colors ${lang === 'ar' ? 'bg-[var(--dg-panel)] text-[var(--dg-text)] font-semibold shadow-sm' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                 >
                   ع
                 </button>
                 <button
                   onClick={() => setLang('en')}
                   aria-pressed={lang === 'en'}
-                  className={`dg-focus px-2.5 h-7 rounded-lg text-xs transition-colors ${lang === 'en' ? 'bg-[var(--dg-gold)] text-[var(--dg-gold-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
+                  className={`dg-focus px-2.5 h-7 rounded-lg text-xs transition-colors ${lang === 'en' ? 'bg-[var(--dg-panel)] text-[var(--dg-text)] font-semibold shadow-sm' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                 >
                   EN
                 </button>
@@ -882,20 +884,25 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
             </div>
           </div>
 
-          {/* Row 2 — the context DayGI answers against, stated in the traveler's words */}
-          <div className="flex items-center gap-2 pb-3 overflow-x-auto scrollbar-none">
-            <span className="text-xs text-[var(--dg-muted)] shrink-0 hidden sm:inline">
-              {lang === 'ar' ? 'ردودي مبنية على:' : 'Answering for:'}
-            </span>
+          {/*
+            Row 2 — the two facts that change the answer.
 
-            <label className="flex items-center gap-2 bg-[var(--dg-tint)] border border-[var(--dg-line)] ps-3 pe-2 h-9 rounded-xl shrink-0 cursor-pointer">
-              <MapPin className="w-4 h-4 text-[var(--dg-gold)] shrink-0" aria-hidden="true" />
+            Kept because they are inputs, not decoration: "somewhere calm" means
+            something different at the Blue Hole with four hours than at the
+            Lighthouse with one. The "Answering for:" label is gone — the
+            controls say what they are — and the chips lost their borders and
+            fills so the row reads as a setting rather than a second toolbar.
+          */}
+          <div className="flex items-center gap-1 pb-2.5 overflow-x-auto scrollbar-none">
+
+            <label className="flex items-center gap-1.5 hover:bg-[var(--dg-tint)] ps-2 pe-1 h-8 rounded-lg shrink-0 cursor-pointer transition-colors">
+              <MapPin className="w-3.5 h-3.5 text-[var(--dg-muted)] shrink-0" aria-hidden="true" />
               <span className="sr-only">{lang === 'ar' ? 'مكانك الحالي في دهب' : 'Your current location in Dahab'}</span>
               <select
                 value={currentLocation}
                 onChange={(e) => setCurrentLocation(e.target.value)}
                 aria-label={lang === 'ar' ? 'مكانك الحالي في دهب' : 'Your current location in Dahab'}
-                className="dg-focus bg-transparent text-[var(--dg-text)] outline-none text-xs cursor-pointer py-1"
+                className="dg-focus bg-transparent text-[var(--dg-text-2)] outline-none text-xs cursor-pointer py-1"
               >
                 <option value="Lighthouse" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'اللايتهاوس' : 'Lighthouse'}</option>
                 <option value="Eel Garden" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'إيل جاردن' : 'Eel Garden'}</option>
@@ -905,14 +912,14 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
               </select>
             </label>
 
-            <label className="flex items-center gap-2 bg-[var(--dg-tint)] border border-[var(--dg-line)] ps-3 pe-2 h-9 rounded-xl shrink-0 cursor-pointer">
-              <Clock className="w-4 h-4 text-[var(--dg-teal)] shrink-0" aria-hidden="true" />
+            <label className="flex items-center gap-1.5 hover:bg-[var(--dg-tint)] ps-2 pe-1 h-8 rounded-lg shrink-0 cursor-pointer transition-colors">
+              <Clock className="w-3.5 h-3.5 text-[var(--dg-muted)] shrink-0" aria-hidden="true" />
               <span className="sr-only">{lang === 'ar' ? 'الوقت المتاح عندك' : 'Time you have available'}</span>
               <select
                 value={availableMinutes}
                 onChange={(e) => setAvailableMinutes(Number(e.target.value))}
                 aria-label={lang === 'ar' ? 'الوقت المتاح عندك' : 'Time you have available'}
-                className="dg-focus bg-transparent text-[var(--dg-text)] outline-none text-xs cursor-pointer py-1"
+                className="dg-focus bg-transparent text-[var(--dg-text-2)] outline-none text-xs cursor-pointer py-1"
               >
                 <option value={60} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'ساعة فاضية' : '1 free hour'}</option>
                 <option value={120} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'ساعتين فاضيين' : '2 free hours'}</option>
@@ -921,12 +928,12 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
               </select>
             </label>
 
-            {/* Live marine flag — the condition every Dahab day actually turns on */}
-            <span className="flex items-center gap-2 bg-[var(--dg-teal)]/12 border border-[var(--dg-teal)]/30 text-[var(--dg-teal)] px-3 h-9 rounded-xl text-xs font-medium shrink-0">
-              <span className="w-2 h-2 rounded-full bg-[var(--dg-ok)] motion-safe:animate-pulse" aria-hidden="true" />
-              <Waves className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>{lang === 'ar' ? 'البحر: راية خضراء' : 'Sea: green flag'}</span>
-            </span>
+            {/*
+              Removed: a pulsing green "Sea: green flag" pill. It was a literal
+              constant — no reading, no timestamp, no source — announcing safe
+              water conditions to a diver. /api/telemetry/weather returns the
+              real observation; until this reads it, it says nothing.
+            */}
           </div>
         </div>
       </header>
@@ -992,14 +999,13 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
         thing that scrolls, so the composer stays reachable no matter how long
         the conversation runs (it used to sit at the bottom of an ever-growing
         page) and the command bar can never be scrolled under the global navbar.
-        On xl the leftover desktop width becomes a context rail instead of void.
       */}
-      <div className="relative z-10 flex-1 min-h-0 w-full max-w-[1440px] mx-auto px-4 sm:px-6 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-6">
+      <div className="relative z-10 flex-1 min-h-0 w-full max-w-3xl mx-auto px-4 sm:px-6 flex flex-col">
 
         {/* Main Chat Stream Container */}
         <section
           aria-label={lang === 'ar' ? 'محادثة المرشد الذكي' : 'DayGI conversation'}
-          className="min-h-0 flex flex-col"
+          className="flex-1 min-h-0 flex flex-col"
         >
 
         {/* Messages List — announced as a live log so replies reach assistive tech */}
@@ -1010,7 +1016,15 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
           aria-relevant="additions text"
           aria-label={lang === 'ar' ? 'سجل المحادثة' : 'Conversation transcript'}
           tabIndex={0}
-          className="dg-scroll dg-focus flex-1 min-h-0 overflow-y-auto space-y-4 py-4 pe-1"
+          /*
+            Before the traveler has said anything there is no transcript to
+            read, so the greeting sits in the middle of the space rather than
+            pinned to the top of an empty column. Once the conversation starts
+            it anchors to the top and scrolls normally.
+          */
+          className={`dg-scroll dg-focus flex-1 min-h-0 overflow-y-auto space-y-7 pe-1 ${
+            messages.length <= 1 ? 'flex flex-col justify-center py-6' : 'py-8'
+          }`}
         >
           {messages.map((msg) => {
             const isDayGi = msg.sender === 'daygi';
@@ -1024,29 +1038,38 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
                 className={`flex gap-3 ${isDayGi ? 'justify-start' : 'justify-end'} animate-in fade-in-50 duration-300`}
               >
                 {isDayGi && (
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[var(--dg-gold)] to-[var(--dg-teal)] flex items-center justify-center text-[var(--dg-gold-ink)] font-bold shrink-0 mt-1 shadow-md">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-7 h-7 rounded-full border border-[var(--dg-line)] flex items-center justify-center text-[var(--dg-teal)] shrink-0 mt-0.5" aria-hidden="true">
+                    <Sparkles className="w-3.5 h-3.5" />
                   </div>
                 )}
 
-                <div className={`max-w-[90%] sm:max-w-[85%] xl:max-w-[46rem] space-y-3 ${isDayGi ? 'text-[var(--dg-text)]' : 'text-[var(--dg-gold-ink)]'}`}>
-                  
-                  {/* Text Bubble */}
+                <div className={`space-y-3 min-w-0 text-[var(--dg-text)] ${isDayGi ? 'flex-1' : 'max-w-[85%]'}`}>
+
+                  {/*
+                    The assistant speaks on the page; only the traveler gets a
+                    bubble.
+
+                    Both sides used to sit in bordered, shadowed containers —
+                    the reply in a panel, the question in a gold gradient — so a
+                    conversation read as a stack of receipts. Giving the answer
+                    no container is what makes it read as an answer, and it is
+                    the one thing every chat interface worth copying does.
+                  */}
                   <div
-                    className={`rounded-2xl p-4 shadow-md text-sm leading-relaxed ${
+                    className={`text-sm leading-relaxed ${
                       isDayGi
-                        ? 'bg-[var(--dg-bubble)] border border-[var(--dg-line)] text-[var(--dg-text)]'
-                        : 'bg-gradient-to-r from-[var(--dg-gold)] to-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-medium'
+                        ? ''
+                        : 'bg-[var(--dg-tint-2)] rounded-2xl rounded-se-md px-4 py-2.5'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {isDayGi && payload?.mode && getModeBadge(payload.mode)}
-                        {isDayGi && payload?.actionRisk && getRiskBadge(payload.actionRisk)}
-                      </div>
-                      <span className={`dg-num text-xs ${isDayGi ? 'text-[var(--dg-muted)]' : 'text-[var(--dg-gold-ink)]'}`}>{msg.timestamp}</span>
-                    </div>
-
+                    {/*
+                      The badge row is gone. Every reply carried a mode chip
+                      ("Discovery (DISCOVER)"), a risk chip ("Read-Only Fact")
+                      and a timestamp — three pieces of system vocabulary above
+                      one sentence of actual answer. None of it is what the
+                      traveler came to read, and "Just now" on every message in
+                      a live conversation is not information.
+                    */}
                     <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
                     
                     {/* Active Parsed Constraints Pills (MUST_HAVE, PREFER, AVOID) */}
@@ -1071,34 +1094,30 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
                       </div>
                     )}
 
-                    {isDayGi && payload?.sourceConfidence && (
-                      <div className="mt-2.5 pt-2 border-t border-[var(--dg-line)] flex items-center justify-between text-[11px] text-[var(--dg-muted)]">
-                        <span className="flex items-center gap-1 text-[var(--dg-teal)]">
-                          <ShieldCheck className="w-3 h-3" />
-                          <span>{payload.sourceConfidence.source === 'VERIFIED_FACT' ? (lang === 'ar' ? 'حقائق مؤكدة ودفتر مركزي' : 'Verified Cloud SQL Truth') : (lang === 'ar' ? 'سياق محلي موثق' : 'Curated Dahab Context')}</span>
-                        </span>
-                        <span dir="auto">{payload.sourceConfidence.freshness}</span>
-                      </div>
-                    )}
+                    {/*
+                      Removed: a "Verified Cloud SQL Truth" stamp with a
+                      freshness line. The store is a JSON file, there is no
+                      Cloud SQL in the read path, and a confidence badge on an
+                      unverifiable answer buys trust it has not earned. When a
+                      reply rests on something specific, the reply says so in
+                      words.
+                    */}
                   </div>
 
                   {/* DayGI Structured Action & Rationale Cards */}
                   {isDayGi && payload && (
                     <div className="space-y-3">
                       
-                      {/* "Why This?" Rationale Card */}
+                      {/*
+                        The reasoning now reads as a quiet line under the
+                        answer instead of a bordered, titled, teal-accented
+                        card. It is a footnote, and it was formatted like a
+                        second headline.
+                      */}
                       {(payload.whyThis || payload.whyThisAr) && (
-                        <div className="bg-[var(--dg-panel)] border border-[var(--dg-teal)]/30 rounded-xl p-3 text-xs flex items-start gap-2.5 text-[var(--dg-text-2)]">
-                          <HelpCircle className="w-4 h-4 text-[var(--dg-teal)] shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-bold text-[var(--dg-teal)] block mb-0.5">
-                              {lang === 'ar' ? 'منطق وترشيح دايجي (Why this?):' : 'DayGI Rationale:'}
-                            </span>
-                            <p className="text-[var(--dg-text-2)]">
-                              {lang === 'ar' ? (payload.whyThisAr || payload.whyThis) : payload.whyThis}
-                            </p>
-                          </div>
-                        </div>
+                        <p className="text-xs leading-relaxed text-[var(--dg-muted)] ps-0.5">
+                          {lang === 'ar' ? (payload.whyThisAr || payload.whyThis) : payload.whyThis}
+                        </p>
                       )}
 
                       {/* Task Plan Progress Pipeline (Multi-Step Task Execution) */}
@@ -1660,27 +1679,34 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
         */}
         <div className="shrink-0 space-y-2.5 pt-3 pb-20 md:pb-4 bg-gradient-to-t from-[var(--dg-canvas)] via-[var(--dg-canvas)] to-transparent">
 
-          {/* Quick Prompts Carousel / Pills */}
-          <div
-            role="group"
-            aria-label={lang === 'ar' ? 'أوامر سريعة' : 'Quick actions'}
-            className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none"
-          >
-            <span className="text-xs text-[var(--dg-muted)] font-semibold shrink-0 flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-[var(--dg-gold)]" aria-hidden="true" />
-              <span className="hidden sm:inline">{lang === 'ar' ? 'جرّب:' : 'Try:'}</span>
-            </span>
-            {QUICK_PROMPTS.map((qp, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(qp.prompt)}
-                disabled={isLoading}
-                className="dg-focus shrink-0 bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-3)] border border-[var(--dg-line)] text-[var(--dg-text-2)] hover:text-[var(--dg-text)] px-3.5 h-9 rounded-full text-xs transition-colors active:scale-[0.98] disabled:opacity-45"
-              >
-                {lang === 'ar' ? qp.titleAr : qp.titleEn}
-              </button>
-            ))}
-          </div>
+          {/*
+            Four suggestions, wrapping, and only until the traveler has said
+            something.
+
+            All eight used to sit in a horizontal scroller behind a flame icon
+            and a "Try:" label, so the last four were permanently off the right
+            edge — a row of half-visible buttons is a row nobody reads. They
+            also stayed on screen for the whole conversation, still offering
+            "Check trip health" twenty messages in.
+          */}
+          {messages.length <= 1 && (
+            <div
+              role="group"
+              aria-label={lang === 'ar' ? 'أسئلة مقترحة' : 'Suggested questions'}
+              className="flex flex-wrap gap-2"
+            >
+              {QUICK_PROMPTS.slice(0, 4).map((qp, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSendMessage(qp.prompt)}
+                  disabled={isLoading}
+                  className="dg-focus bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] text-[var(--dg-text-2)] hover:text-[var(--dg-text)] px-3.5 h-9 rounded-full text-xs transition-colors active:scale-[0.98] disabled:opacity-45"
+                >
+                  {lang === 'ar' ? qp.titleAr : qp.titleEn}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Input Form */}
           <form
@@ -1688,7 +1714,7 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
               e.preventDefault();
               handleSendMessage();
             }}
-            className="flex items-center gap-2 bg-[var(--dg-panel)] border border-[var(--dg-line)] focus-within:border-[var(--dg-gold)] focus-within:ring-2 focus-within:ring-[var(--dg-gold)]/35 rounded-2xl p-2 shadow-[var(--dg-shadow)] transition-colors"
+            className="flex items-center gap-2 bg-[var(--dg-tint)] border border-[var(--dg-line)] focus-within:border-[var(--dg-teal)] focus-within:bg-[var(--dg-panel)] rounded-[1.75rem] p-2 transition-colors"
           >
             <input
               type="text"
@@ -1707,7 +1733,7 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
               type="submit"
               disabled={!inputText.trim() || isLoading}
               aria-label={lang === 'ar' ? 'إرسال الرسالة' : 'Send message'}
-              className="dg-focus w-11 h-11 rounded-xl bg-gradient-to-tr from-[var(--dg-gold)] to-[var(--dg-teal)] text-[var(--dg-gold-ink)] flex items-center justify-center shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:hover:brightness-100 shrink-0"
+              className="dg-focus w-10 h-10 rounded-full bg-[var(--dg-teal)] text-[var(--dg-gold-ink)] flex items-center justify-center hover:brightness-110 active:scale-95 transition-all disabled:opacity-30 disabled:hover:brightness-100 shrink-0"
             >
               {isLoading
                 ? <RefreshCw className="w-4.5 h-4.5 animate-spin" aria-hidden="true" />
@@ -1715,14 +1741,16 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
             </button>
           </form>
 
-          {/* Safety & Operating Layer Guarantee */}
-          <p className="flex items-center justify-center gap-2 text-xs text-[var(--dg-muted)] text-center">
-            <ShieldCheck className="w-3.5 h-3.5 text-[var(--dg-teal)] shrink-0" aria-hidden="true" />
-            <span>
-              {lang === 'ar'
-                ? 'دايجي مش هيغيّر أي حجز أو يخصم أي مبلغ من غير ما توافق أنت الأول.'
-                : 'DayGI never changes a booking or moves money until you confirm it.'}
-            </span>
+          {/*
+            Kept, because it is a real promise about money and the traveler
+            should be able to see it before they ask for something expensive.
+            Demoted to a plain line: it had a shield icon and centred emphasis,
+            which is how a reassurance starts reading as marketing.
+          */}
+          <p className="text-[11px] text-[var(--dg-muted)] text-center">
+            {lang === 'ar'
+              ? 'دايجي مش هيغيّر أي حجز أو يخصم أي مبلغ من غير ما توافق أنت الأول.'
+              : 'DayGI never changes a booking or moves money until you confirm it.'}
           </p>
 
         </div>
@@ -1730,174 +1758,15 @@ I monitor trip health, track structured memory & preferences, and orchestrate mu
         </section>
 
         {/*
-          Context rail.
+          The 340px context rail is gone.
 
-          Trip health, structured memory, live alerts and the multi-step task
-          queue were all locked behind badges and modals, so a 1440px screen
-          showed a narrow chat column flanked by ~500px of empty canvas on each
-          side. The same state now reads at a glance on xl and up; the modals
-          stay as the detail view and remain the only route on narrow screens.
+          It held a trip-health ring, a memory panel and a task queue beside
+          the conversation — three standing dashboards competing with the
+          answer the traveler actually asked for, and on a screen narrower
+          than 1280px none of it rendered at all, so the page already had to
+          work without them. The same state still opens from the header,
+          which is where a status you consult on purpose belongs.
         */}
-        <aside
-          aria-label={lang === 'ar' ? 'حالة الرحلة المباشرة' : 'Live trip status'}
-          className="dg-scroll hidden xl:flex flex-col gap-3 min-h-0 overflow-y-auto py-4 pb-24"
-        >
-
-          {/* Trip health */}
-          <div className="bg-[var(--dg-panel)] border border-[var(--dg-line)] rounded-2xl p-4 shrink-0">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <span className="text-xs font-semibold text-[var(--dg-muted)] block">
-                  {lang === 'ar' ? 'صحة الرحلة' : 'Trip health'}
-                </span>
-                <span className="text-2xl font-bold text-[var(--dg-ok)] dg-num block leading-tight">
-                  {healthScore}%
-                </span>
-              </div>
-              <div
-                className="w-14 h-14 rounded-full shrink-0 grid place-items-center"
-                style={{
-                  background: `conic-gradient(var(--dg-ok) ${healthScore * 3.6}deg, var(--dg-tint-2) 0deg)`
-                }}
-                aria-hidden="true"
-              >
-                <span className="w-11 h-11 rounded-full bg-[var(--dg-panel)] grid place-items-center">
-                  <HeartPulse className="w-5 h-5 text-[var(--dg-ok)]" />
-                </span>
-              </div>
-            </div>
-
-            <p className="text-xs text-[var(--dg-text-2)] mt-2 leading-relaxed">
-              {openIssues > 0
-                ? (lang === 'ar'
-                    ? `${openIssues} نقطة محتاجة انتباهك في الجدول.`
-                    : `${openIssues} point${openIssues > 1 ? 's' : ''} need your attention.`)
-                : (lang === 'ar'
-                    ? 'كل الحجوزات مؤكدة، ومفيش تعارض في الجدول.'
-                    : 'Every booking is confirmed and nothing clashes.')}
-            </p>
-
-            <button
-              onClick={() => setHealthModalOpen(true)}
-              className="dg-focus mt-3 w-full h-9 rounded-xl bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] border border-[var(--dg-line)] text-xs font-semibold text-[var(--dg-text-2)] hover:text-[var(--dg-text)] transition-colors flex items-center justify-center gap-1.5"
-            >
-              <span>{lang === 'ar' ? 'افتح الفحص الكامل' : 'Open the full audit'}</span>
-              <ChevronRight className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} aria-hidden="true" />
-            </button>
-          </div>
-
-          {/* Live alerts */}
-          {liveSuggestions.length > 0 && (
-            <div className="bg-[var(--dg-panel)] border border-[var(--dg-line)] rounded-2xl p-4 shrink-0 space-y-2.5">
-              <span className="text-xs font-semibold text-[var(--dg-muted)] flex items-center gap-1.5">
-                <Bell className="w-3.5 h-3.5 text-[var(--dg-gold)]" aria-hidden="true" />
-                {lang === 'ar' ? 'تنبيهات استباقية' : 'Proactive alerts'}
-              </span>
-              {liveSuggestions.slice(0, 3).map((s) => (
-                <div
-                  key={s.id}
-                  className={`rounded-xl p-3 border text-xs leading-relaxed ${
-                    s.urgency === 'CRITICAL'
-                      ? 'bg-[var(--dg-risk)]/12 border-[var(--dg-risk)]/35'
-                      : s.urgency === 'ACTION_REQUIRED'
-                      ? 'bg-[var(--dg-gold)]/12 border-[var(--dg-gold)]/35'
-                      : 'bg-[var(--dg-tint)] border-[var(--dg-line)]'
-                  }`}
-                >
-                  <span className="font-bold text-[var(--dg-text)] block">
-                    {lang === 'ar' ? s.titleAr : s.titleEn}
-                  </span>
-                  <span className="text-[var(--dg-text-2)] block mt-0.5">
-                    {lang === 'ar' ? s.descriptionAr : s.descriptionEn}
-                  </span>
-                  {s.timeContext && (
-                    <span className="dg-num text-[var(--dg-muted)] block mt-1">{s.timeContext}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Multi-step tasks in flight */}
-          {activeTasks.length > 0 && (
-            <div className="bg-[var(--dg-panel)] border border-[var(--dg-line)] rounded-2xl p-4 shrink-0 space-y-2.5">
-              <span className="text-xs font-semibold text-[var(--dg-muted)] flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[var(--dg-teal)]" aria-hidden="true" />
-                {lang === 'ar' ? 'مهام شغّالة دلوقتي' : 'Tasks in progress'}
-              </span>
-              {activeTasks.slice(0, 3).map((t) => (
-                <div key={t.taskId} className="bg-[var(--dg-tint)] border border-[var(--dg-line)] rounded-xl p-3 text-xs">
-                  <span className="font-bold text-[var(--dg-text)] block">
-                    {lang === 'ar' ? t.titleAr : t.titleEn}
-                  </span>
-                  <div className="flex items-center justify-between mt-2 text-[var(--dg-muted)]">
-                    <span className="dg-num">
-                      {t.currentStepNumber}/{t.totalSteps}
-                    </span>
-                    <span className="font-mono uppercase text-[var(--dg-teal)]">{t.state}</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 rounded-full bg-[var(--dg-tint-2)] overflow-hidden">
-                    <span
-                      className="block h-full rounded-full bg-[var(--dg-teal)]"
-                      style={{ width: `${Math.min(100, (t.currentStepNumber / Math.max(1, t.totalSteps)) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Structured memory summary */}
-          <div className="bg-[var(--dg-panel)] border border-[var(--dg-line)] rounded-2xl p-4 shrink-0">
-            <span className="text-xs font-semibold text-[var(--dg-muted)] flex items-center gap-1.5">
-              <Brain className="w-3.5 h-3.5 text-[var(--dg-gold)]" aria-hidden="true" />
-              {lang === 'ar' ? 'اللي دايجي فاكره عنك' : 'What DayGI remembers'}
-            </span>
-
-            {userMemory ? (
-              <>
-                <div className="flex flex-wrap gap-1.5 mt-2.5">
-                  {userMemory.preferences.pace && (
-                    <span className="bg-[var(--dg-teal)]/15 text-[var(--dg-teal)] border border-[var(--dg-teal)]/30 px-2 py-1 rounded-lg text-xs">
-                      {lang === 'ar' ? 'الإيقاع' : 'Pace'}: {userMemory.preferences.pace}
-                    </span>
-                  )}
-                  {userMemory.preferences.morningPreference && (
-                    <span className="bg-[var(--dg-teal)]/15 text-[var(--dg-teal)] border border-[var(--dg-teal)]/30 px-2 py-1 rounded-lg text-xs">
-                      {userMemory.preferences.morningPreference === 'Late_Start'
-                        ? (lang === 'ar' ? 'صباح متأخر' : 'Late mornings')
-                        : (lang === 'ar' ? 'صباح مبكر' : 'Early riser')}
-                    </span>
-                  )}
-                  {userMemory.preferences.budgetBand && (
-                    <span className="bg-[var(--dg-gold)]/15 text-[var(--dg-gold)] border border-[var(--dg-gold)]/30 px-2 py-1 rounded-lg text-xs">
-                      {userMemory.preferences.budgetBand}
-                    </span>
-                  )}
-                  {userMemory.preferences.seafoodPreference && (
-                    <span className="bg-[var(--dg-tint)] text-[var(--dg-text-2)] border border-[var(--dg-line)] px-2 py-1 rounded-lg text-xs">
-                      {lang === 'ar' ? 'بيحب السمك الطازج' : 'Loves fresh seafood'}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => setMemoryModalOpen(true)}
-                  className="dg-focus mt-3 w-full h-9 rounded-xl bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] border border-[var(--dg-line)] text-xs font-semibold text-[var(--dg-text-2)] hover:text-[var(--dg-text)] transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <span>{lang === 'ar' ? 'عدّل تفضيلاتك' : 'Edit preferences'}</span>
-                  <ChevronRight className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} aria-hidden="true" />
-                </button>
-              </>
-            ) : (
-              <p className="text-xs text-[var(--dg-text-2)] mt-2 leading-relaxed">
-                {lang === 'ar'
-                  ? 'لسه دايجي بيتعرّف عليك — كل ما تقوله عن مزاجك وميزانيتك بيتحفظ هنا ويتطبّق على كل اقتراح.'
-                  : 'DayGI is still learning you — whatever you say about pace and budget lands here and shapes every suggestion.'}
-              </p>
-            )}
-          </div>
-        </aside>
       </div>
 
       {/* -------------------------------------------------------- */}

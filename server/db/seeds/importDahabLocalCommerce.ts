@@ -640,7 +640,11 @@ export function importDahabLocalCommerce(options: { forceReload?: boolean } = {}
       const idx = db.activities.findIndex(a => a.id === actDef.id);
       const fullAct: ActivityDetailEntity = {
         id: actDef.id,
-        skuId: `SKU-${actDef.id.replace('ACT-', '')}`,
+        // No skuId. This used to synthesise one from the activity id — 'ACT-QUAD-TWILAT'
+        // became 'SKU-QUAD-TWILAT' — and nothing ever created the matching row in
+        // db.productSkus, so every activity seeded here carried a reference to
+        // inventory that does not exist. bookabilityReconciler assigns a skuId
+        // only when a real sellable product backs the activity.
         titleEn: actDef.titleEn,
         titleAr: actDef.titleAr,
         category: actDef.category,

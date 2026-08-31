@@ -27,19 +27,24 @@ import {
   Bot,
   DollarSign,
   ShieldCheck,
-  Play
+  Play,
+  Database,
+  GitMerge
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { ProductOpportunitiesView } from '../intelligence/ProductOpportunitiesView';
 import { GroundedAiAssistantView } from '../intelligence/GroundedAiAssistantView';
 import { DayGiQualityDashboard } from './DayGiQualityDashboard';
+import { DkosHealthView } from './DkosHealthView';
+import { KnowledgeGapsView } from './KnowledgeGapsView';
+import { EntityResolutionView } from './EntityResolutionView';
 import { api } from '../../services/api';
 
 export const OperationsConsoleView: React.FC = () => {
   const { navigateTo, showToast, opportunities, ledgerEntries, transferTracking } = useTrip();
   const { language, isRTL } = useLanguage();
-  type OpsTabId = 'daygi_quality' | 'radar' | 'opportunities' | 'ai_assistant' | 'ledger' | 'transfers' | 'golden_test' | 'exceptions' | 'dispatch' | 'flags' | 'audit';
+  type OpsTabId = 'daygi_quality' | 'radar' | 'opportunities' | 'ai_assistant' | 'ledger' | 'transfers' | 'golden_test' | 'exceptions' | 'dispatch' | 'flags' | 'audit' | 'dkos_health' | 'knowledge_gaps' | 'entity_resolution';
   interface OpsTab { id: OpsTabId; label: string; icon: React.ElementType; badge?: string | number; }
 
   const [activeTab, setActiveTab] = useState<OpsTabId>('daygi_quality');
@@ -248,7 +253,10 @@ export const OperationsConsoleView: React.FC = () => {
               { id: 'exceptions', label: language === 'ar' ? 'قائمة الاستثناءات (T02/T03)' : 'Exceptions & Disruptions (T02)', icon: AlertTriangle },
               { id: 'dispatch', label: language === 'ar' ? 'خريطة التوصيل والنقل (T09)' : 'Dispatch & Fleet (T09)', icon: Compass },
               { id: 'flags', label: language === 'ar' ? 'أعلام الميزات (T07)' : 'Feature Flags (T07)', icon: Sliders },
-              { id: 'audit', label: language === 'ar' ? 'سجل التدقيق (T08)' : 'Immutable Audit Log (T08)', icon: FileText }
+              { id: 'audit', label: language === 'ar' ? 'سجل التدقيق (T08)' : 'Immutable Audit Log (T08)', icon: FileText },
+              { id: 'dkos_health', label: language === 'ar' ? 'صحة قاعدة المعرفة' : 'DKOS Health', icon: Database },
+              { id: 'knowledge_gaps', label: language === 'ar' ? 'فجوات المعرفة' : 'Knowledge Gaps', icon: AlertTriangle },
+              { id: 'entity_resolution', label: language === 'ar' ? 'حل الكيانات' : 'Entity Resolution', icon: GitMerge }
             ] as OpsTab[]).map(tab => {
               const Icon = tab.icon;
               return (
@@ -936,6 +944,33 @@ export const OperationsConsoleView: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'dkos_health' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-[#F7F3EA]">
+              {language === 'ar' ? 'صحة قاعدة المعرفة (DKOS)' : 'DKOS Knowledge Graph Health'}
+            </h2>
+            <DkosHealthView />
+          </div>
+        )}
+
+        {activeTab === 'knowledge_gaps' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-[#F7F3EA]">
+              {language === 'ar' ? 'فجوات المعرفة والحقائق القديمة' : 'Knowledge Gaps & Stale Facts'}
+            </h2>
+            <KnowledgeGapsView />
+          </div>
+        )}
+
+        {activeTab === 'entity_resolution' && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-[#F7F3EA]">
+              {language === 'ar' ? 'حل الكيانات وقائمة المراجعة' : 'Entity Resolution & Review Queue'}
+            </h2>
+            <EntityResolutionView />
           </div>
         )}
       </main>
