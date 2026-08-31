@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { api } from '../../../services/api';
+import { SectionErrorBoundary } from './ErrorBoundary';
 
 // ─── Section definitions ────────────────────────────────────────────────────
 export type SectionId =
@@ -356,9 +357,11 @@ export const CommandCenterShell: React.FC = () => {
         {/* Section content */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <Suspense fallback={<SectionLoading />}>
-              <SectionContent section={activeSection} onNavigate={handleNavigate} />
-            </Suspense>
+            <SectionErrorBoundary key={activeSection}>
+              <Suspense fallback={<SectionLoading />}>
+                <SectionContent section={activeSection} onNavigate={handleNavigate} />
+              </Suspense>
+            </SectionErrorBoundary>
           </div>
         </main>
       </div>
