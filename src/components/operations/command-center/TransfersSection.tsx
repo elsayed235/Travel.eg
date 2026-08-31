@@ -12,7 +12,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function TransfersSection() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [transfers, setTransfers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -36,7 +36,7 @@ export default function TransfersSection() {
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
             <Car className="w-4 h-4 text-sky-400" />
-            {language === 'ar' ? 'نقل' : 'Transfers'}
+            {t('cmd.transfers.title')}
           </h3>
           {lastUpdated && <span className="text-[10px] text-white/40 font-mono">Updated {Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s ago</span>}
         </div>
@@ -56,7 +56,7 @@ export default function TransfersSection() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading transfers…
+          {t('cmd.transfers.loading')}
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">

@@ -6,7 +6,7 @@ import { ConfirmDialog } from './ConfirmDialog';
 import { Pagination, usePagination } from './Pagination';
 
 export default function CommerceControl() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'ledger' | 'verify' | 'payments' | 'anomalies'>('ledger');
   const [ledgerEntries, setLedgerEntries] = useState<any[]>([]);
   const [verifyResult, setVerifyResult] = useState<any>(null);
@@ -60,7 +60,7 @@ export default function CommerceControl() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-[#E7A83B]" />
-          {language === 'ar' ? 'التحكم المالي' : 'Commerce Control'}
+          {t('cmd.commerce.title')}
         </h3>
         <div className="flex gap-2 items-center">
           {activeTab === 'ledger' && ledgerEntries.length > 0 && (
@@ -143,7 +143,7 @@ export default function CommerceControl() {
           {anomalies.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-              <div className="text-sm font-bold text-emerald-400/80">No ledger anomalies</div>
+              <div className="text-sm font-bold text-emerald-400/80">{t('cmd.commerce.noAnomalies')}</div>
             </div>
           ) : anomalies.map((a: any, i: number) => (
             <div key={a.id || i} className="p-3 rounded-xl bg-[#062C35] border border-white/8">
@@ -195,12 +195,12 @@ export default function CommerceControl() {
           {loading ? (
             <div className="py-12 text-center text-sm text-white/40">
               <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-              Loading ledger…
+              {t('cmd.commerce.loadingLedger')}
             </div>
           ) : ledgerEntries.length === 0 ? (
             <div className="py-12 text-center">
               <DollarSign className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No ledger entries</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.commerce.noEntries')}</div>
               <div className="text-[11px] text-white/30 mt-1">Financial records will appear here after bookings.</div>
             </div>
           ) : (

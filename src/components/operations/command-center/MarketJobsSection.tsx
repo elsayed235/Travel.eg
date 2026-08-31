@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function MarketJobsSection() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState(false);
@@ -31,7 +31,7 @@ export default function MarketJobsSection() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Zap className="w-4 h-4 text-amber-400" />
-          {language === 'ar' ? 'الوظائف' : 'Market Jobs'}
+          {t('cmd.jobs.title')}
         </h3>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => handleTrigger()} disabled={triggering}
@@ -47,7 +47,7 @@ export default function MarketJobsSection() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading jobs…
+          {t('cmd.jobs.loading')}
         </div>
       ) : jobs.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">

@@ -196,7 +196,7 @@ function SectionLoading() {
 
 // ─── Main Shell ─────────────────────────────────────────────────────────────
 export const CommandCenterShell: React.FC = () => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL, t } = useLanguage();
   const [activeSection, setActiveSection] = useState<SectionId>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 1280);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -264,9 +264,9 @@ export const CommandCenterShell: React.FC = () => {
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <div className="text-xs font-bold text-[#F7F3EA] truncate font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'مركز القيادة' : 'Command Center'}
+                  {t('cmd.title')}
                 </div>
-                <div className="text-[10px] text-white/40 truncate">Dahab Operations</div>
+                <div className="text-[10px] text-white/40 truncate">{t('cmd.subtitle')}</div>
               </div>
             )}
           </div>
@@ -276,9 +276,9 @@ export const CommandCenterShell: React.FC = () => {
         <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-1">
           {(['core', 'domain', 'system'] as const).map(group => (
             <div key={group}>
-              {!sidebarCollapsed && (
+              {              !sidebarCollapsed && (
                 <div className="px-2 pt-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/30">
-                  {group === 'core' ? 'Live Ops' : group === 'domain' ? 'Domains' : 'System'}
+                  {group === 'core' ? t('cmd.group.liveOps') : group === 'domain' ? t('cmd.group.domains') : t('cmd.group.system')}
                 </div>
               )}
               {groupedSections[group].map(section => {
@@ -323,7 +323,7 @@ export const CommandCenterShell: React.FC = () => {
             className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] text-white/40 hover:text-white/70 hover:bg-white/5 transition-all cursor-pointer"
           >
             {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-            {!sidebarCollapsed && <span>Collapse</span>}
+            {!sidebarCollapsed && <span>{t('cmd.collapse')}</span>}
           </button>
         </div>
       </aside>
@@ -336,7 +336,7 @@ export const CommandCenterShell: React.FC = () => {
             <h2 className="text-sm font-bold text-[#F7F3EA] font-['Outfit',sans-serif]">
               {NAV_SECTIONS.find(s => s.id === activeSection)
                 ? (language === 'ar' ? NAV_SECTIONS.find(s => s.id === activeSection)!.labelAr : NAV_SECTIONS.find(s => s.id === activeSection)!.label)
-                : 'Overview'}
+                : t('cmd.nav.overview')}
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export const CommandCenterShell: React.FC = () => {
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/80 text-xs transition-all cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Search…</span>
+              <span className="hidden sm:inline">{t('cmd.search')}</span>
               <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-white/10 text-white/40 font-mono">⌘K</kbd>
             </button>
           </div>

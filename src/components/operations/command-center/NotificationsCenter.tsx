@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function NotificationsCenter() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ export default function NotificationsCenter() {
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
             <Bell className="w-4 h-4 text-amber-400" />
-            {language === 'ar' ? 'الإشعارات' : 'Notifications'}
+            {t('cmd.notif.title')}
           </h3>
           {summary && summary.unread > 0 && (
             <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
@@ -52,7 +52,7 @@ export default function NotificationsCenter() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading notifications…
+          {t('cmd.notif.loading')}
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">

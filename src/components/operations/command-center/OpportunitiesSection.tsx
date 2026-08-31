@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function OpportunitiesSection() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export default function OpportunitiesSection() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Lightbulb className="w-4 h-4 text-amber-400" />
-          {language === 'ar' ? 'الفرص' : 'Opportunities'}
+          {t('cmd.opps.title')}
         </h3>
         <button type="button" onClick={() => fetchOpps()} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 cursor-pointer">
           <RefreshCw className="w-3.5 h-3.5" />
@@ -44,12 +44,12 @@ export default function OpportunitiesSection() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading opportunities…
+          {t('cmd.opps.loading')}
         </div>
       ) : opportunities.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Lightbulb className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No opportunities detected</div>
+          <div className="text-sm font-bold text-white/50">{t('cmd.opps.noOpps')}</div>
         </div>
       ) : (
         <div className="space-y-3">

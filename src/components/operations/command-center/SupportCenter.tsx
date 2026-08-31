@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function SupportCenter() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [messages, setMessages] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export default function SupportCenter() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <MessageSquare className="w-4 h-4 text-[#E7A83B]" />
-          {language === 'ar' ? 'مركز الدعم' : 'Support Center'}
+          {t('cmd.support.title')}
         </h3>
         <div className="flex gap-2">
           {(['messages', 'notifications'] as const).map(tab => (
@@ -66,7 +66,7 @@ export default function SupportCenter() {
           {notifications.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <Bell className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No notifications</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.support.noNotifications')}</div>
             </div>
           ) : notifications.map((n: any) => (
             <div key={n.id} className={`p-4 rounded-xl bg-[#062C35] border transition-all ${n.read ? 'border-white/5 opacity-60' : 'border-white/8 hover:border-white/15'}`}>
@@ -98,7 +98,7 @@ export default function SupportCenter() {
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-white/40">Loading messages…</div>
+            <div className="py-12 text-center text-sm text-white/40">{t('cmd.support.loading')}</div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-1 space-y-2 max-h-[60vh] overflow-y-auto">

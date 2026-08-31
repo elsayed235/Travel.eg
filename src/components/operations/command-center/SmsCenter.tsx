@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function SmsCenter() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -39,7 +39,7 @@ export default function SmsCenter() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <MessageSquare className="w-4 h-4 text-[#E7A83B]" />
-          {language === 'ar' ? 'مركز الرسائل' : 'SMS Center'}
+          {t('cmd.sms.title')}
         </h3>
         <button type="button" onClick={() => fetchLogs()} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 cursor-pointer">
           <RefreshCw className="w-3.5 h-3.5" />
@@ -79,12 +79,12 @@ export default function SmsCenter() {
         {loading ? (
           <div className="py-12 text-center text-sm text-white/40">
             <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-            Loading SMS logs…
+            {t('cmd.sms.loadingLogs')}
           </div>
         ) : logs.length === 0 ? (
           <div className="py-12 text-center">
             <MessageSquare className="w-10 h-10 text-white/20 mx-auto mb-3" />
-            <div className="text-sm font-bold text-white/50">No SMS logs</div>
+            <div className="text-sm font-bold text-white/50">{t('cmd.sms.noLogs')}</div>
           </div>
         ) : (
           <div className="overflow-x-auto">

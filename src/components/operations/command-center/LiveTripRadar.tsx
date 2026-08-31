@@ -17,7 +17,7 @@ interface EnrichedTrip {
 
 // ─── List View ──────────────────────────────────────────────────────────────
 export default function LiveTripRadar() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [trips, setTrips] = useState<TripEntity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +94,7 @@ export default function LiveTripRadar() {
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
             <Plane className="w-4 h-4 text-[#52C4B7]" />
-            {language === 'ar' ? 'الرحلات الحية' : 'Live Trip Radar'}
+            {t('cmd.trips.title')}
           </h3>
           {lastUpdated && (
             <span className="text-[10px] text-white/40 font-mono">
@@ -116,13 +116,13 @@ export default function LiveTripRadar() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading trips…
+          {t('cmd.trips.loading')}
         </div>
       ) : trips.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Plane className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No active trips</div>
-          <div className="text-[11px] text-white/30 mt-1">Trips will appear here when travelers are in the destination.</div>
+          <div className="text-sm font-bold text-white/50">{t('cmd.trips.noTrips')}</div>
+          <div className="text-[11px] text-white/30 mt-1">{t('cmd.trips.noTripsDesc')}</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +185,7 @@ export default function LiveTripRadar() {
 
 // ─── Trip Command View ──────────────────────────────────────────────────────
 function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => void }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [trip, setTrip] = useState<EnrichedTrip | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'timeline' | 'financial' | 'transfers'>('overview');
@@ -230,7 +230,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
     return (
       <div className="py-12 text-center text-sm text-white/40">
         <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-        Loading trip details…
+        {t('cmd.trips.loadingDetails')}
       </div>
     );
   }
@@ -238,13 +238,13 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
   if (!trip) {
     return (
       <div className="py-12 text-center">
-        <div className="text-sm text-white/50">Trip not found or access denied.</div>
-        <button type="button" onClick={onBack} className="mt-3 text-xs text-[#52C4B7] hover:underline cursor-pointer">← Back to radar</button>
+        <div className="text-sm text-white/50">{t('cmd.trips.notFound')}</div>
+        <button type="button" onClick={onBack} className="mt-3 text-xs text-[#52C4B7] hover:underline cursor-pointer">← {t('cmd.trips.backToRadar')}</button>
       </div>
     );
   }
 
-  const t = trip.trip;
+  const tripData = trip.trip;
   const possibleTransitions: Record<string, string[]> = {
     DRAFT: ['PLANNED'],
     PLANNED: ['CONFIRMED', 'CANCELLED'],
@@ -256,7 +256,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
     <div className="space-y-4">
       {/* Back button */}
       <button type="button" onClick={onBack} className="text-xs text-white/50 hover:text-white/80 flex items-center gap-1 cursor-pointer">
-        ← {language === 'ar' ? 'العودة للرادار' : 'Back to Trip Radar'}
+        ← {t('cmd.trips.backToRadar')}
       </button>
 
       {/* Trip Header */}
@@ -264,20 +264,20 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono text-[#52C4B7]">{t.id}</span>
+              <span className="text-[11px] font-mono text-[#52C4B7]">{tripData.id}</span>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                t.status === 'IN_DESTINATION' ? 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30' :
-                t.status === 'CONFIRMED' ? 'text-sky-400 bg-sky-500/20 border-sky-500/30' :
+                tripData.status === 'IN_DESTINATION' ? 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30' :
+                tripData.status === 'CONFIRMED' ? 'text-sky-400 bg-sky-500/20 border-sky-500/30' :
                 'text-white/40 bg-white/5 border-white/10'
-              }`}>{t.status}</span>
+              }`}>{tripData.status}</span>
             </div>
-            <h2 className="text-lg font-bold text-[#F7F3EA] mt-1 font-['Outfit',sans-serif]">{t.title}</h2>
+            <h2 className="text-lg font-bold text-[#F7F3EA] mt-1 font-['Outfit',sans-serif]">{tripData.title}</h2>
             <div className="text-xs text-white/50 mt-1">
-              {t.travelersCount} traveler{t.travelersCount !== 1 ? 's' : ''} · {t.lengthDays} days · {t.budget} · {t.pace}
+              {tripData.travelersCount} traveler{tripData.travelersCount !== 1 ? 's' : ''} · {tripData.lengthDays} days · {tripData.budget} · {tripData.pace}
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {(possibleTransitions[t.status] || []).map(status => (
+            {(possibleTransitions[tripData.status] || []).map(status => (
               <button
                 key={status}
                 type="button"
@@ -294,16 +294,16 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-white/5">
           <div className="text-center">
-            <div className="text-lg font-bold text-[#52C4B7] font-mono">{t.totalPaidEGP.toLocaleString()}</div>
-            <div className="text-[10px] text-white/40">Paid (EGP)</div>
+            <div className="text-lg font-bold text-[#52C4B7] font-mono">{tripData.totalPaidEGP.toLocaleString()}</div>
+            <div className="text-[10px] text-white/40">{t('cmd.trips.paidLabel')}</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-white/60 font-mono">{t.totalEstimatedEGP.toLocaleString()}</div>
-            <div className="text-[10px] text-white/40">Estimated (EGP)</div>
+            <div className="text-lg font-bold text-white/60 font-mono">{tripData.totalEstimatedEGP.toLocaleString()}</div>
+            <div className="text-[10px] text-white/40">{t('cmd.trips.estimatedLabel')}</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-bold text-[#E7A83B] font-mono">{trip.items.length}</div>
-            <div className="text-[10px] text-white/40">Itinerary Items</div>
+            <div className="text-[10px] text-white/40">{t('cmd.trips.itineraryItems')}</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-bold text-sky-400 font-mono">{trip.bookings.length}</div>
@@ -338,10 +338,10 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
       {activeTab === 'overview' && (
         <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8 text-xs space-y-3">
           <div className="grid grid-cols-2 gap-4">
-            <div><span className="text-white/40">Start Date:</span> <span className="text-white/80 font-bold">{t.startDate || 'Not set'}</span></div>
-            <div><span className="text-white/40">End Date:</span> <span className="text-white/80 font-bold">{t.endDate || 'Not set'}</span></div>
-            <div><span className="text-white/40">Interests:</span> <span className="text-white/80">{t.interests?.join(', ') || '—'}</span></div>
-            <div><span className="text-white/40">Created:</span> <span className="text-white/80">{t.createdAt}</span></div>
+            <div><span className="text-white/40">{t('cmd.trips.startDate')}:</span> <span className="text-white/80 font-bold">{tripData.startDate || t('cmd.trips.notSet')}</span></div>
+            <div><span className="text-white/40">{t('cmd.trips.endDate')}:</span> <span className="text-white/80 font-bold">{tripData.endDate || t('cmd.trips.notSet')}</span></div>
+            <div><span className="text-white/40">Interests:</span> <span className="text-white/80">{tripData.interests?.join(', ') || '—'}</span></div>
+            <div><span className="text-white/40">Created:</span> <span className="text-white/80">{tripData.createdAt}</span></div>
           </div>
         </div>
       )}
@@ -351,7 +351,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
           {trip.bookings.length === 0 ? (
             <div className="p-8 rounded-2xl bg-[#062C35] border border-white/8 text-center text-xs text-white/40">
               <Package className="w-8 h-8 mx-auto mb-2 text-white/20" />
-              No bookings yet
+              {t('cmd.trips.noBookings')}
             </div>
           ) : (
             trip.bookings.map(bk => (
@@ -396,7 +396,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
           {trip.items.length === 0 ? (
             <div className="p-8 rounded-2xl bg-[#062C35] border border-white/8 text-center text-xs text-white/40">
               <Calendar className="w-8 h-8 mx-auto mb-2 text-white/20" />
-              No itinerary items
+              {t('cmd.trips.noTimeline')}
             </div>
           ) : (
             trip.items.map(item => (
@@ -429,7 +429,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
           {trip.bookings.filter(b => b.serviceType === 'transfer').length === 0 ? (
             <div className="p-8 rounded-2xl bg-[#062C35] border border-white/8 text-center text-xs text-white/40">
               <Car className="w-8 h-8 mx-auto mb-2 text-white/20" />
-              No transfers for this trip
+              {t('cmd.trips.noTransfers')}
             </div>
           ) : trip.bookings.filter(b => b.serviceType === 'transfer').map(bk => (
             <div key={bk.id} className="p-4 rounded-xl bg-[#062C35] border border-white/8 flex flex-wrap items-center justify-between gap-3">
@@ -449,12 +449,12 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
       {activeTab === 'financial' && (
         <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8 text-xs">
           <div className="grid grid-cols-2 gap-4">
-            <div><span className="text-white/40">Total Estimated:</span> <span className="text-white/80 font-bold">{t.totalEstimatedEGP.toLocaleString()} EGP</span></div>
-            <div><span className="text-white/40">Total Paid:</span> <span className="text-emerald-400 font-bold">{t.totalPaidEGP.toLocaleString()} EGP</span></div>
+            <div><span className="text-white/40">{t('cmd.trips.estimatedLabel')}</span> <span className="text-white/80 font-bold">{tripData.totalEstimatedEGP.toLocaleString()} EGP</span></div>
+            <div><span className="text-white/40">{t('cmd.trips.paidLabel')}</span> <span className="text-emerald-400 font-bold">{tripData.totalPaidEGP.toLocaleString()} EGP</span></div>
           </div>
           <div className="mt-4 pt-3 border-t border-white/5">
-            <span className="text-white/40">Remaining:</span> <span className="text-[#E7A83B] font-bold">
-              {(t.totalEstimatedEGP - t.totalPaidEGP).toLocaleString()} EGP
+            <span className="text-white/40">{t('cmd.trips.remaining')}</span> <span className="text-[#E7A83B] font-bold">
+              {(tripData.totalEstimatedEGP - tripData.totalPaidEGP).toLocaleString()} EGP
             </span>
           </div>
         </div>

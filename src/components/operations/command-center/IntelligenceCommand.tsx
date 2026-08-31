@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function IntelligenceCommand() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'overview' | 'sources' | 'alerts' | 'refresh' | 'opportunities' | 'features' | 'price-history'>('overview');
   const [overview, setOverview] = useState<any>(null);
   const [sources, setSources] = useState<any[]>([]);
@@ -65,7 +65,7 @@ export default function IntelligenceCommand() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Globe className="w-4 h-4 text-[#52C4B7]" />
-          {language === 'ar' ? 'قيادة الاستخبارات' : 'Intelligence Command'}
+          {t('cmd.intel.title')}
         </h3>
         <div className="flex gap-1.5 flex-wrap">
           {(['overview', 'sources', 'alerts', 'opportunities', 'features', 'price-history', 'refresh'] as const).map(tab => (
@@ -93,7 +93,7 @@ export default function IntelligenceCommand() {
                     <div key={i}><div className="text-lg font-bold text-[#52C4B7] font-mono">{stat.value}</div><div className="text-[10px] text-white/40">{stat.label}</div></div>
                   ))}
                 </div>
-              ) : <div className="text-xs text-white/40">No overview data</div>}
+              ) : <div className="text-xs text-white/40">{t('cmd.loading')}</div>}
             </div>
           )}
         </div>
@@ -155,7 +155,7 @@ export default function IntelligenceCommand() {
           {opportunities.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <Lightbulb className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No opportunities</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.intel.noOpportunities')}</div>
             </div>
           ) : opportunities.map((opp: any) => {
             const isDecided = opp.status === 'ACCEPTED' || opp.status === 'REJECTED' || opp.status === 'DEFERRED';

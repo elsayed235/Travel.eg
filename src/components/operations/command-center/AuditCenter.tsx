@@ -5,7 +5,7 @@ import { useLanguage } from '../../../i18n/LanguageContext';
 import { Pagination, usePagination } from './Pagination';
 
 export default function AuditCenter() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionFilter, setActionFilter] = useState('');
@@ -58,7 +58,7 @@ export default function AuditCenter() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <FileText className="w-4 h-4 text-white/60" />
-          {language === 'ar' ? 'سجل التدقيق' : 'Audit Log'}
+          {t('cmd.audit.title')}
           <span className="text-[10px] text-white/30 font-mono">({filtered.length}/{events.length})</span>
         </h3>
         <div className="flex items-center gap-2">
@@ -86,11 +86,11 @@ export default function AuditCenter() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-white/40">Loading audit events…</div>
+        <div className="py-12 text-center text-sm text-white/40">{t('cmd.loading')}</div>
       ) : filtered.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <FileText className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No audit events{(actionFilter || entityFilter || actorFilter) ? ' matching filters' : ''}</div>
+          <div className="text-sm font-bold text-white/50">{(actionFilter || entityFilter || actorFilter) ? t('cmd.audit.noEventsMatching') : t('cmd.audit.noEvents')}</div>
         </div>
       ) : (
         <div className="rounded-2xl bg-[#062C35] border border-white/8 overflow-hidden">

@@ -358,7 +358,7 @@ function formatAge(minutes: number): string {
 // ─── Main Overview Component ────────────────────────────────────────────────
 
 export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) => void }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { summary, loading: summaryLoading, lastUpdated, refresh: refreshSummary } = useOperationalSummary();
   const { actions, loading: actionsLoading } = useActionQueue();
   const { events, loading: eventsLoading } = useRecentEvents();
@@ -382,14 +382,14 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           <div>
             <div className="text-sm font-bold text-[#F7F3EA]">
               {hasUrgentItems
-                ? (language === 'ar' ? 'يوجد عناصر تحتاج إجراء فوري' : 'Action Required')
+                ? t('cmd.overview.actionRequired')
                 : isHealthy
-                  ? (language === 'ar' ? 'كل الأنظمة تعمل بشكل طبيعي' : 'All Systems Operational')
-                  : (language === 'ar' ? 'بعض العناصر تحتاج مراجعة' : 'Some items need attention')
+                  ? t('cmd.overview.allOperational')
+                  : t('cmd.overview.needsAttention')
               }
             </div>
             <div className="text-[11px] text-white/50">
-              {language === 'ar' ? 'مركز القيادة محدث' : 'Command Center'} · <FreshnessIndicator date={lastUpdated} />
+              {t('cmd.title')} · <FreshnessIndicator date={lastUpdated} />
             </div>
           </div>
         </div>
@@ -399,17 +399,17 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white/70 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          {language === 'ar' ? 'تحديث' : 'Refresh'}
+          {t('cmd.overview.refresh')}
         </button>
       </div>
 
       {/* ─── Operational Status Cards ─────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: language === 'ar' ? 'رحلات نشطة' : 'Active Trips', value: summary.activeTrips, icon: Plane, color: 'text-[#52C4B7]', onClick: () => onNavigate('trips') },
-          { label: language === 'ar' ? 'حجوزات بانتظار' : 'Pending Bookings', value: summary.pendingBookings, icon: Package, color: 'text-amber-400', onClick: () => onNavigate('trips') },
-          { label: language === 'ar' ? 'تأكيدات موردين' : 'Supplier Confirmations', value: summary.pendingSupplierConfirmations, icon: Users, color: 'text-sky-400', onClick: () => onNavigate('suppliers') },
-          { label: language === 'ar' ? 'رسائل دعم' : 'Support Queue', value: summary.unreadSupport, icon: MessageSquare, color: 'text-[#E7A83B]', onClick: () => onNavigate('support') },
+          { label: t('cmd.overview.activeTrips'), value: summary.activeTrips, icon: Plane, color: 'text-[#52C4B7]', onClick: () => onNavigate('trips') },
+          { label: t('cmd.overview.pendingBookings'), value: summary.pendingBookings, icon: Package, color: 'text-amber-400', onClick: () => onNavigate('trips') },
+          { label: t('cmd.overview.supplierConfirmations'), value: summary.pendingSupplierConfirmations, icon: Users, color: 'text-sky-400', onClick: () => onNavigate('suppliers') },
+          { label: t('cmd.overview.supportQueue'), value: summary.unreadSupport, icon: MessageSquare, color: 'text-[#E7A83B]', onClick: () => onNavigate('support') },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
@@ -439,10 +439,10 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
       {/* ─── Exceptions & Payment Quick Stats ─────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: language === 'ar' ? 'استثناءات' : 'Active Exceptions', value: summary.exceptions, icon: AlertTriangle, color: summary.exceptions > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('exceptions') },
-          { label: language === 'ar' ? 'مشاكل دفع' : 'Payment Issues', value: summary.paymentIssues, icon: DollarSign, color: summary.paymentIssues > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('commerce') },
-          { label: language === 'ar' ? 'النقل النشط' : 'Active Transfers', value: summary.activeTransfers, icon: Car, color: summary.activeTransfers > 0 ? 'text-sky-400' : 'text-white/30', onClick: () => onNavigate('transfers') },
-          { label: language === 'ar' ? 'إشعارات غير مقروءة' : 'Unread Notifications', value: summary.unreadNotifications, icon: Bell, color: summary.unreadNotifications > 0 ? 'text-amber-400' : 'text-white/30', onClick: () => onNavigate('notifications') },
+          { label: t('cmd.overview.exceptions'), value: summary.exceptions, icon: AlertTriangle, color: summary.exceptions > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('exceptions') },
+          { label: t('cmd.overview.paymentIssues'), value: summary.paymentIssues, icon: DollarSign, color: summary.paymentIssues > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('commerce') },
+          { label: t('cmd.overview.activeTransfers'), value: summary.activeTransfers, icon: Car, color: summary.activeTransfers > 0 ? 'text-sky-400' : 'text-white/30', onClick: () => onNavigate('transfers') },
+          { label: t('cmd.overview.unreadNotifications'), value: summary.unreadNotifications, icon: Bell, color: summary.unreadNotifications > 0 ? 'text-amber-400' : 'text-white/30', onClick: () => onNavigate('notifications') },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
@@ -468,7 +468,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#E7A83B]" />
-              {language === 'ar' ? 'قائمة الإجراءات' : 'Needs Action'}
+              {t('cmd.overview.needsAction')}
             </h3>
             <span className="text-[10px] text-white/40 font-mono">
               {actions.length} item{actions.length !== 1 ? 's' : ''}
@@ -478,15 +478,15 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           {actionsLoading ? (
             <div className="py-8 text-center text-xs text-white/40">
               <span className="inline-block w-4 h-4 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-              Loading actions…
+              {t('cmd.loading')}
             </div>
           ) : actions.length === 0 ? (
             <div className="p-6 rounded-2xl bg-[#062C35] border border-white/8 text-center">
               <CheckCircle2 className="w-8 h-8 text-emerald-400/50 mx-auto mb-2" />
               <div className="text-sm font-bold text-emerald-400/80">
-                {language === 'ar' ? 'لا توجد عناصر تحتاج إجراء' : 'No pending actions'}
+                {t('cmd.overview.noPendingActions')}
               </div>
-              <div className="text-[11px] text-white/40 mt-1">All clear — nothing needs attention right now.</div>
+              <div className="text-[11px] text-white/40 mt-1">{t('cmd.overview.allClear')}</div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -545,7 +545,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           <div className="space-y-3">
             <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
               <HeartPulse className="w-4 h-4 text-emerald-400" />
-              {language === 'ar' ? 'صحة النظام' : 'System Health'}
+              {t('cmd.overview.systemHealth')}
             </h3>
             <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-3">
               {healthLoading ? (
@@ -582,7 +582,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
           <div className="space-y-3">
             <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
               <Activity className="w-4 h-4 text-sky-400" />
-              {language === 'ar' ? 'الأحداث الأخيرة' : 'Recent Events'}
+              {t('cmd.overview.recentEvents')}
             </h3>
             <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-2.5">
               {eventsLoading ? (

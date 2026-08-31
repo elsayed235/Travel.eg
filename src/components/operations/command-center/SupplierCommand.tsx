@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function SupplierCommand() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [reliability, setReliability] = useState<any[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
@@ -42,13 +42,13 @@ export default function SupplierCommand() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Users className="w-4 h-4 text-sky-400" />
-          {language === 'ar' ? 'قيادة الموردين' : 'Supplier Command'}
+          {t('cmd.suppliers.title')}
         </h3>
         <div className="flex items-center gap-2">
           {['list', 'reliability'].map(v => (
             <button key={v} type="button" onClick={() => setView(v as any)}
               className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${view === v ? 'bg-[#20A89A] text-[#04171D]' : 'bg-white/5 text-white/50 hover:text-white/80'}`}>
-              {v === 'list' ? 'Suppliers' : 'Reliability'}
+              {v === 'list' ? t('cmd.suppliers.list') : t('cmd.suppliers.reliability')}
             </button>
           ))}
           {view === 'list' && ['all', 'Active', 'Pending', 'Suspended'].map(f => (
@@ -66,7 +66,7 @@ export default function SupplierCommand() {
       {loading ? (
         <div className="py-12 text-center text-sm text-white/40">
           <span className="inline-block w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
-          Loading suppliers…
+          {t('cmd.suppliers.loading')}
         </div>
       ) : view === 'reliability' ? (
         <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function SupplierCommand() {
       ) : filtered.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Users className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No suppliers found</div>
+          <div className="text-sm font-bold text-white/50">{t('cmd.suppliers.noSuppliers')}</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

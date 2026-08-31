@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function KnowledgeOps() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'health' | 'gaps' | 'conflicts' | 'review' | 'stale' | 'logs' | 'metrics' | 'entities'>('health');
   const [health, setHealth] = useState<any>(null);
   const [gaps, setGaps] = useState<any[]>([]);
@@ -67,7 +67,7 @@ export default function KnowledgeOps() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Brain className="w-4 h-4 text-purple-400" />
-          {language === 'ar' ? 'عمليات المعرفة' : 'Knowledge Operations'}
+          {t('cmd.knowledge.title')}
         </h3>
         <div className="flex gap-1 flex-wrap">
           {TABS.map(tab => (
@@ -80,7 +80,7 @@ export default function KnowledgeOps() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-white/40">Loading…</div>
+        <div className="py-12 text-center text-sm text-white/40">{t('cmd.knowledge.loading')}</div>
       ) : (
         <>
           {activeTab === 'health' && health && (
@@ -102,7 +102,7 @@ export default function KnowledgeOps() {
               {gaps.length === 0 ? (
                 <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
                   <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">No knowledge gaps</div>
+                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.noGaps')}</div>
                 </div>
               ) : gaps.map((gap: any, i: number) => (
                 <div key={gap.id || i} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between">
@@ -121,7 +121,7 @@ export default function KnowledgeOps() {
               {conflicts.filter((c: any) => c.status === 'OPEN').length === 0 ? (
                 <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
                   <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">No open conflicts</div>
+                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.noConflicts')}</div>
                 </div>
               ) : conflicts.filter((c: any) => c.status === 'OPEN').map((conflict: any) => (
                 <div key={conflict.id} className="p-3 rounded-xl bg-[#062C35] border border-white/8">
@@ -170,7 +170,7 @@ export default function KnowledgeOps() {
               {staleFacts.length === 0 ? (
                 <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
                   <Clock className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-white/50">No stale facts</div>
+                  <div className="text-sm font-bold text-white/50">{t('cmd.knowledge.noStaleFacts')}</div>
                 </div>
               ) : staleFacts.map((fact: any, i: number) => (
                 <div key={fact.id || i} className="p-3 rounded-xl bg-[#062C35] border border-white/8">
@@ -184,7 +184,7 @@ export default function KnowledgeOps() {
           {activeTab === 'logs' && (
             <div className="rounded-2xl bg-[#062C35] border border-white/8 overflow-hidden">
               {logs.length === 0 ? (
-                <div className="py-12 text-center"><FileText className="w-10 h-10 text-white/20 mx-auto mb-3" /><div className="text-sm font-bold text-white/50">No search logs</div></div>
+                <div className="py-12 text-center"><FileText className="w-10 h-10 text-white/20 mx-auto mb-3" /><div className="text-sm font-bold text-white/50">{t('cmd.knowledge.noLogs')}</div></div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-mono">

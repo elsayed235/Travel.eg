@@ -4,7 +4,7 @@ import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function FeatureFlagsView() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [flags, setFlags] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,7 +41,7 @@ export default function FeatureFlagsView() {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <Flag className="w-4 h-4 text-[#E7A83B]" />
-          {language === 'ar' ? 'أعلام الميزات' : 'Feature Flags'}
+          {t('cmd.flags.title')}
         </h3>
         <div className="flex items-center gap-2">
           {saving && <span className="text-[10px] text-white/40">Saving…</span>}
@@ -53,7 +53,7 @@ export default function FeatureFlagsView() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-white/40">Loading feature flags…</div>
+        <div className="py-12 text-center text-sm text-white/40">{t('cmd.flags.loading')}</div>
       ) : !flags ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Flag className="w-10 h-10 text-white/20 mx-auto mb-3" />

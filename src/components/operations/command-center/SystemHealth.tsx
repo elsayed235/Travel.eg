@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function SystemHealth() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [health, setHealth] = useState<any>(null);
   const [marketStatus, setMarketStatus] = useState<any>(null);
   const [jobs, setJobs] = useState<any>(null);
@@ -95,7 +95,7 @@ export default function SystemHealth() {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
           <HeartPulse className="w-4 h-4 text-emerald-400" />
-          {language === 'ar' ? 'صحة النظام' : 'System Health'}
+          {t('cmd.health.title')}
         </h3>
         <button type="button" onClick={() => fetchData()}
           className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 cursor-pointer">
@@ -104,7 +104,7 @@ export default function SystemHealth() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-white/40">Loading health data…</div>
+        <div className="py-12 text-center text-sm text-white/40">{t('cmd.health.loading')}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {services.map((svc, i) => {
