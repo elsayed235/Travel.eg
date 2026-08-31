@@ -18,21 +18,27 @@ export default function SystemHealth() {
   const [marketStatus, setMarketStatus] = useState<any>(null);
   const [jobs, setJobs] = useState<any>(null);
   const [integrations, setIntegrations] = useState<any[]>([]);
+  const [weather, setWeather] = useState<any>(null);
+  const [cameras, setCameras] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'services' | 'integrations'>('services');
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
-      const [h, m, j, integ] = await Promise.allSettled([
+      const [h, m, j, integ, w, cam] = await Promise.allSettled([
         api.getHealthData(),
         api.getMarketStatus(),
         api.getBackgroundJobsStatus(),
         api.getOperationsIntegrations(),
+        api.getWeatherTelemetry(),
+        api.getCameraFeeds(),
       ]);
       if (h.status === 'fulfilled') setHealth(h.value);
       if (m.status === 'fulfilled') setMarketStatus(m.value);
       if (j.status === 'fulfilled') setJobs(j.value);
       if (integ.status === 'fulfilled') setIntegrations((integ.value as any)?.integrations || []);
+      if (w.status === 'fulfilled') setWeather(w.value);
+      if (cam.status === 'fulfilled') setCameras((cam.value as any)?.cameras || (cam.value as any)?.feeds || []);
     } catch { /* non-critical */ } finally { setLoading(false); }
   }, []);
 
@@ -134,6 +140,43 @@ export default function SystemHealth() {
                   <span className="text-[10px] text-white/30 font-mono">{integ.freshness}</span>
                   <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${STATUS_COLORS[integ.status] || STATUS_COLORS.unknown}`}>\n                    {integ.status?.toUpperCase() || 'UNKNOWN'}\n                  </span>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Weather Telemetry */}
+      {weather && (
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-white/60">Weather Telemetry</h4>
+          <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              {weather?.current && (
+                <>
+                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.temperature || weather.temperature || '—'}°C</div><div className="text-[10px] text-white/40">Temperature</div></div>
+                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.humidity || weather.humidity || '—'}%</div><div className="text-[10px] text-white/40">Humidity</div></div>
+                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.windSpeed || weather.wind || '—'} km/h</div><div className="text-[10px] text-white/40">Wind</div></div>
+                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.condition || weather.description || '—'}</div><div className="text-[10px] text-white/40">Condition</div></div>
+                </>
+              )}
+              {!weather?.current && (
+                <div className="col-span-4 text-xs text-white/40">Weather data: {JSON.stringify(weather).substring(0, 100)}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Camera Feeds */}
+      {cameras.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-white/60">Camera Feeds ({cameras.length})</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {cameras.slice(0, 4).map((cam: any, i: number) => (
+              <div key={i} className="p-3 rounded-xl bg-[#062C35] border border-white/8">
+                <div className="text-xs font-bold text-[#F7F3EA]">{cam.name || cam.location || `Feed ${i + 1}`}</div>
+                <div className="text-[10px] text-white/40 mt-0.5">{cam.status || 'Active'} · {cam.area || cam.zone || '—'}</div>
               </div>
             ))}
           </div>

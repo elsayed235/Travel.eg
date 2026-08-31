@@ -5,7 +5,7 @@ import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function KnowledgeOps() {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'health' | 'gaps' | 'conflicts' | 'review' | 'stale' | 'logs' | 'metrics'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'gaps' | 'conflicts' | 'review' | 'stale' | 'logs' | 'metrics' | 'entities'>('health');
   const [health, setHealth] = useState<any>(null);
   const [gaps, setGaps] = useState<any[]>([]);
   const [conflicts, setConflicts] = useState<any[]>([]);
@@ -48,7 +48,19 @@ export default function KnowledgeOps() {
     try { await api.resolveAdminReviewQueue(itemId, action); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
   };
 
-  const TABS = ['health', 'gaps', 'conflicts', 'review', 'stale', 'logs', 'metrics'] as const;
+  const TABS = ['health', 'gaps', 'conflicts', 'review', 'stale', 'logs', 'metrics', 'entities'] as const;
+  const [entities, setEntities] = useState<any[]>([]);
+
+  const handleResolveEntity = async (entityId: string) => {
+    const resolution = prompt(`Resolve entity ${entityId} — enter resolved value:`);
+    if (!resolution) return;
+    try { await api.resolveAdminEntity({ entityId, resolution }); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
+  };
+
+  const handleMergeEntities = async (primary: string, secondary: string) => {
+    if (!confirm(`Merge ${secondary} into ${primary}?`)) return;
+    try { await api.mergeAdminEntities({ primaryEntityId: primary, secondaryEntityId: secondary }); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
+  };
 
   return (
     <div className="space-y-4">
@@ -205,6 +217,29 @@ export default function KnowledgeOps() {
                     <div className="text-[10px] text-white/40 capitalize">{key.replace(/([A-Z])/g, ' $1')}</div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'entities' && (
+            <div className="space-y-2">
+              <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
+                <h4 className="text-xs font-bold text-white/60 mb-2">Entity Resolution</h4>
+                <p className="text-[11px] text-white/50">Resolve entity conflicts by selecting a primary entity and merging duplicates.</p>
+                <div className="mt-3 flex gap-2">
+                  <input type="text" id="entity-primary" placeholder="Primary entity ID" className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 focus:outline-none focus:border-[#20A89A]/50 flex-1" />
+                  <input type="text" id="entity-secondary" placeholder="Secondary entity ID (to merge)" className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 focus:outline-none focus:border-[#20A89A]/50 flex-1" />
+                  <button type="button" onClick={() => {
+                    const primary = (document.getElementById('entity-primary') as HTMLInputElement)?.value;
+                    const secondary = (document.getElementById('entity-secondary') as HTMLInputElement)?.value;
+                    if (primary && secondary) handleMergeEntities(primary, secondary);
+                  }} className="px-3 py-1.5 rounded-lg bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold cursor-pointer">Merge</button>
+                </div>
+              </div>
+              <div className="py-8 text-center rounded-2xl bg-[#062C35] border border-white/8">
+                <GitMerge className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                <div className="text-sm font-bold text-white/50">Use the merge form above to resolve entity duplicates</div>
+                <div className="text-[10px] text-white/30 mt-1">Conflicts tab shows entities that need resolution</div>
               </div>
             </div>
           )}

@@ -202,8 +202,22 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
     <div className="space-y-4">
       <button type="button" onClick={onBack} className="text-xs text-white/50 hover:text-white/80 cursor-pointer">← Back to suppliers</button>
       <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8">
-        <h3 className="text-lg font-bold text-[#F7F3EA] font-['Outfit',sans-serif]">{supplier.businessName}</h3>
-        <div className="text-xs text-white/50 mt-1">{supplier.id} · {supplier.category} · {supplier.tier}</div>
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-[#F7F3EA] font-['Outfit',sans-serif]">{supplier.businessName}</h3>
+            <div className="text-xs text-white/50 mt-1">{supplier.id} · {supplier.category} · {supplier.tier}</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+              supplier.verificationStatus === 'VERIFIED' ? 'bg-emerald-500/20 text-emerald-300' :
+              supplier.verificationStatus === 'PENDING' ? 'bg-amber-500/20 text-amber-300' :
+              'bg-white/10 text-white/40'
+            }`}>{supplier.verificationStatus?.replace(/_/g, ' ') || 'UNVERIFIED'}</span>
+            {supplier.status !== 'Suspended' && (
+              <button type="button" onClick={() => alert('Supplier suspension requires admin approval')} className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold cursor-pointer">Suspend</button>
+            )}
+          </div>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-white/5">
           <div className="text-center">
             <div className="text-lg font-bold text-[#52C4B7] font-mono">{bookings.length}</div>

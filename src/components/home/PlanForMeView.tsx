@@ -77,7 +77,7 @@ const STEPS: StepDef[] = [
   {
     id: 'budget',
     icon: Wallet,
-    labelEn: 'What feels right to spend?',
+    labelEn: 'Budget',
     labelAr: 'الميزانية',
     questionEn: 'What feels right to spend?',
     questionAr: 'الميزانية المريحة ليك إيه؟',
@@ -176,6 +176,7 @@ export const PlanForMeView: React.FC = () => {
   const [synthesisStep, setSynthesisStep] = useState<number>(0);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const isFirstRender = useRef<boolean>(true);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const synthesisTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -204,6 +205,13 @@ export const PlanForMeView: React.FC = () => {
    * left focused on a button that no longer exists, with nothing announced.
    */
   useEffect(() => {
+    // Not on arrival: the global :focus-visible rule paints a 3px outline, and
+    // on first paint that reads as a rendering fault rather than a focus ring.
+    // From the second question on it is exactly the cue a keyboard user needs.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (isGenerating) return;
     headingRef.current?.focus();
   }, [stepIndex, isGenerating]);

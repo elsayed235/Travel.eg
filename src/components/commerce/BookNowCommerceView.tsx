@@ -4,31 +4,22 @@ import {
   Waves,
   Car,
   Compass,
-  Building,
   Coffee,
   Flame,
-  Wind,
   Clock,
   MapPin,
   Sparkles,
   ArrowRight,
-  ArrowLeft,
   ShieldCheck,
   Phone,
-  Calendar,
-  Users,
   CheckCircle2,
   AlertCircle,
   Receipt,
-  QrCode,
-  Share2,
-  ExternalLink,
   ChevronRight,
-  Filter,
   Search,
   Check,
   Luggage,
-  Sparkle
+  X
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -406,192 +397,237 @@ export const BookNowCommerceView: React.FC = () => {
     }
   };
 
+  /**
+   * On a phone the checkout panel sits below eight cards, so tapping "Book"
+   * used to scroll the traveler into a form they could not see arrive. Once
+   * something is selected the panel leads the page instead; on desktop the two
+   * columns keep their normal order.
+   */
+  const checkoutLeadsOnMobile = Boolean(activeService || confirmedBooking);
+
+  const availabilityTone = (badge: InDestinationServiceOption['availabilityBadge']): string => {
+    if (badge === 'Instant Ready') {
+      return 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]';
+    }
+    if (badge === 'Weather Optimal') {
+      return 'bg-[var(--accent-primary)]/12 text-[var(--text-primary)] border-[var(--accent-primary)]/40';
+    }
+    return 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)]';
+  };
+
+  const fieldClass =
+    'rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-medium text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--accent-primary)] transition-all';
+
   return (
     <div
       id="quick-book-commerce-page"
-      className="min-h-screen bg-[#FDFBF7] text-[#142126] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-28 md:pb-16"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* ========================================================================= */}
-      {/* 1. MASTER HEADER & ENVIRONMENTAL INTELLIGENCE TICKER                       */}
+      {/* 1. HEADER & LIVE SEA CONDITIONS                                           */}
       {/* ========================================================================= */}
-      <section className="bg-[#062C35] text-[#F7F3EA] border-b border-[#20A89A]/20 pt-8 pb-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Subtle Ambient Glow */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#20A89A]/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#E7A83B]/10 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden border-b border-[var(--border-subtle)] bg-[var(--surface-card)]">
+        <div
+          aria-hidden="true"
+          className="absolute -top-40 -end-32 w-[30rem] h-[30rem] rounded-full bg-[var(--accent-primary)]/10 blur-3xl pointer-events-none"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -bottom-40 -start-32 w-[30rem] h-[30rem] rounded-full bg-[var(--accent-secondary)]/10 blur-3xl pointer-events-none"
+        />
 
-        <div className="max-w-7xl mx-auto space-y-6 relative z-10">
-          
-          {/* Breadcrumbs & Navigation */}
-          <div className="flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-[#E7D3AE]/80">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-9 space-y-6">
+          {/* Breadcrumb + bookings hub */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => navigateTo('/home')}
-                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-medium"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
-                <span>{language === 'ar' ? 'الرئيسية' : 'Home'}</span>
+                {language === 'ar' ? 'الرئيسية' : 'Home'}
               </button>
-              <span>/</span>
-              <span className="text-[#E7A83B] font-bold">
-                {language === 'ar' ? 'نظام الحجز الفوري' : 'Instant In-Destination Booking'}
+              <span aria-hidden="true" className="text-[var(--text-secondary)]/40">
+                /
               </span>
-            </div>
+              <span aria-current="page" className="text-[var(--text-primary)] font-bold">
+                {language === 'ar' ? 'الحجز الفوري' : 'Instant booking'}
+              </span>
+            </nav>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => navigateTo('/bookings')}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#E7D3AE] hover:text-white text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-1.5"
-              >
-                <Receipt className="w-3.5 h-3.5 text-[#E7A83B]" />
-                <span>{language === 'ar' ? 'سجل الحجوزات' : 'My Bookings Hub'}</span>
-                {bookings.length > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full bg-[#E7A83B] text-[#062C35] text-[11px] font-extrabold">
-                    {bookings.length}
-                  </span>
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => navigateTo('/bookings')}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            >
+              <Receipt className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+              <span>{language === 'ar' ? 'حجوزاتي' : 'My bookings'}</span>
+              {bookings.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-[11px] font-extrabold tabular-nums">
+                  {bookings.length}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Main Title & Value Prop */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#04171D]/60 border border-[#20A89A]/30 text-[#E7A83B] text-xs font-bold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'خدمات وتجارب دهب الفورية' : 'Dahab Live Commerce & Instant Dispatch'}</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#F7F3EA] tracking-tight font-serif">
-                {language === 'ar' ? 'احجز خدماتك في دهب الآن بدون وسيط' : 'Book Local Dahab Services & Trips Instantly'}
-              </h1>
-              <p className="text-xs sm:text-sm text-[#E7D3AE] leading-relaxed">
+          {/* Title + live conditions */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div className="max-w-2xl space-y-3">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold uppercase tracking-widest">
+                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>{language === 'ar' ? 'خدمات دهب الفورية' : 'Dahab live commerce'}</span>
+              </span>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif font-bold tracking-tight leading-tight">
                 {language === 'ar'
-                  ? 'معدات غوص، جيب البلو هول، سفاري وادي قني، وعشاء بدوي تحت النجوم مع أسعار موحدة وحماية بنظام الضمان المالي بدون مخاطرة.'
-                  : 'Verified dive gear drop-off, 4x4 canyon transfers, Bedouin desert BBQ, and recovery wellness with guaranteed fixed pricing and local escrow protection.'}
+                  ? 'احجز خدماتك في دهب الآن بدون وسيط'
+                  : 'Book local Dahab services instantly'}
+              </h1>
+
+              <p className="text-base text-[var(--text-secondary)] leading-relaxed">
+                {language === 'ar'
+                  ? 'معدات غوص، جيب البلو هول، سفاري وادي قني، وعشاء بدوي تحت النجوم — بأسعار موحدة وحماية بنظام الضمان، والدفع عند الوصول.'
+                  : 'Dive gear delivered, 4x4 canyon transfers, Bedouin desert BBQ and recovery wellness — fixed local rates, escrow protection, and nothing charged upfront.'}
               </p>
             </div>
 
-            {/* Live Environmental Ribbon */}
-            <div className="bg-[#04171D]/80 backdrop-blur-md border border-[#20A89A]/30 rounded-2xl p-3.5 sm:p-4 text-xs space-y-2 shrink-0 md:min-w-[280px]">
-              <div className="flex items-center justify-between text-[12px] font-bold text-[#E7A83B] border-b border-white/10 pb-1.5">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#20A89A] animate-pulse" />
-                  {language === 'ar' ? 'حالة الطقس والبحر الحالية' : 'Live Dahab Sea & Wind Radar'}
+            {/* Live sea & wind */}
+            <div className="shrink-0 lg:min-w-[19rem] rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-3">
+              <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-[var(--border-subtle)]">
+                <span className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[var(--text-primary)]">
+                  <span
+                    aria-hidden="true"
+                    className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse"
+                  />
+                  {language === 'ar' ? 'حالة البحر الآن' : 'Live sea & wind'}
                 </span>
-                <span className="text-[#52C4B7]">{INITIAL_LIVE_DAHAB_CONDITIONS.waterTempC}°C Water</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[12px] text-[#F7F3EA]">
-                <div>
-                  <span className="text-[#E7D3AE]/70 block">{language === 'ar' ? 'سرعة الرياح' : 'Wind Speed'}</span>
-                  <span className="font-bold font-mono">{INITIAL_LIVE_DAHAB_CONDITIONS.windSpeedKnots} kts NE</span>
-                </div>
-                <div>
-                  <span className="text-[#E7D3AE]/70 block">{language === 'ar' ? 'الرؤية بالبحر' : 'Visibility'}</span>
-                  <span className="font-bold font-mono">{INITIAL_LIVE_DAHAB_CONDITIONS.waterVisibilityMeters}m (Clear)</span>
-                </div>
-              </div>
-              <div className="text-[11px] text-[#52C4B7] font-medium pt-1 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-[#20A89A]" />
-                <span>{language === 'ar' ? 'ضمان الدفع عند الوصول فقط' : 'Zero prepayment risk · Pay upon arrival'}</span>
-              </div>
+
+              <dl className="grid grid-cols-3 gap-3">
+                {[
+                  {
+                    labelEn: 'Water',
+                    labelAr: 'الحرارة',
+                    value: `${INITIAL_LIVE_DAHAB_CONDITIONS.waterTempC}°C`
+                  },
+                  {
+                    labelEn: 'Wind',
+                    labelAr: 'الرياح',
+                    value: `${INITIAL_LIVE_DAHAB_CONDITIONS.windSpeedKnots} kts`
+                  },
+                  {
+                    labelEn: 'Visibility',
+                    labelAr: 'الرؤية',
+                    value: `${INITIAL_LIVE_DAHAB_CONDITIONS.waterVisibilityMeters} m`
+                  }
+                ].map((stat) => (
+                  <div key={stat.labelEn}>
+                    <dt className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                      {language === 'ar' ? stat.labelAr : stat.labelEn}
+                    </dt>
+                    <dd className="text-lg font-mono font-bold text-[var(--text-primary)] tabular-nums">
+                      {stat.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+                <span>{language === 'ar' ? 'مفيش دفع مقدم — تدفع عند الوصول' : 'No prepayment · pay on arrival'}</span>
+              </p>
             </div>
           </div>
-
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. CATEGORY SELECTOR & SEARCH BAR                                         */}
+      {/* 2. FILTERS                                                                */}
       {/* ========================================================================= */}
       <section
         aria-label={language === 'ar' ? 'تصفية وبحث الخدمات' : 'Filter and search services'}
-        className="bg-white border-b border-[#142126]/10 sticky top-14 sm:top-16 z-30 shadow-xs"
+        className="sticky top-16 sm:top-20 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)]/92 backdrop-blur-xl"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 space-y-3">
-          
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            {/* Category Tabs */}
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none no-scrollbar">
-              {categories.map((cat) => {
-                const Icon = cat.icon;
-                const isSelected = selectedCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedCategory(cat.id);
-                    }}
-                    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
-                      isSelected
-                        ? 'bg-[#062C35] text-[#F7F3EA] shadow-sm'
-                        : 'bg-[#F2ECE1]/60 text-[#142126]/75 hover:bg-[#F2ECE1] hover:text-[#142126]'
-                    }`}
-                  >
-                    <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-[#E7A83B]' : 'text-[#0F6F78]'}`} />
-                    <span>{language === 'ar' ? cat.labelAr : cat.labelEn}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Search Input & Availability Filter */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="w-4 h-4 text-[#142126]/40 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  aria-label={language === 'ar' ? 'ابحث عن خدمة أو موقع' : 'Search services and locations'}
-                  placeholder={language === 'ar' ? 'بحث عن خدمة، سائق، أو موقع...' : 'Search gear, 4x4, safari...'}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#F7F3EA] border border-[#142126]/10 text-xs font-medium text-[#142126] focus:outline-none focus:ring-2 focus:ring-[#0F6F78]/30 focus:border-[#0F6F78]"
-                />
-              </div>
-
-              <select
-                value={selectedAvailability}
-                onChange={(e) => setSelectedAvailability(e.target.value)}
-                aria-label={language === 'ar' ? 'تصفية حسب وقت التوفّر' : 'Filter by availability window'}
-                className="px-3 py-2 rounded-xl bg-[#F7F3EA] border border-[#142126]/10 text-xs font-bold text-[#142126] focus:outline-none focus:ring-2 focus:ring-[#0F6F78]/30 cursor-pointer"
-              >
-                <option value="all">{language === 'ar' ? 'جميع الأوقات' : 'All Windows'}</option>
-                <option value="Instant Ready">{language === 'ar' ? 'توصيل فوري (١٥ د)' : 'Instant Ready'}</option>
-                <option value="Evening Slot">{language === 'ar' ? 'فترة المساء' : 'Evening Slots'}</option>
-                <option value="Weather Optimal">{language === 'ar' ? 'حسب ملائمة الرياح' : 'Weather Optimal'}</option>
-                <option value="Limited Slots">{language === 'ar' ? 'أماكن محدودة' : 'Limited Slots'}</option>
-              </select>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col xl:flex-row xl:items-center gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar min-w-0 flex-1 -mx-1 px-1">
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  aria-pressed={isSelected}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                    isSelected
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md'
+                      : 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>{language === 'ar' ? cat.labelAr : cat.labelEn}</span>
+                </button>
+              );
+            })}
           </div>
 
+          <div className="flex items-center gap-2 shrink-0 xl:ms-auto">
+            <div className="relative flex-1 xl:w-64 xl:flex-none">
+              <Search
+                className="w-4 h-4 text-[var(--text-secondary)] absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label={language === 'ar' ? 'ابحث عن خدمة أو موقع' : 'Search services and locations'}
+                placeholder={language === 'ar' ? 'ابحث عن خدمة أو موقع…' : 'Search gear, 4x4, safari…'}
+                className={`${fieldClass} w-full ps-9 pe-3 py-2.5`}
+              />
+            </div>
+
+            <select
+              value={selectedAvailability}
+              onChange={(e) => setSelectedAvailability(e.target.value)}
+              aria-label={language === 'ar' ? 'تصفية حسب وقت التوفّر' : 'Filter by availability window'}
+              className={`${fieldClass} px-3 py-2.5 font-bold cursor-pointer shrink-0`}
+            >
+              <option value="all">{language === 'ar' ? 'كل الأوقات' : 'All windows'}</option>
+              <option value="Instant Ready">{language === 'ar' ? 'فوري' : 'Instant ready'}</option>
+              <option value="Evening Slot">{language === 'ar' ? 'المساء' : 'Evening slots'}</option>
+              <option value="Weather Optimal">{language === 'ar' ? 'حسب الرياح' : 'Weather optimal'}</option>
+              <option value="Limited Slots">{language === 'ar' ? 'أماكن محدودة' : 'Limited slots'}</option>
+            </select>
+          </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. MAIN INTERACTIVE CONTENT (SERVICES GRID + CHECKOUT DRAWER)             */}
+      {/* 3. CATALOG + CHECKOUT                                                     */}
       {/* ========================================================================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* ===================================================================== */}
-          {/* LEFT COLUMN: SERVICE CATALOG CARDS                                    */}
-          {/* ===================================================================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* ================================================================= */}
+          {/* Catalog                                                           */}
+          {/* ================================================================= */}
           <section
             aria-label={language === 'ar' ? 'الخدمات المتاحة للحجز' : 'Available services'}
-            className="lg:col-span-7 xl:col-span-8 space-y-5"
+            className={`lg:col-span-7 xl:col-span-8 space-y-4 ${
+              checkoutLeadsOnMobile ? 'order-2' : 'order-1'
+            } lg:order-1`}
           >
-            
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between gap-3">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-[#142126] font-serif">
-                  {language === 'ar' ? 'الخدمات والتجارب المتاحة للحجز الفوري' : 'Instant In-Destination Experiences'}
+                <h2 className="text-xl font-serif font-bold">
+                  {language === 'ar' ? 'التجارب المتاحة الآن' : 'Available right now'}
                 </h2>
-                <p className="text-xs text-[#142126]/60">
+                <p className="text-sm text-[var(--text-secondary)]">
                   {language === 'ar'
-                    ? `عرض ${filteredServices.length} من التجارب المعتمدة مع جاهزية التحرك الفوري`
-                    : `Showing ${filteredServices.length} verified instant-dispatch options`}
+                    ? `${filteredServices.length} تجربة معتمدة جاهزة للتحرك`
+                    : `${filteredServices.length} verified instant-dispatch options`}
                 </p>
               </div>
 
@@ -599,21 +635,23 @@ export const BookNowCommerceView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveService(null)}
-                  className="text-xs text-[#0F6F78] hover:underline font-bold"
+                  className="text-xs font-bold text-[var(--accent-primary)] hover:underline cursor-pointer shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  {language === 'ar' ? 'إلغاء التحديد' : 'Clear Selection'}
+                  {language === 'ar' ? 'إلغاء التحديد' : 'Clear selection'}
                 </button>
               )}
             </div>
 
             {filteredServices.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-3xl border border-[#142126]/10 space-y-3">
-                <Compass className="w-10 h-10 text-[#0F6F78] mx-auto opacity-50" />
-                <h3 className="text-base font-bold text-[#142126]">
-                  {language === 'ar' ? 'لم يتم العثور على خدمات مطابقة' : 'No matching services found'}
+              <div className="p-10 sm:p-12 text-center bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] space-y-3">
+                <Compass className="w-10 h-10 text-[var(--accent-primary)] mx-auto opacity-60" aria-hidden="true" />
+                <h3 className="text-lg font-serif font-bold">
+                  {language === 'ar' ? 'مفيش خدمات مطابقة' : 'No matching services'}
                 </h3>
-                <p className="text-xs text-[#142126]/60 max-w-sm mx-auto">
-                  {language === 'ar' ? 'جرب البحث بكلمات أخرى أو اختر جميع التصنيفات' : 'Try searching with different keywords or reset category filters.'}
+                <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
+                  {language === 'ar'
+                    ? 'جرب كلمات بحث تانية أو ارجع لكل التصنيفات.'
+                    : 'Try different keywords, or reset the category and availability filters.'}
                 </p>
                 <button
                   type="button"
@@ -622,200 +660,241 @@ export const BookNowCommerceView: React.FC = () => {
                     setSearchQuery('');
                     setSelectedAvailability('all');
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#062C35] text-white text-xs font-bold cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  {language === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}
+                  {language === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset filters'}
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <ul className="space-y-4">
                 {filteredServices.map((svc) => {
                   const Icon = svc.icon;
                   const isSelected = activeService?.id === svc.id;
+                  const bringList = language === 'ar' ? svc.whatToBringAr : svc.whatToBring;
+                  const meetingPoint = language === 'ar' ? svc.meetingPointAr : svc.meetingPoint;
+                  const duration = language === 'ar' ? svc.durationStrAr : svc.durationStr;
 
                   return (
-                    <div
-                      key={svc.id}
-                      id={`service-card-${svc.id}`}
-                      className={`bg-white rounded-3xl p-5 sm:p-6 border transition-all duration-200 relative overflow-hidden ${
-                        isSelected
-                          ? 'border-[#0F6F78] ring-2 ring-[#0F6F78]/20 shadow-lg'
-                          : 'border-[#142126]/10 hover:border-[#0F6F78]/40 hover:shadow-md'
-                      }`}
-                    >
-                      {/* Top Meta Bar */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {/* Availability Badge */}
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[12px] font-extrabold uppercase tracking-wider ${
-                            svc.availabilityBadge === 'Instant Ready'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : svc.availabilityBadge === 'Weather Optimal'
-                              ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
-                              : 'bg-amber-50 text-amber-700 border border-amber-200'
-                          }`}>
-                            <Clock className="w-3 h-3" />
-                            <span>{language === 'ar' ? svc.availabilityBadgeAr : svc.availabilityBadge}</span>
-                          </span>
+                    <li key={svc.id}>
+                      <article
+                        id={`service-card-${svc.id}`}
+                        className={`bg-[var(--surface-card)] rounded-3xl border transition-all duration-200 overflow-hidden ${
+                          isSelected
+                            ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/25 shadow-xl'
+                            : 'border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 hover:shadow-lg'
+                        }`}
+                      >
+                        <div className="p-5 sm:p-6 space-y-4">
+                          {/* Meta row */}
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-extrabold uppercase tracking-wider ${availabilityTone(
+                                svc.availabilityBadge
+                              )}`}
+                            >
+                              <Clock className="w-3 h-3" aria-hidden="true" />
+                              <span>{language === 'ar' ? svc.availabilityBadgeAr : svc.availabilityBadge}</span>
+                            </span>
 
-                          {/* Pickup Window */}
-                          <span className="text-[12px] font-semibold text-[#142126]/60 bg-[#F7F3EA] px-2.5 py-0.5 rounded-full">
-                            {language === 'ar' ? svc.pickupWindowAr : svc.pickupWindow}
-                          </span>
+                            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
+                              <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                              <span>{language === 'ar' ? svc.supplierNameAr : svc.supplierName}</span>
+                            </span>
+                          </div>
+
+                          {/* Title block */}
+                          <div className="flex items-start gap-4">
+                            <span
+                              aria-hidden="true"
+                              className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)]'
+                                  : 'bg-[var(--surface-container)] text-[var(--accent-primary)]'
+                              }`}
+                            >
+                              <Icon className="w-5 h-5" />
+                            </span>
+
+                            <div className="min-w-0 space-y-1.5">
+                              <h3 className="text-lg sm:text-xl font-serif font-bold leading-snug">
+                                {language === 'ar' ? svc.titleAr : svc.title}
+                              </h3>
+                              <p className="text-sm font-semibold text-[var(--accent-primary)]">
+                                {language === 'ar' ? svc.subtitleAr : svc.subtitle}
+                              </p>
+                              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                                {language === 'ar' ? svc.descriptionAr : svc.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Detail chips */}
+                          <div className="flex flex-wrap items-center gap-2">
+                            {duration && (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">
+                                <Clock className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                                <span>{duration}</span>
+                              </span>
+                            )}
+                            {meetingPoint && (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]">
+                                <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                                <span>{meetingPoint}</span>
+                              </span>
+                            )}
+                            {svc.weatherConditionCheck && (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/25 text-xs font-semibold text-[var(--text-primary)]">
+                                <Waves className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                                <span>
+                                  {language === 'ar' ? svc.weatherConditionCheckAr : svc.weatherConditionCheck}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+
+                          {/* What to bring — omitted entirely when the product carries none */}
+                          {bringList.length > 0 && (
+                            <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-3 space-y-2">
+                              <span className="block text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-secondary)]">
+                                {language === 'ar' ? 'المطلوب منك' : 'What to bring'}
+                              </span>
+                              <ul className="flex flex-wrap gap-1.5">
+                                {bringList.map((item, idx) => (
+                                  <li
+                                    key={idx}
+                                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)]"
+                                  >
+                                    <Check className="w-3 h-3 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Verified Supplier Tag */}
-                        <div className="inline-flex items-center gap-1 text-[12px] font-bold text-[#0F6F78]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#20A89A]" />
-                          <span>{language === 'ar' ? svc.supplierNameAr : svc.supplierName}</span>
-                        </div>
-                      </div>
-
-                      {/* Title & Description */}
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                        <div className="space-y-1.5 flex-1">
-                          <h3 className="text-base sm:text-lg font-bold text-[#142126] font-serif leading-snug">
-                            {language === 'ar' ? svc.titleAr : svc.title}
-                          </h3>
-                          <p className="text-xs font-semibold text-[#0F6F78]">
-                            {language === 'ar' ? svc.subtitleAr : svc.subtitle}
-                          </p>
-                          <p className="text-xs text-[#142126]/75 leading-relaxed">
-                            {language === 'ar' ? svc.descriptionAr : svc.description}
-                          </p>
-                        </div>
-
-                        {/* Big Pricing Column */}
-                        <div className="bg-[#FDFBF7] border border-[#142126]/10 p-3.5 rounded-2xl text-right sm:text-left shrink-0 min-w-[130px] flex flex-col justify-between">
+                        {/* Price + CTA footer */}
+                        <div className="px-5 sm:px-6 py-4 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
-                            <span className="text-[11px] uppercase font-bold tracking-wider text-[#142126]/50 block">
-                              {language === 'ar' ? 'السعر الرسمي' : 'Official Rate'}
+                            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                              {language === 'ar' ? 'السعر الرسمي للفرد' : 'Official rate per person'}
                             </span>
-                            <span className="text-xl sm:text-2xl font-mono font-bold text-[#062C35] block">
-                              {svc.basePriceEGP.toLocaleString()} <span className="text-xs font-bold text-[#0F6F78]">{svc.currency}</span>
-                            </span>
-                            <span className="text-[11px] text-[#142126]/60 block font-medium">
-                              {language === 'ar' ? svc.durationStrAr : svc.durationStr}
+                            <span className="text-2xl font-mono font-bold tabular-nums">
+                              {svc.basePriceEGP.toLocaleString()}{' '}
+                              <span className="text-sm font-bold text-[var(--text-secondary)]">{svc.currency}</span>
                             </span>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => handleSelectService(svc)}
-                            className={`mt-3 w-full py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
+                            aria-pressed={isSelected}
+                            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-container)] ${
                               isSelected
-                                ? 'bg-[#0F6F78] text-white'
-                                : 'bg-[#062C35] hover:bg-[#0F6F78] text-[#F7F3EA]'
+                                ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]'
+                                : 'bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] shadow-md'
                             }`}
                           >
-                            <span>{isSelected ? (language === 'ar' ? 'محدد حالياً' : 'Selected') : (language === 'ar' ? 'احجز فوراً' : 'Book Now')}</span>
-                            <ArrowRight className="w-3 h-3" />
+                            {isSelected ? (
+                              <>
+                                <Check className="w-4 h-4" aria-hidden="true" />
+                                <span>{language === 'ar' ? 'محدد' : 'Selected'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>{language === 'ar' ? 'احجز فوراً' : 'Book now'}</span>
+                                <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
+                              </>
+                            )}
                           </button>
                         </div>
-                      </div>
-
-                      {/* Location & Conditions Bar */}
-                      <div className="mt-4 pt-3 border-t border-[#142126]/8 flex flex-wrap items-center justify-between gap-3 text-xs text-[#142126]/70">
-                        <div className="flex items-center gap-1.5 text-xs font-medium">
-                          <MapPin className="w-3.5 h-3.5 text-[#E7A83B] shrink-0" />
-                          <span>{language === 'ar' ? svc.meetingPointAr : svc.meetingPoint}</span>
-                        </div>
-
-                        {svc.weatherConditionCheck && (
-                          <div className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0F6F78] bg-[#0F6F78]/8 px-2.5 py-1 rounded-lg">
-                            <Waves className="w-3 h-3 text-[#20A89A]" />
-                            <span>{language === 'ar' ? svc.weatherConditionCheckAr : svc.weatherConditionCheck}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Expandable "What to Bring" Section */}
-                      <div className="mt-3 bg-[#F7F3EA]/70 rounded-xl p-2.5 text-[12px] text-[#142126]/80 space-y-1">
-                        <span className="font-bold text-[#062C35] block">
-                          {language === 'ar' ? 'المطلوب توفيره / الإرشادات:' : 'Required / What to bring:'}
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                          {(language === 'ar' ? svc.whatToBringAr : svc.whatToBring).map((item, idx) => (
-                            <span key={idx} className="inline-flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded-md border border-[#142126]/5">
-                              <Check className="w-2.5 h-2.5 text-[#20A89A]" />
-                              <span>{item}</span>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                      </article>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             )}
-
           </section>
 
-          {/* ===================================================================== */}
-          {/* RIGHT COLUMN: STICKY INSTANT CHECKOUT & VOUCHER GENERATOR             */}
-          {/* ===================================================================== */}
+          {/* ================================================================= */}
+          {/* Checkout / voucher                                                */}
+          {/* ================================================================= */}
           <section
             id="instant-checkout-panel"
             aria-label={language === 'ar' ? 'لوحة الحجز والدفع' : 'Booking panel'}
-            className="lg:col-span-5 xl:col-span-4 sticky top-28 space-y-4"
+            className={`lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-44 ${
+              checkoutLeadsOnMobile ? 'order-1' : 'order-2'
+            } lg:order-2`}
           >
-            {/* When a Booking is Just Confirmed */}
             {confirmedBooking ? (
-              <div className="bg-[#062C35] text-[#F7F3EA] rounded-3xl p-6 border border-[#20A89A]/30 shadow-2xl space-y-5 animate-in fade-in duration-300">
+              /* ---------------- Confirmed voucher ---------------- */
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--accent-primary)]/40 shadow-2xl space-y-5">
                 <div className="text-center space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-[#20A89A]/20 text-[#20A89A] flex items-center justify-center mx-auto border border-[#20A89A]/40">
-                    <CheckCircle2 className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-6 h-6" aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-bold font-serif text-[#F7F3EA]">
-                    {language === 'ar' ? 'تم تأكيد الحجز الفوري!' : 'Instant Booking Confirmed!'}
-                  </h3>
-                  <p className="text-xs text-[#E7D3AE]">
-                    {language === 'ar' ? 'تم إصدار قسيمة الحجز وتنبيه السائق / المزود في دهب.' : 'Voucher dispatched to local Sinai dispatch network.'}
+                  <h2 className="text-lg font-serif font-bold">
+                    {language === 'ar' ? 'تم تأكيد الحجز' : 'Booking confirmed'}
+                  </h2>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                    {language === 'ar'
+                      ? 'اتبعتت القسيمة للمزود، وهيتواصل معاك على المكان المحدد.'
+                      : 'The voucher has reached the provider, and they will meet you at the pickup point.'}
                   </p>
                 </div>
 
-                {/* Voucher Card */}
-                <div className="bg-[#04171D] rounded-2xl p-4 border border-[#E7A83B]/30 space-y-3 font-mono text-xs">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <span className="text-[#E7D3AE]/70 font-sans text-[12px]">{language === 'ar' ? 'رقم القسيمة' : 'Voucher Ref'}</span>
-                    <span className="text-[#E7A83B] font-bold">{confirmedBooking.confirmationCode}</span>
+                <div className="bg-[var(--surface-container)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-3">
+                  <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold text-[var(--text-secondary)]">
+                      {language === 'ar' ? 'رقم القسيمة' : 'Voucher ref'}
+                    </span>
+                    <span className="font-mono text-sm font-bold text-[var(--accent-primary)]">
+                      {confirmedBooking.confirmationCode}
+                    </span>
                   </div>
-                  <div className="space-y-1 text-[12px] font-sans">
-                    <span className="text-white font-bold block text-sm">{confirmedBooking.title}</span>
-                    <div className="text-[#E7D3AE] flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#20A89A]" />
+
+                  <div className="space-y-1.5">
+                    <span className="block text-base font-bold">{confirmedBooking.title}</span>
+                    <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                      <Clock className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
                       <span>{confirmedBooking.datesOrTime}</span>
-                    </div>
-                    <div className="text-[#E7D3AE] flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-[#E7A83B]" />
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                      <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
                       <span>{confirmedBooking.location}</span>
-                    </div>
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                    <span className="text-[#E7D3AE]/70 font-sans">{language === 'ar' ? 'المبلغ المطلوب' : 'Due at Arrival'}</span>
-                    <span className="text-base font-bold text-[#E7A83B]">{confirmedBooking.priceEGP} EGP</span>
+
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold text-[var(--text-secondary)]">
+                      {language === 'ar' ? 'المطلوب عند الوصول' : 'Due at arrival'}
+                    </span>
+                    <span className="text-lg font-mono font-bold tabular-nums">
+                      {confirmedBooking.priceEGP.toLocaleString()} EGP
+                    </span>
                   </div>
                 </div>
 
-                {/* Direct Action Buttons */}
                 <div className="space-y-2">
                   <a
-                    href={`https://wa.me/${confirmedBooking.phone?.replace(/\D/g, '') || '201002348899'}?text=Hello%20${encodeURIComponent(confirmedBooking.provider || 'Dahab Support')}%20I%20have%20confirmed%20voucher%20${confirmedBooking.confirmationCode}`}
+                    href={`https://wa.me/${confirmedBooking.phone?.replace(/\D/g, '') || '201002348899'}?text=Hello%20${encodeURIComponent(
+                      confirmedBooking.provider || 'Dahab Support'
+                    )}%20I%20have%20confirmed%20voucher%20${confirmedBooking.confirmationCode}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#20A89A] hover:bg-[#1C8D81] text-[#04171D] font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full py-3 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    <Phone className="w-4 h-4" />
-                    <span>{language === 'ar' ? 'تواصل مع السائق / المركز عبر واتساب' : 'WhatsApp Driver / Guide'}</span>
+                    <Phone className="w-4 h-4" aria-hidden="true" />
+                    <span>{language === 'ar' ? 'كلّم المزود على واتساب' : 'WhatsApp the provider'}</span>
                   </a>
 
                   <button
                     type="button"
                     onClick={() => navigateTo('/my-trip')}
-                    className="w-full py-2 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-[#E7D3AE] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-white/10"
+                    className="w-full py-2.5 px-4 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    <Luggage className="w-3.5 h-3.5 text-[#E7A83B]" />
-                    <span>{language === 'ar' ? 'عرض في خطة رحلتي' : 'View in My Trip Itinerary'}</span>
+                    <Luggage className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                    <span>{language === 'ar' ? 'شوفه في جدول رحلتي' : 'View in my itinerary'}</span>
                   </button>
 
                   <button
@@ -824,243 +903,278 @@ export const BookNowCommerceView: React.FC = () => {
                       setConfirmedBooking(null);
                       setActiveService(null);
                     }}
-                    className="w-full py-2 px-4 rounded-xl bg-transparent hover:bg-white/5 text-[#E7D3AE]/70 hover:text-white text-xs font-medium transition-all text-center cursor-pointer"
+                    className="w-full py-2.5 px-4 rounded-2xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    {language === 'ar' ? 'حجز خدمة أو تجربة أخرى' : 'Book Another Service'}
+                    {language === 'ar' ? 'احجز خدمة تانية' : 'Book another service'}
                   </button>
                 </div>
               </div>
             ) : activeService ? (
-              /* Active Service Checkout Drawer */
-              <div className="bg-white rounded-3xl p-6 border border-[#142126]/10 shadow-xl space-y-5">
-                
-                {/* Header */}
-                <div className="border-b border-[#142126]/10 pb-3 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#0F6F78] bg-[#0F6F78]/10 px-2 py-0.5 rounded-full">
-                      {language === 'ar' ? 'إعداد الحجز الفوري' : 'Configure & Book'}
+              /* ---------------- Configure & book ---------------- */
+              <div className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col lg:max-h-[calc(100vh-13rem)]">
+                <div className="p-5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-3 shrink-0">
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]">
+                      {language === 'ar' ? 'إعداد الحجز' : 'Configure & book'}
                     </span>
-                    <h3 className="text-base font-bold text-[#142126] font-serif mt-1">
+                    <h2 className="text-base font-serif font-bold mt-1 leading-snug">
                       {language === 'ar' ? activeService.titleAr : activeService.title}
-                    </h3>
+                    </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveService(null)}
-                    className="text-xs text-[#142126]/40 hover:text-[#142126] font-bold p-1"
+                    aria-label={language === 'ar' ? 'إغلاق لوحة الحجز' : 'Close booking panel'}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    ✕
+                    <X className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
 
-                {/* Booking Options Form */}
-                <div className="space-y-4 text-xs">
-                  
-                  {/* Guests Selector */}
-                  <div>
-                    <label className="font-bold text-[#142126] block mb-1.5">
-                      {language === 'ar' ? 'عدد الأفراد / المسافرين' : 'Number of Guests / Travelers'}
-                    </label>
-                    <div className="flex items-center gap-2">
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => setGuestsCount(num)}
-                          className={`flex-1 py-2 rounded-xl font-bold transition-all cursor-pointer ${
-                            guestsCount === num
-                              ? 'bg-[#062C35] text-white shadow-xs'
-                              : 'bg-[#F7F3EA] text-[#142126]/70 hover:bg-[#ECE4D5]'
-                          }`}
-                        >
-                          {num} {num === 1 ? (language === 'ar' ? 'فرد' : 'Pax') : (language === 'ar' ? 'أفراد' : 'Pax')}
-                        </button>
-                      ))}
+                <div className="p-5 space-y-5 lg:overflow-y-auto lg:flex-1 lg:min-h-0">
+                  {/* Guests */}
+                  <fieldset>
+                    <legend className="text-xs font-bold mb-2">
+                      {language === 'ar' ? 'عدد الأفراد' : 'How many people?'}
+                    </legend>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[1, 2, 3, 4, 5].map((num) => {
+                        const on = guestsCount === num;
+                        return (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setGuestsCount(num)}
+                            aria-pressed={on}
+                            className={`py-2.5 rounded-xl text-sm font-bold tabular-nums transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                              on
+                                ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)] shadow-md'
+                                : 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
+                            }`}
+                          >
+                            {num}
+                          </button>
+                        );
+                      })}
                     </div>
-                  </div>
+                  </fieldset>
 
-                  {/* Timing Option */}
-                  <div>
-                    <label className="font-bold text-[#142126] block mb-1.5">
-                      {language === 'ar' ? 'وقت الانطلاق المطلوب' : 'Preferred Timing'}
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedTimeSlot('immediate')}
-                        className={`p-2.5 rounded-xl text-left font-bold transition-all cursor-pointer border ${
-                          selectedTimeSlot === 'immediate'
-                            ? 'bg-[#0F6F78]/10 border-[#0F6F78] text-[#0F6F78]'
-                            : 'bg-[#F7F3EA] border-transparent text-[#142126]/70'
-                        }`}
-                      >
-                        <span className="block text-xs">{language === 'ar' ? 'تحرك فوري الآن' : 'Instant Dispatch'}</span>
-                        <span className="block text-[11px] font-normal text-[#142126]/60">
-                          {language === 'ar' ? activeService.pickupWindowAr : activeService.pickupWindow}
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setSelectedTimeSlot('sunset')}
-                        className={`p-2.5 rounded-xl text-left font-bold transition-all cursor-pointer border ${
-                          selectedTimeSlot === 'sunset'
-                            ? 'bg-[#0F6F78]/10 border-[#0F6F78] text-[#0F6F78]'
-                            : 'bg-[#F7F3EA] border-transparent text-[#142126]/70'
-                        }`}
-                      >
-                        <span className="block text-xs">{language === 'ar' ? 'موعد الغروب / المساء' : 'Sunset / Evening'}</span>
-                        <span className="block text-[11px] font-normal text-[#142126]/60">05:00 PM – 07:00 PM</span>
-                      </button>
+                  {/* Timing */}
+                  <fieldset>
+                    <legend className="text-xs font-bold mb-2">
+                      {language === 'ar' ? 'وقت الانطلاق' : 'When should it start?'}
+                    </legend>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {[
+                        {
+                          id: 'immediate',
+                          titleEn: 'Right now',
+                          titleAr: 'حالاً',
+                          hint: language === 'ar' ? activeService.pickupWindowAr : activeService.pickupWindow
+                        },
+                        {
+                          id: 'sunset',
+                          titleEn: 'Sunset / evening',
+                          titleAr: 'الغروب / المساء',
+                          hint: '05:00 PM – 07:00 PM'
+                        }
+                      ].map((slot) => {
+                        const on = selectedTimeSlot === slot.id;
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            onClick={() => setSelectedTimeSlot(slot.id)}
+                            aria-pressed={on}
+                            className={`p-3 rounded-xl text-start border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                              on
+                                ? 'bg-[var(--accent-primary)]/12 border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30'
+                                : 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
+                            }`}
+                          >
+                            <span className="block text-xs font-bold">
+                              {language === 'ar' ? slot.titleAr : slot.titleEn}
+                            </span>
+                            {slot.hint && (
+                              <span className="block text-xs text-[var(--text-secondary)] mt-0.5">{slot.hint}</span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
-                  </div>
+                  </fieldset>
 
-                  {/* Pickup Point Input */}
+                  {/* Pickup */}
                   <div>
-                    <label className="font-bold text-[#142126] block mb-1.5">
-                      {language === 'ar' ? 'مكان الاستلام أو الشاطئ' : 'Pickup / Meeting Location'}
+                    <label htmlFor="pickup-location-input" className="block text-xs font-bold mb-2">
+                      {language === 'ar' ? 'مكان الاستلام' : 'Pickup / meeting point'}
                     </label>
                     <input
+                      id="pickup-location-input"
                       type="text"
                       value={pickupLocation}
                       onChange={(e) => setPickupLocation(e.target.value)}
-                      placeholder={language === 'ar' ? 'مثال: فندق كورال كوست أو اللايتهاوس...' : 'e.g., Coral Coast Hotel or Lighthouse arch...'}
-                      className="w-full p-2.5 rounded-xl bg-[#F7F3EA] border border-[#142126]/10 text-xs font-medium text-[#142126] focus:outline-none focus:ring-2 focus:ring-[#0F6F78]/30"
+                      placeholder={
+                        language === 'ar' ? 'مثال: فندق كورال كوست أو اللايتهاوس…' : 'e.g. Coral Coast Hotel, Lighthouse arch…'
+                      }
+                      className={`${fieldClass} w-full px-3 py-2.5`}
                     />
                   </div>
 
-                  {/* If Gear Rental: Shoe Size */}
+                  {/* Shoe size, gear only */}
                   {activeService.category === 'watersports' && (
                     <div>
-                      <label className="font-bold text-[#142126] block mb-1.5">
-                        {language === 'ar' ? 'مقاس الحذاء الصخري / الزعانف' : 'Booties / Fin Shoe Size'}
+                      <label htmlFor="shoe-size-input" className="block text-xs font-bold mb-2">
+                        {language === 'ar' ? 'مقاس الحذاء الصخري / الزعانف' : 'Booties / fin shoe size'}
                       </label>
                       <input
+                        id="shoe-size-input"
                         type="text"
                         value={shoeSize}
                         onChange={(e) => setShoeSize(e.target.value)}
-                        placeholder="e.g., 42 EU / 9 US"
-                        className="w-full p-2 rounded-xl bg-[#F7F3EA] border border-[#142126]/10 text-xs font-medium text-[#142126]"
+                        placeholder="42 EU / 9 US"
+                        className={`${fieldClass} w-full px-3 py-2.5`}
                       />
                     </div>
                   )}
 
-                  {/* Transparent Price Summary */}
-                  <div className="bg-[#F7F3EA] rounded-2xl p-3.5 space-y-2 border border-[#142126]/8">
-                    <div className="flex items-center justify-between text-xs text-[#142126]/70">
-                      <span>{language === 'ar' ? 'سعر الخدمة للفرد' : 'Base Rate per Pax'}</span>
-                      <span className="font-mono font-bold">{activeService.basePriceEGP} EGP</span>
+                  {/* Price summary */}
+                  <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                      <span>{language === 'ar' ? 'السعر للفرد' : 'Rate per person'}</span>
+                      <span className="font-mono font-bold tabular-nums text-[var(--text-primary)]">
+                        {activeService.basePriceEGP.toLocaleString()} EGP
+                      </span>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-[#142126]/70">
-                      <span>{language === 'ar' ? 'عدد الأفراد' : 'Guests Count'}</span>
-                      <span className="font-bold">{guestsCount}x</span>
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                      <span>{language === 'ar' ? 'عدد الأفراد' : 'People'}</span>
+                      <span className="font-bold tabular-nums text-[var(--text-primary)]">×{guestsCount}</span>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-[#142126]/70">
-                      <span>{language === 'ar' ? 'رسوم التوصيل والخدمة' : 'Service & Dispatch Fee'}</span>
-                      <span className="text-emerald-700 font-bold">{language === 'ar' ? 'مجاني' : 'FREE'}</span>
+                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                      <span>{language === 'ar' ? 'رسوم الخدمة والتوصيل' : 'Service & dispatch fee'}</span>
+                      <span className="font-bold text-[var(--accent-primary)]">
+                        {language === 'ar' ? 'مجاناً' : 'Free'}
+                      </span>
                     </div>
-                    <div className="pt-2 border-t border-[#142126]/10 flex items-center justify-between text-sm font-bold text-[#062C35]">
-                      <span>{language === 'ar' ? 'الإجمالي المطلوب' : 'Total Due'}</span>
-                      <span className="text-base font-mono text-[#0F6F78] font-extrabold">{calculatedPrice.toLocaleString()} EGP</span>
+                    <div className="pt-2.5 border-t border-[var(--border-subtle)] flex items-baseline justify-between">
+                      <span className="text-sm font-bold">{language === 'ar' ? 'الإجمالي' : 'Total'}</span>
+                      <span className="text-2xl font-mono font-bold tabular-nums">
+                        {calculatedPrice.toLocaleString()}{' '}
+                        <span className="text-sm text-[var(--text-secondary)]">EGP</span>
+                      </span>
                     </div>
                   </div>
 
-                  {/* Escrow Guarantee Pill */}
-                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[12px] flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  {/* Escrow */}
+                  <p className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/25 text-xs text-[var(--text-primary)] leading-relaxed">
+                    <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] shrink-0 mt-0.5" aria-hidden="true" />
                     <span>
                       {language === 'ar'
-                        ? 'حماية كاملة: الدفع عند وصول السائق أو استلام المعدات فقط بدون أي خصومات مسبقة.'
-                        : 'Escrow Guarantee: Zero upfront charge. You inspect equipment & pay directly to the verified provider.'}
+                        ? 'مفيش أي خصم دلوقتي. تعاين المعدات أو تقابل السائق، وتدفع للمزود المعتمد على الطبيعة.'
+                        : 'Nothing is charged now. Inspect the gear or meet the driver, then pay the verified provider directly.'}
                     </span>
-                  </div>
+                  </p>
 
-                  {/* Confirm CTA Button */}
+                </div>
+
+                {/* Pinned action footer */}
+                <div className="p-5 pt-4 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] space-y-3 shrink-0">
                   {instantBookingError && (
-                    <div role="alert" className="mb-3 p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-sm">
-                      {instantBookingError}
-                    </div>
+                    <p
+                      role="alert"
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-[#EF4444]/12 border border-[#EF4444]/40 text-sm text-[var(--text-primary)] leading-relaxed"
+                    >
+                      <AlertCircle className="w-4 h-4 text-[#F87171] shrink-0 mt-0.5" aria-hidden="true" />
+                      <span>{instantBookingError}</span>
+                    </p>
                   )}
+
                   <button
                     type="button"
                     onClick={handleConfirmInstantBooking}
                     disabled={isSubmitting}
-                    className="w-full py-3 px-4 rounded-xl bg-[#062C35] hover:bg-[#0F6F78] text-[#F7F3EA] font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-md hover:scale-[1.01] active:scale-98 disabled:opacity-50"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
                   >
                     {isSubmitting ? (
-                      <span className="animate-pulse">{language === 'ar' ? 'جاري تأكيد الحجز...' : 'Confirming Booking...'}</span>
+                      <span className="animate-pulse">
+                        {language === 'ar' ? 'جاري تأكيد الحجز…' : 'Confirming…'}
+                      </span>
                     ) : (
                       <>
-                        <span>{language === 'ar' ? 'تأكيد الحجز الفوري وإصدار القسيمة' : 'Confirm & Generate Instant Voucher'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <span>
+                          {language === 'ar'
+                            ? `أكّد الحجز · ${calculatedPrice.toLocaleString()} EGP`
+                            : `Confirm booking · ${calculatedPrice.toLocaleString()} EGP`}
+                        </span>
+                        <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
                       </>
                     )}
                   </button>
                 </div>
-
               </div>
             ) : (
-              /* Default Empty State Prompt */
-              <div className="bg-white rounded-3xl p-6 border border-[#142126]/10 text-center space-y-3">
+              /* ---------------- Nothing selected ---------------- */
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] text-center space-y-3">
                 {/*
                   A link pointed here naming a product that is not on sale. Saying
                   so beats silently showing the grid, which would leave the traveler
                   believing they were configuring the thing they clicked.
                 */}
                 {skuLookupFailed && (
-                  <div
+                  <p
                     role="alert"
-                    className="text-start p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs"
+                    className="text-start flex items-start gap-2.5 p-3 rounded-xl bg-[var(--accent-secondary)]/12 border border-[var(--accent-secondary)]/35 text-xs text-[var(--text-primary)] leading-relaxed"
                   >
-                    {language === 'ar'
-                      ? 'التجربة اللي اخترتها مش متاحة للحجز دلوقتي. اختار من الخدمات المتاحة تحت.'
-                      : 'That experience is not available to book right now. Pick from the services below instead.'}
-                  </div>
+                    <AlertCircle className="w-4 h-4 text-[var(--accent-secondary)] shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>
+                      {language === 'ar'
+                        ? 'التجربة اللي اخترتها مش متاحة للحجز دلوقتي. اختار من الخدمات المتاحة.'
+                        : 'That experience is not available to book right now. Pick from the services listed instead.'}
+                    </span>
+                  </p>
                 )}
-                <div className="w-12 h-12 rounded-2xl bg-[#0F6F78]/10 text-[#0F6F78] flex items-center justify-center mx-auto">
-                  <Receipt className="w-6 h-6" />
+
+                <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/12 text-[var(--accent-primary)] flex items-center justify-center mx-auto">
+                  <Receipt className="w-6 h-6" aria-hidden="true" />
                 </div>
-                <h3 className="text-base font-bold text-[#142126] font-serif">
-                  {language === 'ar' ? 'اختر خدمة لبدء الحجز' : 'Select a Service to Book'}
-                </h3>
-                <p className="text-xs text-[#142126]/60 leading-relaxed">
+                <h2 className="text-lg font-serif font-bold">
+                  {language === 'ar' ? 'اختر خدمة عشان تبدأ' : 'Pick a service to start'}
+                </h2>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                   {language === 'ar'
-                    ? 'اضغط على زر «احجز فوراً» في أي بطاقة لضبط عدد الأفراد، الموعد، ومكان الاستلام بدون أي دفع مقدم.'
-                    : 'Click "Book Now" on any experience to configure guests, timing, and pickup location with zero upfront risk.'}
+                    ? 'اضغط «احجز فوراً» على أي تجربة، وتظبط عدد الأفراد والموعد ومكان الاستلام — من غير أي دفع مقدم.'
+                    : 'Tap “Book now” on any experience to set the number of people, timing and pickup point — with nothing charged upfront.'}
                 </p>
-                <div className="pt-3 border-t border-[#142126]/8 text-[12px] text-[#0F6F78] font-bold flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? 'أسعار موحدة ومعتمدة من أهل دهب' : 'Standardized local Dahab rates'}</span>
-                </div>
+                <p className="pt-3 border-t border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] flex items-center justify-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                  <span>{language === 'ar' ? 'أسعار موحدة معتمدة من أهل دهب' : 'Standardised local Dahab rates'}</span>
+                </p>
               </div>
             )}
 
-            {/* Quick Support Card */}
-            <div className="bg-[#F2ECE1]/70 rounded-2xl p-4 border border-[#142126]/8 text-xs space-y-2">
-              <div className="flex items-center gap-2 font-bold text-[#062C35]">
-                <Phone className="w-4 h-4 text-[#0F6F78]" />
-                <span>{language === 'ar' ? 'تحتاج مساعدة خاصة أو سيارة فورية؟' : 'Need custom dispatch or group bus?'}</span>
-              </div>
-              <p className="text-[12px] text-[#142126]/70 leading-normal">
+            {/* Field coordinator */}
+            <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-2">
+              <h2 className="flex items-center gap-2 text-sm font-bold">
+                <Phone className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
+                <span>{language === 'ar' ? 'محتاج ترتيب خاص؟' : 'Need a custom dispatch?'}</span>
+              </h2>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 {language === 'ar'
-                  ? 'فريق الدعم الميداني في دهب متاح للتنسيق المباشر عبر واتساب على مدار الساعة.'
-                  : 'Sinai local coordinators are available 24/7 for custom expeditions and immediate transport.'}
+                  ? 'منسقي دهب متاحين ٢٤ ساعة لترتيب رحلات خاصة أو مواصلات فورية لمجموعات.'
+                  : 'Sinai coordinators are available 24/7 for custom expeditions and group transport.'}
               </p>
               <a
                 href="https://wa.me/201002348899?text=Hello%20Dahab%20Travel%20OS%20Dispatch,%20I%20need%20custom%20assistance"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[12px] font-extrabold text-[#0F6F78] hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-extrabold text-[var(--accent-primary)] hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
-                <span>{language === 'ar' ? 'تحدث مع منسق العمليات الآن' : 'Chat with Dahab Field Coordinator'}</span>
-                <ChevronRight className="w-3 h-3" />
+                <span>{language === 'ar' ? 'كلّم منسق دهب' : 'Chat with a Dahab coordinator'}</span>
+                <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
               </a>
             </div>
-
           </section>
-
         </div>
-
       </div>
     </div>
   );

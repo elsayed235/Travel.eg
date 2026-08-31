@@ -374,6 +374,16 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
                     'bg-white/10 text-white/50'
                   }`}>{bk.supplierState?.replace(/_/g, ' ')}</span>
                   <span className="text-[11px] text-[#E7A83B] font-bold font-mono">{bk.amountEGP.toLocaleString()} EGP</span>
+                  <button type="button" onClick={async () => {
+                    const msg = prompt(`Send SMS to supplier for booking ${bk.bookingRef}:`);
+                    if (!msg) return;
+                    try {
+                      await api.sendOpsSmsDispatch({ to: '+201000000000', recipientName: bk.supplierId, message: msg, bookingRef: bk.bookingRef });
+                      alert('SMS sent successfully');
+                    } catch (err: any) { alert(`Failed: ${err.message}`); }
+                  }} className="px-2 py-0.5 rounded bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[10px] font-bold cursor-pointer">
+                    <MessageSquare className="w-3 h-3 inline mr-0.5" />SMS
+                  </button>
                 </div>
               </div>
             ))

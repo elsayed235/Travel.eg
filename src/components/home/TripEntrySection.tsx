@@ -6,7 +6,6 @@ import { analytics } from '../../services/analytics';
 import { READY_TRIP_PROGRAMS, ReadyTripProgram } from '../../data/readyTripsData';
 import { ReadyTripCompareModal } from './ReadyTripCompareModal';
 import { SmartTripMatchQuizModal } from './SmartTripMatchQuizModal';
-import { PlanItForMeModal } from './PlanItForMeModal';
 import { ReadyMadeTripsCarousel } from './ReadyMadeTripsCarousel';
 import {
   Compass,
@@ -45,7 +44,6 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
   // Modals state
   const [isCompareOpen, setIsCompareOpen] = useState<boolean>(false);
   const [isQuizOpen, setIsQuizOpen] = useState<boolean>(false);
-  const [isPlanModalOpen, setIsPlanModalOpen] = useState<boolean>(false);
 
   const hasExistingTrip = Boolean(isSignedIn && tripDays && tripDays.length > 0);
 
@@ -73,9 +71,17 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
     }
   };
 
+  /**
+   * Opens the planner as a page, not a dialog.
+   *
+   * It used to raise PlanItForMeModal over the homepage, which meant the five
+   * questions could not be linked, survive a refresh, or be stepped back
+   * through with the browser's own Back button. /plan-for-me is a real route,
+   * so all three work by default.
+   */
   const handleSelectAiMode = () => {
     analytics.track('plan_it_for_me_selected');
-    setIsPlanModalOpen(true);
+    navigateTo('/plan-for-me');
   };
 
   const handleOpenProgram = (program: ReadyTripProgram) => {
@@ -85,14 +91,6 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
       budget: program.defaultBudget
     });
     navigateTo('/programs', { programSlug: program.id });
-  };
-
-  const handlePlanGenerated = () => {
-    setIsPlanModalOpen(false);
-    analytics.track('trip_created', {
-      metadata: { source: 'ai_director' }
-    });
-    navigateTo('/trip-preview');
   };
 
   return (
@@ -482,13 +480,6 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           setIsQuizOpen(false);
           handleOpenProgram(program);
         }}
-      />
-
-      {/* Plan It For Me Quick AI Synthesis Modal */}
-      <PlanItForMeModal
-        isOpen={isPlanModalOpen}
-        onClose={() => setIsPlanModalOpen(false)}
-        onPlanGenerated={handlePlanGenerated}
       />
 
     </section>

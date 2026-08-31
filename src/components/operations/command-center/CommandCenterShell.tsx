@@ -224,6 +224,14 @@ export const CommandCenterShell: React.FC = () => {
       if (e.key === 'Escape' && paletteOpen) {
         setPaletteOpen(false);
       }
+      // Number keys 1-9 navigate sections (when not in input/palette)
+      if (!paletteOpen && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        const num = parseInt(e.key);
+        if (num >= 1 && num <= NAV_SECTIONS.length) {
+          e.preventDefault();
+          setActiveSection(NAV_SECTIONS[num - 1].id);
+        }
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);

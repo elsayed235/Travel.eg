@@ -31,6 +31,7 @@ import { DayGiFloatingButton } from './components/daygi/DayGiFloatingButton';
  */
 const BookNowCommerceModal = lazy(() => import('./components/commerce/BookNowCommerceModal').then(m => ({ default: m.BookNowCommerceModal })));
 const BookNowCommerceView = lazy(() => import('./components/commerce/BookNowCommerceView').then(m => ({ default: m.BookNowCommerceView })));
+const PlanForMeView = lazy(() => import('./components/home/PlanForMeView').then(m => ({ default: m.PlanForMeView })));
 const TripPlanner = lazy(() => import('./components/planner/TripPlanner').then(m => ({ default: m.TripPlanner })));
 const MyTripView = lazy(() => import('./components/mytrip/MyTripView').then(m => ({ default: m.MyTripView })));
 const ExploreView = lazy(() => import('./components/explore/ExploreView').then(m => ({ default: m.ExploreView })));
@@ -99,6 +100,7 @@ function MainAppContent() {
       '/bookings': { en: 'My Bookings', ar: 'حجوزاتي' },
       '/quick-book': { en: 'Book Now', ar: 'احجز الآن' },
       '/book-now': { en: 'Book Now', ar: 'احجز الآن' },
+      '/plan-for-me': { en: 'Plan It For Me', ar: 'خططها لي' },
       '/trip-builder': { en: 'Trip Planner', ar: 'مخطط الرحلة' },
       '/trip-preview': { en: 'Trip Preview', ar: 'معاينة الرحلة' },
       '/food': { en: 'Food & Dining', ar: 'الأكل والمطاعم' },
@@ -283,6 +285,9 @@ function MainAppContent() {
             onExploreClick={() => navigateTo('/explore')}
           />
         );
+
+      case '/plan-for-me':
+        return <PlanForMeView />;
 
       case '/trip-builder':
       case '/trip-preview':
