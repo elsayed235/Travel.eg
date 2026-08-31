@@ -176,7 +176,7 @@ export const PlanForMeView: React.FC = () => {
   const [synthesisStep, setSynthesisStep] = useState<number>(0);
 
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const isFirstRender = useRef<boolean>(true);
+  const lastFocusedStep = useRef<number | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const synthesisTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -205,14 +205,21 @@ export const PlanForMeView: React.FC = () => {
    * left focused on a button that no longer exists, with nothing announced.
    */
   useEffect(() => {
+    if (isGenerating) return;
+
     // Not on arrival: the global :focus-visible rule paints a 3px outline, and
     // on first paint that reads as a rendering fault rather than a focus ring.
     // From the second question on it is exactly the cue a keyboard user needs.
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (isGenerating) return;
+    //
+    // Tracked as "which step was last focused" rather than a first-render flag,
+    // because StrictMode runs this effect twice on mount and a boolean flag is
+    // already spent by the second run — which is what put a focus ring on the
+    // first question.
+    if (lastFocusedStep.current === stepIndex) return;
+    const isMount = lastFocusedStep.current === null;
+    lastFocusedStep.current = stepIndex;
+    if (isMount) return;
+
     headingRef.current?.focus();
   }, [stepIndex, isGenerating]);
 
