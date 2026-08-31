@@ -51,8 +51,7 @@ import {
 } from './schema';
 import { ProductOpportunity } from '../../src/types/intelligence';
 import { IPersistenceAdapter } from './adapters/IPersistenceAdapter';
-import { JsonFilePersistenceAdapter } from './adapters/JsonFilePersistenceAdapter';
-import { PostgresPersistenceAdapter } from './adapters/PostgresPersistenceAdapter';
+import { selectAdapter } from './selectAdapter';
 
 export interface DatabaseState {
   version: number;
@@ -113,16 +112,7 @@ export class Database {
   private adapter: IPersistenceAdapter;
 
   constructor(customAdapter?: IPersistenceAdapter) {
-    if (customAdapter) {
-      this.adapter = customAdapter;
-    } else if (process.env.PERSISTENCE_ADAPTER === 'postgres' && process.env.DATABASE_URL) {
-      // Refuses unless the operator has acknowledged that this adapter does not
-      // actually persist anything. See PostgresPersistenceAdapter.save().
-      PostgresPersistenceAdapter.assertUsable();
-      this.adapter = new PostgresPersistenceAdapter();
-    } else {
-      this.adapter = new JsonFilePersistenceAdapter();
-    }
+    this.adapter = customAdapter ?? selectAdapter();
   }
 
   public setAdapter(adapter: IPersistenceAdapter) {
@@ -221,6 +211,13 @@ export class Database {
   public get lastCheckpoint() { return this.state.lastCheckpoint; }
 
   public nextFencingToken(): number {
+    // The SQLite adapter can do this atomically across processes; the file
+    // fallback below cannot. Prefer the real one whenever it is in use.
+    const adapter = this.adapter as IPersistenceAdapter & { nextFencingToken?: () => number };
+    if (typeof adapter.nextFencingToken === 'function') {
+      return adapter.nextFencingToken();
+    }
+
     const seqFile = path.join(process.cwd(), 'data', 'fencing_sequence.seq');
     try {
       const dataDir = path.join(process.cwd(), 'data');

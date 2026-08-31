@@ -397,8 +397,12 @@ app.get('/api/health', (req, res) => {
       // Relational" implied a durability guarantee it has never provided.
       persistenceMode: adapterName.includes('Postgres')
         ? 'In-memory only (PostgreSQL adapter does not persist)'
-        : 'Atomic JSON Disk Store',
-      durable: !adapterName.includes('Postgres'),
+        : adapterName.includes('Sqlite')
+          ? 'SQLite (WAL, foreign keys enforced)'
+          : adapterName.includes('InMemory')
+            ? 'In-memory only (tests)'
+            : 'Atomic JSON Disk Store',
+      durable: !adapterName.includes('Postgres') && !adapterName.includes('InMemory'),
       users: db.users.length,
       trips: db.trips.length,
       bookings: db.bookings.length,
