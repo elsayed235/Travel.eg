@@ -18,7 +18,7 @@ export default function NotificationsCenter() {
     } catch { setNotifications([]); } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
+  useEffect(() => { fetchNotifications(); const i = setInterval(fetchNotifications, 30_000); return () => clearInterval(i); }, [fetchNotifications]);
 
   const filtered = filter === 'all' ? notifications : filter === 'unread' ? notifications.filter(n => !n.read) : notifications.filter(n => n.priority === 'URGENT' || n.priority === 'HIGH');
 

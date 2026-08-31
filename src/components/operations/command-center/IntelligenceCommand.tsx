@@ -36,7 +36,7 @@ export default function IntelligenceCommand() {
     } catch { /* Non-critical */ } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); const i = setInterval(fetchData, 30_000); return () => clearInterval(i); }, [fetchData]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

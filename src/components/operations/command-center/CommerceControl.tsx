@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { DollarSign, CheckCircle2, AlertTriangle, Shield, RefreshCw, ArrowRight, TrendingUp, Lock } from 'lucide-react';
+import { DollarSign, CheckCircle2, AlertTriangle, Shield, RefreshCw, ArrowRight, TrendingUp, Lock, Download } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -62,7 +62,19 @@ export default function CommerceControl() {
           <DollarSign className="w-4 h-4 text-[#E7A83B]" />
           {language === 'ar' ? 'التحكم المالي' : 'Commerce Control'}
         </h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          {activeTab === 'ledger' && ledgerEntries.length > 0 && (
+            <button type="button" onClick={() => {
+              const headers = ['ID','Booking','Type','Debit','Credit','Amount','Status','Timestamp'];
+              const rows = ledgerEntries.map((e: any) => [e.id, e.bookingRef, e.type, e.debitAccount, e.creditAccount, e.amountEGP, e.status, e.timestamp]);
+              const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(','))].join('\n');
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a'); a.href = url; a.download = `ledger-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
+            }} className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-bold flex items-center gap-1 cursor-pointer">
+              <Download className="w-3 h-3" />Export
+            </button>
+          )}
           {(['ledger', 'payments', 'verify', 'anomalies'] as const).map(tab => (
             <button key={tab} type="button" onClick={() => setActiveTab(tab)}
               className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${

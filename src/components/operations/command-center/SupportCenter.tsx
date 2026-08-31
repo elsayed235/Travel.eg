@@ -25,7 +25,7 @@ export default function SupportCenter() {
     } catch { setMessages([]); } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchData(); const i = setInterval(fetchData, 30_000); return () => clearInterval(i); }, [fetchData]);
 
   const handleReply = async () => {
     if (!selectedMsg || !replyText.trim() || sending) return;

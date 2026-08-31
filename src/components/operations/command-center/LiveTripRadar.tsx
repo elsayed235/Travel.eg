@@ -188,7 +188,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
   const { language } = useLanguage();
   const [trip, setTrip] = useState<EnrichedTrip | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'timeline' | 'financial'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'timeline' | 'financial' | 'transfers'>('overview');
   const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
@@ -318,6 +318,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
           { id: 'overview' as const, label: 'Overview' },
           { id: 'bookings' as const, label: `Bookings (${trip.bookings.length})` },
           { id: 'timeline' as const, label: `Timeline (${trip.items.length})` },
+          { id: 'transfers' as const, label: `Transfers` },
           { id: 'financial' as const, label: 'Financial' },
         ]).map(tab => (
           <button
@@ -410,6 +411,28 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {activeTab === 'transfers' && (
+        <div className="space-y-2">
+          {trip.bookings.filter(b => b.serviceType === 'transfer').length === 0 ? (
+            <div className="p-8 rounded-2xl bg-[#062C35] border border-white/8 text-center text-xs text-white/40">
+              <Car className="w-8 h-8 mx-auto mb-2 text-white/20" />
+              No transfers for this trip
+            </div>
+          ) : trip.bookings.filter(b => b.serviceType === 'transfer').map(bk => (
+            <div key={bk.id} className="p-4 rounded-xl bg-[#062C35] border border-white/8 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-bold text-[#52C4B7] font-mono">{bk.bookingRef}</div>
+                <div className="text-[11px] text-white/50">{bk.scheduledDate} {bk.scheduledTime}</div>
+                <div className="text-[10px] text-white/40">{bk.supplierState?.replace(/_/g, ' ')}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-[#E7A83B] font-bold font-mono">{bk.amountEGP.toLocaleString()} EGP</span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

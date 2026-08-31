@@ -23,7 +23,7 @@ export default function SupplierCommand() {
     } catch { setSuppliers([]); } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchSuppliers(); }, [fetchSuppliers]);
+  useEffect(() => { fetchSuppliers(); const i = setInterval(fetchSuppliers, 30_000); return () => clearInterval(i); }, [fetchSuppliers]);
 
   const filtered = filter === 'all' ? suppliers : suppliers.filter(s => s.status?.toLowerCase().includes(filter.toLowerCase()));
 

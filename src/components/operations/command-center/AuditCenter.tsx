@@ -20,7 +20,7 @@ export default function AuditCenter() {
     } catch { setEvents([]); } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+  useEffect(() => { fetchEvents(); const i = setInterval(fetchEvents, 30_000); return () => clearInterval(i); }, [fetchEvents]);
 
   const filtered = events.filter(e => {
     if (actionFilter && !e.action?.toLowerCase().includes(actionFilter.toLowerCase())) return false;
