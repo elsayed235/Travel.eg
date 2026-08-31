@@ -10,6 +10,7 @@ import { SinaiFloatingQuickDock } from './components/common/SinaiFloatingQuickDo
 import { StickyBookingBottomBar } from './components/common/StickyBookingBottomBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { RequireRole } from './components/auth/RequireRole';
+import { DayGiFloatingButton } from './components/daygi/DayGiFloatingButton';
 
 
 /**
@@ -49,9 +50,11 @@ const DahabLiveView = lazy(() => import('./components/live/DahabLiveView').then(
 const DayGiConciergeView = lazy(() => import('./components/daygi/DayGiConciergeView').then(m => ({ default: m.DayGiConciergeView })));
 const AuthView = lazy(() => import('./components/auth/AuthView').then(m => ({ default: m.AuthView })));
 const AhmedJourneyWalkthrough = lazy(() => import('./components/common/AhmedJourneyWalkthrough').then(m => ({ default: m.AhmedJourneyWalkthrough })));
-const OperationsConsoleView = lazy(() => import('./components/operations/OperationsConsoleView').then(m => ({ default: m.OperationsConsoleView })));
+const OperationsConsoleView = lazy(() => import('./components/operations/command-center/CommandCenterShell').then(m => ({ default: m.CommandCenterShell })));
 const SupplierPortalView = lazy(() => import('./components/supplier/SupplierPortalView').then(m => ({ default: m.SupplierPortalView })));
 const MarketIntelligenceView = lazy(() => import('./components/intelligence/MarketIntelligenceView').then(m => ({ default: m.MarketIntelligenceView })));
+const ProgramDetailView = lazy(() => import('./components/programs/ProgramDetailView').then(m => ({ default: m.ProgramDetailView })));
+const ExperienceDetailView = lazy(() => import('./components/experiences/ExperienceDetailView').then(m => ({ default: m.ExperienceDetailView })));
 const SearchDrawer = lazy(() => import('./components/common/SearchDrawer').then(m => ({ default: m.SearchDrawer })));
 
 /**
@@ -103,7 +106,9 @@ function MainAppContent() {
       '/live': { en: 'Dahab Live', ar: 'دهب دلوقتي' },
       '/daygi': { en: 'AI Concierge', ar: 'المرشد الذكي' },
       '/ai-director': { en: 'AI Concierge', ar: 'المرشد الذكي' },
-      '/profile': { en: 'Profile', ar: 'الملف الشخصي' }
+      '/profile': { en: 'Profile', ar: 'الملف الشخصي' },
+      '/programs': { en: 'Program Details', ar: 'تفاصيل البرنامج' },
+      '/experiences': { en: 'Experience Details', ar: 'تفاصيل التجربة' }
     };
     const label = labels[route];
     if (!label) return '';
@@ -128,17 +133,19 @@ function MainAppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentRoute, specialStageOverride]);
 
-  // Keyboard shortcut for Cmd/Ctrl+K spotlight search
+  // Keyboard shortcut for Cmd/Ctrl+K spotlight search.
+  // Skip when the Command Center is active — it owns its own palette.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (currentRoute === '/ops-console') return;
         e.preventDefault();
         setIsSearchOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [currentRoute]);
 
   // Render view based on stage override or currentRoute
   const renderCurrentView = () => {
@@ -305,6 +312,12 @@ function MainAppContent() {
       case '/live':
         return <DahabLiveView />;
 
+      case '/programs':
+        return <ProgramDetailView />;
+
+      case '/experiences':
+        return <ExperienceDetailView />;
+
       case '/daygi':
         return <DayGiConciergeView />;
 
@@ -462,6 +475,9 @@ function MainAppContent() {
 
       {/* 9. Sinai Global Rapid Quick-Action Dock (Emergency & Offline Pass) */}
       <SinaiFloatingQuickDock />
+
+      {/* 10. DayGI — reachable everywhere, owning none of the navbar. */}
+      <DayGiFloatingButton />
     </div>
   );
 }

@@ -10,7 +10,8 @@ import type {
   TripBookingRecord,
   TripEntity,
   TripItemEntity,
-  TripItemWithSupplier
+  TripItemWithSupplier,
+  ProductSkuEntity
 } from '../shared';
 
 export interface ApiResponse<T = any> {
@@ -171,6 +172,85 @@ export const api = {
     return await readJson<{ venues: DahabDiningVenue[] }>(res, 'Could not load places to eat in Dahab.');
   },
 
+  async getEmergencyResources(signal?: AbortSignal): Promise<{ emergencyHotlines: Array<{ service: string; number: string }>; resources: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/emergency', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load emergency resources.');
+    return await readJson<{ emergencyHotlines: Array<{ service: string; number: string }>; resources: unknown[] }>(res, 'Could not load emergency resources.');
+  },
+
+  async getRegulations(signal?: AbortSignal): Promise<{ regulations: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/regulations', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load regulations.');
+    return await readJson<{ regulations: unknown[] }>(res, 'Could not load regulations.');
+  },
+
+  async searchDahab(query: string, signal?: AbortSignal): Promise<{ results: unknown }> {
+    const res = await fetchWithTimeout(`/api/dahab/search?q=${encodeURIComponent(query)}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Search failed.');
+    return await readJson<{ results: unknown }>(res, 'Search failed.');
+  },
+
+  async getDahabAreas(signal?: AbortSignal): Promise<{ areas: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/areas', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load areas.');
+    return await readJson<{ areas: unknown[] }>(res, 'Could not load areas.');
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Admin DKOS Endpoints (require Operations / Admin / Product role)
+  // ────────────────────────────────────────────────────────────────────────
+
+  async getAdminDkosHealth(signal?: AbortSignal): Promise<{ health: unknown }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/health', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load DKOS health.');
+    return await readJson<{ health: unknown }>(res, 'Could not load DKOS health.');
+  },
+
+  async getAdminKnowledgeGaps(signal?: AbortSignal): Promise<{ gaps: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/gaps', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load knowledge gaps.');
+    return await readJson<{ gaps: unknown[] }>(res, 'Could not load knowledge gaps.');
+  },
+
+  async getAdminStaleFacts(signal?: AbortSignal): Promise<{ staleFacts: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/stale-facts', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load stale facts.');
+    return await readJson<{ staleFacts: unknown[] }>(res, 'Could not load stale facts.');
+  },
+
+  async getAdminConflicts(signal?: AbortSignal): Promise<{ conflicts: unknown[]; openCount: number }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/conflicts', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load conflicts.');
+    return await readJson<{ conflicts: unknown[]; openCount: number }>(res, 'Could not load conflicts.');
+  },
+
+  async getAdminReviewQueue(signal?: AbortSignal): Promise<{ queue: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/review-queue', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load review queue.');
+    return await readJson<{ queue: unknown[] }>(res, 'Could not load review queue.');
+  },
+
+  async getAdminExpansionMetrics(signal?: AbortSignal): Promise<{ metrics: unknown }> {
+    const res = await fetchWithTimeout('/api/dahab/admin/expansion-metrics', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load expansion metrics.');
+    return await readJson<{ metrics: unknown }>(res, 'Could not load expansion metrics.');
+  },
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Trip Status Transitions
+  // ────────────────────────────────────────────────────────────────────────
+
+  async transitionTripStatus(tripId: string, status: string, signal?: AbortSignal): Promise<{ trip: unknown }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/status`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ status }),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, `Cannot transition trip to ${status}.`);
+    return await readJson<{ trip: unknown }>(res, `Cannot transition trip to ${status}.`);
+  },
+
   // 0. Trips
   //
   // The backend has held real trips and trip items all along; no component
@@ -235,6 +315,47 @@ export const api = {
     });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load your trips.');
     return await readJson<{ trips: TripEntity[] }>(res, 'Could not load your trips.');
+  },
+
+  /**
+   * Add a trip item to a trip (activity, booking, etc.).
+   * P0 fix: Experience → Trip now persists to backend, not just client state.
+   */
+  async addTripItem(
+    tripId: string,
+    item: {
+      title: string;
+      dayNumber: number;
+      timeSlot: string;
+      serviceType?: string;
+      skuId?: string;
+      priceEGP?: number;
+    },
+    signal?: AbortSignal
+  ): Promise<{ item: TripItemEntity; trip: TripEntity }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/items`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(item),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not add item to trip.');
+    return await readJson<{ item: TripItemEntity; trip: TripEntity }>(res, 'Could not add item to trip.');
+  },
+
+  /** Remove a trip item. Recalculates trip total on the backend. */
+  async removeTripItem(
+    tripId: string,
+    itemId: string,
+    signal?: AbortSignal
+  ): Promise<{ removed: boolean; trip: TripEntity }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/items/${encodeURIComponent(itemId)}`, {
+      method: 'DELETE',
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not remove item from trip.');
+    return await readJson<{ removed: boolean; trip: TripEntity }>(res, 'Could not remove item from trip.');
   },
 
   // 1. Auth & Session (HttpOnly SameSite Cookie Transport)
@@ -302,6 +423,30 @@ export const api = {
   },
 
   // 2. Multi-Vertical Commerce & Inventory
+  /**
+   * The sellable products of one vertical.
+   *
+   * Book Now sold from IN_DESTINATION_SERVICES, a hardcoded array in the
+   * frontend that Explore never showed — so the catalogue a traveler browsed
+   * and the catalogue they could buy from had nothing in common. This is how
+   * the checkout page reaches a product that came from somewhere else in the
+   * app.
+   */
+  async getInventory(
+    serviceType: string,
+    signal?: AbortSignal
+  ): Promise<{ serviceType: string; skus: ProductSkuEntity[] }> {
+    const res = await fetchWithTimeout(`/api/inventory/${encodeURIComponent(serviceType)}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load what is available to book.');
+    return await readJson<{ serviceType: string; skus: ProductSkuEntity[] }>(
+      res,
+      'Could not load what is available to book.'
+    );
+  },
+
   async checkMultiAvailability(params: {
     serviceType: CommerceServiceType;
     skuId?: string;
@@ -530,6 +675,66 @@ export const api = {
 
   async getOperationsOverview() {
     const res = await fetchWithTimeout('/api/operations/overview', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getHealthData() {
+    const res = await fetchWithTimeout('/api/health', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getAuditEvents(limit = 50) {
+    const res = await fetchWithTimeout(`/api/operations/audit-events?limit=${limit}`, { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async acknowledgeMarketAlert(alertId: string, acknowledgedBy?: string) {
+    const res = await fetchWithTimeout(`/api/market/alerts/${encodeURIComponent(alertId)}/acknowledge`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ acknowledgedBy: acknowledgedBy || 'Operations' })
+    });
+    if (!res.ok) throw new Error('Failed to acknowledge alert');
+    return await res.json();
+  },
+
+  async resolveMarketAlert(alertId: string, resolutionNotes?: string) {
+    const res = await fetchWithTimeout(`/api/market/alerts/${encodeURIComponent(alertId)}/resolve`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ resolutionNotes })
+    });
+    if (!res.ok) throw new Error('Failed to resolve alert');
+    return await res.json();
+  },
+
+  async resolveReviewQueueItem(itemId: string, action: string, notes?: string, reviewer?: string) {
+    const res = await fetchWithTimeout(`/api/market/review-queue/${encodeURIComponent(itemId)}/resolve`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ action, notes, reviewer })
+    });
+    if (!res.ok) throw new Error('Failed to resolve review item');
+    return await res.json();
+  },
+
+  async getRecentEvents(limit = 20) {
+    const res = await fetchWithTimeout(`/api/events/recent?limit=${limit}`, { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async replyToSupportMessage(messageId: string, reply: string) {
+    const res = await fetchWithTimeout(`/api/support/messages/${encodeURIComponent(messageId)}/reply`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ reply })
+    });
+    if (!res.ok) throw new Error('Failed to send reply');
+    return await res.json();
+  },
+
+  async getMarketStatus() {
+    const res = await fetchWithTimeout('/api/market/status', { headers: defaultHeaders() });
     return await res.json();
   },
 
@@ -908,6 +1113,81 @@ export const api = {
     return await res.json();
   },
 
+  // ────────────────────────────────────────────────────────────────────────
+  // Market Intelligence Endpoints (/api/market/*)
+  // ────────────────────────────────────────────────────────────────────────
+
+  async getMarketJobs(signal?: AbortSignal): Promise<{ jobs: unknown[] }> {
+    const res = await fetchWithTimeout('/api/market/jobs', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market jobs.');
+    return await readJson<{ jobs: unknown[] }>(res, 'Could not load market jobs.');
+  },
+
+  async triggerMarketJob(payload: { jobType?: string }, signal?: AbortSignal): Promise<unknown> {
+    const res = await fetchWithTimeout('/api/market/jobs/trigger', {
+      method: 'POST', headers: defaultHeaders(), body: JSON.stringify(payload), signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Failed to trigger market job.');
+    return await res.json();
+  },
+
+  async getMarketSourceHealth(signal?: AbortSignal): Promise<{ sources: unknown[] }> {
+    const res = await fetchWithTimeout('/api/market/sources/health', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load source health.');
+    return await readJson<{ sources: unknown[] }>(res, 'Could not load source health.');
+  },
+
+  async getMarketReviewQueue(signal?: AbortSignal): Promise<{ queue: unknown[] }> {
+    const res = await fetchWithTimeout('/api/market/review-queue', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load review queue.');
+    return await readJson<{ queue: unknown[] }>(res, 'Could not load review queue.');
+  },
+
+  async getMarketOpsOverview(signal?: AbortSignal): Promise<{ overview: unknown }> {
+    const res = await fetchWithTimeout('/api/market/ops/overview', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load ops overview.');
+    return await readJson<{ overview: unknown }>(res, 'Could not load ops overview.');
+  },
+
+  async getMarketAlerts(signal?: AbortSignal): Promise<{ alerts: unknown[] }> {
+    const res = await fetchWithTimeout('/api/market/alerts', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market alerts.');
+    return await readJson<{ alerts: unknown[] }>(res, 'Could not load market alerts.');
+  },
+
+  async getMarketStats(signal?: AbortSignal): Promise<{ stats: unknown[] }> {
+    const res = await fetchWithTimeout('/api/dahab/commerce/market-stats', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market stats.');
+    return await readJson<{ stats: unknown[] }>(res, 'Could not load market stats.');
+  },
+
+  async getMarketTrends(signal?: AbortSignal): Promise<{ trends: unknown }> {
+    const res = await fetchWithTimeout('/api/dahab/commerce/market-trends', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market trends.');
+    return await readJson<{ trends: unknown }>(res, 'Could not load market trends.');
+  },
+
+  async getMarketSnapshots(signal?: AbortSignal): Promise<{ snapshots: unknown[] }> {
+    const res = await fetchWithTimeout('/api/market/snapshots', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market snapshots.');
+    return await readJson<{ snapshots: unknown[] }>(res, 'Could not load market snapshots.');
+  },
+
+  async getMarketPriceHistory() {
+    const res = await fetchWithTimeout('/api/market/price-history', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getMarketEvents() {
+    const res = await fetchWithTimeout('/api/market/events', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getMarketSourceFreshness() {
+    const res = await fetchWithTimeout('/api/market/source-freshness', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
   // ---------------------------------------------------------------------------
   // Twilio & Sinai SMS Gateway API
   // ---------------------------------------------------------------------------
@@ -937,6 +1217,147 @@ export const api = {
       throw new Error(err.error || 'Failed to dispatch SMS');
     }
     return await res.json();
-  }
+  },
+
+  // ─── Operations Admin Endpoints (Command Center) ────────────────────
+  async getOperationsTrips() {
+    const res = await fetchWithTimeout('/api/operations/trips', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getOperationsBookings(params?: { status?: string; supplierId?: string; paymentState?: string; limit?: number }) {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.supplierId) qs.set('supplierId', params.supplierId);
+    if (params?.paymentState) qs.set('paymentState', params.paymentState);
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const res = await fetchWithTimeout(`/api/operations/bookings?${qs}`, { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getOperationsPayments() {
+    const res = await fetchWithTimeout('/api/operations/payments', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getOperationsTransfers() {
+    const res = await fetchWithTimeout('/api/operations/transfers', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getSupplierReliability() {
+    const res = await fetchWithTimeout('/api/operations/supplier-reliability', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async processOpsRefund(params: { bookingRef: string; amountEGP: number; reason: string; operatorId?: string }) {
+    const res = await fetchWithTimeout('/api/operations/refund', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error('Failed to process refund');
+    return await res.json();
+  },
+
+  async getOperationsNotifications() {
+    const res = await fetchWithTimeout('/api/operations/notifications', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async sendOpsSmsDispatch(params: { to: string; recipientName: string; recipientRole?: string; message: string; bookingRef?: string; channel?: string }) {
+    const res = await fetchWithTimeout('/api/operations/sms-dispatch', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error('Failed to send SMS');
+    return await res.json();
+  },
+
+  async actOnOpportunity(id: string, action: 'accept' | 'reject' | 'defer', reason?: string) {
+    const res = await fetchWithTimeout(`/api/intelligence/opportunities/${encodeURIComponent(id)}/action`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ action, reason }),
+    });
+    if (!res.ok) throw new Error('Failed to act on opportunity');
+    return await res.json();
+  },
+
+  async getIntelligenceOpportunities() {
+    const res = await fetchWithTimeout('/api/intelligence/opportunities', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getIntelligenceFeatures() {
+    const res = await fetchWithTimeout('/api/intelligence/features', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getIntelligenceSummary() {
+    const res = await fetchWithTimeout('/api/intelligence/summary', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getOperationsIntegrations() {
+    const res = await fetchWithTimeout('/api/operations/integrations', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getLedgerAnomalies() {
+    const res = await fetchWithTimeout('/api/commerce/ledger/anomalies', { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async reconcileLedger(bookingRef: string) {
+    const res = await fetchWithTimeout(`/api/commerce/ledger/reconcile/${encodeURIComponent(bookingRef)}`, { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async getAdminLogs(limit = 50) {
+    const res = await fetchWithTimeout(`/api/dahab/admin/logs?limit=${limit}`, { headers: defaultHeaders() });
+    return await res.json();
+  },
+
+  async resolveAdminConflict(conflictId: string, resolvedValue: string) {
+    const res = await fetchWithTimeout('/api/dahab/admin/conflicts/resolve', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ conflictId, resolvedValue }),
+    });
+    if (!res.ok) throw new Error('Failed to resolve conflict');
+    return await res.json();
+  },
+
+  async resolveAdminReviewQueue(itemId: string, action: string, notes?: string) {
+    const res = await fetchWithTimeout('/api/dahab/admin/review-queue/resolve', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ itemId, action, notes }),
+    });
+    if (!res.ok) throw new Error('Failed to resolve review item');
+    return await res.json();
+  },
+
+  async resolveAdminEntity(params: { entityId: string; resolution: string }) {
+    const res = await fetchWithTimeout('/api/dahab/admin/entities/resolve', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error('Failed to resolve entity');
+    return await res.json();
+  },
+
+  async mergeAdminEntities(params: { primaryEntityId: string; secondaryEntityId: string }) {
+    const res = await fetchWithTimeout('/api/dahab/admin/entities/merge', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error('Failed to merge entities');
+    return await res.json();
+  },
 };
 
