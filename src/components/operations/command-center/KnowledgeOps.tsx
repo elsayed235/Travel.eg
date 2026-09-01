@@ -143,7 +143,7 @@ export default function KnowledgeOps() {
               {reviewQueue.length === 0 ? (
                 <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
                   <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">Review queue empty</div>
+                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.reviewEmpty')}</div>
                 </div>
               ) : reviewQueue.map((item: any) => (
                 <div key={item.id} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between">
@@ -155,8 +155,8 @@ export default function KnowledgeOps() {
                     <span className="text-[10px] text-white/40 font-mono">{item.status}</span>
                     {item.status === 'PENDING_REVIEW' && (
                       <div className="flex gap-1">
-                        <button type="button" onClick={() => handleResolveReview(item.id, 'APPROVE')} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold cursor-pointer">Approve</button>
-                        <button type="button" onClick={() => handleResolveReview(item.id, 'REJECT')} className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold cursor-pointer">Reject</button>
+                        <button type="button" onClick={() => handleResolveReview(item.id, 'APPROVE')} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold cursor-pointer">{t('cmd.action.approve')}</button>
+                        <button type="button" onClick={() => handleResolveReview(item.id, 'REJECT')} className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold cursor-pointer">{t('cmd.action.reject')}</button>
                       </div>
                     )}
                   </div>
@@ -224,8 +224,8 @@ export default function KnowledgeOps() {
           {activeTab === 'entities' && (
             <div className="space-y-2">
               <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
-                <h4 className="text-xs font-bold text-white/60 mb-2">Entity Resolution</h4>
-                <p className="text-[11px] text-white/50">Resolve entity conflicts by selecting a primary entity and merging duplicates.</p>
+                <h4 className="text-xs font-bold text-white/60 mb-2">{t('cmd.knowledge.entityResolution')}</h4>
+                <p className="text-[11px] text-white/50">{t('cmd.knowledge.entityResolutionDesc')}</p>
                 <div className="mt-3 flex gap-2">
                   <input type="text" id="entity-primary" placeholder="Primary entity ID" className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 focus:outline-none focus:border-[#20A89A]/50 flex-1" />
                   <input type="text" id="entity-secondary" placeholder="Secondary entity ID (to merge)" className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 focus:outline-none focus:border-[#20A89A]/50 flex-1" />
@@ -233,7 +233,7 @@ export default function KnowledgeOps() {
                     const primary = (document.getElementById('entity-primary') as HTMLInputElement)?.value;
                     const secondary = (document.getElementById('entity-secondary') as HTMLInputElement)?.value;
                     if (primary && secondary) handleMergeEntities(primary, secondary);
-                  }} className="px-3 py-1.5 rounded-lg bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold cursor-pointer">Merge</button>
+                  }} className="px-3 py-1.5 rounded-lg bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold cursor-pointer">{t('cmd.action.merge')}</button>
                 </div>
               </div>
               <div className="py-8 text-center rounded-2xl bg-[#062C35] border border-white/8">

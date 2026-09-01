@@ -157,7 +157,7 @@ export default function ExceptionsCenter() {
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
           <div className="text-sm font-bold text-emerald-400/80">No {filter !== 'all' ? filter : ''} exceptions</div>
-          <div className="text-[11px] text-white/30 mt-1">All systems operating normally.</div>
+          <div className="text-[11px] text-white/30 mt-1">{t('cmd.exceptions.allSystemsNormal')}</div>
         </div>
       ) : (
         <div className="space-y-2">

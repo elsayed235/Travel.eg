@@ -57,7 +57,7 @@ export default function FeatureFlagsView() {
       ) : !flags ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Flag className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No feature flags available</div>
+          <div className="text-sm font-bold text-white/50">{t('cmd.flags.noFlags')}</div>
         </div>
       ) : (
         <div className="space-y-2">

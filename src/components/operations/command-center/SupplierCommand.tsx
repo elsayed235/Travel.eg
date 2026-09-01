@@ -73,7 +73,7 @@ export default function SupplierCommand() {
           {reliability.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <TrendingUp className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No reliability data</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.suppliers.noReliability')}</div>
             </div>
           ) : (
             <div className="rounded-2xl bg-[#062C35] border border-white/8 overflow-hidden">
@@ -175,6 +175,7 @@ export default function SupplierCommand() {
 }
 
 function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBack: () => void; reliability?: any }) {
+  const { t } = useLanguage();
   const [dashboard, setDashboard] = useState<any>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +201,7 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
 
   return (
     <div className="space-y-4">
-      <button type="button" onClick={onBack} className="text-xs text-white/50 hover:text-white/80 cursor-pointer">← Back to suppliers</button>
+      <button type="button" onClick={onBack} className="text-xs text-white/50 hover:text-white/80 cursor-pointer">← {t('cmd.suppliers.backToSuppliers')}</button>
       <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8">
         <div className="flex items-start justify-between">
           <div>
@@ -248,11 +249,11 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
       </div>
 
       {loading ? (
-        <div className="py-6 text-center text-xs text-white/40">Loading…</div>
+        <div className="py-6 text-center text-xs text-white/40">{t('cmd.loading')}</div>
       ) : activeTab === 'bookings' ? (
         <div className="space-y-2">
           {bookings.length === 0 ? (
-            <div className="py-8 text-center text-xs text-white/40 rounded-2xl bg-[#062C35] border border-white/8">No bookings</div>
+            <div className="py-8 text-center text-xs text-white/40 rounded-2xl bg-[#062C35] border border-white/8">{t('cmd.suppliers.noBookings')}</div>
           ) : bookings.map((bk: any) => (
             <div key={bk.id} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between text-xs">
               <div>
@@ -270,9 +271,9 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
                 {bk.supplierState === 'PENDING_CONFIRMATION' && (
                   <div className="flex gap-1">
                     <button type="button" onClick={() => handleBookingAction(bk.id, 'ACCEPT')}
-                      className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold cursor-pointer">Accept</button>
+                      className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold cursor-pointer">{t('cmd.action.accept')}</button>
                     <button type="button" onClick={() => handleBookingAction(bk.id, 'REJECT')}
-                      className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold cursor-pointer">Reject</button>
+                      className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[9px] font-bold cursor-pointer">{t('cmd.action.reject')}</button>
                   </div>
                 )}
               </div>

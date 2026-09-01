@@ -156,7 +156,7 @@ export default function SupportCenter() {
                           className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 resize-none focus:outline-none focus:border-[#20A89A]/50" rows={3} />
                         <button type="button" onClick={handleReply} disabled={!replyText.trim() || sending}
                           className="mt-2 px-4 py-2 rounded-xl bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
-                          <Send className="w-3.5 h-3.5" />{sending ? 'Sending…' : 'Send Reply'}
+                          <Send className="w-3.5 h-3.5" />{sending ? t('cmd.support.sending') : t('cmd.support.sendReply')}
                         </button>
                       </div>
                     )}
@@ -164,7 +164,7 @@ export default function SupportCenter() {
                 ) : (
                   <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
                     <MessageSquare className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <div className="text-sm text-white/50">Select a message to view</div>
+                    <div className="text-sm text-white/50">{t('cmd.support.selectMessage')}</div>
                   </div>
                 )}
               </div>

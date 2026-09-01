@@ -36,7 +36,7 @@ export default function MarketJobsSection() {
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => handleTrigger()} disabled={triggering}
             className="px-3 py-1.5 rounded-lg bg-[#20A89A]/20 hover:bg-[#20A89A]/30 text-[#52C4B7] text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
-            <Play className="w-3 h-3" />{triggering ? 'Running…' : 'Run All'}
+            <Play className="w-3 h-3" />{triggering ? t('cmd.jobs.running') : t('cmd.jobs.runAll')}
           </button>
           <button type="button" onClick={() => fetchJobs()} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 cursor-pointer">
             <RefreshCw className="w-3.5 h-3.5" />
@@ -52,7 +52,7 @@ export default function MarketJobsSection() {
       ) : jobs.length === 0 ? (
         <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
           <Zap className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <div className="text-sm font-bold text-white/50">No market jobs configured</div>
+          <div className="text-sm font-bold text-white/50">{t('cmd.jobs.noJobs')}</div>
         </div>
       ) : (
         <div className="space-y-2">
@@ -77,7 +77,7 @@ export default function MarketJobsSection() {
                 }`}>{job.enabled !== false ? 'ENABLED' : 'DISABLED'}</span>
                 <button type="button" onClick={() => handleTrigger(job.type || job.jobType)} disabled={triggering}
                   className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-white/50 text-[10px] font-bold cursor-pointer disabled:opacity-50">
-                  Run
+                  {t('cmd.action.run')}
                 </button>
               </div>
             </div>

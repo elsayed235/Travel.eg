@@ -339,8 +339,8 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   trip: Plane,
 };
 
-function FreshnessIndicator({ date }: { date: Date | null }) {
-  if (!date) return <span className="text-[10px] text-white/30">Loading…</span>;
+function FreshnessIndicator({ date, t }: { date: Date | null; t: (k: string) => string }) {
+  if (!date) return <span className="text-[10px] text-white/30">{t('cmd.loading')}</span>;
   const secondsAgo = Math.round((Date.now() - date.getTime()) / 1000);
   if (secondsAgo < 60) return <span className="text-[10px] text-emerald-400/80">Updated {secondsAgo}s ago</span>;
   if (secondsAgo < 600) return <span className="text-[10px] text-amber-400/80">Updated {Math.round(secondsAgo / 60)}m ago</span>;
@@ -389,7 +389,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               }
             </div>
             <div className="text-[11px] text-white/50">
-              {t('cmd.title')} · <FreshnessIndicator date={lastUpdated} />
+              {t('cmd.title')} · <FreshnessIndicator date={lastUpdated} t={t} />
             </div>
           </div>
         </div>
@@ -549,7 +549,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
             </h3>
             <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-3">
               {healthLoading ? (
-                <div className="py-4 text-center text-xs text-white/40">Loading…</div>
+                <div className="py-4 text-center text-xs text-white/40">{t('cmd.loading')}</div>
               ) : (
                 [
                   { label: 'API Gateway', status: health.api },
@@ -586,9 +586,9 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
             </h3>
             <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-2.5">
               {eventsLoading ? (
-                <div className="py-4 text-center text-xs text-white/40">Loading…</div>
+                <div className="py-4 text-center text-xs text-white/40">{t('cmd.loading')}</div>
               ) : events.length === 0 ? (
-                <div className="py-4 text-center text-xs text-white/40">No recent events</div>
+                <div className="py-4 text-center text-xs text-white/40">{t('cmd.overview.noEvents')}</div>
               ) : (
                 events.map(event => (
                   <div key={event.id} className="flex items-start gap-2.5 pb-2.5 border-b border-white/5 last:border-0 last:pb-0">

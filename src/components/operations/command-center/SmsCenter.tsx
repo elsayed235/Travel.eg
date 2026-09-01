@@ -48,7 +48,7 @@ export default function SmsCenter() {
 
       {/* Dispatch Form */}
       <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8 space-y-3">
-        <h4 className="text-xs font-bold text-white/60">Send SMS / WhatsApp</h4>
+        <h4 className="text-xs font-bold text-white/60">{t('cmd.sms.sendTitle')}</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input type="text" value={form.to} onChange={e => setForm(p => ({ ...p, to: e.target.value }))}
             placeholder="Phone number" className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 focus:outline-none focus:border-[#20A89A]/50" />
@@ -65,7 +65,7 @@ export default function SmsCenter() {
           placeholder="Message body…" rows={3} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F7F3EA] placeholder-white/30 resize-none focus:outline-none focus:border-[#20A89A]/50" />
         <button type="button" onClick={handleSend} disabled={!form.to || !form.recipientName || !form.message || sending}
           className="px-4 py-2 rounded-xl bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
-          <Send className="w-3.5 h-3.5" />{sending ? 'Sending…' : 'Send SMS'}
+          <Send className="w-3.5 h-3.5" />{sending ? t('cmd.sms.sending') : t('cmd.sms.sendBtn')}
         </button>
         {sentResult && (
           <div className={`p-3 rounded-xl text-xs font-bold ${sentResult.success ? 'bg-emerald-950/20 border border-emerald-500/30 text-emerald-300' : 'bg-red-950/20 border border-red-500/30 text-red-300'}`}>

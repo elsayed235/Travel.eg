@@ -79,9 +79,9 @@ export default function IntelligenceCommand() {
 
       {activeTab === 'overview' && (
         <div className="space-y-4">
-          {loading ? <div className="py-12 text-center text-sm text-white/40">Loading…</div> : (
+          {loading ? <div className="py-12 text-center text-sm text-white/40">{t('cmd.loading')}</div> : (
             <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8">
-              <h4 className="text-xs font-bold text-white/60 mb-3">Market Intelligence Status</h4>
+              <h4 className="text-xs font-bold text-white/60 mb-3">{t('cmd.intel.status')}</h4>
               {overview ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                   {[
@@ -104,7 +104,7 @@ export default function IntelligenceCommand() {
           {sources.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <Database className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm text-white/50">No source health data</div>
+              <div className="text-sm text-white/50">{t('cmd.intel.noSources')}</div>
             </div>
           ) : sources.map((src: any, i: number) => (
             <div key={src.id || i} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between">
@@ -130,7 +130,7 @@ export default function IntelligenceCommand() {
           {alerts.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-              <div className="text-sm font-bold text-emerald-400/80">No active alerts</div>
+              <div className="text-sm font-bold text-emerald-400/80">{t('cmd.intel.noAlerts')}</div>
             </div>
           ) : alerts.map((alert: any) => (
             <div key={alert.id} className={`p-3 rounded-xl border flex items-center justify-between ${alert.acknowledged ? 'bg-[#062C35]/60 border-white/5 opacity-60' : 'bg-[#062C35] border-white/8'}`}>
@@ -188,7 +188,7 @@ export default function IntelligenceCommand() {
           {features.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <BarChart3 className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No feature register data</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.intel.noFeatures')}</div>
             </div>
           ) : features.map((f: any, i: number) => (
             <div key={f.id || i} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between">
@@ -209,7 +209,7 @@ export default function IntelligenceCommand() {
           {priceHistory.length === 0 ? (
             <div className="py-12 text-center rounded-2xl bg-[#062C35] border border-white/8">
               <TrendingUp className="w-10 h-10 text-white/20 mx-auto mb-3" />
-              <div className="text-sm font-bold text-white/50">No price history data</div>
+              <div className="text-sm font-bold text-white/50">{t('cmd.intel.noPriceHistory')}</div>
             </div>
           ) : (
             <div className="rounded-2xl bg-[#062C35] border border-white/8 overflow-hidden">
@@ -244,12 +244,12 @@ export default function IntelligenceCommand() {
         <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-bold text-[#F7F3EA]">Market Intelligence Refresh</h4>
-              <p className="text-[11px] text-white/50 mt-0.5">Recomputes market indices from stored observations</p>
+              <h4 className="text-sm font-bold text-[#F7F3EA]">{t('cmd.intel.refreshTitle')}</h4>
+              <p className="text-[11px] text-white/50 mt-0.5">{t('cmd.intel.refreshDesc')}</p>
             </div>
             <button type="button" onClick={handleRefresh} disabled={refreshing}
               className="px-4 py-2 rounded-xl bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />{refreshing ? 'Refreshing…' : 'Refresh Market Data'}
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />{refreshing ? t('cmd.intel.refreshing') : t('cmd.intel.refreshBtn')}
             </button>
           </div>
           {refreshResult && (

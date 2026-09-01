@@ -89,17 +89,17 @@ export default function CommerceControl() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
-          <div className="text-[11px] text-white/40">Escrow Captured</div>
+          <div className="text-[11px] text-white/40">{t('cmd.commerce.escrowCaptured')}</div>
           <div className="text-lg font-bold text-emerald-400 font-mono mt-1">{totalCaptured.toLocaleString()} EGP</div>
           <div className="text-[10px] text-white/30 mt-0.5 flex items-center gap-1"><Lock className="w-3 h-3" /> Held until service delivery</div>
         </div>
         <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
-          <div className="text-[11px] text-white/40">Platform Commissions</div>
+          <div className="text-[11px] text-white/40">{t('cmd.commerce.platformCommissions')}</div>
           <div className="text-lg font-bold text-[#E7A83B] font-mono mt-1">{totalCommission.toLocaleString()} EGP</div>
           <div className="text-[10px] text-white/30 mt-0.5">Auto-settled against supplier payables</div>
         </div>
         <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
-          <div className="text-[11px] text-white/40">Immutable Entries</div>
+          <div className="text-[11px] text-white/40">{t('cmd.commerce.immutableEntries')}</div>
           <div className="text-lg font-bold text-[#52C4B7] font-mono mt-1">{ledgerEntries.length}</div>
           <div className="text-[10px] text-white/30 mt-0.5">SHA-256 chained integrity</div>
         </div>
@@ -158,13 +158,13 @@ export default function CommerceControl() {
         <div className="p-5 rounded-2xl bg-[#062C35] border border-white/8 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-bold text-[#F7F3EA]">Ledger Integrity Verification</h4>
-              <p className="text-[11px] text-white/50 mt-0.5">Verifies SHA-256 hash chain across all ledger entries</p>
+              <h4 className="text-sm font-bold text-[#F7F3EA]">{t('cmd.commerce.verifyIntegrity')}</h4>
+              <p className="text-[11px] text-white/50 mt-0.5">{t('cmd.commerce.verifyDesc')}</p>
             </div>
             <button type="button" onClick={handleVerify} disabled={verifying}
               className="px-4 py-2 rounded-xl bg-[#20A89A] hover:bg-[#1B8F83] text-[#04171D] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
               <Shield className={`w-3.5 h-3.5 ${verifying ? 'animate-spin' : ''}`} />
-              {verifying ? 'Verifying…' : 'Run Verification'}
+              {verifying ? t('cmd.commerce.verifying') : t('cmd.commerce.runVerification')}
             </button>
           </div>
           {verifyResult && (
@@ -201,7 +201,7 @@ export default function CommerceControl() {
             <div className="py-12 text-center">
               <DollarSign className="w-10 h-10 text-white/20 mx-auto mb-3" />
               <div className="text-sm font-bold text-white/50">{t('cmd.commerce.noEntries')}</div>
-              <div className="text-[11px] text-white/30 mt-1">Financial records will appear here after bookings.</div>
+              <div className="text-[11px] text-white/30 mt-1">{t('cmd.commerce.noEntriesDesc')}</div>
             </div>
           ) : (
             <>
