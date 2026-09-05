@@ -26,9 +26,15 @@ coverage/
 # and importDahabLocalCommerce() THROWS when the first one is missing, so a
 # checkout without them cannot start the server at all.
 !/data/dahab_local_commerce.json
+!/data/dahab_hotels.json
 !/data/instagram/
 
 
 # Locally generated secrets (rotated seed credentials).
 *.local.md
 *.local.json
+
+# E2E runtime artifacts — the Playwright web server boots an isolated copy of
+# the state dir here (seeds + sqlite), never the real data/ dir.
+/tests/e2e/.data/
+/test-results/

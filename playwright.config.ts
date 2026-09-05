@@ -1,0 +1,64 @@
+import path from 'path';
+import { defineConfig, devices } from 'playwright/test';
+
+/**
+ * E2E suite (playwright) — boots its own isolated dev server.
+ *
+ * Safety: each run gets a fresh throwaway data dir
+ * (`tests/e2e/.data/run-<pid>-<ts>`) on a throwaway port (3100) with a fixed
+ * ≥16-char SEED_USER_PASSWORD, so seeds (Admin/Ops/Traveler demo accounts +
+ * Ahmed's trip) exist on every boot and the real `data/` store is never
+ * touched. `.env` is still read from the repo (dotenv does not override vars
+ * already present in the process env). Playwright boots the web server before
+ * globalSetup, so a stable dir would always be held open by the running
+ * server while setup tries to wipe it — a unique dir avoids the race entirely.
+ */
+const BASE_URL = 'http://localhost:3100';
+const SEED_USER_PASSWORD = 'PlaywrightQA2026!Secure';
+
+// Unique per-run state dir, shared with globalSetup via the process env.
+const RUN_DATA_DIR = path.resolve(process.cwd(), 'tests/e2e/.data', `run-${process.pid}-${Date.now()}`);
+process.env.E2E_DATA_DIR = RUN_DATA_DIR;
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  globalSetup: './tests/e2e/global-setup.ts',
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: 1,
+  timeout: 60_000,
+  reporter: process.env.CI ? 'line' : 'list',
+  use: {
+    baseURL: BASE_URL,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  webServer: {
+    command: 'npm run dev',
+    url: `${BASE_URL}/api/health`,
+    reuseExistingServer: false,
+    timeout: 180_000,
+    env: {
+      ...process.env,
+      PORT: '3100',
+      DAHAB_DATA_DIR: RUN_DATA_DIR,
+      SEED_USER_PASSWORD,
+      // The E2E suite does not use HMR; disabling it avoids Vite binding the
+      // default HMR port (24678) which other processes on this machine occupy.
+      DISABLE_HMR: 'true',
+    },
+  },
+  projects: [
+    {
+      name: 'en',
+      use: { ...devices['Desktop Chrome'], locale: 'en-US' },
+      testIgnore: [],
+    },
+    {
+      name: 'ar',
+      use: { ...devices['Desktop Chrome'], locale: 'ar-EG' },
+      testIgnore: [],
+    },
+  ],
+});
