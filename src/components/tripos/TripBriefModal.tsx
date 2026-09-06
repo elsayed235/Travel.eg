@@ -21,7 +21,7 @@ interface TripBriefModalProps {
 }
 
 export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const { tripBrief, updateTripBrief, showToast } = useTrip();
 
   const [travelerName, setTravelerName] = useState(tripBrief.travelerName);
@@ -87,9 +87,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
       avoidances,
     });
     showToast(
-      language === 'ar'
-        ? 'تم تحديث محددات الرحلة وإعادة احتساب توافق المخطط بنجاح!'
-        : 'Trip Brief updated and itinerary re-aligned!'
+      t('tripos.tripBriefUpdatedAnd')
     );
     onClose();
   };
@@ -106,26 +104,27 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
     >
       <div
         id="modal-trip-brief-container"
-        className="bg-white rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
+        className="bg-[var(--surface-card)] rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
       >
         {/* Modal Header */}
-        <div className="p-6 bg-[#0E252C] text-white flex items-center justify-between shrink-0">
+        <div className="p-6 bg-[var(--surface-card)] text-white flex items-center justify-between shrink-0">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span className="text-[12px] font-black uppercase tracking-wider text-amber-300 font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'محرر محددات الرحلة الذكي' : 'TRIP OS BRIEF ENGINE'}
+                {t('tripos.tRIPOSBRIEFENGINE')}
               </span>
             </div>
             <h2 id="trip-brief-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'تعديل أهداف ومحددات الرحلة' : 'Refine Trip Constraints & Goals'}
+              {t('tripos.refineTripConstraintsGoals')}
             </h2>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+            aria-label="Close"
+            className="w-9 h-9 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,24 +136,24 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {language === 'ar' ? 'اسم المسافر / المجموعة' : 'Traveler Name'}
+                {t('tripos.travelerName')}
               </label>
               <input
                 type="text"
                 value={travelerName}
                 onChange={(e) => setTravelerName(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#C49756]"
+                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {language === 'ar' ? 'عدد الأيام' : 'Duration (Days)'}
+                {t('tripos.durationDays')}
               </label>
               <select
                 value={durationDays}
                 onChange={(e) => setDurationDays(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#C49756]"
+                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               >
                 <option value={3}>3 Days (Weekend Escape)</option>
                 <option value={4}>4 Days (Standard Dahab)</option>
@@ -166,12 +165,12 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {language === 'ar' ? 'عدد المسافرين' : 'Traveler Count'}
+                {t('tripos.travelerCount')}
               </label>
               <select
                 value={travelersCount}
                 onChange={(e) => setTravelersCount(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#C49756]"
+                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               >
                 <option value={1}>1 Solo Traveler</option>
                 <option value={2}>2 Couple / Friends</option>
@@ -185,7 +184,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {language === 'ar' ? 'إيقاع الرحلة والنشاط' : 'Pace & Intensity'}
+                {t('tripos.paceIntensity')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {(['Relaxed', 'Balanced', 'Active'] as const).map((p) => (
@@ -195,13 +194,11 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                     onClick={() => setPace(p)}
                     className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                       pace === p
-                        ? 'bg-[#0E252C] text-amber-300 border-[#0E252C]'
-                        : 'bg-[#FAF8F5] text-slate-700 border-slate-200 hover:bg-slate-100'
+                        ? 'bg-[var(--surface-card)] text-amber-300 border-[var(--surface-card)]'
+                        : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {language === 'ar'
-                      ? p === 'Relaxed' ? 'رايق' : p === 'Balanced' ? 'متوازن' : 'نشيط'
-                      : p}
+                    {t(`profile.pace.${p}`)}
                   </button>
                 ))}
               </div>
@@ -209,7 +206,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700">
-                {language === 'ar' ? 'فئة الميزانية' : 'Budget Tier'}
+                {t('tripos.budgetTier')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {(['Budget', 'Moderate', 'Premium'] as const).map((b) => (
@@ -222,13 +219,11 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                     }}
                     className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                       budgetTier === b
-                        ? 'bg-[#C49756] text-white border-[#C49756]'
-                        : 'bg-[#FAF8F5] text-slate-700 border-slate-200 hover:bg-slate-100'
+                        ? 'bg-[var(--brand-sand)] text-white border-[var(--brand-sand)]'
+                        : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
-                    {language === 'ar'
-                      ? b === 'Budget' ? 'اقتصادي' : b === 'Moderate' ? 'متوسط' : 'فاخر'
-                      : b}
+                    {t(`hotels.${b.toLowerCase()}`)}
                   </button>
                 ))}
               </div>
@@ -236,17 +231,17 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           </div>
 
           {/* Section 3: Add Custom Constraint */}
-          <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-slate-200 space-y-3">
+          <div className="p-4 rounded-2xl bg-[var(--text-primary)] border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold text-slate-900">
-                {language === 'ar' ? 'إضافة شرط أو رغبة جديدة:' : 'Add Custom Trip Constraint:'}
+                {t('tripos.addCustomTripConstraint')}
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('must_have')}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                    selectedCategory === 'must_have' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                    selectedCategory === 'must_have' ? 'bg-emerald-600 text-white' : 'bg-[var(--surface-card)] text-slate-600 border border-slate-200'
                   }`}
                 >
                   Must-Have
@@ -255,7 +250,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                   type="button"
                   onClick={() => setSelectedCategory('prefer')}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                    selectedCategory === 'prefer' ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                    selectedCategory === 'prefer' ? 'bg-amber-500 text-white' : 'bg-[var(--surface-card)] text-slate-600 border border-slate-200'
                   }`}
                 >
                   Preference
@@ -264,7 +259,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                   type="button"
                   onClick={() => setSelectedCategory('avoid')}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                    selectedCategory === 'avoid' ? 'bg-rose-500 text-white' : 'bg-white text-slate-600 border border-slate-200'
+                    selectedCategory === 'avoid' ? 'bg-rose-500 text-white' : 'bg-[var(--surface-card)] text-slate-600 border border-slate-200'
                   }`}
                 >
                   Avoidance
@@ -278,12 +273,11 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                 value={newConstraintText}
                 onChange={(e) => setNewConstraintText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddConstraint()}
+                aria-label={t('tripos.addConstraint')}
                 placeholder={
-                  language === 'ar'
-                    ? 'مثال: "وجبات نباتية فقط"، "غرفة بفيو مباشر للبحر"...'
-                    : 'e.g. "Vegetarian meals only", "Ground floor seafront room"...'
+                  t('tripos.egVegetarianMealsOnly')
                 }
-                className="flex-1 bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[#C49756]"
+                className="flex-1 bg-[var(--surface-card)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               />
               <button
                 type="button"
@@ -291,7 +285,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                 className="px-4 py-2 rounded-xl bg-slate-950 text-white font-bold text-xs hover:bg-black transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'إضافة' : 'Add'}</span>
+                <span>{t('tripos.add')}</span>
               </button>
             </div>
           </div>
@@ -299,7 +293,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           {/* Section 4: Current Active Lists with Delete Controls */}
           <div className="space-y-4">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'القائمة الحالية للمحددات' : 'Current Active Constraints'}
+              {t('tripos.currentActiveConstraints')}
             </h4>
 
             {/* Must Haves */}
@@ -390,18 +384,18 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer transition-colors"
+            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200 cursor-pointer transition-colors"
           >
-            {language === 'ar' ? 'إلغاء' : 'Cancel'}
+            {t('tripos.cancel')}
           </button>
 
           <button
             type="button"
             onClick={handleSaveAndApply}
-            className="px-6 py-2.5 rounded-2xl bg-[#0E252C] hover:bg-black text-amber-300 font-extrabold text-xs shadow-lg cursor-pointer transition-all flex items-center gap-2"
+            className="px-6 py-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-black text-amber-300 font-extrabold text-xs shadow-lg cursor-pointer transition-all flex items-center gap-2"
           >
             <Save className="w-4 h-4 text-amber-400" />
-            <span>{language === 'ar' ? 'حفظ وتحديث نظام الرحلة' : 'Save & Re-Align Trip OS'}</span>
+            <span>{t('tripos.saveReAlignTripOS')}</span>
           </button>
         </div>
       </div>

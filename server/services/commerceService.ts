@@ -48,6 +48,36 @@ export class UnknownSkuError extends Error {
   }
 }
 
+/**
+ * The checkout named a trip that does not exist.
+ *
+ * The store still carries the result of this going unchecked: a CAPTURED
+ * booking, its payment and two ledger entries all filed against
+ * 'DHB-TRIP-DAHAB-FIRST-TIMER' — a plan-template slug that a since-fixed client
+ * path sent in place of the traveller's real trip id. Nothing rejected it, so
+ * four money rows point at an itinerary that was never created.
+ *
+ * The client is fixed, but its fallback is now the empty string, and an empty
+ * or unknown trip id would still be accepted here. Validating server-side
+ * closes the whole class rather than the one path that caused it.
+ */
+export class UnknownTripError extends Error {
+  public readonly status = 400;
+  public readonly type = 'https://dahab.travel/errors/unknown-trip';
+  public readonly title = 'Unknown Trip';
+  public readonly details: Record<string, unknown>;
+
+  constructor(tripId: string) {
+    super(
+      tripId
+        ? `Trip "${tripId}" does not exist. A booking cannot be filed against an itinerary that is not in the database.`
+        : 'No trip was supplied. A booking has to belong to a traveller\'s itinerary.'
+    );
+    this.name = 'UnknownTripError';
+    this.details = { tripId };
+  }
+}
+
 export class CommerceService {
   // Release holds that have exceeded their TTL
   public releaseExpiredHolds() {
@@ -119,6 +149,8 @@ export class CommerceService {
     if (slots.length === 0) {
       const defaultTimes = params.serviceType === 'hotel' 
         ? ['Standard Check-in 14:00']
+        : params.serviceType === 'rental'
+        ? ['FULL_DAY']
         : params.serviceType === 'diving'
         ? ['08:30 AM (Morning Dive)', '01:30 PM (Afternoon Dive)']
         : params.serviceType === 'safari'
@@ -298,6 +330,8 @@ export class CommerceService {
     totalAmountEGP: number;
     paymentState: string;
     transactionId: string;
+    /** True when this idempotencyKey had already been settled (a retry). */
+    replayed?: boolean;
   } {
     // Resolve every item's inventory BEFORE the payment is processed.
     //
@@ -306,6 +340,36 @@ export class CommerceService {
     // would leave the traveler charged for a booking that was never created.
     // Whatever is wrong with the request has to be found while nothing has
     // happened yet.
+    // The trip has to exist before anything is charged, for exactly the reason
+    // the SKUs are resolved here: this runs before processCheckout, so a throw
+    // after payment would leave the traveller charged for a booking that could
+    // never be filed correctly.
+    if (!params.tripId || !db.trips.some(t => t.id === params.tripId)) {
+      throw new UnknownTripError(params.tripId);
+    }
+
+    // Replay protection for the WHOLE checkout, not just the payment. A client
+    // that times out after a committed response (or double-submits) retries with
+    // the same idempotencyKey. processCheckout already short-circuits on the
+    // payment, but the booking/totals loop below ran unconditionally, so every
+    // retry pushed a brand-new set of bookings and added the total to
+    // trip.totalPaidEGP again — duplicate bookings, inflated paid total, for one
+    // payment. If a payment already exists for this key, the bookings were
+    // created on the first attempt and this is a retry: return without doing
+    // any of it again.
+    const existingPayment = db.payments.find(p => p.idempotencyKey === params.paymentParams.idempotencyKey);
+    if (existingPayment) {
+      return {
+        success: true,
+        replayed: true,
+        tripId: params.tripId,
+        bookings: db.bookings.filter(b => b.tripId === params.tripId),
+        totalAmountEGP: existingPayment.amountEGP,
+        paymentState: existingPayment.state,
+        transactionId: existingPayment.transactionId
+      };
+    }
+
     const resolvedSkus = params.items.map(item => {
       const sku = db.productSkus.find(s => s.id === item.skuId);
       if (!sku) throw new UnknownSkuError(item.skuId);

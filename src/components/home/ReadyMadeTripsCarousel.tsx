@@ -62,25 +62,23 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
   return (
     <section
       id="ready-made-trips-subdeck"
-      aria-label={language === 'ar' ? 'برامج رحلات جاهزة' : 'Ready-made trip programmes'}
-      className={`mt-16 pt-12 border-t ${isDark ? 'border-white/10' : 'border-[#122420]/10'}`}
+      aria-label={t('home.readymadeTripProgrammes')}
+      className={`mt-16 pt-12 border-t border-[var(--border-subtle)]`}
     >
       {/* Sub-header with Title and Smart Action Utilities */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20A89A] animate-ping" />
-            <span className={`text-[12px] font-extrabold uppercase tracking-widest ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}>
-              {language === 'ar' ? 'رحلات كاملة ومختبرة ميدانياً' : 'Field-Tested Sinai Curations'}
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-ping" />
+            <span className={`text-[12px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
+              {t('home.fieldTestedSinaiCurations')}
             </span>
           </div>
-          <h2 className={`text-2xl sm:text-3xl font-serif font-bold tracking-tight ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-            {language === 'ar' ? '٥ برامج متكاملة من خبراء دهب' : '5 Handcrafted Dahab Itineraries'}
+          <h2 className={`text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[var(--text-primary)]`}>
+            {t('home.5HandcraftedDahabItineraries')}
           </h2>
-          <p className={`text-sm mt-1 max-w-xl ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-            {language === 'ar'
-              ? 'مصممة بإيقاع متوازن يجمع بين أشهر المعالم، أوقات الراحة المفتوحة، والمطاعم المعتمدة.'
-              : 'Engineered with optimal daily pacing, unhurried seaside windows, and verified local partners.'}
+          <p className={`text-sm mt-1 max-w-xl text-[var(--text-secondary)]`}>
+            {t('home.engineeredWithOptimalDaily')}
           </p>
         </div>
 
@@ -93,11 +91,11 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
             onClick={onOpenQuiz}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95 ${
               isDark
-                ? 'bg-[#13312B] hover:bg-[#173832] text-[#F4C36C] border-white/10'
-                : 'bg-white hover:bg-stone-100 text-[#0E2520] border-[#122420]/10 shadow-xs'
+                ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--accent-secondary)] border-[var(--border-subtle)]'
+                : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--surface-card)] border-[var(--text-primary)]/10 shadow-xs'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-[#F4C36C]" />
+            <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
             <span>{t('tripEntry.modeB.whichIsRight')}</span>
           </button>
 
@@ -108,11 +106,11 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
             onClick={onOpenCompare}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95 ${
               isDark
-                ? 'bg-[#0E2520] hover:bg-[#13312B] text-[#F7F3EA] border-white/10'
-                : 'bg-white hover:bg-stone-100 text-[#122420] border-[#122420]/10 shadow-xs'
+                ? 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
+                : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/10 shadow-xs'
             }`}
           >
-            <Layers className="w-4 h-4 text-[#20A89A]" />
+            <Layers className="w-4 h-4 text-[var(--accent-primary)]" />
             <span>{t('tripEntry.modeB.compareBtn')}</span>
           </button>
         </div>
@@ -130,13 +128,13 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               onClick={() => setActiveCategory(cat.id)}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-[#20A89A] text-[#081714] shadow-sm'
+                  ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] shadow-sm'
                   : isDark
-                  ? 'bg-[#0E2520] hover:bg-[#13312B] text-[#D2E3DE] hover:text-white border border-white/10'
-                  : 'bg-white hover:bg-stone-100 text-[#4A635D] hover:text-[#122420] border border-[#122420]/10 shadow-xs'
+                  ? 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
+                  : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--text-primary)]/10 shadow-xs'
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#081714]' : 'text-[#20A89A]'}`} />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[var(--surface-card)]' : 'text-[var(--accent-primary)]'}`} />
               <span>{language === 'ar' ? cat.labelAr : cat.label}</span>
             </button>
           );
@@ -153,15 +151,15 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               type="button"
               id={`ready-trip-card-${program.id}`}
               onClick={() => handleSelect(program)}
-              aria-label={`${language === 'ar' ? 'عرض برنامج' : 'View program'}: ${language === 'ar' ? program.titleAr || program.title : program.title}`}
+              aria-label={`${t('home.viewProgram')}: ${language === 'ar' ? program.titleAr || program.title : program.title}`}
               className={`group w-full text-start rounded-3xl border transition-all duration-300 flex flex-col justify-between cursor-pointer overflow-hidden relative shadow-md hover:shadow-2xl hover:-translate-y-1.5 ${
                 isDark
                   ? isFeatured
-                    ? 'bg-[#0E2520] border-[#F4C36C]/60 ring-1 ring-[#F4C36C]/25'
-                    : 'bg-[#0E2520] border-white/10 hover:border-white/25'
+                    ? 'bg-[var(--surface-card)] border-[var(--accent-secondary)]/60 ring-1 ring-[var(--accent-secondary)]/25'
+                    : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                   : isFeatured
-                  ? 'bg-white border-[#F4C36C] ring-1 ring-[#F4C36C]/30'
-                  : 'bg-white border-[#122420]/10 hover:border-[#122420]/25'
+                  ? 'bg-[var(--surface-card)] border-[var(--accent-secondary)] ring-1 ring-[var(--accent-secondary)]/30'
+                  : 'bg-[var(--surface-card)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25'
               }`}
             >
               {/* Card Image Header */}
@@ -178,19 +176,19 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
 
                 {/* Floating Top Category Badge */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider bg-black/60 backdrop-blur-md text-[#F7F3EA] px-2.5 py-1 rounded-full border border-white/15 shadow-sm">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider bg-black/60 backdrop-blur-md text-[var(--text-primary)] px-2.5 py-1 rounded-full border border-[var(--border-subtle)] shadow-sm">
                     {language === 'ar' ? program.badgeAr : program.badge}
                   </span>
                 </div>
 
                 {/* Overlay Duration & Title */}
                 <div className="absolute bottom-3 left-3.5 right-3.5 text-white">
-                  <div className="flex items-center gap-2 text-[11px] text-[#52C4B7] font-semibold mb-0.5">
-                    <span>{program.durationDays} {language === 'ar' ? 'أيام' : 'Days'}</span>
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--accent-primary)] font-semibold mb-0.5">
+                    <span>{program.durationDays} {t('home.days-3')}</span>
                     <span>•</span>
                     <span>{language === 'ar' ? program.paceAr : program.pace}</span>
                   </div>
-                  <h3 className="text-base font-serif font-bold text-[#F7F3EA] leading-tight line-clamp-1 group-hover:text-[#F4C36C] transition-colors">
+                  <h3 className="text-base font-serif font-bold text-[var(--text-primary)] leading-tight line-clamp-1 group-hover:text-[var(--accent-secondary)] transition-colors">
                     {language === 'ar' ? program.titleAr : program.title}
                   </h3>
                 </div>
@@ -200,33 +198,33 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                 {/* 1. Who is it for? */}
                 <div>
-                  <span className={`text-[10px] uppercase font-bold tracking-wider block mb-1 ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
-                    {language === 'ar' ? 'مناسب لمين:' : 'Ideal For:'}
+                  <span className={`text-[10px] uppercase font-bold tracking-wider block mb-1 ${'text-[var(--text-secondary)]'}`}>
+                    {t('home.idealFor')}
                   </span>
-                  <p className={`text-xs font-medium line-clamp-2 leading-relaxed ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
+                  <p className={`text-xs font-medium line-clamp-2 leading-relaxed text-[var(--text-secondary)]`}>
                     {language === 'ar' ? program.idealForAr : program.idealFor}
                   </p>
                 </div>
 
                 {/* 2. Starting Price & Single Compact CTA */}
-                <div className={`pt-3 border-t flex items-center justify-between ${isDark ? 'border-white/10' : 'border-[#122420]/10'}`}>
+                <div className={`pt-3 border-t flex items-center justify-between border-[var(--border-subtle)]`}>
                   <div>
-                    <span className={`text-[10px] uppercase tracking-wider block font-bold ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
+                    <span className={`text-[10px] uppercase tracking-wider block font-bold ${'text-[var(--text-secondary)]'}`}>
                       {t('readyTrip.startingFrom')}
                     </span>
-                    <div className={`text-sm font-extrabold font-serif ${isDark ? 'text-[#F4C36C]' : 'text-[#0E2520]'}`}>
-                      {program.startingPriceEGP.toLocaleString()} <span className={`text-[11px] font-sans font-normal ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>EGP</span>
+                    <div className={`text-sm font-extrabold font-serif text-[var(--accent-secondary)]`}>
+                      {program.startingPriceEGP.toLocaleString()} <span className={`text-[11px] font-sans font-normal text-[var(--text-secondary)]`}>EGP</span>
                     </div>
                   </div>
 
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
                       isDark
-                        ? 'bg-[#13312B] group-hover:bg-[#20A89A] group-hover:text-[#081714] text-[#F7F3EA]'
-                        : 'bg-[#F2EFE9] group-hover:bg-[#20A89A] group-hover:text-[#081714] text-[#122420]'
+                        ? 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--surface-card)] text-[var(--text-primary)]'
+                        : 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--surface-card)] text-[var(--text-primary)]'
                     }`}
                   >
-                    <span>{language === 'ar' ? 'استكشف' : 'View'}</span>
+                    <span>{t('experiences.view')}</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
                   </span>
                 </div>

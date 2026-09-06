@@ -310,7 +310,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
   onSelectStageOverride,
 }) => {
   const { navigateTo, currentRoute, showToast, loadDemoSimulation, resetToAnonymousState, authRole, isSignedIn } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [activeStageId, setActiveStageId] = useState<number>(1);
@@ -341,7 +341,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
       onSelectStageOverride(null);
     }
     navigateTo(item.route);
-    showToast(language === 'ar' ? `المحطة ${item.id}: ${item.titleAr}` : `Stage ${item.id}: ${item.titleEn}`);
+    showToast(t('common.stageTitle', { id: item.id, title: language === 'ar' ? item.titleAr : item.titleEn }));
   };
 
   const currentActiveItem = AHMED_18_STAGES.find((s) => s.id === activeStageId) || AHMED_18_STAGES[0];
@@ -356,33 +356,33 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
       {!isOpen ? (
         <div className={`flex items-center gap-2 p-2 sm:p-2.5 rounded-full border shadow-2xl backdrop-blur-2xl transition-all ${
           isDark 
-            ? 'bg-[#0E2520]/90 text-[#F7F3EA] border-white/20 ring-1 ring-white/10' 
-            : 'bg-white/95 text-[#122420] border-[#122420]/15 ring-1 ring-[#122420]/5 shadow-stone-400/30'
+            ? 'bg-[var(--surface-card)]/90 text-[var(--text-primary)] border-[var(--border-subtle)] ring-1 ring-white/10' 
+            : 'bg-[var(--btn-util-bg)] text-[var(--text-primary)] border-[var(--text-primary)]/15 ring-1 ring-[var(--text-primary)]/5 shadow-stone-400/30'
         }`}>
           <button
             type="button"
             onClick={() => setIsOpen(true)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer group text-start border shadow-xs ${
               isDark 
-                ? 'bg-white/10 hover:bg-white/20 text-white border-white/15' 
-                : 'bg-stone-100 hover:bg-stone-200 text-[#122420] border-[#122420]/10'
+                ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white border-[var(--border-subtle)]' 
+                : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-primary)] border-[var(--text-primary)]/10'
             }`}
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-[#E7A83B] animate-pulse shadow-xs shadow-amber-400 shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)] animate-pulse shadow-xs shadow-amber-400 shrink-0" />
             <div className="flex flex-col">
               <span className={`text-[12px] sm:text-xs font-['Outfit',sans-serif] font-bold flex items-center gap-1.5 ${
-                isDark ? 'text-white' : 'text-[#122420]'
+                'text-[var(--text-primary)]'
               }`}>
-                <span>{language === 'ar' ? 'رحلة أحمد في دهب (١٨ محطة)' : "Ahmed's 18-Stage Dahab Journey"}</span>
+                <span>{t('common.ahmeds18StageDahabJourney')}</span>
               </span>
               <span className={`text-[11px] hidden xs:inline font-medium ${
-                isDark ? 'text-[#F4C36C]' : 'text-[#EA8E75]'
+                isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--brand-coral)]'
               }`}>
-                {language === 'ar' ? `المحطة الحالية: ${currentActiveItem.titleAr}` : `Active: ${currentActiveItem.titleEn}`}
+                {t('common.activeStageLabel', { title: language === 'ar' ? currentActiveItem.titleAr : currentActiveItem.titleEn })}
               </span>
             </div>
             <ChevronUp className={`w-4 h-4 group-hover:-translate-y-0.5 transition-transform ms-1 ${
-              isDark ? 'text-[#52C4B7]' : 'text-[#20A89A]'
+              'text-[var(--accent-primary)]'
             }`} />
           </button>
 
@@ -394,7 +394,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
               handleStageClick(nextStage);
             }}
             aria-label="Next Journey Stage"
-            className="p-2.5 rounded-full bg-gradient-to-br from-[#F4C36C] to-[#E7A83B] hover:brightness-110 text-[#04171D] font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-lg border border-white/30"
+            className="p-2.5 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-secondary)] hover:brightness-110 text-[var(--text-primary)] font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-lg border border-[var(--border-subtle)]"
           >
             <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
           </button>
@@ -403,26 +403,26 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
         /* 2. EXPANDED JOURNEY MATRIX MODAL DRAWER */
         <div className={`border rounded-3xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-2xl space-y-4 max-h-[85vh] sm:max-h-[75vh] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300 ring-1 ${
           isDark 
-            ? 'bg-[#0E2520]/95 text-[#F7F3EA] border-white/20 ring-white/10' 
-            : 'bg-white/95 text-[#122420] border-[#122420]/15 ring-[#122420]/5'
+            ? 'bg-[var(--surface-card)]/95 text-[var(--text-primary)] border-[var(--border-subtle)] ring-white/10' 
+            : 'bg-[var(--btn-util-bg)] text-[var(--text-primary)] border-[var(--text-primary)]/15 ring-[var(--text-primary)]/5'
         }`}>
           
           {/* Header */}
           <div className={`flex items-center justify-between border-b pb-3 ${
-            isDark ? 'border-white/15' : 'border-[#122420]/10'
+            'border-[var(--border-subtle)]'
           }`}>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#F4C36C] to-[#E7A83B] text-[#04171D] flex items-center justify-center font-bold shadow-md">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-secondary)] text-[var(--text-primary)] flex items-center justify-center font-bold shadow-md">
                 <Play className="w-4 h-4 fill-current" />
               </div>
               <div>
                 <h3 className={`text-sm font-bold font-['Outfit',sans-serif] ${
-                  isDark ? 'text-white' : 'text-[#122420]'
+                  'text-[var(--text-primary)]'
                 }`}>
-                  {language === 'ar' ? 'خطوات رحلة أحمد في دهب (من الوصول للرجوع)' : "Ahmed's Complete 18-Stage Simulator"}
+                  {t('common.ahmedsComplete18StageSimulator')}
                 </h3>
-                <p className={`text-[11px] ${isDark ? 'text-[#E7D3AE]' : 'text-[#4A635D]'}`}>
-                  {language === 'ar' ? 'إزاي منصة دهب بتظبطلك كل تفصيلة في السفر' : 'How the full Travel Agency runs as software'}
+                <p className={`text-[11px] ${'text-[var(--text-secondary)]'}`}>
+                  {t('common.howTheFullTravel')}
                 </p>
               </div>
             </div>
@@ -432,8 +432,8 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
               onClick={() => setIsOpen(false)}
               className={`p-1.5 rounded-full transition-colors cursor-pointer border ${
                 isDark 
-                  ? 'bg-white/10 hover:bg-white/20 text-[#E7D3AE] hover:text-white border-white/10' 
-                  : 'bg-stone-100 hover:bg-stone-200 text-[#4A635D] hover:text-[#122420] border-[#122420]/10'
+                  ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)] border-[var(--border-subtle)]' 
+                  : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--text-primary)]/10'
               }`}
             >
               <X className="w-4 h-4" />
@@ -442,29 +442,29 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
 
           {/* Current Active Preview Banner */}
           <div className={`p-3.5 rounded-2xl backdrop-blur-xl border space-y-1.5 shrink-0 shadow-inner ${
-            isDark ? 'bg-white/10 border-white/15' : 'bg-stone-50 border-[#122420]/10'
+            isDark ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]' : 'bg-stone-50 border-[var(--text-primary)]/10'
           }`}>
             <div className="flex items-center justify-between text-xs">
               <span className={`font-bold uppercase tracking-wider text-[11px] ${
-                isDark ? 'text-[#F4C36C]' : 'text-[#EA8E75]'
+                isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--brand-coral)]'
               }`}>
                 {language === 'ar' ? currentActiveItem.categoryAr : currentActiveItem.category}
               </span>
               <span className={`font-mono text-[12px] font-semibold px-2 py-0.5 rounded-full border ${
                 isDark 
-                  ? 'text-[#52C4B7] bg-teal-950/40 border-teal-400/30' 
-                  : 'text-[#0E2520] bg-emerald-50 border-emerald-300'
+                  ? 'text-[var(--accent-primary)] bg-teal-950/40 border-teal-400/30' 
+                  : 'text-[var(--surface-card)] bg-emerald-50 border-emerald-300'
               }`}>
                 {activeStageId} / 18
               </span>
             </div>
-            <h4 className={`text-xs sm:text-sm font-bold ${isDark ? 'text-white' : 'text-[#122420]'}`}>
+            <h4 className={`text-xs sm:text-sm font-bold ${'text-[var(--text-primary)]'}`}>
               {language === 'ar' ? currentActiveItem.titleAr : currentActiveItem.titleEn}
             </h4>
-            <p className={`text-[12px] leading-relaxed ${isDark ? 'text-[#E7D3AE]' : 'text-[#4A635D]'}`}>
+            <p className={`text-[12px] leading-relaxed ${'text-[var(--text-secondary)]'}`}>
               {language === 'ar' ? currentActiveItem.descriptionAr : currentActiveItem.descriptionEn}
             </p>
-            <div className={`pt-1 text-[11px] font-mono italic ${isDark ? 'text-[#52C4B7]' : 'text-[#20A89A]'}`}>
+            <div className={`pt-1 text-[11px] font-mono italic ${'text-[var(--accent-primary)]'}`}>
               {language === 'ar' ? currentActiveItem.promptAr : currentActiveItem.promptEn}
             </div>
           </div>
@@ -482,18 +482,18 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                   className={`w-full text-start p-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-3 border ${
                     isSelected
                       ? isDark
-                        ? 'bg-gradient-to-r from-[#0F6F78]/50 to-[#20A89A]/40 border-teal-300/50 text-white shadow-lg backdrop-blur-md ring-1 ring-teal-300/30'
-                        : 'bg-emerald-50 border-emerald-400/50 text-[#0E2520] shadow-md ring-1 ring-emerald-300'
+                        ? 'bg-gradient-to-r from-[var(--accent-primary)]/50 to-[var(--accent-primary)]/40 border-teal-300/50 text-white shadow-lg backdrop-blur-md ring-1 ring-teal-300/30'
+                        : 'bg-emerald-50 border-emerald-400/50 text-[var(--surface-card)] shadow-md ring-1 ring-emerald-300'
                       : isDark
-                        ? 'bg-white/5 border-white/10 hover:bg-white/10 text-[#E7D3AE] hover:text-white'
-                        : 'bg-stone-50 border-stone-200/80 hover:bg-stone-100 text-[#4A635D] hover:text-[#122420]'
+                        ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)]'
+                        : 'bg-stone-50 border-stone-200/80 hover:bg-stone-100 text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                       isSelected 
-                        ? 'bg-gradient-to-br from-[#0F6F78] to-[#20A89A] text-white shadow-xs' 
-                        : isDark ? 'bg-white/10 text-[#E7D3AE]' : 'bg-stone-200 text-[#4A635D]'
+                        ? 'bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-primary)] text-white shadow-xs' 
+                        : isDark ? 'bg-[var(--btn-util-bg)] text-[var(--surface-container)]' : 'bg-stone-200 text-[var(--text-secondary)]'
                     }`}>
                       <IconComp className="w-3.5 h-3.5" />
                     </div>
@@ -501,7 +501,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                       <div className="text-xs font-bold truncate">
                         {language === 'ar' ? stage.titleAr : stage.titleEn}
                       </div>
-                      <div className={`text-[11px] truncate ${isDark ? 'text-white/50' : 'text-stone-500'}`}>
+                      <div className={`text-[11px] truncate ${isDark ? 'text-[var(--text-muted)]' : 'text-stone-500'}`}>
                         {language === 'ar' ? stage.categoryAr : stage.category}
                       </div>
                     </div>
@@ -510,10 +510,10 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                   {isSelected && (
                     <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${
                       isDark 
-                        ? 'text-[#F4C36C] bg-amber-500/20 border-amber-400/40' 
-                        : 'text-[#EA8E75] bg-amber-50 border-amber-300'
+                        ? 'text-[var(--accent-secondary)] bg-amber-500/20 border-amber-400/40' 
+                        : 'text-[var(--brand-coral)] bg-amber-50 border-amber-300'
                     }`}>
-                      {language === 'ar' ? 'مباشر' : 'Live'}
+                      {t('common.live')}
                     </span>
                   )}
                 </button>
@@ -523,7 +523,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
 
           {/* Footer Quick Action */}
           <div className={`pt-2 border-t flex items-center justify-between text-xs shrink-0 gap-2 ${
-            isDark ? 'border-white/15' : 'border-[#122420]/10'
+            'border-[var(--border-subtle)]'
           }`}>
             <button
               type="button"
@@ -534,20 +534,20 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
               }}
               className={`px-2.5 py-1.5 rounded-xl font-medium text-[12px] cursor-pointer transition-all border ${
                 isDark 
-                  ? 'bg-white/10 hover:bg-white/20 text-[#E7D3AE] hover:text-white border-white/10' 
-                  : 'bg-stone-100 hover:bg-stone-200 text-[#4A635D] hover:text-[#122420] border-[#122420]/10'
+                  ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)] border-[var(--border-subtle)]' 
+                  : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--text-primary)]/10'
               }`}
             >
-              {language === 'ar' ? 'الرجوع للوضع العام (مجهول)' : 'Reset to Anonymous'}
+              {t('common.resetToAnonymous')}
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#0F6F78] to-[#20A89A] hover:brightness-110 text-white font-bold text-xs cursor-pointer transition-all shadow-md border border-teal-200/30"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-primary)] hover:brightness-110 text-white font-bold text-xs cursor-pointer transition-all shadow-md border border-teal-200/30"
             >
-              {language === 'ar' ? 'قفل' : 'Close'}
+              {t('common.close')}
             </button>
           </div>
 

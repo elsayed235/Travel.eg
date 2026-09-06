@@ -172,7 +172,7 @@ export function optionalEnum<T extends string>(
   return requiredEnum(value, allowed, field);
 }
 
-export const SERVICE_TYPES = ['hotel', 'transfer', 'diving', 'safari', 'wellness', 'dining'] as const;
+export const SERVICE_TYPES = ['hotel', 'transfer', 'diving', 'safari', 'wellness', 'dining', 'rental'] as const;
 export const SUBSTITUTION_SERVICE_TYPES = ['hotel', 'transfer', 'diving', 'safari', 'activity'] as const;
 export const PAYMENT_PROVIDERS = ['PAYMOB', 'STRIPE', 'CASH_ON_ARRIVAL'] as const;
 

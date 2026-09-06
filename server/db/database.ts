@@ -8,6 +8,9 @@ import {
   TripItemEntity,
   SupplierEntity,
   ProductSkuEntity,
+  HotelEntity,
+  AccommodationEntity,
+  PropertySourceEntity,
   InventorySlotEntity,
   HoldEntity,
   PaymentEntity,
@@ -47,7 +50,11 @@ import {
   SourceHealthEntity,
   RefreshSchedulePolicyEntity,
   MarketAlertEntity,
-  SupportMessageEntity
+  SupportMessageEntity,
+  RentalListingEntity,
+  RentalExtraEntity,
+  RentalBookingEntity,
+  RentalMaintenanceBlockEntity
 } from './schema';
 import { ProductOpportunity } from '../../src/types/intelligence';
 import { IPersistenceAdapter } from './adapters/IPersistenceAdapter';
@@ -61,6 +68,9 @@ export interface DatabaseState {
   tripItems: TripItemEntity[];
   suppliers: SupplierEntity[];
   productSkus: ProductSkuEntity[];
+  hotels: HotelEntity[];
+  accommodations: AccommodationEntity[];
+  propertySources: PropertySourceEntity[];
   inventorySlots: InventorySlotEntity[];
   holds: HoldEntity[];
   payments: PaymentEntity[];
@@ -91,6 +101,11 @@ export interface DatabaseState {
   sourceHealthRecords?: SourceHealthEntity[];
   refreshSchedulePolicies?: RefreshSchedulePolicyEntity[];
   marketAlerts?: MarketAlertEntity[];
+  // Rentals (bikes MVP; category-agnostic domain)
+  rentalListings?: RentalListingEntity[];
+  rentalExtras?: RentalExtraEntity[];
+  rentalBookings?: RentalBookingEntity[];
+  rentalMaintenanceBlocks?: RentalMaintenanceBlockEntity[];
   // DKOS Tables
   researchSources: ResearchSourceEntity[];
   temporalFacts: TemporalFactEntity[];
@@ -163,6 +178,9 @@ export class Database {
   public get tripItems() { return this.state.tripItems; }
   public get suppliers() { return this.state.suppliers; }
   public get productSkus() { return this.state.productSkus; }
+  public get hotels() { return this.state.hotels || (this.state.hotels = []); }
+  public get accommodations() { return this.state.accommodations || (this.state.accommodations = []); }
+  public get propertySources() { return this.state.propertySources || (this.state.propertySources = []); }
   public get inventorySlots() { return this.state.inventorySlots; }
   public get holds() { return this.state.holds; }
   public get payments() { return this.state.payments; }
@@ -207,6 +225,10 @@ export class Database {
   public get knowledgeSnapshots() { return this.state.knowledgeSnapshots || (this.state.knowledgeSnapshots = []); }
   public get placeDiscoveries() { return this.state.placeDiscoveries || (this.state.placeDiscoveries = []); }
   public get resolutionCandidates() { return this.state.resolutionCandidates || (this.state.resolutionCandidates = []); }
+  public get rentalListings() { return this.state.rentalListings || (this.state.rentalListings = []); }
+  public get rentalExtras() { return this.state.rentalExtras || (this.state.rentalExtras = []); }
+  public get rentalBookings() { return this.state.rentalBookings || (this.state.rentalBookings = []); }
+  public get rentalMaintenanceBlocks() { return this.state.rentalMaintenanceBlocks || (this.state.rentalMaintenanceBlocks = []); }
   public get locks() { return this.state.locks || (this.state.locks = []); }
   public get lastCheckpoint() { return this.state.lastCheckpoint; }
 

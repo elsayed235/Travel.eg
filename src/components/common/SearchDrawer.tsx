@@ -138,7 +138,7 @@ const fetchSearchCorpus = (signal: AbortSignal) =>
   Promise.all([
     api.getDahabPlaces(signal).catch(() => ({ places: [] })),
     api.getDahabActivities(signal).catch(() => ({ activities: [] })),
-    api.getDahabDining(signal).catch(() => ({ venues: [] }))
+    api.getDahabDining(undefined, signal).catch(() => ({ venues: [] }))
   ]).then(([p, a, v]) => ({ places: p.places, activities: a.activities, venues: v.venues }));
 
 export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
@@ -249,9 +249,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={
-              language === 'ar'
-                ? 'ابحث عن أماكن غطس، حجوزات، مطاعم، طوارئ...'
-                : 'Search dive sites, bookings, restaurants, emergency...'
+              t('common.searchDiveSitesBookings')
             }
             className="w-full bg-transparent text-sm sm:text-base font-medium text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none"
           />
@@ -280,12 +278,10 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
             <div className="py-12 text-center text-[var(--text-secondary)] space-y-2">
               <Compass className="w-8 h-8 mx-auto text-[var(--text-secondary)] opacity-60" />
               <p className="text-sm font-medium text-[var(--text-primary)]">
-                {language === 'ar' ? `ملقناش نتيجة لـ "${searchTerm}"` : `No results found for "${searchTerm}"`}
+                {t('common.noResultsFoundFor', { searchTerm })}
               </p>
               <p className="text-xs text-[var(--text-secondary)]">
-                {language === 'ar'
-                  ? 'جرّب تدور على: غطس، فندق، سمك، رالفز، أو طوارئ'
-                  : 'Try searching for "Diving", "Hotel", "Food", or "Safety"'}
+                {t('common.trySearchingForDiving')}
               </p>
             </div>
           ) : (
@@ -334,8 +330,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
 
         {/* Footer shortcuts */}
         <div className="p-3 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex items-center justify-between text-[12px] text-[var(--text-secondary)] px-4">
-          <span>{language === 'ar' ? 'للانتقال اضغط ↵ Enter' : 'Navigate with ↵ Enter'}</span>
-          <span>{language === 'ar' ? 'ESC للإلغاء' : 'ESC to dismiss'}</span>
+          <span>{t('common.navigateWithEnter')}</span>
+          <span>{t('common.eSCToDismiss')}</span>
         </div>
       </div>
     </div>

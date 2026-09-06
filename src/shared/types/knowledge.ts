@@ -1,3 +1,5 @@
+import type { DiningPriceBand } from '../priceBand';
+
 export type TemporalState = 'CURRENT' | 'HISTORICAL' | 'FUTURE' | 'SEASONAL' | 'EXPIRED' | 'UNKNOWN';
 
 export type SourceType = 
@@ -138,7 +140,13 @@ export interface DahabPlace {
   arabicNames: string[];
   areaId: string;
   category: string;
-  coordinates: SpatialCoordinates;
+  /**
+   * Null until a position is confirmed — the research import creates dive sites
+   * from text rather than GPS (see server/db/research/importResearch.ts), and
+   * /api/dahab/places publishes them as-is. Consumers that need lat/lng must
+   * check for null; the maps skip unpositioned records.
+   */
+  coordinates: SpatialCoordinates | null;
   operationalStatus: BusinessOperationalStatus;
   descriptionEn: string;
   descriptionAr: string;
@@ -191,6 +199,51 @@ export interface DahabActivity {
   preparationTipsAr: string[];
 }
 
+/**
+ * One row of the Tripadvisor-style "Things to Do" catalogue
+ * (GET /api/dahab/attractions), merged server-side from places, activities and
+ * diving/safari suppliers.
+ *
+ * `rating`/`reviewCount` are only present when a real measurement exists
+ * (supplier records) — nothing else in the corpus has one, and the UI renders
+ * "no ratings yet" rather than inventing stars. `image` is a real photo of the
+ * spot from the editorial gallery pool when a match exists, otherwise the card
+ * renders a gradient.
+ */
+export interface DahabAttraction {
+  id: string;
+  slug: string;
+  kind: 'sight' | 'activity' | 'experience';
+  nameEn: string;
+  nameAr: string;
+  bucket: string;
+  categoryLabelEn: string;
+  categoryLabelAr: string;
+  descriptionEn: string;
+  descriptionAr: string;
+  rating?: number;
+  reviewCount?: number;
+  durationMinutes?: number;
+  difficulty?: string;
+  priceEGP?: number;
+  skuId?: string;
+  bookable: boolean;
+  areaId: string;
+  areaLabelEn?: string;
+  areaLabelAr?: string;
+  coordinates?: { lat: number; lng: number };
+  image?: string;
+  tags: string[];
+  contact?: { whatsapp?: string; phone?: string; website?: string; instagram?: string };
+}
+
+export interface AttractionCategory {
+  id: string;
+  labelEn: string;
+  labelAr: string;
+  count: number;
+}
+
 export interface DahabDiningVenue {
   id: string;
   nameEn: string;
@@ -198,7 +251,7 @@ export interface DahabDiningVenue {
   areaId: string;
   coordinates: SpatialCoordinates;
   cuisine: string[];
-  priceBand: 'Budget ($)' | 'Moderate ($$)' | 'Premium ($$$)';
+  priceBand: DiningPriceBand;
   averageMealPriceEGP: number;
   seatingStyle: string;
   dietaryOptions: {

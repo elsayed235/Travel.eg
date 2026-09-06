@@ -9,7 +9,7 @@ const STATUS_COLORS: Record<string, string> = {
   down: 'text-red-400 bg-red-500/20 border-red-500/30',
   ok: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
   error: 'text-red-400 bg-red-500/20 border-red-500/30',
-  unknown: 'text-white/40 bg-white/5 border-white/10',
+  unknown: 'text-[var(--text-muted)] bg-[var(--btn-util-bg)] border-[var(--border-subtle)]',
 };
 
 export default function SystemHealth() {
@@ -38,7 +38,7 @@ export default function SystemHealth() {
       if (j.status === 'fulfilled') setJobs(j.value);
       if (integ.status === 'fulfilled') setIntegrations((integ.value as any)?.integrations || []);
       if (w.status === 'fulfilled') setWeather(w.value);
-      if (cam.status === 'fulfilled') setCameras((cam.value as any)?.cameras || (cam.value as any)?.feeds || []);
+      if (cam.status === 'fulfilled') setCameras((cam.value as any)?.spots || (cam.value as any)?.cameras || (cam.value as any)?.feeds || []);
     } catch { /* non-critical */ } finally { setLoading(false); }
   }, []);
 
@@ -80,45 +80,49 @@ export default function SystemHealth() {
     },
     {
       name: 'Market Intelligence',
-      status: marketStatus?.autonomousStatus?.circuitBreaker === 'CLOSED' ? 'healthy' : 'unknown',
-      details: marketStatus?.autonomousStatus?.circuitBreaker || 'Unknown state',
+      status: typeof marketStatus?.activeSourcesCount === 'number' ? 'healthy' : 'unknown',
+      details: typeof marketStatus?.activeSourcesCount === 'number'
+        ? `${marketStatus.activeSourcesCount} active sources · ${marketStatus.totalPriceObservations ?? 0} observations`
+        : 'Unknown state',
     },
     {
       name: 'Background Jobs',
-      status: jobs?.status === 'ok' ? 'healthy' : 'unknown',
-      details: jobs?.queue ? `Queue depth: ${jobs.queue.length}` : 'Unknown',
+      status: typeof jobs?.activeJobsCount === 'number' ? 'healthy' : 'unknown',
+      details: typeof jobs?.activeJobsCount === 'number'
+        ? `${jobs.activeJobsCount} active · ${jobs.jobs?.length ?? 0} queued`
+        : 'Unknown',
     },
   ];
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
+        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
           <HeartPulse className="w-4 h-4 text-emerald-400" />
           {t('cmd.health.title')}
         </h3>
         <button type="button" onClick={() => fetchData()}
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 cursor-pointer">
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer">
           <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-white/40">{t('cmd.health.loading')}</div>
+        <div className="py-12 text-center text-sm text-[var(--text-muted)]">{t('cmd.health.loading')}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {services.map((svc, i) => {
             const isOk = svc.status === 'healthy' || svc.status === 'ok';
             return (
-              <div key={i} className={`p-4 rounded-2xl border ${isOk ? 'bg-[#062C35] border-emerald-500/10' : 'bg-[#062C35] border-white/8'}`}>
+              <div key={i} className={`p-4 rounded-2xl border ${isOk ? 'bg-[var(--surface-container)] border-emerald-500/10' : 'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs font-bold text-[#F7F3EA]">{svc.name}</div>
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${STATUS_COLORS[svc.status]}`}>
+                  <div className="text-xs font-bold text-[var(--text-primary)]">{svc.name}</div>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_COLORS[svc.status]}`}>
                     {svc.status.toUpperCase()}
                   </span>
                 </div>
-                <div className="text-[11px] text-white/50">{svc.details}</div>
-                {svc.meta && <div className="text-[10px] text-white/30 font-mono mt-1">{svc.meta}</div>}
+                <div className="text-[11px] text-[var(--text-muted)]">{svc.details}</div>
+                {svc.meta && <div className="text-[11px] text-[var(--text-muted)] font-mono mt-1">{svc.meta}</div>}
               </div>
             );
           })}
@@ -128,17 +132,17 @@ export default function SystemHealth() {
       {/* Integrations */}
       {integrations.length > 0 && activeTab === 'services' && (
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-white/60">Integrations</h4>
+          <h4 className="text-xs font-bold text-[var(--text-muted)]">Integrations</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {integrations.map((integ: any, i: number) => (
-              <div key={i} className="p-3 rounded-xl bg-[#062C35] border border-white/8 flex items-center justify-between">
+              <div key={i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold text-[#F7F3EA]">{integ.name}</div>
-                  <div className="text-[10px] text-white/40">{integ.purpose}</div>
+                  <div className="text-xs font-bold text-[var(--text-primary)]">{integ.name}</div>
+                  <div className="text-[11px] text-[var(--text-muted)]">{integ.purpose}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-white/30 font-mono">{integ.freshness}</span>
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${STATUS_COLORS[integ.status] || STATUS_COLORS.unknown}`}>\n                    {integ.status?.toUpperCase() || 'UNKNOWN'}\n                  </span>
+                  <span className="text-[11px] text-[var(--text-muted)] font-mono">{integ.freshness}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_COLORS[integ.status] || STATUS_COLORS.unknown}`}>\n                    {integ.status?.toUpperCase() || 'UNKNOWN'}\n                  </span>
                 </div>
               </div>
             ))}
@@ -149,21 +153,19 @@ export default function SystemHealth() {
       {/* Weather Telemetry */}
       {weather && (
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-white/60">Weather Telemetry</h4>
-          <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              {weather?.current && (
-                <>
-                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.temperature || weather.temperature || '—'}°C</div><div className="text-[10px] text-white/40">Temperature</div></div>
-                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.humidity || weather.humidity || '—'}%</div><div className="text-[10px] text-white/40">Humidity</div></div>
-                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.windSpeed || weather.wind || '—'} km/h</div><div className="text-[10px] text-white/40">Wind</div></div>
-                  <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.current.condition || weather.description || '—'}</div><div className="text-[10px] text-white/40">Condition</div></div>
-                </>
-              )}
-              {!weather?.current && (
-                <div className="col-span-4 text-xs text-white/40">Weather data: {JSON.stringify(weather).substring(0, 100)}</div>
-              )}
-            </div>
+          <h4 className="text-xs font-bold text-[var(--text-muted)]">{t('cmd.health.weatherTelemetry')}</h4>
+          <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+            {weather.available === false ? (
+              <div className="text-xs text-[var(--text-muted)]">Live conditions unavailable: {weather.reason || 'unknown'}</div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.airTemperatureC ?? '—'}°C</div><div className="text-[11px] text-[var(--text-muted)]">Air</div></div>
+                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.waterTemperatureC ?? '—'}°C</div><div className="text-[11px] text-[var(--text-muted)]">Water</div></div>
+                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.wind?.speedKnots ?? '—'} kn</div><div className="text-[11px] text-[var(--text-muted)]">Wind {weather.wind?.direction || ''}</div></div>
+                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.condition ?? '—'}</div><div className="text-[11px] text-[var(--text-muted)]">Condition</div></div>
+                {weather.observedAt && <div className="col-span-4 text-[11px] text-[var(--text-muted)] font-mono">Observed {new Date(weather.observedAt).toLocaleString()} · {weather.source || 'weather service'}</div>}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -171,12 +173,19 @@ export default function SystemHealth() {
       {/* Camera Feeds */}
       {cameras.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-xs font-bold text-white/60">Camera Feeds ({cameras.length})</h4>
+          <h4 className="text-xs font-bold text-[var(--text-muted)]">Dahab Spots ({cameras.length})</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {cameras.slice(0, 4).map((cam: any, i: number) => (
-              <div key={i} className="p-3 rounded-xl bg-[#062C35] border border-white/8">
-                <div className="text-xs font-bold text-[#F7F3EA]">{cam.name || cam.location || `Feed ${i + 1}`}</div>
-                <div className="text-[10px] text-white/40 mt-0.5">{cam.status || 'Active'} · {cam.area || cam.zone || '—'}</div>
+              <div key={i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                <div className="text-xs font-bold text-[var(--text-primary)]">{cam.name || cam.shortName || `Spot ${i + 1}`}</div>
+                <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{cam.orientation || '—'}</div>
+                {cam.conditions && (
+                  <div className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5">
+                    {cam.conditions.waterTempC != null && `${cam.conditions.waterTempC}°C water`}
+                    {cam.conditions.airTempC != null && ` · ${cam.conditions.airTempC}°C air`}
+                    {cam.conditions.windKnots != null && ` · ${cam.conditions.windKnots} kn`}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -184,7 +193,7 @@ export default function SystemHealth() {
       )}
 
       {/* Timestamp */}
-      <div className="text-center text-[10px] text-white/30">
+      <div className="text-center text-[11px] text-[var(--text-muted)]">
         Last checked: {new Date().toLocaleTimeString()} · Auto-refreshes every 60s
       </div>
     </div>

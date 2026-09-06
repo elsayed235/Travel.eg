@@ -4,6 +4,7 @@ import path from 'path';
 import { db, Database } from '../db/database';
 import { DistributedLockEntity } from '../db/schema';
 import { lockRepository } from '../db/repositories/DistributedLockRepository';
+import { LOCKS_DIR } from '../db/paths';
 
 export interface LockLease {
   lockKey: string;
@@ -47,7 +48,7 @@ export class DistributedLockService {
     // customLocksDir exists so a test can point a throwaway instance at its own
     // directory. Without it the only lock directory is the real data/locks, and
     // a test of the sweep would be deleting files belonging to a running server.
-    this.locksDir = customLocksDir || path.join(process.cwd(), 'data', 'locks');
+    this.locksDir = customLocksDir || LOCKS_DIR();
     try {
       if (!fs.existsSync(this.locksDir)) {
         fs.mkdirSync(this.locksDir, { recursive: true });

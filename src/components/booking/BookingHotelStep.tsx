@@ -92,24 +92,24 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
     <div
       id="booking-hotel-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16"
     >
       {/* 1. Global Navigation & Booking Progress Header */}
-      <header className="border-b border-white/10 bg-[#081714]/95 backdrop-blur-md sticky top-0 z-30 shadow-md">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/95 backdrop-blur-md sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Brand & Context Label */}
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onReturnHome}
-              className="text-xl font-black tracking-widest text-[#F7F3EA] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity cursor-pointer"
+              className="text-xl font-black tracking-widest text-[var(--text-primary)] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity cursor-pointer"
             >
               DAHAB
             </button>
-            <span className="text-white/20">/</span>
+            <span className="text-[var(--text-muted)]">/</span>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#20A89A] inline-block shadow-[0_0_8px_#20A89A]" />
-              <span className="text-xs font-bold uppercase tracking-wider text-[#52C4B7]">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] inline-block shadow-[0_0_8px_var(--accent-primary)]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)]">
                 {isAr ? 'حجز رحلتك' : 'Booking your trip'}
               </span>
             </div>
@@ -118,33 +118,33 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
           {/* Progress Indicator: 01 Hotel → 02 Transfer → 03 Diving → 04 Safari */}
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 text-xs">
             {/* Step 01: Hotel (ACTIVE) */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#20A89A] text-[#081714] font-bold whitespace-nowrap shadow-xs">
-              <span className="w-4 h-4 rounded-full bg-[#081714]/20 text-[11px] flex items-center justify-center font-bold">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-bold whitespace-nowrap shadow-xs">
+              <span className="w-4 h-4 rounded-full bg-[var(--surface-card)]/20 text-[11px] flex items-center justify-center font-bold">
                 1
               </span>
               <span>{isAr ? 'الفندق' : 'Hotel'}</span>
             </div>
 
-            <span className={`text-white/30 font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
+            <span className={`text-[var(--text-muted)] font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
 
             {/* Step 02: Transfer */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/40 font-medium whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[var(--text-muted)] font-medium whitespace-nowrap">
               <span className="text-[12px] font-bold">02</span>
               <span>{isAr ? 'الانتقالات' : 'Transfer'}</span>
             </div>
 
-            <span className={`text-white/20 font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
+            <span className={`text-[var(--text-muted)] font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
 
             {/* Step 03: Diving */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/40 font-medium whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[var(--text-muted)] font-medium whitespace-nowrap">
               <span className="text-[12px] font-bold">03</span>
               <span>{isAr ? 'الغطس' : 'Diving'}</span>
             </div>
 
-            <span className={`text-white/20 font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
+            <span className={`text-[var(--text-muted)] font-bold ${isRTL ? 'rotate-180' : ''}`}>→</span>
 
             {/* Step 04: Safari */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-white/40 font-medium whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[var(--text-muted)] font-medium whitespace-nowrap">
               <span className="text-[12px] font-bold">04</span>
               <span>{isAr ? 'السفاري' : 'Safari'}</span>
             </div>
@@ -160,13 +160,13 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
             type="button"
             id="back-to-itinerary-link"
             onClick={onReturnToItinerary}
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#D2E3DE]/70 hover:text-white transition-colors py-1 cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)]/70 hover:text-[var(--text-primary)] transition-colors py-1 cursor-pointer"
           >
             <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             <span>{isAr ? 'العودة لبرنامج الرحلة المعتمد' : 'Back to approved itinerary'}</span>
           </button>
 
-          <span className="text-xs text-[#D2E3DE]/50 hidden sm:inline">
+          <span className="text-xs text-[var(--text-secondary)]/50 hidden sm:inline">
             {isAr ? 'الخطوة ١ من ٤ · اختيار الإقامة' : 'Step 1 of 4 · Accommodation'}
           </span>
         </div>
@@ -176,24 +176,24 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#52C4B7] bg-[#13312B] border border-white/10 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                   {isAr ? 'اختيار مقر الإقامة' : 'Accommodation Selection'}
                 </span>
-                <span className="text-xs font-semibold text-[#D2E3DE]/80 bg-[#0E2520] border border-white/10 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-[var(--text-secondary)]/80 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                   {isAr ? '٥ أيام · فردين · ميزانية متوازنة' : '5 days · 2 adults · Moderate budget'}
                 </span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[#F7F3EA] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
                 {isAr ? 'اختر مكان إقامتك في دهب' : 'Choose your stay in Dahab'}
               </h1>
-              <p className="text-sm sm:text-base text-[#D2E3DE]/70 mt-1.5 max-w-2xl font-normal">
+              <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">
                 {isAr ? 'اخترنا لك أفضل أماكن الإقامة التي تناسب جدول رحلتك وميزانيتك وقربك من الشاطئ.' : 'We found stays that fit your trip, budget, and location.'}
               </p>
             </div>
 
             {/* Simple Sort Control */}
-            <div className="flex items-center gap-2 self-start md:self-auto bg-[#0E2520] p-1.5 rounded-2xl border border-white/10 shadow-xs">
-              <span className="text-xs font-semibold text-[#D2E3DE]/60 px-2">
+            <div className="flex items-center gap-2 self-start md:self-auto bg-[var(--surface-card)] p-1.5 rounded-2xl border border-[var(--border-subtle)] shadow-xs">
+              <span className="text-xs font-semibold text-[var(--text-secondary)]/60 px-2">
                 {isAr ? 'ترتيب حسب:' : 'Sort by:'}
               </span>
               <button
@@ -201,8 +201,8 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
                 onClick={() => setSortBy('recommended')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                   sortBy === 'recommended'
-                    ? 'bg-[#20A89A] text-[#081714] font-bold shadow-xs'
-                    : 'text-[#D2E3DE]/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-bold shadow-xs'
+                    : 'text-[var(--text-secondary)]/70 hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-hover)]'
                 }`}
               >
                 {isAr ? 'الموصى به' : 'Recommended'}
@@ -212,8 +212,8 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
                 onClick={() => setSortBy('price')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                   sortBy === 'price'
-                    ? 'bg-[#20A89A] text-[#081714] font-bold shadow-xs'
-                    : 'text-[#D2E3DE]/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-bold shadow-xs'
+                    : 'text-[var(--text-secondary)]/70 hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-hover)]'
                 }`}
               >
                 {isAr ? 'السعر' : 'Price'}
@@ -230,14 +230,14 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
           {/* Main Stays Options Area (8 Columns on desktop) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Curated Stays Count & Framing Banner */}
-            <div className="p-4 rounded-2xl bg-[#0E2520] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+            <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#20A89A]" />
-                <span className="font-bold text-[#F7F3EA]">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
+                <span className="font-bold text-[var(--text-primary)]">
                   {isAr ? '٣ فنادق مختارة بعناية تتوافق مع خطة رحلتك المعتمدة' : '3 curated hotel options matching your approved itinerary'}
                 </span>
               </div>
-              <span className="text-[#D2E3DE]/60 font-normal">
+              <span className="text-[var(--text-secondary)]/60 font-normal">
                 {isAr ? 'جميع الأسعار لـ ٥ ليالي لفردين شاملة الضرائب' : 'All prices include 5 nights for 2 adults'}
               </span>
             </div>
@@ -256,12 +256,12 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
             </div>
 
             {/* Context Note on Dahab Hospitality */}
-            <div className="p-6 rounded-3xl bg-[#0E2520] border border-white/10 text-xs sm:text-sm text-[#D2E3DE]/90 space-y-2">
-              <h4 className="font-bold text-[#F7F3EA] flex items-center gap-2 text-sm">
-                <ShieldCheck className="w-4 h-4 text-[#52C4B7]" />
+            <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs sm:text-sm text-[var(--text-secondary)]/90 space-y-2">
+              <h4 className="font-bold text-[var(--text-primary)] flex items-center gap-2 text-sm">
+                <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'لماذا ٣ خيارات فندقية فقط؟' : 'Why only 3 curated stays?'}</span>
               </h4>
-              <p className="leading-relaxed font-normal text-xs text-[#D2E3DE]/70">
+              <p className="leading-relaxed font-normal text-xs text-[var(--text-secondary)]/70">
                 {isAr ? 'بدلاً من تشتيتك بمئات العروض، قمنا بفرز وترشيح الفنادق الأنسب لجدول رحلتك وموقع الغطس باللايتهاوس والغرف المريحة لفردين.' : 'Instead of overwhelming you with endless listings, our Dahab platform specifically filtered accommodations matching your 5-day schedule, proximity to Lighthouse dive sites, and friend-friendly double/twin configurations.'}
               </p>
             </div>
@@ -283,17 +283,17 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
       {/* 3. Mobile Sticky Bottom Action / Summary Bar */}
       <div
         id="mobile-hotel-bottom-bar"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0E2520]/95 backdrop-blur-md border-t border-white/10 p-3.5 sm:p-4 shadow-lg"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] p-3.5 sm:p-4 shadow-lg"
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#52C4B7] block truncate">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] block truncate">
               {selectedHotel ? (isAr ? 'تم اختيار الفندق ✓' : 'Hotel selected ✓') : (isAr ? 'لم يتم الاختيار' : 'No hotel selected')}
             </span>
-            <div className="text-sm font-bold text-[#F7F3EA] truncate">
+            <div className="text-sm font-bold text-[var(--text-primary)] truncate">
               {selectedHotel ? (isAr && selectedHotel.nameAr ? selectedHotel.nameAr : selectedHotel.name) : (isAr ? 'اختر فندقك من الأعلى' : 'Select a stay above')}
             </div>
-            <div className="text-xs font-semibold text-[#D2E3DE]/70">
+            <div className="text-xs font-semibold text-[var(--text-secondary)]/70">
               {selectedHotel ? `${selectedHotel.priceTotalEGP.toLocaleString()} ${isAr ? 'جنيه إجمالي' : 'EGP total'}` : (isAr ? '٥ ليالي' : '5 nights')}
             </div>
           </div>
@@ -305,8 +305,8 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
             onClick={handleContinue}
             className={`inline-flex items-center justify-center gap-1.5 px-6 py-3.5 rounded-full text-xs font-bold shadow-md transition-all whitespace-nowrap ${
               selectedHotel
-                ? 'bg-[#20A89A] hover:bg-[#1a8c80] text-[#081714] font-bold cursor-pointer active:scale-95'
-                : 'bg-white/10 text-white/40 cursor-not-allowed'
+                ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold cursor-pointer active:scale-95'
+                : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'
             }`}
           >
             <span>{isAr ? 'متابعة' : 'Continue'}</span>
@@ -335,29 +335,29 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
             if (e.target === e.currentTarget) setShowNextStepNotice(false);
           }}
         >
-          <div className="bg-[#0E2520] text-[#F7F3EA] w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/15 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/40 flex items-center justify-center mx-auto">
+          <div className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-[var(--border-subtle)] text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#52C4B7] bg-[#13312B] border border-white/10 px-2.5 py-1 rounded-full">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                 {isAr ? 'تم حفظ اختيار الفندق' : 'Stay Selected & Saved'}
               </span>
-              <h3 id="next-step-notice-modal-title" className="text-xl font-serif font-bold text-[#F7F3EA] pt-1">
+              <h3 id="next-step-notice-modal-title" className="text-xl font-serif font-bold text-[var(--text-primary)] pt-1">
                 {isAr && selectedHotel.nameAr ? selectedHotel.nameAr : selectedHotel.name}
               </h3>
-              <p className="text-xs text-[#D2E3DE]/70">
+              <p className="text-xs text-[var(--text-secondary)]/70">
                 {isAr && selectedHotel.roomTypeAr ? selectedHotel.roomTypeAr : selectedHotel.roomType} · {isAr ? '٥ ليالي' : '5 nights'} ({selectedHotel.priceTotalEGP.toLocaleString()} {isAr ? 'جنيه' : 'EGP'})
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 text-start text-xs space-y-2">
-              <div className="font-bold text-[#F7F3EA] flex items-center gap-1.5">
-                <Car className="w-4 h-4 text-[#52C4B7]" />
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-start text-xs space-y-2">
+              <div className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                <Car className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'الخطوة التالية: ٠٢ توصيل المطار الخاص' : 'Next: 02 Private Airport Transfer'}</span>
               </div>
-              <p className="text-[#D2E3DE]/70 leading-relaxed text-[12px]">
+              <p className="text-[var(--text-secondary)]/70 leading-relaxed text-[12px]">
                 {isAr ? 'تم حفظ فندقك ضمن خطة رحلتك لدهب. في الخطوة التالية سنقوم بضبط وتأكيد سيارة الاستقبال والتوصيل من مطار شرم الشيخ (SSH).' : 'Your hotel selection is saved as part of your 5-day Dahab trip. In the next step, we will configure your Sharm El Sheikh (SSH) airport pickup & return transfer.'}
               </p>
             </div>
@@ -366,7 +366,7 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
               <button
                 type="button"
                 onClick={() => setShowNextStepNotice(false)}
-                className="w-full py-3 rounded-full text-xs font-bold text-[#D2E3DE] hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+                className="w-full py-3 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-hover)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
                 {isAr ? 'تغيير الفندق' : 'Change stay'}
               </button>
@@ -379,7 +379,7 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
                     onContinueToTransfer(selectedHotelId);
                   }
                 }}
-                className="w-full py-3 rounded-full text-xs font-bold text-[#081714] bg-[#20A89A] hover:bg-[#1a8c80] shadow-md transition-all cursor-pointer"
+                className="w-full py-3 rounded-full text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] shadow-md transition-all cursor-pointer"
               >
                 {isAr ? 'فهمت، تابع' : 'Got it'}
               </button>

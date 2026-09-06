@@ -11,8 +11,9 @@ import {
 } from '../../src/types/daygiBeta';
 import { db } from '../db/database';
 import { daygiReasoningService } from './daygiReasoningService';
+import { DATA_DIR } from '../db/paths';
 
-const TELEMETRY_DIR = path.join(process.cwd(), 'data');
+const TELEMETRY_DIR = DATA_DIR;
 const TELEMETRY_FILE = path.join(TELEMETRY_DIR, 'daygi_beta_telemetry.json');
 
 interface TelemetryState {

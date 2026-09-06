@@ -4,6 +4,16 @@
 **Author:** Senior Full-Stack Software Architect & System Auditor  
 **Environment:** Cloud Run Container Sandbox (Port 3000) | React 19 + TypeScript + Node.js/Express + Firebase + Google Gemini  
 
+> ## ⚠️ ARCHITECTURE NOTE — READ FIRST (2026-09-02)
+>
+> This is a historical reverse-engineering dossier. Where it describes this system
+> it is largely accurate, but its **persistence claims are stale**: the current
+> deployment does **not** use Firestore as a production store. Persistence is
+> adapter-based with **SQLite** default (`PERSISTENCE_ADAPTER=sqlite`,
+> `data/dahab.sqlite`); the Postgres adapter's `save()` is an empty stub; session
+> identity comes from an HttpOnly cookie, not client Firestore. Per `AGENTS.md`
+> the executable source is authoritative over this doc.
+
 ---
 
 ## 1. Executive Summary

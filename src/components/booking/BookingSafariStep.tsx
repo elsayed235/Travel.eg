@@ -79,20 +79,20 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[#081714] text-[#F7F3EA] font-['Plus_Jakarta_Sans',sans-serif] pb-24 lg:pb-16">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] pb-24 lg:pb-16">
       {/* 1. TOP DAHAB BRANDING & PROGRESS BAR */}
-      <header className="bg-[#0E2520] border-b border-white/10 sticky top-0 z-30 shadow-xs">
+      <header className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Logo & Subtitle */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#20A89A] text-[#081714] flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] flex items-center justify-center font-bold text-sm">
               {isAr ? 'د' : 'D'}
             </div>
             <div>
-              <span className="text-xs font-black tracking-widest uppercase text-[#52C4B7] block">
+              <span className="text-xs font-black tracking-widest uppercase text-[var(--accent-primary)] block">
                 {isAr ? 'دهب' : 'DAHAB'}
               </span>
-              <h1 className="text-sm font-bold text-[#F7F3EA]">
+              <h1 className="text-sm font-bold text-[var(--text-primary)]">
                 {isAr ? 'تأكيد وحجز خدمات رحلتك' : 'Booking your trip'}
               </h1>
             </div>
@@ -101,38 +101,38 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
           {/* Progress Indicator: 01 Hotel ✓, 02 Transfer ✓, 03 Diving ✓, 04 Safari (Active) */}
           <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto py-1 text-xs">
             {/* Step 01 */}
-            <div className="flex items-center gap-1.5 text-[#52C4B7] font-bold bg-[#13312B] px-2.5 py-1 rounded-full border border-[#20A89A]/30 flex-shrink-0">
-              <span className="w-4 h-4 rounded-full bg-[#20A89A] text-[#081714] flex items-center justify-center text-[11px]">
+            <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold bg-[var(--surface-container)] px-2.5 py-1 rounded-full border border-[var(--accent-primary)]/30 flex-shrink-0">
+              <span className="w-4 h-4 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] flex items-center justify-center text-[11px]">
                 ✓
               </span>
               <span>{isAr ? '٠١ الفندق' : '01 Hotel'}</span>
             </div>
 
-            <div className="w-3 h-px bg-[#20A89A]/40 flex-shrink-0" />
+            <div className="w-3 h-px bg-[var(--accent-primary)]/40 flex-shrink-0" />
 
             {/* Step 02 */}
-            <div className="flex items-center gap-1.5 text-[#52C4B7] font-bold bg-[#13312B] px-2.5 py-1 rounded-full border border-[#20A89A]/30 flex-shrink-0">
-              <span className="w-4 h-4 rounded-full bg-[#20A89A] text-[#081714] flex items-center justify-center text-[11px]">
+            <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold bg-[var(--surface-container)] px-2.5 py-1 rounded-full border border-[var(--accent-primary)]/30 flex-shrink-0">
+              <span className="w-4 h-4 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] flex items-center justify-center text-[11px]">
                 ✓
               </span>
               <span>{isAr ? '٠٢ الانتقالات' : '02 Transfer'}</span>
             </div>
 
-            <div className="w-3 h-px bg-[#20A89A]/40 flex-shrink-0" />
+            <div className="w-3 h-px bg-[var(--accent-primary)]/40 flex-shrink-0" />
 
             {/* Step 03 */}
-            <div className="flex items-center gap-1.5 text-[#52C4B7] font-bold bg-[#13312B] px-2.5 py-1 rounded-full border border-[#20A89A]/30 flex-shrink-0">
-              <span className="w-4 h-4 rounded-full bg-[#20A89A] text-[#081714] flex items-center justify-center text-[11px]">
+            <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold bg-[var(--surface-container)] px-2.5 py-1 rounded-full border border-[var(--accent-primary)]/30 flex-shrink-0">
+              <span className="w-4 h-4 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] flex items-center justify-center text-[11px]">
                 ✓
               </span>
               <span>{isAr ? '٠٣ الغطس' : '03 Diving'}</span>
             </div>
 
-            <div className="w-3 h-px bg-[#20A89A] flex-shrink-0" />
+            <div className="w-3 h-px bg-[var(--accent-primary)] flex-shrink-0" />
 
             {/* Step 04 (Active) */}
-            <div className="flex items-center gap-1.5 text-[#081714] font-bold bg-[#20A89A] px-3 py-1 rounded-full border border-[#20A89A] flex-shrink-0 shadow-xs">
-              <span className="w-4 h-4 rounded-full bg-[#081714] text-[#20A89A] flex items-center justify-center text-[11px]">
+            <div className="flex items-center gap-1.5 text-[var(--accent-primary-ink)] font-bold bg-[var(--accent-primary)] px-3 py-1 rounded-full border border-[var(--accent-primary)] flex-shrink-0 shadow-xs">
+              <span className="w-4 h-4 rounded-full bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center text-[11px]">
                 {isAr ? '٤' : '4'}
               </span>
               <span>{isAr ? '٠٤ السفاري' : '04 Safari'}</span>
@@ -149,7 +149,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
             type="button"
             id="top-back-to-diving-btn"
             onClick={onBackToDiving}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D2E3DE] hover:text-white transition-colors cursor-pointer bg-[#0E2520] px-3.5 py-1.5 rounded-full border border-white/10 shadow-xs"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer bg-[var(--surface-card)] px-3.5 py-1.5 rounded-full border border-[var(--border-subtle)] shadow-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
             <span>{isAr ? 'العودة لاختيار باقة الغطس' : 'Back to Diving Selection'}</span>
@@ -158,15 +158,15 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
 
         {/* Hero Section */}
         <div className="mb-8 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F4C36C]/20 text-[#F4C36C] text-xs font-bold border border-[#F4C36C]/40 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#F4C36C]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] text-xs font-bold border border-[var(--accent-secondary)]/40 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
             <span>{isAr ? 'موصى به لرحلتك المنسقة' : 'Recommended for your trip'}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#F7F3EA] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
             {isAr ? 'أضف مغامرة صحراوية ساحرة لرحلتك في دهب.' : 'Add an adventure to your Dahab trip.'}
           </h2>
-          <p className="text-sm sm:text-base text-[#D2E3DE]/70 max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 max-w-3xl leading-relaxed">
             {isAr
               ? 'اخترنا باقات سفاري تناسب أسلوب سفرك وتوقيتات رحلتك. اكتشف سحر أودية جنوب سيناء والوديان الصخرية وتأمل أروع مشاهد الغروب الذهبي.'
               : 'We found safari options that fit your travel style and schedule. Discover the majestic South Sinai desert valleys, sandstone canyons, and golden sunset viewpoints.'}
@@ -180,10 +180,10 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
             {/* Safari Options Grid */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
+                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                   {isAr ? 'تجارب السفاري المنتقاة' : 'Curated Safari Experiences'}
                 </h3>
-                <span className="text-xs text-[#D2E3DE]/60 font-medium">
+                <span className="text-xs text-[var(--text-secondary)]/60 font-medium">
                   {isAr ? '٣ مغامرات محلية معتمدة' : '3 verified local adventures'}
                 </span>
               </div>
@@ -227,15 +227,15 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
       </main>
 
       {/* 3. MOBILE FIXED BOTTOM ACTION BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0E2520]/95 backdrop-blur-md border-t border-white/10 p-4 shadow-lg flex items-center justify-between gap-4">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] p-4 shadow-lg flex items-center justify-between gap-4">
         <div>
-          <div className="text-[12px] font-bold text-[#52C4B7] uppercase tracking-wider">
+          <div className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider">
             {isAr ? 'تم اختيار ٤/٤ خدمات' : '4/4 Services Selected'}
           </div>
-          <div className="text-base font-black text-[#F7F3EA]">
+          <div className="text-base font-black text-[var(--text-primary)]">
             {currentSafariTitle}
           </div>
-          <div className="text-[12px] text-[#D2E3DE]/60 font-medium">
+          <div className="text-[12px] text-[var(--text-secondary)]/60 font-medium">
             {isAr
               ? `اليوم ${selectedSafariDay} · ${selectedSafariTime} · تقديري ${(currentSelectedSafari.pricePerPersonEGP * 2).toLocaleString()} ج.م`
               : `Day ${selectedSafariDay} · ${selectedSafariTime} · Est. EGP ${(currentSelectedSafari.pricePerPersonEGP * 2).toLocaleString()}`}
@@ -246,7 +246,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
           type="button"
           id="mobile-review-trip-btn"
           onClick={handleReviewClick}
-          className="px-6 py-3 rounded-full bg-[#20A89A] hover:bg-[#1a8c80] text-[#081714] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+          className="px-6 py-3 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0"
         >
           <span>{isAr ? 'مراجعة الرحلة' : 'Review Trip'}</span>
           <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -275,58 +275,58 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
             if (e.target === e.currentTarget) setShowReviewPromptModal(false);
           }}
         >
-          <div className="bg-[#0E2520] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-white/15 space-y-6 text-[#F7F3EA]">
+          <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-[var(--border-subtle)] space-y-6 text-[var(--text-primary)]">
             {/* Header */}
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/30 flex items-center justify-center mx-auto shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center mx-auto shadow-xs">
                 <Check className="w-6 h-6 stroke-[2.5]" />
               </div>
-              <h3 id="review-trip-preview-modal-title" className="text-2xl font-serif font-bold text-[#F7F3EA]">
+              <h3 id="review-trip-preview-modal-title" className="text-2xl font-serif font-bold text-[var(--text-primary)]">
                 {isAr ? 'خدمات رحلتك جاهزة للمراجعة' : 'Your trip services are ready'}
               </h3>
-              <p className="text-xs sm:text-sm text-[#D2E3DE]/70">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70">
                 {isAr ? 'تم تنسيق الفندق، الانتقالات، الغطس، والسفاري بنجاح.' : 'Hotel, transfer, diving, and safari are ready to review.'}
               </p>
             </div>
 
             {/* Summary List */}
-            <div className="space-y-2.5 p-4 rounded-2xl bg-[#13312B] border border-white/10 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-white/10">
-                <span className="font-bold flex items-center gap-1.5 text-[#52C4B7]">
+            <div className="space-y-2.5 p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs">
+              <div className="flex items-center justify-between py-1 border-b border-[var(--border-subtle)]">
+                <span className="font-bold flex items-center gap-1.5 text-[var(--accent-primary)]">
                   <Building className="w-3.5 h-3.5" />
                   <span>{isAr ? '٠١ الفندق' : '01 Hotel'}</span>
                 </span>
-                <span className="font-semibold text-[#F7F3EA]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {hotelDisplayName}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between py-1 border-b border-white/10">
-                <span className="font-bold flex items-center gap-1.5 text-[#52C4B7]">
+              <div className="flex items-center justify-between py-1 border-b border-[var(--border-subtle)]">
+                <span className="font-bold flex items-center gap-1.5 text-[var(--accent-primary)]">
                   <Car className="w-3.5 h-3.5" />
                   <span>{isAr ? '٠٢ الانتقالات' : '02 Transfer'}</span>
                 </span>
-                <span className="font-semibold text-[#F7F3EA]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {transferDisplayName}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between py-1 border-b border-white/10">
-                <span className="font-bold flex items-center gap-1.5 text-[#52C4B7]">
+              <div className="flex items-center justify-between py-1 border-b border-[var(--border-subtle)]">
+                <span className="font-bold flex items-center gap-1.5 text-[var(--accent-primary)]">
                   <Waves className="w-3.5 h-3.5" />
                   <span>{isAr ? '٠٣ الغطس' : '03 Diving'}</span>
                 </span>
-                <span className="font-semibold text-[#F7F3EA]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {divingDisplayName} ({isAr ? 'اليوم ٢' : 'Day 2'})
                 </span>
               </div>
 
               <div className="flex items-center justify-between py-1">
-                <span className="font-bold flex items-center gap-1.5 text-[#52C4B7]">
-                  <Compass className="w-3.5 h-3.5 text-[#20A89A]" />
+                <span className="font-bold flex items-center gap-1.5 text-[var(--accent-primary)]">
+                  <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                   <span>{isAr ? '٠٤ السفاري' : '04 Safari'}</span>
                 </span>
-                <span className="font-semibold text-[#F7F3EA]">
+                <span className="font-semibold text-[var(--text-primary)]">
                   {currentSafariTitle} ({isAr ? `اليوم ${selectedSafariDay}` : `Day ${selectedSafariDay}`})
                 </span>
               </div>
@@ -338,7 +338,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
                 type="button"
                 id="modal-close-confirm-btn"
                 onClick={() => setShowReviewPromptModal(false)}
-                className="w-full py-3.5 rounded-full bg-[#20A89A] hover:bg-[#1a8c80] text-[#081714] font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
+                className="w-full py-3.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
               >
                 {isAr ? 'تم تحديد كافة الخدمات الـ ٤ بنجاح ✓' : 'All 4 Services Configured ✓'}
               </button>

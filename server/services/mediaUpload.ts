@@ -11,6 +11,14 @@
  * The authoritative MIME is the byte-sniffed one. The extension we persist is
  * derived from THAT, never from whatever the client declared.
  */
+
+const ALLOWED_IMAGE_MIME_TYPE_SET: ReadonlySet<string> = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+
 export const ALLOWED_IMAGE_MIME_TYPES = [
   'image/jpeg',
   'image/png',
@@ -20,7 +28,6 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
 
 export type UploadImageMime = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
-/** Map an authenticated MIME to the extension we persist. */
 export const EXTENSION_BY_MIME: Record<UploadImageMime, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',

@@ -57,6 +57,7 @@ export type AppRoute =
   | '/quick-book'
   | '/book-now'
   | '/food'
+  | '/transfers'
   | '/help'
   | '/change-recovery'
   | '/departure'
@@ -73,7 +74,15 @@ export type AppRoute =
   | '/auth/verify'
   | '/auth/callback'
   | '/programs'
-  | '/experiences';
+  | '/experiences'
+  | '/about'
+  | '/faq'
+  | '/travel-guides'
+  | '/listings'
+  | '/restaurants'
+  | '/hotels'
+  | '/rentals'
+  | '/attractions';
 
 export type DayGiIntentType =
   | 'DISCOVER_ACTIVITY'

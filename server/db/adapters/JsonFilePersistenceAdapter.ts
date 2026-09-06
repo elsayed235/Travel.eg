@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { IPersistenceAdapter } from './IPersistenceAdapter';
 import { DatabaseState } from '../database';
+import { DATA_DIR } from '../paths';
 
 export class JsonFilePersistenceAdapter implements IPersistenceAdapter {
   private dbDir: string;
@@ -12,7 +13,7 @@ export class JsonFilePersistenceAdapter implements IPersistenceAdapter {
   private transactionDepth = 0;
 
   constructor(customDbDir?: string, initialState?: DatabaseState) {
-    this.dbDir = customDbDir || path.join(process.cwd(), 'data');
+    this.dbDir = customDbDir || DATA_DIR;
     this.dbFile = path.join(this.dbDir, 'dahab_db.json');
     this.ensureDirectoryExists();
     this.state = initialState ? JSON.parse(JSON.stringify(initialState)) : this.loadFromDisk();
@@ -67,6 +68,9 @@ export class JsonFilePersistenceAdapter implements IPersistenceAdapter {
       tripItems: [],
       suppliers: [],
       productSkus: [],
+      hotels: [],
+      accommodations: [],
+      propertySources: [],
       inventorySlots: [],
       holds: [],
       payments: [],

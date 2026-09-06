@@ -170,6 +170,10 @@ export async function registerTravelerWithEmail(
   }
 }
 
+// Re-export the pure error humanizer so existing lazy callers that reach for
+// `(await loadFirebase()).humanizeAuthError` keep working without a rewrite.
+export { humanizeAuthError } from './authErrorMessages';
+
 export async function sendPasswordReset(email: string): Promise<void> {
   try {
     const cleanEmail = sanitizeEmail(email);
@@ -180,42 +184,7 @@ export async function sendPasswordReset(email: string): Promise<void> {
   }
 }
 
-export function humanizeAuthError(error: any, lang: 'en' | 'ar' = 'en'): string {
-  const code = error?.code || error?.message || '';
-  if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) {
-    return lang === 'ar'
-      ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.'
-      : "That email or password doesn't look right. Please check and try again.";
-  }
-  if (code.includes('email-already-in-use')) {
-    return lang === 'ar'
-      ? 'هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول مباشرة.'
-      : 'An account already exists with this email address. Try signing in.';
-  }
-  if (code.includes('weak-password')) {
-    return lang === 'ar'
-      ? 'كلمة المرور يجب أن تكون ٦ أحرف على الأقل.'
-      : 'Password should be at least 6 characters.';
-  }
-  if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
-    return lang === 'ar'
-      ? 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.'
-      : 'Sign-in window was closed. Please try again when ready.';
-  }
-  if (code.includes('network-request-failed')) {
-    return lang === 'ar'
-      ? 'تعذر الاتصال بالشبكة. يرجى التحقق من اتصالك بالإنترنت.'
-      : 'Network connection issue. Please check your internet and try again.';
-  }
-  if (code.includes('too-many-requests')) {
-    return lang === 'ar'
-      ? 'محاولات كثيرة مؤخراً. يرجى الانتظار دقيقة والمحاولة مجدداً.'
-      : 'Too many attempts. Please wait a minute before trying again.';
-  }
-  return lang === 'ar'
-    ? 'تعذر إتمام العملية حالياً. يرجى إعادة المحاولة.'
-    : 'Sign-in is temporarily unavailable. Please try again.';
-}
+
 
 export async function signOutTraveler(): Promise<void> {
   try {

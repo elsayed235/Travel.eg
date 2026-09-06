@@ -4,6 +4,7 @@ import { IPersistenceAdapter } from './adapters/IPersistenceAdapter';
 import { JsonFilePersistenceAdapter } from './adapters/JsonFilePersistenceAdapter';
 import { PostgresPersistenceAdapter } from './adapters/PostgresPersistenceAdapter';
 import { SqlitePersistenceAdapter } from './sqlite/SqlitePersistenceAdapter';
+import { SQLITE_FILE, JSON_STORE_FILE } from './paths';
 
 export type AdapterName = 'sqlite' | 'json' | 'postgres';
 
@@ -34,9 +35,8 @@ export function selectAdapter(env: NodeJS.ProcessEnv = process.env): IPersistenc
     );
   }
 
-  const dataDir = path.join(process.cwd(), 'data');
-  const sqliteFile = path.join(dataDir, 'dahab.sqlite');
-  const jsonFile = path.join(dataDir, 'dahab_db.json');
+  const sqliteFile = SQLITE_FILE();
+  const jsonFile = JSON_STORE_FILE();
 
   // The one genuinely dangerous case: a populated JSON store sits next to a
   // database that has never been created. Starting SQLite here would come up

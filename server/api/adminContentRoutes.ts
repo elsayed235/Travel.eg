@@ -5,7 +5,12 @@ import { AuthenticatedRequest } from '../middleware/correlationMiddleware';
 import {
   cmsPages, cmsBlocks, cmsMedia, cmsHomepage, cmsNavigation, cmsSeo, cmsRevisions
 } from '../services/contentService';
-import { validateImageUpload, filenameFrom } from '../services/mediaUpload';
+import {
+  validateImageUpload,
+  filenameFrom,
+  MediaUploadError,
+  ALLOWED_IMAGE_MIME_TYPES,
+} from '../services/mediaUpload';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -255,7 +260,7 @@ adminContentRouter.post('/media/upload', (req: AuthenticatedRequest, res: Respon
 
     res.status(201).json({ status: 'success', asset, correlationId: req.correlationId });
   } catch (err: any) {
-    const status = err && err.statusCode ? err.statusCode : 500;
+    const status = err && (err.statusCode || (err instanceof MediaUploadError ? 400 : 500));
     res.status(status).json({ status: 'error', message: err.message, correlationId: req.correlationId });
   }
 });

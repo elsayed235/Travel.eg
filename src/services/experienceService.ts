@@ -1,5 +1,5 @@
 import { NEAR_ME_DATA } from '../components/explore/ExploreView';
-import type { DahabActivity, DahabPlace, DahabDiningVenue, ResolvedBookability } from '../shared';
+import type { DahabActivity, DahabPlace, DahabDiningVenue, ResolvedBookability } from '../shared/types/knowledge';
 
 export interface ExperienceDetailData {
   id: string;

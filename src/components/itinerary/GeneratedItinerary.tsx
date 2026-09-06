@@ -425,7 +425,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
     );
   };
 
-  const travelersSummary = `${adultsCount} ${language === 'ar' ? 'أفراد' : (adultsCount > 1 ? 'Adults' : 'Adult')}${
+  const travelersSummary = `${adultsCount} ${adultsCount > 1 ? t('itinerary.adultPlural') : t('itinerary.adultSingle')}${
     tripDynamic ? ` · ${tripDynamic}` : ''
   }`;
 
@@ -433,21 +433,21 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
     <div
       id="generated-itinerary-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-24 sm:pb-16"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-24 sm:pb-16"
     >
       {/* 1. Top Global Navigation Header */}
-      <header className="border-b border-white/10 bg-[#081714]/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onReturnHome}
-              className="text-xl font-black tracking-widest text-[#F7F3EA] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity"
+              className="text-xl font-black tracking-widest text-[var(--text-primary)] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity"
             >
               DAHAB
             </button>
-            <span className="text-white/20">/</span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#F4C36C] hidden sm:inline">
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)] hidden sm:inline">
               {t('itinerary.badge.personalized', 'Personalized Trip')}
             </span>
           </div>
@@ -472,7 +472,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               type="button"
               id="header-edit-preferences-btn"
               onClick={onEditPreferences}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D2E3DE] hover:text-white px-3.5 py-2 rounded-full hover:bg-white/5 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3.5 py-2 rounded-full hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer"
             >
               <span>{t('itinerary.btn.editPreferences', 'Edit preferences')}</span>
             </button>
@@ -482,7 +482,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 type="button"
                 id="header-approve-trip-btn"
                 onClick={handleApproveTrip}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#F4C36C] hover:bg-amber-300 text-[#081714] text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
               >
                 <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
                 <Check className="w-3.5 h-3.5" />
@@ -501,21 +501,21 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Top Confirmation Message */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F4C36C]/10 text-[#F4C36C] border border-[#F4C36C]/20 text-xs font-bold uppercase tracking-widest mb-3.5">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/20 text-xs font-bold uppercase tracking-widest mb-3.5">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t('itinerary.badge.curatedForYou', 'Curated For Ahmed')}</span>
           </div>
 
           <h1
             id="itinerary-main-title"
-            className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#F7F3EA] tracking-tight leading-[1.12]"
+            className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
           >
             {t('itinerary.mainTitle', 'We built this Dahab trip for you.')}
           </h1>
 
           <p
             id="itinerary-supporting-subtitle"
-            className="mt-3 text-base sm:text-lg text-[#D2E3DE] leading-relaxed font-normal max-w-3xl"
+            className="mt-3 text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal max-w-3xl"
           >
             {t('itinerary.subTitle', 'A balanced 5-day experience with diving, adventure, local food, and enough time to slow down.')}
           </p>
@@ -525,22 +525,22 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
         {!isApproved ? (
           <div
             id="status-suggested-banner"
-            className="p-4 sm:p-5 rounded-2xl bg-[#0E2520] border border-white/10 shadow-2xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
             <div className="flex items-start sm:items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#F4C36C]/15 text-[#F4C36C] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] flex items-center justify-center flex-shrink-0">
                 <Info className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#F4C36C]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)]">
                     {t('itinerary.status.label', 'Status')}
                   </span>
-                  <span className="text-xs font-bold text-[#F7F3EA] bg-white/10 px-2 py-0.5 rounded-full border border-white/10">
+                  <span className="text-xs font-bold text-[var(--text-primary)] bg-[var(--btn-util-bg)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
                     {t('itinerary.status.suggested', 'Suggested itinerary')}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#D2E3DE] mt-0.5 font-normal">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5 font-normal">
                   {t('itinerary.status.suggestedDesc', 'Review and approve your trip before booking. Everything is fully flexible.')}
                 </p>
               </div>
@@ -551,7 +551,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 type="button"
                 id="banner-customize-btn"
                 onClick={() => setIsCustomizeOpen(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F7F3EA] hover:text-white bg-white/10 hover:bg-white/15 px-3.5 py-2 rounded-full border border-white/10 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)] hover:text-[var(--text-primary)] bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] px-3.5 py-2 rounded-full border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>{t('itinerary.btn.customize', 'Customize Trip')}</span>
@@ -561,7 +561,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 type="button"
                 id="banner-approve-btn"
                 onClick={handleApproveTrip}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#F4C36C] hover:bg-amber-300 text-[#081714] text-xs font-bold shadow-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold shadow-sm transition-all cursor-pointer"
               >
                 <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
                 <Check className="w-3.5 h-3.5" />
@@ -574,8 +574,8 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             className="p-5 sm:p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 shadow-2xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300"
           >
             <div className="flex items-start sm:items-center gap-3.5">
-              <div className="w-10 h-10 rounded-full bg-emerald-500 text-[#081714] flex items-center justify-center flex-shrink-0 shadow-2xs font-bold">
-                <CheckCircle2 className="w-5 h-5 text-[#081714]" />
+              <div className="w-10 h-10 rounded-full bg-emerald-500 text-[var(--surface-card)] flex items-center justify-center flex-shrink-0 shadow-2xs font-bold">
+                <CheckCircle2 className="w-5 h-5 text-[var(--surface-card)]" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -596,7 +596,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               type="button"
               id="approved-continue-to-booking-btn"
               onClick={onContinueToBooking}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-[#081714] text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap self-start sm:self-center"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-[var(--surface-card)] text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap self-start sm:self-center"
             >
               <span>{t('itinerary.btn.continueBooking', 'Continue to Booking')}</span>
               <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
@@ -628,7 +628,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
         </div>
 
         {/* 3. Hero Editorial Card Header with Tags & Metrics */}
-        <div className="rounded-3xl border border-white/10 bg-[#0E2520] overflow-hidden shadow-xs mb-8">
+        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] overflow-hidden shadow-xs mb-8">
           {/* Hero Banner Image */}
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden bg-black/30">
             <img
@@ -637,16 +637,16 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0E2520] via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-transparent" />
 
             {/* Top Right Floating Tags */}
             <div className="absolute top-4 right-4 flex items-center gap-2">
               <button
                 type="button"
                 onClick={onEditPreferences}
-                className="px-3.5 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-semibold border border-white/20 transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-semibold border border-[var(--border-subtle)] transition-colors flex items-center gap-1.5"
               >
-                <span>{language === 'ar' ? 'تعديل التفضيلات' : 'Edit preferences'}</span>
+                <span>{t('itinerary.editPreferences')}</span>
               </button>
             </div>
 
@@ -654,107 +654,107 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             <div className="absolute bottom-6 left-6 right-6 text-white flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#F4C36C] text-[#081714] text-xs font-bold uppercase tracking-wider">
-                    {language === 'ar' ? 'جنوب سيناء، مصر' : 'South Sinai, Egypt'}
+                  <span className="px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold uppercase tracking-wider">
+                    {t('itinerary.southSinaiEgypt')}
                   </span>
-                  <span className="text-xs font-semibold text-white/80">
-                    {language === 'ar' ? `٥ أيام · ${adultsCount} مسافرين` : `5 Days · ${adultsCount} Travelers`}
+                  <span className="text-xs font-semibold text-[var(--text-muted)]">
+                    {t('itinerary.5DaysTravelers', { adultsCount })}
                   </span>
                 </div>
 
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[#F7F3EA] tracking-tight leading-none">
-                  {language === 'ar' ? 'دهـب' : 'Dahab'}
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight leading-none">
+                  {t('itinerary.dahab')}
                 </h2>
 
                 {/* Preference Tags */}
                 <div className="flex flex-wrap items-center gap-2 mt-3.5">
-                  <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#F7F3EA] text-xs font-semibold border border-white/20">
-                    {language === 'ar' ? 'الغوص والشعاب' : 'Diving'}
+                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
+                    {t('itinerary.diving')}
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#F7F3EA] text-xs font-semibold border border-white/20">
-                    {language === 'ar' ? 'مغامرات وسفاري' : 'Adventure'}
+                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
+                    {t('itinerary.adventure')}
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#F7F3EA] text-xs font-semibold border border-white/20">
-                    {language === 'ar' ? 'مأكولات وأكلات محلية' : 'Food'}
+                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
+                    {t('itinerary.food')}
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-[#F4C36C] text-[#081714] text-xs font-bold">
-                    {language === 'ar' ? 'إيقاع متوازن' : 'Balanced'}
+                  <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold">
+                    {t('itinerary.balanced')}
                   </span>
                 </div>
               </div>
 
               {/* Quick Summary Pill on Desktop */}
-              <div className="hidden md:flex items-center gap-3 bg-black/50 backdrop-blur-md p-3 rounded-2xl border border-white/15 text-xs text-white/90">
+              <div className="hidden md:flex items-center gap-3 bg-black/50 backdrop-blur-md p-3 rounded-2xl border border-[var(--border-subtle)] text-xs text-[var(--text-muted)]">
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? '٥ أيام' : '5 Days'}</span>
-                  <span className="text-[11px] text-white/60">{language === 'ar' ? 'المدة' : 'Duration'}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('itinerary.5Days')}</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">{t('attractions.duration')}</span>
                 </div>
-                <div className="w-px h-6 bg-white/20" />
+                <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? `${adultsCount} بالغين` : `${adultsCount} Adults`}</span>
-                  <span className="text-[11px] text-white/60">{language === 'ar' ? 'المسافرين' : 'Travelers'}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('itinerary.adults', { adultsCount })}</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">{t('itinerary.travelers')}</span>
                 </div>
-                <div className="w-px h-6 bg-white/20" />
+                <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'متوسطة' : 'Moderate'}</span>
-                  <span className="text-[11px] text-white/60">{language === 'ar' ? 'الميزانية' : 'Budget'}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('itinerary.moderate')}</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">{t('itinerary.budget')}</span>
                 </div>
-                <div className="w-px h-6 bg-white/20" />
+                <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'متوازن' : 'Balanced'}</span>
-                  <span className="text-[11px] text-white/60">{language === 'ar' ? 'الإيقاع' : 'Pace'}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('home.balanced')}</span>
+                  <span className="text-[11px] text-[var(--text-muted)]">{t('itinerary.pace')}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Compact Metric Strip for All Viewports */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10 border-t border-white/10 bg-[#0E2520] text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] text-xs">
             <div className="p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#13312B] border border-white/10 flex items-center justify-center text-[#F4C36C]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-secondary)]">
                 <Calendar className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D2E3DE]/60 block">
-                  {language === 'ar' ? 'مدة الرحلة' : 'Trip Duration'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                  {t('itinerary.tripDuration')}
                 </span>
-                <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? '٥ أيام' : '5 Days'}</span>
+                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.5Days')}</span>
               </div>
             </div>
 
             <div className="p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#13312B] border border-white/10 flex items-center justify-center text-[#F4C36C]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-secondary)]">
                 <Users className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D2E3DE]/60 block">
-                  {language === 'ar' ? 'المسافرون' : 'Travelers'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                  {t('itinerary.travelers-2')}
                 </span>
-                <span className="font-bold text-[#F7F3EA]">{travelersSummary}</span>
+                <span className="font-bold text-[var(--text-primary)]">{travelersSummary}</span>
               </div>
             </div>
 
             <div className="p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#13312B] border border-white/10 flex items-center justify-center text-[#F4C36C]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-secondary)]">
                 <Wallet className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D2E3DE]/60 block">
-                  {language === 'ar' ? 'فئة الميزانية' : 'Budget Level'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                  {t('itinerary.budgetLevel')}
                 </span>
-                <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'ميزانية متوسطة' : 'Moderate Budget'}</span>
+                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.moderateBudget')}</span>
               </div>
             </div>
 
             <div className="p-4 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#13312B] border border-white/10 flex items-center justify-center text-[#F4C36C]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-secondary)]">
                 <Gauge className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D2E3DE]/60 block">
-                  {language === 'ar' ? 'إيقاع الرحلة' : 'Daily Rhythm'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                  {t('itinerary.dailyRhythm')}
                 </span>
-                <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'إيقاع متوازن' : 'Balanced Pace'}</span>
+                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.balancedPace')}</span>
               </div>
             </div>
           </div>
@@ -767,42 +767,40 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             {/* Why This Trip AI Recommendation Box */}
             <div
               id="why-this-trip-card"
-              className="p-6 rounded-3xl bg-[#0E2520] border border-white/10 shadow-xs flex items-start gap-4"
+              className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs flex items-start gap-4"
             >
-              <div className="w-10 h-10 rounded-2xl bg-[#F4C36C]/10 text-[#F4C36C] flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                 <MessageSquareQuote className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-base font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar' ? 'لماذا صممنا هذا البرنامج خصيصاً لك؟' : 'Why this trip?'}
+                  <h3 className="text-base font-serif font-bold text-[var(--text-primary)]">
+                    {t('itinerary.whyThisTrip')}
                   </h3>
-                  <span className="text-[11px] font-bold uppercase tracking-wider bg-[#F4C36C]/15 text-[#F4C36C] px-2 py-0.5 rounded-full border border-[#F4C36C]/20">
-                    {language === 'ar' ? 'تخطيط مخصص' : 'Tailored Logic'}
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] px-2 py-0.5 rounded-full border border-[var(--accent-secondary)]/20">
+                    {t('itinerary.tailoredLogic')}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#D2E3DE] leading-relaxed font-normal">
-                  {language === 'ar'
-                    ? 'بناءً على تفضيلك للغوص والمغامرة والأكل المحلي دون ازدحام جدولك، صممنا الأيام بتوازن يمنحك صباحات هادئة ووقت بحر مفتوح وسهرات بدوية أصيلة.'
-                    : 'You told us you wanted diving, adventure, and great food without packing every hour. We built the days around those priorities with unhurried mornings and open sea time.'}
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-normal">
+                  {t('itinerary.youToldUsYou')}
                 </p>
               </div>
             </div>
 
             {/* Customize Trip Action Banner */}
-            <div className="p-4 rounded-2xl bg-[#0E2520] border border-white/10 flex items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="w-4 h-4 text-[#F4C36C]" />
-                <span className="text-xs font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'ترغب في تعديل الأيام أو تبديل الأنشطة؟' : 'Want to adjust days or swap experiences?'}
+                <SlidersHorizontal className="w-4 h-4 text-[var(--accent-secondary)]" />
+                <span className="text-xs font-bold text-[var(--text-primary)]">
+                  {t('itinerary.wantToAdjustDays')}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsCustomizeOpen(true)}
-                className="px-4 py-1.5 rounded-full bg-[#13312B] border border-white/10 hover:border-[#F4C36C] text-xs font-bold text-[#F7F3EA] transition-colors cursor-pointer shadow-2xs"
+                className="px-4 py-1.5 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)] text-xs font-bold text-[var(--text-primary)] transition-colors cursor-pointer shadow-2xs"
               >
-                {language === 'ar' ? 'تخصيص البرنامج' : 'Customize Trip'}
+                {t('itinerary.customizeTrip')}
               </button>
             </div>
 
@@ -824,16 +822,16 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             </div>
 
             {/* Bottom Trip Actions Box */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#0E2520] border border-white/10 shadow-xs text-center flex flex-col items-center">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs text-center flex flex-col items-center">
               {!isApproved ? (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-[#F4C36C]/10 text-[#F4C36C] flex items-center justify-center mb-3.5">
+                  <div className="w-12 h-12 rounded-full bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)] flex items-center justify-center mb-3.5">
                     <Compass className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F7F3EA]">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                     {t('itinerary.bottom.readyTitle', 'Ready to lock in your Dahab journey?')}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#D2E3DE] mt-1 max-w-md">
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1 max-w-md">
                     {t('itinerary.bottom.readyDesc', 'Review and approve this personalized blueprint. You will review accommodation and transfer booking details in the next step.')}
                   </p>
 
@@ -842,7 +840,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                       type="button"
                       id="bottom-keep-editing-btn"
                       onClick={() => setIsCustomizeOpen(true)}
-                      className="w-full sm:w-auto px-6 py-3.5 rounded-full text-xs sm:text-sm font-bold text-[#D2E3DE] hover:text-[#F7F3EA] bg-[#13312B] hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+                      className="w-full sm:w-auto px-6 py-3.5 rounded-full text-xs sm:text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
                     >
                       {t('itinerary.btn.keepEditing', 'Keep Editing')}
                     </button>
@@ -851,7 +849,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                       type="button"
                       id="bottom-approve-trip-btn"
                       onClick={handleApproveTrip}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold text-[#081714] bg-[#F4C36C] hover:bg-amber-300 active:scale-[0.98] transition-all shadow-md cursor-pointer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-amber-300 active:scale-[0.98] transition-all shadow-md cursor-pointer"
                     >
                       <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
                       <Check className="w-4 h-4" />
@@ -874,7 +872,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                     type="button"
                     id="bottom-continue-to-booking-btn"
                     onClick={onContinueToBooking}
-                    className="mt-6 inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full text-sm font-bold text-[#081714] bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-md cursor-pointer"
+                    className="mt-6 inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full text-sm font-bold text-[var(--surface-card)] bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] transition-all shadow-md cursor-pointer"
                   >
                     <span>{t('itinerary.btn.continueBooking', 'Continue to Booking')}</span>
                     <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
@@ -887,50 +885,50 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
           {/* Right Sticky Sidebar (Desktop 4 Columns) */}
           <div className="hidden lg:block lg:col-span-4 sticky top-24 space-y-6">
             {/* Trip Overview Panel */}
-            <div className="p-6 rounded-3xl bg-[#0E2520] border border-white/10 shadow-xs">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#F4C36C]">
+            <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-5">
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-secondary)]">
                   {t('itinerary.sidebar.blueprintTitle', 'Trip Blueprint')}
                 </span>
-                <span className="text-[12px] font-semibold text-[#D2E3DE]/70">
+                <span className="text-[12px] font-semibold text-[var(--text-secondary)]/70">
                   {isApproved ? t('itinerary.status.approved', 'Approved') : t('itinerary.status.suggested', 'Suggested')}
                 </span>
               </div>
 
               <div className="space-y-4 text-xs">
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.destination', 'Destination')}</span>
-                  <span className="font-bold text-[#F7F3EA]">{t('itinerary.sidebar.destinationVal', 'Dahab, South Sinai')}</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.destination', 'Destination')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{t('itinerary.sidebar.destinationVal', 'Dahab, South Sinai')}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.duration', 'Duration')}</span>
-                  <span className="font-bold text-[#F7F3EA]">{durationLabel || t('itinerary.sidebar.5days', '5 Days')}</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.duration', 'Duration')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{durationLabel || t('itinerary.sidebar.5days', '5 Days')}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.travelers', 'Travelers')}</span>
-                  <span className="font-bold text-[#F7F3EA]">{travelersSummary}</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.travelers', 'Travelers')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{travelersSummary}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.budget', 'Budget')}</span>
-                  <span className="font-bold text-[#F7F3EA]">{chosenBudget}</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.budget', 'Budget')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{chosenBudget}</span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.pace', 'Pace')}</span>
-                  <span className="font-bold text-[#F7F3EA]">{chosenPace}</span>
+                <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.pace', 'Pace')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{chosenPace}</span>
                 </div>
                 <div className="flex items-start justify-between py-2">
-                  <span className="text-[#D2E3DE]/60">{t('itinerary.sidebar.interests', 'Selected Interests')}</span>
-                  <span className="font-bold text-[#F7F3EA] text-right">{chosenInterests.join(language === 'ar' ? '، ' : ', ') || '—'}</span>
+                  <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.interests', 'Selected Interests')}</span>
+                  <span className="font-bold text-[var(--text-primary)] text-right">{chosenInterests.join(t('itinerary._item_')) || '—'}</span>
                 </div>
               </div>
 
               {/* Primary Side Action */}
-              <div className="mt-6 pt-5 border-t border-white/10">
+              <div className="mt-6 pt-5 border-t border-[var(--border-subtle)]">
                 {!isApproved ? (
                   <button
                     type="button"
                     onClick={handleApproveTrip}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[#081714] bg-[#F4C36C] hover:bg-amber-300 shadow-xs hover:shadow transition-all cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-amber-300 shadow-xs hover:shadow transition-all cursor-pointer"
                   >
                     <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
                     <Check className="w-3.5 h-3.5" />
@@ -939,7 +937,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                   <button
                     type="button"
                     onClick={onContinueToBooking}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[#081714] bg-emerald-500 hover:bg-emerald-400 shadow-xs hover:shadow transition-all cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[var(--surface-card)] bg-emerald-500 hover:bg-emerald-400 shadow-xs hover:shadow transition-all cursor-pointer"
                   >
                     <span>{t('itinerary.btn.continueBooking', 'Continue to Booking')}</span>
                     <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
@@ -949,7 +947,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsCustomizeOpen(true)}
-                  className="w-full mt-2 py-2.5 text-center text-xs font-bold text-[#D2E3DE] hover:text-white bg-[#13312B] hover:bg-white/10 rounded-full transition-colors cursor-pointer border border-white/10"
+                  className="w-full mt-2 py-2.5 text-center text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] rounded-full transition-colors cursor-pointer border border-[var(--border-subtle)]"
                 >
                   {t('itinerary.btn.customize', 'Customize Trip')}
                 </button>
@@ -957,12 +955,12 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             </div>
 
             {/* Dahab Local Support Note */}
-            <div className="p-5 rounded-2xl bg-[#13312B] border border-white/10 text-xs text-[#D2E3DE]">
-              <div className="flex items-center gap-2 font-bold text-[#F7F3EA] mb-1">
-                <ShieldCheck className="w-4 h-4 text-[#F4C36C]" />
+            <div className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 font-bold text-[var(--text-primary)] mb-1">
+                <ShieldCheck className="w-4 h-4 text-[var(--accent-secondary)]" />
                 <span>{t('itinerary.sidebar.guaranteeTitle', 'Sinai Local Host Guarantee')}</span>
               </div>
-              <p className="leading-relaxed font-normal text-[12px] text-[#D2E3DE]/80">
+              <p className="leading-relaxed font-normal text-[12px] text-[var(--text-secondary)]/80">
                 {t('itinerary.sidebar.guaranteeDesc', 'All diving centers, desert drivers, and boat captains are vetted local Dahab professionals who prioritize safety and authentic hospitality.')}
               </p>
             </div>
@@ -973,7 +971,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
       {/* 5. Mobile Sticky Bottom Action Bar */}
       <div 
         id="mobile-sticky-action-bar"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0E2520]/95 backdrop-blur-md border-t border-white/10 p-3 sm:p-4 shadow-lg flex items-center justify-between gap-3"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] p-3 sm:p-4 shadow-lg flex items-center justify-between gap-3"
       >
         {!isApproved ? (
           <>
@@ -981,7 +979,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               type="button"
               id="mobile-keep-editing-btn"
               onClick={() => setIsCustomizeOpen(true)}
-              className="flex-1 py-3 rounded-full text-xs font-bold text-[#F7F3EA] bg-[#13312B] hover:bg-white/10 border border-white/10 transition-colors cursor-pointer text-center"
+              className="flex-1 py-3 rounded-full text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors cursor-pointer text-center"
             >
               {t('itinerary.btn.keepEditing', 'Keep Editing')}
             </button>
@@ -990,7 +988,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               type="button"
               id="mobile-approve-trip-btn"
               onClick={handleApproveTrip}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-bold text-[#081714] bg-[#F4C36C] hover:bg-amber-300 shadow-xs cursor-pointer text-center"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-3 rounded-full text-xs font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-amber-300 shadow-xs cursor-pointer text-center"
             >
               <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
               <Check className="w-3.5 h-3.5" />
@@ -1001,7 +999,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             type="button"
             id="mobile-continue-booking-btn"
             onClick={onContinueToBooking}
-            className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[#081714] bg-emerald-500 hover:bg-emerald-400 shadow-md cursor-pointer text-center"
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold text-[var(--surface-card)] bg-emerald-500 hover:bg-emerald-400 shadow-md cursor-pointer text-center"
           >
             <span>{t('itinerary.btn.continueBooking', 'Continue to Booking')}</span>
             <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
@@ -1045,10 +1043,8 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
       />
 
       {/* 7. Footer */}
-      <footer className="border-t border-white/10 py-6 text-center text-xs text-[#D2E3DE]/40 bg-[#081714] mt-12">
-        {language === 'ar'
-          ? 'منصة دهب · برنامج رحلة مخصص لك · جنوب سيناء، مصر'
-          : 'Dahab Travel Platform · Personalized Itinerary for You · South Sinai, Egypt'}
+      <footer className="border-t border-[var(--border-subtle)] py-6 text-center text-xs text-[var(--text-secondary)]/40 bg-[var(--surface-card)] mt-12">
+        {t('itinerary.dahabTravelPlatformPersonalized')}
       </footer>
     </div>
   );

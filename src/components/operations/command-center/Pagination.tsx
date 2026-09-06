@@ -18,7 +18,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
 
   return (
     <div className={`flex items-center justify-between ${className}`}>
-      <div className="text-[10px] text-white/40 font-mono">
+      <div className="text-[11px] text-[var(--text-muted)] font-mono">
         Showing {start}–{end} of {totalItems}
       </div>
       <div className="flex items-center gap-1">
@@ -26,7 +26,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
         </button>
@@ -46,10 +46,10 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
               key={pageNum}
               type="button"
               onClick={() => onPageChange(pageNum)}
-              className={`w-7 h-7 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+              className={`w-7 h-7 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                 pageNum === page
-                  ? 'bg-[#20A89A] text-[#04171D]'
-                  : 'bg-white/5 text-white/50 hover:text-white/80 hover:bg-white/10'
+                  ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]'
+                  : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'
               }`}
             >
               {pageNum}
@@ -60,7 +60,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           <ChevronRight className="w-3.5 h-3.5" />
         </button>

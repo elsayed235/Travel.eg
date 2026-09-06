@@ -120,7 +120,7 @@ export const DayGiConciergeView: React.FC = () => {
    * Seed from the global language and follow it when it changes; the in-page
    * toggle still wins after that.
    */
-  const { language: siteLanguage } = useLanguage();
+  const { language: siteLanguage , t} = useLanguage();
   const [lang, setLang] = useState<'ar' | 'en'>(siteLanguage);
   useEffect(() => { setLang(siteLanguage); }, [siteLanguage]);
 
@@ -189,11 +189,9 @@ export const DayGiConciergeView: React.FC = () => {
        *
        * An assistant's first message sets what its later ones are worth.
        */
-      text: lang === 'ar'
-        ? `أهلاً${profile.name ? ' يا ' + profile.name : ''} 👋
-اسألني عن أي حاجة في رحلتك — تروح فين دلوقتي، تغيّر إيه، أو تحجز إيه.`
-        : `Hi${profile.name ? ' ' + profile.name : ''} 👋
-Ask me anything about your trip — where to go now, what to change, what to book.`,
+      text: t('dayGi.helloAskAnything', {
+        name: profile.name ? t('dayGi.helloName', { name: profile.name }) : '',
+      }),
       timestamp: 'Just now'
     }
   ]);
@@ -377,9 +375,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
       const fallbackMsg: ChatMessage = {
         id: `msg-daygi-fallback-${Date.now()}`,
         sender: 'daygi',
-        text: lang === 'ar'
-          ? 'أجواء دهب ممتازة الآن، وأنصحك بقضاء الوقت في ممشى اللايتهاوس والاستمتاع بمشروب دافئ مع إطلالة البحر.'
-          : 'Dahab waters are calm and ideal for shoreline snorkeling and seaside dining at Lighthouse Promenade.',
+        text: t('daygi.dahabWatersAreCalm'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -445,9 +441,11 @@ Ask me anything about your trip — where to go now, what to change, what to boo
       });
 
       showToast(
-        lang === 'ar' 
-          ? `تم تنفيذ وتوثيق الخطوة: ${executedStep?.nameAr || executedStep?.name} بنجاح ✨`
-          : `Step executed & verified: ${executedStep?.name} in Cloud SQL`
+        t('dayGi.stepExecutedVerified', {
+          name: lang === 'ar'
+            ? (executedStep?.nameAr || executedStep?.name || '')
+            : (executedStep?.name || ''),
+        })
       );
       api.trackDayGiEvent('task_step_executed', { taskId, stepId, status: updatedTask.state });
     } catch (err: any) {
@@ -476,9 +474,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
       }));
 
       showToast(
-        lang === 'ar'
-          ? 'تم تطبيق خطة الاستعادة البديلة وتسوية الفارق المالي فوراً ✨'
-          : 'Recovery plan applied with automated ledger reconciliation ✨'
+        t('daygi.recoveryPlanAppliedWith')
       );
     } catch (err: any) {
       showToast(err.message || 'Recovery application failed');
@@ -503,7 +499,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
         }
         return m;
       }));
-      showToast(lang === 'ar' ? 'تم إلغاء المهمة بأمان وتحرير الموارد' : 'Task safely cancelled');
+      showToast(t('daygi.taskSafelyCancelled'));
     } catch (err: any) {
       showToast(err.message || 'Cancel failed');
     }
@@ -540,7 +536,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
     }
 
     setFeedbackReasonOpenId(null);
-    showToast(isPositive ? (lang === 'ar' ? 'شكراً لتقييمك! دايجي يتعلم تفضيلاتك باستمرار ✨' : 'Thank you! Feedback recorded for beta learning.') : (lang === 'ar' ? 'شكراً لملاحظتك، سنحسن المقترحات القادمة 🙏' : 'Feedback noted to improve recommendations.'));
+    showToast(isPositive ? (t('daygi.thankYouFeedbackRecorded')) : (t('daygi.feedbackNotedToImprove')));
   };
 
   const handleExecuteAction = async (msgId: string, actionKey: string, payload: any) => {
@@ -612,7 +608,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
     try {
       const updated = await api.updateDayGiMemory(newPrefs);
       setUserMemory(updated);
-      showToast(lang === 'ar' ? 'تم تحديث التفضيلات في ذاكرة دايجي المنظمة ✨' : 'Structured memory preferences updated');
+      showToast(t('daygi.structuredMemoryPreferencesUpdated'));
     } catch (e: any) {
       showToast('Error updating preferences');
     }
@@ -709,28 +705,28 @@ Ask me anything about your trip — where to go now, what to change, what to boo
         return (
           <span className="bg-[var(--dg-risk)]/18 border border-[var(--dg-risk)]/40 text-[var(--dg-risk)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <AlertTriangle className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'حرج للسلامة (SAFETY)' : 'Safety Critical'}
+            {t('daygi.safetyCritical')}
           </span>
         );
       case 'FINANCIAL':
         return (
           <span className="bg-[var(--dg-fin)]/18 border border-[var(--dg-fin)]/40 text-[var(--dg-fin)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <DollarSign className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'معاملة مالية (LEDGER)' : 'Ledger Protected'}
+            {t('daygi.ledgerProtected')}
           </span>
         );
       case 'COMMERCE':
         return (
           <span className="bg-[var(--dg-warn)]/18 border border-[var(--dg-warn)]/40 text-[var(--dg-warn)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <ShoppingBag className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'حجز وتثبيت (COMMERCE)' : 'Commerce Hold'}
+            {t('daygi.commerceHold')}
           </span>
         );
       case 'LOW_RISK':
         return (
           <span className="bg-[var(--dg-info)]/18 border border-[var(--dg-info)]/40 text-[var(--dg-info)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <SlidersHorizontal className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'تعديل جدول آمن' : 'Low Risk Shift'}
+            {t('daygi.lowRiskShift')}
           </span>
         );
       case 'READ_ONLY':
@@ -738,7 +734,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
         return (
           <span className="bg-[var(--dg-ok)]/18 border border-[var(--dg-ok)]/40 text-[var(--dg-ok)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <Check className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'قراءة واستكشاف' : 'Read-Only Fact'}
+            {t('daygi.readOnlyFact')}
           </span>
         );
     }
@@ -750,14 +746,14 @@ Ask me anything about your trip — where to go now, what to change, what to boo
         return (
           <span className="bg-[var(--dg-ok)]/18 border border-[var(--dg-ok)]/40 text-[var(--dg-ok)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <Zap className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'تنفيذ موثق (ACT)' : 'Direct Action (ACT)'}
+            {t('daygi.directActionACT')}
           </span>
         );
       case 'PLAN':
         return (
           <span className="bg-[var(--dg-gold)]/20 border border-[var(--dg-gold)]/40 text-[var(--dg-gold)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <SlidersHorizontal className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'تخطيط وتعديل (PLAN)' : 'Itinerary Plan (PLAN)'}
+            {t('daygi.itineraryPlanPLAN')}
           </span>
         );
       case 'DISCOVER':
@@ -765,7 +761,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
         return (
           <span className="bg-[var(--dg-teal)]/20 border border-[var(--dg-teal)]/40 text-[var(--dg-teal)] text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
             <Compass className="w-2.5 h-2.5" />
-            {lang === 'ar' ? 'استكشاف سياقي (DISCOVER)' : 'Discovery (DISCOVER)'}
+            {t('daygi.discoveryDISCOVER')}
           </span>
         );
     }
@@ -819,8 +815,8 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                 onClick={goBack}
                 aria-label={
                   canGoBack
-                    ? (lang === 'ar' ? 'رجوع للصفحة السابقة' : 'Back to the previous page')
-                    : (lang === 'ar' ? 'الرئيسية' : 'Home')
+                    ? (t('daygi.backToThePrevious'))
+                    : (t('daygi.home'))
                 }
                 className="dg-focus -ms-1.5 w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] transition-colors"
               >
@@ -830,7 +826,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               </button>
 
               <h1 className="text-base font-semibold text-[var(--dg-text)] tracking-tight truncate min-w-0">
-                {lang === 'ar' ? 'دايجي' : 'DayGI'}
+                {t('daygi.dayGI')}
               </h1>
             </div>
 
@@ -845,7 +841,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                 <button
                   onClick={() => setHealthModalOpen(true)}
                   className="dg-focus h-9 px-3 rounded-lg text-xs font-medium text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] flex items-center gap-1.5 transition-colors"
-                  aria-label={lang === 'ar' ? `صحة الرحلة ${healthScore} بالمئة — افتح تقرير الفحص` : `Trip health ${healthScore} percent — open the audit report`}
+                  aria-label={t('daygi.tripHealthPercentOpen', { healthScore })}
                 >
                   <HeartPulse className="w-4 h-4 shrink-0" aria-hidden="true" />
                   <span className="dg-num">{healthScore}%</span>
@@ -855,7 +851,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               <button
                 onClick={() => setMemoryModalOpen(true)}
                 className="dg-focus w-9 h-9 rounded-lg flex items-center justify-center text-[var(--dg-text-2)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint)] transition-colors"
-                aria-label={lang === 'ar' ? 'ذاكرة التفضيلات المنظمة' : 'What DayGI remembers about you'}
+                aria-label={t('daygi.whatDayGIRemembersAbout')}
               >
                 <Brain className="w-4 h-4 shrink-0" aria-hidden="true" />
               </button>
@@ -863,7 +859,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               {/* Language */}
               <div
                 role="group"
-                aria-label={lang === 'ar' ? 'لغة المرشد' : 'Concierge language'}
+                aria-label={t('daygi.conciergeLanguage')}
                 className="flex items-center bg-[var(--dg-tint)] border border-[var(--dg-line)] p-1 rounded-xl h-9"
               >
                 <button
@@ -897,34 +893,34 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
             <label className="flex items-center gap-1.5 hover:bg-[var(--dg-tint)] ps-2 pe-1 h-8 rounded-lg shrink-0 cursor-pointer transition-colors">
               <MapPin className="w-3.5 h-3.5 text-[var(--dg-muted)] shrink-0" aria-hidden="true" />
-              <span className="sr-only">{lang === 'ar' ? 'مكانك الحالي في دهب' : 'Your current location in Dahab'}</span>
+              <span className="sr-only">{t('daygi.yourCurrentLocationIn')}</span>
               <select
                 value={currentLocation}
                 onChange={(e) => setCurrentLocation(e.target.value)}
-                aria-label={lang === 'ar' ? 'مكانك الحالي في دهب' : 'Your current location in Dahab'}
+                aria-label={t('daygi.yourCurrentLocationIn')}
                 className="dg-focus bg-transparent text-[var(--dg-text-2)] outline-none text-xs cursor-pointer py-1"
               >
-                <option value="Lighthouse" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'اللايتهاوس' : 'Lighthouse'}</option>
-                <option value="Eel Garden" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'إيل جاردن' : 'Eel Garden'}</option>
-                <option value="The Canyon" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'الكانيون' : 'The Canyon'}</option>
-                <option value="Blue Hole" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'البلوهول' : 'Blue Hole'}</option>
-                <option value="Laguna" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'اللاجونا' : 'Laguna'}</option>
+                <option value="Lighthouse" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.lighthouse')}</option>
+                <option value="Eel Garden" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.eelGarden')}</option>
+                <option value="The Canyon" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.theCanyon')}</option>
+                <option value="Blue Hole" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.blueHole')}</option>
+                <option value="Laguna" className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.laguna')}</option>
               </select>
             </label>
 
             <label className="flex items-center gap-1.5 hover:bg-[var(--dg-tint)] ps-2 pe-1 h-8 rounded-lg shrink-0 cursor-pointer transition-colors">
               <Clock className="w-3.5 h-3.5 text-[var(--dg-muted)] shrink-0" aria-hidden="true" />
-              <span className="sr-only">{lang === 'ar' ? 'الوقت المتاح عندك' : 'Time you have available'}</span>
+              <span className="sr-only">{t('daygi.timeYouHaveAvailable')}</span>
               <select
                 value={availableMinutes}
                 onChange={(e) => setAvailableMinutes(Number(e.target.value))}
-                aria-label={lang === 'ar' ? 'الوقت المتاح عندك' : 'Time you have available'}
+                aria-label={t('daygi.timeYouHaveAvailable')}
                 className="dg-focus bg-transparent text-[var(--dg-text-2)] outline-none text-xs cursor-pointer py-1"
               >
-                <option value={60} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'ساعة فاضية' : '1 free hour'}</option>
-                <option value={120} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? 'ساعتين فاضيين' : '2 free hours'}</option>
-                <option value={180} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? '٣ ساعات فاضية' : '3 free hours'}</option>
-                <option value={240} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{lang === 'ar' ? '٤ ساعات فاضية' : '4 free hours'}</option>
+                <option value={60} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.1FreeHour')}</option>
+                <option value={120} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.2FreeHours')}</option>
+                <option value={180} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.3FreeHours')}</option>
+                <option value={240} className="bg-[var(--dg-panel)] text-[var(--dg-text)]">{t('daygi.4FreeHours')}</option>
               </select>
             </label>
 
@@ -945,7 +941,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
             <div className="flex items-center gap-2.5 min-w-0 text-[var(--dg-text-2)]">
               <Bell className="w-4 h-4 text-[var(--dg-gold)] shrink-0 motion-safe:animate-pulse" aria-hidden="true" />
               <span className="font-bold text-[var(--dg-gold)] shrink-0">
-                {lang === 'ar' ? 'تنبيه استباقي:' : 'Proactive alert:'}
+                {t('daygi.proactiveAlert')}
               </span>
               <span className="truncate">
                 {lang === 'ar' ? liveSuggestions[0].titleAr : liveSuggestions[0].titleEn}
@@ -976,13 +972,13 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                   }
                   className="dg-focus bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold px-3 h-8 rounded-lg text-xs flex items-center gap-1 transition-colors"
                 >
-                  <span>{lang === 'ar' ? 'عرض الإجراء' : 'View action'}</span>
+                  <span>{t('daygi.viewAction')}</span>
                   <ChevronRight className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} aria-hidden="true" />
                 </button>
               )}
               <button
                 onClick={() => setProactiveBannerDismissed(true)}
-                aria-label={lang === 'ar' ? 'إخفاء التنبيه' : 'Dismiss alert'}
+                aria-label={t('daygi.dismissAlert')}
                 className="dg-focus w-8 h-8 rounded-lg flex items-center justify-center text-[var(--dg-muted)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint-2)] transition-colors"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
@@ -1004,7 +1000,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
         {/* Main Chat Stream Container */}
         <section
-          aria-label={lang === 'ar' ? 'محادثة المرشد الذكي' : 'DayGI conversation'}
+          aria-label={t('daygi.dayGIConversation')}
           className="flex-1 min-h-0 flex flex-col"
         >
 
@@ -1014,7 +1010,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
           role="log"
           aria-live="polite"
           aria-relevant="additions text"
-          aria-label={lang === 'ar' ? 'سجل المحادثة' : 'Conversation transcript'}
+          aria-label={t('daygi.conversationTranscript')}
           tabIndex={0}
           /*
             Before the traveler has said anything there is no transcript to
@@ -1075,7 +1071,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                     {/* Active Parsed Constraints Pills (MUST_HAVE, PREFER, AVOID) */}
                     {isDayGi && constraints && (constraints.mustHave?.length > 0 || constraints.prefer?.length > 0 || constraints.avoid?.length > 0) && (
                       <div className="mt-3 pt-2.5 border-t border-[var(--dg-line)] flex flex-wrap items-center gap-1.5 text-[11px]">
-                        <span className="text-[var(--dg-muted)] font-semibold">{lang === 'ar' ? 'القيود المستخرجة:' : 'Active Constraints:'}</span>
+                        <span className="text-[var(--dg-muted)] font-semibold">{t('daygi.activeConstraints')}</span>
                         {constraints.mustHave?.map((c, i) => (
                           <span key={i} className="bg-[var(--dg-ok)]/18 text-[var(--dg-ok)] px-2 py-0.5 rounded border border-[var(--dg-ok)]/32">
                             ✓ {lang === 'ar' ? (constraints.mustHaveAr?.[i] || c) : c}
@@ -1129,7 +1125,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                               <span>{lang === 'ar' ? payload.taskPlan.titleAr : payload.taskPlan.title}</span>
                             </span>
                             <span className="text-[11px] text-[var(--dg-muted)] font-mono">
-                              <span className="dg-num">{payload.taskPlan.steps.filter(s => s.status === 'EXECUTED').length} / {payload.taskPlan.steps.length}</span> {lang === 'ar' ? 'مكتمل' : 'Done'}
+                              <span className="dg-num">{payload.taskPlan.steps.filter(s => s.status === 'EXECUTED').length} / {payload.taskPlan.steps.length}</span> {t('daygi.done')}
                             </span>
                           </div>
 
@@ -1166,7 +1162,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                           <CheckCircle2 className="w-4 h-4 text-[var(--dg-ok)] shrink-0" />
                           <div>
                             <span className="font-bold block text-[var(--dg-ok)]">
-                              {lang === 'ar' ? 'تم التنفيذ والتسجيل في الدفتر المركزي' : 'Action Executed & Audited in Cloud SQL'}
+                              {t('daygi.actionExecutedAuditedIn')}
                             </span>
                             <span className="text-[12px] text-[var(--dg-ok)]/80">
                               {lang === 'ar' ? msg.executionResult?.messageAr : msg.executionResult?.messageEn}
@@ -1182,7 +1178,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                         <div className="bg-gradient-to-br from-[var(--dg-panel-2)] to-[var(--dg-panel)] border border-[var(--dg-teal)]/50 rounded-xl p-4 shadow-xl space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] text-[var(--dg-teal)] font-bold uppercase tracking-wider block">
-                              {lang === 'ar' ? '٣ خيارات هادئة موثقة بعد الغوص' : '3 Verified Post-Dive Options'}
+                              {t('daygi.3VerifiedPostDiveOptions')}
                             </span>
                             <span className="text-[12px] text-[var(--dg-gold)] font-semibold">
                               <span className="dg-num">{payload.multiOptions.postActivityContext?.endTime}</span> @ <span dir="auto">{payload.multiOptions.postActivityContext?.location}</span>
@@ -1215,7 +1211,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                                     </span>
                                     <span className="text-[11px] text-[var(--dg-teal)] flex items-center gap-1 justify-end">
                                       <Clock className="w-2.5 h-2.5" />
-                                      {opt.travelTimeMins} {lang === 'ar' ? 'د مشي' : 'min walk'}
+                                      {opt.travelTimeMins} {t('daygi.minWalk')}
                                     </span>
                                   </div>
                                 </div>
@@ -1232,7 +1228,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                                       className="bg-gradient-to-r bg-[var(--dg-ok)] hover:brightness-110 text-[var(--dg-text)] font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
                                     >
                                       <CheckCircle2 className="w-3 h-3" />
-                                      <span>{lang === 'ar' ? `احجز الخيار (${idx + 1})` : `Book Option ${idx + 1}`}</span>
+                                      <span>{t('dayGi.bookOptionNext', { idx: idx + 1 })}</span>
                                     </button>
                                   </div>
                                 )}
@@ -1249,22 +1245,22 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                         <div className="bg-gradient-to-br from-[var(--dg-panel)] via-[var(--dg-panel)] to-[var(--dg-panel)] border border-[var(--dg-warn)]/45 rounded-xl p-4 shadow-xl space-y-3">
                           <div className="flex items-center gap-2 text-[var(--dg-warn)] text-xs font-bold">
                             <AlertTriangle className="w-4 h-4 shrink-0" />
-                            <span>{lang === 'ar' ? 'تقرير التغييرات والاستجابة الفورية' : 'Differential Change & Response'}</span>
+                            <span>{t('daygi.differentialChangeResponse')}</span>
                           </div>
 
                           <div className="space-y-1 text-xs">
                             <div className="bg-[var(--dg-tint)] p-2.5 rounded-lg space-y-1">
-                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{lang === 'ar' ? 'ما الذي استجد؟' : 'What Changed?'}</span>
+                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{t('daygi.whatChanged')}</span>
                               <span className="text-[var(--dg-text)] font-medium">{lang === 'ar' ? payload.whatChanged.whatChangedAr : payload.whatChanged.whatChangedEn}</span>
                             </div>
                             <div className="bg-[var(--dg-tint)] p-2.5 rounded-lg space-y-1">
-                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{lang === 'ar' ? 'ما الذي تأثر في رحلتك؟' : 'What Does It Affect?'}</span>
+                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{t('daygi.whatDoesItAffect')}</span>
                               <span className="text-[var(--dg-risk)] font-semibold">{lang === 'ar' ? payload.whatChanged.whatItAffectsAr : payload.whatChanged.whatItAffectsEn}</span>
                             </div>
                           </div>
 
                           <div className="space-y-2 pt-1">
-                            <span className="text-[12px] font-bold text-[var(--dg-text-2)] block">{lang === 'ar' ? 'الخيارات المتاحة لك الآن:' : 'Available Action Choices:'}</span>
+                            <span className="text-[12px] font-bold text-[var(--dg-text-2)] block">{t('daygi.availableActionChoices')}</span>
                             {payload.whatChanged.options?.map((opt) => (
                               <div key={opt.id} className="bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] p-2.5 rounded-lg border border-[var(--dg-line)] flex items-center justify-between gap-2 text-xs">
                                 <div>
@@ -1277,7 +1273,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                                     disabled={executingActionId === msg.id}
                                     className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold px-3 py-1.5 rounded-lg text-xs shrink-0 transition-all"
                                   >
-                                    {lang === 'ar' ? 'اختيار' : 'Select'}
+                                    {t('daygi.select')}
                                   </button>
                                 )}
                               </div>
@@ -1294,7 +1290,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-[var(--dg-text)] text-xs flex items-center gap-1.5">
                               <SlidersHorizontal className="w-4 h-4 text-[var(--dg-gold)]" />
-                              <span>{lang === 'ar' ? 'مراجعة وتأكيد تعديل الرحلة' : 'Schedule Shift Confirmation'}</span>
+                              <span>{t('daygi.scheduleShiftConfirmation')}</span>
                             </span>
                             <span className="text-[11px] bg-[var(--dg-gold)]/20 text-[var(--dg-gold)] px-2 py-0.5 rounded-full font-bold">
                               5-Step Audit
@@ -1303,25 +1299,25 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
                           <div className="bg-[var(--dg-tint)] rounded-lg p-3 text-xs space-y-2">
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>1. {lang === 'ar' ? 'النشاط الحالي:' : 'Current Activity:'}</span>
+                              <span>1. {t('daygi.currentActivity')}</span>
                               <span className="font-semibold text-[var(--dg-risk)] line-through">
                                 {lang === 'ar' ? payload.multiActionConfirmation.step1OldItem.titleAr : payload.multiActionConfirmation.step1OldItem.titleEn}
                               </span>
                             </div>
                             <div className="flex items-center justify-between text-[var(--dg-text-2)]">
-                              <span>2. {lang === 'ar' ? 'الموعد البديل:' : 'New Target Slot:'}</span>
+                              <span>2. {t('daygi.newTargetSlot')}</span>
                               <span className="font-bold text-[var(--dg-teal)]">
                                 {payload.multiActionConfirmation.step2Alternative.newTime} ({payload.multiActionConfirmation.step2Alternative.supplierName})
                               </span>
                             </div>
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>3. {lang === 'ar' ? 'الفارق المالي:' : 'Ledger Impact:'}</span>
+                              <span>3. {t('daygi.ledgerImpact')}</span>
                               <span className="font-semibold text-[var(--dg-ok)]">
                                 {lang === 'ar' ? payload.multiActionConfirmation.step3PriceVariance.ledgerNoteAr : payload.multiActionConfirmation.step3PriceVariance.ledgerNoteEn}
                               </span>
                             </div>
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>4. {lang === 'ar' ? 'تأثير الجدول:' : 'Pacing Impact:'}</span>
+                              <span>4. {t('daygi.pacingImpact')}</span>
                               <span className="font-semibold text-[var(--dg-text-2)]">
                                 {lang === 'ar' ? payload.multiActionConfirmation.step4ScheduleImpact.impactSummaryAr : payload.multiActionConfirmation.step4ScheduleImpact.impactSummaryEn}
                               </span>
@@ -1339,11 +1335,11 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                               ) : (
                                 <CheckCircle2 className="w-4 h-4" />
                               )}
-                              <span>5. {lang === 'ar' ? 'تأكيد التعديل وتحديث خطتي' : 'Confirm & Commit Shift'}</span>
+                              <span>5. {t('daygi.confirmCommitShift')}</span>
                             </button>
                           ) : (
                             <div className="text-center text-xs text-[var(--dg-ok)] font-semibold py-1">
-                              ✓ {lang === 'ar' ? 'تم تحديث جدول الرحلة بنجاح' : 'Shift applied to itinerary'}
+                              ✓ {t('daygi.shiftAppliedToItinerary')}
                             </div>
                           )}
                         </div>
@@ -1358,7 +1354,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                             <div className="flex items-center gap-2">
                               <HeartPulse className="w-4 h-4 text-[var(--dg-ok)]" />
                               <span className="font-bold text-[var(--dg-text)] text-xs">
-                                {lang === 'ar' ? 'مؤشر صحة وموثوقية الرحلة' : 'Trip Health & Reliability Score'}
+                                {t('daygi.tripHealthReliabilityScore')}
                               </span>
                             </div>
                             <span className="text-sm font-bold text-[var(--dg-ok)] font-mono">
@@ -1368,25 +1364,25 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div className="bg-[var(--dg-tint)] p-2 rounded-lg">
-                              <span className="text-[11px] text-[var(--dg-muted)] block">{lang === 'ar' ? 'المدفوعات:' : 'Payments:'}</span>
+                              <span className="text-[11px] text-[var(--dg-muted)] block">{t('daygi.payments')}</span>
                               <span className="text-[var(--dg-ok)] font-bold">
                                 {!payload.tripHealth.issues.some((i: DayGiTripHealthIssue) => i.type === 'PAYMENT_PENDING') ? '✓ Verified (100%)' : 'Pending'}
                               </span>
                             </div>
                             <div className="bg-[var(--dg-tint)] p-2 rounded-lg">
-                              <span className="text-[11px] text-[var(--dg-muted)] block">{lang === 'ar' ? 'حالة الموردين:' : 'Suppliers:'}</span>
+                              <span className="text-[11px] text-[var(--dg-muted)] block">{t('daygi.suppliers')}</span>
                               <span className="text-[var(--dg-ok)] font-bold">
                                 {payload.tripHealth.metrics.pendingBookings === 0 ? '✓ Assigned Tier-1' : 'Pending'}
                               </span>
                             </div>
                             <div className="bg-[var(--dg-tint)] p-2 rounded-lg">
-                              <span className="text-[11px] text-[var(--dg-muted)] block">{lang === 'ar' ? 'التعارضات:' : 'Conflicts:'}</span>
+                              <span className="text-[11px] text-[var(--dg-muted)] block">{t('daygi.conflicts')}</span>
                               <span className="text-[var(--dg-ok)] font-bold">
                                 {payload.tripHealth.metrics.conflictsCount === 0 ? '✓ 0 Conflicts' : 'Detected'}
                               </span>
                             </div>
                             <div className="bg-[var(--dg-tint)] p-2 rounded-lg">
-                              <span className="text-[11px] text-[var(--dg-muted)] block">{lang === 'ar' ? 'رايات البحر:' : 'Marine Flags:'}</span>
+                              <span className="text-[11px] text-[var(--dg-muted)] block">{t('daygi.marineFlags')}</span>
                               <span className="text-[var(--dg-ok)] font-bold">
                                 {!payload.tripHealth.issues.some((i: DayGiTripHealthIssue) => i.type === 'CONDITION_UNCERTAINTY') ? '✓ CDWS Green' : 'Caution'}
                               </span>
@@ -1406,7 +1402,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                           <div className="flex items-start justify-between gap-2 mb-3">
                             <div>
                               <span className="text-[11px] text-[var(--dg-teal)] font-bold uppercase tracking-wider block">
-                                {lang === 'ar' ? 'مراجعة وتأكيد الحجز المباشر' : 'Direct Booking Review'}
+                                {t('daygi.directBookingReview')}
                               </span>
                               <h4 className="font-bold text-[var(--dg-text)] text-sm">
                                 {lang === 'ar' ? (payload.actionData.bookingReview.serviceAr || payload.actionTitleAr) : (payload.actionData.bookingReview.service || payload.actionTitle)}
@@ -1421,22 +1417,22 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                               </span>
                               <span className="text-[11px] text-[var(--dg-ok)] flex items-center gap-1 justify-end">
                                 <Check className="w-2.5 h-2.5" />
-                                {lang === 'ar' ? 'سعر مباشر بدون وسيط' : 'Direct Best Price'}
+                                {t('daygi.directBestPrice')}
                               </span>
                             </div>
                           </div>
 
                           <div className="bg-[var(--dg-tint)] rounded-lg p-3 text-xs text-[var(--dg-text-2)] mb-3 space-y-1.5">
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>{lang === 'ar' ? 'الميعاد والوقت:' : 'Date & Slot:'}</span>
+                              <span>{t('daygi.dateSlot')}</span>
                               <span className="font-semibold text-[var(--dg-text)]">{payload.actionData.bookingReview.date} · {payload.actionData.bookingReview.time}</span>
                             </div>
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>{lang === 'ar' ? 'عدد الأفراد:' : 'Guests:'}</span>
-                              <span className="font-semibold text-[var(--dg-text)]">{payload.actionData.bookingReview.people} {lang === 'ar' ? 'أفراد' : 'Guests'}</span>
+                              <span>{t('daygi.guests')}</span>
+                              <span className="font-semibold text-[var(--dg-text)]">{payload.actionData.bookingReview.people} {t('daygi.guests-2')}</span>
                             </div>
                             <div className="flex items-center justify-between text-[var(--dg-muted)]">
-                              <span>{lang === 'ar' ? 'سياسة الإلغاء:' : 'Cancellation:'}</span>
+                              <span>{t('daygi.cancellation')}</span>
                               <span className="font-semibold text-[var(--dg-text-2)]">{lang === 'ar' ? payload.actionData.bookingReview.cancellationPolicyAr : payload.actionData.bookingReview.cancellationPolicy}</span>
                             </div>
                           </div>
@@ -1456,7 +1452,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                                 ) : (
                                   <CheckCircle2 className="w-3.5 h-3.5" />
                                 )}
-                                <span>{lang === 'ar' ? 'تثبيت الحجز (Hold)' : 'Confirm & Hold'}</span>
+                                <span>{t('daygi.confirmHold')}</span>
                               </button>
 
                               <button
@@ -1464,12 +1460,12 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                                 className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-[0.99]"
                               >
                                 <ShoppingBag className="w-3.5 h-3.5" />
-                                <span>{lang === 'ar' ? 'دفع إلكتروني' : 'Pay Now'}</span>
+                                <span>{t('daygi.payNow')}</span>
                               </button>
                             </div>
                           ) : (
                             <div className="text-center text-xs text-[var(--dg-ok)] font-semibold py-1">
-                              ✓ {lang === 'ar' ? 'تم تثبيت المقعد في حسابك' : 'Booking held and confirmed'}
+                              ✓ {t('daygi.bookingHeldAndConfirmed')}
                             </div>
                           )}
                         </div>
@@ -1484,7 +1480,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                             <div className="flex items-center gap-2">
                               <DollarSign className="w-4 h-4 text-[var(--dg-gold)]" />
                               <span className="font-bold text-[var(--dg-text)] text-xs">
-                                {lang === 'ar' ? 'خطة خفض الميزانية المعتمدة' : 'Verified Budget Optimization'}
+                                {t('daygi.verifiedBudgetOptimization')}
                               </span>
                             </div>
                             <span className="text-xs font-bold text-[var(--dg-ok)]">
@@ -1513,11 +1509,11 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                               className="w-full bg-[var(--dg-teal)] hover:bg-[var(--dg-teal-hi)] text-[var(--dg-teal-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>{lang === 'ar' ? 'تطبيق خطة التوفير المقترحة' : 'Apply Savings Optimizations'}</span>
+                              <span>{t('daygi.applySavingsOptimizations')}</span>
                             </button>
                           ) : (
                             <div className="text-center text-xs text-[var(--dg-ok)] font-semibold py-1">
-                              ✓ {lang === 'ar' ? 'تم تطبيق التوفير وإيداع الفرق' : 'Optimizations applied'}
+                              ✓ {t('daygi.optimizationsApplied')}
                             </div>
                           )}
                         </div>
@@ -1536,7 +1532,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                               </span>
                             </div>
                             <span className="text-[11px] bg-[var(--dg-teal)]/20 text-[var(--dg-teal)] px-2 py-0.5 rounded-full font-bold">
-                              {lang === 'ar' ? 'موجز اليوم' : 'Daily Briefing'}
+                              {t('daygi.dailyBriefing')}
                             </span>
                           </div>
 
@@ -1565,7 +1561,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                         <div className="bg-[var(--dg-panel)] border border-[var(--dg-line)] rounded-xl p-3 text-xs">
                           <span className="font-bold text-[var(--dg-text)] block mb-1.5 flex items-center gap-1.5">
                             <Compass className="w-3.5 h-3.5 text-[var(--dg-gold)]" />
-                            {lang === 'ar' ? 'نصائح عملية من أهل دهب:' : 'Practical Local Advice:'}
+                            {t('daygi.practicalLocalAdvice')}
                           </span>
                           <ul className="space-y-1 text-[var(--dg-text-2)] list-disc ltr:pl-4 rtl:pr-4">
                             {(lang === 'ar' ? (payload.actionData.practicalTipsAr || payload.actionData.practicalTips) : payload.actionData.practicalTips).map((tip, idx) => (
@@ -1595,7 +1591,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                       <div className="pt-2 border-t border-[var(--dg-line-soft)] space-y-1.5">
                         <div className="flex items-center gap-2">
                           <span className="text-[11px] text-[var(--dg-muted)]">
-                            {lang === 'ar' ? 'هل ساعدتك هذه الخطوة؟' : 'Did this help your outcome?'}
+                            {t('daygi.didThisHelpYour')}
                           </span>
                           <button
                             onClick={() => {
@@ -1605,7 +1601,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                             }}
                             className={`p-1 rounded hover:bg-[var(--dg-tint-2)] text-[var(--dg-muted)] hover:text-[var(--dg-ok)] transition-colors ${msg.liked ? 'text-[var(--dg-ok)] font-bold' : ''}`}
                             title="Helpful"
-                            aria-label={lang === 'ar' ? 'كان مفيداً' : 'This answer was helpful'}
+                            aria-label={t('daygi.thisAnswerWasHelpful')}
                           >
                             <ThumbsUp className="w-3.5 h-3.5" />
                           </button>
@@ -1617,7 +1613,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                             }}
                             className={`p-1 rounded hover:bg-[var(--dg-tint-2)] text-[var(--dg-muted)] hover:text-[var(--dg-risk)] transition-colors ${msg.disliked ? 'text-[var(--dg-risk)] font-bold' : ''}`}
                             title="Needs Improvement"
-                            aria-label={lang === 'ar' ? 'يحتاج تحسين' : 'This answer needs improvement'}
+                            aria-label={t('daygi.thisAnswerNeedsImprovement')}
                           >
                             <ThumbsDown className="w-3.5 h-3.5" />
                           </button>
@@ -1626,7 +1622,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
                         {/* 1-Tap Feedback Detail Tags */}
                         {feedbackReasonOpenId === msg.id && (
                           <div className="flex items-center gap-1.5 flex-wrap pt-1 animate-in fade-in duration-200">
-                            <span className="text-[11px] text-[var(--dg-muted)]">{lang === 'ar' ? 'سبب التقييم:' : 'Reason:'}</span>
+                            <span className="text-[11px] text-[var(--dg-muted)]">{t('daygi.reason')}</span>
                             {[
                               { tag: 'ACCURATE', labelAr: '🎯 دقيق ومباشر', labelEn: 'Accurate' },
                               { tag: 'FAST_RESOLUTION', labelAr: '⚡ سريع وسهل', labelEn: 'Fast' },
@@ -1662,7 +1658,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               </div>
               <div className="bg-[var(--dg-bubble)] border border-[var(--dg-line)] rounded-2xl p-4 flex items-center gap-2 text-xs text-[var(--dg-text-2)]">
                 <Waves className="w-4 h-4 text-[var(--dg-teal)] animate-pulse" />
-                <span>{lang === 'ar' ? 'دايجي ٣.٠ يطابق القيود، يفحص صحة الرحلة، ويجهز الخيارات المعتمدة…' : 'DayGI 3.0 is matching constraints, auditing trip health, and structuring verified options…'}</span>
+                <span>{t('daygi.dayGI30IsMatching')}</span>
               </div>
             </div>
           )}
@@ -1692,7 +1688,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
           {messages.length <= 1 && (
             <div
               role="group"
-              aria-label={lang === 'ar' ? 'أسئلة مقترحة' : 'Suggested questions'}
+              aria-label={t('daygi.suggestedQuestions')}
               className="flex flex-wrap gap-2"
             >
               {QUICK_PROMPTS.slice(0, 4).map((qp, idx) => (
@@ -1720,11 +1716,9 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              aria-label={lang === 'ar' ? 'اكتب رسالتك للمرشد الذكي' : 'Message DayGI'}
+              aria-label={t('daygi.messageDayGI')}
               placeholder={
-                lang === 'ar'
-                  ? 'اسأل دايجي: «عايز حاجة هادية بعد الغطس»…'
-                  : 'Ask DayGI: “somewhere calm after the dive”…'
+                t('daygi.askDayGISomewhereCalm')
               }
               className="flex-1 min-w-0 bg-transparent text-[var(--dg-text)] px-3 py-2.5 text-sm outline-none placeholder:text-[var(--dg-muted)] truncate"
             />
@@ -1732,7 +1726,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
             <button
               type="submit"
               disabled={!inputText.trim() || isLoading}
-              aria-label={lang === 'ar' ? 'إرسال الرسالة' : 'Send message'}
+              aria-label={t('daygi.sendMessage')}
               className="dg-focus w-10 h-10 rounded-full bg-[var(--dg-teal)] text-[var(--dg-gold-ink)] flex items-center justify-center hover:brightness-110 active:scale-95 transition-all disabled:opacity-30 disabled:hover:brightness-100 shrink-0"
             >
               {isLoading
@@ -1748,9 +1742,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
             which is how a reassurance starts reading as marketing.
           */}
           <p className="text-[11px] text-[var(--dg-muted)] text-center">
-            {lang === 'ar'
-              ? 'دايجي مش هيغيّر أي حجز أو يخصم أي مبلغ من غير ما توافق أنت الأول.'
-              : 'DayGI never changes a booking or moves money until you confirm it.'}
+            {t('daygi.dayGINeverChangesA')}
           </p>
 
         </div>
@@ -1789,13 +1781,13 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               <div className="flex items-center gap-2 min-w-0">
                 <HeartPulse className="w-5 h-5 text-[var(--dg-ok)] shrink-0" aria-hidden="true" />
                 <h3 id="dg-health-title" className="text-base font-bold text-[var(--dg-text)]">
-                  {lang === 'ar' ? 'فحص معايير صحة وموثوقية الرحلة (٧ محاور)' : '7-Point Trip Health Inspector'}
+                  {t('daygi.7PointTripHealthInspector')}
                 </h3>
               </div>
               <button
                 onClick={() => setHealthModalOpen(false)}
                 autoFocus
-                aria-label={lang === 'ar' ? 'إغلاق' : 'Close'}
+                aria-label={t('attractions.close')}
                 className="dg-focus w-9 h-9 shrink-0 grid place-items-center text-[var(--dg-muted)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint-2)] rounded-lg transition-colors"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
@@ -1804,7 +1796,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
             <div className="bg-[var(--dg-tint)] rounded-xl p-4 flex items-center justify-between">
               <div>
-                <span className="text-xs text-[var(--dg-muted)] block">{lang === 'ar' ? 'التقييم الإجمالي:' : 'Overall Health Status:'}</span>
+                <span className="text-xs text-[var(--dg-muted)] block">{t('daygi.overallHealthStatus')}</span>
                 <span className="text-lg font-bold text-[var(--dg-ok)]" dir="auto">{tripHealth.status} <span className="dg-num">({tripHealth.score} / 100)</span></span>
               </div>
               <div className="dg-num w-12 h-12 rounded-full border-4 border-[var(--dg-ok)] flex items-center justify-center font-bold text-[var(--dg-text)] text-sm">
@@ -1814,32 +1806,32 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
             <div className="space-y-2 text-xs">
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>1. {lang === 'ar' ? 'المدفوعات والمطابقات المالية:' : 'Payment Verification:'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ 100% {lang === 'ar' ? 'مكتمل' : 'Cleared'}</span>
+                <span>1. {t('daygi.paymentVerification')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ 100% {t('daygi.cleared')}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>2. {lang === 'ar' ? 'التزامات الموردين المعتمدين:' : 'Supplier Assignment SLAs:'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ {lang === 'ar' ? 'مؤكد' : 'Confirmed'}</span>
+                <span>2. {t('daygi.supplierAssignmentSLAs')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ {t('daygi.confirmed')}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>3. {lang === 'ar' ? 'خلو الجدول من التعارضات الزمنية:' : 'Schedule Conflict Check:'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ 0 {lang === 'ar' ? 'تعارض' : 'Conflicts'}</span>
+                <span>3. {t('daygi.scheduleConflictCheck')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ 0 {t('daygi.conflicts-2')}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>4. {lang === 'ar' ? 'فواصل التنقل والراحة (Buffer):' : 'Transit Buffer (>= 15 min):'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ {lang === 'ar' ? 'كافية ومريحة' : 'Optimal'}</span>
+                <span>4. {t('daygi.transitBuffer15Min')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ {t('daygi.optimal')}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>5. {lang === 'ar' ? 'أمان فترات تخفيف الضغط والغوص:' : 'Decompression & Ascent Safety:'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ {lang === 'ar' ? 'آمن تماماً' : 'Safe Window'}</span>
+                <span>5. {t('daygi.decompressionAscentSafety')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ {t('daygi.safeWindow')}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>6. {lang === 'ar' ? 'رصد غرفة الغوص وحالة البحر:' : 'CDWS Marine Flags & Weather:'}</span>
+                <span>6. {t('daygi.cDWSMarineFlagsWeather')}</span>
                 <span className="text-[var(--dg-ok)] font-bold">✓ Green Flag</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-lg bg-[var(--dg-tint)]">
-                <span>7. {lang === 'ar' ? 'اكتمال النقل والإقامة:' : 'Hotel & Airport Transfers:'}</span>
-                <span className="text-[var(--dg-ok)] font-bold">✓ {lang === 'ar' ? 'مغطى بالكامل' : 'Complete'}</span>
+                <span>7. {t('daygi.hotelAirportTransfers')}</span>
+                <span className="text-[var(--dg-ok)] font-bold">✓ {t('daygi.complete')}</span>
               </div>
             </div>
 
@@ -1847,7 +1839,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               onClick={() => setHealthModalOpen(false)}
               className="dg-focus w-full bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold h-11 rounded-xl text-xs transition-colors"
             >
-              {lang === 'ar' ? 'إغلاق تقرير الفحص' : 'Close Audit Report'}
+              {t('daygi.closeAuditReport')}
             </button>
           </div>
         </div>
@@ -1873,13 +1865,13 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               <div className="flex items-center gap-2 min-w-0">
                 <Brain className="w-5 h-5 text-[var(--dg-gold)] shrink-0" aria-hidden="true" />
                 <h3 id="dg-memory-title" className="text-base font-bold text-[var(--dg-text)]">
-                  {lang === 'ar' ? 'ذاكرة دايجي المنظمة' : 'DayGI Structured Memory & Preferences'}
+                  {t('daygi.dayGIStructuredMemoryPreferences')}
                 </h3>
               </div>
               <button
                 onClick={() => setMemoryModalOpen(false)}
                 autoFocus
-                aria-label={lang === 'ar' ? 'إغلاق' : 'Close'}
+                aria-label={t('attractions.close')}
                 className="dg-focus w-9 h-9 shrink-0 grid place-items-center text-[var(--dg-muted)] hover:text-[var(--dg-text)] hover:bg-[var(--dg-tint-2)] rounded-lg transition-colors"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
@@ -1887,16 +1879,14 @@ Ask me anything about your trip — where to go now, what to change, what to boo
             </div>
 
             <p className="text-xs text-[var(--dg-text-2)] leading-relaxed">
-              {lang === 'ar'
-                ? 'دايجي يحفظ تفضيلاتك كبيانات منظمة دقيقة (وليس نصوص محادثات طويلة) ليطبقها فورياً في كل ترشيح وتعديل للجدول.'
-                : 'DayGI maintains explicit structured preferences (never raw transcripts) to ground every proposal and itinerary adjustment.'}
+              {t('daygi.dayGIMaintainsExplicitStructured')}
             </p>
 
             <div className="space-y-3 text-xs">
               
               {/* Pace Toggle */}
               <div className="bg-[var(--dg-tint)] p-3 rounded-xl flex items-center justify-between">
-                <span>{lang === 'ar' ? 'إيقاع الرحلة المفضل:' : 'Trip Pacing:'}</span>
+                <span>{t('daygi.tripPacing')}</span>
                 <div className="flex items-center gap-1 bg-[var(--dg-well)] p-1 rounded-lg">
                   {(['Relaxed', 'Balanced', 'Active'] as const).map(p => (
                     <button
@@ -1912,31 +1902,31 @@ Ask me anything about your trip — where to go now, what to change, what to boo
 
               {/* Mornings Preference */}
               <div className="bg-[var(--dg-tint)] p-3 rounded-xl flex items-center justify-between">
-                <span>{lang === 'ar' ? 'توقيت الصباح المفضل:' : 'Morning Routine:'}</span>
+                <span>{t('daygi.morningRoutine')}</span>
                 <div className="flex items-center gap-1 bg-[var(--dg-well)] p-1 rounded-lg">
                   <button
                     onClick={() => handleUpdatePreferences({ morningPreference: 'Late_Start' })}
                     className={`px-2 py-1 rounded text-xs transition-all ${userMemory.preferences.morningPreference === 'Late_Start' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                   >
-                    {lang === 'ar' ? 'بعد ١٠:٠٠ ص' : 'After 10 AM'}
+                    {t('daygi.after10AM')}
                   </button>
                   <button
                     onClick={() => handleUpdatePreferences({ morningPreference: 'Early_Bird' })}
                     className={`px-2 py-1 rounded text-xs transition-all ${userMemory.preferences.morningPreference === 'Early_Bird' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                   >
-                    {lang === 'ar' ? 'صباحي مبكر' : 'Early Bird'}
+                    {t('daygi.earlyBird')}
                   </button>
                 </div>
               </div>
 
               {/* Seafood Preference */}
               <div className="bg-[var(--dg-tint)] p-3 rounded-xl flex items-center justify-between">
-                <span>{lang === 'ar' ? 'تفضيل الأسماك الطازجة:' : 'Seafood Dining Preference:'}</span>
+                <span>{t('daygi.seafoodDiningPreference')}</span>
                 <button
                   onClick={() => handleUpdatePreferences({ seafoodPreference: !userMemory.preferences.seafoodPreference })}
                   className={`px-3 py-1 rounded-lg font-bold text-xs ${userMemory.preferences.seafoodPreference ? 'bg-[var(--dg-ok)]/18 text-[var(--dg-ok)] border border-[var(--dg-ok)]/40' : 'bg-[var(--dg-tint-2)] text-[var(--dg-muted)]'}`}
                 >
-                  {userMemory.preferences.seafoodPreference ? (lang === 'ar' ? 'مفعل (نشط)' : 'Enabled') : (lang === 'ar' ? 'غير مفعل' : 'Disabled')}
+                  {userMemory.preferences.seafoodPreference ? (t('daygi.enabled')) : (t('daygi.disabled'))}
                 </button>
               </div>
 
@@ -1944,7 +1934,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               {userMemory.learnedInsights?.length > 0 && (
                 <div className="bg-[var(--dg-tint)] p-3 rounded-xl space-y-1.5">
                   <span className="font-bold text-[var(--dg-gold)] block text-[12px]">
-                    {lang === 'ar' ? 'رؤى تم استنتاجها تلقائياً:' : 'Learned Behavioral Insights:'}
+                    {t('daygi.learnedBehavioralInsights')}
                   </span>
                   {/* learnedInsights is string[], not an object array. `ins.key`
                       and `ins.summaryEn` were undefined, so every insight
@@ -1968,7 +1958,7 @@ Ask me anything about your trip — where to go now, what to change, what to boo
               onClick={() => setMemoryModalOpen(false)}
               className="w-full bg-[var(--dg-gold)] text-[var(--dg-gold-ink)] font-bold py-2 rounded-xl text-xs"
             >
-              {lang === 'ar' ? 'حفظ وإغلاق' : 'Save & Close'}
+              {t('daygi.saveClose')}
             </button>
           </div>
         </div>

@@ -435,12 +435,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
     <div
       id="trip-planner-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]"
     >
       {/* 1. Planning Experience Top Header */}
       <header
         id="planner-header"
-        className="sticky top-0 z-40 bg-[#081714]/95 backdrop-blur-md border-b border-white/10 transition-all"
+        className="sticky top-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] transition-all"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -450,27 +450,27 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                 type="button"
                 onClick={onExitToHome}
                 id="planner-logo-home-btn"
-                className="text-2xl font-black tracking-tighter text-[#F7F3EA] hover:text-[#F4C36C] transition-colors font-['Outfit',sans-serif] cursor-pointer"
-                title={language === 'ar' ? 'الرجوع للرئيسية' : 'Return to homepage'}
+                className="text-2xl font-black tracking-tighter text-[var(--text-primary)] hover:text-[var(--accent-secondary)] transition-colors font-['Outfit',sans-serif] cursor-pointer"
+                title={t('planner.returnToHomepage')}
               >
                 DAHAB
               </button>
 
-              <div className="hidden md:block h-5 w-[1px] bg-white/10" />
+              <div className="hidden md:block h-5 w-[1px] bg-[var(--btn-util-bg)]" />
 
               {/* Progress Title & Step Trail Indicator */}
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#52C4B7]">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)]">
                     {t('planner.header.title', 'Plan your Dahab trip')}
                   </span>
-                  <span className="text-xs text-[#D2E3DE]/70 font-semibold">
+                  <span className="text-xs text-[var(--text-secondary)]/70 font-semibold">
                     {t('planner.header.stepOf', 'Step')} {currentStep} {t('planner.header.of', 'of')} {totalSteps}
                   </span>
                 </div>
 
                 {/* Subtle Visual Step Indicator Trail */}
-                <div className="flex items-center gap-2 pl-4 border-l border-white/10 text-xs font-semibold text-[#D2E3DE]/60 rtl:border-l-0 rtl:border-r rtl:pr-4 rtl:pl-0">
+                <div className="flex items-center gap-2 pl-4 border-l border-[var(--border-subtle)] text-xs font-semibold text-[var(--text-secondary)]/60 rtl:border-l-0 rtl:border-r rtl:pr-4 rtl:pl-0">
                   {PLANNING_STEPS.map((step, idx) => {
                     const isCompleted = currentStep > step.number;
                     const isCurrent = currentStep === step.number;
@@ -479,19 +479,19 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                         <div
                           className={`flex items-center gap-1.5 transition-colors ${
                             isCurrent
-                              ? 'text-[#F4C36C] font-bold'
+                              ? 'text-[var(--accent-secondary)] font-bold'
                               : isCompleted
-                              ? 'text-[#52C4B7] font-bold'
-                              : 'text-[#D2E3DE]/40'
+                              ? 'text-[var(--accent-primary)] font-bold'
+                              : 'text-[var(--text-secondary)]/40'
                           }`}
                         >
                           <span
                             className={`w-4 h-4 rounded-full flex items-center justify-center text-[11px] ${
                               isCompleted
-                                ? 'bg-[#52C4B7] text-[#081714] font-bold'
+                                ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] font-bold'
                                 : isCurrent
-                                ? 'bg-[#F4C36C] text-[#081714] font-bold'
-                                : 'bg-[#13312B] text-[#D2E3DE]/60 border border-white/10'
+                                ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold'
+                                : 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60 border border-[var(--border-subtle)]'
                             }`}
                           >
                             {isCompleted ? <Check className="w-2.5 h-2.5 stroke-[3]" /> : step.number}
@@ -499,7 +499,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                           <span>{t(step.labelKey, step.defaultShortLabel)}</span>
                         </div>
                         {idx < PLANNING_STEPS.length - 1 && (
-                          <span className="text-white/20 rtl:rotate-180">→</span>
+                          <span className="text-[var(--text-muted)] rtl:rotate-180">→</span>
                         )}
                       </React.Fragment>
                     );
@@ -509,9 +509,9 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
             </div>
 
             {/* Mobile compact step counter */}
-            <div className="md:hidden flex items-center gap-1.5 text-xs font-bold text-[#52C4B7]">
+            <div className="md:hidden flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
               <span>{t('planner.header.stepOf', 'Step')} {currentStep}</span>
-              <span className="text-white/40">/ {totalSteps}</span>
+              <span className="text-[var(--text-muted)]">/ {totalSteps}</span>
             </div>
 
             {/* Exit Action */}
@@ -520,7 +520,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                 type="button"
                 id="planner-exit-btn"
                 onClick={onExitToHome}
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#D2E3DE] hover:text-[#F7F3EA] px-3.5 py-2 rounded-full hover:bg-white/5 transition-all cursor-pointer border border-transparent hover:border-white/10"
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3.5 py-2 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer border border-transparent hover:border-[var(--border-subtle)]"
               >
                 <span>{t('planner.header.exit', 'Exit')}</span>
                 <X className="w-3.5 h-3.5" />
@@ -530,10 +530,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
         </div>
 
         {/* Subtle Progress Bar */}
-        <div className="w-full bg-white/5 h-1">
+        <div className="w-full bg-[var(--btn-util-bg)] h-1">
           <div
             id="planner-progress-bar"
-            className="bg-[#F4C36C] h-1 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(244,195,108,0.5)]"
+            className="bg-[var(--accent-secondary)] h-1 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(244,195,108,0.5)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -603,10 +603,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
 
           {/* Right Column: Visual Representation of Dahab */}
           <div className="lg:col-span-5 relative">
-            <div className="sticky top-28 bg-[#0E2520] border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
+            <div className="sticky top-28 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
               
               {/* Authentic High-Quality Dahab Imagery */}
-              <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden bg-[#081714]">
+              <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden bg-[var(--surface-card)]">
                 <img
                   key={stepVisual.image}
                   src={stepVisual.image}
@@ -614,45 +614,45 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover object-center scale-102 hover:scale-105 transition-transform duration-700 ease-out opacity-90 animate-in fade-in duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0E2520] via-[#0E2520]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-[var(--surface-card)]/40 to-transparent" />
 
                 {/* Location / Dynamic Badge */}
                 <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 z-10">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#081714]/80 backdrop-blur-md border border-white/20 text-[#F7F3EA] text-[12px] font-bold uppercase tracking-wider">
-                    <MapPin className="w-3 h-3 text-[#F4C36C]" />
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-card)]/80 backdrop-blur-md border border-[var(--border-subtle)] text-[var(--text-primary)] text-[12px] font-bold uppercase tracking-wider">
+                    <MapPin className="w-3 h-3 text-[var(--accent-secondary)]" />
                     <span>{stepVisual.badge}</span>
                   </div>
                 </div>
 
                 {/* Bottom Overlay Info in Image */}
                 <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#F4C36C] block mb-1">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-secondary)] block mb-1">
                     {t('planner.common.authenticSinai', 'Authentic Sinai Travel')}
                   </span>
-                  <p className="text-sm sm:text-base font-serif italic text-[#F7F3EA] leading-snug">
+                  <p className="text-sm sm:text-base font-serif italic text-[var(--text-primary)] leading-snug">
                     {stepVisual.title}
                   </p>
                 </div>
               </div>
 
               {/* Contextual Value Card */}
-              <div className="p-6 sm:p-7 bg-[#0E2520]">
+              <div className="p-6 sm:p-7 bg-[var(--surface-card)]">
                 <div className="flex items-start gap-3.5 mb-4">
-                  <div className="w-9 h-9 rounded-2xl bg-[#13312B] border border-white/10 text-[#52C4B7] flex items-center justify-center flex-shrink-0 shadow-inner">
+                  <div className="w-9 h-9 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 shadow-inner">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-[#F7F3EA]">
+                    <h2 className="text-sm font-bold text-[var(--text-primary)]">
                       {stepVisual.cardTitle}
                     </h2>
-                    <p className="text-xs text-[#D2E3DE] mt-1 leading-relaxed font-normal">
+                    <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed font-normal">
                       {stepVisual.cardText}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 flex items-center gap-2.5 text-xs text-[#D2E3DE] font-medium">
-                  <ShieldCheck className="w-4 h-4 text-[#52C4B7] flex-shrink-0" />
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center gap-2.5 text-xs text-[var(--text-secondary)] font-medium">
+                  <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
                   <span>{t('planner.common.flexiblePromise', 'No rigid tour packages · Tailored to your pace & preferences')}</span>
                 </div>
               </div>
@@ -664,11 +664,11 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
       </main>
 
       {/* 3. Simple Planning Footer */}
-      <footer className="border-t border-white/10 py-6 bg-[#081714] text-center text-xs text-[#D2E3DE]/60">
+      <footer className="border-t border-[var(--border-subtle)] py-6 bg-[var(--surface-card)] text-center text-xs text-[var(--text-secondary)]/60">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>© {new Date().getFullYear()} DAHAB Travel Experience Platform</span>
           <div className="flex items-center gap-2">
-            <Compass className="w-3.5 h-3.5 text-[#52C4B7]" />
+            <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>{t('planner.common.curatedExpertise', 'Curated with local Sinai expertise')}</span>
           </div>
         </div>

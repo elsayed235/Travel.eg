@@ -279,20 +279,20 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
     return (
       <div
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="min-h-screen bg-[#F8F7F4] text-[#1A1A1A] font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16 animate-in fade-in duration-300"
+        className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16 animate-in fade-in duration-300"
       >
         {/* Top Minimal Dahab Bar */}
-        <header className="bg-white border-b border-[#1A1A1A]/10 sticky top-0 z-30 shadow-2xs">
+        <header className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] sticky top-0 z-30 shadow-2xs">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#5A5A40] text-white flex items-center justify-center font-bold text-sm">
+              <div className="w-8 h-8 rounded-full bg-[var(--surface-container)] text-white flex items-center justify-center font-bold text-sm">
                 D
               </div>
               <div>
-                <span className="text-[11px] font-black tracking-widest uppercase text-[#5A5A40] block">
+                <span className="text-[11px] font-black tracking-widest uppercase text-[var(--text-secondary)] block">
                   DAHAB
                 </span>
-                <span className="text-xs font-bold text-[#1A1A1A]">
+                <span className="text-xs font-bold text-[var(--text-primary)]">
                   {language === 'ar' ? 'تأكيد حجز الرحلة' : 'Trip Confirmation'}
                 </span>
               </div>
@@ -318,10 +318,10 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#1A1A1A] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
                 {language === 'ar' ? 'رحلتك لدهب اتأكدت خلاص! 🎉' : 'Your Dahab trip is confirmed! 🎉'}
               </h1>
-              <p className="text-sm sm:text-base text-[#1A1A1A]/75 max-w-xl mx-auto leading-relaxed">
+              <p className="text-sm sm:text-base text-[var(--text-primary)]/75 max-w-xl mx-auto leading-relaxed">
                 {language === 'ar'
                   ? 'كل حاجة جاهزة، ورتبنالك كل الحجوزات في جدول رحلة واحد مريح.'
                   : "Everything is ready. We've organized your bookings into one trip."}
@@ -341,19 +341,19 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               </div>
             )}
 
-            <div className="inline-flex items-center gap-2 bg-white border border-[#1A1A1A]/10 px-4 py-1.5 rounded-full text-xs text-[#1A1A1A]/70 shadow-2xs font-mono">
+            <div className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-1.5 rounded-full text-xs text-[var(--text-primary)]/70 shadow-2xs font-mono">
               <span>{language === 'ar' ? 'كود الرحلة:' : 'Trip ID:'}</span>
-              <span className="font-bold text-[#1A1A1A]">{tripId}</span>
+              <span className="font-bold text-[var(--text-primary)]">{tripId}</span>
             </div>
           </div>
 
           {/* 2. ONE TRIP MAIN UNIFIED CONTAINER */}
           <div
             id="confirmed-trip-card"
-            className="bg-white rounded-3xl border border-[#1A1A1A]/10 shadow-sm overflow-hidden"
+            className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-sm overflow-hidden"
           >
             {/* Visual Cover Header */}
-            <div className="relative h-44 sm:h-52 w-full bg-[#1A1A1A]/10">
+            <div className="relative h-44 sm:h-52 w-full bg-[var(--surface-container)]/10">
               <img
                 src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1200&auto=format&fit=crop"
                 alt="Dahab turquoise sea and coastal mountains"
@@ -367,9 +367,9 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   type="button"
                   id="share-trip-header-btn"
                   onClick={handleShareClick}
-                  className="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-[#1A1A1A] text-xs font-bold backdrop-blur-md shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold backdrop-blur-md shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                 >
-                  <Share2 className="w-3.5 h-3.5 text-[#5A5A40]" />
+                  <Share2 className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                   <span>{language === 'ar' ? 'شارك الرحلة' : 'Share Trip'}</span>
                 </button>
               </div>
@@ -383,34 +383,34 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <h2 className="text-2xl sm:text-3xl font-serif font-bold mt-0.5">
                   Dahab · 5 Days
                 </h2>
-                <p className="text-xs sm:text-sm text-white/80 font-medium mt-0.5">
+                <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium mt-0.5">
                   5 days · 2 travelers · 4 coordinated services
                 </p>
               </div>
             </div>
 
             {/* Trip Status Bar */}
-            <div className="p-4 sm:p-5 bg-[#FDFBF7] border-b border-[#1A1A1A]/8 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="p-4 sm:p-5 bg-[var(--surface-card)] border-b border-[var(--text-primary)]/8 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-4">
                 <div>
-                  <span className="text-[#1A1A1A]/50 block text-[12px]">{language === 'ar' ? 'الحالة' : 'Status'}</span>
+                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'الحالة' : 'Status'}</span>
                   <span className="font-bold text-emerald-800 flex items-center gap-1">
                     <Check className="w-3 h-3 stroke-[2.5]" />
                     <span>Confirmed ✓</span>
                   </span>
                 </div>
 
-                <div className="h-6 w-px bg-[#1A1A1A]/10" />
+                <div className="h-6 w-px bg-[var(--surface-container)]/10" />
 
                 <div>
-                  <span className="text-[#1A1A1A]/50 block text-[12px]">{language === 'ar' ? 'المسافرون' : 'Travelers'}</span>
-                  <span className="font-bold text-[#1A1A1A]">{travelersLabel}</span>
+                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'المسافرون' : 'Travelers'}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{travelersLabel}</span>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="text-[#1A1A1A]/50 block text-[12px]">{language === 'ar' ? 'الإجمالي المؤكَّد' : 'Total Paid / Confirmed'}</span>
-                <span className="text-sm font-black text-[#1A1A1A]">
+                <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'الإجمالي المؤكَّد' : 'Total Paid / Confirmed'}</span>
+                <span className="text-sm font-black text-[var(--text-primary)]">
                   EGP {totalTripPrice.toLocaleString()}
                 </span>
               </div>
@@ -419,7 +419,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* Confirmed Services List (Clean & Unified to Same Trip) */}
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex items-center justify-between pb-1">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#5A5A40]">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                   {language === 'ar' ? 'الخدمات المؤكَّدة (كلها في جدول واحد)' : 'Confirmed Services (All in One Itinerary)'}
                 </h3>
                 <span className="text-xs text-emerald-800 font-semibold">
@@ -429,101 +429,101 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
               <div className="space-y-3">
                 {/* 01 HOTEL */}
-                <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start justify-between gap-3 hover:border-[#1A1A1A]/20 transition-all">
+                <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start justify-between gap-3 hover:border-[var(--border-subtle)] transition-all">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#5A5A40]/10 text-[#5A5A40] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--surface-container)]/10 text-[var(--text-secondary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Building className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-[#1A1A1A]">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedHotel ? selectedHotel.name : 'Dahab Bay Hotel'}
                         </h4>
                         <span className="text-[12px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.2 rounded-full">
                           Confirmed ✓
                         </span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         {selectedHotel ? selectedHotel.location : 'Lighthouse Area, Dahab'} · 5 nights
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 text-xs font-bold text-[#1A1A1A]">
+                  <div className="text-right flex-shrink-0 text-xs font-bold text-[var(--text-primary)]">
                     EGP {hotelPrice.toLocaleString()}
                   </div>
                 </div>
 
                 {/* 02 TRANSFER */}
-                <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start justify-between gap-3 hover:border-[#1A1A1A]/20 transition-all">
+                <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start justify-between gap-3 hover:border-[var(--border-subtle)] transition-all">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#5A5A40]/10 text-[#5A5A40] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--surface-container)]/10 text-[var(--text-secondary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Car className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-[#1A1A1A]">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedTransfer ? selectedTransfer.title : 'Private Car'}
                         </h4>
                         <span className="text-[12px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.2 rounded-full">
                           Confirmed ✓
                         </span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         Sharm El Sheikh Airport → Dahab Hotel {flightNumber ? `· Flight ${flightNumber}` : ''}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 text-xs font-bold text-[#1A1A1A]">
+                  <div className="text-right flex-shrink-0 text-xs font-bold text-[var(--text-primary)]">
                     EGP {transferPrice.toLocaleString()}
                   </div>
                 </div>
 
                 {/* 03 DIVING */}
-                <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start justify-between gap-3 hover:border-[#1A1A1A]/20 transition-all">
+                <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start justify-between gap-3 hover:border-[var(--border-subtle)] transition-all">
                   <div className="flex items-start gap-3.5">
                     <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Waves className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-[#1A1A1A]">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedDiving ? selectedDiving.title : 'Guided Diving Experience'}
                         </h4>
                         <span className="text-[12px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.2 rounded-full">
                           Confirmed ✓
                         </span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         Day {divingDay} · {divingTime} · 2 Divers
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 text-xs font-bold text-[#1A1A1A]">
+                  <div className="text-right flex-shrink-0 text-xs font-bold text-[var(--text-primary)]">
                     EGP {divingPrice.toLocaleString()}
                   </div>
                 </div>
 
                 {/* 04 SAFARI */}
-                <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start justify-between gap-3 hover:border-[#1A1A1A]/20 transition-all">
+                <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start justify-between gap-3 hover:border-[var(--border-subtle)] transition-all">
                   <div className="flex items-start gap-3.5">
                     <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Compass className="w-4 h-4" />
                     </div>
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-[#1A1A1A]">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)]">
                           {selectedSafari ? selectedSafari.title : 'Desert Safari'}
                         </h4>
                         <span className="text-[12px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.2 rounded-full">
                           Confirmed ✓
                         </span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         Day {safariDay} · {safariTime} · 2 Guests
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0 text-xs font-bold text-[#1A1A1A]">
+                  <div className="text-right flex-shrink-0 text-xs font-bold text-[var(--text-primary)]">
                     EGP {safariPrice.toLocaleString()}
                   </div>
                 </div>
@@ -535,7 +535,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   type="button"
                   id="toggle-booking-details-btn"
                   onClick={() => setShowDetailsVoucher(!showDetailsVoucher)}
-                  className="w-full py-2.5 px-4 rounded-2xl bg-white border border-[#1A1A1A]/10 text-xs font-bold text-[#5A5A40] hover:text-[#1A1A1A] hover:bg-[#1A1A1A]/5 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)]/5 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>{showDetailsVoucher ? 'Hide Booking Details' : 'View Booking Details & Provider References'}</span>
@@ -543,19 +543,19 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 </button>
 
                 {showDetailsVoucher && (
-                  <div className="mt-3 p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 text-xs text-[#1A1A1A]/80 space-y-2.5 animate-in fade-in duration-200">
+                  <div className="mt-3 p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 text-xs text-[var(--text-primary)]/80 space-y-2.5 animate-in fade-in duration-200">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <span className="text-[#1A1A1A]/50 text-[12px] block">{language === 'ar' ? 'المسافر الأساسي' : 'Lead Traveler'}</span>
-                        <span className="font-semibold text-[#1A1A1A]">{billingName || '—'}</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'المسافر الأساسي' : 'Lead Traveler'}</span>
+                        <span className="font-semibold text-[var(--text-primary)]">{billingName || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-[#1A1A1A]/50 text-[12px] block">{language === 'ar' ? 'البريد الإلكتروني' : 'Contact Email'}</span>
-                        <span className="font-semibold text-[#1A1A1A]">sherif.ahmed@example.com</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'البريد الإلكتروني' : 'Contact Email'}</span>
+                        <span className="font-semibold text-[var(--text-primary)]">sherif.ahmed@example.com</span>
                       </div>
                       <div>
-                        <span className="text-[#1A1A1A]/50 text-[12px] block">{language === 'ar' ? 'طريقة الدفع' : 'Payment Method'}</span>
-                        <span className="font-semibold text-[#1A1A1A]">
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'طريقة الدفع' : 'Payment Method'}</span>
+                        <span className="font-semibold text-[var(--text-primary)]">
                           {/* Was hardcoded to '•••• 3456' — the digits of the
                               fake card this form used to arrive pre-filled with. */}
                           {paymentMethod === 'card'
@@ -566,12 +566,12 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#1A1A1A]/50 text-[12px] block">{language === 'ar' ? 'رقم الحجز الداخلي' : 'Internal Booking Token'}</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'رقم الحجز الداخلي' : 'Internal Booking Token'}</span>
                         {/* Was the literal 'DHB-VCH-8942-AUTH' on every booking. */}
-                        <span className="font-mono text-[#5A5A40] font-bold">{tripId || '—'}</span>
+                        <span className="font-mono text-[var(--text-secondary)] font-bold">{tripId || '—'}</span>
                       </div>
                     </div>
-                    <div className="pt-2 border-t border-[#1A1A1A]/8 text-[12px] text-[#1A1A1A]/60">
+                    <div className="pt-2 border-t border-[var(--text-primary)]/8 text-[12px] text-[var(--text-primary)]/60">
                       {language === 'ar'
                         ? 'كل قسائم المزوّدين متجمّعة تحت حساب رحلتك. مش محتاج تطبع أي حاجة.'
                         : 'All provider vouchers are unified under your Dahab Trip account. No paper printouts needed upon arrival.'}
@@ -582,14 +582,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             </div>
 
             {/* 3. CONFIRMATION MESSAGE & INTRODUCING NEXT PHASE */}
-            <div className="p-6 sm:p-7 bg-[#5A5A40]/10 border-t border-[#5A5A40]/20 space-y-3">
+            <div className="p-6 sm:p-7 bg-[var(--surface-container)]/10 border-t border-[var(--text-secondary)]/20 space-y-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#5A5A40]" />
-                <h4 className="text-base font-serif font-bold text-[#1A1A1A]">
+                <Sparkles className="w-4 h-4 text-[var(--text-secondary)]" />
+                <h4 className="text-base font-serif font-bold text-[var(--text-primary)]">
                   {language === 'ar' ? 'رحلتك بقت شغّالة.' : 'Your trip is now live.'}
                 </h4>
               </div>
-              <p className="text-xs sm:text-sm text-[#1A1A1A]/80 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var(--text-primary)]/80 leading-relaxed">
                 We'll keep your bookings, schedule, updates, and important information together here.
               </p>
 
@@ -603,11 +603,11 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 is the supplier's acceptance step, and the booking now correctly
                 starts at PENDING_CONFIRMATION until that happens.
               */}
-              <div className="p-3.5 rounded-2xl bg-[#5A5A40]/5 border border-[#5A5A40]/20 flex items-center gap-2.5 text-xs">
-                <div className="w-7 h-7 rounded-xl bg-[#5A5A40] text-white flex items-center justify-center shrink-0">
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-container)]/5 border border-[var(--text-secondary)]/20 flex items-center gap-2.5 text-xs">
+                <div className="w-7 h-7 rounded-xl bg-[var(--surface-container)] text-white flex items-center justify-center shrink-0">
                   <MessageSquare className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-[#1A1A1A]/80 leading-relaxed">
+                <span className="text-[var(--text-primary)]/80 leading-relaxed">
                   {language === 'ar'
                     ? 'الحجز راح للمزوّد، وهتوصلك رسالة أول ما يأكّده.'
                     : 'Your booking has gone to the provider. You will hear from us as soon as they confirm it.'}
@@ -628,7 +628,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   alert('Transitioning to My Trip workspace (next phase).');
                 }
               }}
-              className="w-full sm:w-auto min-w-[280px] px-8 py-4 rounded-full bg-[#5A5A40] hover:bg-[#4A4A35] text-white font-bold text-sm sm:text-base transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2.5 cursor-pointer mx-auto"
+              className="w-full sm:w-auto min-w-[280px] px-8 py-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-white font-bold text-sm sm:text-base transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2.5 cursor-pointer mx-auto"
             >
               <span>{language === 'ar' ? 'افتح رحلتي' : 'View My Trip'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -639,7 +639,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 type="button"
                 id="share-trip-bottom-btn"
                 onClick={handleShareClick}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5A5A40] hover:text-[#1A1A1A] transition-colors py-2 px-4 rounded-full hover:bg-white cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors py-2 px-4 rounded-full hover:bg-[var(--surface-card)] cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 <span>{copiedLink ? 'Trip Link Copied! ✓' : 'Share Trip with Companion'}</span>
@@ -649,7 +649,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
           {/* Share notification toast */}
           {showShareToast && (
-            <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-200">
+            <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-container)] text-white text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-200">
               <Check className="w-4 h-4 text-emerald-400" />
               <span>Trip link copied to clipboard! Share it with your companion.</span>
             </div>
@@ -663,20 +663,20 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
      PAYMENT & FINAL BOOKING SCREEN (Before Confirming)
      ======================================================================== */
   return (
-    <div className="min-h-screen bg-[#F8F7F4] text-[#1A1A1A] font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16">
+    <div className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16">
       {/* 1. TOP DAHAB BRANDING & COMPACT PROGRESS BAR */}
-      <header className="bg-white border-b border-[#1A1A1A]/10 sticky top-0 z-30 shadow-xs">
+      <header className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Logo & Subtitle */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#5A5A40] text-white flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-full bg-[var(--surface-container)] text-white flex items-center justify-center font-bold text-sm">
               D
             </div>
             <div>
-              <span className="text-[11px] font-black tracking-widest uppercase text-[#5A5A40] block">
+              <span className="text-[11px] font-black tracking-widest uppercase text-[var(--text-secondary)] block">
                 DAHAB
               </span>
-              <h1 className="text-sm font-bold text-[#1A1A1A]">
+              <h1 className="text-sm font-bold text-[var(--text-primary)]">
                 {language === 'ar' ? 'إتمام الحجز' : 'Complete your booking'}
               </h1>
             </div>
@@ -689,32 +689,32 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               <span>{language === 'ar' ? 'الرحلة' : 'Trip'}</span>
             </div>
 
-            <span className="text-[#1A1A1A]/30 text-xs flex-shrink-0">›</span>
+            <span className="text-[var(--text-primary)]/30 text-xs flex-shrink-0">›</span>
 
             <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
               <span className="text-[11px]">✓</span>
               <span>{language === 'ar' ? 'الفندق' : 'Hotel'}</span>
             </div>
 
-            <span className="text-[#1A1A1A]/30 text-xs flex-shrink-0">›</span>
+            <span className="text-[var(--text-primary)]/30 text-xs flex-shrink-0">›</span>
 
             <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
               <span className="text-[11px]">✓</span>
               <span>{language === 'ar' ? 'الانتقالات' : 'Transfer'}</span>
             </div>
 
-            <span className="text-[#1A1A1A]/30 text-xs flex-shrink-0">›</span>
+            <span className="text-[var(--text-primary)]/30 text-xs flex-shrink-0">›</span>
 
             <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
               <span className="text-[11px]">✓</span>
               <span>{language === 'ar' ? 'الأنشطة' : 'Activities'}</span>
             </div>
 
-            <span className="text-[#1A1A1A]/30 text-xs flex-shrink-0">›</span>
+            <span className="text-[var(--text-primary)]/30 text-xs flex-shrink-0">›</span>
 
             {/* Payment Active */}
-            <div className="flex items-center gap-1.5 text-[#5A5A40] font-bold bg-[#5A5A40]/10 px-3 py-1 rounded-full border border-[#5A5A40]/30 flex-shrink-0 ring-1 ring-[#5A5A40]/20">
-              <Lock className="w-3 h-3 text-[#5A5A40]" />
+            <div className="flex items-center gap-1.5 text-[var(--text-secondary)] font-bold bg-[var(--surface-container)]/10 px-3 py-1 rounded-full border border-[var(--text-secondary)]/30 flex-shrink-0 ring-1 ring-[var(--text-secondary)]/20">
+              <Lock className="w-3 h-3 text-[var(--text-secondary)]" />
               <span>Payment ●</span>
             </div>
           </div>
@@ -729,7 +729,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             type="button"
             id="back-to-review-btn"
             onClick={onBackToReview}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5A5A40] hover:text-[#1A1A1A] transition-colors cursor-pointer bg-white px-3.5 py-1.5 rounded-full border border-[#1A1A1A]/10 shadow-2xs"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer bg-[var(--surface-card)] px-3.5 py-1.5 rounded-full border border-[var(--border-subtle)] shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{language === 'ar' ? 'الرجوع لمراجعة الحجز' : 'Back to Booking Review'}</span>
@@ -739,19 +739,19 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
         {/* Page Heading & Supporting Text */}
         <div className="mb-8 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5A5A40]/10 text-[#5A5A40] text-xs font-bold border border-[#5A5A40]/20 shadow-2xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)]/10 text-[var(--text-secondary)] text-xs font-bold border border-[var(--text-secondary)]/20 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{language === 'ar' ? 'الخطوة الأخيرة' : 'Final step'}</span>
             </span>
-            <span className="text-xs text-[#1A1A1A]/60 font-semibold">
+            <span className="text-xs text-[var(--text-primary)]/60 font-semibold">
               {language === 'ar' ? 'فاضل خطوة واحدة على رحلتك في دهب' : 'You\'re one step away from your Dahab trip'}
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#1A1A1A] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
             {language === 'ar' ? 'إتمام الحجز' : 'Complete your booking'}
           </h2>
-          <p className="text-sm sm:text-base text-[#1A1A1A]/70 max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[var(--text-primary)]/70 max-w-3xl leading-relaxed">
             {language === 'ar' ? 'أكّد بياناتك واختار طريقة الدفع اللي تناسبك.' : 'Confirm your details and choose how you\'d like to pay.'}
           </p>
         </div>
@@ -763,13 +763,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 1. PAYMENT METHOD SELECTION */}
             <div
               id="payment-method-section"
-              className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-xs space-y-5"
+              className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5"
             >
-              <div className="border-b border-[#1A1A1A]/8 pb-3">
-                <span className="text-[12px] font-bold uppercase tracking-wider text-[#5A5A40] block">
+              <div className="border-b border-[var(--text-primary)]/8 pb-3">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
                   {language === 'ar' ? 'طرق الدفع' : 'Payment Options'}
                 </span>
-                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#1A1A1A] mt-0.5">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)] mt-0.5">
                   How would you like to pay?
                 </h3>
               </div>
@@ -779,8 +779,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <label
                   className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-start justify-between cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'border-[#5A5A40] bg-[#FDFBF7] shadow-xs'
-                      : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20 bg-white'
+                      ? 'border-[var(--text-secondary)] bg-[var(--surface-card)] shadow-xs'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] bg-[var(--surface-card)]'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -790,14 +790,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value="card"
                       checked={paymentMethod === 'card'}
                       onChange={() => setPaymentMethod('card')}
-                      className="mt-1 w-4 h-4 text-[#5A5A40] focus:ring-[#5A5A40]"
+                      className="mt-1 w-4 h-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)]"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-[#5A5A40]" />
-                        <span className="text-sm font-bold text-[#1A1A1A]">{language === 'ar' ? 'بطاقة (Paymob / Stripe)' : 'Card (Paymob / Stripe)'}</span>
+                        <CreditCard className="w-4 h-4 text-[var(--text-secondary)]" />
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{language === 'ar' ? 'بطاقة (Paymob / Stripe)' : 'Card (Paymob / Stripe)'}</span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70 font-medium">
+                      <p className="text-xs text-[var(--text-primary)]/70 font-medium">
                         {language === 'ar'
                           ? 'فيزا، ماستركارد، ميزة · بنبعت آخر ٤ أرقام بس'
                           : 'Visa, Mastercard, Meeza · only the last 4 digits are sent'}
@@ -814,8 +814,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <label
                   className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-start justify-between cursor-pointer ${
                     paymentMethod === 'wallet'
-                      ? 'border-[#5A5A40] bg-[#FDFBF7] shadow-xs'
-                      : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20 bg-white'
+                      ? 'border-[var(--text-secondary)] bg-[var(--surface-card)] shadow-xs'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] bg-[var(--surface-card)]'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -825,14 +825,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value="wallet"
                       checked={paymentMethod === 'wallet'}
                       onChange={() => setPaymentMethod('wallet')}
-                      className="mt-1 w-4 h-4 text-[#5A5A40] focus:ring-[#5A5A40]"
+                      className="mt-1 w-4 h-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)]"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Smartphone className="w-4 h-4 text-[#5A5A40]" />
-                        <span className="text-sm font-bold text-[#1A1A1A]">{language === 'ar' ? 'فودافون كاش ومحافظ مصر' : 'Vodafone Cash / Egypt Wallets'}</span>
+                        <Smartphone className="w-4 h-4 text-[var(--text-secondary)]" />
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{language === 'ar' ? 'فودافون كاش ومحافظ مصر' : 'Vodafone Cash / Egypt Wallets'}</span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70 font-medium">
+                      <p className="text-xs text-[var(--text-primary)]/70 font-medium">
                         {language === 'ar' ? 'فودافون كاش، أورنج موني، اتصالات كاش، وي باي (بيطلب الرقم السري فورًا)' : 'Vodafone Cash, Orange Money, Etisalat Cash, WE Pay (Instant PIN Prompt)'}
                       </p>
                     </div>
@@ -847,8 +847,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <label
                   className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-start justify-between cursor-pointer ${
                     paymentMethod === 'instapay'
-                      ? 'border-[#5A5A40] bg-[#FDFBF7] shadow-xs'
-                      : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20 bg-white'
+                      ? 'border-[var(--text-secondary)] bg-[var(--surface-card)] shadow-xs'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] bg-[var(--surface-card)]'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -858,14 +858,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value="instapay"
                       checked={paymentMethod === 'instapay'}
                       onChange={() => setPaymentMethod('instapay')}
-                      className="mt-1 w-4 h-4 text-[#5A5A40] focus:ring-[#5A5A40]"
+                      className="mt-1 w-4 h-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)]"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-[#5A5A40]" />
-                        <span className="text-sm font-bold text-[#1A1A1A]">{language === 'ar' ? 'إنستاباي مصر (IPN)' : 'InstaPay Egypt (IPN)'}</span>
+                        <Zap className="w-4 h-4 text-[var(--text-secondary)]" />
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{language === 'ar' ? 'إنستاباي مصر (IPN)' : 'InstaPay Egypt (IPN)'}</span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70 font-medium">
+                      <p className="text-xs text-[var(--text-primary)]/70 font-medium">
                         {language === 'ar' ? 'تحويل فوري بدون رسوم عبر شبكة البنك المركزي المصري' : 'Instant zero-fee transfer via Central Bank of Egypt IPN network'}
                       </p>
                     </div>
@@ -880,8 +880,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <label
                   className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-start justify-between cursor-pointer ${
                     paymentMethod === 'arrival'
-                      ? 'border-[#5A5A40] bg-[#FDFBF7] shadow-xs'
-                      : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20 bg-white'
+                      ? 'border-[var(--text-secondary)] bg-[var(--surface-card)] shadow-xs'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] bg-[var(--surface-card)]'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -891,14 +891,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value="arrival"
                       checked={paymentMethod === 'arrival'}
                       onChange={() => setPaymentMethod('arrival')}
-                      className="mt-1 w-4 h-4 text-[#5A5A40] focus:ring-[#5A5A40]"
+                      className="mt-1 w-4 h-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)]"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Building className="w-4 h-4 text-[#5A5A40]" />
-                        <span className="text-sm font-bold text-[#1A1A1A]">{language === 'ar' ? 'ادفع عند الوصول (في دهب)' : 'Pay on arrival (Dahab Check-in)'}</span>
+                        <Building className="w-4 h-4 text-[var(--text-secondary)]" />
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{language === 'ar' ? 'ادفع عند الوصول (في دهب)' : 'Pay on arrival (Dahab Check-in)'}</span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         {language === 'ar' ? 'احجز بقسيمة ضمان، وادفع في الفندق أو مركز الغطس' : 'Hold with booking guarantee voucher, settle in hotel / dive center'}
                       </p>
                     </div>
@@ -909,8 +909,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <label
                   className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-start justify-between cursor-pointer ${
                     paymentMethod === 'cash'
-                      ? 'border-[#5A5A40] bg-[#FDFBF7] shadow-xs'
-                      : 'border-[#1A1A1A]/10 hover:border-[#1A1A1A]/20 bg-white'
+                      ? 'border-[var(--text-secondary)] bg-[var(--surface-card)] shadow-xs'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] bg-[var(--surface-card)]'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -920,14 +920,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value="cash"
                       checked={paymentMethod === 'cash'}
                       onChange={() => setPaymentMethod('cash')}
-                      className="mt-1 w-4 h-4 text-[#5A5A40] focus:ring-[#5A5A40]"
+                      className="mt-1 w-4 h-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)]"
                     />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <Banknote className="w-4 h-4 text-[#5A5A40]" />
-                        <span className="text-sm font-bold text-[#1A1A1A]">{language === 'ar' ? 'كاش للمرشد البدوي أو السائق' : 'Cash to Bedouin Guide / Driver'}</span>
+                        <Banknote className="w-4 h-4 text-[var(--text-secondary)]" />
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{language === 'ar' ? 'كاش للمرشد البدوي أو السائق' : 'Cash to Bedouin Guide / Driver'}</span>
                       </div>
-                      <p className="text-xs text-[#1A1A1A]/70">
+                      <p className="text-xs text-[var(--text-primary)]/70">
                         {language === 'ar' ? 'الدفع كاش وقت المقابلة (جنيه، دولار، أو يورو)' : 'Settle directly in cash (EGP, USD, or EUR) upon meetup'}
                       </p>
                     </div>
@@ -936,8 +936,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               </div>
 
               {/* Realistic Policy Notice */}
-              <div className="p-3.5 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start gap-2.5 text-xs text-[#1A1A1A]/75">
-                <Info className="w-4 h-4 text-[#5A5A40] flex-shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start gap-2.5 text-xs text-[var(--text-primary)]/75">
+                <Info className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0 mt-0.5" />
                 <p>
                   All bookings trigger real-time Twilio SMS confirmations to drivers and dive masters for flawless synchronization.
                 </p>
@@ -948,31 +948,31 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {paymentMethod === 'card' && (
               <div
                 id="card-payment-form-card"
-                className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-xs space-y-5 animate-in fade-in duration-200"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5 animate-in fade-in duration-200"
               >
-                <div className="flex items-center justify-between border-b border-[#1A1A1A]/8 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--text-primary)]/8 pb-3">
                   <div>
-                    <span className="text-[12px] font-bold uppercase tracking-wider text-[#5A5A40] block">
+                    <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
                       {language === 'ar' ? 'بيانات البطاقة' : 'Card Details'}
                     </span>
-                    <h3 className="text-lg font-serif font-bold text-[#1A1A1A] mt-0.5">
+                    <h3 className="text-lg font-serif font-bold text-[var(--text-primary)] mt-0.5">
                       {language === 'ar' ? 'بوابة بطاقات الائتمان والخصم' : 'Credit & Debit Card Gateway'}
                     </h3>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <div className="flex bg-[#FDFBF7] p-1 rounded-xl border border-[#1A1A1A]/10 text-xs">
+                    <div className="flex bg-[var(--surface-card)] p-1 rounded-xl border border-[var(--border-subtle)] text-xs">
                       <button
                         type="button"
                         onClick={() => setCardGateway('PAYMOB')}
-                        className={`px-2.5 py-1 rounded-lg font-bold transition-all ${cardGateway === 'PAYMOB' ? 'bg-[#5A5A40] text-white shadow-xs' : 'text-[#1A1A1A]/70'}`}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition-all ${cardGateway === 'PAYMOB' ? 'bg-[var(--surface-container)] text-white shadow-xs' : 'text-[var(--text-primary)]/70'}`}
                       >
                         Paymob
                       </button>
                       <button
                         type="button"
                         onClick={() => setCardGateway('STRIPE')}
-                        className={`px-2.5 py-1 rounded-lg font-bold transition-all ${cardGateway === 'STRIPE' ? 'bg-[#5A5A40] text-white shadow-xs' : 'text-[#1A1A1A]/70'}`}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition-all ${cardGateway === 'STRIPE' ? 'bg-[var(--surface-container)] text-white shadow-xs' : 'text-[var(--text-primary)]/70'}`}
                       >
                         Stripe
                       </button>
@@ -989,7 +989,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                    <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                       {language === 'ar' ? 'اسم حامل البطاقة' : 'Cardholder name'}
                     </label>
                     <input
@@ -998,13 +998,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value={cardholderName}
                       onChange={(e) => setCardholderName(e.target.value)}
                       placeholder={language === 'ar' ? 'الاسم كما هو على البطاقة' : 'Name as printed on the card'}
-                      className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] focus:ring-1 focus:ring-[#5A5A40] bg-white text-sm"
+                      className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] focus:ring-1 focus:ring-[var(--text-secondary)] bg-[var(--surface-card)] text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                    <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                       {language === 'ar' ? 'رقم البطاقة' : 'Card number'}
                     </label>
                     <div className="relative">
@@ -1015,18 +1015,18 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         onChange={(e) => setCardNumber(e.target.value)}
                         placeholder="1234 5678 9012 3456"
                         maxLength={19}
-                        className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] focus:ring-1 focus:ring-[#5A5A40] bg-white text-sm font-mono"
+                        className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] focus:ring-1 focus:ring-[var(--text-secondary)] bg-[var(--surface-card)] text-sm font-mono"
                         required
                       />
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                        <CreditCard className="w-4 h-4 text-[#1A1A1A]/40" />
+                        <CreditCard className="w-4 h-4 text-[var(--text-primary)]/40" />
                       </div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                      <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                         {language === 'ar' ? 'تاريخ الانتهاء' : 'Expiry date'}
                       </label>
                       <input
@@ -1036,13 +1036,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         onChange={(e) => setCardExpiry(e.target.value)}
                         placeholder="MM / YY"
                         maxLength={7}
-                        className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] focus:ring-1 focus:ring-[#5A5A40] bg-white text-sm text-center font-mono"
+                        className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] focus:ring-1 focus:ring-[var(--text-secondary)] bg-[var(--surface-card)] text-sm text-center font-mono"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                      <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                         CVV
                       </label>
                       <input
@@ -1052,19 +1052,19 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         onChange={(e) => setCardCvv(e.target.value)}
                         placeholder="123"
                         maxLength={4}
-                        className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] focus:ring-1 focus:ring-[#5A5A40] bg-white text-sm text-center font-mono"
+                        className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] focus:ring-1 focus:ring-[var(--text-secondary)] bg-[var(--surface-card)] text-sm text-center font-mono"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 flex items-start gap-3">
-                    <ShieldCheck className="w-5 h-5 text-[#5A5A40] flex-shrink-0 mt-0.5" />
+                  <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 flex items-start gap-3">
+                    <ShieldCheck className="w-5 h-5 text-[var(--text-secondary)] flex-shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
-                      <span className="text-xs font-bold text-[#1A1A1A] block">
+                      <span className="text-xs font-bold text-[var(--text-primary)] block">
                         Verified by {cardGateway}
                       </span>
-                      <p className="text-xs text-[#1A1A1A]/70 leading-relaxed">
+                      <p className="text-xs text-[var(--text-primary)]/70 leading-relaxed">
                         {language === 'ar' ? 'معالجة فورية للدفع مع تحقق 3D Secure.' : 'Instant payment processing with 3D Secure verification.'}
                       </p>
                     </div>
@@ -1076,13 +1076,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {paymentMethod === 'wallet' && (
               <div
                 id="wallet-payment-form-card"
-                className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-xs space-y-5 animate-in fade-in duration-200"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5 animate-in fade-in duration-200"
               >
-                <div className="border-b border-[#1A1A1A]/8 pb-3">
+                <div className="border-b border-[var(--text-primary)]/8 pb-3">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-red-700 block">
                     {language === 'ar' ? 'المحفظة الإلكترونية - مصر' : 'Mobile Wallet Egypt'}
                   </span>
-                  <h3 className="text-lg font-serif font-bold text-[#1A1A1A] mt-0.5">
+                  <h3 className="text-lg font-serif font-bold text-[var(--text-primary)] mt-0.5">
                     {language === 'ar' ? 'فودافون كاش ومحافظ شركات الاتصالات' : 'Vodafone Cash & Telecom Wallets'}
                   </h3>
                 </div>
@@ -1100,8 +1100,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       onClick={() => setWalletProvider(w.id)}
                       className={`p-2.5 rounded-2xl border text-xs font-bold text-center transition-all ${
                         walletProvider === w.id
-                          ? 'border-[#5A5A40] bg-[#5A5A40] text-white shadow-xs'
-                          : 'border-[#1A1A1A]/10 bg-[#FDFBF7] text-[#1A1A1A]/80 hover:border-[#1A1A1A]/30'
+                          ? 'border-[var(--text-secondary)] bg-[var(--surface-container)] text-white shadow-xs'
+                          : 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]/80 hover:border-[var(--border-subtle)]'
                       }`}
                     >
                       {w.name}
@@ -1110,7 +1110,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold text-[#1A1A1A]">
+                  <label className="block text-xs font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? 'رقم المحفظة المسجّل (مثال: ٠١٠، ٠١١، ٠١٢، ٠١٥)' : 'Registered Wallet Number (e.g. 010, 011, 012, 015)'}
                   </label>
                   <div className="relative">
@@ -1120,12 +1120,12 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value={walletPhone}
                       onChange={(e) => setWalletPhone(e.target.value)}
                       placeholder="0100 123 4567"
-                      className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] font-mono text-sm"
+                      className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] font-mono text-sm"
                       required
                     />
-                    <Smartphone className="w-4 h-4 text-[#1A1A1A]/40 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                    <Smartphone className="w-4 h-4 text-[var(--text-primary)]/40 absolute right-3.5 top-1/2 -translate-y-1/2" />
                   </div>
-                  <p className="text-[12px] text-[#1A1A1A]/65">
+                  <p className="text-[12px] text-[var(--text-primary)]/65">
                     You will receive an instant push authorization request or OTP on your mobile wallet app.
                   </p>
                 </div>
@@ -1135,19 +1135,19 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {paymentMethod === 'instapay' && (
               <div
                 id="instapay-payment-form-card"
-                className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-xs space-y-5 animate-in fade-in duration-200"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5 animate-in fade-in duration-200"
               >
-                <div className="border-b border-[#1A1A1A]/8 pb-3">
+                <div className="border-b border-[var(--text-primary)]/8 pb-3">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-purple-700 block">
                     {language === 'ar' ? 'شبكة الدفع الفوري - البنك المركزي' : 'Central Bank Instant Payment Network'}
                   </span>
-                  <h3 className="text-lg font-serif font-bold text-[#1A1A1A] mt-0.5">
+                  <h3 className="text-lg font-serif font-bold text-[var(--text-primary)] mt-0.5">
                     {language === 'ar' ? 'إنستاباي مصر (عنوان IPA)' : 'InstaPay Egypt (IPA Handle)'}
                   </h3>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-bold text-[#1A1A1A]">
+                  <label className="block text-xs font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? 'عنوان الإنستاباي بتاعك (IPA)' : 'Your InstaPay Address (IPA)'}
                   </label>
                   <div className="relative">
@@ -1157,7 +1157,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       value={instapayAddress}
                       onChange={(e) => setInstapayAddress(e.target.value)}
                       placeholder="username@instapay"
-                      className="w-full px-4 py-3 rounded-2xl border border-[#1A1A1A]/15 focus:outline-none focus:border-[#5A5A40] font-mono text-sm"
+                      className="w-full px-4 py-3 rounded-2xl border border-[var(--text-primary)]/15 focus:outline-none focus:border-[var(--text-secondary)] font-mono text-sm"
                       required
                     />
                     <Zap className="w-4 h-4 text-purple-600 absolute right-3.5 top-1/2 -translate-y-1/2" />
@@ -1173,23 +1173,23 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 3. BILLING INFORMATION (Optional / Pre-filled) */}
             <div
               id="billing-info-section"
-              className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-xs space-y-4"
+              className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-4"
             >
-              <div className="border-b border-[#1A1A1A]/8 pb-3">
-                <span className="text-[12px] font-bold uppercase tracking-wider text-[#5A5A40] block">
+              <div className="border-b border-[var(--text-primary)]/8 pb-3">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
                   {language === 'ar' ? 'بيانات التواصل' : 'Traveler Contact'}
                 </span>
-                <h3 className="text-lg font-serif font-bold text-[#1A1A1A] mt-0.5">
+                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)] mt-0.5">
                   {language === 'ar' ? 'بيانات الفوترة' : 'Billing information'}
                 </h3>
-                <p className="text-xs text-[#1A1A1A]/60">
+                <p className="text-xs text-[var(--text-primary)]/60">
                   {language === 'ar' ? 'متعبّية من ملفك الشخصي' : 'Pre-filled from your traveler profile'}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                     {language === 'ar' ? 'الاسم بالكامل' : 'Full Name'}
                   </label>
                   <input
@@ -1197,12 +1197,12 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                     id="billing-name-input"
                     value={billingName}
                     onChange={(e) => setBillingName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#1A1A1A]/15 bg-white text-sm focus:outline-none focus:border-[#5A5A40]"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-[var(--text-primary)]/15 bg-[var(--surface-card)] text-sm focus:outline-none focus:border-[var(--text-secondary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                     {language === 'ar' ? 'إيميل التأكيد' : 'Email for Confirmation'}
                   </label>
                   <input
@@ -1210,12 +1210,12 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                     id="billing-email-input"
                     value={billingEmail}
                     onChange={(e) => setBillingEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#1A1A1A]/15 bg-white text-sm focus:outline-none focus:border-[#5A5A40]"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-[var(--text-primary)]/15 bg-[var(--surface-card)] text-sm focus:outline-none focus:border-[var(--text-secondary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                     {language === 'ar' ? 'الموبايل (تحديثات واتساب)' : 'Phone (WhatsApp updates)'}
                   </label>
                   <input
@@ -1223,7 +1223,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                     id="billing-phone-input"
                     value={billingPhone}
                     onChange={(e) => setBillingPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl border border-[#1A1A1A]/15 bg-white text-sm focus:outline-none focus:border-[#5A5A40]"
+                    className="w-full px-4 py-2.5 rounded-2xl border border-[var(--text-primary)]/15 bg-[var(--surface-card)] text-sm focus:outline-none focus:border-[var(--text-secondary)]"
                   />
                 </div>
               </div>
@@ -1232,23 +1232,23 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 4. BOOKING PROTECTION / TRUST */}
             <div
               id="booking-protection-trust-card"
-              className="p-5 sm:p-6 rounded-3xl bg-[#FDFBF7] border border-[#1A1A1A]/10 space-y-3"
+              className="p-5 sm:p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-3"
             >
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#5A5A40]">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
                 {language === 'ar' ? 'حماية الحجز' : 'Booking Protection'}
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[#1A1A1A]/85 font-medium">
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#1A1A1A]/8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[var(--text-primary)]/85 font-medium">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8">
                   <Check className="w-4 h-4 text-emerald-700 stroke-[2.5]" />
                   <span>{language === 'ar' ? 'دفع آمن' : 'Secure checkout'}</span>
                 </div>
 
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#1A1A1A]/8">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8">
                   <Check className="w-4 h-4 text-emerald-700 stroke-[2.5]" />
                   <span>{language === 'ar' ? 'البيانات محفوظة في رحلتك' : 'Details saved in trip'}</span>
                 </div>
 
-                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#1A1A1A]/8">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8">
                   <Check className="w-4 h-4 text-emerald-700 stroke-[2.5]" />
                   <span>{language === 'ar' ? 'دعم لو خططك اتغيّرت' : 'Support if plans change'}</span>
                 </div>
@@ -1258,7 +1258,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 5. TERMS CONFIRMATION CHECKBOX */}
             <div
               id="payment-terms-agreement-card"
-              className="p-5 sm:p-6 rounded-3xl bg-white border border-[#1A1A1A]/10 shadow-xs space-y-3"
+              className="p-5 sm:p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs space-y-3"
             >
               <label className="flex items-start gap-3 cursor-pointer select-none">
                 <input
@@ -1266,9 +1266,9 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   id="payment-agree-terms-checkbox"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded text-emerald-700 focus:ring-emerald-600 border-[#1A1A1A]/30 cursor-pointer"
+                  className="mt-1 w-4 h-4 rounded text-emerald-700 focus:ring-emerald-600 border-[var(--border-subtle)] cursor-pointer"
                 />
-                <div className="text-xs sm:text-sm text-[#1A1A1A]/90 leading-relaxed font-medium">
+                <div className="text-xs sm:text-sm text-[var(--text-primary)]/90 leading-relaxed font-medium">
                   <span>{language === 'ar' ? 'أوافق على شروط الحجز وسياسات الإلغاء.' : 'I agree to the booking terms and cancellation policies.'}</span>
                   <div className="mt-1">
                     <button
@@ -1279,7 +1279,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         e.stopPropagation();
                         setShowTermsModal(true);
                       }}
-                      className="text-xs font-bold text-[#5A5A40] hover:text-[#1A1A1A] underline underline-offset-4 cursor-pointer"
+                      className="text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 cursor-pointer"
                     >
                       {language === 'ar' ? 'اعرض الشروط' : 'View terms'}
                     </button>
@@ -1294,17 +1294,17 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 1. COMPACT TRIP SUMMARY AT TOP */}
             <div
               id="payment-trip-summary-card"
-              className="bg-white rounded-3xl p-6 border border-[#1A1A1A]/10 shadow-xs space-y-4"
+              className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xs space-y-4"
             >
-              <div className="flex items-start justify-between border-b border-[#1A1A1A]/8 pb-3">
+              <div className="flex items-start justify-between border-b border-[var(--text-primary)]/8 pb-3">
                 <div>
-                  <span className="text-[11px] font-black tracking-wider uppercase text-[#5A5A40] block">
+                  <span className="text-[11px] font-black tracking-wider uppercase text-[var(--text-secondary)] block">
                     {language === 'ar' ? 'الملخّص' : 'Summary'}
                   </span>
-                  <h3 className="text-lg font-serif font-bold text-[#1A1A1A]">
+                  <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? 'رحلة دهب' : 'Dahab Trip'}
                   </h3>
-                  <p className="text-xs text-[#1A1A1A]/60 mt-0.5">
+                  <p className="text-xs text-[var(--text-primary)]/60 mt-0.5">
                     {[
                       `${activeTrip?.lengthDays ?? profile.lengthDays ?? 5} ${language === 'ar' ? 'أيام' : 'Days'}`,
                       travelersLabel,
@@ -1317,44 +1317,44 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   type="button"
                   id="edit-trip-from-payment-btn"
                   onClick={onBackToReview}
-                  className="text-xs font-bold text-[#5A5A40] hover:text-[#1A1A1A] underline underline-offset-4 cursor-pointer"
+                  className="text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 cursor-pointer"
                 >
                   {language === 'ar' ? 'تعديل الرحلة' : 'Edit trip'}
                 </button>
               </div>
 
               {/* 4 Compact Component List */}
-              <div className="space-y-2.5 text-xs text-[#1A1A1A]/85">
-                <div className="flex items-center justify-between p-2 rounded-xl bg-[#FDFBF7] border border-[#1A1A1A]/6">
+              <div className="space-y-2.5 text-xs text-[var(--text-primary)]/85">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/6">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Building className="w-3.5 h-3.5 text-[#5A5A40]" />
+                    <Building className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     <span>{selectedHotel ? selectedHotel.name : 'Dahab Bay Hotel'}</span>
                   </span>
-                  <span className="text-[#1A1A1A]/60 text-[12px]">5 nights</span>
+                  <span className="text-[var(--text-primary)]/60 text-[12px]">5 nights</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 rounded-xl bg-[#FDFBF7] border border-[#1A1A1A]/6">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/6">
                   <span className="flex items-center gap-1.5 font-medium">
-                    <Car className="w-3.5 h-3.5 text-[#5A5A40]" />
+                    <Car className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                     <span>{selectedTransfer ? selectedTransfer.title : 'Private Car'}</span>
                   </span>
-                  <span className="text-[#1A1A1A]/60 text-[12px]">Airport → Hotel</span>
+                  <span className="text-[var(--text-primary)]/60 text-[12px]">Airport → Hotel</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 rounded-xl bg-[#FDFBF7] border border-[#1A1A1A]/6">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/6">
                   <span className="flex items-center gap-1.5 font-medium">
                     <Waves className="w-3.5 h-3.5 text-emerald-700" />
                     <span>{selectedDiving ? selectedDiving.title : 'Guided Diving'}</span>
                   </span>
-                  <span className="text-[#1A1A1A]/60 text-[12px]">Day {divingDay} · {divingTime}</span>
+                  <span className="text-[var(--text-primary)]/60 text-[12px]">Day {divingDay} · {divingTime}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2 rounded-xl bg-[#FDFBF7] border border-[#1A1A1A]/6">
+                <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--text-primary)]/6">
                   <span className="flex items-center gap-1.5 font-medium">
                     <Compass className="w-3.5 h-3.5 text-amber-700" />
                     <span>{selectedSafari ? selectedSafari.title : 'Desert Safari'}</span>
                   </span>
-                  <span className="text-[#1A1A1A]/60 text-[12px]">Day {safariDay} · {safariTime}</span>
+                  <span className="text-[var(--text-primary)]/60 text-[12px]">Day {safariDay} · {safariTime}</span>
                 </div>
               </div>
             </div>
@@ -1362,61 +1362,61 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* 2. PRICE SUMMARY CARD */}
             <div
               id="payment-price-breakdown-card"
-              className="bg-white rounded-3xl p-6 sm:p-7 border border-[#1A1A1A]/10 shadow-sm space-y-5"
+              className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-sm space-y-5"
             >
-              <div className="border-b border-[#1A1A1A]/8 pb-3">
-                <span className="text-[12px] font-bold uppercase tracking-wider text-[#5A5A40] block">
+              <div className="border-b border-[var(--text-primary)]/8 pb-3">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
                   {language === 'ar' ? 'تفاصيل التكلفة' : 'Cost Breakdown'}
                 </span>
-                <h3 className="text-xl font-serif font-bold text-[#1A1A1A] mt-0.5">
+                <h3 className="text-xl font-serif font-bold text-[var(--text-primary)] mt-0.5">
                   {language === 'ar' ? 'إجمالي الرحلة' : 'Trip Total'}
                 </h3>
               </div>
 
               {/* Exact Line Items without invented fees */}
-              <div className="space-y-3 text-xs text-[#1A1A1A]/80">
+              <div className="space-y-3 text-xs text-[var(--text-primary)]/80">
                 <div className="flex items-center justify-between">
                   <span>{language === 'ar' ? 'الفندق' : 'Hotel'}</span>
-                  <span className="font-bold text-[#1A1A1A]">
+                  <span className="font-bold text-[var(--text-primary)]">
                     EGP {hotelPrice.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span>{language === 'ar' ? 'الانتقالات' : 'Transfer'}</span>
-                  <span className="font-bold text-[#1A1A1A]">
+                  <span className="font-bold text-[var(--text-primary)]">
                     EGP {transferPrice.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span>{language === 'ar' ? 'الغطس' : 'Diving'}</span>
-                  <span className="font-bold text-[#1A1A1A]">
+                  <span className="font-bold text-[var(--text-primary)]">
                     EGP {divingPrice.toLocaleString()}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span>{language === 'ar' ? 'السفاري' : 'Safari'}</span>
-                  <span className="font-bold text-[#1A1A1A]">
+                  <span className="font-bold text-[var(--text-primary)]">
                     EGP {safariPrice.toLocaleString()}
                   </span>
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-[#1A1A1A]/10 pt-3" />
+                <div className="border-t border-[var(--border-subtle)] pt-3" />
 
                 {/* Trip Total */}
                 <div className="space-y-1">
                   <div className="flex items-baseline justify-between">
-                    <span className="text-xs font-bold text-[#1A1A1A]">
+                    <span className="text-xs font-bold text-[var(--text-primary)]">
                       {language === 'ar' ? 'إجمالي الرحلة:' : 'Trip total:'}
                     </span>
-                    <span className="text-2xl font-black text-[#1A1A1A]">
+                    <span className="text-2xl font-black text-[var(--text-primary)]">
                       EGP {totalTripPrice.toLocaleString()}
                     </span>
                   </div>
-                  <div className="text-[12px] text-[#1A1A1A]/60 font-semibold">
+                  <div className="text-[12px] text-[var(--text-primary)]/60 font-semibold">
                     {language === 'ar'
                       ? `الإجمالي التقديري لـ${travelersLabel}`
                       : `Estimated total for ${travelersLabel.toLowerCase()}`}
@@ -1480,8 +1480,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   disabled={!agreedToTerms || isProcessing}
                   className={`w-full py-4 px-6 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
                     agreedToTerms && !isProcessing
-                      ? 'bg-[#5A5A40] hover:bg-[#4A4A35] text-white active:scale-98'
-                      : 'bg-[#1A1A1A]/10 text-[#1A1A1A]/40 cursor-not-allowed'
+                      ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-white active:scale-98'
+                      : 'bg-[var(--surface-container)]/10 text-[var(--text-primary)]/40 cursor-not-allowed'
                   }`}
                 >
                   <Lock className="w-4 h-4" />
@@ -1500,7 +1500,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   type="button"
                   id="payment-back-to-review-btn"
                   onClick={onBackToReview}
-                  className="w-full py-2.5 px-4 rounded-full font-bold text-xs text-[#1A1A1A]/70 hover:text-[#1A1A1A] hover:bg-[#1A1A1A]/5 border border-[#1A1A1A]/10 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-full font-bold text-xs text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)]/5 border border-[var(--border-subtle)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>{language === 'ar' ? 'الرجوع للمراجعة' : 'Back to Review'}</span>
@@ -1512,12 +1512,12 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
       </main>
 
       {/* 3. MOBILE FIXED BOTTOM ACTION BAR */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#1A1A1A]/10 p-4 shadow-lg flex items-center justify-between gap-4">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--btn-util-bg)] backdrop-blur-md border-t border-[var(--border-subtle)] p-4 shadow-lg flex items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] font-bold text-[#5A5A40] uppercase tracking-wider">
+          <div className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
             {language === 'ar' ? `الإجمالي لـ${travelersLabel}` : `Total for ${travelersLabel.toLowerCase()}`}
           </div>
-          <div className="text-base font-black text-[#1A1A1A]">
+          <div className="text-base font-black text-[var(--text-primary)]">
             EGP {totalTripPrice.toLocaleString()}
           </div>
         </div>
@@ -1529,8 +1529,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
           onClick={handlePayAndConfirm}
           className={`px-6 py-3 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
             agreedToTerms && !isProcessing
-              ? 'bg-[#5A5A40] hover:bg-[#4A4A35] text-white'
-              : 'bg-[#1A1A1A]/10 text-[#1A1A1A]/40 cursor-not-allowed'
+              ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-white'
+              : 'bg-[var(--surface-container)]/10 text-[var(--text-primary)]/40 cursor-not-allowed'
           }`}
         >
           <Lock className="w-3.5 h-3.5" />
@@ -1549,16 +1549,16 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
       aria-modal="true"
       aria-labelledby="booking-payment-step-dialog-1-title"
     >
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#1A1A1A]/10 text-center space-y-5 animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 rounded-full bg-[#5A5A40]/10 text-[#5A5A40] flex items-center justify-center mx-auto ring-8 ring-[#5A5A40]/5 animate-pulse">
+          <div className="bg-[var(--surface-card)] rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[var(--border-subtle)] text-center space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-[var(--surface-container)]/10 text-[var(--text-secondary)] flex items-center justify-center mx-auto ring-8 ring-[var(--text-secondary)]/5 animate-pulse">
               <Sparkles className="w-8 h-8 stroke-[2.2]" />
             </div>
 
             <div className="space-y-2">
-              <h3 id="booking-payment-step-dialog-1-title" className="text-xl font-serif font-bold text-[#1A1A1A]">
+              <h3 id="booking-payment-step-dialog-1-title" className="text-xl font-serif font-bold text-[var(--text-primary)]">
                 {language === 'ar' ? 'بنأكد حجز رحلتك في دهب...' : 'Confirming your Dahab trip...'}
               </h3>
-              <p className="text-xs sm:text-sm text-[#1A1A1A]/70 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[var(--text-primary)]/70 leading-relaxed">
                 {language === 'ar'
                   ? 'بنقفل حجوزاتك ونجمعها كلها في كارت رحلة واحد منظم.'
                   : "We're confirming your bookings and putting everything together in one trip."}
@@ -1566,7 +1566,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             </div>
 
             {/* Micro Activity Checkpoints */}
-            <div className="p-3.5 rounded-2xl bg-[#FDFBF7] border border-[#1A1A1A]/8 text-[12px] text-[#1A1A1A]/70 space-y-1.5 text-start">
+            <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 text-[12px] text-[var(--text-primary)]/70 space-y-1.5 text-start">
               <div className="flex items-center gap-2 text-emerald-800 font-semibold">
                 <Check className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>

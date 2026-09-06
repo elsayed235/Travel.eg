@@ -4,6 +4,8 @@ import {
   READY_TRIP_PROGRAMMES
 } from '../db/seeds/editorialContent';
 import { Router, Response } from 'express';
+import { priceBandMatches } from '../../src/shared/priceBand';
+import { normalizeDiningVenue } from '../../src/shared/diningVenue';
 import {
   stringParam,
   enumParam,
@@ -14,6 +16,7 @@ import {
   SEVERITIES
 } from '../middleware/queryParams';
 import { dahabKnowledgeOs } from '../services/dahabKnowledgeOs';
+import { buildAttractionCatalogue, filterAttractions, AttractionSort } from '../services/attractionsCatalogue';
 import { unifiedSearchEngine } from '../services/unifiedSearchEngine';
 import { geointelligenceService } from '../services/geointelligenceService';
 import { rankingEngine } from '../services/rankingEngine';
@@ -24,7 +27,18 @@ import { AuthenticatedRequest } from '../middleware/correlationMiddleware';
 import { db } from '../db/database';
 import { resolveBookability } from '../services/bookabilityReconciler';
 
+import { MediaAssetService } from '../services/mediaAssetService';
+
 export const dahabRouter = Router();
+
+/**
+ * GET /api/dahab/media/sync
+ * Sync and organize Dahab photography into public/images
+ */
+dahabRouter.get('/media/sync', (_req: AuthenticatedRequest, res: Response) => {
+  const result = MediaAssetService.syncDahabMediaAssets();
+  res.json({ status: 'success', ...result });
+});
 
 /**
  * Attaches what it takes to actually sell an activity.
@@ -207,11 +221,60 @@ dahabRouter.get('/activities/:id', (req: AuthenticatedRequest, res: Response) =>
 });
 
 /**
+ * GET /api/dahab/attractions
+ *
+ * Tripadvisor-style "Things to Do" directory: places (sights) + activities +
+ * diving/safari providers merged into one ranked, bucketable catalogue. The
+ * category rail (`?category=nature-wildlife,diving-snorkeling`) mirrors the
+ * reference site's category drill-down; `sort` accepts top / rating / popular
+ * / name / price with `order` asc|desc. Only the whitelisted supplier fields
+ * are exposed — payout IBANs never cross this surface.
+ */
+dahabRouter.get('/attractions', (req: AuthenticatedRequest, res: Response) => {
+  const category = req.query.category as string | undefined;
+  const q = (req.query.q as string) || (req.query.query as string) || undefined;
+  const area = req.query.area as string | undefined;
+  const rawSort = (req.query.sort as string) || 'top';
+  const sort: AttractionSort = ['top', 'rating', 'popular', 'name', 'price'].includes(rawSort)
+    ? (rawSort as AttractionSort)
+    : 'top';
+  const order = req.query.order === 'asc' ? 'asc' : 'desc';
+
+  const catalogue = buildAttractionCatalogue({
+    places: db.places,
+    activities: db.activities,
+    suppliers: db.suppliers,
+    areas: dahabKnowledgeOs.getAllAreas(),
+    galleryPhotos: GALLERY_PHOTOS
+  });
+
+  const attractions = filterAttractions(catalogue.attractions, { category, q, area, sort, order });
+
+  res.json({
+    status: 'success',
+    count: attractions.length,
+    attractions,
+    categories: catalogue.categories.filter(c => c.count > 0),
+    filters: { category: category || '', q: q || '', area: area || '', sort, order },
+    correlationId: req.correlationId
+  });
+});
+
+/**
  * GET /api/dahab/food
+ *
+ * The restaurants directory filters and sorts against this endpoint. Filters
+ * compose (area + cuisine + price band + query), and `sort` accepts
+ * rating / popular / name with `order` asc|desc (default desc).
  */
 dahabRouter.get('/food', (req: AuthenticatedRequest, res: Response) => {
   const area = req.query.area as string;
   const seafoodOnly = req.query.seafood === 'true';
+  const cuisine = (req.query.cuisine as string) || '';
+  const price = (req.query.price as string) || '';
+  const query = ((req.query.q as string) || (req.query.query as string) || '').toLowerCase().trim();
+  const sort = (req.query.sort as string) || 'default';
+  const order = (req.query.order as string) === 'asc' ? 1 : -1;
 
   let venues = db.diningVenues;
   if (area) {
@@ -220,11 +283,55 @@ dahabRouter.get('/food', (req: AuthenticatedRequest, res: Response) => {
   if (seafoodOnly) {
     venues = venues.filter(v => v.dietaryOptions.freshSeafoodCatch);
   }
+  if (cuisine) {
+    const wanted = cuisine.split(',').map(c => c.toLowerCase().trim()).filter(Boolean);
+    if (wanted.length > 0) {
+      venues = venues.filter(v => v.cuisine.some(c => wanted.includes(c.toLowerCase())));
+    }
+  }
+  if (price) {
+    const wanted = price.split(',').map(p => p.trim()).filter(Boolean);
+    if (wanted.length > 0) {
+      // Compared through the canonical vocabulary so `price=Moderate ($$)`
+      // also matches a row the research importer stored as 'MID'.
+      venues = venues.filter(v => wanted.some(w => priceBandMatches(v.priceBand, w)));
+    }
+  }
+  if (query) {
+    venues = venues.filter(v =>
+      v.nameEn.toLowerCase().includes(query) ||
+      (v.nameAr || '').includes(query) ||
+      v.cuisine.some(c => c.toLowerCase().includes(query))
+    );
+  }
+
+  if (sort === 'rating') {
+    venues = [...venues].sort((a, b) => order * (((b as any).rating ?? 0) - ((a as any).rating ?? 0)));
+  } else if (sort === 'popular') {
+    venues = [...venues].sort((a, b) => order * (((b as any).reviewCount ?? 0) - ((a as any).reviewCount ?? 0)));
+  } else if (sort === 'name') {
+    venues = [...venues].sort((a, b) => order * a.nameEn.localeCompare(b.nameEn));
+  } else if (sort === 'price') {
+    venues = [...venues].sort((a, b) => order * (a.averageMealPriceEGP - b.averageMealPriceEGP));
+  }
+
+  /**
+   * The importer's malformed rows are repaired here rather than in each client.
+   *
+   * Four venues are stored with the importer's old 'MID' spelling. The
+   * restaurants page filters by exact membership of the three display labels,
+   * so those four were dropped from its grid with no filter that could bring
+   * them back — and their `cuisine` is a string where the type says string[],
+   * which crashed the card the moment they became visible. See
+   * src/shared/diningVenue.ts.
+   */
+  const normalized = venues.map(normalizeDiningVenue);
 
   res.json({
     status: 'success',
-    count: venues.length,
-    venues,
+    count: normalized.length,
+    venues: normalized,
+    filters: { area, cuisine, price, query, sort, order: order === 1 ? 'asc' : 'desc' },
     correlationId: req.correlationId
   });
 });
@@ -346,10 +453,16 @@ dahabRouter.get('/commerce/suppliers', (req: AuthenticatedRequest, res: Response
     suppliers = suppliers.filter(s => (s.verificationStatus || '').toLowerCase() === verification.toLowerCase());
   }
 
+  // payoutAccountNumber is an IBAN and must never reach the public /dahab surface.
+  const canSeePayoutDetails = req.user?.role === 'Operations' || req.user?.role === 'Admin';
+  const exposed = canSeePayoutDetails
+    ? suppliers
+    : suppliers.map(({ payoutAccountNumber, ...rest }) => rest);
+
   res.json({
     status: 'success',
-    count: suppliers.length,
-    suppliers,
+    count: exposed.length,
+    suppliers: exposed,
     correlationId: req.correlationId
   });
 });
@@ -704,11 +817,16 @@ dahabRouter.get('/commerce/search', (req: AuthenticatedRequest, res: Response) =
       st.activityNameAr.includes(q);
   });
 
+  const canSeePayoutDetails = req.user?.role === 'Operations' || req.user?.role === 'Admin';
+  const exposedSuppliers = canSeePayoutDetails
+    ? matchedSuppliers
+    : matchedSuppliers.map(({ payoutAccountNumber, ...rest }) => rest);
+
   res.json({
     status: 'success',
     query,
     results: {
-      suppliers: matchedSuppliers,
+      suppliers: exposedSuppliers,
       offers: matchedOffers,
       marketStats: matchedStats
     },

@@ -41,7 +41,7 @@ import {
   OpportunityHypothesis,
   FeatureRegisterItem
 } from '../types/intelligence';
-import type { TripEntity, TripItemWithSupplier } from '../shared';
+import type { TripEntity, TripItemWithSupplier } from '../shared/types/trip';
 import { User } from 'firebase/auth';
 import { AuthRole, SessionUser } from './AuthContext';
 import {
@@ -86,6 +86,8 @@ export interface TripContextType {
   selectedProgramSlug: string | null;
   setSelectedProgramSlug: (slug: string | null) => void;
   selectedExperienceSlug: string | null;
+  selectedHotelSlug: string | null;
+  selectedRentalSlug: string | null;
   /** The product a checkout page should open on, from the address bar. */
   selectedSkuId: string | null;
   /**
@@ -130,6 +132,7 @@ export interface TripContextType {
   activeFoodOrder: FoodOrderItem | null;
   setActiveFoodOrder: React.Dispatch<React.SetStateAction<FoodOrderItem | null>>;
   savedItems: string[];
+  setSavedItems: React.Dispatch<React.SetStateAction<string[]>>;
   toggleSaveItem: (itemId: string) => void;
 
   // Commerce & Ledger State
@@ -396,6 +399,8 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       selectedProgramSlug: ui.selectedProgramSlug,
       setSelectedProgramSlug: ui.setSelectedProgramSlug,
       selectedExperienceSlug: ui.selectedExperienceSlug,
+      selectedHotelSlug: ui.selectedHotelSlug,
+      selectedRentalSlug: ui.selectedRentalSlug,
       selectedSkuId: ui.selectedSkuId,
       goBack: ui.goBack,
       canGoBack: ui.canGoBack,
@@ -428,6 +433,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       activeFoodOrder: itinerary.activeFoodOrder,
       setActiveFoodOrder: itinerary.setActiveFoodOrder,
       savedItems: itinerary.savedItems,
+      setSavedItems: itinerary.setSavedItems,
       toggleSaveItem: itinerary.toggleSaveItem,
 
       // Commerce

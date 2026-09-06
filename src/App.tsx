@@ -40,6 +40,9 @@ const DepartureView = lazy(() => import('./components/departure/DepartureView').
 const PostTripView = lazy(() => import('./components/posttrip/PostTripView').then(m => ({ default: m.PostTripView })));
 const ProfileView = lazy(() => import('./components/profile/ProfileView').then(m => ({ default: m.ProfileView })));
 const FoodNowView = lazy(() => import('./components/food/FoodNowView').then(m => ({ default: m.FoodNowView })));
+const ListingsView = lazy(() => import('./components/explore/ListingCard').then(m => ({ default: m.default })));
+
+const TransfersHubView = lazy(() => import('./components/transfers/TransfersHubView').then(m => ({ default: m.TransfersHubView })));
 const ChangeAndRecoveryView = lazy(() => import('./components/recovery/ChangeAndRecoveryView').then(m => ({ default: m.ChangeAndRecoveryView })));
 const HelpMeNowView = lazy(() => import('./components/help/HelpMeNowView').then(m => ({ default: m.HelpMeNowView })));
 const PreArrivalBriefing = lazy(() => import('./components/briefing/PreArrivalBriefing').then(m => ({ default: m.PreArrivalBriefing })));
@@ -56,6 +59,12 @@ const SupplierPortalView = lazy(() => import('./components/supplier/SupplierPort
 const MarketIntelligenceView = lazy(() => import('./components/intelligence/MarketIntelligenceView').then(m => ({ default: m.MarketIntelligenceView })));
 const ProgramDetailView = lazy(() => import('./components/programs/ProgramDetailView').then(m => ({ default: m.ProgramDetailView })));
 const ExperienceDetailView = lazy(() => import('./components/experiences/ExperienceDetailView').then(m => ({ default: m.ExperienceDetailView })));
+
+const CmsStaticPage = lazy(() => import('./components/pages/CmsStaticPage').then(m => ({ default: m.CmsStaticPage })));
+const RestaurantsView = lazy(() => import('./components/restaurants/RestaurantsView').then(m => ({ default: m.RestaurantsView })));
+const HotelsView = lazy(() => import('./components/accommodations/AccommodationsView').then(m => ({ default: m.AccommodationsView })));
+const RentalsView = lazy(() => import('./components/rentals/RentalsView').then(m => ({ default: m.RentalsView })));
+const AttractionsView = lazy(() => import('./components/attractions/AttractionsView').then(m => ({ default: m.AttractionsView })));
 const SearchDrawer = lazy(() => import('./components/common/SearchDrawer').then(m => ({ default: m.SearchDrawer })));
 
 /**
@@ -81,7 +90,7 @@ const RouteLoading: React.FC = () => (
 
 function MainAppContent() {
   const { currentRoute, navigateTo, toast, journeyStage } = useTrip();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   /**
    * Human, localized label for the live region below.
@@ -110,11 +119,15 @@ function MainAppContent() {
       '/ai-director': { en: 'AI Concierge', ar: 'المرشد الذكي' },
       '/profile': { en: 'Profile', ar: 'الملف الشخصي' },
       '/programs': { en: 'Program Details', ar: 'تفاصيل البرنامج' },
-      '/experiences': { en: 'Experience Details', ar: 'تفاصيل التجربة' }
+      '/experiences': { en: 'Experience Details', ar: 'تفاصيل التجربة' },
+      '/listings': { en: 'Dahab Listings', ar: 'إعلانات دهب' },
+      '/restaurants': { en: 'Restaurants', ar: 'المطاعم' },
+      '/hotels': { en: 'Dahab Hotels', ar: 'فنادق دهب' },
+      '/rentals': { en: 'Bike & Ride Rentals', ar: 'تأجير العجلات' }
     };
     const label = labels[route];
     if (!label) return '';
-    return language === 'ar' ? `تم فتح صفحة ${label.ar}` : `${label.en} page loaded`;
+    return t('app.pageLoaded', { label: language === 'ar' ? label.ar : label.en });
   };
 
   // Search and Booking Modals state
@@ -254,6 +267,9 @@ function MainAppContent() {
           />
         );
 
+      case '/transfers':
+        return <TransfersHubView />;
+
       case '/change-recovery':
         return (
           <ChangeAndRecoveryView
@@ -322,6 +338,30 @@ function MainAppContent() {
 
       case '/experiences':
         return <ExperienceDetailView />;
+
+      case '/listings':
+        return <ListingsView />;
+
+      case '/restaurants':
+        return <RestaurantsView />;
+
+      case '/hotels':
+        return <HotelsView />;
+
+      case '/rentals':
+        return <RentalsView />;
+
+      case '/attractions':
+        return <AttractionsView />;
+
+      case '/about':
+        return <CmsStaticPage slug="about-dahab" onBack={() => navigateTo('/')} />;
+
+      case '/faq':
+        return <CmsStaticPage slug="faq" onBack={() => navigateTo('/')} />;
+
+      case '/travel-guides':
+        return <CmsStaticPage slug="travel-guides" onBack={() => navigateTo('/')} />;
 
       case '/daygi':
         return <DayGiConciergeView />;
@@ -410,7 +450,7 @@ function MainAppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] relative antialiased selection:bg-[#20A89A]/30 selection:text-[#52C4B7]">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] relative antialiased selection:bg-[var(--accent-primary)]/30 selection:text-[var(--accent-primary)]">
       
       {/* 1. Global Floating OS Navbar */}
       <V2Navbar
@@ -462,7 +502,7 @@ function MainAppContent() {
           aria-label="Notification"
           className="fixed bottom-20 md:bottom-6 right-6 z-50 bg-[var(--surface-card)] text-[var(--text-primary)] px-5 py-3.5 rounded-2xl shadow-2xl border border-[var(--border-subtle)] text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200 max-w-md flex items-center gap-3 backdrop-blur-xl"
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[#20A89A] animate-pulse flex-shrink-0" aria-hidden="true" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] animate-pulse flex-shrink-0" aria-hidden="true" />
           <span className="font-medium">{toast}</span>
         </div>
       )}

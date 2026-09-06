@@ -24,7 +24,7 @@ Node.js process (port 3000)
 │   ├── API routes (~120 endpoints)
 │   └── Middleware pipeline
 ├── In-memory database (all tables in RAM)
-├── JSON file persistence (data/dahab_db.json)
+└── SQLite persistence (data/dahab.sqlite, default) / JSON file (json adapter)
 └── External API calls (Gemini, Open-Meteo, Twilio)
 ```
 
@@ -61,19 +61,25 @@ Node.js process (port 3000)
 
 ### 2.4 Database / Persistence
 
+Persistence is adapter-based, chosen by `PERSISTENCE_ADAPTER` at boot
+(`server/db/selectAdapter.ts`). **SQLite is the default and the primary
+production store.**
+
 | Component | Implementation | Evidence |
 |-----------|---------------|----------|
-| Primary store | In-memory JavaScript arrays | `server/db/database.ts`: `DatabaseState` interface with 40+ array fields |
-| Durability | JSON file (atomic write) | `server/db/adapters/JsonFilePersistenceAdapter.ts` |
-| File location | `data/dahab_db.json` | `JsonFilePersistenceAdapter` constructor |
-| Write method | temp file → fsync → rename | `saveDirect()` method |
-| Transactions | In-memory snapshot + rollback | `beginTransaction()` / `commit()` / `rollback()` |
+| Primary store (default) | **SQLite** at `data/dahab.sqlite` via `better-sqlite3` (sync, WAL, FKs, indexes, per-row writes) | `selectAdapter.ts`, `server/db/sqlite/SqlitePersistenceAdapter.ts`, `docs/DATABASE.md` |
+| Alternate store | JSON file (atomic temp+rename) `data/dahab_db.json` — supported for tests & rollback via `PERSISTENCE_ADAPTER=json` | `JsonFilePersistenceAdapter.ts`, `selectAdapter.ts` |
+| In-memory mirror | `server/db/database.ts`: `DatabaseState` singleton holding 40+ typed array fields | `server/db/database.ts` |
 | Postgres adapter | EXISTS but `save()` is NOT IMPLEMENTED | `PostgresPersistenceAdapter.save()` logs error and returns |
 | Test isolation | InMemoryPersistenceAdapter | `tests/setup.ts` swaps adapter at module level |
 
-**Critical fact:** The Postgres adapter's `save()` is an empty stub. The adapter refuses to be selected unless `ALLOW_NONPERSISTENT_POSTGRES_ADAPTER=true` is set. `assertUsable()` throws otherwise.
+**Critical facts:**
+- `selectAdapter` defaults to `sqlite`. It refuses to auto-migrate: if `dahab.sqlite`
+  is missing but `dahab_db.json` exists, it throws instead of silently starting empty.
+- The Postgres adapter's `save()` is an empty stub. It refuses to be selected unless
+  `ALLOW_NONPERSISTENT_POSTGRES_ADAPTER=true` is set; `assertUsable()` throws otherwise.
 
-**Evidence:** `PostgresPersistenceAdapter.save()`: `console.error('[PostgresPersistenceAdapter] save() is not implemented...')`. `PostgresPersistenceAdapter.assertUsable()`: throws unless env var set.
+**Evidence:** `selectAdapter.ts`: `const requested = (env.PERSISTENCE_ADAPTER || 'sqlite')`. `PostgresPersistenceAdapter.save()`: `console.error('[PostgresPersistenceAdapter] save() is not implemented...')`. `PostgresPersistenceAdapter.assertUsable()`: throws unless env var set.
 
 ### 2.5 Authentication
 
@@ -213,7 +219,7 @@ The test setup (`tests/setup.ts`) does three things:
 | Variable | Required | Default | Purpose |
 |----------|----------|---------|---------|
 | `GEMINI_API_KEY` | Yes (for AI) | None | Google Gemini API |
-| `GEMINI_MODEL` | No | `gemini-2.5-flash` | Model ID |
+| `GEMINI_MODEL` | No | `gemini-3.6-flash` | Model ID |
 | `PORT` | No | `3000` | Server port |
 | `NODE_ENV` | No | development | Controls simulation gating |
 | `ALLOW_SIMULATED_PAYMENTS` | No | false in prod | Enables payment simulation |
@@ -221,7 +227,7 @@ The test setup (`tests/setup.ts`) does three things:
 | `TWILIO_ACCOUNT_SID` | No | None | SMS dispatch |
 | `TWILIO_AUTH_TOKEN` | No | None | SMS dispatch |
 | `DATABASE_URL` | No | None | Postgres connection |
-| `PERSISTENCE_ADAPTER` | No | `json` | Which adapter to use |
+| `PERSISTENCE_ADAPTER` | No | `sqlite` | Which adapter to use |
 | `ALLOW_NONPERSISTENT_POSTGRES_ADAPTER` | No | false | Acknowledges data loss risk |
 | `SEED_USER_PASSWORD` | No | None | Seeds demo accounts on boot |
 | `ENABLE_TEST_ENDPOINTS` | No | false | Exposes `/api/testing/*` |

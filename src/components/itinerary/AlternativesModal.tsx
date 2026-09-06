@@ -102,22 +102,22 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div 
-        className="bg-[#0E2520] text-[#F7F3EA] rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-white/10 shadow-2xl p-6 sm:p-8 relative"
+        className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-[var(--border-subtle)] shadow-2xl p-6 sm:p-8 relative"
         role="dialog"
         aria-modal="true"
         aria-label={isAr ? 'استكشاف البدائل' : 'Explore Alternatives'}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+        <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-[#F4C36C]/15 flex items-center justify-center text-[#F4C36C]">
+            <div className="w-9 h-9 rounded-full bg-[var(--accent-secondary)]/15 flex items-center justify-center text-[var(--accent-secondary)]">
               <RefreshCw className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-xl font-serif font-bold text-[#F7F3EA]">
+              <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
                 {isAr ? 'استكشف البدائل المتاحة' : 'Explore Alternatives'}
               </h3>
-              <p className="text-xs text-[#D2E3DE]/70 font-normal">
+              <p className="text-xs text-[var(--text-secondary)]/70 font-normal">
                 {isAr ? `اختر تجربة بديلة لنشاط "${activityTitle}"` : `Choose an alternative experience for ${activityTitle}`}
               </p>
             </div>
@@ -127,7 +127,7 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label={isAr ? 'إغلاق نافذة البدائل' : 'Close alternatives modal'}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-[#F7F3EA] cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[var(--surface-card)]/10 hover:bg-[var(--surface-card)]/15 flex items-center justify-center text-[var(--text-primary)] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -151,8 +151,8 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
                 }}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between ${
                   isCurrent
-                    ? 'bg-[#13312B] border-[#F4C36C] ring-1 ring-[#F4C36C]/40'
-                    : 'bg-[#13312B]/60 hover:bg-[#13312B] border-white/10 hover:border-[#F4C36C]/40'
+                    ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] ring-1 ring-[var(--accent-secondary)]/40'
+                    : 'bg-[var(--surface-container)]/60 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40'
                 }`}
               >
                 <div className="flex items-center gap-3.5 flex-1">
@@ -166,19 +166,19 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#F7F3EA] leading-tight">
+                      <span className="text-xs font-bold text-[var(--text-primary)] leading-tight">
                         {title}
                       </span>
                       {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#F4C36C] text-[#081714] text-[11px] font-bold uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-container)] text-[11px] font-bold uppercase tracking-wider">
                           {isAr ? 'النشاط الحالي' : 'Active'}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#D2E3DE]/70 mt-1 leading-snug font-normal">
+                    <p className="text-xs text-[var(--text-secondary)]/70 mt-1 leading-snug font-normal">
                       {desc}
                     </p>
-                    <span className="text-[12px] text-[#F4C36C] font-semibold mt-1 block">
+                    <span className="text-[12px] text-[var(--accent-secondary)] font-semibold mt-1 block">
                       {duration} · {recommended}
                     </span>
                   </div>
@@ -188,8 +188,8 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
                   type="button"
                   className={`px-4 py-2 rounded-full text-xs font-bold transition-colors whitespace-nowrap self-end sm:self-center ${
                     isCurrent
-                      ? 'bg-[#F4C36C] text-[#081714]'
-                      : 'bg-white/10 border border-white/15 text-[#F7F3EA] hover:bg-white/20'
+                      ? 'bg-[var(--accent-secondary)] text-[var(--surface-container)]'
+                      : 'bg-[var(--surface-card)]/10 border border-white/15 text-[var(--text-primary)] hover:bg-[var(--surface-card)]/20'
                   }`}
                 >
                   {isCurrent ? (isAr ? 'محدد حالياً' : 'Selected') : (isAr ? 'استبدل بهذا النشاط' : 'Swap to this')}
@@ -200,11 +200,11 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-4 border-t border-white/10">
+        <div className="flex justify-end pt-4 border-t border-[var(--border-subtle)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 rounded-full bg-[#F4C36C] hover:bg-amber-300 text-[#081714] text-xs font-bold transition-colors cursor-pointer"
+            className="px-6 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-container)] text-xs font-bold transition-colors cursor-pointer"
           >
             {isAr ? 'تم' : 'Done'}
           </button>

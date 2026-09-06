@@ -31,76 +31,76 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
 
   const contentMap = {
     breakfast: {
-      tag: language === 'ar' ? 'فطار قريب منك' : 'Breakfast Nearby',
-      title: language === 'ar' ? 'خيارات الفطار ع البحر' : 'Seaside Breakfast Options',
+      tag: t('arrival.breakfastNearby'),
+      title: t('arrival.seasideBreakfastOptions'),
       icon: Coffee,
-      iconBg: 'bg-[#13312B] text-[#F4C36C]',
-      timeNote: language === 'ar' ? '١٥–٢٠ دقيقة · مفتوح الآن' : '15–20 min away · Open now',
+      iconBg: 'bg-[var(--surface-container)] text-[var(--accent-secondary)]',
+      timeNote: t('arrival.1520MinAwayOpen'),
       recommendations: [
         {
-          name: language === 'ar' ? 'مطعم وكافيه شمس البدوي (Shams)' : 'Shams Restaurant & Bedouin Cafe',
-          desc: language === 'ar' ? 'فطار مصري بلدي، لبنة، فلافل سخنة، شكشوكة وعصير رمان فريش.' : 'Fresh Egyptian breakfast, labneh, falafel, shakshuka, fresh pomegranate juice.',
-          distance: language === 'ar' ? '١٥٠م · دقيقتين مشي' : '150m · 2 min walk',
-          vibe: language === 'ar' ? 'شلتات مباشرة فوق المية وإطلالة ساحرة ع البحر الأحمر' : 'Cushions directly over the water with Red Sea view',
-          price: language === 'ar' ? '٨٠–١٤٠ ج.م للفرد' : '80–140 EGP per person',
+          name: t('arrival.shamsRestaurantBedouinCafe'),
+          desc: t('arrival.freshEgyptianBreakfastLabneh'),
+          distance: t('arrival.150m2MinWalk'),
+          vibe: t('arrival.cushionsDirectlyOverThe'),
+          price: t('arrival.80140EGPPerPerson'),
         },
         {
-          name: language === 'ar' ? 'مخبز رالف الألماني (Ralph\'s German Bakery)' : 'Ralph\'s German Bakery',
-          desc: language === 'ar' ? 'مخبوزات ساوردو طازجة، بريتزل، قهوة أوروبية وحلويات مميزة.' : 'Freshly baked sourdough, pretzels, European coffee, pastries.',
-          distance: language === 'ar' ? '٣٥٠م · ٥ دقائق مشي' : '350m · 5 min walk',
-          vibe: language === 'ar' ? 'حديقة مظللة رايقة جداً بالقرب من اللايتهاوس' : 'Shaded courtyard garden near Lighthouse',
-          price: language === 'ar' ? '١١٠–١٨٠ ج.م للفرد' : '110–180 EGP per person',
+          name: t('arrival.ralphsGermanBakery'),
+          desc: t('arrival.freshlyBakedSourdoughPretzels'),
+          distance: t('arrival.350m5MinWalk'),
+          vibe: t('arrival.shadedCourtyardGardenNear'),
+          price: t('arrival.110180EGPPerPerson'),
         },
       ],
-      primaryAction: language === 'ar' ? 'الذهاب إلى كافيه شمس' : 'Head to Shams Cafe',
+      primaryAction: t('arrival.headToShamsCafe'),
     },
     beach: {
-      tag: language === 'ar' ? 'قعدة واسترخاء ع البحر' : 'Beach Relaxation',
-      title: language === 'ar' ? 'أماكن الشاطئ القريبة' : 'Nearby Beach Spots',
+      tag: t('arrival.beachRelaxation'),
+      title: t('arrival.nearbyBeachSpots'),
       icon: Waves,
-      iconBg: 'bg-[#13312B] text-[#52C4B7]',
-      timeNote: language === 'ar' ? 'قريب منك · ٢–٥ دقائق تمشية' : 'Nearby · 2–5 min stroll',
+      iconBg: 'bg-[var(--surface-container)] text-[var(--accent-primary)]',
+      timeNote: t('arrival.nearby25MinStroll'),
       recommendations: [
         {
-          name: language === 'ar' ? 'شاطئ خليج اللايتهاوس' : 'Lighthouse Bay Beach',
-          desc: language === 'ar' ? 'مية هادية وصافية، شلتات وشمسيات مظللة ونسيم بحر منعش.' : 'Calm water, shaded sun-beds, soft sand, gentle sea breeze.',
-          distance: language === 'ar' ? '٨٠م · دقيقة واحدة' : '80m · 1 min walk',
-          vibe: language === 'ar' ? 'مركز تجمع الغطاسين ومحبي السباحة والسنوركلينج' : 'Vibrant local snorkeling & swimmer hub',
-          price: language === 'ar' ? 'دخول مجاني مع طلب أي مشروب' : 'Free access with drink order',
+          name: t('arrival.lighthouseBayBeach'),
+          desc: t('arrival.calmWaterShadedSunbeds'),
+          distance: t('arrival.80m1MinWalk'),
+          vibe: t('arrival.vibrantLocalSnorkelingSwimmer'),
+          price: t('arrival.freeAccessWithDrink'),
         },
         {
-          name: language === 'ar' ? 'شاطئ إيل جاردن (Eel Garden)' : 'Eel Garden Beachfront',
-          desc: language === 'ar' ? 'شاطئ هادي وشعاب مرجانية مع إطلالة خلابة على جبال سيناء وخليج العقبة.' : 'Quieter reef shore with stunning mountain views across the gulf.',
-          distance: language === 'ar' ? '٤٠٠م · ٦ دقائق مشي' : '400m · 6 min walk',
-          vibe: language === 'ar' ? 'روقان وهدوء تام في فترة الصباح' : 'Peaceful, uncrowded morning chillout',
-          price: language === 'ar' ? 'دخول عام مجاني' : 'Free public access',
+          name: t('arrival.eelGardenBeachfront'),
+          desc: t('arrival.quieterReefShoreWith'),
+          distance: t('arrival.400m6MinWalk'),
+          vibe: t('arrival.peacefulUncrowdedMorningChillout'),
+          price: t('arrival.freePublicAccess'),
         },
       ],
-      primaryAction: language === 'ar' ? 'اختيار شاطئ اللايتهاوس' : 'Pick Lighthouse Beach',
+      primaryAction: t('arrival.pickLighthouseBeach'),
     },
     walk: {
-      tag: language === 'ar' ? 'تمشية صباحية رايقة' : 'Relaxed Stroll',
-      title: language === 'ar' ? 'أول جولة تمشية في دهب' : 'First Walk Around Dahab',
+      tag: t('arrival.relaxedStroll'),
+      title: t('arrival.firstWalkAroundDahab'),
       icon: Footprints,
-      iconBg: 'bg-[#13312B] text-[#52C4B7]',
-      timeNote: language === 'ar' ? 'ريتم هادي · مسار ٢٠–٤٠ دقيقة' : 'Easy pace · 20–40 min loop',
+      iconBg: 'bg-[var(--surface-container)] text-[var(--accent-primary)]',
+      timeNote: t('arrival.easyPace2040Min'),
       recommendations: [
         {
-          name: language === 'ar' ? 'ممشى اللايتهاوس إلى المشربة' : 'Lighthouse to Mashraba Promenade',
-          desc: language === 'ar' ? 'ممشى ساحلي ممتع محاط بمحلات المشغولات اليدوية والسجاد البدوي والكافيهات.' : 'Scenic seaside walkway lined with handicraft shops, Bedouin carpets, and breezy cafes.',
-          distance: language === 'ar' ? 'يبدأ من مكانك مباشرة' : 'Starts right outside',
-          vibe: language === 'ar' ? 'ممشى ساحلي مخصص للمشاة بدون سيارات' : 'Car-free, pedestrian-friendly coastal path',
-          price: language === 'ar' ? 'مجاني' : 'Free',
+          name: t('arrival.lighthouseToMashrabaPromenade'),
+          desc: t('arrival.scenicSeasideWalkwayLined'),
+          distance: t('arrival.startsRightOutside'),
+          vibe: t('arrival.carfreePedestrianfriendlyCoastalPath'),
+          price: t('arrival.free'),
         },
         {
-          name: language === 'ar' ? 'فنار اللايتهاوس ورصيف المراقبة' : 'Lighthouse Beacon & Jetty Viewpoint',
-          desc: language === 'ar' ? 'تمشية ١٠ دقائق للفنار التاريخي وحافة الشعاب المرجانية الساحرة.' : 'A quick 10-minute walk to the historic iron lighthouse and coastal reef drop-off.',
-          distance: language === 'ar' ? 'على بعد ٢٠٠م' : '200m away',
-          vibe: language === 'ar' ? 'مكان ممتاز لأول صور وصول وتأمل البحر' : 'Great spot for arrival photos and sea spotting',
-          price: language === 'ar' ? 'مجاني' : 'Free',
+          name: t('arrival.lighthouseBeaconJettyViewpoint'),
+          desc: t('arrival.aQuick10minuteWalk'),
+          distance: t('arrival.200mAway'),
+          vibe: t('arrival.greatSpotForArrival'),
+          price: t('arrival.free'),
         },
       ],
-      primaryAction: language === 'ar' ? 'بدء التمشية على الممشى' : 'Start Promenade Walk',
+      primaryAction: t('arrival.startPromenadeWalk'),
     },
   };
 
@@ -110,21 +110,21 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200 ${isRTL ? 'rtl' : 'ltr'}`}>
       <div 
-        className="bg-[#0E2520] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-white/10 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+        className="bg-[var(--surface-card)] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold border border-white/10 ${item.iconBg}`}>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold border border-[var(--border-subtle)] ${item.iconBg}`}>
               <Icon className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#52C4B7] block font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
                 {item.tag}
               </span>
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[#F7F3EA]">
+              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
                 {item.title}
               </h3>
             </div>
@@ -133,40 +133,41 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[#D2E3DE] cursor-pointer"
+            aria-label="Close"
+            className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-secondary)] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between text-xs">
-          <span className="font-semibold text-[#52C4B7] flex items-center gap-1.5 font-['Outfit',sans-serif]">
-            <Clock className="w-3.5 h-3.5 text-[#F4C36C]" />
+        <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between text-xs">
+          <span className="font-semibold text-[var(--accent-primary)] flex items-center gap-1.5 font-['Outfit',sans-serif]">
+            <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
             <span>{item.timeNote}</span>
           </span>
-          <span className="text-[12px] font-bold text-[#52C4B7] bg-[#0E2520] px-2 py-0.5 rounded-full border border-white/10">
-            {language === 'ar' ? 'يناسب نافذة الساعتين و٢٠ دقيقة' : 'Fits in your 2h 20m window'}
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
+            {t('arrival.fitsInYour2h')}
           </span>
         </div>
 
         {/* Recommendations list */}
         <div className="space-y-3">
           {item.recommendations.map((rec, idx) => (
-            <div key={idx} className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
+            <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <h4 className="font-['Outfit',sans-serif] font-bold text-sm text-[#F7F3EA]">
+                <h4 className="font-['Outfit',sans-serif] font-bold text-sm text-[var(--text-primary)]">
                   {rec.name}
                 </h4>
-                <span className="text-[11px] font-bold text-[#52C4B7] bg-[#0E2520] px-2 py-0.5 rounded-full flex-shrink-0 border border-white/10 font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full flex-shrink-0 border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
                   {rec.distance}
                 </span>
               </div>
-              <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
                 {rec.desc}
               </p>
-              <div className="pt-1 flex flex-wrap items-center justify-between text-[12px] text-[#D2E3DE]/60 border-t border-white/5 gap-2">
+              <div className="pt-1 flex flex-wrap items-center justify-between text-[12px] text-[var(--text-secondary)]/60 border-t border-[var(--border-subtle)] gap-2">
                 <span>✨ {rec.vibe}</span>
-                <span className="font-semibold text-[#F7F3EA]">{rec.price}</span>
+                <span className="font-semibold text-[var(--text-primary)]">{rec.price}</span>
               </div>
             </div>
           ))}
@@ -180,9 +181,9 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
               onSelectAction(item.primaryAction);
               onClose();
             }}
-            className="w-full py-3.5 px-5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
           >
-            <Check className="w-4 h-4 text-[#081714] stroke-[2.5]" />
+            <Check className="w-4 h-4 text-[var(--surface-card)] stroke-[2.5]" />
             <span>{item.primaryAction}</span>
           </button>
         </div>

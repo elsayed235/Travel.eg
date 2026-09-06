@@ -90,7 +90,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#1A1A1A]/10 animate-in fade-in zoom-in-95 duration-200"
+        className="bg-[var(--surface-card)] rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#1A1A1A]/10 animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -101,10 +101,10 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             </span>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#5A5A40]">
-                {language === 'ar' ? 'مرشد الاختيار الذكي' : 'Smart Program Matcher'}
+                {t('home.smartProgramMatcher')}
               </span>
               <h2 className="text-lg sm:text-xl font-serif font-bold text-[#1A1A1A]">
-                {language === 'ar' ? 'أنهي رحلة تناسبك أكتر في دهب؟' : 'Which Dahab trip is right for you?'}
+                {t('home.whichDahabTripIs')}
               </h2>
             </div>
           </div>
@@ -113,7 +113,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             id="close-quiz-modal-btn"
             onClick={onClose}
             aria-label={t('readyTrip.close')}
-            className="w-9 h-9 rounded-full bg-white hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -126,7 +126,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               {/* Question 1: Vibe */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-3">
-                  1. {language === 'ar' ? 'إيه المود الأساسي اللي بتدور عليه؟' : 'What vibe are you chasing in Dahab?'}
+                  1. {t('home.whatVibeAreYou')}
                 </label>
                 <div className="space-y-2">
                   {vibes.map((v) => {
@@ -152,7 +152,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               {/* Question 2: Length */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-2">
-                  2. {language === 'ar' ? 'ناوي تقعد كام يوم؟' : 'How many days do you have?'}
+                  2. {t('home.howManyDaysDo')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[4, 5, 6].map((days) => (
@@ -165,7 +165,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                           : 'bg-[#FDFBF7] text-[#1A1A1A]/70 border-[#1A1A1A]/8 hover:bg-[#F4EFEA]'
                       }`}
                     >
-                      {days} {language === 'ar' ? 'أيام' : 'Days'}
+                      {days} {t('home.days-3')}
                     </button>
                   ))}
                 </div>
@@ -174,7 +174,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               {/* Question 3: Pace */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-2">
-                  3. {language === 'ar' ? 'ريتم يومك تحبه إزاي؟' : 'What pace feels best?'}
+                  3. {t('home.whatPaceFeelsBest')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['Relaxed', 'Balanced', 'Active'] as const).map((p) => (
@@ -187,7 +187,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                           : 'bg-[#FDFBF7] text-[#1A1A1A]/70 border-[#1A1A1A]/8 hover:bg-[#F4EFEA]'
                       }`}
                     >
-                      {p === 'Relaxed' ? (language === 'ar' ? 'هادي ورايق' : 'Relaxed') : p === 'Balanced' ? (language === 'ar' ? 'متوازن' : 'Balanced') : (language === 'ar' ? 'نشيط ومكثف' : 'Active')}
+                      {p === 'Relaxed' ? (t('home.relaxed')) : p === 'Balanced' ? (t('home.balanced')) : (t('home.active'))}
                     </button>
                   ))}
                 </div>
@@ -198,7 +198,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="text-center">
                 <span className="text-xs font-bold uppercase tracking-widest text-[#5A5A40] bg-[#5A5A40]/10 px-3 py-1 rounded-full border border-[#5A5A40]/20">
-                  {language === 'ar' ? 'الترشيح المثالي لك' : 'Your 98% Match'}
+                  {t('home.your98Match')}
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A1A1A] mt-3">
                   {language === 'ar' ? matchedProgram.titleAr : matchedProgram.title}
@@ -218,7 +218,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                 />
                 <div className="flex-1 text-xs space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#1A1A1A]">{matchedProgram.durationDays} {language === 'ar' ? 'أيام' : 'Days'}</span>
+                    <span className="font-bold text-[#1A1A1A]">{matchedProgram.durationDays} {t('home.days-3')}</span>
                     <span>·</span>
                     <span className="text-[#5A5A40] font-semibold">{language === 'ar' ? matchedProgram.paceAr : matchedProgram.pace}</span>
                   </div>
@@ -233,12 +233,13 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
 
               <div className="bg-amber-50/70 border border-amber-900/10 rounded-2xl p-4 text-xs text-amber-950">
                 <div className="font-bold mb-1">
-                  {language === 'ar' ? 'ليه الرحلة دي أنسب حاجة ليك؟' : 'Why this trip fits your style:'}
+                  {t('home.whyThisTripFits')}
                 </div>
                 <div>
-                  {language === 'ar'
-                    ? `البرنامج بيحقق التوازن المطلوب بين ${matchedProgram.paceAr} و${matchedProgram.freeTimeScore}% وقت راحة مفتوح، مع التركيز على أهم الأنشطة الموثوقة.`
-                    : `This itinerary delivers the exact blend of ${matchedProgram.pace} pacing with ${matchedProgram.freeTimeScore}% unhurried open time across Dahab's top highlights.`}
+                  {t('home.itineraryPaceBlend', {
+                    pace: language === 'ar' ? matchedProgram.paceAr : matchedProgram.pace,
+                    freeTimeScore: matchedProgram.freeTimeScore,
+                  })}
                 </div>
               </div>
             </div>
@@ -261,7 +262,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                 onClick={handleCalculateMatch}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-all"
               >
-                <span>{language === 'ar' ? 'اعرض النتيجة' : 'Reveal Best Match'}</span>
+                <span>{t('home.revealBestMatch')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </>
@@ -272,7 +273,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                 className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-[#1A1A1A]/70 hover:text-[#1A1A1A] cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'إعادة الاختبار' : 'Retake Quiz'}</span>
+                <span>{t('home.retakeQuiz')}</span>
               </button>
 
               <button
@@ -280,7 +281,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                 onClick={handleApplyMatch}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-all"
               >
-                <span>{language === 'ar' ? 'تصفح وحجز الرحلة' : 'Preview & Start Trip'}</span>
+                <span>{t('home.previewStartTrip')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </>

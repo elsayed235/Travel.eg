@@ -144,22 +144,23 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: Props) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Palette */}
-      <div className="relative w-full max-w-lg mx-4 bg-[#062C35] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg mx-4 bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden">
         {/* Search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8">
-          <Search className="w-4 h-4 text-white/40" />
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
+          <Search className="w-4 h-4 text-[var(--text-muted)]" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label={t('cmd.palette.search')}
             placeholder={t('cmd.palette.search')}
-            className="flex-1 bg-transparent text-sm text-[#F7F3EA] placeholder-white/30 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder-white/30 focus:outline-none"
           />
           {query && (
             <button type="button" onClick={() => { setQuery(''); setResults(sectionItems); }}
-              className="text-white/30 hover:text-white/60 cursor-pointer">
+              className="text-[var(--text-muted)] hover:text-[var(--text-muted)] cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -168,9 +169,9 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: Props) {
         {/* Results */}
         <div className="max-h-80 overflow-y-auto py-2">
           {loading ? (
-            <div className="py-6 text-center text-xs text-white/40">Searching…</div>
+            <div className="py-6 text-center text-xs text-[var(--text-muted)]">Searching…</div>
           ) : results.length === 0 ? (
-            <div className="py-6 text-center text-xs text-white/40">{t('cmd.palette.noResults')}</div>
+            <div className="py-6 text-center text-xs text-[var(--text-muted)]">{t('cmd.palette.noResults')}</div>
           ) : (
             results.map((result, i) => {
               const Icon = TYPE_ICONS[result.type] || ArrowRight;
@@ -180,16 +181,16 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: Props) {
                   type="button"
                   onClick={() => handleSelect(result)}
                   className={`w-full px-4 py-2.5 flex items-center gap-3 text-left transition-colors cursor-pointer ${
-                    i === selectedIndex ? 'bg-[#20A89A]/15' : 'hover:bg-white/5'
+                    i === selectedIndex ? 'bg-[var(--accent-primary)]/15' : 'hover:bg-[var(--btn-util-bg)]'
                   }`}
                 >
-                  <Icon className="w-4 h-4 text-white/40 flex-shrink-0" />
+                  <Icon className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-[#F7F3EA] truncate">{result.title}</div>
-                    {result.subtitle && <div className="text-[10px] text-white/40 truncate">{result.subtitle}</div>}
+                    <div className="text-xs font-bold text-[var(--text-primary)] truncate">{result.title}</div>
+                    {result.subtitle && <div className="text-[11px] text-[var(--text-muted)] truncate">{result.subtitle}</div>}
                   </div>
                   {result.section && (
-                    <span className="text-[9px] text-white/20 font-mono ml-auto flex-shrink-0">→</span>
+                    <span className="text-[10px] text-[var(--text-muted)] font-mono ml-auto flex-shrink-0">→</span>
                   )}
                 </button>
               );
@@ -198,7 +199,7 @@ export default function CommandPalette({ isOpen, onClose, onNavigate }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-white/8 flex items-center gap-4 text-[9px] text-white/30">
+        <div className="px-4 py-2 border-t border-[var(--border-subtle)] flex items-center gap-4 text-[10px] text-[var(--text-muted)]">
           <span>↑↓ {t('cmd.palette.navigate')}</span>
           <span>↵ {t('cmd.palette.select')}</span>
           <span>Esc {t('cmd.palette.close')}</span>

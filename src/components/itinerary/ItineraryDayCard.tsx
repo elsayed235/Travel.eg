@@ -73,25 +73,25 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
       case 'diving':
       case 'water activities':
       case 'water & boat':
-        return <Waves className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Waves className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       case 'food':
       case 'dining':
-        return <Utensils className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Utensils className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       case 'coffee':
       case 'cafe':
-        return <Coffee className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Coffee className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       case 'adventure':
       case 'desert & safari':
       case 'safari':
-        return <Compass className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Compass className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       case 'transfer':
       case 'logistics':
-        return <Car className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Car className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       case 'stay':
       case 'hotel':
-        return <Hotel className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Hotel className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
       default:
-        return <Compass className="w-3.5 h-3.5 text-[#F4C36C]" />;
+        return <Compass className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />;
     }
   };
 
@@ -99,13 +99,13 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
     <div 
       id={`itinerary-day-${day.dayNumber}`}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="bg-[#0E2520] rounded-3xl border border-white/10 shadow-xs overflow-hidden transition-all mb-8 text-[#F7F3EA]"
+      className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-all mb-8 text-[var(--text-primary)]"
     >
       {/* Day Card Header */}
-      <div className="p-6 sm:p-7 border-b border-white/10 bg-[#13312B]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-6 sm:p-7 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-[#F4C36C] text-[#081714] flex flex-col items-center justify-center font-bold flex-shrink-0 shadow-xs">
-            <span className="text-[11px] uppercase tracking-widest leading-none text-[#081714]/80 font-black">
+          <div className="w-11 h-11 rounded-2xl bg-[var(--accent-secondary)] text-[var(--surface-card)] flex flex-col items-center justify-center font-bold flex-shrink-0 shadow-xs">
+            <span className="text-[11px] uppercase tracking-widest leading-none text-[var(--surface-card)]/80 font-black">
               {isAr ? 'يوم' : 'DAY'}
             </span>
             <span className="text-base font-serif font-black leading-none mt-0.5">{day.dayNumber}</span>
@@ -113,30 +113,30 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
 
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F7F3EA] tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
                 {day.title}
               </h3>
               {day.badge && (
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F4C36C]/15 text-[#F4C36C] border border-[#F4C36C]/25">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/25">
                   {day.badge}
                 </span>
               )}
             </div>
-            <p className="text-xs sm:text-sm text-[#D2E3DE]/70 mt-0.5 font-normal">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 mt-0.5 font-normal">
               {day.summary}
             </p>
           </div>
         </div>
 
-        <div className="text-xs font-semibold text-[#F4C36C] flex items-center gap-1.5 self-start sm:self-center bg-[#13312B] px-3 py-1.5 rounded-full border border-white/10">
-          <Calendar className="w-3.5 h-3.5 text-[#F4C36C]" />
+        <div className="text-xs font-semibold text-[var(--accent-secondary)] flex items-center gap-1.5 self-start sm:self-center bg-[var(--surface-container)] px-3 py-1.5 rounded-full border border-[var(--border-subtle)]">
+          <Calendar className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
           <span>{day.theme}</span>
         </div>
       </div>
 
       {/* Vertical Timeline Activity List */}
       <div className="p-6 sm:p-8">
-        <div className={`relative ${isRTL ? 'pr-6 sm:pr-8' : 'pl-6 sm:pl-8'} space-y-6 before:content-[''] before:absolute ${isRTL ? 'before:right-2 sm:before:right-3' : 'before:left-2 sm:before:left-3'} before:top-3 before:bottom-3 before:w-0.5 before:bg-white/10`}>
+        <div className={`relative ${isRTL ? 'pr-6 sm:pr-8' : 'pl-6 sm:pl-8'} space-y-6 before:content-[''] before:absolute ${isRTL ? 'before:right-2 sm:before:right-3' : 'before:left-2 sm:before:left-3'} before:top-3 before:bottom-3 before:w-0.5 before:bg-[var(--btn-util-bg)]`}>
           {day.items.map((item, idx) => {
             const isFreeTime = item.status === 'free_time';
 
@@ -150,23 +150,23 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
                 <div 
                   className={`absolute ${isRTL ? '-right-6 sm:-right-8' : '-left-6 sm:-left-8'} top-1.5 w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
                     item.isHighlight
-                      ? 'bg-[#F4C36C] border-[#081714] ring-2 ring-[#F4C36C] shadow-2xs'
+                      ? 'bg-[var(--accent-secondary)] border-[var(--surface-card)] ring-2 ring-[var(--accent-secondary)] shadow-2xs'
                       : isFreeTime
                       ? 'bg-amber-400 border-amber-600'
-                      : 'bg-[#13312B] border-[#F4C36C]'
+                      : 'bg-[var(--surface-container)] border-[var(--accent-secondary)]'
                   }`}
                 >
-                  {item.isHighlight && <span className="w-1.5 h-1.5 rounded-full bg-[#081714]" />}
+                  {item.isHighlight && <span className="w-1.5 h-1.5 rounded-full bg-[var(--surface-card)]" />}
                 </div>
 
                 {/* Activity Box Container */}
                 <div 
                   className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                     item.isHighlight
-                      ? 'bg-gradient-to-r from-[#F4C36C]/10 via-[#13312B] to-[#13312B] border-[#F4C36C]/30 shadow-2xs'
+                      ? 'bg-gradient-to-r from-[var(--accent-secondary)]/10 via-[var(--surface-container)] to-[var(--surface-container)] border-[var(--accent-secondary)]/30 shadow-2xs'
                       : isFreeTime
                       ? 'bg-amber-950/20 border-amber-500/20'
-                      : 'bg-[#13312B]/70 hover:bg-[#13312B] border-white/10 hover:border-white/20'
+                      : 'bg-[var(--surface-container)]/70 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -174,13 +174,13 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
                         {/* Time Label */}
-                        <div className="inline-flex items-center gap-1 text-xs font-bold text-[#F7F3EA] bg-[#081714]/80 px-2.5 py-0.5 rounded-full border border-white/10 shadow-2xs">
-                          <Clock className="w-3 h-3 text-[#F4C36C]" />
+                        <div className="inline-flex items-center gap-1 text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-card)]/80 px-2.5 py-0.5 rounded-full border border-[var(--border-subtle)] shadow-2xs">
+                          <Clock className="w-3 h-3 text-[var(--accent-secondary)]" />
                           <span>{item.time}</span>
                         </div>
 
                         {/* Category Pill */}
-                        <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#D2E3DE]/70 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                        <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--text-secondary)]/70 px-2 py-0.5 rounded-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)]">
                           {getCategoryIcon(item.category, item.status)}
                           <span>{item.category}</span>
                         </span>
@@ -190,7 +190,7 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
                           className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                             isFreeTime
                               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                              : 'bg-white/5 text-[#D2E3DE]/60 border border-white/5'
+                              : 'bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/60 border border-[var(--border-subtle)]'
                           }`}
                         >
                           {isFreeTime ? (isAr ? 'وقت حر ومسترخي' : 'Free Time') : (isAr ? 'مقترح' : 'Suggested')}
@@ -198,29 +198,29 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
 
                         {/* Highlight Badge */}
                         {item.isHighlight && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F4C36C] text-[#081714] shadow-2xs">
-                            <Sparkles className="w-2.5 h-2.5 text-[#081714]" />
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-2xs">
+                            <Sparkles className="w-2.5 h-2.5 text-[var(--surface-card)]" />
                             <span>{isAr ? 'تجربة مميزة' : 'Highlight'}</span>
                           </span>
                         )}
                       </div>
 
                       {/* Activity Name */}
-                      <h4 className="text-base sm:text-lg font-bold text-[#F7F3EA] tracking-tight mt-1">
+                      <h4 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight mt-1">
                         {item.name}
                       </h4>
 
                       {/* Short Description */}
                       {item.description && (
-                        <p className="text-xs sm:text-sm text-[#D2E3DE]/80 mt-1 leading-relaxed font-normal">
+                        <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 mt-1 leading-relaxed font-normal">
                           {item.description}
                         </p>
                       )}
 
                       {/* Location reference if present */}
                       {item.location && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#F4C36C] font-medium mt-2">
-                          <MapPin className="w-3.5 h-3.5 text-[#F4C36C]" />
+                        <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)] font-medium mt-2">
+                          <MapPin className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                           <span>{item.location}</span>
                         </div>
                       )}
@@ -248,10 +248,10 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
                               isHighlight: item.isHighlight,
                             })
                           }
-                          className="inline-flex items-center gap-1 text-xs font-bold text-[#F7F3EA] hover:text-white bg-[#081714]/80 hover:bg-[#081714] border border-white/15 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-[var(--text-primary)] hover:text-[var(--text-primary)] bg-[var(--surface-card)]/80 hover:bg-[var(--surface-card)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                         >
                           <span>{isAr ? 'عرض التفاصيل' : 'View details'}</span>
-                          <ChevronRight className={`w-3 h-3 text-[#F4C36C] ${isRTL ? 'rotate-180' : ''}`} />
+                          <ChevronRight className={`w-3 h-3 text-[var(--accent-secondary)] ${isRTL ? 'rotate-180' : ''}`} />
                         </button>
                       )}
 
@@ -265,9 +265,9 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
                               item.alternativeName || 'canyon-4x4'
                             )
                           }
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#D2E3DE] hover:text-[#F7F3EA] bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-2xs"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-2xs"
                         >
-                          <RefreshCw className="w-3 h-3 text-[#F4C36C]" />
+                          <RefreshCw className="w-3 h-3 text-[var(--accent-secondary)]" />
                           <span>{isAr ? `تصفح ${item.alternativeCount || 3} بدائل` : `See ${item.alternativeCount || 3} alternatives`}</span>
                         </button>
                       )}

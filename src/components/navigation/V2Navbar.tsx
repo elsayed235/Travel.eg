@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Compass,
   Luggage,
@@ -13,12 +13,24 @@ import {
   ChevronDown,
   Palette,
   Check,
-  LogOut
+  LogOut,
+  Bell,
+  Map,
+  HelpCircle,
+  LayoutGrid,
+  UtensilsCrossed,
+  Star,
+  Ticket,
+  Car,
+  BedDouble,
+  Mountain,
+  Bike
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useNavigation } from '../../hooks/useCMSContent';
 import { AppRoute } from '../../types';
 import { ThemeSelector } from './ThemeSelector';
 
@@ -26,6 +38,81 @@ interface V2NavbarProps {
   onOpenSearch: () => void;
   onOpenQuickBook: () => void;
 }
+
+type NavIcon = React.FC<{ className?: string }>;
+
+interface NavChildDef {
+  route: AppRoute;
+  icon: NavIcon;
+  labelEn: string;
+  labelAr: string;
+}
+
+interface NavGroupDef {
+  id: string;
+  labelKey: string;
+  landing: AppRoute;
+  icon: NavIcon;
+  children: NavChildDef[];
+}
+
+/**
+ * Wayfinding groups — the header's information architecture.
+ *
+ * Four jobs (discover, stay & taste, get around, my trip) instead of eleven
+ * flat pills. Every route on the site lives in exactly one group, so the
+ * site-map panel reads as a map of the whole product rather than a menu.
+ */
+const NAV_GROUPS: NavGroupDef[] = [
+  {
+    id: 'discover',
+    labelKey: 'nav.groupDiscover',
+    landing: '/home',
+    icon: Compass,
+    children: [
+      { route: '/home', icon: Compass, labelEn: 'Discover', labelAr: 'استكشف' },
+      { route: '/explore', icon: Map, labelEn: 'Explore', labelAr: 'استكشف دهب' },
+      { route: '/attractions', icon: Mountain, labelEn: 'Things to Do', labelAr: 'أنشطة وفعاليات' },
+      { route: '/experiences', icon: Star, labelEn: 'Experiences', labelAr: 'التجارب' },
+      { route: '/live', icon: Activity, labelEn: 'Dahab Live', labelAr: 'دهب لايف' },
+    ],
+  },
+  {
+    id: 'stay-taste',
+    labelKey: 'nav.groupStayTaste',
+    landing: '/hotels',
+    icon: BedDouble,
+    children: [
+      { route: '/hotels', icon: BedDouble, labelEn: 'Hotels', labelAr: 'فنادق' },
+      { route: '/food', icon: UtensilsCrossed, labelEn: 'Food & Dining', labelAr: 'الأكل والمطاعم' },
+      { route: '/restaurants', icon: UtensilsCrossed, labelEn: 'Restaurants', labelAr: 'المطاعم' },
+    ],
+  },
+  {
+    id: 'getting-around',
+    labelKey: 'nav.groupGettingAround',
+    landing: '/transfers',
+    icon: Car,
+    children: [
+      { route: '/transfers', icon: Car, labelEn: 'Transfers', labelAr: 'النقل' },
+      { route: '/rentals', icon: Bike, labelEn: 'Bike Rentals', labelAr: 'تأجير العجلات' },
+      { route: '/help', icon: HelpCircle, labelEn: 'Help & SOS', labelAr: 'محتاج مساعدة؟' },
+    ],
+  },
+  {
+    id: 'my-trip',
+    labelKey: 'nav.groupMyTrip',
+    landing: '/my-trip',
+    icon: Luggage,
+    children: [
+      { route: '/my-trip', icon: Luggage, labelEn: 'My Trip', labelAr: 'رحلتي' },
+      { route: '/plan-for-me', icon: Compass, labelEn: 'Plan It For Me', labelAr: 'خططها لي' },
+      { route: '/bookings', icon: Ticket, labelEn: 'Bookings', labelAr: 'حجوزاتي' },
+      { route: '/daygi', icon: Sparkles, labelEn: 'AI Concierge', labelAr: 'المرشد الذكي' },
+      { route: '/profile', icon: User, labelEn: 'Profile', labelAr: 'حسابي' },
+    ],
+  },
+];
 
 export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBook }) => {
   const {
@@ -39,17 +126,9 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     authRole
   } = useTrip();
 
-  // `user` is the Firebase user, and Firebase Admin has no credentials on this
-  // deployment — so federated sign-in returns 503 and `user` is always null.
-  // Branching on it meant a traveler who signed in with email and password (the
-  // only path that works) saw "Sign In" forever, and an Operations user never
-  // saw the console. The server session is what "signed in" means.
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  // A menu that only closes by clicking its own trigger is a menu people leave
-  // open. Pointerdown rather than click, so it closes before the thing behind
-  // it is activated.
   useEffect(() => {
     if (!isAccountMenuOpen) return;
 
@@ -70,10 +149,8 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
 
   const signedInName =
     sessionUser?.name || user?.displayName || profile.name || sessionUser?.email || user?.email || '';
+  const signedInInitial = signedInName ? signedInName.charAt(0).toUpperCase() : '';
 
-  // Back-office entries were shown to everyone, including signed-out visitors.
-  // Enforcement is server-side; this just stops advertising doors people
-  // cannot open.
   const canSeeOps = isSignedIn && (authRole === 'Operations' || authRole === 'Admin');
   const canSeeSupplier =
     isSignedIn && (authRole === 'Supplier' || authRole === 'Operations' || authRole === 'Admin');
@@ -83,6 +160,9 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Site-map panel: a group id spotlights that column, 'all' shows the map even.
+  const [openPanel, setOpenPanel] = useState<string | null>(null);
+  const headerInnerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,15 +172,101 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks: { route: AppRoute; labelKey: string; labelEn: string; labelAr: string; icon: React.FC<{ className?: string }> }[] = [
-    { route: '/home', labelKey: 'nav.discover', labelEn: 'Discover', labelAr: 'استكشف', icon: Compass },
-    { route: '/my-trip', labelKey: 'nav.myTrip', labelEn: 'My Trip', labelAr: 'رحلتي', icon: Luggage },
-    // DayGI is reached from its own floating button (DayGiFloatingButton), not
-    // from here: it is what you open when you are stuck, not one of the four
-    // places the traveler lives in, and it was taking a quarter of the
-    // top-level navigation to say so.
-    { route: '/live', labelKey: 'nav.dahabLive', labelEn: 'Dahab Live', labelAr: 'دهب لايف', icon: Activity },
+  // Close mobile menu and site-map panel on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setOpenPanel(null);
+  }, [currentRoute]);
+
+  // Site-map panel answers keyboard and pointer-away the way menus must.
+  useEffect(() => {
+    if (!openPanel) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!headerInnerRef.current?.contains(event.target as Node)) setOpenPanel(null);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenPanel(null);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [openPanel]);
+
+  const iconMap: Record<string, React.FC<{ className?: string }>> = {
+    Compass, Luggage, Activity, Sparkles, Search, User, Menu, Map, UtensilsCrossed, Star, Ticket, Car, BedDouble, Mountain, HelpCircle, LayoutGrid, Bike,
+  };
+
+  const fallbackNavLinks = [
+    { route: '/home', labelEn: 'Discover', labelAr: 'استكشف', icon: 'Compass' },
+    { route: '/hotels', labelEn: 'Hotels', labelAr: 'فنادق', icon: 'BedDouble' },
+    { route: '/attractions', labelEn: 'Things to Do', labelAr: 'أنشطة وفعاليات', icon: 'Mountain' },
+    { route: '/explore', labelEn: 'Explore', labelAr: 'استكشف دهب', icon: 'Map' },
+    { route: '/transfers', labelEn: 'Transfers', labelAr: 'النقل', icon: 'Car' },
+    { route: '/rentals', labelEn: 'Bike Rentals', labelAr: 'تأجير العجلات', icon: 'Bike' },
+    { route: '/food', labelEn: 'Food & Dining', labelAr: 'الأكل والمطاعم', icon: 'UtensilsCrossed' },
+    { route: '/restaurants', labelEn: 'Restaurants', labelAr: 'المطاعم', icon: 'UtensilsCrossed' },
+    { route: '/experiences', labelEn: 'Experiences', labelAr: 'التجارب', icon: 'Star' },
+    { route: '/bookings', labelEn: 'Bookings', labelAr: 'حجوزاتي', icon: 'Ticket' },
+    { route: '/my-trip', labelEn: 'My Trip', labelAr: 'رحلتي', icon: 'Luggage' },
+    { route: '/live', labelEn: 'Dahab Live', labelAr: 'دهب لايف', icon: 'Activity' },
   ];
+
+  const { data: cmsNavItems, fromCMS } = useNavigation('header');
+
+  const navLinks = useMemo(() => {
+    const items = fromCMS && cmsNavItems && cmsNavItems.length > 0
+      ? cmsNavItems.map((item: any) => ({
+          route: (item.route || '/home') as AppRoute,
+          labelEn: item.label_en,
+          labelAr: item.label_ar,
+          icon: item.icon || 'Compass',
+        }))
+      : fallbackNavLinks.map(item => ({ ...item, route: item.route as AppRoute }));
+
+    return items.map(item => ({
+      ...item,
+      icon: iconMap[item.icon] || Compass,
+    }));
+  }, [cmsNavItems, fromCMS]);
+
+  /**
+   * Groups with CMS labels overlaid: when the CMS publishes a header item for
+   * a grouped route, its label wins; CMS-only routes are appended to Discover
+   * so the site map never silently drops a published destination.
+   */
+  const navGroups: NavGroupDef[] = useMemo(() => {
+    // globalThis: the lucide `Map` icon shadows the global in this file.
+    const cmsByRoute = new globalThis.Map<string, { labelEn: string; labelAr: string; icon: NavIcon }>();
+    if (fromCMS && cmsNavItems && cmsNavItems.length > 0) {
+      for (const item of cmsNavItems as any[]) {
+        if (!item?.route) continue;
+        cmsByRoute.set(item.route, {
+          labelEn: item.label_en,
+          labelAr: item.label_ar,
+          icon: iconMap[item.icon] || Compass,
+        });
+      }
+    }
+    const known = new globalThis.Set<string>();
+    const groups = NAV_GROUPS.map((group) => ({
+      ...group,
+      children: group.children.map((child) => {
+        known.add(child.route);
+        const cms = cmsByRoute.get(child.route);
+        return cms ? { ...child, ...cms } : child;
+      }),
+    }));
+    const extras = [...cmsByRoute.entries()]
+      .filter(([route]) => !known.has(route))
+      .map(([route, cms]) => ({ route: route as AppRoute, ...cms }));
+    if (extras.length > 0) {
+      groups[0] = { ...groups[0], children: [...groups[0].children, ...extras] };
+    }
+    return groups;
+  }, [cmsNavItems, fromCMS]);
 
   const isNavActive = (route: AppRoute) => {
     if (route === '/home') {
@@ -109,18 +275,59 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     if (route === '/my-trip') {
       return currentRoute.startsWith('/my-trip');
     }
+    if (route === '/explore') {
+      return currentRoute === '/explore' || currentRoute.startsWith('/experiences') || currentRoute === '/programs';
+    }
+    if (route === '/attractions') {
+      return currentRoute === '/attractions';
+    }
+    if (route === '/food' || route === '/restaurants') {
+      return currentRoute === route || currentRoute === '/food' || currentRoute === '/restaurants';
+    }
+    if (route === '/hotels') {
+      return currentRoute.startsWith('/hotels');
+    }
+    if (route === '/rentals') {
+      return currentRoute.startsWith('/rentals');
+    }
+    if (route === '/help') {
+      return currentRoute === '/help';
+    }
+    if (route === '/profile') {
+      return currentRoute === '/profile';
+    }
+    if (route === '/daygi') {
+      return currentRoute === '/daygi' || currentRoute === '/ai-director';
+    }
+    if (route === '/plan-for-me') {
+      return currentRoute === '/plan-for-me';
+    }
     return currentRoute === route;
   };
 
+  const isGroupActive = (group: NavGroupDef) =>
+    group.children.some((child) => isNavActive(child.route)) || isNavActive(group.landing);
+
+  // Contextual CTA text
+  const ctaLabel = useMemo(() => {
+    if (currentRoute === '/home' || currentRoute === '/' || currentRoute === '/discover') {
+      return t('nav.planTrip');
+    }
+    if (currentRoute === '/my-trip') {
+      return t('nav.bookNow');
+    }
+    return t('nav.getStarted');
+  }, [currentRoute, language]);
+
   return (
     <>
-      {/* 1. Skip link for WCAG AA Accessibility */}
+      {/* Skip link for WCAG AA Accessibility */}
       <a href="#main-app-content" className="skip-link">
-        {language === 'ar' ? 'تخطي للمحتوى الرئيسي' : 'Skip to main content'}
+        {t('nav.skipToMainContent')}
       </a>
 
       {/* ========================================================================= */}
-      {/* 2. 3-ZONE GLASSMORPHIC HEADER (STICKY POSITION WITH BLUR 12PX)            */}
+      {/* MAIN HEADER — 3-ZONE GLASSMORPHIC PILL                                   */}
       {/* ========================================================================= */}
       <header
         role="banner"
@@ -129,20 +336,23 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
           isScrolled ? 'pt-2 sm:pt-2.5' : 'pt-2.5 sm:pt-3.5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div
+          ref={headerInnerRef}
+          onMouseLeave={() => setOpenPanel(null)}
+          className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative"
+        >
           <nav
             aria-label="DAHAB TRAVEL OS Header"
             style={{
               backgroundColor: 'var(--header-bg)',
               borderColor: 'var(--header-border)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)'
+              backdropFilter: 'blur(16px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(180%)'
             }}
             className="pointer-events-auto mx-auto rounded-full transition-all duration-300 flex items-center justify-between border px-3 sm:px-5 py-2 sm:py-2.5 shadow-lg text-[var(--text-primary)]"
           >
             {/* =================================================================== */}
-            {/* ZONE 1 (LEFT): BRAND IDENTIFICATION                                 */}
-            {/* Clean text mark DAHAB TRAVEL OS with a minimal circular icon        */}
+            {/* ZONE 1: BRAND                                                       */}
             {/* =================================================================== */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <button
@@ -152,29 +362,27 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 aria-label="DAHAB TRAVEL OS"
                 className="flex items-center gap-2.5 group cursor-pointer text-start focus:outline-none select-none"
               >
-                {/* Minimal circular icon */}
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs font-['Outfit',sans-serif] transition-transform duration-200 group-hover:scale-105 shadow-sm border bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] border-[var(--accent-secondary)]/40 shadow-[0_0_12px_rgba(244,195,108,0.25)]"
-                >
-                  <span className="leading-none tracking-tighter">D</span>
+                {/* Animated tidal gradient icon */}
+                <div className="relative w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                  <div
+                    className="absolute inset-0 animate-[tidalShift_8s_ease-in-out_infinite]"
+                    style={{
+                      background: 'linear-gradient(135deg, #E7D3AE 0%, #20A89A 50%, #0F6F78 100%)',
+                      backgroundSize: '200% 200%'
+                    }}
+                  />
+                  <span className="relative z-10 font-black text-xs font-['Outfit',sans-serif] text-white leading-none tracking-tighter">
+                    D
+                  </span>
                 </div>
 
-                {/* Clean text mark */}
+                {/* Text mark */}
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5 leading-none">
-                    <span
-                      className="font-black text-sm tracking-wider font-['Outfit',sans-serif] uppercase text-[var(--text-primary)]"
-                    >
+                    <span className="font-black text-sm tracking-wider font-['Outfit',sans-serif] uppercase text-[var(--text-primary)]">
                       DAHAB
                     </span>
-                    {/*
-                      Hidden below sm: the "TRAVEL OS" badge is brand garnish,
-                      and on a 375px screen it was pushing the header's action
-                      cluster past the pill's edge, clipping the menu toggle.
-                    */}
-                    <span
-                      className="hidden sm:inline text-[11px] font-bold tracking-widest uppercase font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]"
-                    >
+                    <span className="hidden sm:inline text-[10px] font-bold tracking-widest uppercase font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded-md bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]">
                       TRAVEL OS
                     </span>
                   </div>
@@ -183,32 +391,36 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
             </div>
 
             {/* =================================================================== */}
-            {/* ZONE 2 (CENTER): PRIMARY NAVIGATION HUB                             */}
-            {/* Horizontal nav: Discover, My Trip, AI Director, Dahab Live          */}
-            {/* Subtle active pill indicator sliding smoothly behind the route      */}
+            {/* ZONE 2: WAYFINDING GROUPS + SITE MAP                              */}
+            {/* Four jobs instead of eleven pills; hover or focus opens the map   */}
+            {/* below, click lands on the group's home.                           */}
             {/* =================================================================== */}
-            <div
-              className="hidden lg:flex items-center gap-1 p-1 rounded-full border relative bg-[var(--header-pill-bg)] border-[var(--header-pill-border)] shadow-inner"
-            >
-              {navLinks.map((item) => {
-                const active = isNavActive(item.route);
-                const Icon = item.icon;
-                const label = language === 'ar' ? item.labelAr : item.labelEn;
+            <div className="hidden lg:flex items-center gap-1 p-1 rounded-full border relative bg-[var(--header-pill-bg)] border-[var(--header-pill-border)] shadow-inner">
+              {navGroups.map((group) => {
+                const active = isGroupActive(group);
+                const GroupIcon = group.icon;
+                const open = openPanel === group.id || openPanel === 'all';
 
                 return (
                   <button
-                    key={item.route}
-                    id={`nav-link-${item.route.replace('/', '')}`}
+                    key={group.id}
+                    id={`nav-group-${group.id}`}
                     type="button"
-                    onClick={() => navigateTo(item.route)}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    onMouseEnter={() => setOpenPanel(group.id)}
+                    onFocus={() => setOpenPanel(group.id)}
+                    onClick={() => {
+                      setOpenPanel(null);
+                      navigateTo(group.landing);
+                    }}
                     aria-current={active ? 'page' : undefined}
-                    className={`relative px-4 py-1.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer flex items-center gap-1.5 z-10 ${
+                    className={`relative px-3 xl:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5 z-10 whitespace-nowrap ${
                       active
                         ? 'text-[var(--text-primary)] font-bold'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
                     }`}
                   >
-                    {/* Active Sliding Pill Indicator (smooth motion layout) */}
                     {active && (
                       <motion.div
                         layoutId="activeNavPill"
@@ -216,81 +428,93 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                       />
                     )}
-
-                    <Icon
+                    <GroupIcon
                       className={`w-3.5 h-3.5 transition-colors ${
                         active
                           ? 'text-[var(--accent-secondary)]'
                           : 'text-[var(--accent-primary)]'
                       }`}
                     />
-                    <span>{label}</span>
+                    <span>{t(group.labelKey)}</span>
+                    <ChevronDown
+                      className={`w-3 h-3 opacity-60 transition-transform ${open ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                    />
                   </button>
                 );
               })}
+
+              <div className="w-px h-4 bg-[var(--border-subtle)] mx-1" aria-hidden="true" />
+
+              <button
+                type="button"
+                id="nav-site-map-btn"
+                aria-haspopup="true"
+                aria-expanded={openPanel === 'all'}
+                onMouseEnter={() => setOpenPanel('all')}
+                onFocus={() => setOpenPanel('all')}
+                onClick={() => setOpenPanel('all')}
+                title={t('nav.siteMap')}
+                aria-label={t('nav.siteMap')}
+                className={`relative p-2 rounded-full transition-all duration-200 cursor-pointer flex items-center z-10 ${
+                  openPanel === 'all'
+                    ? 'text-[var(--text-primary)] bg-[var(--surface-card)] border border-[var(--accent-primary)]/40'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" aria-hidden="true" />
+              </button>
             </div>
 
             {/* =================================================================== */}
-            {/* ZONE 3 (RIGHT): UTILITIES & CONVERSION                              */}
-            {/* Multi-Theme Selector, Search, Language, Profile, and Gold Book CTA */}
+            {/* ZONE 3: UTILITIES & CTA                                            */}
             {/* =================================================================== */}
             <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-              
-              {/*
-                Mobile crowding: the top bar carried brand + 5 controls on a
-                375px screen, so the pill's content overflowed (scrollWidth 534
-                vs 375) and the language chip was clipped. Theme and language are
-                secondary preferences and already live in the mobile menu below,
-                so they are desktop-only here. Search, Book Now and the menu
-                toggle stay — those are the mobile jobs-to-be-done.
-              */}
+              {/* Theme selector (desktop) */}
               <div className="hidden sm:block">
                 <ThemeSelector />
               </div>
 
-              {/* 2. Global Search Icon Button (⌘K Spotlight Search) */}
+              {/* Search */}
               <button
                 type="button"
                 id="header-search-btn"
                 onClick={onOpenSearch}
                 aria-label={t('nav.search') || 'Search'}
                 title="Search destinations & experiences (⌘K)"
-                className={`w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all cursor-pointer border shadow-xs ${
-                  isDark
-                    ? 'bg-white/10 hover:bg-white/20 text-[#D2E3DE] hover:text-white border-white/15'
-                    : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 text-[#4A635D] hover:text-[#122420] border-[#122420]/10'
-                }`}
+                className="w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
 
-              {/* 3. Language Selector (العربية / EN) */}
+              {/* Language toggle */}
               <button
                 type="button"
                 id="header-language-btn"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${language === 'en' ? 'Arabic' : 'English'}`}
-                className={`hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1 text-xs font-bold transition-all cursor-pointer border shadow-xs ${
-                  isDark
-                    ? 'bg-white/10 hover:bg-white/20 text-[#D2E3DE] hover:text-white border-white/15'
-                    : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 text-[#122420] border-[#122420]/10'
-                }`}
+                className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1 text-xs font-bold transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
-                <Languages className={`w-3.5 h-3.5 ${isDark ? 'text-[#F4C36C]' : 'text-[#0E2520]'}`} />
-                <span className="text-[12px]">{language === 'en' ? 'العربية' : 'EN'}</span>
+                <Languages className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span className="text-[12px] hidden xl:inline">{language === 'en' ? 'العربية' : 'EN'}</span>
               </button>
 
-              {/* 4. Sign In / Profile Avatar */}
+              {/* Notifications bell (signed in only) */}
+              {isSignedIn && (
+                <button
+                  type="button"
+                  id="header-notifications-btn"
+                  onClick={() => navigateTo('/help')}
+                  aria-label={t('nav.notifications')}
+                  className="hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)] relative"
+                >
+                  <Bell className="w-3.5 h-3.5" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--accent-secondary)] animate-pulse" />
+                </button>
+              )}
+
+              {/* Sign In / Account */}
               {isSignedIn ? (
-                /*
-                  The account menu.
-                  
-                  This was a single button that went to /profile. Nothing
-                  anywhere in the app called signOut — the platform could be
-                  signed into and not out of, which on a shared or borrowed
-                  device leaves the next person holding someone's bookings,
-                  payment history and passport field.
-                */
                 <div className="relative" ref={accountMenuRef}>
                   <button
                     type="button"
@@ -299,185 +523,436 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                     aria-haspopup="menu"
                     aria-expanded={isAccountMenuOpen}
                     title={`Signed in as ${signedInName || 'Traveler'}`}
-                    className={`h-8 px-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs ${
-                      isDark
-                        ? 'bg-white/10 hover:bg-white/20 border-white/15 text-[#F7F3EA]'
-                        : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 border-[#122420]/10 text-[#122420]'
-                    }`}
+                    className="h-8 pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--text-primary)]"
                   >
-                    <span className="w-2 h-2 rounded-full bg-[#20A89A]" />
-                    <span className="max-w-[70px] truncate text-[12px] font-bold">
-                      {signedInName.split(' ')[0] || (language === 'ar' ? 'حسابي' : 'Account')}
+                    {/* Avatar circle */}
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-[10px] font-bold text-white">
+                      {signedInInitial || <User className="w-3 h-3" />}
+                    </div>
+                    <span className="max-w-[70px] truncate text-[12px] font-bold hidden sm:inline">
+                      {signedInName.split(' ')[0] || (t('nav.account'))}
                     </span>
                     <ChevronDown
-                      className={`w-3 h-3 transition-transform ${isAccountMenuOpen ? 'rotate-180' : ''}`}
+                      className={`w-3 h-3 transition-transform hidden sm:block ${isAccountMenuOpen ? 'rotate-180' : ''}`}
                       aria-hidden="true"
                     />
                   </button>
 
-                  {isAccountMenuOpen && (
-                    <div
-                      role="menu"
-                      aria-label={language === 'ar' ? 'قائمة الحساب' : 'Account menu'}
-                      className="absolute end-0 mt-2 w-56 rounded-2xl border shadow-2xl overflow-hidden z-50"
-                      style={{
-                        background: 'var(--surface-card)',
-                        borderColor: 'var(--border-subtle)'
-                      }}
-                    >
-                      <div
-                        className="px-4 py-3 border-b text-[12px]"
-                        style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
-                      >
-                        <span className="block font-bold" style={{ color: 'var(--text-primary)' }}>
-                          {signedInName || (language === 'ar' ? 'حسابي' : 'Account')}
-                        </span>
-                        {sessionUser?.email && <span className="block truncate">{sessionUser.email}</span>}
-                      </div>
-
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setIsAccountMenuOpen(false);
-                          navigateTo('/profile');
+                  <AnimatePresence>
+                    {isAccountMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        role="menu"
+                        aria-label={t('nav.accountMenu')}
+                        className="absolute end-0 mt-2 w-64 rounded-2xl border shadow-2xl overflow-hidden z-50"
+                        style={{
+                          background: 'var(--surface-card)',
+                          borderColor: 'var(--border-subtle)'
                         }}
-                        className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2"
-                        style={{ color: 'var(--text-primary)' }}
                       >
-                        <User className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>{language === 'ar' ? 'الملف الشخصي' : 'Profile'}</span>
-                      </button>
+                        {/* Profile header */}
+                        <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-sm font-bold text-white shadow-md">
+                              {signedInInitial || <User className="w-5 h-5" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="block text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                                {signedInName || (t('nav.account'))}
+                              </span>
+                              {sessionUser?.email && (
+                                <span className="block text-[11px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                                  {sessionUser.email}
+                                </span>
+                              )}
+                              <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]">
+                                {authRole || 'Traveler'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
 
-                      <button
-                        type="button"
-                        role="menuitem"
-                        id="header-signout-btn"
-                        onClick={() => {
-                          setIsAccountMenuOpen(false);
-                          void signOut();
-                        }}
-                        className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 border-t"
-                        style={{ color: 'var(--accent-danger, #C0553C)', borderColor: 'var(--border-subtle)' }}
-                      >
-                        <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span>{language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}</span>
-                      </button>
-                    </div>
-                  )}
+                        {/* Menu items */}
+                        <div className="py-1">
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setIsAccountMenuOpen(false);
+                              navigateTo('/my-trip');
+                            }}
+                            className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            <Luggage className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
+                            <span>{t('nav.myTrip')}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setIsAccountMenuOpen(false);
+                              navigateTo('/profile');
+                            }}
+                            className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            <User className="w-4 h-4" aria-hidden="true" />
+                            <span>{t('nav.profileShort')}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setIsAccountMenuOpen(false);
+                              navigateTo('/help');
+                            }}
+                            className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
+                            style={{ color: 'var(--text-primary)' }}
+                          >
+                            <HelpCircle className="w-4 h-4" aria-hidden="true" />
+                            <span>{t('nav.helpSupport')}</span>
+                          </button>
+
+                          {showBackOfficeLinks && (
+                            <div className="border-t my-1" style={{ borderColor: 'var(--border-subtle)' }}>
+                              {canSeeOps && (
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => {
+                                    setIsAccountMenuOpen(false);
+                                    navigateTo('/ops-console');
+                                  }}
+                                  className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  <Activity className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
+                                  <span>{t('nav.opsConsole')}</span>
+                                </button>
+                              )}
+                              {canSeeSupplier && (
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => {
+                                    setIsAccountMenuOpen(false);
+                                    navigateTo('/supplier-portal');
+                                  }}
+                                  className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
+                                  style={{ color: 'var(--text-primary)' }}
+                                >
+                                  <Map className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
+                                  <span>{t('nav.suppliers')}</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Sign out */}
+                        <div className="border-t px-4 py-2" style={{ borderColor: 'var(--border-subtle)' }}>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            id="header-signout-btn"
+                            onClick={() => {
+                              setIsAccountMenuOpen(false);
+                              void signOut();
+                            }}
+                            className="w-full min-h-[40px] text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-[var(--accent-danger, #C0553C)]/10"
+                            style={{ color: 'var(--accent-danger, #C0553C)' }}
+                          >
+                            <LogOut className="w-4 h-4" aria-hidden="true" />
+                            <span>{t('nav.signOut')}</span>
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <button
                   type="button"
                   id="header-signin-btn"
                   onClick={() => navigateTo('/auth/sign-in')}
-                  title={language === 'ar' ? 'تسجيل الدخول' : 'Sign in'}
-                  className={`hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1.5 text-xs font-bold transition-all cursor-pointer border shadow-xs ${
-                    isDark
-                      ? 'bg-white/10 hover:bg-white/20 border-white/15 text-[#D2E3DE] hover:text-white'
-                      : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 border-[#122420]/10 text-[#122420]'
-                  }`}
+                  title={t('nav.signIn')}
+                  className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1.5 text-xs font-bold transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--btn-util-text)]"
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span className="text-[12px]">{language === 'ar' ? 'دخول' : 'Sign In'}</span>
+                  <span className="text-[12px]">{t('nav.signIn-2')}</span>
                 </button>
               )}
 
-              {/* 5. Primary Action Button: Dynamic Theme CTA button */}
+              {/* Primary CTA */}
               <button
                 type="button"
                 id="header-book-now-cta"
                 onClick={onOpenQuickBook}
-                className="h-11 sm:h-8 px-4 rounded-full font-bold text-xs transition-all duration-200 shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95 bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] border border-[var(--border-subtle)]"
+                className="h-11 sm:h-8 px-3 xl:px-4 rounded-full font-bold text-xs transition-all duration-200 shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-lg text-[var(--btn-book-text)] border border-[var(--border-subtle)] flex-shrink-0"
               >
-                <span>{language === 'ar' ? 'احجز الآن' : 'Book Now'}</span>
+                <Sparkles className="w-3.5 h-3.5 hidden sm:block flex-shrink-0" />
+                <span className="whitespace-nowrap">{ctaLabel}</span>
               </button>
 
-              {/* Mobile Menu Toggle Button */}
+              {/* Mobile menu toggle */}
               <button
                 type="button"
                 id="header-mobile-menu-btn"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-expanded={isMobileMenuOpen}
                 aria-label="Toggle mobile menu"
-                className={`lg:hidden w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${
-                  isDark
-                    ? 'bg-white/10 hover:bg-white/20 text-[#F7F3EA] border-white/15'
-                    : 'bg-[#0E2520]/6 hover:bg-[#0E2520]/12 text-[#122420] border-[#122420]/10'
-                }`}
+                className="lg:hidden w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
-                {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                <motion.div
+                  animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                </motion.div>
               </button>
             </div>
           </nav>
+
+          {/* ============================================================= */}
+          {/* SITE MAP — the whole product at a glance, grouped by job.     */}
+          {/* Hovering a group spotlights its column; the grid button shows */}
+          {/* the map even. One user-triggered motion only.                 */}
+          {/* ============================================================= */}
+          <AnimatePresence>
+            {openPanel && (
+              <motion.nav
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.16 }}
+                aria-label={t('nav.siteMap')}
+                dir={isRTL ? 'rtl' : 'ltr'}
+                style={{
+                  backgroundColor: 'var(--header-bg)',
+                  borderColor: 'var(--header-border)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)'
+                }}
+                className="pointer-events-auto absolute top-full inset-x-3 sm:inset-x-6 lg:inset-x-8 mt-2 rounded-3xl border shadow-2xl overflow-hidden hidden lg:block text-[var(--text-primary)]"
+              >
+                <p className="px-6 pt-4 text-xs text-[var(--text-secondary)]">
+                  {t('nav.siteMapIntro')}
+                </p>
+                <div className="grid grid-cols-4 gap-2 p-4">
+                  {navGroups.map((group) => {
+                    const GroupIcon = group.icon;
+                    const dimmed = openPanel !== 'all' && openPanel !== group.id;
+                    return (
+                      <div
+                        key={group.id}
+                        className={`rounded-2xl p-2 transition-opacity ${dimmed ? 'opacity-50' : ''}`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOpenPanel(null);
+                            navigateTo(group.landing);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)]"
+                        >
+                          <GroupIcon className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
+                          <span>{t(group.labelKey)}</span>
+                        </button>
+                        <div className="mt-1 space-y-0.5 border-t border-[var(--border-subtle)] pt-1.5">
+                          {group.children.map((child) => {
+                            const ChildIcon = child.icon;
+                            const childActive = isNavActive(child.route);
+                            const childLabel = language === 'ar' ? child.labelAr : child.labelEn;
+                            return (
+                              <button
+                                key={child.route}
+                                id={`nav-link-${child.route.replace('/', '')}`}
+                                type="button"
+                                onClick={() => {
+                                  setOpenPanel(null);
+                                  navigateTo(child.route);
+                                }}
+                                aria-current={childActive ? 'page' : undefined}
+                                className={`w-full flex items-center gap-2.5 px-3 min-h-[40px] rounded-xl text-xs font-semibold transition-colors cursor-pointer text-start ${
+                                  childActive
+                                    ? 'bg-[var(--header-pill-active)] text-[var(--header-pill-active-text)] font-bold'
+                                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
+                                }`}
+                              >
+                                <ChildIcon
+                                  className={`w-3.5 h-3.5 flex-shrink-0 ${childActive ? '' : 'text-[var(--accent-primary)]'}`}
+                                  aria-hidden="true"
+                                />
+                                <span>{childLabel}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {showBackOfficeLinks && (
+                  <div
+                    className="mx-4 mb-4 rounded-2xl border border-[var(--border-subtle)] px-4 py-2.5 flex flex-wrap items-center gap-2"
+                  >
+                    {canSeeOps && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenPanel(null);
+                          navigateTo('/ops-console');
+                        }}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--accent-primary)] border-[var(--border-subtle)]"
+                      >
+                        {t('nav.opsConsole')}
+                      </button>
+                    )}
+                    {canSeeSupplier && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenPanel(null);
+                          navigateTo('/supplier-portal');
+                        }}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--accent-secondary)] border-[var(--border-subtle)]"
+                      >
+                        {t('nav.suppliers')}
+                      </button>
+                    )}
+                    {canSeeOps && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenPanel(null);
+                          navigateTo('/market-intelligence');
+                        }}
+                        className="px-3 py-1.5 rounded-full text-[11px] font-bold cursor-pointer border bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
+                      >
+                        {t('nav.intel')}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Mobile Dropdown Menu */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, y: -20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className="pointer-events-auto lg:hidden max-w-7xl mx-auto px-3 pt-2"
               dir={isRTL ? 'rtl' : 'ltr'}
             >
               <div
                 style={{
-                  backgroundColor: isDark ? 'rgba(14, 37, 32, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                  borderColor: isDark ? 'rgba(210, 227, 222, 0.12)' : 'rgba(18, 36, 32, 0.08)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)'
+                  backgroundColor: 'var(--header-bg)',
+                  borderColor: 'var(--header-border)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)'
                 }}
-                className={`rounded-3xl p-4 border shadow-2xl space-y-2 ${
-                  isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
-                }`}
+                className="rounded-3xl p-4 border shadow-2xl text-[var(--text-primary)]"
               >
-                {navLinks.map((item) => {
-                  const active = isNavActive(item.route);
-                  const Icon = item.icon;
-                  const label = language === 'ar' ? item.labelAr : item.labelEn;
+                {/* Nav links, grouped by job so the menu reads as a site map */}
+                <div className="space-y-3">
+                  {navGroups.map((group) => {
+                    const GroupIcon = group.icon;
+                    return (
+                      <div key={group.id}>
+                        <p className="flex items-center gap-1.5 px-1 pb-1.5 text-[11px] font-bold text-[var(--text-secondary)]">
+                          <GroupIcon className="w-3.5 h-3.5 text-[var(--accent-secondary)]" aria-hidden="true" />
+                          {t(group.labelKey)}
+                        </p>
+                        <div className="space-y-1">
+                          {group.children.map((item) => {
+                            const active = isNavActive(item.route);
+                            const Icon = item.icon;
+                            const label = language === 'ar' ? item.labelAr : item.labelEn;
 
-                  return (
-                    <button
-                      key={item.route}
-                      type="button"
-                      onClick={() => {
-                        navigateTo(item.route);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-full p-3 rounded-2xl text-xs font-semibold transition-all flex items-center justify-between cursor-pointer ${
-                        active
-                          ? isDark
-                            ? 'bg-[#13312B] text-[#F7F3EA] font-bold border border-[#20A89A]/40'
-                            : 'bg-[#F2EFE9] text-[#122420] font-bold border border-[#0E2520]/20'
-                          : isDark
-                          ? 'hover:bg-white/5 text-[#D2E3DE]'
-                          : 'hover:bg-black/5 text-[#4A635D]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Icon className={`w-4 h-4 ${active ? 'text-[#F4C36C]' : 'text-[#20A89A]'}`} />
-                        <span>{label}</span>
+                            return (
+                              <button
+                                key={item.route}
+                                id={`mobile-nav-link-${item.route.replace('/', '')}`}
+                                type="button"
+                                onClick={() => {
+                                  navigateTo(item.route);
+                                  setIsMobileMenuOpen(false);
+                                }}
+                                aria-current={active ? 'page' : undefined}
+                                className={`w-full p-3.5 rounded-2xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                                  active
+                                    ? 'bg-[var(--header-pill-active)] text-[var(--header-pill-active-text)] font-bold border border-[var(--accent-primary)]/40 shadow-md'
+                                    : 'hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] border border-transparent'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                                    active
+                                      ? 'bg-[var(--accent-secondary)]/20'
+                                      : 'bg-[var(--surface-container)]'
+                                  }`}>
+                                    <Icon className={`w-4 h-4 ${active ? 'text-[var(--accent-secondary)]' : 'text-[var(--accent-primary)]'}`} />
+                                  </div>
+                                  <span>{label}</span>
+                                </div>
+                                <ArrowRight className="w-4 h-4 rtl:rotate-180 opacity-50" />
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 opacity-60" />
-                    </button>
-                  );
-                })}
+                    );
+                  })}
+                </div>
 
-                {/* Theme Selector Strip (Mobile) */}
-                <div className="pt-2 border-t border-inherit/10 space-y-1.5">
-                  <div className="flex items-center justify-between text-[12px] font-bold px-1 text-[var(--text-secondary)]">
+                {/* Quick actions row */}
+                <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenSearch();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex-1 p-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] border-[var(--border-subtle)]"
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                    <span>{t('nav.searchShort')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleLanguage}
+                    className="flex-1 p-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-2 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] border-[var(--border-subtle)]"
+                  >
+                    <Languages className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                    <span>{language === 'en' ? 'العربية' : 'EN'}</span>
+                  </button>
+                </div>
+
+                {/* Theme selector */}
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <div className="flex items-center justify-between text-[12px] font-bold px-1 mb-2 text-[var(--text-secondary)]">
                     <span className="flex items-center gap-1.5">
                       <Palette className="w-3.5 h-3.5" />
-                      {language === 'ar' ? 'سمة التطبيق' : 'Visual Theme'}
+                      {t('nav.theme-2')}
                     </span>
                     <span className="text-[11px] font-mono opacity-80">
                       {language === 'ar' ? availableThemes.find((t) => t.id === themeId)?.nameAr : availableThemes.find((t) => t.id === themeId)?.nameEn}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-3 gap-1.5">
                     {availableThemes.map((opt) => {
                       const isSelected = opt.id === themeId;
                       return (
@@ -485,33 +960,27 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                           key={opt.id}
                           type="button"
                           onClick={() => setThemeId(opt.id)}
-                          className={`p-2 rounded-xl text-[12px] font-bold text-start flex items-center justify-between gap-1.5 border transition-all cursor-pointer ${
+                          className={`p-2 rounded-xl text-[11px] font-bold text-center flex flex-col items-center gap-1.5 border transition-all cursor-pointer ${
                             isSelected
-                              ? isDark
-                                ? 'bg-white/15 border-[#F4C36C] text-[#F7F3EA]'
-                                : 'bg-[#0E2520]/12 border-[#0E2520] text-[#122420]'
-                              : isDark
-                              ? 'bg-white/5 border-white/10 text-[#D2E3DE]'
-                              : 'bg-[#0E2520]/5 border-[#0E2520]/10 text-[#4A635D]'
+                              ? 'bg-[var(--header-pill-active)] border-[var(--accent-primary)] text-[var(--header-pill-active-text)] shadow-md'
+                              : 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
                           }`}
                         >
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <div
-                              className="w-3.5 h-3.5 rounded-full border border-black/20 flex-shrink-0"
-                              style={{ backgroundColor: opt.swatches.accent }}
-                            />
-                            <span className="truncate">{language === 'ar' ? opt.nameAr : opt.nameEn}</span>
-                          </div>
-                          {isSelected && <Check className="w-3 h-3 flex-shrink-0" />}
+                          <div
+                            className="w-5 h-5 rounded-full border-2 border-white/30 shadow-inner"
+                            style={{ backgroundColor: opt.swatches.accent }}
+                          />
+                          <span className="truncate w-full">{language === 'ar' ? opt.nameAr : opt.nameEn}</span>
+                          {isSelected && <Check className="w-3 h-3" />}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Back-office views — only for accounts that can use them. */}
+                {/* Back-office links */}
                 {showBackOfficeLinks && (
-                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-inherit/10">
+                  <div className="mt-3 pt-3 border-t flex flex-wrap gap-1.5" style={{ borderColor: 'var(--border-subtle)' }}>
                     {canSeeOps && (
                       <button
                         type="button"
@@ -519,13 +988,9 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                           navigateTo('/ops-console');
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border ${
-                          isDark
-                            ? 'bg-white/5 hover:bg-white/10 text-[#52C4B7] border-white/10'
-                            : 'bg-[#0E2520]/5 hover:bg-[#0E2520]/10 text-[#0E2520] border-[#0E2520]/10'
-                        }`}
+                        className="flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--accent-primary)] border-[var(--border-subtle)]"
                       >
-                        {language === 'ar' ? 'العمليات' : 'Ops Console'}
+                        {t('nav.opsConsole')}
                       </button>
                     )}
                     {canSeeSupplier && (
@@ -535,13 +1000,9 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                           navigateTo('/supplier-portal');
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border ${
-                          isDark
-                            ? 'bg-white/5 hover:bg-white/10 text-[#F4C36C] border-white/10'
-                            : 'bg-[#0E2520]/5 hover:bg-[#0E2520]/10 text-[#0E2520] border-[#0E2520]/10'
-                        }`}
+                        className="flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--accent-secondary)] border-[var(--border-subtle)]"
                       >
-                        {language === 'ar' ? 'الموردين' : 'Suppliers'}
+                        {t('nav.suppliers')}
                       </button>
                     )}
                     {canSeeOps && (
@@ -551,29 +1012,26 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                           navigateTo('/market-intelligence');
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border ${
-                          isDark
-                            ? 'bg-[#20A89A]/20 text-[#52C4B7] border-[#20A89A]/30'
-                            : 'bg-[#0E2520]/10 text-[#0E2520] border-[#0E2520]/20'
-                        }`}
+                        className="flex-1 min-w-[6rem] p-2 rounded-xl text-[12px] font-bold text-center cursor-pointer border bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30"
                       >
-                        {language === 'ar' ? 'استخبارات' : 'Intel'}
+                        {t('nav.intel')}
                       </button>
                     )}
                   </div>
                 )}
 
-                {/* Mobile Book Now Action */}
-                <div className="pt-2">
+                {/* CTA */}
+                <div className="mt-3">
                   <button
                     type="button"
                     onClick={() => {
                       onOpenQuickBook();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full py-3 rounded-2xl font-black text-xs text-center cursor-pointer shadow-md transition-transform active:scale-98 bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)]"
+                    className="w-full py-3.5 rounded-2xl font-black text-sm text-center cursor-pointer shadow-lg transition-all active:scale-98 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-xl text-[var(--btn-book-text)] flex items-center justify-center gap-2"
                   >
-                    {language === 'ar' ? 'احجز الآن' : 'Book Now'}
+                    <Sparkles className="w-4 h-4" />
+                    <span>{ctaLabel}</span>
                   </button>
                 </div>
               </div>
@@ -583,7 +1041,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
       </header>
 
       {/* ========================================================================= */}
-      {/* 3. MOBILE DOCK NAVIGATION BAR                                             */}
+      {/* MOBILE BOTTOM DOCK                                                       */}
       {/* ========================================================================= */}
       <nav
         aria-label="Mobile Navigation Dock"
@@ -591,12 +1049,15 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
         style={{
           backgroundColor: 'var(--header-bg)',
           borderColor: 'var(--header-border)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)'
+          backdropFilter: 'blur(16px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(16px) saturate(180%)'
         }}
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t px-3 py-1 flex items-center justify-around shadow-2xl text-[var(--text-primary)]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t px-2 py-1.5 flex items-center justify-around shadow-2xl text-[var(--text-primary)]"
       >
-        {navLinks.map((item) => {
+    {/* Mobile dock nav — a curated subset so the bottom bar stays comfortable on narrow screens */}
+        {navLinks
+          .filter(item => ['/home', '/hotels', '/explore', '/food', '/my-trip'].includes(item.route))
+          .map((item) => {
           const active = isNavActive(item.route);
           const Icon = item.icon;
           const label = language === 'ar' ? item.labelAr : item.labelEn;
@@ -607,17 +1068,35 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
               type="button"
               onClick={() => navigateTo(item.route)}
               aria-current={active ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-1 px-3 min-h-[44px] rounded-xl transition-all cursor-pointer ${
+              className={`flex flex-col items-center justify-center gap-0.5 px-2.5 min-h-[48px] rounded-xl transition-all cursor-pointer relative ${
                 active
-                  ? 'text-[var(--accent-secondary)] font-bold scale-105'
+                  ? 'text-[var(--accent-secondary)] font-bold'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <Icon className={`w-4 h-4 ${active ? 'text-[var(--accent-secondary)] stroke-[2.5]' : 'opacity-70'}`} />
-              <span className="text-[11px] font-bold leading-none">{label}</span>
+              {active && (
+                <motion.div
+                  layoutId="activeDockIndicator"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-1 rounded-full bg-[var(--accent-secondary)]"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : 'opacity-60'}`} />
+              <span className="text-[10px] font-bold leading-none">{label}</span>
             </button>
           );
         })}
+
+        {/* Search button in dock */}
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          aria-label={t('nav.searchShort')}
+          className="flex flex-col items-center justify-center gap-0.5 px-3 min-h-[48px] rounded-xl transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+        >
+          <Search className="w-5 h-5 opacity-60" />
+          <span className="text-[10px] font-bold leading-none">{t('nav.searchShort')}</span>
+        </button>
       </nav>
     </>
   );

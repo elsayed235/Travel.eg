@@ -96,21 +96,21 @@ export const StepDuration: React.FC<StepDurationProps> = ({
     <div id="step-duration-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#13312B] text-[#52C4B7] border border-white/10 text-xs font-bold uppercase tracking-widest mb-4">
-          <Clock className="w-3.5 h-3.5 text-[#52C4B7]" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+          <Clock className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step1.badge')}</span>
         </div>
         
         <h1
           id="duration-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#F7F3EA] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step1.title')}
         </h1>
         
         <p
           id="duration-supporting-text"
-          className="mt-3 sm:mt-4 text-base sm:text-lg text-[#D2E3DE] leading-relaxed font-normal"
+          className="mt-3 sm:mt-4 text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal"
         >
           {t('planner.step1.subtitle')}
         </p>
@@ -131,8 +131,8 @@ export const StepDuration: React.FC<StepDurationProps> = ({
                 role="radio"
                 className={`w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 relative ${
                   isSelected
-                    ? 'bg-[#13312B] border-[#F4C36C] shadow-lg ring-2 ring-[#F4C36C]/30'
-                    : 'bg-[#0E2520] hover:bg-[#13312B] border-white/10 hover:border-white/20'
+                    ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-lg ring-2 ring-[var(--accent-secondary)]/30'
+                    : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <div className="flex items-start sm:items-center gap-4 flex-1">
@@ -140,8 +140,8 @@ export const StepDuration: React.FC<StepDurationProps> = ({
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center mt-0.5 sm:mt-0 transition-colors flex-shrink-0 ${
                       isSelected
-                        ? 'bg-[#F4C36C] text-[#081714] font-bold'
-                        : 'border-2 border-white/30 bg-transparent'
+                        ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold'
+                        : 'border-2 border-[var(--border-subtle)] bg-transparent'
                     }`}
                   >
                     {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -150,22 +150,22 @@ export const StepDuration: React.FC<StepDurationProps> = ({
                   {/* Option Text */}
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <span className={`text-lg sm:text-xl font-bold tracking-tight ${isSelected ? 'text-[#F4C36C]' : 'text-[#F7F3EA]'}`}>
+                      <span className={`text-lg sm:text-xl font-bold tracking-tight ${isSelected ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-primary)]'}`}>
                         {t(option.labelKey)}
                       </span>
                       {option.tagKey && (
                         <span
                           className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                             isSelected
-                              ? 'bg-[#F4C36C]/20 text-[#F4C36C] border border-[#F4C36C]/40'
-                              : 'bg-[#13312B] text-[#52C4B7] border border-white/10'
+                              ? 'bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40'
+                              : 'bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]'
                           }`}
                         >
                           {t(option.tagKey)}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs sm:text-sm text-[#D2E3DE] mt-0.5 leading-relaxed font-normal">
+                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-0.5 leading-relaxed font-normal">
                       {t(option.subtitleKey)} · {t(option.descKey)}
                     </p>
                   </div>
@@ -173,7 +173,7 @@ export const StepDuration: React.FC<StepDurationProps> = ({
 
                 {/* Right decorative pill / date indicator */}
                 {option.isCustom && (
-                  <div className="hidden sm:flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#F4C36C] bg-[#13312B] border border-white/10 px-3 py-1.5 rounded-xl">
+                  <div className="hidden sm:flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-xl">
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{customDays ? `${customDays} ${t('planner.step1.custom.daysSelected')}` : t('planner.step1.custom.label')}</span>
                   </div>
@@ -184,18 +184,18 @@ export const StepDuration: React.FC<StepDurationProps> = ({
               {option.isCustom && isSelected && (
                 <div
                   id="custom-date-picker-panel"
-                  className="mt-3 p-5 rounded-2xl bg-[#0E2520] border border-[#F4C36C]/40 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="mt-3 p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--accent-secondary)]/40 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
                 >
                   <div className="flex items-center gap-2 mb-4">
-                    <CalendarDays className="w-4 h-4 text-[#F4C36C]" />
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-[#F7F3EA]">
+                    <CalendarDays className="w-4 h-4 text-[var(--accent-secondary)]" />
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--text-primary)]">
                       {t('planner.step1.custom.subtitle')}
                     </h3>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="trip-start-date" className="block text-xs font-bold text-[#D2E3DE] mb-1.5">
+                      <label htmlFor="trip-start-date" className="block text-xs font-bold text-[var(--text-secondary)] mb-1.5">
                         {t('planner.step1.custom.start')}
                       </label>
                       <input
@@ -203,11 +203,11 @@ export const StepDuration: React.FC<StepDurationProps> = ({
                         id="trip-start-date"
                         value={startDate}
                         onChange={(e) => onDatesChange(e.target.value, endDate)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#13312B] text-sm text-[#F7F3EA] font-medium focus:outline-hidden focus:ring-2 focus:ring-[#F4C36C]/40 focus:border-[#F4C36C]"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-container)] text-sm text-[var(--text-primary)] font-medium focus:outline-hidden focus:ring-2 focus:ring-[var(--accent-secondary)]/40 focus:border-[var(--accent-secondary)]"
                       />
                     </div>
                     <div>
-                      <label htmlFor="trip-end-date" className="block text-xs font-bold text-[#D2E3DE] mb-1.5">
+                      <label htmlFor="trip-end-date" className="block text-xs font-bold text-[var(--text-secondary)] mb-1.5">
                         {t('planner.step1.custom.end')}
                       </label>
                       <input
@@ -216,15 +216,15 @@ export const StepDuration: React.FC<StepDurationProps> = ({
                         value={endDate}
                         min={startDate || undefined}
                         onChange={(e) => onDatesChange(startDate, e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-white/15 bg-[#13312B] text-sm text-[#F7F3EA] font-medium focus:outline-hidden focus:ring-2 focus:ring-[#F4C36C]/40 focus:border-[#F4C36C]"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-container)] text-sm text-[var(--text-primary)] font-medium focus:outline-hidden focus:ring-2 focus:ring-[var(--accent-secondary)]/40 focus:border-[var(--accent-secondary)]"
                       />
                     </div>
                   </div>
 
                   {customDays !== null && (
-                    <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-[#F4C36C] font-bold">
+                    <div className="mt-3.5 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--accent-secondary)] font-bold">
                       <span>{t('planner.step1.custom.daysSelected')}:</span>
-                      <span className="bg-[#13312B] border border-white/10 px-3 py-1 rounded-full text-[#F7F3EA]">
+                      <span className="bg-[var(--surface-container)] border border-[var(--border-subtle)] px-3 py-1 rounded-full text-[var(--text-primary)]">
                         {customDays} {t('planner.step1.custom.daysSelected')}
                       </span>
                     </div>
@@ -237,13 +237,13 @@ export const StepDuration: React.FC<StepDurationProps> = ({
       </div>
 
       {/* Action Footer Navigation */}
-      <div className="pt-6 border-t border-white/10 flex items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between gap-4">
         {/* Back Button */}
         <button
           type="button"
           id="planner-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#D2E3DE] hover:text-[#F7F3EA] px-4 py-3 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -254,13 +254,13 @@ export const StepDuration: React.FC<StepDurationProps> = ({
           type="button"
           id="planner-continue-btn"
           onClick={onContinue}
-          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[#081714] bg-[#F4C36C] hover:bg-[#E7A83B] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
         >
           <span>{t('planner.step1.continueBtn')}</span>
           {isRTL ? (
-            <ArrowLeft className="w-4 h-4 text-[#081714] group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-[var(--surface-card)] group-hover:-translate-x-0.5 transition-transform" />
           ) : (
-            <ArrowRight className="w-4 h-4 text-[#081714] group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-[var(--surface-card)] group-hover:translate-x-0.5 transition-transform" />
           )}
         </button>
       </div>

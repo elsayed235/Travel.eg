@@ -11,8 +11,9 @@ import fs from 'fs';
 import path from 'path';
 import Database from 'better-sqlite3';
 import { TABLE_SPECS } from './tableSpecs';
+import { SQLITE_FILE } from '../paths';
 
-const SQLITE_PATH = process.argv[2] || path.join(process.cwd(), 'data', 'dahab.sqlite');
+const SQLITE_PATH = process.argv[2] || SQLITE_FILE();
 
 function main() {
   if (!fs.existsSync(SQLITE_PATH)) {

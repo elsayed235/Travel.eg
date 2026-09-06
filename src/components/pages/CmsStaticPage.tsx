@@ -1,0 +1,296 @@
+import React from 'react';
+import { useContentPage } from '../../hooks/useCMSContent';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { useSEO } from '../../hooks/useSEO';
+import { ArrowLeft, FileText, Image, Quote, HelpCircle, Link as LinkIcon, BarChart3 } from 'lucide-react';
+
+/**
+ * CmsStaticPage — renders a CMS-managed static page by slug.
+ * Falls back to a loading state when the page is being fetched,
+ * and shows a "not found" state when the page doesn't exist.
+ */
+
+interface CmsBlock {
+  id: string;
+  type: string;
+  sort_order: number;
+  visible: number;
+  title_en: string;
+  title_ar: string;
+  body_en: string;
+  body_ar: string;
+  config: Record<string, any>;
+}
+
+interface CmsStaticPageProps {
+  slug: string;
+  onBack?: () => void;
+}
+
+const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: string }>> = {
+  rich_text: ({ block, language }) => (
+    <div className="space-y-3">
+      {block.title_en && (
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">
+          {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
+        </h3>
+      )}
+      <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
+        {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
+      </div>
+    </div>
+  ),
+
+  image_text: ({ block, language }) => {
+    const config = block.config || {};
+    return (
+      <div className="flex flex-col md:flex-row gap-6 items-start">
+        {config.image_url && (
+          <img
+            src={config.image_url}
+            alt={language === 'ar' ? block.title_ar : block.title_en}
+            className="w-full md:w-1/2 h-48 object-cover rounded-xl"
+          />
+        )}
+        <div className="flex-1 space-y-3">
+          {block.title_en && (
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">
+              {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
+            </h3>
+          )}
+          <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
+            {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
+          </div>
+        </div>
+      </div>
+    );
+  },
+
+  cta: ({ block, language }) => {
+    const config = block.config || {};
+    return (
+      <div className="text-center py-8 px-6 rounded-2xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 space-y-4">
+        {block.title_en && (
+          <h3 className="text-xl font-bold text-[var(--text-primary)]">
+            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
+          </h3>
+        )}
+        {block.body_en && (
+          <p className="text-sm text-[var(--surface-container)]/70 max-w-lg mx-auto">
+            {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
+          </p>
+        )}
+        {config.cta_label && (
+          <button
+            onClick={() => {
+              if (config.cta_route) {
+                window.location.hash = config.cta_route;
+              }
+            }}
+            className="px-6 py-3 rounded-xl bg-[var(--accent-primary)] text-[var(--surface-card)] text-sm font-bold hover:bg-[var(--accent-primary)] transition-colors cursor-pointer"
+          >
+            {language === 'ar' ? (config.cta_label_ar || config.cta_label) : config.cta_label}
+          </button>
+        )}
+      </div>
+    );
+  },
+
+  faq: ({ block, language }) => {
+    const config = block.config || {};
+    const items = config.items || [];
+    return (
+      <div className="space-y-4">
+        {block.title_en && (
+          <h3 className="text-lg font-bold text-[var(--text-primary)]">
+            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
+          </h3>
+        )}
+        <div className="space-y-3">
+          {items.map((item: any, idx: number) => (
+            <details key={idx} className="rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] overflow-hidden">
+              <summary className="px-4 py-3 text-sm font-semibold text-[var(--text-primary)] cursor-pointer hover:bg-[var(--btn-util-bg)] transition-colors">
+                {language === 'ar' ? (item.question_ar || item.question_en) : item.question_en}
+              </summary>
+              <div className="px-4 pb-3 text-sm text-[var(--surface-container)]/70 leading-relaxed">
+                {language === 'ar' ? (item.answer_ar || item.answer_en) : item.answer_en}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    );
+  },
+
+  stats: ({ block, language }) => {
+    const config = block.config || {};
+    const stats = config.items || [];
+    return (
+      <div className="space-y-4">
+        {block.title_en && (
+          <h3 className="text-lg font-bold text-[var(--text-primary)] text-center">
+            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
+          </h3>
+        )}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat: any, idx: number) => (
+            <div key={idx} className="text-center p-4 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)]">
+              <div className="text-2xl font-black text-[var(--accent-primary)]">{stat.value}</div>
+              <div className="text-xs text-[var(--surface-container)]/60 mt-1">
+                {language === 'ar' ? (stat.label_ar || stat.label_en) : stat.label_en}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  },
+
+  quote: ({ block, language }) => {
+    const config = block.config || {};
+    return (
+      <div className="text-center py-8 px-6 space-y-3">
+        <Quote className="w-8 h-8 text-[var(--accent-primary)]/40 mx-auto" />
+        <blockquote className="text-lg italic text-[var(--text-primary)] max-w-2xl mx-auto">
+          {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
+        </blockquote>
+        {config.attribution && (
+          <cite className="text-xs text-[var(--surface-container)]/50 not-italic">
+            — {config.attribution}
+          </cite>
+        )}
+      </div>
+    );
+  },
+
+  divider: () => (
+    <div className="py-4">
+      <div className="h-px bg-[var(--accent-primary)]/20" />
+    </div>
+  ),
+};
+
+export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) => {
+  const { language , t} = useLanguage();
+  const { data, loading, fromCMS } = useContentPage(slug);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--surface-card)] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!data?.page) {
+    return (
+      <div className="min-h-screen bg-[var(--surface-card)] flex flex-col items-center justify-center text-center px-4">
+        <FileText className="w-12 h-12 text-[var(--text-muted)] mb-4" />
+        <h1 className="text-xl font-bold text-white mb-2">
+          {t('pageNotFound')}
+        </h1>
+        <p className="text-sm text-[var(--text-muted)] mb-6">
+          {t('thisPageIsNot')}
+        </p>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-sm hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t('goBack')}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const page = data.page;
+  // The wire shape may carry config as a JSON string or omit it entirely;
+  // the block renderers tolerate both, so normalize here.
+  const blocks = (data.blocks || []) as CmsBlock[];
+
+  // Apply SEO meta tags from CMS data
+  useSEO({
+    title: language === 'ar' ? page.title_ar || page.title_en : page.title_en,
+    description: language === 'ar' ? page.description_ar || page.description_en : page.description_en,
+    ogTitle: page.title_en,
+    ogDescription: page.description_en,
+    ogImage: page.hero_image_url || undefined,
+  });
+
+  return (
+    <div className="min-h-screen bg-[var(--surface-card)]">
+      {/* Hero */}
+      {page.hero_image_url && (
+        <div className="relative h-64 md:h-80">
+          <img
+            src={page.hero_image_url}
+            alt={language === 'ar' ? page.title_ar : page.title_en}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-[var(--surface-card)]/60 to-transparent" />
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        {/* Back button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t('back')}
+          </button>
+        )}
+
+        {/* Page header */}
+        <div className="space-y-4">
+          <h1 className="text-3xl md:text-4xl font-black text-[var(--text-primary)]">
+            {language === 'ar' ? page.title_ar || page.title_en : page.title_en}
+          </h1>
+          {page.subtitle_en && (
+            <p className="text-lg text-[var(--surface-container)]/70">
+              {language === 'ar' ? page.subtitle_ar || page.subtitle_en : page.subtitle_en}
+            </p>
+          )}
+          {page.description_en && (
+            <p className="text-sm text-[var(--surface-container)]/60 leading-relaxed max-w-2xl">
+              {language === 'ar' ? page.description_ar || page.description_en : page.description_en}
+            </p>
+          )}
+        </div>
+
+        {/* Page body */}
+        {page.body_en && (
+          <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
+            {language === 'ar' ? page.body_ar || page.body_en : page.body_en}
+          </div>
+        )}
+
+        {/* Content blocks */}
+        <div className="space-y-8">
+          {blocks
+            .filter(b => b.visible)
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .map(block => {
+              const Renderer = BLOCK_RENDERERS[block.type] || BLOCK_RENDERERS.rich_text;
+              return (
+                <div key={block.id}>
+                  <Renderer block={block} language={language} />
+                </div>
+              );
+            })}
+        </div>
+
+        {/* CMS indicator */}
+        {!fromCMS && (
+          <div className="text-center text-[10px] text-[var(--text-muted)] pt-8">
+            {t('defaultContent')}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

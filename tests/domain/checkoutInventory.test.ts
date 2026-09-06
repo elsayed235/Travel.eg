@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../../server/db/database';
 import { commerceService, UnknownSkuError } from '../../server/services/commerceService';
-import { nextIdempotencyKey, resetDb, seedSku } from '../helpers/fixtures';
+import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
 
 /**
  * A booking must name inventory that exists.
@@ -35,6 +35,7 @@ describe('checkout inventory resolution', () => {
   beforeEach(() => {
     resetDb();
     seedSku();
+    seedTrip();
   });
 
   it('creates the booking against the SKU that was actually named', () => {
@@ -96,6 +97,7 @@ describe('checkout and the itinerary', () => {
   beforeEach(() => {
     resetDb();
     seedSku();
+    // This block seeds its own trip, because it asserts on travellersCount: 4.
     db.trips.push({
       id: 'TRIP-TEST',
       userId: 'USR-TEST',

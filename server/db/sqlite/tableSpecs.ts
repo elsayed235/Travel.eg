@@ -172,6 +172,117 @@ export const TABLE_SPECS: TableSpec[] = [
     compositeIndexes: [['service_type', 'active']]
   },
   {
+    table: 'hotels',
+    collection: 'hotels',
+    key: 'id',
+    label: 'Hotels',
+    columns: [
+      // Advisory reference to the hotel's 5-night package SKU: the SKU is
+      // created by the seed in the same transaction, so the reference is real
+      // but indexed rather than constrained to keep the tables order-agnostic.
+      t('sku_id', 'skuId', { index: true }),
+      t('slug', 'slug', { unique: true, index: true }),
+      t('category', 'category', { index: true }),
+      t('price_band', 'priceBand', { index: true }),
+      t('area', 'area', { index: true }),
+      r('rating', 'rating'),
+      i('review_count', 'reviewCount'),
+      r('per_night_egp', 'perNightEGP'),
+      bool('active'),
+      t('created_at', 'createdAt', { index: true }),
+      t('updated_at', 'updatedAt')
+    ],
+    compositeIndexes: [['category', 'area']]
+  },
+  {
+    table: 'accommodations',
+    collection: 'accommodations',
+    key: 'id',
+    label: 'Accommodations',
+    columns: [
+      // Advisory reference, same rationale as hotels.skuId above: the SKU is
+      // created by the seed/service in the same transaction.
+      t('sku_id', 'skuId', { index: true }),
+      t('slug', 'slug', { unique: true, index: true }),
+      t('property_type', 'propertyType', { notNull: true, index: true }),
+      t('category', 'category', { index: true }),
+      t('price_band', 'priceBand', { index: true }),
+      // RESTRICT, not CASCADE like places.area_id: an accommodation is
+      // commerce-linked (has a real skuId, can have live bookings) — deleting
+      // an area profile must not silently delete paid inventory.
+      t('area_id', 'areaId', { notNull: true, index: true, references: fk('area_profiles', 'RESTRICT') }),
+      t('area', 'area', { index: true }),
+      r('rating', 'rating'),
+      i('review_count', 'reviewCount'),
+      r('per_night_egp', 'perNightEGP'),
+      r('latitude', 'latitude'),
+      r('longitude', 'longitude'),
+      bool('active'),
+      bool('featured'),
+      t('created_at', 'createdAt', { index: true }),
+      t('updated_at', 'updatedAt')
+    ],
+    compositeIndexes: [['property_type', 'area_id'], ['property_type', 'active'], ['category', 'area_id']]
+  },
+  {
+    table: 'property_sources',
+    collection: 'propertySources',
+    key: 'id',
+    label: 'Property external reference links',
+    columns: [
+      // CASCADE is correct here (unlike accommodations.area_id above): a link
+      // row has no value independent of the property it belongs to.
+      t('accommodation_id', 'accommodationId', { notNull: true, index: true, references: fk('accommodations', 'CASCADE') }),
+      t('source_type', 'sourceType', { notNull: true, index: true }),
+      bool('active'),
+      t('created_at', 'createdAt', { index: true }),
+      t('updated_at', 'updatedAt')
+    ],
+    compositeIndexes: [['accommodation_id', 'source_type']]
+  },
+
+  // ----------------------------------------------------------------- rentals
+  {
+    table: 'rental_listings',
+    collection: 'rentalListings',
+    key: 'id',
+    label: 'Rental listings',
+    columns: [
+      // Catalogue content owned by the supplier, like product_skus.
+      t('supplier_id', 'supplierId', { notNull: true, index: true, references: fk('suppliers', 'CASCADE') }),
+      // Advisory reference to the 'rental' ProductSkuEntity this listing sells
+      // through — created by the seed in the same transaction, so the
+      // reference is real but indexed rather than constrained (hotels.skuId
+      // precedent).
+      t('sku_id', 'skuId', { index: true }),
+      t('slug', 'slug', { unique: true, index: true }),
+      t('category', 'category', { index: true }),
+      t('subcategory', 'subcategory', { index: true }),
+      i('quantity'),
+      r('daily_rate_egp', 'dailyRateEGP'),
+      t('status', 'status', { index: true }),
+      bool('active'),
+      bool('featured'),
+      t('created_at', 'createdAt', { index: true }),
+      t('updated_at', 'updatedAt')
+    ],
+    compositeIndexes: [['category', 'active']]
+  },
+  {
+    table: 'rental_extras',
+    collection: 'rentalExtras',
+    key: 'id',
+    label: 'Rental extras',
+    columns: [
+      t('listing_id', 'listingId', { notNull: true, index: true, references: fk('rental_listings', 'CASCADE') }),
+      t('name'),
+      t('name_ar', 'nameAr'),
+      r('price_egp', 'priceEGP'),
+      t('pricing_basis', 'pricingBasis'),
+      bool('active')
+    ]
+  },
+  {
     table: 'inventory_slots',
     collection: 'inventorySlots',
     key: 'id',
@@ -251,6 +362,48 @@ export const TABLE_SPECS: TableSpec[] = [
       t('updated_at', 'updatedAt')
     ],
     compositeIndexes: [['supplier_id', 'supplier_state']]
+  },
+  {
+    table: 'rental_bookings',
+    collection: 'rentalBookings',
+    key: 'id',
+    label: 'Rental bookings',
+    columns: [
+      t('booking_ref', 'bookingRef', { notNull: true, unique: true }),
+      // RESTRICT, not CASCADE: deleting a listing, supplier or SKU must not
+      // delete rentals travelers have paid for (bookings convention).
+      t('listing_id', 'listingId', { notNull: true, index: true, references: fk('rental_listings', 'RESTRICT') }),
+      t('sku_id', 'skuId', { notNull: true, index: true, references: fk('product_skus', 'RESTRICT') }),
+      t('supplier_id', 'supplierId', { notNull: true, index: true, references: fk('suppliers', 'RESTRICT') }),
+      // Money-row convention: indexed, deliberately NOT a foreign key — the
+      // row outlives its parents and must survive a trip/user deletion.
+      t('trip_id', 'tripId', { notNull: true, index: true }),
+      t('user_id', 'userId', { index: true }),
+      t('status', 'status', { notNull: true, index: true }),
+      t('payment_state', 'paymentState', { index: true }),
+      t('start_date', 'startDate', { index: true }),
+      t('end_date', 'endDate', { index: true }),
+      i('quantity'),
+      t('created_at', 'createdAt', { index: true }),
+      t('updated_at', 'updatedAt')
+    ],
+    compositeIndexes: [['listing_id', 'status'], ['listing_id', 'start_date', 'end_date']]
+  },
+  {
+    table: 'rental_maintenance_blocks',
+    collection: 'rentalMaintenanceBlocks',
+    key: 'id',
+    label: 'Rental maintenance blocks',
+    columns: [
+      t('listing_id', 'listingId', { notNull: true, index: true, references: fk('rental_listings', 'CASCADE') }),
+      t('start_date', 'startDate', { index: true }),
+      t('end_date', 'endDate', { index: true }),
+      i('quantity_blocked', 'quantityBlocked'),
+      t('reason'),
+      t('created_by', 'createdBy'),
+      t('created_at', 'createdAt')
+    ],
+    compositeIndexes: [['listing_id', 'start_date', 'end_date']]
   },
   {
     table: 'payments',

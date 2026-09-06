@@ -2,8 +2,6 @@ import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
-
 /**
  * The way into DayGI.
  *
@@ -18,13 +16,11 @@ import { useTheme } from '../../context/ThemeContext';
  */
 export const DayGiFloatingButton: React.FC = () => {
   const { currentRoute, navigateTo } = useTrip();
-  const { language, isRTL } = useLanguage();
-  const { isDark } = useTheme();
-
+  const { language, isRTL , t} = useLanguage();
   // Nothing to offer from the page it opens.
   if (currentRoute === '/daygi' || currentRoute === '/ai-director') return null;
 
-  const label = language === 'ar' ? 'اسأل دايجي' : 'Ask DayGI';
+  const label = t('daygi.askDayGI');
 
   return (
     <button
@@ -45,13 +41,10 @@ export const DayGiFloatingButton: React.FC = () => {
         hover:-translate-y-0.5 hover:shadow-[0_10px_26px_-4px_rgba(8,23,20,0.5)]
         active:translate-y-0 active:scale-[0.97]
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-        ${
-          isDark
-            ? 'bg-[#13312B] text-[#F7F3EA] border border-[#52C4B7]/35 hover:bg-[#1a4038] focus-visible:ring-[#52C4B7] focus-visible:ring-offset-[#081714]'
-            : 'bg-white text-[#122420] border border-[#122420]/10 hover:bg-[#FAF7F0] focus-visible:ring-[#0F6F78] focus-visible:ring-offset-[#FBF9F5]'
-        }`}
+        bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--accent-primary)]/35 hover:bg-[var(--surface-card)] focus-visible:ring-[var(--accent-primary)] focus-visible:ring-offset-[var(--bg-canvas)]
+        `}
     >
-      <Sparkles className="w-5 h-5 shrink-0 text-[#20A89A]" aria-hidden="true" />
+      <Sparkles className="w-5 h-5 shrink-0 text-[var(--accent-primary)]" aria-hidden="true" />
 
       {/*
        * The label is present for a pointer and gone on a phone, where the

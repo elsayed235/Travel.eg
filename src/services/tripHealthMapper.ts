@@ -1,4 +1,4 @@
-import type { DayGiTripHealth, DayGiTripHealthIssue } from '../shared';
+import type { DayGiTripHealth, DayGiTripHealthIssue } from '../shared/types/daygi';
 import type { ConflictSeverity, TripConflict, TripHealthSummary } from '../types/tripOs';
 
 /**

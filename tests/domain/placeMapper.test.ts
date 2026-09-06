@@ -134,4 +134,20 @@ describe('building the map', () => {
     const mapped = toMappedPlace(place({ coordinates: { lat: 28.5029, lng: 34.5137 } }));
     expect(mapped.distance).toBe('In town');
   });
+
+  it('leaves out a record the pipeline could not position', () => {
+    // The research import creates dive sites from text (importResearch.ts), so
+    // /api/dahab/places carries records with coordinates: null. A map cannot
+    // place those — and must not crash on them.
+    const result = buildMapPlaces([place(), place({ id: 'nowhere', coordinates: null })]);
+    expect(result.map(r => r.id)).toEqual(['place_blue_hole']);
+  });
+
+  it('leaves out a record with unusable coordinates', () => {
+    const result = buildMapPlaces([
+      place(),
+      place({ id: 'broken', coordinates: { lat: NaN, lng: 34.5 } })
+    ]);
+    expect(result.map(r => r.id)).toEqual(['place_blue_hole']);
+  });
 });

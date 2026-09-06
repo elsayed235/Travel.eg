@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import type { SourceHealth, MarketAlert, MarketSchedulePolicy } from '../../services/api';
 import {
   Globe,
   Radio,
@@ -82,6 +83,12 @@ import {
   SupplierLifecycleStage
 } from '../../types/intelligence';
 
+function changeSeverityBg(severity: MarketAlert['severity']): string {
+  if (severity === 'CRITICAL') return 'bg-rose-950/20 border-rose-500/40 ring-1 ring-rose-500/20';
+  if (severity === 'HIGH') return 'bg-amber-950/20 border-amber-500/40';
+  return 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]';
+}
+
 export const MarketIntelligenceView: React.FC = () => {
   const {
     navigateTo,
@@ -95,7 +102,7 @@ export const MarketIntelligenceView: React.FC = () => {
     adoptContentBridge,
     opportunities
   } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
 
   // Active Tab State (16 Intelligence Subsystems, Opportunities & AI Assistant)
   const [activeTab, setActiveTab] = useState<
@@ -104,7 +111,10 @@ export const MarketIntelligenceView: React.FC = () => {
 
   // Interactive Data States
   const [sources, setSources] = useState<IntelligenceSource[]>(initialSources);
+  const [sourceHealth, setSourceHealth] = useState<SourceHealth[]>([]);
+  const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
   const [crawls, setCrawls] = useState<CrawlJob[]>(initialCrawlJobs);
+  const [schedulePolicies, setSchedulePolicies] = useState<MarketSchedulePolicy[]>([]);
   const [observations, setObservations] = useState<RawObservation[]>(initialRawObservations);
   const [normalizedEntities] = useState<NormalizedEntity[]>(initialNormalizedEntities);
   const [resolutionMatches] = useState<EntityResolutionMatch[]>(initialEntityResolutionMatches);
@@ -127,43 +137,47 @@ export const MarketIntelligenceView: React.FC = () => {
   const [reviewerNotes, setReviewerNotes] = useState<string>('');
   const [isCrawling, setIsCrawling] = useState(false);
 
-  // Fetch real source health on mount to replace hardcoded initialSources
+  // Fetch real source health on mount to augment the static governance matrix.
+  // The server's /api/market/sources/health returns { health: SourceHealth[] }
+  // — runtime reachability/metrics, distinct from the static governance
+  // attributes (`name`, `robotsStatus`, …) held in `initialSources`.
   useEffect(() => {
     const controller = new AbortController();
     api.getMarketSourceHealth(controller.signal)
       .then((data) => {
-        if (data.sources?.length) {
-          setSources(data.sources as IntelligenceSource[]);
+        if (data.health?.length) {
+          setSourceHealth(data.health);
         }
       })
-      .catch(() => {}); // fallback to initialSources
+      .catch(() => {}); // fallback to empty health
     return () => controller.abort();
   }, []);
 
-  // Fetch real market alerts on mount
+  // Fetch real market alerts on mount. These are typed MarketAlert records and
+  // are rendered in their own section — they are NOT change-radar events, so
+  // they are no longer merged into the ChangeRadarEvent stream (which has a
+  // different shape and would otherwise paint garbage alongside real events).
   useEffect(() => {
     const controller = new AbortController();
     api.getMarketAlerts(controller.signal)
       .then((data) => {
         if (data.alerts?.length) {
-          setChangeEvents(prev => {
-            const existing = new Set(prev.map(e => e.id));
-            const newEvents = (data.alerts as ChangeRadarEvent[]).filter(e => !existing.has(e.id));
-            return newEvents.length > 0 ? [...newEvents, ...prev] : prev;
-          });
+          setMarketAlerts(data.alerts);
         }
       })
       .catch(() => {});
     return () => controller.abort();
   }, []);
 
-  // Fetch real market jobs on mount
+  // Fetch real scheduled-refresh policies on mount. These are schedule
+  // policies (INTERVAL, ENABLED, LAST RUN), not completed crawl runs — so they
+  // are kept apart from `crawls` (actual run records from handleRefreshMarket).
   useEffect(() => {
     const controller = new AbortController();
     api.getMarketJobs(controller.signal)
       .then((data) => {
-        if (data.jobs?.length) {
-          setCrawls(data.jobs as CrawlJob[]);
+        if (data.policies?.length) {
+          setSchedulePolicies(data.policies);
         }
       })
       .catch(() => {});
@@ -187,9 +201,7 @@ export const MarketIntelligenceView: React.FC = () => {
     setIsCrawling(true);
     const startedAt = new Date();
     showToast(
-      language === 'ar'
-        ? 'جاري إعادة حساب مؤشرات السوق من الأرصاد المخزنة...'
-        : 'Recomputing market indices from stored observations...'
+      t('intel.recomputingMarketIndicesFrom')
     );
 
     try {
@@ -200,7 +212,7 @@ export const MarketIntelligenceView: React.FC = () => {
       setCrawls(prev => [{
         id: result.runId,
         sourceId: result.snapshotId,
-        sourceName: language === 'ar' ? 'إعادة حساب يدوية لمؤشرات السوق' : 'Manual market index recompute',
+        sourceName: t('intel.manualMarketIndexRecompute'),
         startedAt: startedAt.toLocaleTimeString('en-US', { hour12: false }),
         completedAt: completedAt.toLocaleTimeString('en-US', { hour12: false }),
         durationMs: completedAt.getTime() - startedAt.getTime(),
@@ -219,10 +231,8 @@ export const MarketIntelligenceView: React.FC = () => {
 
       showToast(
         succeeded
-          ? (language === 'ar'
-              ? `تم التحديث · ${result.changesDetectedCount ?? 0} تغيير مرصود ✓`
-              : `Refreshed · ${result.changesDetectedCount ?? 0} change(s) detected ✓`)
-          : (language === 'ar' ? 'فشل التحديث — راجع السجل' : 'Refresh failed — see the run log')
+          ? (t('intel.refreshedChanges', { count: result.changesDetectedCount ?? 0 }))
+          : (t('intel.refreshFailedSeeThe'))
       );
     } catch (err) {
       // A failed request must not look like a completed run.
@@ -230,7 +240,7 @@ export const MarketIntelligenceView: React.FC = () => {
       setCrawls(prev => [{
         id: `RUN-FAILED-${completedAt.getTime()}`,
         sourceId: '—',
-        sourceName: language === 'ar' ? 'إعادة حساب يدوية لمؤشرات السوق' : 'Manual market index recompute',
+        sourceName: t('intel.manualMarketIndexRecompute'),
         startedAt: startedAt.toLocaleTimeString('en-US', { hour12: false }),
         completedAt: completedAt.toLocaleTimeString('en-US', { hour12: false }),
         durationMs: completedAt.getTime() - startedAt.getTime(),
@@ -241,7 +251,7 @@ export const MarketIntelligenceView: React.FC = () => {
         payloadSize: '—',
         logs: [(err as Error).message]
       } as CrawlJob, ...prev]);
-      showToast(language === 'ar' ? 'تعذّر تنفيذ التحديث' : 'The refresh could not be run');
+      showToast(t('intel.theRefreshCouldNot'));
     } finally {
       setIsCrawling(false);
     }
@@ -253,9 +263,7 @@ export const MarketIntelligenceView: React.FC = () => {
       prev.map(obs => (obs.id === id ? { ...obs, verification_status: newStatus } : obs))
     );
     showToast(
-      language === 'ar'
-        ? `تم تحديث حالة الرصد إلى: ${newStatus}`
-        : `Updated observation status to: ${newStatus}`
+      t('intel.updatedObservationStatusTo', { newStatus })
     );
   };
 
@@ -304,9 +312,7 @@ export const MarketIntelligenceView: React.FC = () => {
         reviewerNotes || `Promoted through 5-stage human approval state machine. Production credentials issued.`
       );
       showToast(
-        language === 'ar'
-          ? `تم اعتماد ${updatedCandidate.businessName} رسمياً ونقله إلى Supplier OS ✓`
-          : `Candidate ${updatedCandidate.businessName} approved and live in Supplier OS ✓`
+        t('intel.candidateApproved', { name: updatedCandidate.businessName })
       );
     } else {
       showToast(`Supplier candidate advanced to "${targetStage}" stage ✓`);
@@ -372,9 +378,7 @@ export const MarketIntelligenceView: React.FC = () => {
     a.download = `dahab-market-intelligence-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     showToast(
-      language === 'ar'
-        ? 'تم تنزيل تقرير استخبارات سوق دهب (JSON)'
-        : 'Dahab Market Intelligence brief downloaded (JSON)'
+      t('intel.dahabMarketIntelligenceBrief')
     );
   };
 
@@ -392,33 +396,31 @@ export const MarketIntelligenceView: React.FC = () => {
     <div
       id="market-intelligence-view"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#04171D] text-[#F7F3EA] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
     >
       {/* 1. Header Cockpit & Executive Summary */}
-      <header className="bg-[#062C35] border-b border-white/10 px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+      <header className="bg-[var(--surface-container)] border-b border-[var(--border-subtle)] px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="max-w-7xl mx-auto space-y-5">
           {/* Breadcrumb & Navigation Linkage */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0F6F78] to-[#20A89A] border border-teal-300/30 flex items-center justify-center text-white shadow-lg">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-primary)] border border-teal-300/30 flex items-center justify-center text-white shadow-lg">
                 <Globe className="w-6 h-6 animate-spin-slow" />
               </div>
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl font-black font-['Outfit',sans-serif] text-[#F7F3EA]">
-                    {language === 'ar' ? 'طبقة استخبارات سوق دهب والويب' : 'Dahab Market & Web Intelligence'}
+                  <h1 className="text-xl sm:text-2xl font-black font-['Outfit',sans-serif] text-[var(--text-primary)]">
+                    {t('intel.dahabMarketWebIntelligence')}
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/40">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40">
                     LIVE RADAR ENGINE v3.2
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     INTERNAL INTEL ONLY
                   </span>
                 </div>
-                <p className="text-xs text-[#E7D3AE]/80 mt-0.5">
-                  {language === 'ar'
-                    ? 'رصد مستمر لأسعار السوق، الموردين الجدد، حركة المنافسين، وتحليل مراجعات دهب عبر الويب'
-                    : 'Continuous market perception, candidate supplier discovery, price spread index, and review sentiment analytics.'}
+                <p className="text-xs text-[var(--surface-container)]/80 mt-0.5">
+                  {t('intel.continuousMarketPerceptionCandidate')}
                 </p>
               </div>
             </div>
@@ -432,46 +434,44 @@ export const MarketIntelligenceView: React.FC = () => {
                 className="btn-glass-gold px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isCrawling ? 'animate-spin' : ''}`} />
-                <span>{isCrawling ? (language === 'ar' ? 'جاري التحديث...' : 'Refreshing...') : (language === 'ar' ? 'تحديث مؤشرات السوق' : 'Refresh market indices')}</span>
+                <span>{isCrawling ? (t('intel.refreshing')) : (t('intel.refreshMarketIndices'))}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleExportBrief}
-                className="btn-glass-dark px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-[#E7D3AE] hover:text-white"
+                className="btn-glass-dark px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer text-[var(--surface-container)] hover:text-[var(--text-primary)]"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{language === 'ar' ? 'تصدير التقرير' : 'Export Brief'}</span>
+                <span className="hidden sm:inline">{t('intel.exportBrief')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => navigateTo('/ops-console')}
-                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-[#E7D3AE] hover:text-white text-xs font-bold transition-all border border-white/10 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)] text-xs font-bold transition-all border border-[var(--border-subtle)] cursor-pointer"
               >
-                {language === 'ar' ? 'لوحة العمليات ←' : 'Ops Console →'}
+                {t('intel.opsConsole')}
               </button>
 
               <button
                 type="button"
                 onClick={() => navigateTo('/supplier-portal')}
-                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-[#E7D3AE] hover:text-white text-xs font-bold transition-all border border-white/10 cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)] text-xs font-bold transition-all border border-[var(--border-subtle)] cursor-pointer"
               >
-                {language === 'ar' ? 'بوابة الموردين ←' : 'Supplier OS →'}
+                {t('intel.supplierOS')}
               </button>
             </div>
           </div>
 
           {/* CRITICAL DATA GOVERNANCE WARNING BANNER */}
-          <div className="p-3.5 rounded-2xl bg-[#D96C4F]/15 border border-[#D96C4F]/35 text-[#FFA084] flex items-start gap-3 text-xs leading-relaxed backdrop-blur-md">
-            <ShieldAlert className="w-4 h-4 text-[#FFA084] shrink-0 mt-0.5" />
+          <div className="p-3.5 rounded-2xl bg-[var(--brand-coral)]/15 border border-[var(--brand-coral)]/35 text-[var(--brand-coral)] flex items-start gap-3 text-xs leading-relaxed backdrop-blur-md">
+            <ShieldAlert className="w-4 h-4 text-[var(--brand-coral)] shrink-0 mt-0.5" />
             <div>
-              <span className="font-extrabold text-[#F7F3EA] uppercase tracking-wide">
-                {language === 'ar' ? 'قاعدة حوكمة البيانات الصارمة: ' : 'Data Governance Rule: '}
+              <span className="font-extrabold text-[var(--text-primary)] uppercase tracking-wide">
+                {t('intel.dataGovernanceRule')}
               </span>
-              {language === 'ar'
-                ? 'البيانات المجمعة من الويب تُصنّف كـ «بيانات استخبارات» فقط ولا تتحول تلقائياً إلى «حقيقة إنتاجية» (Production Truth). لا تصبح المراجعة أو السعر أو المورد معتمداً داخل نظام الحجوزات إلا بعد تدقيق ومصادقة فريق العمليات.'
-                : 'Scraped and web-collected information is strictly Intelligence Data. It is NEVER automatically promoted to Production Truth. Verified pricing, capacity, and active suppliers require human/audit approval.'}
+              {t('intel.scrapedAndWebcollectedInformation')}
             </div>
           </div>
 
@@ -479,86 +479,86 @@ export const MarketIntelligenceView: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {[
               {
-                label: language === 'ar' ? 'المصادر النشطة' : 'Active Sources',
+                label: t('intel.activeSources'),
                 val: `${sources.length} Feeds`,
                 sub: 'Hourly & Daily',
                 icon: Database,
                 color: 'text-teal-400'
               },
               {
-                label: language === 'ar' ? 'معدل نجاح الزحف' : 'Crawl Success',
+                label: t('intel.crawlSuccess'),
                 val: '98.4%',
                 sub: '0.6% anomaly rate',
                 icon: Cpu,
                 color: 'text-emerald-400'
               },
               {
-                label: language === 'ar' ? 'موردون تحت التدقيق' : 'Candidate Suppliers',
+                label: t('intel.candidateSuppliers'),
                 val: `${discoveredSuppliers.length} Staged`,
                 sub: 'Ready for OS Vetting',
                 icon: Users,
                 color: 'text-amber-400'
               },
               {
-                label: language === 'ar' ? 'فروق أسعار السوق' : 'Monitored Verticals',
+                label: t('intel.monitoredVerticals'),
                 val: `${priceIndex.length} Verticals`,
                 sub: 'EGP / USD Index',
                 icon: DollarSign,
                 color: 'text-sky-400'
               },
               {
-                label: language === 'ar' ? 'إشارات الجودة' : 'Review Signals',
+                label: t('intel.reviewSignals'),
                 val: `${reviews.length} Ingested`,
                 sub: '1 Safety Alert',
                 icon: MessageSquare,
                 color: 'text-rose-400'
               },
               {
-                label: language === 'ar' ? 'طفرات وتغيرات' : 'Change Radar',
+                label: t('intel.changeRadar'),
                 val: `${changeEvents.length} Events`,
                 sub: '1 Action Required',
                 icon: Radio,
-                color: 'text-[#F4C36C]'
+                color: 'text-[var(--accent-secondary)]'
               }
             ].map((metric, i) => {
               const Icon = metric.icon;
               return (
                 <div
                   key={i}
-                  className="p-3 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between space-y-1 backdrop-blur-md"
+                  className="p-3 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex flex-col justify-between space-y-1 backdrop-blur-md"
                 >
-                  <div className="flex items-center justify-between text-[#E7D3AE]/70 text-[12px]">
+                  <div className="flex items-center justify-between text-[var(--surface-container)]/70 text-[12px]">
                     <span>{metric.label}</span>
                     <Icon className={`w-3.5 h-3.5 ${metric.color}`} />
                   </div>
                   <div className="text-base sm:text-lg font-black text-white font-['Outfit',sans-serif]">
                     {metric.val}
                   </div>
-                  <div className="text-[11px] text-[#E7D3AE]/60 font-mono">{metric.sub}</div>
+                  <div className="text-[11px] text-[var(--surface-container)]/60 font-mono">{metric.sub}</div>
                 </div>
               );
             })}
           </div>
 
           {/* Subsystems Navigation Tabs */}
-          <div className="flex items-center gap-1.5 border-t border-white/10 pt-3 overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1.5 border-t border-[var(--border-subtle)] pt-3 overflow-x-auto scrollbar-none">
             {([
-              { id: 'overview', label: language === 'ar' ? 'الرادار ونبض السوق' : 'Overview & Radar', icon: Radio },
-              { id: 'opportunities', label: language === 'ar' ? `فرص المنتج (${opportunities.length})` : `Product Opportunities (${opportunities.length})`, icon: Lightbulb },
-              { id: 'ai_assistant', label: language === 'ar' ? 'اسأل ذكاء دهب (AI)' : 'Ask Dahab Intel (AI)', icon: Bot },
-              { id: 'sources', label: language === 'ar' ? 'حوكمة المصادر' : 'Source Governance', icon: Database },
-              { id: 'crawls', label: language === 'ar' ? 'سجل الزحف والتنفيذ' : 'Crawls & Pipeline', icon: Cpu },
-              { id: 'observations', label: language === 'ar' ? 'الرصد والتوقيع (Raw)' : 'Raw Observations', icon: FileCode },
-              { id: 'normalization', label: language === 'ar' ? 'محرك المعايرة' : 'Normalization', icon: Layers },
-              { id: 'resolution', label: language === 'ar' ? 'مطابقة الكيانات' : 'Entity Resolution (6 Scenarios)', icon: CheckCircle2 },
-              { id: 'discovery', label: language === 'ar' ? 'اكتشاف الموردين' : 'Supplier Discovery', icon: Building2 },
-              { id: 'competitors', label: language === 'ar' ? 'رادار المنافسين' : 'Competitive Radar', icon: BarChart3 },
-              { id: 'prices', label: language === 'ar' ? 'مؤشر أسعار السوق' : 'Price Intelligence & FX', icon: DollarSign },
-              { id: 'reviews', label: language === 'ar' ? 'استخبارات المراجعات' : 'Review Signals', icon: MessageSquare },
-              { id: 'content', label: language === 'ar' ? 'استفسارات المسافرين' : 'Content Trends', icon: Sparkles },
-              { id: 'regulatory', label: language === 'ar' ? 'الطرق وتصاريح سيناء' : 'Roads & Sinai Permits', icon: MapPin },
-              { id: 'changes', label: language === 'ar' ? 'سجل التغييرات' : 'Change Radar', icon: Flame },
-              { id: 'audit', label: language === 'ar' ? 'تقرير التدقيق الـ21' : '21-Point Audit Matrix', icon: ShieldCheck }
+              { id: 'overview', label: t('intel.overviewRadar'), icon: Radio },
+              { id: 'opportunities', label: t('intel.productOpportunities', { count: opportunities.length }), icon: Lightbulb },
+              { id: 'ai_assistant', label: t('intel.askDahabIntelAI'), icon: Bot },
+              { id: 'sources', label: t('intel.sourceGovernance'), icon: Database },
+              { id: 'crawls', label: t('intel.crawlsPipeline'), icon: Cpu },
+              { id: 'observations', label: t('intel.rawObservations'), icon: FileCode },
+              { id: 'normalization', label: t('intel.normalization'), icon: Layers },
+              { id: 'resolution', label: t('intel.entityResolution6Scenarios'), icon: CheckCircle2 },
+              { id: 'discovery', label: t('intel.supplierDiscovery'), icon: Building2 },
+              { id: 'competitors', label: t('intel.competitiveRadar'), icon: BarChart3 },
+              { id: 'prices', label: t('intel.priceIntelligenceFX'), icon: DollarSign },
+              { id: 'reviews', label: t('intel.reviewSignals-2'), icon: MessageSquare },
+              { id: 'content', label: t('intel.contentTrends'), icon: Sparkles },
+              { id: 'regulatory', label: t('intel.roadsSinaiPermits'), icon: MapPin },
+              { id: 'changes', label: t('intel.changeRadar-2'), icon: Flame },
+              { id: 'audit', label: t('intel.21PointAuditMatrix'), icon: ShieldCheck }
             ] as const).map(tab => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -570,7 +570,7 @@ export const MarketIntelligenceView: React.FC = () => {
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'btn-glass-teal text-white shadow-md'
-                      : 'text-[#E7D3AE]/80 hover:text-[#F7F3EA] hover:bg-white/5'
+                      : 'text-[var(--surface-container)]/80 hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -611,15 +611,15 @@ export const MarketIntelligenceView: React.FC = () => {
             {/* Top Row: Change Radar Alerts & Market Opportunities */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Active Change Radar Stream */}
-              <div className="lg:col-span-2 p-6 rounded-3xl bg-[#062C35]/70 border border-white/10 backdrop-blur-xl space-y-4">
+              <div className="lg:col-span-2 p-6 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] backdrop-blur-xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-[#E7A83B]" />
-                    <h2 className="font-bold text-base text-[#F7F3EA] font-['Outfit',sans-serif]">
-                      {language === 'ar' ? 'رادار التغيرات الحية في دهب (Change Radar)' : 'Live Dahab Change Radar'}
+                    <Flame className="w-5 h-5 text-[var(--accent-secondary)]" />
+                    <h2 className="font-bold text-base text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                      {t('intel.liveDahabChangeRadar')}
                     </h2>
                   </div>
-                  <span className="text-xs text-[#E7D3AE]/70 font-mono">Real-time Stream</span>
+                  <span className="text-xs text-[var(--surface-container)]/70 font-mono">Real-time Stream</span>
                 </div>
 
                 <div className="space-y-3">
@@ -628,16 +628,16 @@ export const MarketIntelligenceView: React.FC = () => {
                       key={event.id}
                       className={`p-4 rounded-2xl border transition-all ${
                         isChangeEventResolved(event)
-                          ? 'bg-white/5 border-white/10 opacity-75'
+                          ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] opacity-75'
                           : event.severity === 'Action Required'
                           ? 'bg-rose-950/20 border-rose-500/40 ring-1 ring-rose-500/20'
-                          : 'bg-white/5 border-white/15'
+                          : 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[11px] font-mono text-[#52C4B7]">{event.timestamp}</span>
+                            <span className="text-[11px] font-mono text-[var(--accent-primary)]">{event.timestamp}</span>
                             <span
                               className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                                 event.severity === 'Action Required'
@@ -651,7 +651,7 @@ export const MarketIntelligenceView: React.FC = () => {
                             </span>
                             <span className="text-xs font-bold text-white">{event.entityName}</span>
                           </div>
-                          <p className="text-xs text-[#E7D3AE] leading-relaxed">
+                          <p className="text-xs text-[var(--surface-container)] leading-relaxed">
                             {language === 'ar' ? event.descriptionAr : event.description}
                           </p>
                         </div>
@@ -662,10 +662,10 @@ export const MarketIntelligenceView: React.FC = () => {
                           className={`px-2.5 py-1 rounded-lg text-[12px] font-bold transition-all shrink-0 cursor-pointer ${
                             isChangeEventResolved(event)
                               ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                              : 'btn-glass-gold text-[#062C35]'
+                              : 'btn-glass-gold text-[var(--surface-container)]'
                           }`}
                         >
-                          {isChangeEventResolved(event) ? (language === 'ar' ? 'تمت المعالجة ✓' : 'Resolved ✓') : (language === 'ar' ? 'معالجة التنبيه' : 'Acknowledge')}
+                          {isChangeEventResolved(event) ? (t('intel.resolved')) : (t('intel.acknowledge'))}
                         </button>
                       </div>
                     </div>
@@ -674,32 +674,32 @@ export const MarketIntelligenceView: React.FC = () => {
               </div>
 
               {/* Strategic Market Opportunities */}
-              <div className="p-6 rounded-3xl bg-gradient-to-br from-[#062C35] to-[#041D24] border border-[#20A89A]/30 backdrop-blur-xl space-y-4">
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-container)] border border-[var(--accent-primary)]/30 backdrop-blur-xl space-y-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#20A89A]" />
-                  <h3 className="font-bold text-base text-[#F7F3EA] font-['Outfit',sans-serif]">
-                    {language === 'ar' ? 'فرص استراتيجية مستخلصة' : 'Extracted Market Insights'}
+                  <Sparkles className="w-5 h-5 text-[var(--accent-primary)]" />
+                  <h3 className="font-bold text-base text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                    {t('intel.extractedMarketInsights')}
                   </h3>
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="p-3.5 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] space-y-1">
                     <span className="font-bold text-emerald-400">1. Private Transfer Competitiveness</span>
-                    <p className="text-[#E7D3AE]/80">
+                    <p className="text-[var(--surface-container)]/80">
                       Competitor prices for Sharm ↔ Dahab surged to 1,650 EGP. Our locked 1,450 EGP rate offers a 13.8% pricing edge. Recommend highlighting in Booking Drawer.
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <div className="p-3.5 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] space-y-1">
                     <span className="font-bold text-amber-400">2. Ras Abu Galum Safety Opportunity</span>
-                    <p className="text-[#E7D3AE]/80">
+                    <p className="text-[var(--surface-container)]/80">
                       External reviews cite lack of life jackets on independent speedboats. Certifying our partner boat fleet with verified safety gear will drive traveler trust.
                     </p>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
-                    <span className="font-bold text-[#52C4B7]">3. Trending Content Gap</span>
-                    <p className="text-[#E7D3AE]/80">
+                  <div className="p-3.5 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] space-y-1">
+                    <span className="font-bold text-[var(--accent-primary)]">3. Trending Content Gap</span>
+                    <p className="text-[var(--surface-container)]/80">
                       Solo female traveler safety queries grew +42%. Recommend launching an authoritative Sinai Safety & Night Walk guide.
                     </p>
                   </div>
@@ -710,29 +710,85 @@ export const MarketIntelligenceView: React.FC = () => {
                   onClick={() => setActiveTab('prices')}
                   className="w-full py-2.5 rounded-xl btn-glass-teal text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
-                  <span>{language === 'ar' ? 'فحص تفاصيل الأسعار والمنافسين' : 'Deep Dive Price Radar'}</span>
+                  <span>{t('intel.deepDivePriceRadar')}</span>
                   <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                 </button>
               </div>
             </div>
 
+            {/* Active Market Alerts — separate from the change radar. These are
+                MarketAlert records (titleEn/titleAr, alertType, severity) from
+                GET /api/market/alerts; they are kept out of the ChangeRadarEvent
+                stream so each renders with its own honest fields. */}
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--accent-secondary)]/30 space-y-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-[var(--accent-secondary)]" />
+                <h3 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                  {t('intel.marketAlerts')}
+                </h3>
+                <span className="text-xs text-[var(--surface-container)]/70 font-mono ml-auto">
+                  {marketAlerts.length} alert{marketAlerts.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              {marketAlerts.length === 0 ? (
+                <div className="p-3 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--surface-container)]/70">
+                  {t('intel.noActiveMarketAlerts')}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {marketAlerts.map(alert => (
+                    <div
+                      key={alert.id}
+                      className={`p-3.5 rounded-2xl border flex items-start justify-between gap-3 ${
+                        alert.acknowledged
+                          ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] opacity-70'
+                          : changeSeverityBg(alert.severity)
+                      }`}
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
+                            {alert.alertType}
+                          </span>
+                          <span className="text-xs font-bold text-white">
+                            {language === 'ar' ? alert.titleAr : alert.titleEn}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--surface-container)]/80 leading-relaxed">
+                          {language === 'ar' ? alert.messageAr : alert.messageEn}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-[var(--surface-container)]/70 font-mono">
+                          {alert.severity}
+                        </span>
+                        <div className="text-[10px] text-[var(--surface-container)]/60 font-mono mt-1">
+                          {new Date(alert.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Bottom Row: Candidate Suppliers Preview & Price Radar Snapshot */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Candidates Staged for Vetting */}
-              <div className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4">
+              <div className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-[#52C4B7]" />
-                    <h3 className="font-bold text-sm text-[#F7F3EA]">
-                      {language === 'ar' ? 'موردون مرشحون للاعتماد (Supplier Discovery)' : 'Discovered Candidate Suppliers'}
+                    <Building2 className="w-5 h-5 text-[var(--accent-primary)]" />
+                    <h3 className="font-bold text-sm text-[var(--text-primary)]">
+                      {t('intel.discoveredCandidateSuppliers')}
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('discovery')}
-                    className="text-xs text-[#E7A83B] hover:underline font-bold"
+                    className="text-xs text-[var(--accent-secondary)] hover:underline font-bold"
                   >
-                    {language === 'ar' ? 'عرض الكل ←' : 'View All Pipeline →'}
+                    {t('intel.viewAllPipeline')}
                   </button>
                 </div>
 
@@ -740,19 +796,19 @@ export const MarketIntelligenceView: React.FC = () => {
                   {discoveredSuppliers.slice(0, 3).map(supplier => (
                     <div
                       key={supplier.id}
-                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center justify-between gap-3"
                     >
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-xs text-white">
                             {language === 'ar' ? supplier.businessNameAr : supplier.businessName}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                             {supplier.category}
                           </span>
                         </div>
-                        <p className="text-[12px] text-[#E7D3AE]/70 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#E7A83B]" />
+                        <p className="text-[12px] text-[var(--surface-container)]/70 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-[var(--accent-secondary)]" />
                           <span>{supplier.area}</span> · <span>{supplier.licenseStatusDetected}</span>
                         </p>
                       </div>
@@ -766,20 +822,20 @@ export const MarketIntelligenceView: React.FC = () => {
               </div>
 
               {/* Price Spread Summary */}
-              <div className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4">
+              <div className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5 text-emerald-400" />
-                    <h3 className="font-bold text-sm text-[#F7F3EA]">
-                      {language === 'ar' ? 'مؤشر أسعار السوق الحالية' : 'Market Price Index (EGP)'}
+                    <h3 className="font-bold text-sm text-[var(--text-primary)]">
+                      {t('intel.marketPriceIndexEGP')}
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setActiveTab('prices')}
-                    className="text-xs text-[#E7A83B] hover:underline font-bold"
+                    className="text-xs text-[var(--accent-secondary)] hover:underline font-bold"
                   >
-                    {language === 'ar' ? 'عرض التحليل الكامل ←' : 'Full Index →'}
+                    {t('intel.fullIndex')}
                   </button>
                 </div>
 
@@ -787,13 +843,13 @@ export const MarketIntelligenceView: React.FC = () => {
                   {priceIndex.map(idx => (
                     <div
                       key={idx.id}
-                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between"
+                      className="p-3.5 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center justify-between"
                     >
                       <div className="space-y-0.5">
                         <span className="font-bold text-xs text-white">
                           {language === 'ar' ? idx.serviceNameAr : idx.serviceName}
                         </span>
-                        <div className="text-[12px] text-[#E7D3AE]/70 flex items-center gap-2">
+                        <div className="text-[12px] text-[var(--surface-container)]/70 flex items-center gap-2">
                           <span>Market Median: <strong className="text-white">{idx.marketMedianEGP} EGP</strong></span>
                           <span>·</span>
                           <span>Spread: {idx.marketMinEGP} - {idx.marketMaxEGP}</span>
@@ -804,7 +860,7 @@ export const MarketIntelligenceView: React.FC = () => {
                         <div className="text-xs font-black text-emerald-400 font-['Outfit',sans-serif]">
                           {idx.dahabPlatformRateEGP} EGP
                         </div>
-                        <span className="text-[11px] text-[#52C4B7] font-bold">Dahab OS Rate</span>
+                        <span className="text-[11px] text-[var(--accent-primary)] font-bold">Dahab OS Rate</span>
                       </div>
                     </div>
                   ))}
@@ -822,12 +878,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'سجل حوكمة المصادر وضوابط الاستخلاص' : 'Source Governance & Ingestion Matrix'}
+                  {t('intel.sourceGovernanceIngestionMatrix')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'تدقيق قانوني لجميع المصادر: طريقة الجمع، التراخيص، شروط الاستخدام، تصنيف المخاطر، والجاهزية للإنتاج'
-                    : 'Strict legal & compliance audit: collection method, API authorization, robots.txt status, and risk classification.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.strictLegalComplianceAudit')}
                 </p>
               </div>
 
@@ -838,20 +892,20 @@ export const MarketIntelligenceView: React.FC = () => {
                   className="btn-glass-teal px-4 py-2 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? 'تحديث جميع المصادر' : 'Fetch All Sources'}</span>
+                  <span>{t('intel.fetchAllSources')}</span>
                 </button>
               </div>
             </div>
 
             {/* Comprehensive Source Governance Table */}
-            <div className="p-6 rounded-3xl bg-[#062C35]/70 border border-white/10 overflow-x-auto">
-              <h3 className="text-sm font-bold text-[#F7F3EA] mb-3 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#52C4B7]" />
-                <span>{language === 'ar' ? 'جدول التدقيق الرقابي للمصادر الخارجية' : 'External Source Compliance & Risk Matrix'}</span>
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] overflow-x-auto">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)]" />
+                <span>{t('intel.externalSourceComplianceRisk')}</span>
               </h3>
               <table className="w-full text-start text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10 text-[#E7D3AE]/70 text-[12px]">
+                  <tr className="border-b border-[var(--border-subtle)] text-[var(--surface-container)]/70 text-[12px]">
                     <th className="pb-3 text-start font-semibold">Source</th>
                     <th className="pb-3 text-start font-semibold">Collection Method</th>
                     <th className="pb-3 text-start font-semibold">API / Auth</th>
@@ -863,17 +917,17 @@ export const MarketIntelligenceView: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5 font-sans">
                   {sources.map(src => (
-                    <tr key={src.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={src.id} className="hover:bg-[var(--btn-util-bg)] transition-colors">
                       <td className="py-3 pr-3">
                         <div className="font-bold text-white">{src.name}</div>
-                        <span className="text-[11px] font-mono text-[#52C4B7]">{src.id} · {src.category}</span>
+                        <span className="text-[11px] font-mono text-[var(--accent-primary)]">{src.id} · {src.category}</span>
                       </td>
                       <td className="py-3 pr-3">
-                        <span className="px-2 py-0.5 rounded-md bg-white/10 text-[11px] font-medium text-[#E7D3AE]">
+                        <span className="px-2 py-0.5 rounded-md bg-[var(--btn-util-bg)] text-[11px] font-medium text-[var(--surface-container)]">
                           {src.collectionMethod}
                         </span>
                       </td>
-                      <td className="py-3 pr-3 text-[#E7D3AE]/80 font-mono text-[12px]">
+                      <td className="py-3 pr-3 text-[var(--surface-container)]/80 font-mono text-[12px]">
                         {src.authType}
                       </td>
                       <td className="py-3 pr-3">
@@ -887,7 +941,7 @@ export const MarketIntelligenceView: React.FC = () => {
                           {src.robotsStatus}
                         </span>
                       </td>
-                      <td className="py-3 pr-3 text-[#E7D3AE]/70 text-[12px]">
+                      <td className="py-3 pr-3 text-[var(--surface-container)]/70 text-[12px]">
                         {src.retentionPolicy}
                       </td>
                       <td className="py-3 pr-3">
@@ -930,14 +984,14 @@ export const MarketIntelligenceView: React.FC = () => {
                   className={`p-5 rounded-3xl border space-y-4 transition-all backdrop-blur-md ${
                     source.productionReadiness === 'NOT PRODUCTION-READY'
                       ? 'bg-rose-950/20 border-rose-500/40 ring-1 ring-rose-500/20'
-                      : 'bg-[#062C35]/60 border-white/10 hover:border-teal-500/30'
+                      : 'bg-[var(--surface-container)]/60 border-[var(--border-subtle)] hover:border-teal-500/30'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
-                      <span className="text-[11px] font-mono text-[#52C4B7]">{source.id}</span>
+                      <span className="text-[11px] font-mono text-[var(--accent-primary)]">{source.id}</span>
                       <h3 className="font-bold text-sm text-white">{source.name}</h3>
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-[#E7D3AE]">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                         {source.category}
                       </span>
                     </div>
@@ -952,35 +1006,85 @@ export const MarketIntelligenceView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="text-xs font-mono text-[#E7D3AE]/60 truncate bg-black/20 p-2 rounded-xl border border-white/5">
+                  <div className="text-xs font-mono text-[var(--surface-container)]/60 truncate bg-black/20 p-2 rounded-xl border border-[var(--border-subtle)]">
                     {source.targetUrl}
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-black/25 text-xs text-[#E7D3AE]/80 border border-white/5 space-y-1">
-                    <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Governance Directive:</span>
+                  <div className="p-3 rounded-2xl bg-black/25 text-xs text-[var(--surface-container)]/80 border border-[var(--border-subtle)] space-y-1">
+                    <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Governance Directive:</span>
                     <p className="text-[12px] leading-relaxed">{source.governanceNotes}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-subtle)] text-xs">
                     <div>
-                      <span className="text-[11px] text-[#E7D3AE]/60 block">{language === 'ar' ? 'الوتيرة' : 'Cadence'}</span>
+                      <span className="text-[11px] text-[var(--surface-container)]/60 block">{t('intel.cadence')}</span>
                       <strong className="text-white">{source.frequency}</strong>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#E7D3AE]/60 block">{language === 'ar' ? 'آخر رصد' : 'Last Run'}</span>
-                      <strong className="text-[#52C4B7]">{source.lastRun}</strong>
+                      <span className="text-[11px] text-[var(--surface-container)]/60 block">{t('intel.lastRun')}</span>
+                      <strong className="text-[var(--accent-primary)]">{source.lastRun}</strong>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#E7D3AE]/60 block">{language === 'ar' ? 'نسبة النجاح' : 'Success Rate'}</span>
+                      <span className="text-[11px] text-[var(--surface-container)]/60 block">{t('intel.successRate')}</span>
                       <strong className={source.successRate >= 95 ? 'text-emerald-400' : 'text-amber-400'}>{source.successRate}%</strong>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#E7D3AE]/60 block">{language === 'ar' ? 'عناصر تم رصدها' : 'Items Observed'}</span>
+                      <span className="text-[11px] text-[var(--surface-container)]/60 block">{t('intel.itemsObserved')}</span>
                       <strong className="text-white">{source.itemsObserved}</strong>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Live Source Health — from GET /api/market/sources/health ({ health }).
+                Distinct from the static governance rows above: this is runtime
+                reachability, latency and run counts for each tracked source. */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Database className="w-4 h-4 text-[var(--accent-primary)]" />
+                {t('intel.liveSourceHealth')}
+              </h3>
+              {sourceHealth.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--surface-container)]/70">
+                  {t('intel.noLiveSourceHealth')}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {sourceHealth.map((h) => (
+                    <div
+                      key={h.id}
+                      className="p-4 rounded-2xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] flex items-start justify-between gap-3"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-xs font-bold text-[var(--text-primary)] truncate">{h.sourceReference}</span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
+                            {h.sourceType}
+                          </span>
+                        </div>
+                        <div className="text-[12px] text-[var(--surface-container)]/70 font-mono">
+                          {h.totalRuns ?? 0} runs · {h.successfulRuns ?? 0} ok
+                          {typeof h.recordsObserved === 'number' && <> · {h.recordsObserved} observed</>}
+                          {typeof h.latencyMs === 'number' && <> · {h.latencyMs}ms</>}
+                        </div>
+                        <div className="text-[11px] text-[var(--surface-container)]/60">
+                          {h.lastSuccess ? <>Last success: {new Date(h.lastSuccess).toLocaleString()}</> : h.lastFailedRefresh ? <>Last failed: {new Date(h.lastFailedRefresh).toLocaleString()}</> : 'No recent run'}
+                        </div>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 ${
+                        h.healthStatus === 'HEALTHY'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          : h.healthStatus === 'DEGRADED'
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          : 'bg-rose-600/30 text-rose-200 border border-rose-500/50'
+                      }`}>
+                        {h.healthStatus}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -993,12 +1097,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'سجل تشغيل وأنابيب الزحف (Crawl Pipeline)' : 'Crawl Pipeline & Execution Runs'}
+                  {t('intel.crawlPipelineExecutionRuns')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'سجلات استخراج الحمولات، مدة التنفيذ، وفحص الشذوذ في البيانات المسترجعة'
-                    : 'Job execution logs, payload health, anomaly detection, and parser metrics.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.jobExecutionLogsPayload')}
                 </p>
               </div>
             </div>
@@ -1007,57 +1109,105 @@ export const MarketIntelligenceView: React.FC = () => {
               {crawls.map(job => (
                 <div
                   key={job.id}
-                  className="p-5 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-3 backdrop-blur-md"
+                  className="p-5 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-3 backdrop-blur-md"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/30">
+                      <span className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30">
                         {job.id}
                       </span>
                       <div>
                         <h3 className="font-bold text-sm text-white">{job.sourceName}</h3>
-                        <span className="text-[12px] text-[#E7D3AE]/70 font-mono">
+                        <span className="text-[12px] text-[var(--surface-container)]/70 font-mono">
                           Started: {job.startedAt} · Finished: {job.completedAt} ({job.durationMs / 1000}s)
                         </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-[#E7D3AE]/80">Payload: {job.payloadSize}</span>
+                      <span className="text-xs font-mono text-[var(--surface-container)]/80">Payload: {job.payloadSize}</span>
                       <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                         {job.status}
                       </span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 bg-black/20 p-3 rounded-2xl border border-white/5 text-xs text-center font-mono">
+                  <div className="grid grid-cols-3 gap-3 bg-black/20 p-3 rounded-2xl border border-[var(--border-subtle)] text-xs text-center font-mono">
                     <div>
-                      <span className="text-[#E7D3AE]/60 block text-[11px]">Extracted</span>
+                      <span className="text-[var(--surface-container)]/60 block text-[11px]">Extracted</span>
                       <strong className="text-white text-sm">{job.recordsExtracted} records</strong>
                     </div>
                     <div>
-                      <span className="text-[#E7D3AE]/60 block text-[11px]">Normalized</span>
-                      <strong className="text-[#52C4B7] text-sm">{job.recordsNormalized} entities</strong>
+                      <span className="text-[var(--surface-container)]/60 block text-[11px]">Normalized</span>
+                      <strong className="text-[var(--accent-primary)] text-sm">{job.recordsNormalized} entities</strong>
                     </div>
                     <div>
-                      <span className="text-[#E7D3AE]/60 block text-[11px]">Anomalies</span>
+                      <span className="text-[var(--surface-container)]/60 block text-[11px]">Anomalies</span>
                       <strong className={job.anomaliesFound > 0 ? 'text-amber-400 text-sm' : 'text-emerald-400 text-sm'}>
                         {job.anomaliesFound} flagged
                       </strong>
                     </div>
                   </div>
 
-                  <div className="bg-black/30 p-3 rounded-2xl space-y-1 text-xs font-mono text-[#E7D3AE]/80">
-                    <span className="text-[11px] text-[#52C4B7] font-bold block uppercase tracking-wider">Pipeline Output Logs:</span>
-                    {job.logs.map((log, lIdx) => (
-                      <div key={lIdx} className="flex items-start gap-2">
-                        <span className="text-teal-500 select-none">›</span>
-                        <span>{log}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {Array.isArray(job.logs) && job.logs.length > 0 && (
+                    <div className="bg-black/30 p-3 rounded-2xl space-y-1 text-xs font-mono text-[var(--surface-container)]/80">
+                      <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase tracking-wider">Pipeline Output Logs:</span>
+                      {job.logs.map((log, lIdx) => (
+                        <div key={lIdx} className="flex items-start gap-2">
+                          <span className="text-teal-500 select-none">›</span>
+                          <span>{log}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
+            </div>
+
+            {/* Scheduled Refresh Policies — from GET /api/market/jobs. These are
+                schedule definitions, not completed runs; they are rendered with
+                their own fields instead of being cast into the CrawlJob shape. */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-[var(--accent-secondary)]" />
+                {t('intel.scheduledSourceRefreshPolicies')}
+              </h3>
+              {schedulePolicies.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--surface-container)]/70">
+                  {t('intel.noScheduledPoliciesYet')}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {schedulePolicies.map(policy => (
+                    <div
+                      key={policy.id}
+                      className="p-4 rounded-2xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3"
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-xs font-bold text-[var(--accent-primary)]">{policy.sourceReference}</span>
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
+                            {policy.sourceType}
+                          </span>
+                        </div>
+                        <div className="text-[12px] text-[var(--surface-container)]/70 font-mono">
+                          Interval: {policy.scheduleInterval}
+                          {policy.lastCompletedRun && <> · Last: {new Date(policy.lastCompletedRun).toLocaleString()}</>}
+                          {!policy.lastCompletedRun && policy.nextScheduledRun && <> · Next: {new Date(policy.nextScheduledRun).toLocaleString()}</>}
+                          {policy.consecutiveFailures > 0 && <> · {policy.consecutiveFailures} consecutive failure(s)</>}
+                        </div>
+                      </div>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        policy.enabled
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          : 'bg-[var(--btn-util-bg)] text-[var(--surface-container)]/70 border border-[var(--border-subtle)]'
+                      }`}>
+                        {policy.enabled ? 'ENABLED' : 'DISABLED'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1070,25 +1220,24 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'موجز الرصد الخام (Raw Observations Feed)' : 'Raw Observations Stream'}
+                  {t('intel.rawObservationsStream')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'البيانات المستخرجة فورياً مع مقتطفاتها الأصلية، درجات الثقة، وحالة التقييم'
-                    : 'Ingested raw payloads with confidence score, source URL, and review staging triage.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.ingestedRawPayloadsWith')}
                 </p>
               </div>
 
               {/* Search & Filter */}
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#E7D3AE]/60" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--surface-container)]/60" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder={language === 'ar' ? 'بحث في الرصد الخام...' : 'Search raw feed...'}
-                    className="pl-8 pr-3 py-1.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white focus:outline-none focus:border-teal-400"
+                    aria-label={t('intel.searchRawFeed')}
+                    placeholder={t('intel.searchRawFeed-2')}
+                    className="pl-8 pr-3 py-1.5 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-white focus:outline-none focus:border-teal-400"
                   />
                 </div>
               </div>
@@ -1098,19 +1247,19 @@ export const MarketIntelligenceView: React.FC = () => {
               {filteredObservations.map(obs => (
                 <div
                   key={obs.id}
-                  className="p-5 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-3 hover:border-white/20 transition-all backdrop-blur-md"
+                  className="p-5 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-3 hover:border-[var(--border-subtle)] transition-all backdrop-blur-md"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-mono text-[#52C4B7]">{obs.id}</span>
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-[#E7D3AE]">
+                        <span className="text-[11px] font-mono text-[var(--accent-primary)]">{obs.id}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                           {obs.source}
                         </span>
                         <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300">
                           Confidence: {obs.confidence}%
                         </span>
-                        <span className="text-[11px] text-[#E7D3AE]/60">{obs.freshness}</span>
+                        <span className="text-[11px] text-[var(--surface-container)]/60">{obs.freshness}</span>
                       </div>
                       <h3 className="font-bold text-sm text-white">
                         {language === 'ar' && obs.entityCandidateNameAr ? obs.entityCandidateNameAr : obs.entityCandidateName}
@@ -1121,10 +1270,10 @@ export const MarketIntelligenceView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setInspectObservation(obs)}
-                        className="btn-glass-dark px-3 py-1.5 rounded-xl text-xs font-bold text-[#52C4B7] flex items-center gap-1 cursor-pointer"
+                        className="btn-glass-dark px-3 py-1.5 rounded-xl text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1 cursor-pointer"
                       >
                         <FileCode className="w-3.5 h-3.5" />
-                        <span>{language === 'ar' ? 'فحص JSON' : 'Inspect JSON'}</span>
+                        <span>{t('intel.inspectJSON')}</span>
                       </button>
 
                       <span
@@ -1133,7 +1282,7 @@ export const MarketIntelligenceView: React.FC = () => {
                             ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                             : obs.verification_status === 'Vetted & Promoted'
                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                            : 'bg-white/10 text-[#E7D3AE] border-white/15'
+                            : 'bg-[var(--btn-util-bg)] text-[var(--surface-container)] border-[var(--border-subtle)]'
                         }`}
                       >
                         {obs.verification_status}
@@ -1141,13 +1290,13 @@ export const MarketIntelligenceView: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-black/25 border border-white/5 text-xs text-[#E7D3AE]/90 leading-relaxed font-sans">
-                    <span className="text-[11px] font-mono text-[#52C4B7] block mb-1">RAW EXTRACTED SNIPPET:</span>
+                  <div className="p-3 rounded-2xl bg-black/25 border border-[var(--border-subtle)] text-xs text-[var(--surface-container)]/90 leading-relaxed font-sans">
+                    <span className="text-[11px] font-mono text-[var(--accent-primary)] block mb-1">RAW EXTRACTED SNIPPET:</span>
                     "{obs.rawSnippet}"
                   </div>
 
                   {obs.triageNotes && (
-                    <div className="flex items-center justify-between text-xs text-[#E7D3AE]/70 pt-1">
+                    <div className="flex items-center justify-between text-xs text-[var(--surface-container)]/70 pt-1">
                       <span><strong>Triage Note:</strong> {obs.triageNotes}</span>
                       <div className="flex items-center gap-1.5">
                         <button
@@ -1180,12 +1329,10 @@ export const MarketIntelligenceView: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'محرك المعايرة والتحويل الهيكلي (Normalization)' : 'Entity Normalization Engine'}
+                {t('intel.entityNormalizationEngine')}
               </h2>
-              <p className="text-xs text-[#E7D3AE]/70">
-                {language === 'ar'
-                  ? 'تحويل النصوص غير المهيكلة إلى كيانات معيارية (أسعار EGP، إحداثيات GPS، وتصنيف مناطق دهب)'
-                  : 'Transforms raw text snippets into canonical Dahab entities with unified currency, coordinates, and hours.'}
+              <p className="text-xs text-[var(--surface-container)]/70">
+                {t('intel.transformsRawTextSnippets')}
               </p>
             </div>
 
@@ -1193,15 +1340,15 @@ export const MarketIntelligenceView: React.FC = () => {
               {normalizedEntities.map(entity => (
                 <div
                   key={entity.id}
-                  className="p-5 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4 backdrop-blur-md"
+                  className="p-5 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4 backdrop-blur-md"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
-                      <span className="text-[11px] font-mono text-[#52C4B7]">{entity.id}</span>
+                      <span className="text-[11px] font-mono text-[var(--accent-primary)]">{entity.id}</span>
                       <h3 className="font-bold text-sm text-white">
                         {language === 'ar' ? entity.canonicalNameAr : entity.canonicalName}
                       </h3>
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                         {entity.vertical}
                       </span>
                     </div>
@@ -1210,9 +1357,9 @@ export const MarketIntelligenceView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="space-y-2 text-xs text-[#E7D3AE]/80">
+                  <div className="space-y-2 text-xs text-[var(--surface-container)]/80">
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#E7A83B]" />
+                      <MapPin className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                       <span>{entity.area} · ({entity.coordinates.lat}, {entity.coordinates.lng})</span>
                     </div>
 
@@ -1227,18 +1374,18 @@ export const MarketIntelligenceView: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-white/10 space-y-1.5">
-                    <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Parsed Amenities:</span>
+                  <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5">
+                    <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Parsed Amenities:</span>
                     <div className="flex flex-wrap gap-1">
                       {entity.amenities.map((amenity, aIdx) => (
-                        <span key={aIdx} className="px-2 py-0.5 rounded-md bg-white/5 text-[11px] text-[#F7F3EA] border border-white/5">
+                        <span key={aIdx} className="px-2 py-0.5 rounded-md bg-[var(--btn-util-bg)] text-[11px] text-[var(--text-primary)] border border-[var(--border-subtle)]">
                           {amenity}
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="text-[11px] font-mono text-[#E7D3AE]/50 pt-1">
+                  <div className="text-[11px] font-mono text-[var(--surface-container)]/50 pt-1">
                     Engine: {entity.extractionEngine}
                   </div>
                 </div>
@@ -1254,12 +1401,10 @@ export const MarketIntelligenceView: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'محرك مطابقة الكيانات (Entity Resolution & Deduplication)' : 'Entity Resolution & Catalog Matcher'}
+                {t('intel.entityResolutionCatalogMatcher')}
               </h2>
-              <p className="text-xs text-[#E7D3AE]/70">
-                {language === 'ar'
-                  ? 'التحقق مما إذا كان الكيان المرصود يطابق مورداً مسجلاً بالفعل في دهب أم يمثل كياناً جديداً'
-                  : 'Deterministic and probabilistic linking of web observations against verified Dahab suppliers & catalog items.'}
+              <p className="text-xs text-[var(--surface-container)]/70">
+                {t('intel.deterministicAndProbabilisticLinking')}
               </p>
             </div>
 
@@ -1267,18 +1412,18 @@ export const MarketIntelligenceView: React.FC = () => {
               {resolutionMatches.map(match => (
                 <div
                   key={match.id}
-                  className="p-5 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-3 backdrop-blur-md"
+                  className="p-5 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-3 backdrop-blur-md"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                      <span className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                         {match.id}
                       </span>
                       <h3 className="font-bold text-sm text-white">
                         {match.incomingName}
                       </h3>
                       {match.testScenarioCategory && (
-                        <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-white/10 text-[#E7D3AE]">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                           Scenario: {match.testScenarioCategory}
                         </span>
                       )}
@@ -1296,13 +1441,13 @@ export const MarketIntelligenceView: React.FC = () => {
                       >
                         {match.resolutionStatus}
                       </span>
-                      <span className="px-2 py-0.5 rounded-lg bg-black/40 text-xs font-mono font-bold text-[#52C4B7]">
+                      <span className="px-2 py-0.5 rounded-lg bg-black/40 text-xs font-mono font-bold text-[var(--accent-primary)]">
                         {match.matchScore}% Match
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[#E7D3AE] leading-relaxed border border-white/5 space-y-1.5">
+                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[var(--surface-container)] leading-relaxed border border-[var(--border-subtle)] space-y-1.5">
                     <div>
                       <strong className="text-white">Resolution Rule:</strong> {match.resolutionType}
                     </div>
@@ -1316,7 +1461,7 @@ export const MarketIntelligenceView: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between text-xs text-[#E7D3AE]/70 font-mono pt-1">
+                  <div className="flex flex-wrap items-center justify-between text-xs text-[var(--surface-container)]/70 font-mono pt-1">
                     <span>Normalized Entity Ref: {match.normalizedEntityId}</span>
                     <span className={match.requiresHumanReview ? 'text-amber-400 font-bold' : 'text-emerald-400'}>
                       {match.requiresHumanReview ? '⚠ Requires Human Ops Review' : '✓ Automated Resolution Verified'}
@@ -1335,34 +1480,32 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'خط أنابيب اكتشاف وتدقيق الموردين الجدد' : 'Supplier Discovery & Authoritative Promotion Pipeline'}
+                  {t('intel.supplierDiscoveryAuthoritativePromotion')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'الموردون والمراكز المكتشفة من الويب المجهزة للتدقيق واعتمادها داخل Supplier OS'
-                    : 'Discovered candidate operators undergoing multi-stage human Ops verification before promotion to Authoritative Supplier OS.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.discoveredCandidateOperatorsUndergoing')}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-xl bg-teal-500/20 text-[#52C4B7] border border-teal-500/30 text-xs font-mono font-bold">
+                <span className="px-3 py-1 rounded-xl bg-teal-500/20 text-[var(--accent-primary)] border border-teal-500/30 text-xs font-mono font-bold">
                   Active in Supplier OS: {authoritativeSuppliers.length} Partners
                 </span>
               </div>
             </div>
 
             {/* Stage Flow Indicator Banner */}
-            <div className="p-4 rounded-2xl bg-black/30 border border-white/10 text-xs text-[#E7D3AE] flex flex-wrap items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-black/30 border border-[var(--border-subtle)] text-xs text-[var(--surface-container)] flex flex-wrap items-center justify-between gap-3">
               <span className="font-bold text-white flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-[#52C4B7]" />
+                <Layers className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>Authoritative Promotion Workflow:</span>
               </span>
               <div className="flex items-center gap-1 text-[12px] font-mono flex-wrap">
-                <span className="px-2 py-0.5 rounded bg-white/10 text-white">1. Observation</span>
+                <span className="px-2 py-0.5 rounded bg-[var(--btn-util-bg)] text-white">1. Observation</span>
                 <span className="text-teal-400">→</span>
-                <span className="px-2 py-0.5 rounded bg-white/10 text-white">2. Normalization</span>
+                <span className="px-2 py-0.5 rounded bg-[var(--btn-util-bg)] text-white">2. Normalization</span>
                 <span className="text-teal-400">→</span>
-                <span className="px-2 py-0.5 rounded bg-white/10 text-white">3. Entity Resolution</span>
+                <span className="px-2 py-0.5 rounded bg-[var(--btn-util-bg)] text-white">3. Entity Resolution</span>
                 <span className="text-teal-400">→</span>
                 <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">4. Ops Vetting</span>
                 <span className="text-teal-400">→</span>
@@ -1383,14 +1526,14 @@ export const MarketIntelligenceView: React.FC = () => {
                     className={`p-6 rounded-3xl border space-y-4 flex flex-col justify-between backdrop-blur-md transition-all ${
                       isPromoted
                         ? 'bg-emerald-950/20 border-emerald-500/40 ring-1 ring-emerald-500/20'
-                        : 'bg-[#062C35]/60 border-white/10 hover:border-white/20'
+                        : 'bg-[var(--surface-container)]/60 border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                     }`}
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-mono text-[#52C4B7]">{supplier.id}</span>
+                            <span className="text-[11px] font-mono text-[var(--accent-primary)]">{supplier.id}</span>
                             {isPromoted && (
                               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold font-mono bg-emerald-500/30 text-emerald-200 border border-emerald-500/40">
                                 {supplier.authoritativeSupplierId || matchingAuthoritative?.id || 'S09'}
@@ -1400,7 +1543,7 @@ export const MarketIntelligenceView: React.FC = () => {
                           <h3 className="font-bold text-base text-white">
                             {language === 'ar' ? supplier.businessNameAr : supplier.businessName}
                           </h3>
-                          <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                             {supplier.category}
                           </span>
                         </div>
@@ -1417,9 +1560,9 @@ export const MarketIntelligenceView: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="space-y-1.5 text-xs text-[#E7D3AE]/80">
+                      <div className="space-y-1.5 text-xs text-[var(--surface-container)]/80">
                         <div className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#E7A83B]" />
+                          <MapPin className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                           <span>{supplier.area}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -1439,10 +1582,10 @@ export const MarketIntelligenceView: React.FC = () => {
                       </div>
 
                       {/* Source References */}
-                      <div className="bg-black/20 p-3 rounded-2xl space-y-1 text-xs border border-white/5">
-                        <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Source References:</span>
+                      <div className="bg-black/20 p-3 rounded-2xl space-y-1 text-xs border border-[var(--border-subtle)]">
+                        <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Source References:</span>
                         {supplier.sourceReferences.map((ref, rIdx) => (
-                          <div key={rIdx} className="flex items-center justify-between text-[12px] text-[#E7D3AE]/70">
+                          <div key={rIdx} className="flex items-center justify-between text-[12px] text-[var(--surface-container)]/70">
                             <span>{ref.source}</span>
                             <span className="font-mono text-[11px]">{ref.observedAt}</span>
                           </div>
@@ -1450,12 +1593,12 @@ export const MarketIntelligenceView: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-white/10 space-y-2">
+                    <div className="pt-3 border-t border-[var(--border-subtle)] space-y-2">
                       {isPromoted ? (
                         <div className="space-y-2">
                           <div className="w-full py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center text-xs font-bold flex items-center justify-center gap-1.5">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>{language === 'ar' ? 'معتمد داخل Supplier OS' : 'Authoritative in Supplier OS ✓'}</span>
+                            <span>{t('intel.authoritativeInSupplierOS')}</span>
                           </div>
                           <button
                             type="button"
@@ -1464,10 +1607,10 @@ export const MarketIntelligenceView: React.FC = () => {
                               setActiveSupplierId(targetId);
                               navigateTo('/supplier-portal');
                             }}
-                            className="w-full py-2 rounded-xl btn-glass-dark text-[#52C4B7] text-xs font-bold hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-[#52C4B7]/30"
+                            className="w-full py-2 rounded-xl btn-glass-dark text-[var(--accent-primary)] text-xs font-bold hover:text-[var(--text-primary)] transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-[var(--accent-primary)]/30"
                           >
                             <ArrowRight className="w-3.5 h-3.5" />
-                            <span>{language === 'ar' ? 'فتح في بوابة الموردين (Supplier OS) ←' : 'Open in Supplier OS →'}</span>
+                            <span>{t('intel.openInSupplierOS')}</span>
                           </button>
                         </div>
                       ) : (
@@ -1481,7 +1624,7 @@ export const MarketIntelligenceView: React.FC = () => {
                           className="w-full py-2.5 rounded-xl btn-glass-teal text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
                         >
                           <ShieldCheck className="w-3.5 h-3.5" />
-                          <span>{language === 'ar' ? 'فحص واعتماد المورد (Ops Gate)' : 'Review & Authorize Promotion Gate'}</span>
+                          <span>{t('intel.reviewAuthorizePromotionGate')}</span>
                         </button>
                       )}
                     </div>
@@ -1500,12 +1643,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'رادار المنافسين وإجراءات التسعير التشغيلية' : 'Competitive Radar & Ops Pricing Action Desk'}
+                  {t('intel.competitiveRadarOpsPricing')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'مقارنة دقيقة بين عروض المنصات المنافسة وإجراءات اعتماد شارات القيمة والأسعار العادلة'
-                    : 'System proposes strategic pricing insights; human-authorized Ops workflow approves changes before publication.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.systemProposesStrategicPricing')}
                 </p>
               </div>
 
@@ -1517,7 +1658,7 @@ export const MarketIntelligenceView: React.FC = () => {
             </div>
 
             {/* Pricing Decisions Action Desk */}
-            <div className="p-6 rounded-3xl bg-[#062C35]/80 border border-white/15 space-y-4">
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/80 border border-[var(--border-subtle)] space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-emerald-400" />
@@ -1525,7 +1666,7 @@ export const MarketIntelligenceView: React.FC = () => {
                     Ops Pricing & Merchandising Decision Queue ({pricingDecisions.length} actions)
                   </h3>
                 </div>
-                <span className="text-[12px] text-[#E7D3AE]/70 font-mono">
+                <span className="text-[12px] text-[var(--surface-container)]/70 font-mono">
                   Human-in-the-loop authorization required
                 </span>
               </div>
@@ -1537,24 +1678,24 @@ export const MarketIntelligenceView: React.FC = () => {
                     className={`p-4 rounded-2xl border transition-all ${
                       decision.status === 'APPROVED'
                         ? 'bg-emerald-950/20 border-emerald-500/30'
-                        : 'bg-black/30 border-white/10'
+                        : 'bg-black/30 border-[var(--border-subtle)]'
                     }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-mono text-[#52C4B7]">{decision.id}</span>
+                          <span className="text-[11px] font-mono text-[var(--accent-primary)]">{decision.id}</span>
                           <span className="font-bold text-sm text-white">{decision.serviceTitle}</span>
-                          <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-[#E7D3AE]">
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                             Comp: {decision.competitorName} ({decision.observedPriceEGP} EGP) vs Dahab ({decision.currentPlatformPriceEGP} EGP)
                           </span>
                         </div>
 
-                        <p className="text-xs text-[#E7D3AE]/90 leading-relaxed">
+                        <p className="text-xs text-[var(--surface-container)]/90 leading-relaxed">
                           <strong>Rationale:</strong> {decision.rationale}
                         </p>
 
-                        <div className="flex items-center gap-2 text-xs text-[#52C4B7] font-mono pt-1">
+                        <div className="flex items-center gap-2 text-xs text-[var(--accent-primary)] font-mono pt-1">
                           <span>Action Proposed: <strong>{decision.recommendedAction}</strong></span>
                           {decision.merchandisingBadge && (
                             <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
@@ -1601,19 +1742,19 @@ export const MarketIntelligenceView: React.FC = () => {
               {competitors.map(comp => (
                 <div
                   key={comp.id}
-                  className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4 backdrop-blur-md"
+                  className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4 backdrop-blur-md"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="text-[11px] font-mono text-[#52C4B7]">{comp.competitorName}</span>
+                      <span className="text-[11px] font-mono text-[var(--accent-primary)]">{comp.competitorName}</span>
                       <h3 className="font-bold text-base text-white">{comp.serviceTitle}</h3>
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-[#E7D3AE] mt-1">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)] mt-1">
                         {comp.vertical}
                       </span>
                     </div>
 
                     <div className="text-end">
-                      <span className="text-[11px] text-[#E7D3AE]/60 block">{language === 'ar' ? 'سعر المنافس' : 'Observed Rate'}</span>
+                      <span className="text-[11px] text-[var(--surface-container)]/60 block">{t('intel.observedRate')}</span>
                       <div className="text-base font-black text-rose-400 font-['Outfit',sans-serif]">
                         {comp.observedPriceEGP} EGP
                       </div>
@@ -1623,30 +1764,30 @@ export const MarketIntelligenceView: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-xs text-[#E7D3AE]/80">
+                  <div className="space-y-2 text-xs text-[var(--surface-container)]/80">
                     <div>
-                      <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Inclusions Observed:</span>
+                      <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Inclusions Observed:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {comp.inclusionsObserved.map((inc, iIdx) => (
-                          <span key={iIdx} className="px-2 py-0.5 rounded-md bg-white/5 text-[11px] text-white border border-white/5">
+                          <span key={iIdx} className="px-2 py-0.5 rounded-md bg-[var(--btn-util-bg)] text-[11px] text-white border border-[var(--border-subtle)]">
                             {inc}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[12px]">
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-subtle)] text-[12px]">
                       <div>
-                        <span className="text-[11px] text-[#E7D3AE]/60 block">Cancellation Policy:</span>
+                        <span className="text-[11px] text-[var(--surface-container)]/60 block">Cancellation Policy:</span>
                         <span className="text-white">{comp.cancellationTerms}</span>
                       </div>
                       <div>
-                        <span className="text-[11px] text-[#E7D3AE]/60 block">Fulfillment Speed:</span>
+                        <span className="text-[11px] text-[var(--surface-container)]/60 block">Fulfillment Speed:</span>
                         <span className="text-white">{comp.fulfillmentSpeed}</span>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-2xl bg-black/25 text-xs text-[#E7D3AE] border border-white/5">
+                    <div className="p-3 rounded-2xl bg-black/25 text-xs text-[var(--surface-container)] border border-[var(--border-subtle)]">
                       <strong>Analyst Note:</strong> {comp.notes}
                     </div>
                   </div>
@@ -1663,12 +1804,10 @@ export const MarketIntelligenceView: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'مؤشر أسعار السوق ونطاقات التقلب (Price Intelligence)' : 'Price Intelligence & Market Spread Index'}
+                {t('intel.priceIntelligenceMarketSpread')}
               </h2>
-              <p className="text-xs text-[#E7D3AE]/70">
-                {language === 'ar'
-                  ? 'متابعة تغيرات الأسعار، النطاق الأدنى والأقصى، وتوصيات التسعير الديناميكي للخدمات'
-                  : 'Continuous market rate spread (Min / Median / Max), volatility index, and dynamic partner rate recommendations.'}
+              <p className="text-xs text-[var(--surface-container)]/70">
+                {t('intel.continuousMarketRateSpread')}
               </p>
             </div>
 
@@ -1676,16 +1815,16 @@ export const MarketIntelligenceView: React.FC = () => {
               {priceIndex.map(item => (
                 <div
                   key={item.id}
-                  className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4 backdrop-blur-md"
+                  className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4 backdrop-blur-md"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <span className="text-[11px] font-mono text-[#52C4B7]">{item.serviceKey}</span>
+                      <span className="text-[11px] font-mono text-[var(--accent-primary)]">{item.serviceKey}</span>
                       <h3 className="font-bold text-base text-white">
                         {language === 'ar' ? item.serviceNameAr : item.serviceName}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-[#E7D3AE]">
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                           {item.sampleCount} price points sampled
                         </span>
                         <span
@@ -1701,7 +1840,7 @@ export const MarketIntelligenceView: React.FC = () => {
                     </div>
 
                     <div className="text-end">
-                      <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Dahab OS Rate</span>
+                      <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Dahab OS Rate</span>
                       <div className="text-xl font-black text-white font-['Outfit',sans-serif]">
                         {item.dahabPlatformRateEGP} EGP
                       </div>
@@ -1709,15 +1848,15 @@ export const MarketIntelligenceView: React.FC = () => {
                   </div>
 
                   {/* Market Spread Visual Bar */}
-                  <div className="space-y-1.5 bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <div className="flex items-center justify-between text-xs text-[#E7D3AE]/80">
+                  <div className="space-y-1.5 bg-black/20 p-4 rounded-2xl border border-[var(--border-subtle)]">
+                    <div className="flex items-center justify-between text-xs text-[var(--surface-container)]/80">
                       <span>Min: <strong className="text-white">{item.marketMinEGP} EGP</strong></span>
-                      <span>Median: <strong className="text-[#52C4B7]">{item.marketMedianEGP} EGP</strong></span>
+                      <span>Median: <strong className="text-[var(--accent-primary)]">{item.marketMedianEGP} EGP</strong></span>
                       <span>Max: <strong className="text-rose-400">{item.marketMaxEGP} EGP</strong></span>
                     </div>
 
                     {/* Progress Bar Visualization */}
-                    <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden relative">
+                    <div className="w-full h-2.5 bg-[var(--btn-util-bg)] rounded-full overflow-hidden relative">
                       <div
                         className="h-full bg-gradient-to-r from-teal-500 via-amber-400 to-rose-400 rounded-full"
                         style={{ width: '100%' }}
@@ -1727,24 +1866,24 @@ export const MarketIntelligenceView: React.FC = () => {
 
                   {/* 7-Day Trend Chart Mini-Graph */}
                   <div className="space-y-1.5">
-                    <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">7-Day Market Velocity Spread:</span>
+                    <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">7-Day Market Velocity Spread:</span>
                     <div className="flex items-end gap-1.5 h-16 pt-2">
                       {item.historical7DaySpread.map((day, dIdx) => {
                         const heightPct = Math.min(100, Math.max(30, ((day.median - item.marketMinEGP) / (item.marketMaxEGP - item.marketMinEGP)) * 100));
                         return (
                           <div key={dIdx} className="flex-1 flex flex-col items-center gap-1 group relative">
                             <div
-                              className="w-full bg-[#20A89A]/60 hover:bg-[#20A89A] rounded-t transition-all"
+                              className="w-full bg-[var(--accent-primary)]/60 hover:bg-[var(--accent-primary)] rounded-t transition-all"
                               style={{ height: `${heightPct}%` }}
                             />
-                            <span className="text-[11px] font-mono text-[#E7D3AE]/60">{day.date.split(' ')[1]}</span>
+                            <span className="text-[11px] font-mono text-[var(--surface-container)]/60">{day.date.split(' ')[1]}</span>
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-black/30 text-xs text-[#E7D3AE] border border-white/5">
+                  <div className="p-3 rounded-2xl bg-black/30 text-xs text-[var(--surface-container)] border border-[var(--border-subtle)]">
                     <strong>Strategic Recommendation:</strong> {item.actionRecommendation}
                   </div>
                 </div>
@@ -1760,12 +1899,10 @@ export const MarketIntelligenceView: React.FC = () => {
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'استخبارات المراجعات وإشارات الجودة (Review Radar)' : 'Review & Reputation Intelligence'}
+                {t('intel.reviewReputationIntelligence')}
               </h2>
-              <p className="text-xs text-[#E7D3AE]/70">
-                {language === 'ar'
-                  ? 'تحليل المشاعر التلقائي لشكاوى ومراجعات المسافرين عبر جوجل وتريب أدفايزر لاستباق معايير الأمان'
-                  : 'Aggregates external reviews, extracts recurring quality/safety signals, and triggers preventive partner actions.'}
+              <p className="text-xs text-[var(--surface-container)]/70">
+                {t('intel.aggregatesExternalReviewsExtracts')}
               </p>
             </div>
 
@@ -1778,17 +1915,17 @@ export const MarketIntelligenceView: React.FC = () => {
                       ? 'bg-rose-950/25 border-rose-500/40 ring-1 ring-rose-500/20'
                       : rev.sentiment === 'Positive'
                       ? 'bg-emerald-950/20 border-emerald-500/30'
-                      : 'bg-[#062C35]/60 border-white/10'
+                      : 'bg-[var(--surface-container)]/60 border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-mono text-[#52C4B7]">{rev.id}</span>
-                        <span className="text-[11px] text-[#E7D3AE]/60">{rev.date} · {rev.source}</span>
+                        <span className="text-[11px] font-mono text-[var(--accent-primary)]">{rev.id}</span>
+                        <span className="text-[11px] text-[var(--surface-container)]/60">{rev.date} · {rev.source}</span>
                       </div>
                       <h3 className="font-bold text-sm text-white mt-0.5">{rev.entityName}</h3>
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-[#E7D3AE] mt-1">
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)] mt-1">
                         {rev.category}
                       </span>
                     </div>
@@ -1806,19 +1943,19 @@ export const MarketIntelligenceView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[#E7D3AE] leading-relaxed italic border border-white/5">
+                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[var(--surface-container)] leading-relaxed italic border border-[var(--border-subtle)]">
                     "{rev.excerpt}"
                   </div>
 
                   <div className="flex flex-wrap gap-1">
                     {rev.extractedKeywords.map((kw, kIdx) => (
-                      <span key={kIdx} className="px-2 py-0.5 rounded-md bg-white/10 text-[11px] text-white">
+                      <span key={kIdx} className="px-2 py-0.5 rounded-md bg-[var(--btn-util-bg)] text-[11px] text-white">
                         #{kw}
                       </span>
                     ))}
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-black/30 text-xs text-[#52C4B7] border border-white/5">
+                  <div className="p-3 rounded-2xl bg-black/30 text-xs text-[var(--accent-primary)] border border-[var(--border-subtle)]">
                     <strong>Actionable Agency Policy:</strong> {rev.actionableInsight}
                   </div>
                 </div>
@@ -1835,26 +1972,24 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'استخبارات المحتوى وجسور المنتجات (Content → Product Bridge)' : 'Traveler Content Intelligence & Product Bridges'}
+                  {t('intel.travelerContentIntelligenceProduct')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'ربط استفسارات المسافرين المتكررة بالفرص التحريرية وفرص بناء الميزات داخل تطبيق دهب'
-                    : 'Traces recurring traveler questions to Intent, Content Opportunity, Product Opportunity, and live customer surfaces.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.tracesRecurringTravelerQuestions')}
                 </p>
               </div>
             </div>
 
             {/* Content-to-Product Bridges Queue */}
-            <div className="p-6 rounded-3xl bg-[#062C35]/80 border border-white/15 space-y-4">
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/80 border border-[var(--border-subtle)] space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Compass className="w-5 h-5 text-[#52C4B7]" />
+                  <Compass className="w-5 h-5 text-[var(--accent-primary)]" />
                   <h3 className="text-sm font-bold text-white font-['Outfit',sans-serif]">
                     Traveler Intent → Product Integration Matrix ({contentBridges.length} bridges)
                   </h3>
                 </div>
-                <span className="text-[12px] text-[#E7D3AE]/70 font-mono">
+                <span className="text-[12px] text-[var(--surface-container)]/70 font-mono">
                   Translates friction into product features
                 </span>
               </div>
@@ -1866,17 +2001,17 @@ export const MarketIntelligenceView: React.FC = () => {
                     className={`p-5 rounded-2xl border space-y-3 transition-all ${
                       bridge.status === 'ADOPTED'
                         ? 'bg-emerald-950/20 border-emerald-500/30'
-                        : 'bg-black/30 border-white/10'
+                        : 'bg-black/30 border-[var(--border-subtle)]'
                     }`}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-mono text-[#52C4B7]">{bridge.id}</span>
-                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E7A83B]/20 text-[#F4C36C]">
+                          <span className="text-[11px] font-mono text-[var(--accent-primary)]">{bridge.id}</span>
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)]">
                             Intent: {bridge.travelerIntent}
                           </span>
-                          <span className="text-xs font-mono text-[#E7D3AE]/70">Confidence: {bridge.confidenceScore}%</span>
+                          <span className="text-xs font-mono text-[var(--surface-container)]/70">Confidence: {bridge.confidenceScore}%</span>
                         </div>
                         <h4 className="font-bold text-sm text-white">"{bridge.questionTopic}"</h4>
                       </div>
@@ -1903,22 +2038,22 @@ export const MarketIntelligenceView: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-black/20 p-3.5 rounded-xl border border-white/5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-black/20 p-3.5 rounded-xl border border-[var(--border-subtle)]">
                       <div>
-                        <span className="text-[11px] text-[#52C4B7] font-bold block uppercase">Editorial Opportunity:</span>
-                        <p className="text-[#E7D3AE] mt-0.5">{bridge.contentOpportunity}</p>
+                        <span className="text-[11px] text-[var(--accent-primary)] font-bold block uppercase">Editorial Opportunity:</span>
+                        <p className="text-[var(--surface-container)] mt-0.5">{bridge.contentOpportunity}</p>
                       </div>
                       <div>
-                        <span className="text-[11px] text-[#E7A83B] font-bold block uppercase">Product Feature Opportunity:</span>
+                        <span className="text-[11px] text-[var(--accent-secondary)] font-bold block uppercase">Product Feature Opportunity:</span>
                         <p className="text-white font-medium mt-0.5">{bridge.productOpportunity}</p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between text-xs text-[#E7D3AE]/70 pt-1 border-t border-white/10 font-mono">
+                    <div className="flex flex-wrap items-center justify-between text-xs text-[var(--surface-container)]/70 pt-1 border-t border-[var(--border-subtle)] font-mono">
                       <div>
                         Target Surfaces:{' '}
                         {bridge.targetSurfaces.map((s, idx) => (
-                          <span key={idx} className="text-[#52C4B7] mr-1">
+                          <span key={idx} className="text-[var(--accent-primary)] mr-1">
                             #{s}
                           </span>
                         ))}
@@ -1935,16 +2070,16 @@ export const MarketIntelligenceView: React.FC = () => {
               {contentTrends.map(trend => (
                 <div
                   key={trend.id}
-                  className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4 backdrop-blur-md"
+                  className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4 backdrop-blur-md"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="space-y-1">
-                      <span className="text-[11px] font-mono text-[#52C4B7]">{trend.id}</span>
+                      <span className="text-[11px] font-mono text-[var(--accent-primary)]">{trend.id}</span>
                       <h3 className="font-bold text-sm text-white">
                         {language === 'ar' ? trend.queryTopicAr : trend.queryTopic}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E7A83B]/20 text-[#F4C36C]">
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)]">
                           Volume: {trend.searchVolumeScore}/100
                         </span>
                         <span className="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300">
@@ -1964,7 +2099,7 @@ export const MarketIntelligenceView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[#E7D3AE] leading-relaxed border border-white/5">
+                  <div className="p-3.5 rounded-2xl bg-black/25 text-xs text-[var(--surface-container)] leading-relaxed border border-[var(--border-subtle)]">
                     <strong>Suggested Action:</strong> {trend.actionSuggested}
                   </div>
                 </div>
@@ -1981,12 +2116,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'سجل طفرات وتغيرات السوق (Change Radar)' : 'Change Radar & Operations Dispatch'}
+                  {t('intel.changeRadarOperationsDispatch')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'سجل زمني لجميع التغيرات المرصودة مع اشتراط تدقيق فريق العمليات قبل اعتمادها كحقيقة رسمية'
-                    : 'Signals move Observed → Reviewed → Confirmed/Dismissed → Actioned. Unconfirmed signals never alter production state.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.signalsMoveObservedReviewed')}
                 </p>
               </div>
             </div>
@@ -1999,17 +2132,17 @@ export const MarketIntelligenceView: React.FC = () => {
                     isChangeEventResolved(event) && event.isProductTruth
                       ? 'bg-emerald-950/20 border-emerald-500/30'
                       : isChangeEventResolved(event)
-                      ? 'bg-white/5 border-white/10 opacity-75'
+                      ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] opacity-75'
                       : event.severity === 'Action Required'
                       ? 'bg-rose-950/20 border-rose-500/40 ring-1 ring-rose-500/20'
-                      : 'bg-[#062C35]/60 border-white/15'
+                      : 'bg-[var(--surface-container)]/60 border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-mono text-[#52C4B7]">{event.timestamp}</span>
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                        <span className="text-[11px] font-mono text-[var(--accent-primary)]">{event.timestamp}</span>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                           {event.changeType}
                         </span>
                         <span className="text-xs font-bold text-white">{event.entityName}</span>
@@ -2019,16 +2152,16 @@ export const MarketIntelligenceView: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-[#E7D3AE] leading-relaxed">
+                      <p className="text-xs text-[var(--surface-container)] leading-relaxed">
                         {language === 'ar' ? event.descriptionAr : event.description}
                       </p>
                       {event.oldValue && event.newValue && (
-                        <div className="text-xs font-mono text-[#E7D3AE]/80">
+                        <div className="text-xs font-mono text-[var(--surface-container)]/80">
                           Mutation: <del className="text-rose-400">{event.oldValue}</del> → <strong className="text-emerald-400">{event.newValue}</strong>
                         </div>
                       )}
                       {event.reviewer && (
-                        <div className="text-[12px] text-[#52C4B7] font-mono pt-1">
+                        <div className="text-[12px] text-[var(--accent-primary)] font-mono pt-1">
                           Audited by {event.reviewer} at {event.reviewedAt}
                         </div>
                       )}
@@ -2039,7 +2172,7 @@ export const MarketIntelligenceView: React.FC = () => {
                         href={event.sourceUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="btn-glass-dark p-2 rounded-xl text-xs text-[#E7D3AE] hover:text-white"
+                        className="btn-glass-dark p-2 rounded-xl text-xs text-[var(--surface-container)] hover:text-[var(--text-primary)]"
                         title="View Source URL"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -2058,14 +2191,14 @@ export const MarketIntelligenceView: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleToggleChangeResolved(event.id, 'DISMISS')}
-                            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#E7D3AE] text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                            className="px-3 py-1.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                           >
                             <X className="w-3 h-3" />
                             <span>Dismiss (Noise)</span>
                           </button>
                         </div>
                       ) : (
-                        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-white/10 text-[#E7D3AE]">
+                        <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                           {event.isProductTruth ? 'Confirmed & Logged ✓' : 'Dismissed as Noise'}
                         </span>
                       )}
@@ -2085,12 +2218,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'استخبارات الطرق وحوكمة إشارات الأمان والكمائن' : 'Regulatory Signals & Checkpoint Governance Audit'}
+                  {t('intel.regulatorySignalsCheckpointGovernance')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'رصد ومراجعة مصادر إشارات الطرق والكمائن والبحر مع ضمانات منع القرارات الآلية غير المعتمدة'
-                    : 'Strict governance verifying authoritative sources, freshness SLAs, allowed downstream consumers, and prevented actions.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.strictGovernanceVerifyingAuthoritative')}
                 </p>
               </div>
 
@@ -2102,7 +2233,7 @@ export const MarketIntelligenceView: React.FC = () => {
             </div>
 
             {/* Governance Audit Table */}
-            <div className="p-6 rounded-3xl bg-[#062C35]/80 border border-white/15 space-y-4">
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/80 border border-[var(--border-subtle)] space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -2110,7 +2241,7 @@ export const MarketIntelligenceView: React.FC = () => {
                     Authoritative Checkpoint & Environmental Signal Governance Audit
                   </h3>
                 </div>
-                <span className="text-[12px] text-[#E7D3AE]/70 font-mono">
+                <span className="text-[12px] text-[var(--surface-container)]/70 font-mono">
                   10-Point Governance Audit Compliance
                 </span>
               </div>
@@ -2118,7 +2249,7 @@ export const MarketIntelligenceView: React.FC = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-[#52C4B7] font-mono uppercase text-[11px]">
+                    <tr className="border-b border-[var(--border-subtle)] text-[var(--accent-primary)] font-mono uppercase text-[11px]">
                       <th className="py-2.5 px-3">Corridor / Signal</th>
                       <th className="py-2.5 px-3">Authoritative Source</th>
                       <th className="py-2.5 px-3">Freshness SLA</th>
@@ -2128,12 +2259,12 @@ export const MarketIntelligenceView: React.FC = () => {
                       <th className="py-2.5 px-3">Prevented Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 text-[#E7D3AE]/90">
+                  <tbody className="divide-y divide-white/5 text-[var(--surface-container)]/90">
                     {regulatoryAudits.map(audit => (
-                      <tr key={audit.signalId} className="hover:bg-white/5 transition-all">
+                      <tr key={audit.signalId} className="hover:bg-[var(--btn-util-bg)] transition-all">
                         <td className="py-3 px-3">
                           <strong className="text-white block">{audit.corridorOrArea}</strong>
-                          <span className="text-[11px] font-mono text-[#52C4B7]">{audit.signalId}</span>
+                          <span className="text-[11px] font-mono text-[var(--accent-primary)]">{audit.signalId}</span>
                         </td>
                         <td className="py-3 px-3 font-medium text-white">{audit.authoritativeSource}</td>
                         <td className="py-3 px-3 font-mono">{audit.freshnessSLA}</td>
@@ -2145,7 +2276,7 @@ export const MarketIntelligenceView: React.FC = () => {
                         <td className="py-3 px-3 text-[12px] leading-tight">{audit.escalationPolicy}</td>
                         <td className="py-3 px-3 font-mono text-[11px]">
                           {audit.allowedDownstreamConsumers.map((c, i) => (
-                            <span key={i} className="inline-block px-1.5 py-0.5 rounded bg-white/10 text-white mr-1 mb-1">
+                            <span key={i} className="inline-block px-1.5 py-0.5 rounded bg-[var(--btn-util-bg)] text-white mr-1 mb-1">
                               {c}
                             </span>
                           ))}
@@ -2165,16 +2296,16 @@ export const MarketIntelligenceView: React.FC = () => {
               {regulatoryConditions.map(reg => (
                 <div
                   key={reg.id}
-                  className="p-6 rounded-3xl bg-[#062C35]/60 border border-white/10 space-y-4 backdrop-blur-md flex flex-col justify-between"
+                  className="p-6 rounded-3xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] space-y-4 backdrop-blur-md flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-0.5">
-                        <span className="text-[11px] font-mono text-[#52C4B7]">{reg.id}</span>
+                        <span className="text-[11px] font-mono text-[var(--accent-primary)]">{reg.id}</span>
                         <h3 className="font-bold text-sm text-white">
                           {language === 'ar' ? reg.titleAr : reg.title}
                         </h3>
-                        <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                        <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                           {reg.sector}
                         </span>
                       </div>
@@ -2191,19 +2322,19 @@ export const MarketIntelligenceView: React.FC = () => {
                       </span>
                     </div>
 
-                    <p className="text-xs text-[#E7D3AE]/90 leading-relaxed bg-black/20 p-3 rounded-2xl border border-white/5">
+                    <p className="text-xs text-[var(--surface-container)]/90 leading-relaxed bg-black/20 p-3 rounded-2xl border border-[var(--border-subtle)]">
                       {reg.notes}
                     </p>
 
-                    <div className="space-y-1 text-xs text-[#E7D3AE]/70 font-mono">
+                    <div className="space-y-1 text-xs text-[var(--surface-container)]/70 font-mono">
                       <div>Source: <strong className="text-white">{reg.source}</strong></div>
                       <div>Observed: {reg.observedAt} ({reg.freshness})</div>
-                      <div>Confidence: <strong className="text-[#52C4B7]">{reg.confidence}%</strong></div>
+                      <div>Confidence: <strong className="text-[var(--accent-primary)]">{reg.confidence}%</strong></div>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded-md text-[11px] bg-white/10 text-[#E7D3AE]">
+                  <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] bg-[var(--btn-util-bg)] text-[var(--surface-container)]">
                       Impact: {reg.impactOnBookings}
                     </span>
                     <span className="text-[11px] text-emerald-300 font-bold flex items-center gap-1">
@@ -2225,12 +2356,10 @@ export const MarketIntelligenceView: React.FC = () => {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'مصفوفة التدقيق والتحصين الـ 21 نقطة' : '21-Point Production Readiness & Governance Matrix'}
+                  {t('intel.21PointProductionReadinessGovernance')}
                 </h2>
-                <p className="text-xs text-[#E7D3AE]/70">
-                  {language === 'ar'
-                    ? 'التحقق الكامل من سلامة الحوكمة، فصل البيانات، بصمة المنشأ، محرك المطابقة، وعزل الذكاء الاصطناعي'
-                    : 'Systematic architectural proof: provenance signatures, schema isolation, FX drift tracking, and sandbox safety.'}
+                <p className="text-xs text-[var(--surface-container)]/70">
+                  {t('intel.systematicArchitecturalProofProvenance')}
                 </p>
               </div>
 
@@ -2243,30 +2372,30 @@ export const MarketIntelligenceView: React.FC = () => {
 
             {/* Audit Summary Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-5 rounded-3xl bg-[#062C35]/70 border border-white/10 space-y-2">
-                <span className="text-xs font-mono text-[#52C4B7]">Section 1</span>
+              <div className="p-5 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] space-y-2">
+                <span className="text-xs font-mono text-[var(--accent-primary)]">Section 1</span>
                 <h3 className="font-bold text-white text-sm">Source Governance</h3>
-                <p className="text-xs text-[#E7D3AE]/80">Facebook & unlicensed scrapers locked as NOT PRODUCTION-READY. Only official APIs allowed for automated sync.</p>
+                <p className="text-xs text-[var(--surface-container)]/80">Facebook & unlicensed scrapers locked as NOT PRODUCTION-READY. Only official APIs allowed for automated sync.</p>
                 <div className="text-[11px] text-emerald-400 font-mono font-bold">✓ 3/3 Audits Verified</div>
               </div>
 
-              <div className="p-5 rounded-3xl bg-[#062C35]/70 border border-white/10 space-y-2">
-                <span className="text-xs font-mono text-[#52C4B7]">Section 2-4</span>
+              <div className="p-5 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] space-y-2">
+                <span className="text-xs font-mono text-[var(--accent-primary)]">Section 2-4</span>
                 <h3 className="font-bold text-white text-sm">Provenance & FX Drift</h3>
-                <p className="text-xs text-[#E7D3AE]/80">Every observation cryptographically sealed with SHA-256 signatures. Price indices separate FX drift from organic inflation.</p>
+                <p className="text-xs text-[var(--surface-container)]/80">Every observation cryptographically sealed with SHA-256 signatures. Price indices separate FX drift from organic inflation.</p>
                 <div className="text-[11px] text-emerald-400 font-mono font-bold">✓ 8/8 Audits Verified</div>
               </div>
 
-              <div className="p-5 rounded-3xl bg-[#062C35]/70 border border-white/10 space-y-2">
-                <span className="text-xs font-mono text-[#52C4B7]">Section 5-7</span>
+              <div className="p-5 rounded-3xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] space-y-2">
+                <span className="text-xs font-mono text-[var(--accent-primary)]">Section 5-7</span>
                 <h3 className="font-bold text-white text-sm">Resolution & AI Guardrails</h3>
-                <p className="text-xs text-[#E7D3AE]/80">6-scenario entity matcher handles Arabic transliteration & duplicate locations. AI sandbox rejects ungrounded prompt injection.</p>
+                <p className="text-xs text-[var(--surface-container)]/80">6-scenario entity matcher handles Arabic transliteration & duplicate locations. AI sandbox rejects ungrounded prompt injection.</p>
                 <div className="text-[11px] text-emerald-400 font-mono font-bold">✓ 10/10 Audits Verified</div>
               </div>
             </div>
 
             {/* Complete 21-Point Checklist */}
-            <div className="p-6 rounded-3xl bg-[#062C35]/80 border border-white/10 space-y-4">
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)]/80 border border-[var(--border-subtle)] space-y-4">
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Production Readiness Audit Checklist</span>
@@ -2282,11 +2411,11 @@ export const MarketIntelligenceView: React.FC = () => {
                   { id: 'AUD-06', title: 'Supplier Discovery Vetting Trail', status: 'PASS', detail: 'Multi-stage state machine (Discovered → Candidate → Verified → Approved → Onboarded) requires human Ops sign-off.' },
                   { id: 'AUD-07', title: 'AI Sandbox & Prompt Injection Wall', status: 'PASS', detail: 'Scraped web content sanitized as inert data. AI may not execute tool calls or modify production records.' }
                 ].map(check => (
-                  <div key={check.id} className="p-3.5 rounded-2xl bg-black/20 border border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div key={check.id} className="p-3.5 rounded-2xl bg-black/20 border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-[#52C4B7] font-bold">{check.id}</span>
+                      <span className="font-mono text-[var(--accent-primary)] font-bold">{check.id}</span>
                       <span className="font-bold text-white">{check.title}</span>
-                      <span className="text-[#E7D3AE]/80 hidden md:inline">— {check.detail}</span>
+                      <span className="text-[var(--surface-container)]/80 hidden md:inline">— {check.detail}</span>
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[11px]">
                       {check.status} ✓
@@ -2309,10 +2438,10 @@ export const MarketIntelligenceView: React.FC = () => {
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
-          <div className="w-full max-w-2xl bg-[#062C35] border border-white/20 rounded-3xl p-6 space-y-5 shadow-2xl text-start">
+          <div className="w-full max-w-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-3xl p-6 space-y-5 shadow-2xl text-start">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#52C4B7]" />
+                <ShieldCheck className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 className="font-bold text-base text-white">
                   Ops Gatekeeper · Promote Candidate to Supplier OS
                 </h3>
@@ -2320,30 +2449,30 @@ export const MarketIntelligenceView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedSupplierCandidate(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Candidate Header */}
-            <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-1.5">
+            <div className="p-4 rounded-2xl bg-black/30 border border-[var(--border-subtle)] space-y-1.5">
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-white text-base">
                   {selectedSupplierCandidate.businessName}
                 </h4>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#20A89A]/20 text-[#52C4B7]">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]">
                   {selectedSupplierCandidate.id}
                 </span>
               </div>
-              <p className="text-xs text-[#E7D3AE]/80">
+              <p className="text-xs text-[var(--surface-container)]/80">
                 {selectedSupplierCandidate.category} · {selectedSupplierCandidate.area} · Lead Contact: {selectedSupplierCandidate.leadContact}
               </p>
             </div>
 
             {/* 5-Stage Human Gate Progress */}
             <div className="space-y-2">
-              <span className="text-[12px] text-[#52C4B7] font-bold uppercase tracking-wider block">
+              <span className="text-[12px] text-[var(--accent-primary)] font-bold uppercase tracking-wider block">
                 Verification & Authorization State Flow
               </span>
               <div className="grid grid-cols-5 gap-1.5 text-center text-[11px] font-mono">
@@ -2362,7 +2491,7 @@ export const MarketIntelligenceView: React.FC = () => {
                         className={`p-2 rounded-xl border ${
                           isPassed
                             ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                            : 'bg-white/5 text-[#E7D3AE]/50 border-white/10'
+                            : 'bg-[var(--btn-util-bg)] text-[var(--surface-container)]/50 border-[var(--border-subtle)]'
                         }`}
                       >
                         <span className="block font-bold">{idx + 1}. {step}</span>
@@ -2375,18 +2504,18 @@ export const MarketIntelligenceView: React.FC = () => {
             </div>
 
             {/* Evidence Checklist */}
-            <div className="p-4 rounded-2xl bg-black/20 border border-white/10 space-y-2.5 text-xs text-[#E7D3AE]">
+            <div className="p-4 rounded-2xl bg-black/20 border border-[var(--border-subtle)] space-y-2.5 text-xs text-[var(--surface-container)]">
               <span className="text-[12px] font-bold text-white block uppercase">Required Human Audit Evidence:</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/5">
+                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-[var(--btn-util-bg)]">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>CDWS / MOT License Valid</span>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/5">
+                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-[var(--btn-util-bg)]">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>Physical Safety Audit OK</span>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-white/5">
+                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-[var(--btn-util-bg)]">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>Bedouin Tribal Pact Active</span>
                 </div>
@@ -2395,25 +2524,25 @@ export const MarketIntelligenceView: React.FC = () => {
 
             {/* Reviewer Note Input */}
             <div className="space-y-1">
-              <label className="text-xs text-[#E7D3AE] font-medium">Ops Authorization Sign-off Note:</label>
+              <label className="text-xs text-[var(--surface-container)] font-medium">Ops Authorization Sign-off Note:</label>
               <input
                 type="text"
                 value={reviewerNotes}
                 onChange={e => setReviewerNotes(e.target.value)}
                 placeholder="e.g. Field inspection completed by Ahmed Ops. Driver licenses verified."
-                className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-xs text-white placeholder-white/40 focus:outline-none focus:border-teal-400"
+                className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-[var(--border-subtle)] text-xs text-white placeholder-white/40 focus:outline-none focus:border-teal-400"
               />
-              <span className="text-[11px] text-[#E7D3AE]/60 block font-mono">
+              <span className="text-[11px] text-[var(--surface-container)]/60 block font-mono">
                 RBAC Signer: Sinai Operations Lead (ahmed.ops@dahab.live)
               </span>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
               <button
                 type="button"
                 onClick={() => setSelectedSupplierCandidate(null)}
-                className="px-4 py-2 rounded-xl btn-glass-dark text-xs text-[#E7D3AE] cursor-pointer"
+                className="px-4 py-2 rounded-xl btn-glass-dark text-xs text-[var(--surface-container)] cursor-pointer"
               >
                 Close
               </button>
@@ -2453,10 +2582,10 @@ export const MarketIntelligenceView: React.FC = () => {
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
         >
-          <div className="w-full max-w-2xl bg-[#062C35] border border-white/20 rounded-3xl p-6 space-y-4 shadow-2xl text-start">
+          <div className="w-full max-w-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-3xl p-6 space-y-4 shadow-2xl text-start">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileCode className="w-5 h-5 text-[#20A89A]" />
+                <FileCode className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 className="font-bold text-base text-white">
                   Raw Payload Inspector · {inspectObservation.id}
                 </h3>
@@ -2464,21 +2593,21 @@ export const MarketIntelligenceView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInspectObservation(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-[#E7D3AE]/80 font-mono">
+            <div className="space-y-1 text-xs text-[var(--surface-container)]/80 font-mono">
               <div><strong>Entity:</strong> {inspectObservation.entityCandidateName}</div>
               <div><strong>Source:</strong> {inspectObservation.source} (ID: {inspectObservation.source_id})</div>
               <div><strong>Observed At:</strong> {inspectObservation.observed_at} (Fetched: {inspectObservation.fetched_at})</div>
               <div><strong>Confidence Score:</strong> {inspectObservation.confidence}%</div>
-              <div><strong>Provenance Signature:</strong> <span className="text-[#52C4B7]">{inspectObservation.provenanceSignature}</span></div>
+              <div><strong>Provenance Signature:</strong> <span className="text-[var(--accent-primary)]">{inspectObservation.provenanceSignature}</span></div>
             </div>
 
-            <div className="bg-black/40 p-4 rounded-2xl max-h-80 overflow-y-auto font-mono text-xs text-[#52C4B7] border border-white/10">
+            <div className="bg-black/40 p-4 rounded-2xl max-h-80 overflow-y-auto font-mono text-xs text-[var(--accent-primary)] border border-[var(--border-subtle)]">
               <pre>{JSON.stringify(inspectObservation.rawJson, null, 2)}</pre>
             </div>
 
@@ -2486,9 +2615,9 @@ export const MarketIntelligenceView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInspectObservation(null)}
-                className="px-4 py-2 rounded-xl btn-glass-sand text-[#062C35] font-bold text-xs cursor-pointer"
+                className="px-4 py-2 rounded-xl btn-glass-sand text-[var(--surface-container)] font-bold text-xs cursor-pointer"
               >
-                {language === 'ar' ? 'إغلاق' : 'Close'}
+                {t('intel.close')}
               </button>
             </div>
           </div>

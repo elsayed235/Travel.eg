@@ -54,7 +54,7 @@ export type { FoodCategory, FoodOption } from '../../shared/types/food';
 import type { FoodCategory, FoodOption } from '../../shared/types/food';
 
 /** Stable so useApiResource does not re-request on every render. */
-const fetchDiningVenues = (signal: AbortSignal) => api.getDahabDining(signal);
+const fetchDiningVenues = (signal: AbortSignal) => api.getDahabDining(undefined, signal);
 
 export const FoodNowView: React.FC<FoodNowViewProps> = ({
   onBackToMyTrip,
@@ -89,28 +89,17 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
   // Delivery order workflow state: 'none' | 'confirm' | 'tracking'
   const [deliveryWorkflow, setDeliveryWorkflow] = useState<'none' | 'confirm' | 'tracking'>('none');
   
-  // Order items for delivery
-  const [orderCart, setOrderCart] = useState<Record<string, number>>({
-    'dish-1': 1,
-    'dish-2': 1,
-    'dish-3': 2,
-  });
+  // Order items for delivery — starts empty; the traveler fills it.
+  const [orderCart, setOrderCart] = useState<Record<string, number>>({});
 
   // Delivery Tracking Status: 'preparing' | 'picked_up' | 'on_the_way' | 'delivered'
   const [deliveryStatus, setDeliveryStatus] = useState<'preparing' | 'picked_up' | 'on_the_way' | 'delivered'>('preparing');
-
-  // Delivery Schedule conflict simulation state
-  const [isDeliveryDelayed, setIsDeliveryDelayed] = useState(false);
-  const [scheduleCoordinationState, setScheduleCoordinationState] = useState<'normal' | 'activity_shifted' | 'order_cancelled'>('normal');
 
   // Eat here Added To Trip state
   const [addedEatHereMeal, setAddedEatHereMeal] = useState<{
     restaurantName: string;
     estimatedTime: string;
   } | null>(null);
-
-  // Empty / No suitable food state simulation toggle
-  const [isNoFoodAvailableMode, setIsNoFoodAvailableMode] = useState(false);
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -406,9 +395,11 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     setDeliveryWorkflow('tracking');
     setDeliveryStatus('preparing');
     showToast(
-      language === 'ar'
-        ? `تم تأكيد طلبك من ${selectedRestaurant?.nameAr || selectedRestaurant?.name} وبيتحضر دلوقتي 🛵`
-        : `Order placed at ${selectedRestaurant?.name}! Kitchen is preparing your meal 🛵`
+      t('food.orderPlaced', {
+        name: language === 'ar'
+          ? (selectedRestaurant?.nameAr || selectedRestaurant?.name || '')
+          : (selectedRestaurant?.name || ''),
+      })
     );
   };
 
@@ -429,30 +420,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     }
 
     showToast(
-      language === 'ar'
-        ? `تمت إضافة الغداء في "${restaurant.nameAr}" لجدول اليوم ٢ بنجاح ✓`
-        : `Lunch at ${restaurant.name} added to your Day 2 schedule ✓`
-    );
-  };
-
-  const handleShiftActivity = () => {
-    setScheduleCoordinationState('activity_shifted');
-    setIsDeliveryDelayed(false);
-    showToast(
-      language === 'ar'
-        ? 'تم ترحيل نشاط الساعة ٣:٠٠ عصراً إلى ٣:٤٥ عصراً تلقائياً. جدولك آمن ومحمي ✓'
-        : 'Updated: 03:00 PM activity shifted to 03:45 PM. Schedule is clear ✓'
-    );
-  };
-
-  const handleCancelDelivery = () => {
-    setScheduleCoordinationState('order_cancelled');
-    setDeliveryWorkflow('none');
-    setIsDeliveryDelayed(false);
-    showToast(
-      language === 'ar'
-        ? 'تم إلغاء الطلب بدون أي رسوم. جدولك كما هو.'
-        : 'Order cancelled. No charges applied.'
+      t('food.lunchAddedDay2', { name: language === 'ar' ? restaurant.nameAr : restaurant.name })
     );
   };
 
@@ -468,9 +436,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       showToast(
         sessionUser
           ? `Signed in as ${sessionUser.name || sessionUser.email}`
-          : language === 'ar'
-            ? 'مش مسجّل دخول'
-            : 'Not signed in'
+          : t('food.notSignedIn')
       );
     }
   };
@@ -478,7 +444,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[#F4C36C]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/* 1. TRAVELER TOP NAVIGATION */}
       <TravelerNav
@@ -497,46 +463,20 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               type="button"
               id="back-to-mytrip-btn"
               onClick={onBackToCompanion || onBackToMyTrip}
-              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[#D2E3DE]/70 hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-              <span>{language === 'ar' ? 'الرجوع للمرافق اليومي (اليوم ٢)' : 'Back to Daily Companion (Day 2)'}</span>
+              <span>{t('food.backToDailyCompanion')}</span>
             </button>
-            <span className="text-white/20">•</span>
+            <span className="text-[var(--text-muted)]">•</span>
             <button
               type="button"
               id="full-itinerary-link"
               onClick={onBackToMyTrip}
-              className="text-xs font-bold text-[#52C4B7] hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
-              {language === 'ar' ? 'الجدول الكامل' : 'Full Itinerary'}
+              {t('food.fullItinerary')}
             </button>
-          </div>
-
-          {/* Prototype Switcher: Normal Food Options vs No Suitable Options Fallback */}
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-1 bg-[#13312B] p-0.5 rounded-full text-[12px] font-semibold text-[#D2E3DE] border border-white/10">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsNoFoodAvailableMode(false);
-                  showToast(language === 'ar' ? 'عرض ترشيحات الغداء الساعة ٠١:٠٠ م' : 'Showing personalized options for 01:00 PM');
-                }}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${!isNoFoodAvailableMode ? 'bg-[#F4C36C] text-[#081714] font-bold shadow-xs' : 'hover:text-[#F7F3EA]'}`}
-              >
-                {language === 'ar' ? 'خيارات متاحة (Normal)' : 'Food Available'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsNoFoodAvailableMode(true);
-                  showToast(language === 'ar' ? 'حالة: الوقت لا يكفي لمطعم' : 'Mode: No nearby food fits schedule');
-                }}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${isNoFoodAvailableMode ? 'bg-[#F4C36C] text-[#081714] font-bold shadow-xs' : 'hover:text-[#F7F3EA]'}`}
-              >
-                {language === 'ar' ? 'الوقت ضيق (Fallback)' : 'No Nearby Food State'}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -546,39 +486,31 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           {/* Header Context Pills */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold font-['Outfit',sans-serif]">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0E2520] text-[#52C4B7] border border-white/10 shadow-xs">
-                <MapPin className="w-3.5 h-3.5 text-[#52C4B7]" />
-                <span>{language === 'ar' ? '📍 موقعك: ممشى اللايتهاوس، دهب' : '📍 Near you (Near Dahab Lighthouse)'}</span>
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--border-subtle)] shadow-xs">
+                <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span>{t('food.nearYouNearDahab')}</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#0E2520] text-[#F7F3EA] border border-white/10 shadow-xs">
-                <Clock className="w-3.5 h-3.5 text-[#F4C36C]" />
-                <span>{language === 'ar' ? '🕐 الوقت: ٠١:٠٠ ظهراً' : '🕐 01:00 PM'}</span>
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xs">
+                <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                <span>{t('food.0100PM')}</span>
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#13312B] text-[#F4C36C] text-xs font-bold border border-[#F4C36C]/30 shadow-xs font-['Outfit',sans-serif]">
-              <Sparkles className="w-3.5 h-3.5 text-[#F4C36C]" />
-              <span>{language === 'ar' ? '⏱ الوقت المتاح قبل نشاطك القادم: ساعتين' : '⏱ Before your next activity: 2h'}</span>
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--accent-secondary)]/30 shadow-xs font-['Outfit',sans-serif]">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+              <span>{t('food.beforeYourNextActivity')}</span>
             </div>
           </div>
 
           {/* Title & Subtitle */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#F7F3EA] tracking-tight flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-3">
               <span>
-                {language === 'ar'
-                  ? travelerName
-                    ? `جعان يا ${travelerName}؟ 🍽️`
-                    : 'جعان؟ 🍽️'
-                  : travelerName
-                    ? `Hungry, ${travelerName}? 🍽️`
-                    : 'Hungry? 🍽️'}
+                {travelerName ? t('food.hungryGreetingNamed', { travelerName }) : t('food.hungryGreetingGeneric')}
               </span>
             </h1>
-            <p className="text-base sm:text-lg text-[#D2E3DE]/80 max-w-3xl font-normal leading-relaxed">
-              {language === 'ar'
-                ? 'جمعنالك أفضل خيارات أكل قريبة منك في دهب، محسوبة بالدقيقة علشان تناسب وقتك وميزانيتك بدون أي تأخير عن نشاطك القادم.'
-                : "We've found a few good options near you that fit the time you have, keeping your afternoon relaxed and protected."}
+            <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-3xl font-normal leading-relaxed">
+              {t('food.weveFoundAFew')}
             </p>
           </div>
         </div>
@@ -587,28 +519,24 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
         {/* VIEW BODY: NORMAL OPTIONS vs NO NEARBY FOOD STATE           */}
         {/* ============================================================ */}
 
-        {isNoFoodAvailableMode ? (
+        {filteredOptions.length === 0 ? (
           /* ------------------------------------------------------------ */
           /* NO NEARBY FOOD STATE (< 30 min window or remote location)    */
           /* ------------------------------------------------------------ */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8 space-y-6">
               
-              <div className="bg-[#0E2520] rounded-3xl p-7 sm:p-9 border border-amber-500/30 shadow-xl space-y-6">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border border-amber-500/30 shadow-xl space-y-6">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-2xl shadow-xs">
                   🍽️
                 </div>
 
                 <div className="space-y-2 text-start">
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar'
-                      ? 'الوقت ضيق على قعدة مطعم قبل ميعادك الجاي.'
-                      : 'Nothing nearby fits your schedule right now.'}
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                    {t('food.nothingNearbyFitsYour')}
                   </h2>
-                  <p className="text-sm sm:text-base text-[#D2E3DE]/80 leading-relaxed">
-                    {language === 'ar'
-                      ? 'قعدة المطعم وتحضير الأكل في منطقتك حالياً هياخد وقت ويدخل في ميعاد نشاطك الساعة ٣:٠٠ عصراً. دي ٣ بدايل سريعة ومريحة:'
-                      : 'Dine-in kitchens in your immediate radius would cut too close to your 03:00 PM activity. Here are 3 alternative solutions:'}
+                  <p className="text-sm sm:text-base text-[var(--text-secondary)]/80 leading-relaxed">
+                    {t('food.dineinKitchensInYour')}
                   </p>
                 </div>
 
@@ -616,83 +544,61 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsNoFoodAvailableMode(false);
-                      handleProceedToDelivery(recommendedOptions[0]);
-                    }}
-                    className="text-start p-5 rounded-2xl bg-[#13312B] hover:bg-[#1a4038] border border-white/10 hover:border-[#F4C36C]/50 transition-all space-y-2 cursor-pointer group"
+                    onClick={() => handleProceedToDelivery(recommendedOptions[0])}
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">🛵</span>
-                      <h3 className="font-bold text-sm text-[#F7F3EA] group-hover:text-[#F4C36C]">
-                        {language === 'ar' ? 'دليفري لمكانك' : 'Delivery'}
+                      <h3 className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
+                        {t('food.delivery')}
                       </h3>
                     </div>
-                    <p className="text-xs text-[#D2E3DE]/70 leading-relaxed">
-                      {language === 'ar'
-                        ? 'اطلب دليفري يوصل لشلتتك أو فندقك في ٣٠–٤٠ دقيقة وأنت مريح.'
-                        : 'Order directly to your spot. Arrives in 30–40 min while you relax.'}
+                    <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
+                      {t('food.orderDirectlyToYour')}
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
-                      showToast(language === 'ar' ? 'فتحنا اللوكيشن لكافيه شمس (١٢٠ متر منك)' : 'Directions to Shams Coffee (120m away) opened.');
+                      showToast(t('food.directionsToShamsCoffee'));
                     }}
-                    className="text-start p-5 rounded-2xl bg-[#13312B] hover:bg-[#1a4038] border border-white/10 hover:border-[#F4C36C]/50 transition-all space-y-2 cursor-pointer group"
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">☕</span>
-                      <h3 className="font-bold text-sm text-[#F7F3EA] group-hover:text-[#F4C36C]">
-                        {language === 'ar' ? 'قهوة وسناكس' : 'Coffee & Snack'}
+                      <h3 className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
+                        {t('food.coffeeSnack')}
                       </h3>
                     </div>
-                    <p className="text-xs text-[#D2E3DE]/70 leading-relaxed">
-                      {language === 'ar'
-                        ? 'خدلك آيس كوفي أو شاي بالحبق مع حاجة خفيفة ع السريع في اللايتهاوس.'
-                        : 'Grab an iced espresso or mint tea with a pastry right at the lighthouse.'}
+                    <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
+                      {t('food.grabAnIcedEspresso')}
                     </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
-                      showToast(language === 'ar' ? 'ظبطنالك تذكير بعشاء رايق الساعة ٥:٣٠ بعد نشاطك ✓' : 'Dinner reservation reminder set for 05:30 PM after your activity ✓');
+                      showToast(t('food.dinnerReservationReminderSet'));
                     }}
-                    className="text-start p-5 rounded-2xl bg-[#13312B] hover:bg-[#1a4038] border border-white/10 hover:border-[#F4C36C]/50 transition-all space-y-2 cursor-pointer group"
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">⏳</span>
-                      <h3 className="font-bold text-sm text-[#F7F3EA] group-hover:text-[#F4C36C]">
-                        {language === 'ar' ? 'أجّل الأكلة لبعدين' : 'Wait until later'}
+                      <h3 className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
+                        {t('food.waitUntilLater')}
                       </h3>
                     </div>
-                    <p className="text-xs text-[#D2E3DE]/70 leading-relaxed">
-                      {language === 'ar'
-                        ? 'اتغدى عشاء رايق ومبسوط بعد ما تخلص نشاطك الساعة ٣:٠٠ عصراً.'
-                        : 'Have a great dinner right after your 03:00 PM activity finishes.'}
+                    <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
+                      {t('food.haveAGreatDinner')}
                     </p>
                   </button>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-[#D2E3DE]/60 font-mono">
-                    {language === 'ar'
-                      ? travelerName
-                        ? `محسوبة لـ${travelerName} · نافذة ساعتين`
-                        : 'محسوبة على نافذة ساعتين'
-                      : travelerName
-                        ? `Calculated for ${travelerName} · 2h window`
-                        : 'Calculated for a 2h window'}
+                <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-secondary)]/60 font-mono">
+                    {travelerName ? t('food.calculatedForWindowNamed', { travelerName }) : t('food.calculatedForWindowGeneric')}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsNoFoodAvailableMode(false)}
-                    className="text-xs font-bold text-[#F4C36C] hover:underline cursor-pointer"
-                  >
-                    {language === 'ar' ? '← ارجع للاقتراحات المتاحة' : 'Switch back to 3 food recommendations →'}
-                  </button>
                 </div>
               </div>
 
@@ -700,25 +606,25 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
             {/* Sidebar Context */}
             <div className="lg:col-span-4 space-y-6">
-              <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                    {language === 'ar' ? 'محددات الجدول اللحظي' : 'Context Parameters'}
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                    {t('food.contextParameters')}
                   </span>
-                  <span className="text-xs font-mono font-bold text-[#F4C36C]">01:00 PM</span>
+                  <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">01:00 PM</span>
                 </div>
-                <div className="space-y-2.5 text-xs text-[#D2E3DE]">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'الموقع الحالي:' : 'Location:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'اللايتهاوس، دهب' : 'Near Dahab Lighthouse'}</span>
+                <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.location')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('food.nearDahabLighthouse')}</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'النشاط القادم:' : 'Next Activity:'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.nextActivity')}</span>
                     <span className="font-bold text-emerald-400">03:00 PM (Safaris)</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'إيقاع اليوم:' : 'Pace:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'متوازن ومريح' : 'Balanced & Relaxed'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.pace')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('food.balancedRelaxed')}</span>
                   </div>
                 </div>
               </div>
@@ -750,10 +656,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       </div>
                       <div>
                         <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 block font-['Outfit',sans-serif]">
-                          {language === 'ar' ? 'تم تحديث جدول الرحلة' : 'Trip Updated'}
+                          {t('food.tripUpdated')}
                         </span>
-                        <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                          {language === 'ar' ? 'تمت الإضافة لجدول رحلتك ✓' : 'Added to your trip ✓'}
+                        <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                          {t('food.addedToYourTrip')}
                         </h3>
                       </div>
                     </div>
@@ -761,31 +667,29 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setAddedEatHereMeal(null)}
-                      className="text-white/60 hover:text-white p-1 rounded-full hover:bg-white/10 cursor-pointer"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--btn-util-bg)] cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#D2E3DE] leading-relaxed font-medium">
-                    {language === 'ar'
-                      ? `تمت جدولة غدائك في ${addedEatHereMeal.restaurantName} بنجاح ضمن تسلسل اليوم الثاني.`
-                      : `Your meal at ${addedEatHereMeal.restaurantName} has been integrated into your live trip schedule.`}
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                    {t('food.mealIntegrated', { name: addedEatHereMeal.restaurantName })}
                   </p>
 
                   {/* Updated Timeline Preview */}
-                  <div className="p-3.5 rounded-2xl bg-[#0E2520] border border-white/10 space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-[#F7F3EA] font-bold">
-                      <span className="font-mono text-[#F4C36C]">01:00 PM</span>
-                      <span>🍽️ {language === 'ar' ? `غداء في ${addedEatHereMeal.restaurantName}` : `Lunch at ${addedEatHereMeal.restaurantName}`}</span>
+                  <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-[var(--text-primary)] font-bold">
+                      <span className="font-mono text-[var(--accent-secondary)]">01:00 PM</span>
+                      <span>🍽️ {t('food.lunchLabelAt', { name: addedEatHereMeal.restaurantName })}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span className="font-mono">02:00 PM</span>
-                      <span>{language === 'ar' ? 'إنهاء الغداء ومشي خفيف ع الممشى' : 'Finish lunch & relaxed walk'}</span>
+                      <span>{t('food.finishLunchRelaxedWalk')}</span>
                     </div>
-                    <div className="flex items-center justify-between text-emerald-400 font-bold border-t border-white/10 pt-1.5">
+                    <div className="flex items-center justify-between text-emerald-400 font-bold border-t border-[var(--border-subtle)] pt-1.5">
                       <span className="font-mono">03:00 PM</span>
-                      <span>⭐ {language === 'ar' ? 'نشاط السفاري (محمي بدون أي تعارض)' : 'Next Activity (Protected)'}</span>
+                      <span>⭐ {t('food.nextActivityProtected')}</span>
                     </div>
                   </div>
 
@@ -793,16 +697,16 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     <button
                       type="button"
                       onClick={onBackToCompanion || onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-xs cursor-pointer"
                     >
-                      {language === 'ar' ? 'عرض في المرافق اليومي ←' : 'View in Daily Companion →'}
+                      {t('food.viewInDailyCompanion')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddedEatHereMeal(null)}
-                      className="text-xs font-semibold text-[#D2E3DE] hover:text-[#F4C36C] hover:underline cursor-pointer"
+                      className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-secondary)] hover:underline cursor-pointer"
                     >
-                      {language === 'ar' ? 'اختيار مطعم آخر' : 'Choose another restaurant'}
+                      {t('food.chooseAnotherRestaurant')}
                     </button>
                   </div>
                 </div>
@@ -811,20 +715,20 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* B. FOOD CATEGORIES (Intent-Based, Visually Simple) */}
               <section
                 id="food-categories-section"
-                aria-label={language === 'ar' ? 'تصنيفات الأكل' : 'Food categories'}
+                aria-label={t('food.foodCategories')}
                 className="space-y-3"
               >
                 {/* The section carried an eyebrow and a hint but no heading, so
                     the category names below jumped from the page h1 to h4. */}
                 <h2 className="sr-only">
-                  {language === 'ar' ? 'تصنيفات الأكل حسب المود' : 'Intent-based food categories'}
+                  {t('food.intentbasedFoodCategories')}
                 </h2>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                    {language === 'ar' ? 'تصنيفات الأكل حسب المود' : 'Intent-Based Food Categories'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                    {t('food.intentBasedFoodCategories')}
                   </span>
-                  <span className="text-xs text-[#D2E3DE]/60 font-medium">
-                    {language === 'ar' ? 'اختار مودك' : 'Select your mood'}
+                  <span className="text-xs text-[var(--text-secondary)]/60 font-medium">
+                    {t('food.selectYourMood')}
                   </span>
                 </div>
 
@@ -841,21 +745,21 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                           if (cat.id === 'delivery') {
                             handleProceedToDelivery(recommendedOptions[0]);
                           } else {
-                            showToast(language === 'ar' ? `تمت التصفية حسب: ${cat.titleAr}` : `Filtered by ${cat.title}`);
+                            showToast(t('food.filteredBy', { title: language === 'ar' ? cat.titleAr : cat.title }));
                           }
                         }}
                         className={`p-3.5 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer flex flex-col justify-between ${
                           isSelected
-                            ? 'bg-[#13312B] border-2 border-[#F4C36C] text-[#F7F3EA] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30'
-                            : 'bg-[#0E2520] hover:bg-[#13312B] text-[#F7F3EA] border-white/10 shadow-xs hover:border-white/20'
+                            ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] text-[var(--text-primary)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
+                            : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)]'
                         }`}
                       >
                         <div className="text-2xl mb-1.5">{cat.icon}</div>
                         <div className="space-y-0.5">
-                          <h3 className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-[#F4C36C]' : 'text-[#F7F3EA]'}`}>
+                          <h3 className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-primary)]'}`}>
                             {language === 'ar' ? cat.titleAr : cat.title}
                           </h3>
-                          <p className={`text-[11px] leading-tight ${isSelected ? 'text-[#D2E3DE]' : 'text-[#D2E3DE]/60'}`}>
+                          <p className={`text-[11px] leading-tight ${isSelected ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]/60'}`}>
                             {language === 'ar' ? cat.subtitleAr : cat.subtitle}
                           </p>
                         </div>
@@ -868,13 +772,11 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* C. RECOMMENDED FOR YOU (Exactly 3 Curated Options) */}
               <section id="recommended-for-you-section" className="space-y-4">
                 <div className="space-y-1">
-                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar' ? 'ترشيحات مختارة لك' : 'Recommended for you'}
+                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                    {t('food.recommendedForYou')}
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#D2E3DE]/70 font-medium">
-                    {language === 'ar'
-                      ? 'مطاعم قريبة، مضمونة الجودة، وتناسب وقتك وميزانيتك.'
-                      : 'These options fit your time, location, and budget perfectly.'}
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 font-medium">
+                    {t('food.theseOptionsFitYour')}
                   </p>
                 </div>
 
@@ -884,10 +786,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       <div
                         key={option.id}
                         id={`food-card-${option.id}`}
-                        className="bg-[#0E2520] rounded-3xl p-5 sm:p-6 border border-white/10 shadow-xl hover:border-[#F4C36C]/40 hover:shadow-2xl transition-all space-y-4"
+                        className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xl hover:border-[var(--accent-secondary)]/40 hover:shadow-2xl transition-all space-y-4"
                       >
                         {/* Top Meta Bar */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
                           <div className="flex items-center gap-2">
                             <span className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full ${
                               option.badge === 'Best fit'
@@ -898,20 +800,20 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                             }`}>
                               {language === 'ar' ? option.badgeAr : option.badge}
                             </span>
-                            <span className="text-xs font-bold text-[#F7F3EA]">
+                            <span className="text-xs font-bold text-[var(--text-primary)]">
                               {language === 'ar' ? option.nameAr : option.name}
                             </span>
-                            <span className="text-[11px] bg-[#13312B] text-[#52C4B7] font-semibold px-2 py-0.5 rounded border border-white/10">
-                              {language === 'ar' ? 'موثوق ✓' : 'VERIFIED'}
+                            <span className="text-[11px] bg-[var(--surface-container)] text-[var(--accent-primary)] font-semibold px-2 py-0.5 rounded border border-[var(--border-subtle)]">
+                              {t('food.vERIFIED')}
                             </span>
                           </div>
 
                           {typeof option.rating === 'number' && (
-                            <div className="flex items-center gap-1.5 text-xs text-[#D2E3DE]/80 font-medium">
+                            <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/80 font-medium">
                               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                              <span className="font-bold text-[#F7F3EA]">{option.rating}</span>
+                              <span className="font-bold text-[var(--text-primary)]">{option.rating}</span>
                               {typeof option.reviewCount === 'number' && (
-                                <span className="text-[#D2E3DE]/50">({option.reviewCount})</span>
+                                <span className="text-[var(--text-secondary)]/50">({option.reviewCount})</span>
                               )}
                             </div>
                           )}
@@ -919,7 +821,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
                         {/* Card Content & Thumbnail */}
                         <div className="flex flex-col sm:flex-row items-start gap-4">
-                          <div className="w-full sm:w-28 h-28 sm:h-24 rounded-2xl overflow-hidden bg-[#13312B] flex-shrink-0 relative border border-white/10">
+                          <div className="w-full sm:w-28 h-28 sm:h-24 rounded-2xl overflow-hidden bg-[var(--surface-container)] flex-shrink-0 relative border border-[var(--border-subtle)]">
                             {/* Corpus venues carry no photograph; a stock
                                 image would imply one exists. */}
                             {option.imageUrl ? (
@@ -930,7 +832,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                                 referrerPolicy="no-referrer"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-[#13312B] to-[#081714]" />
+                              <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)]" />
                             )}
                             <div className="absolute top-1.5 left-1.5 rtl:right-1.5 rtl:left-auto px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[11px] font-bold">
                               {language === 'ar' ? option.distanceAr : option.distance}
@@ -938,22 +840,22 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                           </div>
 
                           <div className="space-y-1.5 flex-1">
-                            <h3 className="font-serif font-bold text-lg text-[#F7F3EA]">
+                            <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
                               {language === 'ar' ? option.titleAr : option.title}
                             </h3>
-                            <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
                               {language === 'ar' ? option.descriptionAr : option.description}
                             </p>
 
                             {/* 3 Metric Pills */}
                             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                              <span className="px-2.5 py-1 rounded-xl bg-[#13312B] border border-white/10 text-[#D2E3DE] font-medium">
+                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
                                 📍 <strong>{language === 'ar' ? option.distanceAr : option.distance}</strong>
                               </span>
-                              <span className="px-2.5 py-1 rounded-xl bg-[#13312B] border border-white/10 text-[#F4C36C] font-bold">
+                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-secondary)] font-bold">
                                 ⏱ <strong>{language === 'ar' ? option.estimatedTimeAr : option.estimatedTime}</strong>
                               </span>
-                              <span className="px-2.5 py-1 rounded-xl bg-[#13312B] border border-white/10 text-[#D2E3DE] font-medium">
+                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
                                 💰 <strong>{language === 'ar' ? option.priceEstimateAr : option.priceLevel}</strong>
                               </span>
                             </div>
@@ -961,13 +863,11 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                         </div>
 
                         {/* Action Bar */}
-                        <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                        <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
                           <div className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
                             <ShieldCheck className="w-4 h-4 text-emerald-400" />
                             <span>
-                              {language === 'ar'
-                                ? 'يترك أكثر من ٤٥ دقيقة راحة قبل نشاطك الساعة ٣:٠٠ عصراً'
-                                : 'Leaves >45 min before your 3:00 PM activity'}
+                              {t('food.leaves45MinBefore')}
                             </span>
                           </div>
 
@@ -976,9 +876,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                               type="button"
                               id={`view-btn-${option.id}`}
                               onClick={() => handleOpenRestaurant(option)}
-                              className="px-5 py-2 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+                              className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
                             >
-                              <span>{language === 'ar' ? 'عرض التفاصيل والمنيو' : 'View'}</span>
+                              <span>{t('food.view')}</span>
                               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                             </button>
                           </div>
@@ -993,44 +893,42 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* D. WHY THESE OPTIONS? CONTEXTUAL EXPLANATION */}
               <section 
                 id="why-these-options-box"
-                className="p-5 sm:p-6 rounded-3xl bg-[#0E2520] border border-white/10 shadow-xl space-y-3"
+                className="p-5 sm:p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xl space-y-3"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#F4C36C]" />
-                  <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'ليه اخترنالك الأماكن دي بالذات؟' : 'Why these options?'}
+                  <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
+                  <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('food.whyTheseOptions')}
                   </h3>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed font-medium">
-                  {language === 'ar'
-                    ? 'الأماكن دي قريبة منك، ملتزمة بمعايير النظافة وسرعة التحضير، ومحسوبة بالدقيقة قبل نشاطك القادم.'
-                    : "They're close to you, fit your budget, and leave ample buffer before your next activity."}
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
+                  {t('food.theyreCloseToYou')}
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs text-[#D2E3DE]">
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-                    <span className="font-bold text-[#F4C36C] block">
-                      📍 {language === 'ar' ? 'قريبة من موقعك' : 'Location Aware'}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs text-[var(--text-secondary)]">
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+                    <span className="font-bold text-[var(--accent-secondary)] block">
+                      📍 {t('food.locationAware')}
                     </span>
-                    <p className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'على بعد ٦٠٠م–١.٢ كم من اللايتهاوس لتوفير وقت المواصلات.' : 'Within 0.6–1.2 km of Lighthouse so you don’t waste time.'}
+                    <p className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('food.within0612KmOf')}
                     </p>
                   </div>
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-                    <span className="font-bold text-[#F4C36C] block">
-                      💰 {language === 'ar' ? 'مطابقة لميزانيتك' : 'Budget Aligned'}
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+                    <span className="font-bold text-[var(--accent-secondary)] block">
+                      💰 {t('food.budgetAligned')}
                     </span>
-                    <p className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'متوافقة مع تفضيل ميزانية متوسطة لفردين.' : 'Matches your Moderate budget preference for 2 adults.'}
+                    <p className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('food.matchesYourModerateBudget')}
                     </p>
                   </div>
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                     <span className="font-bold text-emerald-400 block">
-                      ⏱ {language === 'ar' ? 'جدولك محمي' : 'Time Protected'}
+                      ⏱ {t('food.timeProtected')}
                     </span>
-                    <p className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'تنتهي من الغداء بحلول ٢:٠٠–٢:١٥ م بدون أي استعجال.' : 'Finishes by 02:00–02:15 PM, leaving zero stress.'}
+                    <p className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('food.finishesBy02000215PM')}
                     </p>
                   </div>
                 </div>
@@ -1046,98 +944,94 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* 1. CURRENT CONTEXT CARD */}
               <div 
                 id="current-food-context-card"
-                className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4"
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                      {language === 'ar' ? 'السياق والمحددات الحالية' : 'Current Context'}
+                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                      {t('food.currentContext')}
                     </h3>
                   </div>
-                  <span className="text-xs font-mono font-bold text-[#F4C36C] bg-[#F4C36C]/10 px-2.5 py-0.5 rounded-full border border-[#F4C36C]/30">
+                  <span className="text-xs font-mono font-bold text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent-secondary)]/30">
                     01:00 PM
                   </span>
                 </div>
 
-                <div className="space-y-2.5 text-xs text-[#D2E3DE]">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'المسافر:' : 'Traveler:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">
-                      {[travelerName, `${partySize} ${language === 'ar' ? (partySize === 1 ? 'بالغ' : 'بالغين') : partySize === 1 ? 'adult' : 'adults'}`]
+                <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.traveler')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">
+                      {[travelerName, `${partySize} ${partySize === 1 ? t('food.partySizeAdult') : t('food.partySizeAdults')}`]
                         .filter(Boolean)
                         .join(language === 'ar' ? ' · ' : ' · ')}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'الموقع الحالي:' : 'Location:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'ممشى اللايتهاوس' : 'Near Dahab Lighthouse'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.location')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('food.nearDahabLighthouse-2')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'الوقت المتاح:' : 'Available time:'}</span>
-                    <span className="font-bold text-[#F4C36C]">{language === 'ar' ? 'حوالي ١.٥ – ٢ ساعة' : 'Approx. 1.5–2 hours'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.availableTime')}</span>
+                    <span className="font-bold text-[var(--accent-secondary)]">{t('food.approx152Hours')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'الميزانية:' : 'Budget:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'متوسطة (Moderate)' : 'Moderate'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.budget')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('food.moderate')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">{language === 'ar' ? 'الاهتمامات والإيقاع:' : 'Interests & Pace:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'طعام محلي · مغامرة · روقان' : 'Food · Adventure · Balanced'}</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="text-[var(--text-secondary)]/60">{t('food.interestsPace')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('food.foodAdventureBalanced')}</span>
                   </div>
                 </div>
 
-                <p className="text-[12px] text-[#D2E3DE]/60 leading-relaxed italic text-center pt-1">
-                  {language === 'ar'
-                    ? 'الترشيحات تستثني الأماكن المزدحمة جداً والمطابخ البطيئة علشان تحافظ على هدوء وسلامة جدولك.'
-                    : 'Recommendations filter out overcrowded tourist traps and long-cook kitchens so you stay relaxed.'}
+                <p className="text-[12px] text-[var(--text-secondary)]/60 leading-relaxed italic text-center pt-1">
+                  {t('food.recommendationsFilterOutOvercrowded')}
                 </p>
               </div>
 
               {/* 2. NEXT PLANNED ACTIVITY (Protected) */}
               <div 
                 id="next-activity-protection-card"
-                className="bg-[#0E2520] rounded-3xl p-6 border-2 border-emerald-500/40 shadow-xl space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 border-2 border-emerald-500/40 shadow-xl space-y-4"
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                      {language === 'ar' ? 'النشاط القادم في جدولك' : 'Next Planned Activity'}
+                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                      {t('food.nextPlannedActivity')}
                     </h3>
                   </div>
                   <span className="text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                    {language === 'ar' ? 'محمي بالكامل ✓' : 'Protected'}
+                    {t('food.protected')}
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
-                    <span className="text-xs font-mono font-bold text-[#F4C36C]">
-                      {language === 'ar' ? '٠٣:٠٠ عصراً (بعد ساعتين)' : '03:00 PM (in 2 hours)'}
+                    <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
+                      {t('food.0300PMIn2')}
                     </span>
-                    <h4 className="font-bold text-sm text-[#F7F3EA]">
-                      {language === 'ar' ? 'رحلة سفاري البيتش باجي في الصحراء' : 'Desert Quad Excursion / Coastal Tour'}
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">
+                      {t('food.desertQuadExcursionCoastal')}
                     </h4>
-                    <p className="text-xs text-[#D2E3DE]/65">
-                      {language === 'ar' ? 'نقطة التجمع: مركز سفاري دهب' : 'Meeting point: Dahab Safari Hub'}
+                    <p className="text-xs text-[var(--text-secondary)]/65">
+                      {t('food.meetingPointDahabSafari')}
                     </p>
                   </div>
                   <span className="text-2xl">🏜️</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#081714] border border-white/10 text-xs text-[#D2E3DE] space-y-1">
-                  <span className="font-bold text-[#F4C36C]">
-                    {language === 'ar' ? 'ضمان الوقت الكافي:' : 'Time Safe Guarantee:'}
+                <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-1">
+                  <span className="font-bold text-[var(--accent-secondary)]">
+                    {t('food.timeSafeGuarantee')}
                   </span>
                   <p>
-                    {language === 'ar'
-                      ? 'سواء قعدت في المطعم أو طلبت دليفري، هتخلص أكلك قبل ٠٢:١٥ م مع وقت كافي جداً للتنقل.'
-                      : 'Whether you eat in or order delivery, you will finish dining before 02:15 PM with ample transfer buffer.'}
+                    {t('food.whetherYouEatIn')}
                   </p>
                 </div>
               </div>
@@ -1145,24 +1039,22 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* 3. QUICK DELIVERY SHORTCUT */}
               <div 
                 id="quick-delivery-card"
-                className="bg-gradient-to-br from-[#13312B] to-[#0E2520] border border-[#F4C36C]/30 text-white rounded-3xl p-6 shadow-xl space-y-3.5"
+                className="bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] border border-[var(--accent-secondary)]/30 text-white rounded-3xl p-6 shadow-xl space-y-3.5"
               >
                 <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F4C36C]/20 text-[#F4C36C] text-[11px] font-bold uppercase tracking-wider border border-[#F4C36C]/30">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] text-[11px] font-bold uppercase tracking-wider border border-[var(--accent-secondary)]/30">
                     <Bike className="w-3.5 h-3.5" />
-                    <span>{language === 'ar' ? 'خدمة توصيل شاطئية' : 'Bedouin Delivery'}</span>
+                    <span>{t('food.bedouinDelivery')}</span>
                   </div>
-                  <span className="text-xs font-mono text-[#D2E3DE] font-bold">35–45 min</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] font-bold">35–45 min</span>
                 </div>
 
                 <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'حبيت تفضل في مكانك ع الشط؟' : 'Want to stay where you are?'}
+                  <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('food.wantToStayWhere')}
                   </h4>
-                  <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                    {language === 'ar'
-                      ? 'اطلب عيش طازة، مشاوي سخنة ع الفحم، وعصائر مثلجة توصل مباشرة لشلتتك أو فندقك في دهب.'
-                      : 'Have hot flatbreads, skewers, and chilled juices delivered directly to your shade spot at Lighthouse.'}
+                  <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                    {t('food.haveHotFlatbreadsSkewers')}
                   </p>
                 </div>
 
@@ -1170,10 +1062,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   type="button"
                   id="order-delivery-shortcut-btn"
                   onClick={() => handleProceedToDelivery(recommendedOptions[0])}
-                  className="w-full py-2.5 px-4 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
                 >
-                  <Bike className="w-3.5 h-3.5 text-[#081714]" />
-                  <span>{language === 'ar' ? 'اطلب دليفري لمكاني دلوقتي' : 'Order Delivery to My Spot'}</span>
+                  <Bike className="w-3.5 h-3.5 text-[var(--surface-card)]" />
+                  <span>{t('food.orderDeliveryToMy')}</span>
                 </button>
               </div>
 
@@ -1191,12 +1083,12 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       {selectedRestaurant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-2xl w-full my-8 border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-2xl w-full my-8 border border-[var(--border-subtle)] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
             role="dialog"
             aria-modal="true"
           >
             {/* Modal Header & Hero Image */}
-            <div className="relative h-48 sm:h-56 w-full bg-[#13312B] flex-shrink-0">
+            <div className="relative h-48 sm:h-56 w-full bg-[var(--surface-container)] flex-shrink-0">
               {selectedRestaurant.imageUrl ? (
                 <img
                   src={selectedRestaurant.imageUrl}
@@ -1205,9 +1097,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#13312B] to-[#081714]" />
+                <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)]" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0E2520] via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
 
               {/* Close Button */}
               <button
@@ -1216,24 +1108,24 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   setSelectedRestaurant(null);
                   setDeliveryWorkflow('none');
                 }}
-                className="absolute top-4 right-4 rtl:left-4 rtl:right-auto w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20"
+                className="absolute top-4 right-4 rtl:left-4 rtl:right-auto w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-colors cursor-pointer border border-[var(--border-subtle)]"
               >
                 <X className="w-5 h-5" />
               </button>
 
               {/* Badges on Image */}
               <div className="absolute top-4 left-4 rtl:right-4 rtl:left-auto flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#F4C36C] text-[#081714] text-xs font-extrabold shadow-xs">
+                <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold shadow-xs">
                   {language === 'ar' ? selectedRestaurant.badgeAr : selectedRestaurant.badge}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/80 text-white text-xs font-bold backdrop-blur-xs border border-white/20">
+                <span className="px-3 py-1 rounded-full bg-emerald-500/80 text-white text-xs font-bold backdrop-blur-xs border border-[var(--border-subtle)]">
                   {language === 'ar' ? selectedRestaurant.openingStatusAr : selectedRestaurant.openingStatus}
                 </span>
               </div>
 
               {/* Title & Info on Image */}
               <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
-                <div className="flex items-center gap-2 text-xs text-white/80 font-medium">
+                <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
                   <span>{language === 'ar' ? selectedRestaurant.cuisineAr : selectedRestaurant.cuisine}</span>
                   {typeof selectedRestaurant.rating === 'number' && (
                     <>
@@ -1242,7 +1134,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span className="font-bold text-white">{selectedRestaurant.rating}</span>
                         {typeof selectedRestaurant.reviewCount === 'number' && (
-                          <span className="text-white/70">({selectedRestaurant.reviewCount})</span>
+                          <span className="text-[var(--text-muted)]">({selectedRestaurant.reviewCount})</span>
                         )}
                       </div>
                     </>
@@ -1255,52 +1147,52 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             </div>
 
             {/* Modal Body: Scrollable */}
-            <div className="p-6 sm:p-7 overflow-y-auto space-y-6 flex-grow text-[#D2E3DE]">
+            <div className="p-6 sm:p-7 overflow-y-auto space-y-6 flex-grow text-[var(--text-secondary)]">
               
               {/* Short description */}
-              <p className="text-sm text-[#D2E3DE] leading-relaxed font-medium">
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
                 {language === 'ar' ? selectedRestaurant.descriptionAr : selectedRestaurant.description}
               </p>
 
               {/* IMPORTANT TIMING INFORMATION (Key Highlight Requirement) */}
               <div 
                 id="restaurant-timing-banner"
-                className="p-4 sm:p-5 rounded-2xl bg-[#13312B] border border-emerald-500/40 space-y-2 text-xs sm:text-sm text-[#F7F3EA]"
+                className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-container)] border border-emerald-500/40 space-y-2 text-xs sm:text-sm text-[var(--text-primary)]"
               >
                 <div className="flex items-center gap-2 font-bold text-emerald-300">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span>{language === 'ar' ? 'معلومات التوقيت وضمان الجدول' : 'Important Timing Information'}</span>
+                  <span>{t('food.importantTimingInformation')}</span>
                 </div>
 
-                <div className="space-y-1 text-xs text-[#D2E3DE] font-medium">
-                  <p>• <strong>{language === 'ar' ? 'لديك حوالي ساعتين قبل نشاطك القادم.' : 'You have about 2 hours before your next activity.'}</strong></p>
-                  <p>• <strong>{language === 'ar' ? `متوسط وقت تناول الوجبة: ${selectedRestaurant.diningDurationAr}` : `Estimated meal time: ${selectedRestaurant.diningDuration}`}</strong></p>
+                <div className="space-y-1 text-xs text-[var(--text-secondary)] font-medium">
+                  <p>• <strong>{t('food.youHaveAbout2')}</strong></p>
+                  <p>• <strong>{t('food.estimatedMealTime', { duration: language === 'ar' ? selectedRestaurant.diningDurationAr : selectedRestaurant.diningDuration })}</strong></p>
                   <p className="text-emerald-300 font-bold">
-                    ✓ {language === 'ar' ? 'سيكون لديك متسع كافي من الوقت للوصول لنشاطك القادم.' : "You'll still have enough time to get to your next activity."}
+                    ✓ {t('food.youllStillHaveEnough')}
                   </p>
                 </div>
               </div>
 
               {/* 4 Metric Attributes */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/60 block">{language === 'ar' ? 'المسافة' : 'Distance'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? selectedRestaurant.distanceAr : selectedRestaurant.distance}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
+                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.distance')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.distanceAr : selectedRestaurant.distance}</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/60 block">{language === 'ar' ? 'وقت القعدة' : 'Dine-in Time'}</span>
-                  <span className="font-bold text-[#F4C36C]">{language === 'ar' ? selectedRestaurant.diningDurationAr : selectedRestaurant.diningDuration}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
+                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.dineinTime')}</span>
+                  <span className="font-bold text-[var(--accent-secondary)]">{language === 'ar' ? selectedRestaurant.diningDurationAr : selectedRestaurant.diningDuration}</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/60 block">{language === 'ar' ? 'الميزانية' : 'Price Range'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? selectedRestaurant.priceEstimateAr : selectedRestaurant.priceLevel}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
+                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.priceRange')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.priceEstimateAr : selectedRestaurant.priceLevel}</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/60 block">{language === 'ar' ? 'وقت التوصيل' : 'Delivery Est.'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? selectedRestaurant.deliveryTimeAr : selectedRestaurant.deliveryTime}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
+                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.deliveryEst')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.deliveryTimeAr : selectedRestaurant.deliveryTime}</span>
                 </div>
               </div>
 
@@ -1309,14 +1201,12 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   them. Showing an empty basket would be an offer it cannot
                   honour, so the panel says what the traveler can actually do. */}
               {selectedRestaurant.popularDishes.length === 0 && (
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-                  <p className="font-bold text-[#F7F3EA] text-sm">
-                    {language === 'ar' ? 'الطلب أونلاين مش متاح هنا' : 'No online ordering here'}
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+                  <p className="font-bold text-[var(--text-primary)] text-sm">
+                    {t('food.noOnlineOrderingHere')}
                   </p>
-                  <p className="text-xs text-[#D2E3DE]/75 leading-relaxed">
-                    {language === 'ar'
-                      ? 'المكان ده بيستقبل الزباين على الطبيعة. روح في مواعيد الفتح فوق.'
-                      : 'This place takes walk-ins. Go during the opening hours shown above.'}
+                  <p className="text-xs text-[var(--text-secondary)]/75 leading-relaxed">
+                    {t('food.thisPlaceTakesWalkins')}
                   </p>
                 </div>
               )}
@@ -1325,15 +1215,15 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {selectedRestaurant.popularDishes.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                    {language === 'ar' ? 'أشهر الأطباق والطلبات' : 'Popular Dishes'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                    {t('food.popularDishes')}
                   </span>
                   <button
                     type="button"
                     onClick={() => setIsFullMenuOpen(true)}
-                    className="text-xs font-bold text-[#F4C36C] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-[var(--accent-secondary)] hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <span>{language === 'ar' ? 'عرض المنيو الكامل' : 'View full menu'}</span>
+                    <span>{t('food.viewFullMenu')}</span>
                     <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                   </button>
                 </div>
@@ -1344,16 +1234,16 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     return (
                       <div 
                         key={dish.id}
-                        className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                        className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                       >
                         <div className="space-y-0.5 flex-1">
                           <div className="flex items-center justify-between sm:justify-start gap-2">
-                            <h4 className="font-bold text-sm text-[#F7F3EA]">
+                            <h4 className="font-bold text-sm text-[var(--text-primary)]">
                               {language === 'ar' ? dish.nameAr : dish.name}
                             </h4>
-                            <span className="text-xs font-bold text-[#F4C36C]">EGP {dish.price}</span>
+                            <span className="text-xs font-bold text-[var(--accent-secondary)]">EGP {dish.price}</span>
                           </div>
-                          <p className="text-xs text-[#D2E3DE]/70 leading-relaxed">
+                          <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
                             {language === 'ar' ? dish.descriptionAr : dish.description}
                           </p>
                         </div>
@@ -1363,15 +1253,15 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleUpdateQty(dish.id, -1)}
-                              className="w-7 h-7 rounded-full bg-[#081714] border border-white/20 hover:bg-white/10 flex items-center justify-center text-xs font-bold text-[#F7F3EA] cursor-pointer"
+                              className="w-7 h-7 rounded-full bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-xs font-bold text-[var(--text-primary)] cursor-pointer"
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="w-6 text-center font-bold text-xs text-[#F4C36C]">{qty}</span>
+                            <span className="w-6 text-center font-bold text-xs text-[var(--accent-secondary)]">{qty}</span>
                             <button
                               type="button"
                               onClick={() => handleUpdateQty(dish.id, 1)}
-                              className="w-7 h-7 rounded-full bg-[#F4C36C] text-[#081714] hover:bg-[#E5B55D] flex items-center justify-center text-xs font-bold cursor-pointer"
+                              className="w-7 h-7 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] hover:bg-[var(--accent-secondary)] flex items-center justify-center text-xs font-bold cursor-pointer"
                             >
                               <Plus className="w-3.5 h-3.5" />
                             </button>
@@ -1386,9 +1276,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
               {/* ORDER OPTIONS: "Eat here" vs "Delivery" */}
               {selectedRestaurant.popularDishes.length > 0 && (
-              <div className="space-y-3 pt-2 border-t border-white/10">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'طريقة الاستمتاع بالوجبة' : 'Choose Fulfillment'}
+              <div className="space-y-3 pt-2 border-t border-[var(--border-subtle)]">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  {t('food.chooseFulfillment')}
                 </span>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -1401,21 +1291,21 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     }}
                     className={`p-4 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer space-y-1 ${
                       fulfillmentMode === 'eat-here'
-                        ? 'border-2 border-[#F4C36C] bg-[#13312B] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30'
-                        : 'border-white/10 bg-[#0E2520] hover:bg-[#13312B]'
+                        ? 'border-2 border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
+                        : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-container)]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-[#F7F3EA] flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
                         <span>🍽️</span>
-                        <span>{language === 'ar' ? 'قعدة في المطعم' : 'Eat here'}</span>
+                        <span>{t('food.eatHere')}</span>
                       </span>
                       {fulfillmentMode === 'eat-here' && (
-                        <Check className="w-4 h-4 text-[#F4C36C]" />
+                        <Check className="w-4 h-4 text-[var(--accent-secondary)]" />
                       )}
                     </div>
-                    <p className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'مشي خفيف · ٤٥–٦٠ دقيقة' : 'Walk to restaurant · 45–60 min'}
+                    <p className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('food.walkToRestaurant4560')}
                     </p>
                   </button>
 
@@ -1427,41 +1317,40 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     }}
                     className={`p-4 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer space-y-1 ${
                       fulfillmentMode === 'delivery'
-                        ? 'border-2 border-[#F4C36C] bg-[#13312B] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30'
-                        : 'border-white/10 bg-[#0E2520] hover:bg-[#13312B]'
+                        ? 'border-2 border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
+                        : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-container)]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-[#F7F3EA] flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
                         <span>🛵</span>
-                        <span>{language === 'ar' ? 'دليفري لمكانك' : 'Delivery'}</span>
+                        <span>{t('food.delivery')}</span>
                       </span>
                       {fulfillmentMode === 'delivery' && (
-                        <Check className="w-4 h-4 text-[#F4C36C]" />
+                        <Check className="w-4 h-4 text-[var(--accent-secondary)]" />
                       )}
                     </div>
-                    <p className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'يوصل لشلتتك · ٣٥–٤٥ دقيقة' : 'Delivered to your spot · 35–45 min'}
+                    <p className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('food.deliveredToYourSpot')}
                     </p>
                   </button>
                 </div>
 
                 {/* Specific Fulfillment Explanation & Primary Action */}
                 {fulfillmentMode === 'eat-here' ? (
-                  <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-3">
+                  <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
                     <div className="space-y-1 text-xs">
                       <span className="font-bold text-emerald-300 block text-sm">
-                        {language === 'ar' ? 'اختيار ممتاز ومناسب لجدولك اليومي.' : 'Good choice for your schedule.'}
+                        {t('food.goodChoiceForYour')}
                       </span>
-                      <p className="text-[#D2E3DE]">
-                        {language === 'ar'
-                          ? `الوقت المقدر لتناول الوجبة: ${selectedRestaurant.diningDurationAr} · المسافة: ${selectedRestaurant.distanceAr}`
-                          : `Estimated dining time: ${selectedRestaurant.diningDuration} · Distance: ${selectedRestaurant.distance}`}
+                      <p className="text-[var(--text-secondary)]">
+                        {t('food.diningTimeDistance', {
+                          duration: language === 'ar' ? selectedRestaurant.diningDurationAr : selectedRestaurant.diningDuration,
+                          distance: language === 'ar' ? selectedRestaurant.distanceAr : selectedRestaurant.distance,
+                        })}
                       </p>
-                      <p className="text-[#D2E3DE]/70">
-                        {language === 'ar'
-                          ? 'يتبقى أكثر من ساعة استجمام مريحة قبل نشاط الساعة ٠٣:٠٠ عصراً.'
-                          : 'Leaves over an hour of relaxed transition before your 03:00 PM activity.'}
+                      <p className="text-[var(--text-secondary)]/70">
+                        {t('food.leavesOverAnHour')}
                       </p>
                     </div>
 
@@ -1472,22 +1361,23 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                         handleAddEatHereToTrip(selectedRestaurant);
                         setSelectedRestaurant(null);
                       }}
-                      className="w-full py-3 px-4 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       <Plus className="w-4 h-4" />
-                      <span>{language === 'ar' ? 'تأكيد وإضافة الغداء لجدول رحلتي' : 'Add to My Trip'}</span>
+                      <span>{t('food.addToMyTrip')}</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-3">
+                  <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
                     <div className="space-y-1 text-xs">
                       <span className="font-bold text-emerald-300 block text-sm">
-                        {language === 'ar' ? 'الدليفري يناسب وقتك ويوصلك وأنت مريح.' : 'Delivery fits your schedule.'}
+                        {t('food.deliveryFitsYourSchedule')}
                       </span>
-                      <p className="text-[#D2E3DE]">
-                        {language === 'ar'
-                          ? `وقت التوصيل المقدر: ${selectedRestaurant.deliveryTimeAr} · الإجمالي المقدر: ${calculateCartTotals(selectedRestaurant).total} ج.م`
-                          : `Estimated delivery: ${selectedRestaurant.deliveryTime} · Estimated total: EGP ${calculateCartTotals(selectedRestaurant).total}`}
+                      <p className="text-[var(--text-secondary)]">
+                        {t('food.deliveryTimeTotal', {
+                          deliveryTime: language === 'ar' ? selectedRestaurant.deliveryTimeAr : selectedRestaurant.deliveryTime,
+                          total: calculateCartTotals(selectedRestaurant).total,
+                        })}
                       </p>
                     </div>
 
@@ -1497,10 +1387,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       onClick={() => {
                         setDeliveryWorkflow('confirm');
                       }}
-                      className="w-full py-3 px-4 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       <Bike className="w-4 h-4" />
-                      <span>{language === 'ar' ? `متابعة الطلب والدليفري (${calculateCartTotals(selectedRestaurant).total} ج.م)` : `Order Delivery (EGP ${calculateCartTotals(selectedRestaurant).total})`}</span>
+                      <span>{t('food.orderDeliveryTotal', { total: calculateCartTotals(selectedRestaurant).total })}</span>
                     </button>
                   </div>
                 )}
@@ -1510,14 +1400,14 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 sm:p-5 bg-[#081714] border-t border-white/10 flex items-center justify-between text-xs text-[#D2E3DE]/70">
-              <span>📍 {language === 'ar' ? 'ممشى وخليج اللايتهاوس، دهب' : 'Dahab Lighthouse District'}</span>
+            <div className="p-4 sm:p-5 bg-[var(--surface-card)] border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]/70">
+              <span>📍 {t('food.dahabLighthouseDistrict')}</span>
               <button
                 type="button"
                 onClick={() => setSelectedRestaurant(null)}
-                className="font-bold text-[#F4C36C] hover:underline cursor-pointer"
+                className="font-bold text-[var(--accent-secondary)] hover:underline cursor-pointer"
               >
-                {language === 'ar' ? 'إغلاق' : 'Close'}
+                {t('arrival.close')}
               </button>
             </div>
           </div>
@@ -1530,21 +1420,21 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       {deliveryWorkflow === 'confirm' && selectedRestaurant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-white/15 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
-                <Bike className="w-5 h-5 text-[#F4C36C]" />
-                <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'تأكيد طلب التوصيل الشاطئي' : 'Confirm Delivery Order'}
+                <Bike className="w-5 h-5 text-[var(--accent-secondary)]" />
+                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  {t('food.confirmDeliveryOrder')}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setDeliveryWorkflow('none')}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1552,37 +1442,37 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
             {/* Order summary */}
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-                <span className="text-[11px] font-bold text-[#F4C36C] uppercase block">{language === 'ar' ? 'المطعم' : 'Restaurant'}</span>
-                <p className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}</p>
-                <p className="text-[#D2E3DE]/70">📍 {language === 'ar' ? 'التوصيل إلى: ممشى اللايتهاوس (مكانك الحالي)' : 'Delivering to: Near Dahab Lighthouse (Current spot)'}</p>
+              <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase block">{t('food.restaurant')}</span>
+                <p className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}</p>
+                <p className="text-[var(--text-secondary)]/70">📍 {t('food.deliveringToNearDahab')}</p>
               </div>
 
               {/* Items Breakdown */}
-              <div className="space-y-1.5 p-3 rounded-2xl bg-[#13312B] border border-white/10">
-                <span className="text-[11px] font-bold text-[#F4C36C] uppercase block mb-1">{language === 'ar' ? 'الأطباق المختارة' : 'Selected Items'}</span>
+              <div className="space-y-1.5 p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase block mb-1">{t('food.selectedItems')}</span>
                 {selectedRestaurant.popularDishes.map(dish => {
                   const qty = orderCart[dish.id] || 0;
                   if (qty === 0) return null;
                   return (
-                    <div key={dish.id} className="flex items-center justify-between text-[#F7F3EA]">
+                    <div key={dish.id} className="flex items-center justify-between text-[var(--text-primary)]">
                       <span>{language === 'ar' ? dish.nameAr : dish.name} × {qty}</span>
-                      <span className="font-bold font-mono text-[#F4C36C]">EGP {dish.price * qty}</span>
+                      <span className="font-bold font-mono text-[var(--accent-secondary)]">EGP {dish.price * qty}</span>
                     </div>
                   );
                 })}
-                <div className="border-t border-white/10 pt-1.5 mt-1.5 space-y-1">
-                  <div className="flex items-center justify-between text-[#D2E3DE]/70">
-                    <span>{language === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
+                <div className="border-t border-[var(--border-subtle)] pt-1.5 mt-1.5 space-y-1">
+                  <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
+                    <span>{t('food.subtotal')}</span>
                     <span className="font-mono">EGP {calculateCartTotals(selectedRestaurant).subtotal}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[#D2E3DE]/70">
-                    <span>{language === 'ar' ? 'رسوم التوصيل' : 'Delivery fee'}</span>
+                  <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
+                    <span>{t('food.deliveryFee')}</span>
                     <span className="font-mono">EGP {calculateCartTotals(selectedRestaurant).deliveryFee}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[#F7F3EA] font-bold text-sm pt-1 border-t border-white/10">
-                    <span>{language === 'ar' ? 'الإجمالي الكلي' : 'Estimated total'}</span>
-                    <span className="text-[#F4C36C] font-mono">EGP {calculateCartTotals(selectedRestaurant).total}</span>
+                  <div className="flex items-center justify-between text-[var(--text-primary)] font-bold text-sm pt-1 border-t border-[var(--border-subtle)]">
+                    <span>{t('food.estimatedTotal')}</span>
+                    <span className="text-[var(--accent-secondary)] font-mono">EGP {calculateCartTotals(selectedRestaurant).total}</span>
                   </div>
                 </div>
               </div>
@@ -1590,13 +1480,11 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* Timing assurance */}
               <div className="p-3 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-xs text-emerald-300 space-y-1">
                 <div className="flex items-center justify-between font-bold">
-                  <span>⏱ {language === 'ar' ? 'وقت التوصيل المقدر:' : 'Estimated Delivery Time:'}</span>
+                  <span>⏱ {t('food.estimatedDeliveryTime')}</span>
                   <span className="font-mono">{selectedRestaurant.deliveryTime}</span>
                 </div>
                 <p className="text-[12px] text-emerald-300/80">
-                  {language === 'ar'
-                    ? 'الطلب هيوصل حوالي ٠١:٤٥ م، قبل نشاطك الساعة ٠٣:٠٠ م بوقت كافي جداً.'
-                    : 'Will arrive around 01:45 PM, well ahead of your 03:00 PM activity.'}
+                  {t('food.willArriveAround0145')}
                 </p>
               </div>
             </div>
@@ -1607,14 +1495,14 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 type="button"
                 id="place-delivery-order-btn"
                 onClick={handlePlaceDeliveryOrder}
-                className="w-full py-3 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{language === 'ar' ? `تأكيد الطلب (${calculateCartTotals(selectedRestaurant).total} ج.م)` : `Place Order (EGP ${calculateCartTotals(selectedRestaurant).total})`}</span>
+                <span>{t('food.placeOrderTotal', { total: calculateCartTotals(selectedRestaurant).total })}</span>
               </button>
 
-              <p className="text-[11px] text-center text-[#D2E3DE]/60">
-                {language === 'ar' ? 'الدفع على حساب الغرفة / كارت الدفع المسجل بدون تطبيقات خارجية.' : 'Payment charged to room / card on file. No separate app required.'}
+              <p className="text-[11px] text-center text-[var(--text-secondary)]/60">
+                {t('food.paymentChargedToRoom')}
               </p>
             </div>
           </div>
@@ -1625,19 +1513,19 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       {deliveryWorkflow === 'tracking' && selectedRestaurant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-white/15 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
             role="dialog"
             aria-modal="true"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
-                <Bike className="w-5 h-5 text-[#F4C36C]" />
+                <Bike className="w-5 h-5 text-[var(--accent-secondary)]" />
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                    {language === 'ar' ? 'متابعة الدليفري الحي' : 'Active Delivery'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                    {t('food.activeDelivery')}
                   </span>
-                  <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
+                  <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}
                   </h3>
                 </div>
@@ -1645,7 +1533,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <button
                 type="button"
                 onClick={() => setDeliveryWorkflow('none')}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1654,24 +1542,24 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             {/* 4 Step Visual Progression */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold mb-2">
-                <span className={deliveryStatus === 'preparing' ? 'text-[#F4C36C]' : 'text-[#D2E3DE]/50'}>
-                  1. {language === 'ar' ? 'التحضير' : 'Preparing'}
+                <span className={deliveryStatus === 'preparing' ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)]/50'}>
+                  1. {t('food.preparing')}
                 </span>
-                <span className={deliveryStatus === 'picked_up' ? 'text-[#F4C36C]' : 'text-[#D2E3DE]/50'}>
-                  2. {language === 'ar' ? 'استلم المندوب' : 'Picked up'}
+                <span className={deliveryStatus === 'picked_up' ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)]/50'}>
+                  2. {t('food.pickedUp')}
                 </span>
-                <span className={deliveryStatus === 'on_the_way' ? 'text-[#F4C36C]' : 'text-[#D2E3DE]/50'}>
-                  3. {language === 'ar' ? 'في الطريق' : 'On the way'}
+                <span className={deliveryStatus === 'on_the_way' ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)]/50'}>
+                  3. {t('food.onTheWay')}
                 </span>
-                <span className={deliveryStatus === 'delivered' ? 'text-emerald-400' : 'text-[#D2E3DE]/50'}>
-                  4. {language === 'ar' ? 'تم الاستلام ✓' : 'Delivered ✓'}
+                <span className={deliveryStatus === 'delivered' ? 'text-emerald-400' : 'text-[var(--text-secondary)]/50'}>
+                  4. {t('food.delivered')}
                 </span>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-2.5 rounded-full bg-[#13312B] overflow-hidden flex border border-white/10">
+              <div className="w-full h-2.5 rounded-full bg-[var(--surface-container)] overflow-hidden flex border border-[var(--border-subtle)]">
                 <div 
-                  className="h-full bg-[#F4C36C] transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(244,195,108,0.5)]"
+                  className="h-full bg-[var(--accent-secondary)] transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(244,195,108,0.5)]"
                   style={{
                     width: 
                       deliveryStatus === 'preparing' ? '25%' :
@@ -1683,7 +1571,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
               {/* Status Simulator Buttons */}
               <div className="pt-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] text-[#D2E3DE]/50 font-semibold">{language === 'ar' ? 'محاكاة الحالة:' : 'Simulate status:'}</span>
+                <span className="text-[11px] text-[var(--text-secondary)]/50 font-semibold">{t('food.simulateStatus')}</span>
                 {(['preparing', 'picked_up', 'on_the_way', 'delivered'] as const).map((st) => (
                   <button
                     key={st}
@@ -1691,8 +1579,8 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     onClick={() => setDeliveryStatus(st)}
                     className={`px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-colors ${
                       deliveryStatus === st
-                        ? 'bg-[#F4C36C] text-[#081714]'
-                        : 'bg-[#13312B] hover:bg-white/10 text-[#D2E3DE] border border-white/10'
+                        ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)]'
+                        : 'bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
                     }`}
                   >
                     {st.replace('_', ' ')}
@@ -1705,84 +1593,21 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             <div className="space-y-3 text-xs">
               
               {/* Next activity reminder */}
-              <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-[#D2E3DE]/60 uppercase font-bold block">{language === 'ar' ? 'النشاط القادم' : 'Next activity'}</span>
-                  <span className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? '٠٣:٠٠ م · سفاري البيتش باجي' : '03:00 PM · Desert Quad Tour'}</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]/60 uppercase font-bold block">{t('food.nextActivity-2')}</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)]">{t('food.0300PMDesertQuad')}</span>
                 </div>
-                <span className="text-xs font-mono font-bold text-[#F4C36C]">{language === 'ar' ? 'متبقي ١س ٤٥د' : 'In 1h 45m'}</span>
+                <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">{t('food.in1h45m')}</span>
               </div>
 
-              {/* On Track vs Potential Conflict Alert */}
-              {!isDeliveryDelayed ? (
-                <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-between text-emerald-300">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span className="font-bold">{language === 'ar' ? 'كل حاجة في ميعادها ✓' : "You're on track ✓"}</span>
-                  </div>
-                  <span className="text-xs text-emerald-300/80 font-mono">{language === 'ar' ? 'الوصول المتوقع: ٠١:٤٠ م' : 'Est. arrival 01:40 PM'}</span>
+              {/* On Track status */}
+              <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-between text-emerald-300">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span className="font-bold">{t('food.youreOnTrack')}</span>
                 </div>
-              ) : (
-                /* DELAYED OVERLAP WARNING & SCHEDULE COORDINATION */
-                <div 
-                  id="schedule-coordination-warning"
-                  className="p-4 rounded-2xl bg-amber-950/70 border-2 border-amber-500/50 space-y-3 text-amber-200 animate-in fade-in duration-150"
-                >
-                  <div className="flex items-center gap-2 text-amber-300 font-bold text-xs sm:text-sm">
-                    <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                    <span>{language === 'ar' ? 'لاحظنا أن التوصيل قد يتعارض مع ميعاد نشاطك القادم.' : 'We noticed your delivery may overlap with your next activity.'}</span>
-                  </div>
-
-                  <p className="text-xs text-amber-200/90 leading-relaxed font-medium">
-                    {language === 'ar'
-                      ? 'ضغط الطلبات في المطعم قد يؤخر وصول الوجبة إلى ٢:٤٥ م. تحب نعمل إيه؟'
-                      : 'Heavy kitchen orders mean delivery might arrive around 02:45 PM. What would you like to do?'}
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-                    <button
-                      type="button"
-                      id="keep-delivery-btn"
-                      onClick={() => {
-                        setIsDeliveryDelayed(false);
-                        showToast(language === 'ar' ? 'تم الإبقاء على الخطة وإشعار المندوب بالإسراع.' : 'Kept original plan. Rider notified to expedite.');
-                      }}
-                      className="px-3 py-2 rounded-xl bg-[#13312B] hover:bg-[#1a4038] border border-amber-500/40 text-amber-200 font-bold text-xs text-center cursor-pointer"
-                    >
-                      {language === 'ar' ? 'الإبقاء على الطلب' : 'Keep delivery'}
-                    </button>
-
-                    <button
-                      type="button"
-                      id="move-activity-btn"
-                      onClick={handleShiftActivity}
-                      className="px-3 py-2 rounded-xl bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs text-center cursor-pointer shadow-xs"
-                    >
-                      {language === 'ar' ? 'ترحيل النشاط تلقائياً' : 'Move your activity'}
-                    </button>
-
-                    <button
-                      type="button"
-                      id="cancel-order-btn"
-                      onClick={handleCancelDelivery}
-                      className="px-3 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-300 font-bold text-xs text-center cursor-pointer"
-                    >
-                      {language === 'ar' ? 'إلغاء الطلب' : 'Cancel order'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Prototype Conflict Simulation Toggle */}
-              <div className="flex items-center justify-between text-[12px] text-[#D2E3DE]/60 pt-1">
-                <span>{language === 'ar' ? 'نظام التنسيق الذكي للجدول' : 'Trip Coordination System'}</span>
-                <button
-                  type="button"
-                  onClick={() => setIsDeliveryDelayed(!isDeliveryDelayed)}
-                  className="font-bold text-[#F4C36C] hover:underline cursor-pointer"
-                >
-                  {isDeliveryDelayed ? (language === 'ar' ? 'محاكاة التوصيل في الميعاد' : 'Simulate on-time delivery') : (language === 'ar' ? 'محاكاة تنبيه تأخير الدليفري' : 'Simulate delivery delay alert')}
-                </button>
+                <span className="text-xs text-emerald-300/80 font-mono">{t('food.estArrival0140PM')}</span>
               </div>
             </div>
 
@@ -1794,9 +1619,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   setDeliveryWorkflow('none');
                   onBackToCompanion ? onBackToCompanion() : onBackToMyTrip();
                 }}
-                className="w-full py-2.5 rounded-full bg-[#13312B] hover:bg-[#1a4038] text-[#F7F3EA] text-xs font-bold transition-all cursor-pointer border border-white/10"
+                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer border border-[var(--border-subtle)]"
               >
-                {language === 'ar' ? 'الرجوع للمرافق اليومي' : 'Return to Daily Companion'}
+                {t('food.returnToDailyCompanion')}
               </button>
             </div>
           </div>
@@ -1807,23 +1632,23 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       {isFullMenuOpen && selectedRestaurant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-white/15 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col text-[#F7F3EA]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-lg w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col text-[var(--text-primary)]"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'المنيو الكامل' : 'Full Menu'}
+                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  {t('food.fullMenu')}
                 </span>
-                <h3 className="text-xl font-serif font-bold text-[#F7F3EA]">
+                <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
                   {language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsFullMenuOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1831,44 +1656,44 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
             <div className="overflow-y-auto space-y-4 text-xs flex-grow pr-1">
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-[#F4C36C] uppercase font-['Outfit',sans-serif]">{language === 'ar' ? 'الأطباق الرئيسية والمشويات' : 'Mains & Specialties'}</span>
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('food.mainsSpecialties')}</span>
                 {selectedRestaurant.popularDishes.map((dish) => (
-                  <div key={dish.id} className="p-3 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between">
+                  <div key={dish.id} className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                     <div>
-                      <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? dish.nameAr : dish.name}</h4>
-                      <p className="text-[#D2E3DE]/70">{language === 'ar' ? dish.descriptionAr : dish.description}</p>
+                      <h4 className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? dish.nameAr : dish.name}</h4>
+                      <p className="text-[var(--text-secondary)]/70">{language === 'ar' ? dish.descriptionAr : dish.description}</p>
                     </div>
-                    <span className="font-bold font-mono text-[#F4C36C]">EGP {dish.price}</span>
+                    <span className="font-bold font-mono text-[var(--accent-secondary)]">EGP {dish.price}</span>
                   </div>
                 ))}
               </div>
 
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-[#F4C36C] uppercase font-['Outfit',sans-serif]">{language === 'ar' ? 'المقبلات والشوربة' : 'Side Mezze & Starters'}</span>
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('food.sideMezzeStarters')}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'طحينة بلدي وعيش بالسمسم' : 'Tahini Dip & Hot Pita'}</h4>
-                    <p className="text-[#D2E3DE]/70">{language === 'ar' ? 'طحينة سمسم نقي بالثوم والليمون والكمون وزيت الزيتون' : 'Stoneground sesame tahini with cumin, garlic & olive oil'}</p>
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('food.tahiniDipHotPita')}</h4>
+                    <p className="text-[var(--text-secondary)]/70">{t('food.stonegroundSesameTahiniWith')}</p>
                   </div>
-                  <span className="font-bold font-mono text-[#F4C36C]">EGP 60</span>
+                  <span className="font-bold font-mono text-[var(--accent-secondary)]">EGP 60</span>
                 </div>
-                <div className="p-3 rounded-2xl bg-[#13312B] border border-white/10 flex items-center justify-between">
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'حلقات كاليماري مقلي مقرمش' : 'Fried Calamari Rings'}</h4>
-                    <p className="text-[#D2E3DE]/70">{language === 'ar' ? 'كاليماري البحر الأحمر الطازة مع صوص الثوم والليمون' : 'Red sea squid tossed in sea salt with lemon garlic aioli'}</p>
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('food.friedCalamariRings')}</h4>
+                    <p className="text-[var(--text-secondary)]/70">{t('food.redSeaSquidTossed')}</p>
                   </div>
-                  <span className="font-bold font-mono text-[#F4C36C]">EGP 190</span>
+                  <span className="font-bold font-mono text-[var(--accent-secondary)]">EGP 190</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-white/10">
+            <div className="pt-2 border-t border-[var(--border-subtle)]">
               <button
                 type="button"
                 onClick={() => setIsFullMenuOpen(false)}
-                className="w-full py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'الرجوع لتفاصيل المطعم' : 'Back to Restaurant Details'}
+                {t('food.backToRestaurantDetails')}
               </button>
             </div>
           </div>
@@ -1877,7 +1702,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
       {/* Global Toast Message */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#13312B] text-[#F7F3EA] border border-[#F4C36C]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--accent-secondary)]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <Check className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>

@@ -2,13 +2,11 @@ import type {
   CommerceServiceType,
   ConfirmedBookingItem,
   TripBookingRecord,
-  TripEntity,
-  TimelineActivityStatus,
-  TimelineActivityType,
-  TimelineDay,
-  TripItemEntity,
-  TripItemWithSupplier
-} from '../shared';
+  ProductSkuEntity,
+  RentalBookingStatus,
+  RentalBookingView
+} from '../shared/types/commerce';
+import type { TripEntity, TimelineActivityStatus, TimelineActivityType, TimelineDay, TripItemEntity, TripItemWithSupplier } from '../shared/types/trip';
 
 /**
  * Turns the server's booking records into the shape the bookings and my-trip
@@ -28,7 +26,8 @@ const ICON_BY_SERVICE: Record<TripBookingRecord['serviceType'], ConfirmedBooking
   diving: 'waves',
   safari: 'compass',
   wellness: 'sparkles',
-  dining: 'utensils'
+  dining: 'utensils',
+  rental: 'bike'
 };
 
 /**
@@ -103,7 +102,8 @@ const COMMERCE_SERVICE_TYPES: readonly CommerceServiceType[] = [
   'hotel',
   'safari',
   'wellness',
-  'dining'
+  'dining',
+  'rental'
 ];
 
 const SERVICE_LABEL: Record<string, string> = {
@@ -112,7 +112,8 @@ const SERVICE_LABEL: Record<string, string> = {
   diving: 'Diving',
   safari: 'Safari',
   wellness: 'Wellness',
-  dining: 'Dining'
+  dining: 'Dining',
+  rental: 'Rental'
 };
 
 /** Shown where the card has nothing stored to show. Never a plausible guess. */
@@ -222,6 +223,61 @@ export function buildTravelerBookings(
     .map(booking => toConfirmedBookingItem(booking));
 
   return [...fromItems, ...orphanBookings];
+}
+
+/**
+ * The traveler-facing status of a rental booking.
+ *
+ * A rental booking has one status field (unlike commerce bookings, which split
+ * paymentState from supplierState). The traveler is told the booking is
+ * confirmed once the provider has accepted it; before that it reads as
+ * pending, and any terminal rejection/cancellation reads as changed.
+ */
+export function travelerRentalStatusOf(booking: RentalBookingView): ConfirmedBookingItem['status'] {
+  const terminal: ReadonlyArray<RentalBookingStatus> = ['CANCELLED', 'REJECTED'];
+  const confirmed: ReadonlyArray<RentalBookingStatus> = [
+    'CONFIRMED',
+    'READY_FOR_PICKUP',
+    'ACTIVE',
+    'OVERDUE',
+    'RETURNED',
+    'COMPLETED'
+  ];
+  if (terminal.includes(booking.status)) return 'Changed';
+  if (confirmed.includes(booking.status)) return 'Confirmed ✓';
+  // PENDING_PAYMENT / PENDING_CONFIRMATION — a hold is not a booking yet.
+  return 'Pending';
+}
+
+/**
+ * A rental booking, mapped into the shape the bookings and my-trip views
+ * render.
+ *
+ * Rentals live in their own table (`rental_bookings`) rather than in
+ * db.bookings, so the commerce mappers above do not see them. This is the
+ * rental-domain equivalent of toConfirmedBookingItem: it reads only stored
+ * values, and where the booking holds nothing it omits rather than guesses.
+ */
+export function rentalBookingToConfirmedBookingItem(booking: RentalBookingView): ConfirmedBookingItem {
+  const listing = booking.listing;
+  const dateRange = [booking.startDate, booking.endDate].filter(Boolean).join(' → ');
+  return {
+    id: booking.id,
+    serviceType: 'rental',
+    title: SERVICE_LABEL.rental,
+    subtitle: listing?.name || 'Bike Rental',
+    details:
+      `${booking.quantity} × ${booking.priceBreakdown.days} day${booking.priceBreakdown.days === 1 ? '' : 's'}` +
+      (booking.deliveryMode === 'DELIVERY' ? ' · delivered' : ' · pickup'),
+    datesOrTime: dateRange,
+    priceEGP: booking.priceBreakdown.totalEGP,
+    provider: listing?.supplierName || booking.supplierId,
+    confirmationCode: booking.bookingRef,
+    status: travelerRentalStatusOf(booking),
+    location: booking.deliveryAddress || 'Dahab',
+    iconType: 'bike',
+    phone: undefined
+  };
 }
 
 /**

@@ -19,7 +19,7 @@ interface BudgetBreakdownModalProps {
 }
 
 export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOpen, onClose }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const { budgetBreakdown, applyBudgetOptimization } = useTrip();
 
   if (!isOpen) return null;
@@ -36,62 +36,61 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
     >
       <div
         id="modal-budget-breakdown-container"
-        className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
+        className="bg-[var(--surface-card)] rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="p-6 bg-[#0E252C] text-white flex items-center justify-between shrink-0">
+        <div className="p-6 bg-[var(--surface-card)] text-white flex items-center justify-between shrink-0">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Wallet className="w-4 h-4 text-amber-400" />
               <span className="text-[12px] font-black uppercase tracking-wider text-amber-300 font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'تحليل التكاليف ومحرك التوفير' : 'TRIP OS COST ENGINE'}
+                {t('tripos.tRIPOSCOSTENGINE')}
               </span>
             </div>
             <h2 id="budget-breakdown-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'تفاصيل الميزانية ومحركات التكلفة' : 'Budget Breakdown & Drivers'}
+              {t('tripos.budgetBreakdownDrivers')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
-              {language === 'ar'
-                ? 'توزيع شفاف للنفقات المتوقعة مع اقتراحات ذكية لتوفير الجنيهات.'
-                : 'Transparent allocation of accommodation, marine permits, transfers, and dining.'}
+              {t('tripos.transparentAllocationOfAccommodation')}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+            aria-label="Close"
+            className="w-9 h-9 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Summary Metric Cards */}
-        <div className="p-6 bg-[#FAF8F5] border-b border-slate-200 grid grid-cols-3 gap-3 text-center">
-          <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-1 shadow-2xs">
+        <div className="p-6 bg-[var(--text-primary)] border-b border-slate-200 grid grid-cols-3 gap-3 text-center">
+          <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
             <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-              {language === 'ar' ? 'الإجمالي التقديري' : 'Estimated Total'}
+              {t('tripos.estimatedTotal')}
             </div>
             <div className="text-base sm:text-lg font-black text-slate-950 font-['Outfit',sans-serif]">
-              {budgetBreakdown.estimatedTotalEGP.toLocaleString()} {language === 'ar' ? 'ج.م' : 'EGP'}
+              {budgetBreakdown.estimatedTotalEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-1 shadow-2xs">
+          <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
             <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-              {language === 'ar' ? 'المسدد في السجل' : 'Settled in Ledger'}
+              {t('tripos.settledInLedger')}
             </div>
             <div className="text-base sm:text-lg font-black text-emerald-600 font-['Outfit',sans-serif]">
-              {budgetBreakdown.bookedTotalEGP.toLocaleString()} {language === 'ar' ? 'ج.م' : 'EGP'}
+              {budgetBreakdown.bookedTotalEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-1 shadow-2xs">
+          <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
             <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
-              {language === 'ar' ? 'المتبقي المخطط' : 'Planned Balance'}
+              {t('tripos.plannedBalance')}
             </div>
             <div className="text-base sm:text-lg font-black text-slate-900 font-['Outfit',sans-serif]">
-              {budgetBreakdown.plannedRemainingEGP.toLocaleString()} {language === 'ar' ? 'ج.م' : 'EGP'}
+              {budgetBreakdown.plannedRemainingEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
         </div>
@@ -100,14 +99,14 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
         <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1">
           <div className="space-y-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'محركات التكلفة حسب الفئة' : 'Cost Drivers by Category'}
+              {t('tripos.costDriversByCategory')}
             </h3>
 
             <div className="space-y-2.5">
               {budgetBreakdown.costDrivers.map((driver) => (
                 <div
                   key={driver.category}
-                  className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-slate-200/80 flex items-center justify-between"
+                  className="p-3.5 rounded-2xl bg-[var(--text-primary)] border border-slate-200/80 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -125,7 +124,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
                   </div>
 
                   <div className="text-xs font-extrabold text-slate-950">
-                    {driver.amountEGP.toLocaleString()} {language === 'ar' ? 'ج.م' : 'EGP'}
+                    {driver.amountEGP.toLocaleString()} {t('tripos.eGP')}
                   </div>
                 </div>
               ))}
@@ -135,7 +134,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
           {/* Actionable Budget Optimizations */}
           <div className="space-y-3 pt-2">
             <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'اقتراحات توفير ذكية (1-Click Optimizations)' : 'Actionable Savings Opportunities'}
+              {t('tripos.actionableSavingsOpportunities')}
             </h3>
 
             <div className="space-y-2.5">
@@ -145,14 +144,14 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
                   className={`p-4 rounded-2xl border transition-all space-y-2 ${
                     opt.applied
                       ? 'bg-emerald-50/60 border-emerald-200'
-                      : 'bg-white border-slate-200'
+                      : 'bg-[var(--surface-card)] border-slate-200'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                          {language === 'ar' ? `توفير ${opt.savingsEGP} ج.م` : `Save ${opt.savingsEGP} EGP`}
+                          {t('tripos.saveEGP', { savingsEGP: opt.savingsEGP })}
                         </span>
                         <h4 className="text-xs font-bold text-slate-900">
                           {language === 'ar' ? opt.titleAr : opt.title}
@@ -173,13 +172,13 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
                       }`}
                     >
                       {opt.applied
-                        ? language === 'ar' ? 'مطبق ✓' : 'Applied ✓'
-                        : language === 'ar' ? 'تطبيق التوفير' : 'Apply Savings'}
+                        ? t('tripos.applied')
+                        : t('tripos.applySavings')}
                     </button>
                   </div>
 
                   <div className="text-[11px] text-slate-500 italic">
-                    <strong>{language === 'ar' ? 'التنازل:' : 'Trade-off:'}</strong>{' '}
+                    <strong>{t('tripos.tradeoff')}</strong>{' '}
                     {language === 'ar' ? opt.tradeOffGivesUpAr : opt.tradeOffGivesUp}
                   </div>
                 </div>
@@ -195,7 +194,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
             onClick={onClose}
             className="px-6 py-2.5 rounded-2xl bg-slate-950 hover:bg-black text-white font-bold text-xs cursor-pointer transition-colors"
           >
-            {language === 'ar' ? 'إغلاق' : 'Done'}
+            {t('tripos.done')}
           </button>
         </div>
       </div>

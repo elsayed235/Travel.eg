@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { TripEntity } from '../shared';
+import type { TripEntity } from '../shared/types/trip';
 
 /**
  * Creating the trip a traveler is about to plan into.

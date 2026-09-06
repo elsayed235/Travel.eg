@@ -27,7 +27,7 @@ import { ConfirmedBookingItem, TimelineActivity } from '../../types';
 import { IN_DESTINATION_SERVICES, InDestinationServiceOption, BookNowCategory } from './BookNowCommerceModal';
 import { INITIAL_LIVE_DAHAB_CONDITIONS } from '../../data/dahabGeography';
 import { analytics } from '../../services/analytics';
-import type { ProductSkuEntity } from '../../shared';
+import type { ProductSkuEntity } from '../../shared/types/commerce';
 
 export const BookNowCommerceView: React.FC = () => {
   const {
@@ -45,7 +45,7 @@ export const BookNowCommerceView: React.FC = () => {
     selectedSkuId,
     reloadTrip
   } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   /** Why the instant booking failed, if it did. Shown instead of a voucher. */
   const [instantBookingError, setInstantBookingError] = useState<string | null>(null);
 
@@ -256,7 +256,7 @@ export const BookNowCommerceView: React.FC = () => {
     if (!isSignedIn) {
       setIntendedRoute('/book-now');
       showToast(
-        language === 'ar' ? 'سجّل دخولك عشان نكمّل الحجز.' : 'Sign in to complete this booking.'
+        t('commerce.signInToComplete')
       );
       navigateTo('/auth/sign-in');
       return;
@@ -268,9 +268,10 @@ export const BookNowCommerceView: React.FC = () => {
     // and the server answering with a 400 the traveler cannot act on.
     if (!activeService.skuId) {
       setInstantBookingError(
-        language === 'ar'
-          ? `الخدمة دي لسه مش متاحة للحجز أونلاين. كلّم ${activeService.supplierNameAr} على ${activeService.supplierPhone} مباشرة.`
-          : `This service is not bookable online yet. Call ${activeService.supplierName} on ${activeService.supplierPhone} to arrange it directly.`
+        t('commerce.notBookableOnlineYet', {
+          supplierName: language === 'ar' ? activeService.supplierNameAr : activeService.supplierName,
+          supplierPhone: activeService.supplierPhone,
+        })
       );
       return;
     }
@@ -318,9 +319,7 @@ export const BookNowCommerceView: React.FC = () => {
     } catch (err: any) {
       setIsSubmitting(false);
       setInstantBookingError(
-        language === 'ar'
-          ? `لم يتم إتمام الحجز: ${err?.message || ''}`
-          : `The booking was not completed: ${err?.message || ''}`
+        t('commerce.bookingNotCompleted', { message: err?.message || '' })
       );
       return;
     }
@@ -390,9 +389,10 @@ export const BookNowCommerceView: React.FC = () => {
       reloadTrip();
 
       showToast(
-        language === 'ar'
-          ? `تم تأكيد حجز ${activeService.titleAr} بنجاح! رقم القسيمة: ${confirmationCode}`
-          : `Booking confirmed for ${activeService.title}! Voucher: ${confirmationCode}`
+        t('commerce.bookingConfirmedVoucher', {
+          title: language === 'ar' ? activeService.titleAr : activeService.title,
+          code: confirmationCode,
+        })
       );
     }
   };
@@ -446,13 +446,13 @@ export const BookNowCommerceView: React.FC = () => {
                 onClick={() => navigateTo('/home')}
                 className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
-                {language === 'ar' ? 'الرئيسية' : 'Home'}
+                {t('commerce.home')}
               </button>
               <span aria-hidden="true" className="text-[var(--text-secondary)]/40">
                 /
               </span>
               <span aria-current="page" className="text-[var(--text-primary)] font-bold">
-                {language === 'ar' ? 'الحجز الفوري' : 'Instant booking'}
+                {t('commerce.instantBooking')}
               </span>
             </nav>
 
@@ -462,7 +462,7 @@ export const BookNowCommerceView: React.FC = () => {
               className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <Receipt className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
-              <span>{language === 'ar' ? 'حجوزاتي' : 'My bookings'}</span>
+              <span>{t('commerce.myBookings')}</span>
               {bookings.length > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-[11px] font-extrabold tabular-nums">
                   {bookings.length}
@@ -476,19 +476,15 @@ export const BookNowCommerceView: React.FC = () => {
             <div className="max-w-2xl space-y-3">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold uppercase tracking-widest">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{language === 'ar' ? 'خدمات دهب الفورية' : 'Dahab live commerce'}</span>
+                <span>{t('commerce.dahabLiveCommerce')}</span>
               </span>
 
               <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif font-bold tracking-tight leading-tight">
-                {language === 'ar'
-                  ? 'احجز خدماتك في دهب الآن بدون وسيط'
-                  : 'Book local Dahab services instantly'}
+                {t('commerce.bookLocalDahabServices')}
               </h1>
 
               <p className="text-base text-[var(--text-secondary)] leading-relaxed">
-                {language === 'ar'
-                  ? 'معدات غوص، جيب البلو هول، سفاري وادي قني، وعشاء بدوي تحت النجوم — بأسعار موحدة وحماية بنظام الضمان، والدفع عند الوصول.'
-                  : 'Dive gear delivered, 4x4 canyon transfers, Bedouin desert BBQ and recovery wellness — fixed local rates, escrow protection, and nothing charged upfront.'}
+                {t('commerce.diveGearDelivered4x4')}
               </p>
             </div>
 
@@ -500,7 +496,7 @@ export const BookNowCommerceView: React.FC = () => {
                     aria-hidden="true"
                     className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse"
                   />
-                  {language === 'ar' ? 'حالة البحر الآن' : 'Live sea & wind'}
+                  {t('commerce.liveSeaWind')}
                 </span>
               </div>
 
@@ -535,7 +531,7 @@ export const BookNowCommerceView: React.FC = () => {
 
               <p className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)] shrink-0" aria-hidden="true" />
-                <span>{language === 'ar' ? 'مفيش دفع مقدم — تدفع عند الوصول' : 'No prepayment · pay on arrival'}</span>
+                <span>{t('commerce.noPrepaymentPayOn')}</span>
               </p>
             </div>
           </div>
@@ -546,7 +542,7 @@ export const BookNowCommerceView: React.FC = () => {
       {/* 2. FILTERS                                                                */}
       {/* ========================================================================= */}
       <section
-        aria-label={language === 'ar' ? 'تصفية وبحث الخدمات' : 'Filter and search services'}
+        aria-label={t('commerce.filterAndSearchServices')}
         className="sticky top-16 sm:top-20 z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)]/92 backdrop-blur-xl"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col xl:flex-row xl:items-center gap-3">
@@ -583,8 +579,8 @@ export const BookNowCommerceView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label={language === 'ar' ? 'ابحث عن خدمة أو موقع' : 'Search services and locations'}
-                placeholder={language === 'ar' ? 'ابحث عن خدمة أو موقع…' : 'Search gear, 4x4, safari…'}
+                aria-label={t('commerce.searchServicesAndLocations')}
+                placeholder={t('commerce.searchGear4x4Safari')}
                 className={`${fieldClass} w-full ps-9 pe-3 py-2.5`}
               />
             </div>
@@ -592,14 +588,14 @@ export const BookNowCommerceView: React.FC = () => {
             <select
               value={selectedAvailability}
               onChange={(e) => setSelectedAvailability(e.target.value)}
-              aria-label={language === 'ar' ? 'تصفية حسب وقت التوفّر' : 'Filter by availability window'}
+              aria-label={t('commerce.filterByAvailabilityWindow')}
               className={`${fieldClass} px-3 py-2.5 font-bold cursor-pointer shrink-0`}
             >
-              <option value="all">{language === 'ar' ? 'كل الأوقات' : 'All windows'}</option>
-              <option value="Instant Ready">{language === 'ar' ? 'فوري' : 'Instant ready'}</option>
-              <option value="Evening Slot">{language === 'ar' ? 'المساء' : 'Evening slots'}</option>
-              <option value="Weather Optimal">{language === 'ar' ? 'حسب الرياح' : 'Weather optimal'}</option>
-              <option value="Limited Slots">{language === 'ar' ? 'أماكن محدودة' : 'Limited slots'}</option>
+              <option value="all">{t('commerce.allWindows')}</option>
+              <option value="Instant Ready">{t('commerce.instantReady')}</option>
+              <option value="Evening Slot">{t('commerce.eveningSlots')}</option>
+              <option value="Weather Optimal">{t('commerce.weatherOptimal')}</option>
+              <option value="Limited Slots">{t('commerce.limitedSlots')}</option>
             </select>
           </div>
         </div>
@@ -614,7 +610,7 @@ export const BookNowCommerceView: React.FC = () => {
           {/* Catalog                                                           */}
           {/* ================================================================= */}
           <section
-            aria-label={language === 'ar' ? 'الخدمات المتاحة للحجز' : 'Available services'}
+            aria-label={t('commerce.availableServices')}
             className={`lg:col-span-7 xl:col-span-8 space-y-4 ${
               checkoutLeadsOnMobile ? 'order-2' : 'order-1'
             } lg:order-1`}
@@ -622,12 +618,10 @@ export const BookNowCommerceView: React.FC = () => {
             <div className="flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl font-serif font-bold">
-                  {language === 'ar' ? 'التجارب المتاحة الآن' : 'Available right now'}
+                  {t('commerce.availableRightNow')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  {language === 'ar'
-                    ? `${filteredServices.length} تجربة معتمدة جاهزة للتحرك`
-                    : `${filteredServices.length} verified instant-dispatch options`}
+                  {t('commerce.availableNowCount', { count: filteredServices.length })}
                 </p>
               </div>
 
@@ -637,7 +631,7 @@ export const BookNowCommerceView: React.FC = () => {
                   onClick={() => setActiveService(null)}
                   className="text-xs font-bold text-[var(--accent-primary)] hover:underline cursor-pointer shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  {language === 'ar' ? 'إلغاء التحديد' : 'Clear selection'}
+                  {t('commerce.clearSelection')}
                 </button>
               )}
             </div>
@@ -646,12 +640,10 @@ export const BookNowCommerceView: React.FC = () => {
               <div className="p-10 sm:p-12 text-center bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] space-y-3">
                 <Compass className="w-10 h-10 text-[var(--accent-primary)] mx-auto opacity-60" aria-hidden="true" />
                 <h3 className="text-lg font-serif font-bold">
-                  {language === 'ar' ? 'مفيش خدمات مطابقة' : 'No matching services'}
+                  {t('commerce.noMatchingServices')}
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
-                  {language === 'ar'
-                    ? 'جرب كلمات بحث تانية أو ارجع لكل التصنيفات.'
-                    : 'Try different keywords, or reset the category and availability filters.'}
+                  {t('commerce.tryDifferentKeywordsOr')}
                 </p>
                 <button
                   type="button"
@@ -662,7 +654,7 @@ export const BookNowCommerceView: React.FC = () => {
                   }}
                   className="px-5 py-2.5 rounded-xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
-                  {language === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset filters'}
+                  {t('commerce.resetFilters')}
                 </button>
               </div>
             ) : (
@@ -756,7 +748,7 @@ export const BookNowCommerceView: React.FC = () => {
                           {bringList.length > 0 && (
                             <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-3 space-y-2">
                               <span className="block text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-secondary)]">
-                                {language === 'ar' ? 'المطلوب منك' : 'What to bring'}
+                                {t('commerce.whatToBring')}
                               </span>
                               <ul className="flex flex-wrap gap-1.5">
                                 {bringList.map((item, idx) => (
@@ -777,7 +769,7 @@ export const BookNowCommerceView: React.FC = () => {
                         <div className="px-5 sm:px-6 py-4 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
                             <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                              {language === 'ar' ? 'السعر الرسمي للفرد' : 'Official rate per person'}
+                              {t('commerce.officialRatePerPerson')}
                             </span>
                             <span className="text-2xl font-mono font-bold tabular-nums">
                               {svc.basePriceEGP.toLocaleString()}{' '}
@@ -798,11 +790,11 @@ export const BookNowCommerceView: React.FC = () => {
                             {isSelected ? (
                               <>
                                 <Check className="w-4 h-4" aria-hidden="true" />
-                                <span>{language === 'ar' ? 'محدد' : 'Selected'}</span>
+                                <span>{t('commerce.selected')}</span>
                               </>
                             ) : (
                               <>
-                                <span>{language === 'ar' ? 'احجز فوراً' : 'Book now'}</span>
+                                <span>{t('commerce.bookNow')}</span>
                                 <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
                               </>
                             )}
@@ -821,7 +813,7 @@ export const BookNowCommerceView: React.FC = () => {
           {/* ================================================================= */}
           <section
             id="instant-checkout-panel"
-            aria-label={language === 'ar' ? 'لوحة الحجز والدفع' : 'Booking panel'}
+            aria-label={t('commerce.bookingPanel')}
             className={`lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-44 ${
               checkoutLeadsOnMobile ? 'order-1' : 'order-2'
             } lg:order-2`}
@@ -834,19 +826,17 @@ export const BookNowCommerceView: React.FC = () => {
                     <CheckCircle2 className="w-6 h-6" aria-hidden="true" />
                   </div>
                   <h2 className="text-lg font-serif font-bold">
-                    {language === 'ar' ? 'تم تأكيد الحجز' : 'Booking confirmed'}
+                    {t('commerce.bookingConfirmed')}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                    {language === 'ar'
-                      ? 'اتبعتت القسيمة للمزود، وهيتواصل معاك على المكان المحدد.'
-                      : 'The voucher has reached the provider, and they will meet you at the pickup point.'}
+                    {t('commerce.theVoucherHasReached')}
                   </p>
                 </div>
 
                 <div className="bg-[var(--surface-container)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-3">
                   <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-[var(--border-subtle)]">
                     <span className="text-xs font-bold text-[var(--text-secondary)]">
-                      {language === 'ar' ? 'رقم القسيمة' : 'Voucher ref'}
+                      {t('commerce.voucherRef')}
                     </span>
                     <span className="font-mono text-sm font-bold text-[var(--accent-primary)]">
                       {confirmedBooking.confirmationCode}
@@ -867,7 +857,7 @@ export const BookNowCommerceView: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border-subtle)]">
                     <span className="text-xs font-bold text-[var(--text-secondary)]">
-                      {language === 'ar' ? 'المطلوب عند الوصول' : 'Due at arrival'}
+                      {t('commerce.dueAtArrival')}
                     </span>
                     <span className="text-lg font-mono font-bold tabular-nums">
                       {confirmedBooking.priceEGP.toLocaleString()} EGP
@@ -885,7 +875,7 @@ export const BookNowCommerceView: React.FC = () => {
                     className="w-full py-3 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <Phone className="w-4 h-4" aria-hidden="true" />
-                    <span>{language === 'ar' ? 'كلّم المزود على واتساب' : 'WhatsApp the provider'}</span>
+                    <span>{t('commerce.whatsAppTheProvider')}</span>
                   </a>
 
                   <button
@@ -894,7 +884,7 @@ export const BookNowCommerceView: React.FC = () => {
                     className="w-full py-2.5 px-4 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <Luggage className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
-                    <span>{language === 'ar' ? 'شوفه في جدول رحلتي' : 'View in my itinerary'}</span>
+                    <span>{t('commerce.viewInMyItinerary')}</span>
                   </button>
 
                   <button
@@ -905,7 +895,7 @@ export const BookNowCommerceView: React.FC = () => {
                     }}
                     className="w-full py-2.5 px-4 rounded-2xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
-                    {language === 'ar' ? 'احجز خدمة تانية' : 'Book another service'}
+                    {t('commerce.bookAnotherService')}
                   </button>
                 </div>
               </div>
@@ -915,7 +905,7 @@ export const BookNowCommerceView: React.FC = () => {
                 <div className="p-5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-3 shrink-0">
                   <div className="min-w-0">
                     <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]">
-                      {language === 'ar' ? 'إعداد الحجز' : 'Configure & book'}
+                      {t('commerce.configureBook')}
                     </span>
                     <h2 className="text-base font-serif font-bold mt-1 leading-snug">
                       {language === 'ar' ? activeService.titleAr : activeService.title}
@@ -924,7 +914,7 @@ export const BookNowCommerceView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveService(null)}
-                    aria-label={language === 'ar' ? 'إغلاق لوحة الحجز' : 'Close booking panel'}
+                    aria-label={t('commerce.closeBookingPanel')}
                     className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
@@ -935,7 +925,7 @@ export const BookNowCommerceView: React.FC = () => {
                   {/* Guests */}
                   <fieldset>
                     <legend className="text-xs font-bold mb-2">
-                      {language === 'ar' ? 'عدد الأفراد' : 'How many people?'}
+                      {t('commerce.howManyPeople')}
                     </legend>
                     <div className="grid grid-cols-5 gap-1.5">
                       {[1, 2, 3, 4, 5].map((num) => {
@@ -962,7 +952,7 @@ export const BookNowCommerceView: React.FC = () => {
                   {/* Timing */}
                   <fieldset>
                     <legend className="text-xs font-bold mb-2">
-                      {language === 'ar' ? 'وقت الانطلاق' : 'When should it start?'}
+                      {t('commerce.whenShouldItStart')}
                     </legend>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {[
@@ -1007,7 +997,7 @@ export const BookNowCommerceView: React.FC = () => {
                   {/* Pickup */}
                   <div>
                     <label htmlFor="pickup-location-input" className="block text-xs font-bold mb-2">
-                      {language === 'ar' ? 'مكان الاستلام' : 'Pickup / meeting point'}
+                      {t('commerce.pickupMeetingPoint')}
                     </label>
                     <input
                       id="pickup-location-input"
@@ -1015,7 +1005,7 @@ export const BookNowCommerceView: React.FC = () => {
                       value={pickupLocation}
                       onChange={(e) => setPickupLocation(e.target.value)}
                       placeholder={
-                        language === 'ar' ? 'مثال: فندق كورال كوست أو اللايتهاوس…' : 'e.g. Coral Coast Hotel, Lighthouse arch…'
+                        t('commerce.egCoralCoastHotel')
                       }
                       className={`${fieldClass} w-full px-3 py-2.5`}
                     />
@@ -1025,7 +1015,7 @@ export const BookNowCommerceView: React.FC = () => {
                   {activeService.category === 'watersports' && (
                     <div>
                       <label htmlFor="shoe-size-input" className="block text-xs font-bold mb-2">
-                        {language === 'ar' ? 'مقاس الحذاء الصخري / الزعانف' : 'Booties / fin shoe size'}
+                        {t('commerce.bootiesFinShoeSize')}
                       </label>
                       <input
                         id="shoe-size-input"
@@ -1041,23 +1031,23 @@ export const BookNowCommerceView: React.FC = () => {
                   {/* Price summary */}
                   <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-2.5">
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-                      <span>{language === 'ar' ? 'السعر للفرد' : 'Rate per person'}</span>
+                      <span>{t('commerce.ratePerPerson')}</span>
                       <span className="font-mono font-bold tabular-nums text-[var(--text-primary)]">
                         {activeService.basePriceEGP.toLocaleString()} EGP
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-                      <span>{language === 'ar' ? 'عدد الأفراد' : 'People'}</span>
+                      <span>{t('commerce.people')}</span>
                       <span className="font-bold tabular-nums text-[var(--text-primary)]">×{guestsCount}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
-                      <span>{language === 'ar' ? 'رسوم الخدمة والتوصيل' : 'Service & dispatch fee'}</span>
+                      <span>{t('commerce.serviceDispatchFee')}</span>
                       <span className="font-bold text-[var(--accent-primary)]">
-                        {language === 'ar' ? 'مجاناً' : 'Free'}
+                        {t('commerce.free')}
                       </span>
                     </div>
                     <div className="pt-2.5 border-t border-[var(--border-subtle)] flex items-baseline justify-between">
-                      <span className="text-sm font-bold">{language === 'ar' ? 'الإجمالي' : 'Total'}</span>
+                      <span className="text-sm font-bold">{t('commerce.total')}</span>
                       <span className="text-2xl font-mono font-bold tabular-nums">
                         {calculatedPrice.toLocaleString()}{' '}
                         <span className="text-sm text-[var(--text-secondary)]">EGP</span>
@@ -1069,9 +1059,7 @@ export const BookNowCommerceView: React.FC = () => {
                   <p className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/25 text-xs text-[var(--text-primary)] leading-relaxed">
                     <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] shrink-0 mt-0.5" aria-hidden="true" />
                     <span>
-                      {language === 'ar'
-                        ? 'مفيش أي خصم دلوقتي. تعاين المعدات أو تقابل السائق، وتدفع للمزود المعتمد على الطبيعة.'
-                        : 'Nothing is charged now. Inspect the gear or meet the driver, then pay the verified provider directly.'}
+                      {t('commerce.nothingIsChargedNow')}
                     </span>
                   </p>
 
@@ -1082,9 +1070,9 @@ export const BookNowCommerceView: React.FC = () => {
                   {instantBookingError && (
                     <p
                       role="alert"
-                      className="flex items-start gap-2.5 p-3 rounded-xl bg-[#EF4444]/12 border border-[#EF4444]/40 text-sm text-[var(--text-primary)] leading-relaxed"
+                      className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--brand-coral)]/12 border border-[var(--brand-coral)]/40 text-sm text-[var(--text-primary)] leading-relaxed"
                     >
-                      <AlertCircle className="w-4 h-4 text-[#F87171] shrink-0 mt-0.5" aria-hidden="true" />
+                      <AlertCircle className="w-4 h-4 text-[var(--brand-coral)] shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{instantBookingError}</span>
                     </p>
                   )}
@@ -1097,14 +1085,12 @@ export const BookNowCommerceView: React.FC = () => {
                   >
                     {isSubmitting ? (
                       <span className="animate-pulse">
-                        {language === 'ar' ? 'جاري تأكيد الحجز…' : 'Confirming…'}
+                        {t('commerce.confirming')}
                       </span>
                     ) : (
                       <>
                         <span>
-                          {language === 'ar'
-                            ? `أكّد الحجز · ${calculatedPrice.toLocaleString()} EGP`
-                            : `Confirm booking · ${calculatedPrice.toLocaleString()} EGP`}
+                          {t('commerce.confirmBooking', { price: calculatedPrice.toLocaleString() })}
                         </span>
                         <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
                       </>
@@ -1127,9 +1113,7 @@ export const BookNowCommerceView: React.FC = () => {
                   >
                     <AlertCircle className="w-4 h-4 text-[var(--accent-secondary)] shrink-0 mt-0.5" aria-hidden="true" />
                     <span>
-                      {language === 'ar'
-                        ? 'التجربة اللي اخترتها مش متاحة للحجز دلوقتي. اختار من الخدمات المتاحة.'
-                        : 'That experience is not available to book right now. Pick from the services listed instead.'}
+                      {t('commerce.thatExperienceIsNot')}
                     </span>
                   </p>
                 )}
@@ -1138,16 +1122,14 @@ export const BookNowCommerceView: React.FC = () => {
                   <Receipt className="w-6 h-6" aria-hidden="true" />
                 </div>
                 <h2 className="text-lg font-serif font-bold">
-                  {language === 'ar' ? 'اختر خدمة عشان تبدأ' : 'Pick a service to start'}
+                  {t('commerce.pickAServiceTo')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                  {language === 'ar'
-                    ? 'اضغط «احجز فوراً» على أي تجربة، وتظبط عدد الأفراد والموعد ومكان الاستلام — من غير أي دفع مقدم.'
-                    : 'Tap “Book now” on any experience to set the number of people, timing and pickup point — with nothing charged upfront.'}
+                  {t('commerce.tapBookNowOn')}
                 </p>
                 <p className="pt-3 border-t border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] flex items-center justify-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
-                  <span>{language === 'ar' ? 'أسعار موحدة معتمدة من أهل دهب' : 'Standardised local Dahab rates'}</span>
+                  <span>{t('commerce.standardisedLocalDahabRates')}</span>
                 </p>
               </div>
             )}
@@ -1156,12 +1138,10 @@ export const BookNowCommerceView: React.FC = () => {
             <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-2">
               <h2 className="flex items-center gap-2 text-sm font-bold">
                 <Phone className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
-                <span>{language === 'ar' ? 'محتاج ترتيب خاص؟' : 'Need a custom dispatch?'}</span>
+                <span>{t('commerce.needACustomDispatch')}</span>
               </h2>
               <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                {language === 'ar'
-                  ? 'منسقي دهب متاحين ٢٤ ساعة لترتيب رحلات خاصة أو مواصلات فورية لمجموعات.'
-                  : 'Sinai coordinators are available 24/7 for custom expeditions and group transport.'}
+                {t('commerce.sinaiCoordinatorsAreAvailable')}
               </p>
               <a
                 href="https://wa.me/201002348899?text=Hello%20Dahab%20Travel%20OS%20Dispatch,%20I%20need%20custom%20assistance"
@@ -1169,7 +1149,7 @@ export const BookNowCommerceView: React.FC = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-xs font-extrabold text-[var(--accent-primary)] hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
-                <span>{language === 'ar' ? 'كلّم منسق دهب' : 'Chat with a Dahab coordinator'}</span>
+                <span>{t('commerce.chatWithADahab')}</span>
                 <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
               </a>
             </div>

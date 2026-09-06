@@ -246,24 +246,27 @@ export interface SupplierEntity {
   businessNameAr: string;
   displayName?: string;
   aliases?: string[];
-  category: 'transfer' | 'diving' | 'hotel' | 'safari' | 'restaurant' | 'logistics';
+  category: 'transfer' | 'diving' | 'hotel' | 'safari' | 'restaurant' | 'logistics' | 'bike_rental';
   businessType?: string;
   serviceTypes?: string[];
   tier: 'Tier 1 Certified' | 'Tier 2 Certified' | 'Vetted Local Partner';
   status: 'Active' | 'Pending_Verification' | 'Suspended';
-  leadContact: string;
-  phone: string;
+  leadContact?: string;
+  phone?: string;
   whatsapp?: string;
+  website?: string;
+  instagram?: string;
   phoneNumbers?: string[];
   whatsappNumbers?: string[];
   socialLinks?: string[];
-  email: string;
+  email?: string;
   area: string;
   address?: string;
   city?: string;
   country?: string;
   latitude?: number;
   longitude?: number;
+  coordinates?: { lat: number; lng: number };
   /**
    * Optional, because they are only sometimes known.
    *
@@ -421,7 +424,8 @@ export type CommerceServiceType =
   | 'hotel'
   | 'safari'
   | 'wellness'
-  | 'dining';
+  | 'dining'
+  | 'rental';
 
 export interface ProductSkuEntity {
   id: string;
@@ -451,6 +455,318 @@ export interface InventorySlotEntity {
   heldCapacity: number;
   priceEGP: number;
   status: 'AVAILABLE' | 'ALMOST_FULL' | 'SOLD_OUT';
+}
+
+/**
+ * A hotel in the Dahab hotels catalogue.
+ *
+ * Content is seeded from the committed data/dahab_hotels.json catalogue on
+ * boot and upserted idempotently, so editorial copy stays in the seed and the
+ * store only carries runtime state plus the resolved `skuId`. Bookability runs
+ * through the standard commerce engine: each hotel owns one 5-night package
+ * ProductSkuEntity (serviceType 'hotel'), and inventory slots are created on
+ * demand by createHold with the 'Standard Check-in 14:00' time slot.
+ */
+export interface HotelEntity {
+  id: string;
+  slug: string;
+  name: string;
+  nameAr: string;
+  category: 'budget' | 'mid-range' | 'boutique' | 'resort';
+  priceBand: 'budget' | 'moderate' | 'premium';
+  area: string;
+  areaName: string;
+  areaNameAr: string;
+  rating: number;
+  reviewCount: number;
+  ratingSource?: string;
+  typeChips: string[];
+  typeChipsAr: string[];
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  amenities: string[];
+  amenitiesAr: string[];
+  perNightEGP: number;
+  packageNights: number;
+  rooms: number;
+  bestFor: string;
+  bestForAr: string;
+  note: string;
+  noteAr: string;
+  /** [lat, lng] indicative position, used for area mapping, not navigation. */
+  coordinates?: [number, number];
+  /** The bookable 5-night package SKU this hotel resolves to. */
+  skuId: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Accommodations (generalized successor to HotelEntity — see hotelRoutes.ts
+// for the compatibility shim that keeps /api/hotels serving from this table)
+// ---------------------------------------------------------------------------
+
+export type PropertyType =
+  | 'hotel' | 'hostel' | 'apartment' | 'studio' | 'villa'
+  | 'guesthouse' | 'camp' | 'eco-lodge' | 'boutique-hotel' | 'resort';
+
+/**
+ * A bookable place to stay in Dahab — the generalized successor to
+ * HotelEntity. `propertyType` is the structural kind of place (hotel,
+ * apartment, camp...); `category` is the pre-existing style tag
+ * ('budget'|'mid-range'|'boutique'|'resort'), kept because the two axes are
+ * genuinely orthogonal (a 'resort' propertyType can carry any category).
+ *
+ * Content is admin-curated and seeded from data/dahab_accommodations.json,
+ * exactly like HotelEntity was. Bookability is unchanged: one
+ * ProductSkuEntity per property (serviceType 'hotel'), packageNights
+ * controls whether that SKU prices a multi-night package (hotels/resorts,
+ * typically 5) or a single night (apartments/villas/camps typically 1).
+ */
+export interface AccommodationEntity {
+  id: string;
+  slug: string;
+  name: string;
+  nameAr: string;
+  propertyType: PropertyType;
+  category: 'budget' | 'mid-range' | 'boutique' | 'resort';
+  priceBand: 'budget' | 'moderate' | 'premium';
+  /** Canonical FK into area_profiles. Every property sits in a real neighborhood. */
+  areaId: string;
+  /** Legacy loose id/slug, kept for /api/hotels compatibility and old ?area= links. */
+  area: string;
+  areaName: string;
+  areaNameAr: string;
+  rating: number;
+  reviewCount: number;
+  ratingSource?: string;
+  typeChips: string[];
+  typeChipsAr: string[];
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  amenities: string[];
+  amenitiesAr: string[];
+  perNightEGP: number;
+  packageNights: number;
+  rooms: number;
+  /** Max guests per booking unit — powers the guests filter and NL search. */
+  maxGuests: number;
+  bestFor: string;
+  bestForAr: string;
+  note: string;
+  noteAr: string;
+  latitude?: number;
+  longitude?: number;
+  /** The bookable package SKU this property resolves to. */
+  skuId: string;
+  active: boolean;
+  /** Small admin curation lever — capped weight in ranking (see accommodationService). */
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PropertySourceType = 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE' | 'BOOKING_COM' | 'AIRBNB' | 'OTHER';
+
+/**
+ * A manually admin-entered external reference link for a property — "also
+ * listed on Booking.com", a WhatsApp number, an Instagram handle, a website.
+ * Purely informational display: no live price sync, no scraping, and the
+ * frontend must never phrase this as a price comparison or a partnership.
+ */
+export interface PropertySourceEntity {
+  id: string;
+  accommodationId: string;
+  sourceType: PropertySourceType;
+  url: string;
+  /** Display text override; required by the admin UI when sourceType = 'OTHER'. */
+  label?: string;
+  displayOrder: number;
+  active: boolean;
+  addedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Shared shape for structured filtering and NL-parsed search intent alike —
+ *  there is exactly one path from "what the traveler wants" to a database
+ *  query, whether it started as filter chips or free text. */
+export interface AccommodationSearchFilters {
+  q?: string;
+  propertyTypes?: PropertyType[];
+  categories?: Array<'budget' | 'mid-range' | 'boutique' | 'resort'>;
+  priceBands?: Array<'budget' | 'moderate' | 'premium'>;
+  areaIds?: string[];
+  minRating?: number;
+  maxPerNightEGP?: number;
+  guests?: number;
+  /** Hard filter — ALL of these must be present. */
+  mustHaveAmenities?: string[];
+  /** Soft — ranking boost only, never excludes. */
+  niceToHaveAmenities?: string[];
+  sort?: 'relevance' | 'rating' | 'price_asc' | 'price_desc';
+}
+
+// ---------------------------------------------------------------------------
+// Rentals (bikes MVP, category-agnostic domain)
+// ---------------------------------------------------------------------------
+
+export type RentalCategory = 'bike' | 'e-bike';
+
+export interface RentalDeliveryZoneConfig {
+  zoneId: string;
+  feeEGP: number;
+}
+
+/**
+ * A rentable product line (bikes MVP; e-scooters, surfboards, kayaks, camping
+ * gear later). Editorial content + pricing config live here; the sellable
+ * inventory goes through the standard commerce engine via a serviceType
+ * 'rental' ProductSkuEntity (basePriceEGP = dailyRateEGP, maxCapacityPerSlot =
+ * quantity). Availability is quantity-per-day computed from rental_bookings,
+ * so nothing here is book-state.
+ */
+export interface RentalListingEntity {
+  id: string;
+  slug: string;
+  supplierId: string;
+  /** The serviceType 'rental' ProductSkuEntity this listing sells through. */
+  skuId: string;
+  category: RentalCategory;
+  subcategory: string;
+  name: string;
+  nameAr: string;
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  features: string[];
+  featuresAr: string[];
+  /** Category-specific attributes (gear, brakes, e-bike range...) in the data JSON. */
+  specs: Record<string, string | number | boolean>;
+  images: string[];
+  /** Fleet size. The availability engine subtracts committed + blocked per day. */
+  quantity: number;
+  /** Daily anchor rate — powers "from X EGP/day" and the SKU's basePriceEGP. */
+  dailyRateEGP: number;
+  weeklyRateEGP?: number;
+  multiDayMinDays?: number;
+  multiDayDiscountPercent?: number;
+  /** Refundable deposit; recorded at booking, settled manually at return in MVP. */
+  depositEGP: number;
+  pickupZoneId: string;
+  deliveryZones: RentalDeliveryZoneConfig[];
+  pickupMode: 'SHOP' | 'BOTH';
+  rating?: number;
+  reviewCount?: number;
+  featured: boolean;
+  status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
+  active: boolean;
+  cancellationPolicyHours: number;
+  policies: { en: string; ar: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RentalExtraEntity {
+  id: string;
+  listingId: string;
+  name: string;
+  nameAr: string;
+  priceEGP: number;
+  /** FLAT = once per booking; PER_DAY = price x span days. */
+  pricingBasis: 'FLAT' | 'PER_DAY';
+  active: boolean;
+}
+
+export interface RentalMaintenanceBlockEntity {
+  id: string;
+  listingId: string;
+  startDate: string;
+  endDate: string;
+  quantityBlocked: number;
+  reason: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export type RentalBookingStatus =
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
+  | 'CONFIRMED'
+  | 'READY_FOR_PICKUP'
+  | 'ACTIVE'
+  | 'OVERDUE'
+  | 'RETURNED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'REJECTED';
+
+export interface RentalPriceBreakdown {
+  days: number;
+  dailyRateEGP: number;
+  baseEGP: number;
+  discountEGP: number;
+  extrasEGP: number;
+  deliveryEGP: number;
+  depositEGP: number;
+  totalEGP: number;
+}
+
+export interface RentalBookingExtraSnapshot {
+  extraId: string;
+  name: string;
+  nameAr: string;
+  priceEGP: number;
+  count: number;
+}
+
+/**
+ * The date-range rental lifecycle record. The bookings row (created at
+ * checkout) is the financial/supplier-facing record; this row is the rental
+ * domain's source of truth for dates, quantity, price snapshot and status.
+ */
+export interface RentalBookingEntity {
+  id: string;
+  /** The bookings row created at checkout; empty while PENDING_PAYMENT. */
+  bookingRef: string;
+  listingId: string;
+  skuId: string;
+  supplierId: string;
+  tripId: string;
+  userId: string;
+  travelerName: string;
+  travelerPhone: string;
+  travelerEmail: string;
+  /** YYYY-MM-DD, local Dahab calendar dates, inclusive both ends. */
+  startDate: string;
+  endDate: string;
+  quantity: number;
+  status: RentalBookingStatus;
+  paymentState: PaymentState;
+  holdToken?: string;
+  idempotencyKey?: string;
+  /** Server-computed at hold time; checkout prices from this snapshot. */
+  priceBreakdown: RentalPriceBreakdown;
+  deliveryMode: 'PICKUP' | 'DELIVERY';
+  deliveryZoneId?: string;
+  deliveryAddress?: string;
+  pickupTime?: string;
+  extras: RentalBookingExtraSnapshot[];
+  depositStatus: 'RECORDED' | 'RETURNED' | 'DEDUCTED';
+  depositDeductionEGP?: number;
+  damageReport?: string;
+  lateFeeEGP?: number;
+  notes?: string;
+  /** Hold expiry for PENDING_PAYMENT (15-min TTL). */
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface HoldEntity {
@@ -514,7 +830,9 @@ export interface BookingEntity {
   serviceType: CommerceServiceType;
   amountEGP: number;
   paymentState: PaymentState;
-  supplierState: 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'ASSIGNED' | 'DISPATCHED' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED' | 'CANCELLED';
+  supplierState: 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'ASSIGNED' | 'DISPATCHED' | 'EN_ROUTE' | 'IN_PROGRESS' | 'ARRIVED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'READY_FOR_PICKUP' | 'ACTIVE' | 'RETURNED';
+  /** The rental_bookings row this booking fulfils, when the booking is a rental. */
+  rentalBookingId?: string;
   travelerName: string;
   travelerPhone: string;
   travelerEmail: string;
@@ -575,7 +893,7 @@ export interface TransferTelemetryEntity {
   scheduledTime: string;
   flightNumber?: string;
   flightStatus: 'SCHEDULED' | 'ON_TIME' | 'DELAYED' | 'LANDED';
-  status: 'ASSIGNED' | 'DISPATCHED' | 'AT_AIRPORT' | 'PASSENGER_PICKED_UP' | 'COMPLETED';
+  status: 'ASSIGNED' | 'DISPATCHED' | 'EN_ROUTE' | 'AT_AIRPORT' | 'PASSENGER_PICKED_UP' | 'ARRIVED' | 'COMPLETED';
   lastGpsUpdate: string;
   latitude?: number;
   longitude?: number;
@@ -585,7 +903,7 @@ export interface TransferTelemetryEntity {
 export interface NotificationEntity {
   id: string;
   userId: string;
-  type: 'BOOKING_CREATED' | 'PAYMENT_SUCCESS' | 'SUPPLIER_CONFIRMED' | 'DISPATCH_UPDATE' | 'EXCEPTION_ALERT' | 'SYSTEM';
+  type: 'BOOKING_CREATED' | 'PAYMENT_SUCCESS' | 'SUPPLIER_CONFIRMED' | 'DISPATCH_UPDATE' | 'EXCEPTION_ALERT' | 'SYSTEM' | 'RENTAL_STATUS_CHANGED';
   title: string;
   message: string;
   channel: 'IN_APP' | 'WHATSAPP' | 'SMS' | 'EMAIL';

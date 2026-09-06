@@ -4,6 +4,8 @@ import {
   recordQuotaAvailable,
   recordQuotaExhausted
 } from './geminiQuota';
+import { AccommodationSearchFilters } from '../db/schema';
+import { db } from '../db/database';
 
 // Read lazily, NOT at module scope — see the note in daygiReasoningService:
 // module-level env reads run before server.ts calls dotenv.config().
@@ -115,20 +117,102 @@ Return ONLY valid JSON matching this schema:
       return fallbackIntent;
     }
   }
-
-  /**
-   * Synthesizes a calm, 2-sentence morning briefing for Dahab Companion
-   */
-  public async generateDailyBriefing(
-    dayTitle: string,
-    activitiesCount: number,
-    conditionsText: string
-  ): Promise<{ briefingEn: string; briefingAr: string }> {
-    return {
-      briefingEn: `Conditions are optimal with light 10kt coastal breeze. Your day centers around ${dayTitle} with generous transit buffers.`,
-      briefingAr: `أجواء البحر هادئة ومثالية اليوم مع رياح معتدلة ١٠ عقد. خطتك تركز على ${dayTitle} مع فترات راحة كافية بين الأنشطة.`,
-    };
-  }
 }
 
 export const geminiReasoningService = new GeminiReasoningService();
+
+// ---------------------------------------------------------------------------
+// Accommodation search intent — same fallback-first discipline as
+// parseTravelerSearchIntent above: a deterministic EN/AR keyword parse always
+// runs first, and Gemini is only attempted when a key exists and the quota
+// isn't known-exhausted. The AI never invents results — it only produces an
+// AccommodationSearchFilters object, which the caller passes to the real
+// database search (see accommodationRoutes.ts POST /search-intent).
+// ---------------------------------------------------------------------------
+
+export interface AccommodationSearchIntentResult {
+  filters: AccommodationSearchFilters;
+  confidence: number;
+  source: 'gemini' | 'fallback';
+}
+
+const AMENITY_KEYWORDS: Array<{ pattern: RegExp; amenity: string }> = [
+  { pattern: /sea\s*view|بحر|إطلالة/i, amenity: 'sea view' },
+  { pattern: /beachfront|beach front|على الشاطئ/i, amenity: 'private beach' },
+  { pattern: /pool|مسبح/i, amenity: 'pool' },
+  { pattern: /wifi|واي فاي/i, amenity: 'wifi' },
+  { pattern: /kitchen|مطبخ/i, amenity: 'kitchen' },
+  { pattern: /a\/?c|air.?condition|تكييف/i, amenity: 'air conditioning' },
+  { pattern: /quiet|هادئ|هادي/i, amenity: 'quiet' }
+];
+
+function fallbackAccommodationIntent(query: string): AccommodationSearchFilters {
+  const guestsMatch = /(\d+)\s*(guests?|people|persons?|أشخاص|شخص)/i.exec(query);
+  const guests = guestsMatch ? Number(guestsMatch[1]) : undefined;
+
+  const wantsBudget = /cheap|budget|affordable|رخيص|اقتصادي|مش غالي/i.test(query);
+  const wantsPremium = /luxury|premium|resort|فاخر|راقي/i.test(query);
+
+  const mustHaveAmenities = AMENITY_KEYWORDS.filter(k => k.pattern.test(query)).map(k => k.amenity);
+
+  const areaIds = db.areaProfiles
+    .filter(a => new RegExp(a.nameEn, 'i').test(query) || (a.nameAr && query.includes(a.nameAr)))
+    .map(a => a.id);
+
+  const filters: AccommodationSearchFilters = {
+    q: query,
+    guests: guests && guests > 0 ? guests : undefined,
+    priceBands: wantsBudget ? ['budget'] : wantsPremium ? ['premium'] : undefined,
+    areaIds: areaIds.length ? areaIds : undefined,
+    mustHaveAmenities: mustHaveAmenities.length ? mustHaveAmenities : undefined,
+    sort: wantsBudget ? 'price_asc' : 'relevance'
+  };
+  return filters;
+}
+
+export async function parseAccommodationSearchIntent(
+  query: string,
+  language: 'en' | 'ar' = 'en'
+): Promise<AccommodationSearchIntentResult> {
+  const fallback = fallbackAccommodationIntent(query);
+  const ai = getGenAI();
+
+  if (!ai || isQuotaExhausted()) {
+    return { filters: fallback, confidence: 0.6, source: 'fallback' };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: geminiModel(),
+      contents: `You are Dahab's accommodation search intent parser. The traveler wrote (in ${language === 'ar' ? 'Arabic' : 'English'}):
+"${query}"
+
+Return ONLY valid JSON matching this schema. Omit a field entirely if it is not implied by the query — never guess a value that isn't there:
+{
+  "guests": number,
+  "priceBands": array of "budget" | "moderate" | "premium",
+  "propertyTypes": array of "hotel" | "hostel" | "apartment" | "studio" | "villa" | "guesthouse" | "camp" | "eco-lodge" | "boutique-hotel" | "resort",
+  "mustHaveAmenities": array of short amenity strings (e.g. "sea view", "quiet", "kitchen", "pool"),
+  "sort": "relevance" | "rating" | "price_asc" | "price_desc",
+  "confidence": number between 0 and 1
+}`,
+      config: { responseMimeType: 'application/json', temperature: 0.1 }
+    });
+
+    recordQuotaAvailable();
+    const parsed = JSON.parse(response.text || '{}');
+    const filters: AccommodationSearchFilters = {
+      q: query,
+      guests: typeof parsed.guests === 'number' ? parsed.guests : fallback.guests,
+      priceBands: Array.isArray(parsed.priceBands) ? parsed.priceBands : fallback.priceBands,
+      propertyTypes: Array.isArray(parsed.propertyTypes) ? parsed.propertyTypes : undefined,
+      areaIds: fallback.areaIds,
+      mustHaveAmenities: Array.isArray(parsed.mustHaveAmenities) ? parsed.mustHaveAmenities : fallback.mustHaveAmenities,
+      sort: parsed.sort || fallback.sort
+    };
+    return { filters, confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.85, source: 'gemini' };
+  } catch (error) {
+    recordQuotaExhausted(error);
+    return { filters: fallback, confidence: 0.6, source: 'fallback' };
+  }
+}

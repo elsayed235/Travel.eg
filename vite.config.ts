@@ -20,8 +20,8 @@ export default defineConfig(() => {
            * Route-level React.lazy took the initial chunk from 3,239 kB to
            * 1,723 kB; what remains is largely vendor code that the homepage
            * does not need in order to paint. Firebase is only reached when
-           * someone signs in with Google, the maps SDK only on the pages that
-           * draw a map, and motion only where something animates.
+           * someone signs in with Google, and motion only where something
+           * animates.
            *
            * The traveler this matters to is on a Sinai mobile network — the
            * same connectivity the api client's 8s timeout was written for.
@@ -29,7 +29,6 @@ export default defineConfig(() => {
           manualChunks(id: string) {
             if (!id.includes('node_modules')) return undefined;
             if (id.includes('firebase') || id.includes('@firebase')) return 'vendor-firebase';
-            if (id.includes('@vis.gl') || id.includes('google-maps')) return 'vendor-maps';
             if (id.includes('@google/genai')) return 'vendor-genai';
             if (id.includes('motion') || id.includes('framer')) return 'vendor-motion';
             if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';

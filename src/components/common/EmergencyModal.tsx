@@ -38,57 +38,55 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
       id: 'hyperbaric',
       icon: Waves,
       color: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
-      tag: language === 'ar' ? 'غرفة علاج ضغط الغوص (معتمدة)' : 'Diving Decompression Chamber',
-      title: language === 'ar' ? 'مركز دهب لطب الأعماق والضغط' : 'Dahab Hyperbaric Medical Center',
+      tag: t('common.divingDecompressionChamber'),
+      title: t('common.dahabHyperbaricMedicalCenter'),
       // The chamber is real and the number is its own; who is on shift is a
       // rota nothing here reads, so it is no longer asserted.
-      doctor: language === 'ar' ? 'مركز دهب لطب الأعماق' : 'Dahab Hyperbaric Medical Center',
+      doctor: t('common.dahabHyperbaricMedicalCenter-2'),
       phone: '+20693640536',
       displayPhone: '+20 69 364 0536',
-      location: language === 'ar' ? 'مدخل دهب، طريق المسبط' : 'Dahab Entrance, Mashraba Road',
+      location: t('common.dahabEntranceMashrabaRoad'),
       actionType: 'call',
     },
     {
       id: 'medical',
       icon: HeartPulse,
       color: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
-      tag: language === 'ar' ? 'طوارئ طبية وإسعاف' : 'Medical & Ambulance',
-      title: language === 'ar' ? 'مستشفى دهب المركزي التخصصي' : 'Dahab Central Specialist Hospital',
-      doctor: language === 'ar' ? 'إسعاف جنوب سيناء (١٢٣)' : 'Sinai Ambulance Hotline (123)',
+      tag: t('common.medicalAmbulance'),
+      title: t('common.dahabCentralSpecialistHospital'),
+      doctor: t('common.sinaiAmbulanceHotline123'),
       phone: '123',
       displayPhone: '123 / +20 69 364 0216',
-      location: language === 'ar' ? 'منطقة العصلة، دهب' : 'Assalah District, Dahab',
+      location: t('common.assalahDistrictDahab'),
       actionType: 'call',
     },
     {
       id: 'police',
       icon: ShieldCheck,
       color: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-      tag: language === 'ar' ? 'شرطة السياحة والأمن' : 'Tourist Police & Security',
-      title: language === 'ar' ? 'شرطة السياحة بدهب' : 'Dahab Tourist Police Station',
-      doctor: language === 'ar' ? 'خدمة الزوار وحالات الطوارئ (١٢٦)' : 'Sinai Traveler Safety Desk (126)',
+      tag: t('common.touristPoliceSecurity'),
+      title: t('common.dahabTouristPoliceStation'),
+      doctor: t('common.sinaiTravelerSafetyDesk'),
       phone: '126',
       displayPhone: '126 / +20 69 364 0122',
-      location: language === 'ar' ? 'طريق السلام، دهب' : 'El Salam Road, Dahab',
+      location: t('common.elSalamRoadDahab'),
       actionType: 'call',
     },
     {
       id: 'transport',
       icon: Car,
       color: 'bg-sky-500/10 text-sky-400 border-sky-500/30',
-      tag: language === 'ar' ? 'طوارئ الطرق وسفاري 4x4' : 'Desert & Vehicle Breakdown',
-      title: language === 'ar' ? 'إنقاذ سيارات سيناء والبدو' : 'Sinai Bedouin Roadside Dispatch',
-      doctor: language === 'ar' ? 'سحب وإنقاذ صحراوي ٤×٤' : '4x4 Desert Recovery & Towing',
+      tag: t('common.desertVehicleBreakdown'),
+      title: t('common.sinaiBedouinRoadsideDispatch'),
+      doctor: t('common.4x4DesertRecoveryTowing'),
       phone: '+201001234567',
       displayPhone: '+20 100 123 4567',
-      location: language === 'ar' ? 'تغطية كامل طريق شرم / دهب / نويبع' : 'Sharm - Dahab - Nuweiba Highway',
+      location: t('common.sharmDahabNuweibaHighway'),
       actionType: 'call',
     },
   ];
 
-  const taxiPhrase = language === 'ar' 
-    ? 'من فضلك أريد الذهاب إلى ممشى اللايتهاوس - دهب (Lighthouse Dahab)' 
-    : 'Please take me to Lighthouse Promenade, Dahab (من فضلك أريد الذهاب إلى اللايتهاوس دهب)';
+  const taxiPhrase = t('common.pleaseTakeMeTo');
 
   return (
     <div
@@ -109,7 +107,7 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
             </div>
             <div>
               <span className="text-[11px] font-black uppercase tracking-widest text-rose-500">
-                {language === 'ar' ? 'خدمة الطوارئ الفورية ٢٤/٧' : '24/7 SINAI RAPID RESPONSE'}
+                {t('common.247SINAIRAPIDRESPONSE')}
               </span>
               <h2
                 id="emergency-modal-title"
@@ -145,7 +143,7 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
                 className="px-3 py-1 rounded-xl bg-amber-400 text-slate-950 text-[12px] font-extrabold flex items-center gap-1 hover:bg-amber-300 transition-colors cursor-pointer"
               >
                 {copiedText === 'phrase' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedText === 'phrase' ? t('common.saved') : (language === 'ar' ? 'نسخ عبارة السائق' : 'Copy Driver Note')}</span>
+                <span>{copiedText === 'phrase' ? t('common.saved') : (t('common.copyDriverNote'))}</span>
               </button>
             </div>
             <p className="text-xs text-[var(--text-primary)] bg-[var(--surface-container)] p-2.5 rounded-xl font-medium border border-[var(--border-subtle)]">
@@ -198,7 +196,7 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
         <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
           <span className="flex items-center gap-1.5">
             <Activity className="w-3.5 h-3.5 text-teal-500" />
-            {language === 'ar' ? 'إحداثيات دهب: 28.5097° N, 34.5136° E' : 'Dahab GPS: 28.5097° N, 34.5136° E'}
+            {t('common.dahabGPS285097N')}
           </span>
           <button
             type="button"

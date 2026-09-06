@@ -15,9 +15,10 @@
 import fs from 'fs';
 import path from 'path';
 import Database from 'better-sqlite3';
+import { SQLITE_FILE, backupDir } from '../paths';
 
-const SOURCE = path.join(process.cwd(), 'data', 'dahab.sqlite');
-const BACKUP_DIR = path.join(process.cwd(), 'data', 'backups');
+const SOURCE = SQLITE_FILE();
+const BACKUP_DIR = backupDir();
 
 function main() {
   if (!fs.existsSync(SOURCE)) {

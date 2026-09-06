@@ -19,7 +19,7 @@ interface TripHealthModalProps {
 }
 
 export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClose }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const { tripHealth, resolveTripConflict } = useTrip();
 
   if (!isOpen) return null;
@@ -36,38 +36,37 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
     >
       <div
         id="modal-trip-health-container"
-        className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
+        className="bg-[var(--surface-card)] rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-200 my-8 flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="p-6 bg-[#0E252C] text-white flex items-center justify-between shrink-0">
+        <div className="p-6 bg-[var(--surface-card)] text-white flex items-center justify-between shrink-0">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span className="text-[12px] font-black uppercase tracking-wider text-emerald-300 font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'نظام فحص سلامة وتناسق الرحلة' : 'TRIP OS HEALTH & CONFLICT MONITOR'}
+                {t('tripos.tRIPOSHEALTHCONFLICT')}
               </span>
             </div>
             <h2 id="trip-health-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
-              {language === 'ar' ? 'صحة المخطط وتفادي التعارضات' : 'Trip Health & Safety Verifier'}
+              {t('tripos.tripHealthSafetyVerifier')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
-              {language === 'ar'
-                ? 'فحص آلي لفواصل الغطس والأمان، أوقات التنقل، والإجهاد البدني.'
-                : 'Automated verification of dive intervals, transit buffers, and fatigue balance.'}
+              {t('tripos.automatedVerificationOfDive')}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-colors"
+            aria-label="Close"
+            className="w-9 h-9 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Status Summary Banner */}
-        <div className="p-6 bg-[#FAF8F5] border-b border-slate-200 flex items-center justify-between">
+        <div className="p-6 bg-[var(--text-primary)] border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-xs ${
@@ -89,12 +88,8 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
               </div>
               <div className="text-xs text-slate-500">
                 {tripHealth.criticalCount === 0 && tripHealth.warningCount === 0
-                  ? language === 'ar'
-                    ? 'لا توجد أي تعارضات زمنية أو مخاطر إجهاد'
-                    : 'Zero timing collisions or fatigue violations detected'
-                  : language === 'ar'
-                  ? `${tripHealth.criticalCount} تعارض حرج · ${tripHealth.warningCount} تنبيه بحاجة لمراجعة`
-                  : `${tripHealth.criticalCount} Critical · ${tripHealth.warningCount} Warnings`}
+                  ? t('tripos.zeroTimingCollisionsOr')
+                  : t('tripos.criticalWarnings', { criticalCount: tripHealth.criticalCount, warningCount: tripHealth.warningCount })}
               </div>
             </div>
           </div>
@@ -130,11 +125,11 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
                       }`}
                     >
                       {conflict.resolved
-                        ? language === 'ar' ? 'تم التحقق بنجاح ✓' : 'Resolved ✓'
+                        ? t('tripos.resolved')
                         : conflict.severity.toUpperCase()}
                     </span>
                     <span className="text-xs font-bold text-slate-500">
-                      {language === 'ar' ? `اليوم ${conflict.affectedDayNumber}` : `Day ${conflict.affectedDayNumber}`}
+                      {t('tripos.day', { affectedDayNumber: conflict.affectedDayNumber })}
                     </span>
                   </div>
 
@@ -150,7 +145,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
                     className="px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-black text-amber-300 font-bold text-xs shadow-xs cursor-pointer transition-colors flex items-center gap-1 shrink-0"
                   >
                     <Wrench className="w-3.5 h-3.5" />
-                    <span>{language === 'ar' ? 'إصلاح تلقائي' : 'Auto-Fix'}</span>
+                    <span>{t('tripos.autoFix')}</span>
                   </button>
                 )}
               </div>
@@ -160,9 +155,9 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
               </p>
 
               <div className="pt-2 border-t border-slate-200/60 flex items-center gap-2 text-xs text-slate-700 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-[#C49756] shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 text-[var(--brand-sand)] shrink-0" />
                 <span>
-                  <strong>{language === 'ar' ? 'التوجيه:' : 'Guidance:'}</strong>{' '}
+                  <strong>{t('tripos.guidance')}</strong>{' '}
                   {language === 'ar' ? conflict.suggestedFixAr : conflict.suggestedFix}
                 </span>
               </div>
@@ -177,7 +172,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
             onClick={onClose}
             className="px-6 py-2.5 rounded-2xl bg-slate-950 hover:bg-black text-white font-bold text-xs cursor-pointer transition-colors"
           >
-            {language === 'ar' ? 'إغلاق' : 'Close'}
+            {t('common.close-2')}
           </button>
         </div>
       </div>

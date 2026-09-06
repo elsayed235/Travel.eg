@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
 import {
   ProductOpportunity,
   OpportunityStatus,
@@ -59,7 +60,7 @@ export const ProductOpportunitiesView: React.FC<{
     showToast
   } = useTrip();
 
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -108,7 +109,7 @@ export const ProductOpportunitiesView: React.FC<{
   const handleSubmitDecision = () => {
     if (!decisionModalOpp) return;
     if (!decisionRationale.trim()) {
-      showToast(language === 'ar' ? 'يرجى كتابة سبب القرار' : 'Please provide a decision rationale');
+      showToast(t('intel.pleaseProvideADecision'));
       return;
     }
 
@@ -143,24 +144,17 @@ export const ProductOpportunitiesView: React.FC<{
   // Fast-track AI Synthesis Demo
   const handleQuickSynthesize = async () => {
     setIsSynthesizing(true);
-    showToast(language === 'ar' ? 'جاري توليد فرصة منتج ذكية عبر Gemini 3.7...' : 'Synthesizing grounded product opportunity via Gemini 3.7...');
+    showToast(t('intel.synthesizingGroundedProductOpportunity'));
 
     try {
-      const res = await fetch('/api/intelligence/draft-opportunity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signalIds: ['TRND-001', 'REV-003', 'OBS-008'],
-          contextNotes: 'Luggage storage gap and morning check-in delays in Dahab Lighthouse area.'
-        })
+      const data = await api.draftOpportunity({
+        signalIds: ['TRND-001', 'REV-003', 'OBS-008'],
+        contextNotes: 'Luggage storage gap and morning check-in delays in Dahab Lighthouse area.'
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.opportunity) {
-          addOpportunity(data.opportunity);
-          setInspectOpportunity(data.opportunity);
-        }
+      if (data?.opportunity) {
+        addOpportunity(data.opportunity);
+        setInspectOpportunity(data.opportunity);
       }
     } catch (e) {
       console.error(e);
@@ -218,50 +212,48 @@ export const ProductOpportunitiesView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Top Banner: AI Opportunity Closed-Loop Architecture */}
-      <div className="rounded-2xl bg-gradient-to-br from-[#062C35] via-[#0A3D4A] to-[#041D23] p-6 text-white border border-[#20A89A]/30 shadow-xl relative overflow-hidden">
+      <div className="rounded-2xl bg-gradient-to-br from-[var(--surface-container)] via-[var(--surface-container)] to-[var(--surface-container)] p-6 text-white border border-[var(--accent-primary)]/30 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#20A89A]/20 border border-[#20A89A]/40 text-[#20A89A] text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold uppercase tracking-wider mb-2">
               <Lightbulb className="w-3.5 h-3.5" />
-              {language === 'ar' ? 'طبقة فرص المنتج والارتجاع الذكي' : 'AI Product Feedback & Opportunities'}
+              {t('intel.aIProductFeedbackOpportunities')}
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">
-              {language === 'ar' ? 'فرص تطوير المنتج المستندة لإشارات السوق' : 'Market-Grounded Product Opportunities'}
+              {t('intel.marketGroundedProductOpportunities')}
             </h2>
             <p className="text-emerald-100/80 text-sm max-w-3xl mt-1">
-              {language === 'ar'
-                ? 'تحويل إشارات السوق وأدلة المراجعات إلى فرضيات منتج قابلة للقياس، مع اشتراط القرار البشري قبل الربط بسجل الميزات ونظام الموردين.'
-                : 'Closing the loop from intelligence signals to hypothesis drafting, human ops decisions, feature linking, and outcome validation.'}
+              {t('intel.closingTheLoopFrom')}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowFeatureRegisterModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-semibold border border-[var(--border-subtle)] transition-all flex items-center gap-2"
             >
-              <Layers className="w-4 h-4 text-[#20A89A]" />
-              <span>{language === 'ar' ? 'سجل ميزات المنصة' : 'Feature Register'}</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[11px]">{featureRegister.length}</span>
+              <Layers className="w-4 h-4 text-[var(--accent-primary)]" />
+              <span>{t('intel.featureRegister')}</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-[var(--btn-util-bg)] text-[11px]">{featureRegister.length}</span>
             </button>
 
             <button
               onClick={handleQuickSynthesize}
               disabled={isSynthesizing}
-              className="px-4 py-2.5 rounded-xl bg-[#20A89A] hover:bg-[#1a8c80] text-[#04231F] text-xs font-semibold shadow-md transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-md transition-all flex items-center gap-2"
             >
               {isSynthesizing ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              <span>{language === 'ar' ? 'توليد فرصة جديدة بالذكاء الاصطناعي' : 'Synthesize Opportunity (AI)'}</span>
+              <span>{t('intel.synthesizeOpportunityAI')}</span>
             </button>
           </div>
         </div>
 
         {/* 7-Step Lifecycle Visual Pipeline */}
-        <div className="mt-6 pt-5 border-t border-white/10 overflow-x-auto">
+        <div className="mt-6 pt-5 border-t border-[var(--border-subtle)] overflow-x-auto">
           <div className="flex items-center min-w-[700px] justify-between text-xs">
             {[
               { key: 'Detected', label: '1. Detected', labelAr: '١. رصد' },
@@ -273,13 +265,13 @@ export const ProductOpportunitiesView: React.FC<{
               { key: 'Measured', label: '7. Measured & Validated', labelAr: '٧. قياس واعتماد' }
             ].map((step, idx) => (
               <div key={idx} className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 font-medium text-white/90">
-                  <span className="w-5 h-5 rounded-full bg-[#20A89A]/30 border border-[#20A89A]/60 flex items-center justify-center text-[11px] text-[#20A89A] font-bold">
+                <div className="flex items-center gap-1.5 font-medium text-[var(--text-muted)]">
+                  <span className="w-5 h-5 rounded-full bg-[var(--accent-primary)]/30 border border-[var(--accent-primary)]/60 flex items-center justify-center text-[11px] text-[var(--accent-primary)] font-bold">
                     {idx + 1}
                   </span>
                   <span>{language === 'ar' ? step.labelAr : step.label}</span>
                 </div>
-                {idx < 6 && <ChevronRight className="w-3.5 h-3.5 text-white/30" />}
+                {idx < 6 && <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
               </div>
             ))}
           </div>
@@ -287,40 +279,40 @@ export const ProductOpportunitiesView: React.FC<{
       </div>
 
       {/* Control Bar: Filters & Search */}
-      <div className="bg-white dark:bg-[#0B252C] rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
           {/* Status Filter */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-500 dark:text-gray-400 font-medium">
-              {language === 'ar' ? 'الحالة:' : 'Status:'}
+              {t('intel.status')}
             </span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#20A89A]"
+              className="px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
             >
-              <option value="all">{language === 'ar' ? 'جميع الحالات' : 'All Statuses'}</option>
-              <option value="Proposed">{language === 'ar' ? 'مقترحة (Proposed)' : 'Proposed'}</option>
-              <option value="Qualified">{language === 'ar' ? 'مؤهلة (Qualified)' : 'Qualified'}</option>
-              <option value="Accepted">{language === 'ar' ? 'مقبولة (Accepted)' : 'Accepted'}</option>
-              <option value="Implemented">{language === 'ar' ? 'مطبقة (Implemented)' : 'Implemented'}</option>
-              <option value="Validated">{language === 'ar' ? 'معتمدة بالقياس (Validated)' : 'Validated'}</option>
-              <option value="Deferred">{language === 'ar' ? 'مؤجلة (Deferred)' : 'Deferred'}</option>
-              <option value="Rejected">{language === 'ar' ? 'مرفوضة (Rejected)' : 'Rejected'}</option>
+              <option value="all">{t('intel.allStatuses')}</option>
+              <option value="Proposed">{t('intel.proposed')}</option>
+              <option value="Qualified">{t('intel.qualified')}</option>
+              <option value="Accepted">{t('intel.accepted')}</option>
+              <option value="Implemented">{t('intel.implemented')}</option>
+              <option value="Validated">{t('intel.validated')}</option>
+              <option value="Deferred">{t('intel.deferred')}</option>
+              <option value="Rejected">{t('intel.rejected')}</option>
             </select>
           </div>
 
           {/* Product Area Filter */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-500 dark:text-gray-400 font-medium">
-              {language === 'ar' ? 'مجال المنتج:' : 'Area:'}
+              {t('intel.area')}
             </span>
             <select
               value={areaFilter}
               onChange={(e) => setAreaFilter(e.target.value)}
-              className="px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#20A89A]"
+              className="px-2.5 py-1.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
             >
-              <option value="all">{language === 'ar' ? 'جميع المجالات' : 'All Areas'}</option>
+              <option value="all">{t('intel.allAreas')}</option>
               <option value="Arrival Experience">Arrival Experience</option>
               <option value="Diving & Safety">Diving & Safety</option>
               <option value="Desert Safari & Culture">Desert Safari & Culture</option>
@@ -338,8 +330,9 @@ export const ProductOpportunitiesView: React.FC<{
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={language === 'ar' ? 'بحث في فرص المنتج...' : 'Search opportunities...'}
-            className="w-full pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#20A89A]"
+            aria-label={t('intel.searchOpportunities')}
+            placeholder={t('intel.searchOpportunities-2')}
+            className="w-full pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-xs text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
           />
         </div>
       </div>
@@ -347,13 +340,13 @@ export const ProductOpportunitiesView: React.FC<{
       {/* Opportunities List Cards */}
       <div className="space-y-4">
         {filteredOpportunities.length === 0 ? (
-          <div className="bg-white dark:bg-[#082228] p-12 text-center rounded-2xl border border-gray-200 dark:border-gray-800">
+          <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] p-12 text-center rounded-2xl border border-gray-200 dark:border-gray-800">
             <Lightbulb className="w-12 h-12 text-gray-400 mx-auto mb-3 opacity-50" />
             <h3 className="text-base font-bold text-gray-900 dark:text-white">
-              {language === 'ar' ? 'لا توجد فرص تطابق المعايير المحددة' : 'No Opportunities Match Current Filters'}
+              {t('intel.noOpportunitiesMatchCurrent')}
             </h3>
             <p className="text-xs text-gray-500 mt-1">
-              {language === 'ar' ? 'جرب تغيير خيارات التصفية أو إنشاء فرصة جديدة.' : 'Try adjusting your filters or synthesize a new opportunity.'}
+              {t('intel.tryAdjustingYourFilters')}
             </p>
           </div>
         ) : (
@@ -364,7 +357,7 @@ export const ProductOpportunitiesView: React.FC<{
             return (
               <div
                 key={opp.id}
-                className="bg-white dark:bg-[#082228] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
+                className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
               >
                 {/* Opportunity Card Header */}
                 <div className="p-5 border-b border-gray-100 dark:border-gray-800/80">
@@ -417,13 +410,13 @@ export const ProductOpportunitiesView: React.FC<{
                 </div>
 
                 {/* Card Middle: Suggested Action & Hypothesis Snapshot */}
-                <div className="p-5 bg-gray-50/70 dark:bg-[#061B20]/60 grid grid-cols-1 lg:grid-cols-12 gap-5 border-b border-gray-100 dark:border-gray-800">
+                <div className="p-5 bg-gray-50/70 dark:bg-[var(--surface-container)]/60 grid grid-cols-1 lg:grid-cols-12 gap-5 border-b border-gray-100 dark:border-gray-800">
                   {/* Action & Linked Features */}
                   <div className="lg:col-span-6 space-y-3">
                     <div>
                       <div className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 text-[#20A89A]" />
-                        {language === 'ar' ? 'الإجراء المقترح للمنتج:' : 'Suggested Product / Ops Action:'}
+                        <Zap className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                        {t('intel.suggestedProductOpsAction')}
                       </div>
                       <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
                         {language === 'ar' ? opp.suggestedActionAr : opp.suggestedAction}
@@ -432,12 +425,12 @@ export const ProductOpportunitiesView: React.FC<{
 
                     {/* Linked Feature or System */}
                     {opp.decision?.linkedFeatureId && (
-                      <div className="p-3 rounded-xl bg-white dark:bg-[#092830] border border-emerald-500/20 flex items-center justify-between">
+                      <div className="p-3 rounded-xl bg-[var(--surface-card)] dark:bg-[var(--surface-container)] border border-emerald-500/20 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Bookmark className="w-4 h-4 text-[#20A89A]" />
+                          <Bookmark className="w-4 h-4 text-[var(--accent-primary)]" />
                           <div>
                             <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
-                              {language === 'ar' ? 'مرتبط بميزة المنصة:' : 'Linked Platform Feature:'}
+                              {t('intel.linkedPlatformFeature')}
                             </div>
                             <div className="text-xs font-bold text-gray-900 dark:text-white">
                               {opp.decision.linkedFeatureId}
@@ -447,9 +440,9 @@ export const ProductOpportunitiesView: React.FC<{
                         {opp.decision.linkedFeatureId === 'FEAT-ARRIVE-RESCUE' && (
                           <button
                             onClick={() => navigateTo('/arrive')}
-                            className="text-xs text-[#20A89A] hover:underline font-semibold flex items-center gap-1"
+                            className="text-xs text-[var(--accent-primary)] hover:underline font-semibold flex items-center gap-1"
                           >
-                            <span>{language === 'ar' ? 'عرض الواجهة' : 'View Hub'}</span>
+                            <span>{t('intel.viewHub')}</span>
                             <ExternalLink className="w-3 h-3" />
                           </button>
                         )}
@@ -460,11 +453,11 @@ export const ProductOpportunitiesView: React.FC<{
                   {/* Hypothesis Box */}
                   <div className="lg:col-span-6">
                     {opp.hypothesis ? (
-                      <div className="p-3.5 rounded-xl bg-white dark:bg-[#071F25] border border-gray-200 dark:border-gray-700/70 space-y-2 text-xs">
+                      <div className="p-3.5 rounded-xl bg-[var(--surface-card)] dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700/70 space-y-2 text-xs">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                            <BarChart3 className="w-3.5 h-3.5 text-[#20A89A]" />
-                            {language === 'ar' ? 'الفرضية ومؤشرات القياس' : 'Hypothesis & Outcome Target'}
+                            <BarChart3 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                            {t('intel.hypothesisOutcomeTarget')}
                           </span>
                           {opp.hypothesis.outcomeStatus && (
                             <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
@@ -480,14 +473,14 @@ export const ProductOpportunitiesView: React.FC<{
                         </div>
 
                         <div className="grid grid-cols-2 gap-2 text-[12px] pt-1">
-                          <div className="bg-gray-50 dark:bg-[#05181C] p-2 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-[var(--surface-container)] p-2 rounded-lg">
                             <span className="text-gray-400 block text-[11px]">{opp.hypothesis.primaryMetric}</span>
                             <span className="font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
                               {opp.hypothesis.targetValue}
                             </span>
                             <span className="text-gray-500 text-[11px] block">Baseline: {opp.hypothesis.baselineValue}</span>
                           </div>
-                          <div className="bg-gray-50 dark:bg-[#05181C] p-2 rounded-lg">
+                          <div className="bg-gray-50 dark:bg-[var(--surface-container)] p-2 rounded-lg">
                             <span className="text-gray-400 block text-[11px]">{opp.hypothesis.secondaryMetric}</span>
                             <span className="font-bold text-sky-600 dark:text-sky-400 mt-0.5 block">
                               {opp.hypothesis.evaluationWindowDays}-Day Window
@@ -503,25 +496,25 @@ export const ProductOpportunitiesView: React.FC<{
                         )}
                       </div>
                     ) : (
-                      <div className="p-4 rounded-xl bg-gray-100 dark:bg-[#071F25] text-center text-xs text-gray-500">
-                        {language === 'ar' ? 'لم يتم صياغة فرضية بعد.' : 'No hypothesis parameters drafted yet.'}
+                      <div className="p-4 rounded-xl bg-gray-100 dark:bg-[var(--surface-container)] text-center text-xs text-gray-500">
+                        {t('intel.noHypothesisParametersDrafted')}
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Card Footer: Decision History & Interactive Operations Actions */}
-                <div className="px-5 py-3.5 bg-white dark:bg-[#082228] flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="px-5 py-3.5 bg-[var(--surface-card)] dark:bg-[var(--surface-container)] flex flex-wrap items-center justify-between gap-3 text-xs">
                   {/* Provenance & Decision State */}
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <ShieldCheck className="w-4 h-4 text-[#20A89A]" />
+                    <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)]" />
                     {opp.decision ? (
                       <span>
                         Decided by <strong className="text-gray-900 dark:text-white">{opp.decision.decidedByRole}</strong> on {opp.decision.decidedAt.substring(0, 10)}
                       </span>
                     ) : (
                       <span className="text-amber-600 dark:text-amber-400 font-medium">
-                        {language === 'ar' ? 'بانتظار مراجعة وقرار مدير العمليات' : 'Pending Human Ops Decision'}
+                        {t('intel.pendingHumanOpsDecision')}
                       </span>
                     )}
                   </div>
@@ -533,7 +526,7 @@ export const ProductOpportunitiesView: React.FC<{
                       className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors flex items-center gap-1.5"
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>{language === 'ar' ? 'سجل الأدلة' : 'Evidence'}</span>
+                      <span>{t('intel.evidence')}</span>
                     </button>
 
                     {!isAcceptedOrBeyond && (
@@ -546,7 +539,7 @@ export const ProductOpportunitiesView: React.FC<{
                           className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-all flex items-center gap-1.5 shadow-sm"
                         >
                           <Check className="w-3.5 h-3.5" />
-                          <span>{language === 'ar' ? 'قبول واعتماد' : 'Accept Opportunity'}</span>
+                          <span>{t('intel.acceptOpportunity')}</span>
                         </button>
 
                         <button
@@ -556,7 +549,7 @@ export const ProductOpportunitiesView: React.FC<{
                           }}
                           className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-red-600 dark:text-red-400 font-medium transition-colors"
                         >
-                          {language === 'ar' ? 'رفض' : 'Reject'}
+                          {t('intel.reject')}
                         </button>
                       </>
                     )}
@@ -575,17 +568,17 @@ export const ProductOpportunitiesView: React.FC<{
                         className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold flex items-center gap-1.5"
                       >
                         <Zap className="w-3.5 h-3.5" />
-                        <span>{language === 'ar' ? 'تأكيد التطبيق' : 'Mark Implemented'}</span>
+                        <span>{t('intel.markImplemented')}</span>
                       </button>
                     )}
 
                     {(opp.status === 'Implemented' || opp.status === 'Accepted') && (
                       <button
                         onClick={() => setMeasurementModalOpp(opp)}
-                        className="px-3 py-1.5 rounded-lg bg-[#20A89A] hover:bg-[#1a8c80] text-[#04231F] font-semibold flex items-center gap-1.5 shadow-sm"
+                        className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] font-semibold flex items-center gap-1.5 shadow-sm"
                       >
                         <BarChart3 className="w-3.5 h-3.5" />
-                        <span>{language === 'ar' ? 'تسجيل نتائج القياس' : 'Log Outcome'}</span>
+                        <span>{t('intel.logOutcome')}</span>
                       </button>
                     )}
                   </div>
@@ -605,24 +598,24 @@ export const ProductOpportunitiesView: React.FC<{
       aria-modal="true"
       aria-labelledby="product-opportunities-view-dialog-1-title"
     >
-          <div className="bg-white dark:bg-[#0A262D] rounded-2xl max-w-xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 bg-gray-50 dark:bg-[#061C21] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl max-w-xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 bg-gray-50 dark:bg-[var(--surface-container)] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-[#20A89A]" />
+                <ShieldCheck className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 id="product-opportunities-view-dialog-1-title" className="text-base font-bold text-gray-900 dark:text-white">
-                  {language === 'ar' ? 'اتخاذ قرار بشري حول فرصة المنتج' : 'Human Ops Decision Gate'}
+                  {t('intel.humanOpsDecisionGate')}
                 </h3>
               </div>
               <button
                 onClick={() => setDecisionModalOpp(null)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 space-y-4 text-xs">
-              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#081F25] border border-gray-200 dark:border-gray-800">
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-800">
                 <span className="font-mono text-gray-400 font-bold block">{decisionModalOpp.id}</span>
                 <span className="text-sm font-bold text-gray-900 dark:text-white block mt-0.5">
                   {language === 'ar' ? decisionModalOpp.titleAr : decisionModalOpp.title}
@@ -635,7 +628,7 @@ export const ProductOpportunitiesView: React.FC<{
               {/* Decision Type Selector */}
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1.5">
-                  {language === 'ar' ? 'نوع القرار:' : 'Decision Action:'}
+                  {t('intel.decisionAction')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['Accepted', 'Rejected', 'Deferred'] as const).map((type) => (
@@ -645,8 +638,8 @@ export const ProductOpportunitiesView: React.FC<{
                       onClick={() => setDecisionType(type)}
                       className={`py-2 px-3 rounded-lg border font-bold text-center transition-all ${
                         decisionType === type
-                          ? 'bg-[#20A89A] border-[#20A89A] text-[#04231F] shadow-sm'
-                          : 'bg-gray-50 dark:bg-[#071E23] border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                          ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--text-primary)] shadow-sm'
+                          : 'bg-gray-50 dark:bg-[var(--surface-container)] border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {type}
@@ -659,12 +652,12 @@ export const ProductOpportunitiesView: React.FC<{
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                    {language === 'ar' ? 'صفة متخذ القرار:' : 'Reviewer Role:'}
+                    {t('intel.reviewerRole')}
                   </label>
                   <select
                     value={decisionRole}
                     onChange={(e: any) => setDecisionRole(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                   >
                     <option value="Sinai Product Lead">Sinai Product Lead</option>
                     <option value="Ops Manager">Ops Manager</option>
@@ -674,13 +667,13 @@ export const ProductOpportunitiesView: React.FC<{
                 </div>
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                    {language === 'ar' ? 'البريد الإلكتروني:' : 'Reviewer Email:'}
+                    {t('intel.reviewerEmail')}
                   </label>
                   <input
                     type="email"
                     value={decisionEmail}
                     onChange={(e) => setDecisionEmail(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                   />
                 </div>
               </div>
@@ -689,12 +682,12 @@ export const ProductOpportunitiesView: React.FC<{
               {decisionType === 'Accepted' && (
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                    {language === 'ar' ? 'الربط بميزة في سجل المنصة (Feature Register):' : 'Link to Existing Feature in Catalog:'}
+                    {t('intel.linkToExistingFeature')}
                   </label>
                   <select
                     value={selectedFeatureForLink}
                     onChange={(e) => setSelectedFeatureForLink(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                   >
                     {featureRegister.map((f) => (
                       <option key={f.id} value={f.id}>
@@ -708,34 +701,32 @@ export const ProductOpportunitiesView: React.FC<{
               {/* Rationale Input */}
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                  {language === 'ar' ? 'مبررات القرار والأثر المتوقع (إلزامي):' : 'Decision Rationale & Expected Impact (Required):'}
+                  {t('intel.decisionRationaleExpectedImpact')}
                 </label>
                 <textarea
                   rows={3}
                   value={decisionRationale}
                   onChange={(e) => setDecisionRationale(e.target.value)}
                   placeholder={
-                    language === 'ar'
-                      ? 'وضح سبب اتخاذ القرار وكيف سيتم قياس النجاح وتفادي الأثر العكسي...'
-                      : 'Provide operational rationale, justification, and alignment with safety/revenue goals...'
+                    t('intel.provideOperationalRationaleJustification')
                   }
-                  className="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                  className="w-full p-2.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-[#061C21] border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-2 text-xs">
+            <div className="p-4 bg-gray-50 dark:bg-[var(--surface-container)] border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-2 text-xs">
               <button
                 onClick={() => setDecisionModalOpp(null)}
                 className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800"
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                {t('intel.cancel')}
               </button>
               <button
                 onClick={handleSubmitDecision}
-                className="px-5 py-2 rounded-lg bg-[#20A89A] hover:bg-[#1a8c80] text-[#04231F] font-bold shadow-md"
+                className="px-5 py-2 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] font-bold shadow-md"
               >
-                {language === 'ar' ? 'اعتماد القرار وتسجيل الأثر' : 'Authorize Decision & Audit'}
+                {t('intel.authorizeDecisionAudit')}
               </button>
             </div>
           </div>
@@ -751,24 +742,24 @@ export const ProductOpportunitiesView: React.FC<{
       aria-modal="true"
       aria-labelledby="product-opportunities-view-dialog-2-title"
     >
-          <div className="bg-white dark:bg-[#0A262D] rounded-2xl max-w-lg w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden">
-            <div className="p-5 bg-gray-50 dark:bg-[#061C21] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl max-w-lg w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden">
+            <div className="p-5 bg-gray-50 dark:bg-[var(--surface-container)] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-[#20A89A]" />
+                <BarChart3 className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 id="product-opportunities-view-dialog-2-title" className="text-base font-bold text-gray-900 dark:text-white">
-                  {language === 'ar' ? 'تسجيل نتائج قياس الفرضية' : 'Log Hypothesis Outcome & Feedback'}
+                  {t('intel.logHypothesisOutcomeFeedback')}
                 </h3>
               </div>
               <button
                 onClick={() => setMeasurementModalOpp(null)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 space-y-4 text-xs">
-              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[#081F25]">
+              <div className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--surface-container)]">
                 <span className="font-bold text-gray-900 dark:text-white block">{measurementModalOpp.title}</span>
                 <span className="text-gray-400 text-[12px] block mt-0.5">
                   Target: {measurementModalOpp.hypothesis?.targetValue}
@@ -777,7 +768,7 @@ export const ProductOpportunitiesView: React.FC<{
 
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                  {language === 'ar' ? 'النتيجة النهائية للفرضية:' : 'Validation Status:'}
+                  {t('intel.validationStatus')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['Validated', 'Failed', 'Inconclusive'] as const).map((status) => (
@@ -792,7 +783,7 @@ export const ProductOpportunitiesView: React.FC<{
                             : status === 'Failed'
                             ? 'bg-red-600 text-white border-red-600'
                             : 'bg-amber-600 text-white border-amber-600'
-                          : 'bg-gray-50 dark:bg-[#071E23] border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                          : 'bg-gray-50 dark:bg-[var(--surface-container)] border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {status}
@@ -804,53 +795,53 @@ export const ProductOpportunitiesView: React.FC<{
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                    {language === 'ar' ? 'القيمة المقاسة للمؤشر الرئيسي:' : 'Measured Primary Value:'}
+                    {t('intel.measuredPrimaryValue')}
                   </label>
                   <input
                     type="text"
                     value={measuredPrimaryVal}
                     onChange={(e) => setMeasuredPrimaryVal(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                    {language === 'ar' ? 'القيمة المقاسة للمؤشر الثانوي:' : 'Measured Secondary Value:'}
+                    {t('intel.measuredSecondaryValue')}
                   </label>
                   <input
                     type="text"
                     value={measuredSecondaryVal}
                     onChange={(e) => setMeasuredSecondaryVal(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                    className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 font-bold mb-1">
-                  {language === 'ar' ? 'ملاحظات التحليل الميداني:' : 'Field Outcome Notes:'}
+                  {t('intel.fieldOutcomeNotes')}
                 </label>
                 <textarea
                   rows={2}
                   value={measureNotes}
                   onChange={(e) => setMeasureNotes(e.target.value)}
-                  className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
+                  className="w-full p-2 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-200"
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-[#061C21] border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-2 text-xs">
+            <div className="p-4 bg-gray-50 dark:bg-[var(--surface-container)] border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-2 text-xs">
               <button
                 onClick={() => setMeasurementModalOpp(null)}
                 className="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400"
               >
-                {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                {t('intel.cancel')}
               </button>
               <button
                 onClick={handleSubmitMeasurement}
-                className="px-5 py-2 rounded-lg bg-[#20A89A] hover:bg-[#1a8c80] text-[#04231F] font-bold shadow-md"
+                className="px-5 py-2 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] font-bold shadow-md"
               >
-                {language === 'ar' ? 'حفظ نتيجة القياس' : 'Save Outcome & Close Loop'}
+                {t('intel.saveOutcomeCloseLoop')}
               </button>
             </div>
           </div>
@@ -866,17 +857,17 @@ export const ProductOpportunitiesView: React.FC<{
       aria-modal="true"
       aria-labelledby="product-opportunities-view-dialog-3-title"
     >
-          <div className="bg-white dark:bg-[#0A262D] rounded-2xl max-w-3xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-            <div className="p-5 bg-gray-50 dark:bg-[#061C21] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl max-w-3xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div className="p-5 bg-gray-50 dark:bg-[var(--surface-container)] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-[#20A89A]" />
+                <Layers className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 id="product-opportunities-view-dialog-3-title" className="text-base font-bold text-gray-900 dark:text-white">
-                  {language === 'ar' ? 'سجل ميزات منصة دهب (Feature Register)' : 'Dahab Platform Feature Register'}
+                  {t('intel.dahabPlatformFeatureRegister')}
                 </h3>
               </div>
               <button
                 onClick={() => setShowFeatureRegisterModal(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -884,16 +875,14 @@ export const ProductOpportunitiesView: React.FC<{
 
             <div className="p-6 overflow-y-auto space-y-3 text-xs">
               <p className="text-gray-500 dark:text-gray-400 mb-2">
-                {language === 'ar'
-                  ? 'كتالوج الميزات البرمجية الفعلية في المنصة لتفادي التكرار وربط الفرص بالمكونات القائمة.'
-                  : 'Official catalog of production features in Dahab. Opportunities are linked to existing features to prevent feature sprawl.'}
+                {t('intel.officialCatalogOfProduction')}
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {featureRegister.map((feat) => (
                   <div
                     key={feat.id}
-                    className="p-4 rounded-xl bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 flex flex-col justify-between"
+                    className="p-4 rounded-xl bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
@@ -917,7 +906,7 @@ export const ProductOpportunitiesView: React.FC<{
                           setShowFeatureRegisterModal(false);
                           navigateTo(feat.componentRoute as AppRoute);
                         }}
-                        className="text-[#20A89A] hover:underline font-semibold flex items-center gap-1"
+                        className="text-[var(--accent-primary)] hover:underline font-semibold flex items-center gap-1"
                       >
                         <span>{feat.componentRoute}</span>
                         <ExternalLink className="w-3 h-3" />
@@ -928,12 +917,12 @@ export const ProductOpportunitiesView: React.FC<{
               </div>
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-[#061C21] border-t border-gray-200 dark:border-gray-700 text-right">
+            <div className="p-4 bg-gray-50 dark:bg-[var(--surface-container)] border-t border-gray-200 dark:border-gray-700 text-right">
               <button
                 onClick={() => setShowFeatureRegisterModal(false)}
                 className="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-bold"
               >
-                {language === 'ar' ? 'إغلاق' : 'Close'}
+                {t('intel.close')}
               </button>
             </div>
           </div>
@@ -949,24 +938,24 @@ export const ProductOpportunitiesView: React.FC<{
       aria-modal="true"
       aria-labelledby="product-opportunities-view-dialog-4-title"
     >
-          <div className="bg-white dark:bg-[#0A262D] rounded-2xl max-w-2xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-            <div className="p-5 bg-gray-50 dark:bg-[#061C21] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl max-w-2xl w-full border border-gray-200 dark:border-gray-700 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div className="p-5 bg-gray-50 dark:bg-[var(--surface-container)] border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Eye className="w-5 h-5 text-[#20A89A]" />
+                <Eye className="w-5 h-5 text-[var(--accent-primary)]" />
                 <h3 id="product-opportunities-view-dialog-4-title" className="text-base font-bold text-gray-900 dark:text-white">
-                  {language === 'ar' ? 'سجل الأدلة والمصدر الموثق للفرصة' : 'Evidence Provenance & Signal Trail'}
+                  {t('intel.evidenceProvenanceSignalTrail')}
                 </h3>
               </div>
               <button
                 onClick={() => setInspectOpportunity(null)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
-              <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-[#081F25] border border-gray-200 dark:border-gray-800">
+              <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-800">
                 <div className="font-mono text-gray-400">{inspectOpportunity.id}</div>
                 <div className="font-bold text-base text-gray-900 dark:text-white mt-1">
                   {inspectOpportunity.title}
@@ -978,16 +967,16 @@ export const ProductOpportunitiesView: React.FC<{
 
               <div>
                 <h4 className="font-bold text-gray-900 dark:text-white mb-2">
-                  {language === 'ar' ? 'الإشارات والمصادر المرتبطة:' : 'Linked Intelligence Signals & Sources:'}
+                  {t('intel.linkedIntelligenceSignalsSources')}
                 </h4>
                 <div className="space-y-2">
                   {inspectOpportunity.linkedSignalIds.map((sigId, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700 flex items-center justify-between"
+                      className="p-3 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700 flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-[#20A89A]" />
+                        <Tag className="w-4 h-4 text-[var(--accent-primary)]" />
                         <span className="font-mono font-bold text-gray-800 dark:text-gray-200">{sigId}</span>
                       </div>
                       <span className="text-gray-500 text-[12px]">
@@ -1000,16 +989,16 @@ export const ProductOpportunitiesView: React.FC<{
 
               <div>
                 <h4 className="font-bold text-gray-900 dark:text-white mb-2">
-                  {language === 'ar' ? 'سجل تتبع الحالات (Audit Trail):' : 'Status Transition History:'}
+                  {t('intel.statusTransitionHistory')}
                 </h4>
                 <div className="space-y-2">
                   {inspectOpportunity.statusHistory.map((hist, idx) => (
                     <div
                       key={idx}
-                      className="p-2.5 rounded-lg bg-gray-50 dark:bg-[#071E23] border border-gray-200 dark:border-gray-700"
+                      className="p-2.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700"
                     >
                       <div className="flex items-center justify-between text-[12px] mb-1">
-                        <span className="font-bold text-[#20A89A]">{hist.status}</span>
+                        <span className="font-bold text-[var(--accent-primary)]">{hist.status}</span>
                         <span className="text-gray-400">{hist.timestamp}</span>
                       </div>
                       <div className="text-gray-700 dark:text-gray-300">{hist.notes}</div>
@@ -1020,12 +1009,12 @@ export const ProductOpportunitiesView: React.FC<{
               </div>
             </div>
 
-            <div className="p-4 bg-gray-50 dark:bg-[#061C21] border-t border-gray-200 dark:border-gray-700 text-right">
+            <div className="p-4 bg-gray-50 dark:bg-[var(--surface-container)] border-t border-gray-200 dark:border-gray-700 text-right">
               <button
                 onClick={() => setInspectOpportunity(null)}
                 className="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-bold"
               >
-                {language === 'ar' ? 'إغلاق' : 'Close'}
+                {t('intel.close')}
               </button>
             </div>
           </div>

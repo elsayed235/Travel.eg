@@ -14,7 +14,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
   onOpenItinerary,
 }) => {
   const { currentRoute, tripDays, profile, navigateTo } = useTrip();
-  const { language } = useLanguage();
+  const { language , t} = useLanguage();
   const { isDark } = useTheme();
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -72,10 +72,10 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-secondary)]">
-                {language === 'ar' ? 'تقدير الرحلة الفوري' : 'Live Estimate'}
+                {t('common.liveEstimate')}
               </span>
               <span className="hidden sm:inline-block text-[12px] text-[var(--text-secondary)]">
-                · {days} {language === 'ar' ? 'أيام' : 'Days'} ({travelers} {language === 'ar' ? 'ضيوف' : 'Guests'})
+                · {days} {t('common.days')} ({travelers} {t('common.guests')})
               </span>
             </div>
             
@@ -84,7 +84,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
                 {estimatedPriceEGP.toLocaleString()} <span className="text-xs font-sans font-extrabold text-[var(--accent-secondary)]">EGP</span>
               </span>
               <span className="text-[11px] hidden md:inline text-[var(--text-secondary)]">
-                ({language === 'ar' ? 'شامل الإقامة، النقل والأنشطة' : 'Incl. Stays, Transfers & Reef Trips'})
+                ({t('common.inclStaysTransfersReef')})
               </span>
             </div>
           </div>
@@ -109,7 +109,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
             className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer shadow-xs"
           >
             <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
-            <span>{language === 'ar' ? 'الخريطة' : 'Map Radar'}</span>
+            <span>{t('common.mapRadar')}</span>
           </button>
 
           <button
@@ -118,7 +118,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
             onClick={onStartCustomPlanner}
             className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl text-xs font-extrabold shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 whitespace-nowrap bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)]"
           >
-            <span>{language === 'ar' ? 'صمم رحلتك الآن' : 'Build Custom Itinerary'}</span>
+            <span>{t('common.buildCustomItinerary')}</span>
             <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
           </button>
         </div>

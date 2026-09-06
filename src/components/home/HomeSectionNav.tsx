@@ -30,7 +30,7 @@ interface HomeSectionNavProps {
  * ahead", it is "I do not know where I am", and a dot answers neither.
  */
 export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
-  const { language } = useLanguage();
+  const { language , t} = useLanguage();
   const [present, setPresent] = useState<HomeSection[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [pinned, setPinned] = useState(false);
@@ -123,7 +123,7 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
 
   return (
     <nav
-      aria-label={language === 'ar' ? 'أقسام الصفحة' : 'Page sections'}
+      aria-label={t('home.pageSections')}
       className={`sticky top-[72px] z-30 transition-opacity duration-300 ${
         pinned ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
@@ -153,7 +153,7 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
           className="text-[12px] font-bold uppercase tracking-wider shrink-0 hidden sm:inline pe-2"
           style={{ color: 'var(--text-secondary)' }}
         >
-          {language === 'ar' ? 'أنت في' : 'You are in'}
+          {t('home.youAreIn')}
         </span>
 
         {present.map(section => {

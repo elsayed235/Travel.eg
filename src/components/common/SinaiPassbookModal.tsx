@@ -31,7 +31,7 @@ interface SinaiPassbookModalProps {
 
 export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, onClose }) => {
   const { profile, tripBrief, bookings, user, transferTracking } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const [copiedCode, setCopiedCode] = useState(false);
   const [savedOffline, setSavedOffline] = useState(false);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -47,7 +47,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
     };
   }, []);
 
-  const travelerName = profile.name || user?.displayName || (language === 'ar' ? 'أحمد منصور' : 'Ahmed Mansour');
+  const travelerName = profile.name || user?.displayName || (t('common.ahmedMansour'));
   const passId = 'SINAI-DHB-' + (profile.name ? profile.name.slice(0, 3).toUpperCase() : 'AHM') + '-894';
   const duration = tripBrief.durationDays || 5;
 
@@ -116,32 +116,32 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="relative w-full max-w-lg bg-[#062C35] text-[#F7F3EA] rounded-3xl border border-[#20A89A]/40 shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-lg bg-[var(--surface-container)] text-[var(--text-primary)] rounded-3xl border border-[var(--accent-primary)]/40 shadow-2xl overflow-hidden flex flex-col"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Top Header */}
-        <div className="p-5 sm:p-6 bg-gradient-to-b from-[#083E4B] to-[#062C35] border-b border-[#20A89A]/20 flex items-center justify-between">
+        <div className="p-5 sm:p-6 bg-gradient-to-b from-[var(--surface-container)] to-[var(--surface-container)] border-b border-[var(--accent-primary)]/20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#E7A83B]/20 text-[#E7A83B] border border-[#E7A83B]/40 flex items-center justify-center shadow-inner">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40 flex items-center justify-center shadow-inner">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#E7A83B]">
-                  {language === 'ar' ? 'تصريح سيناء الرقمي المعتمد' : 'VERIFIED SINAI DIGITAL PASS'}
+                <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-secondary)]">
+                  {t('common.vERIFIEDSINAIDIGITALPASS')}
                 </span>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
                   isOnline ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30' : 'bg-amber-950/80 text-amber-300 border border-amber-500/30'
                 }`}>
                   {isOnline ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
-                  <span>{isOnline ? (language === 'ar' ? 'مباشر' : 'Live') : (language === 'ar' ? 'أوفلاين محفوظ' : 'Offline Cached')}</span>
+                  <span>{isOnline ? (t('common.live')) : (t('common.offlineCached'))}</span>
                 </span>
               </div>
               <h2
                 id="passbook-modal-title"
                 className="text-lg sm:text-xl font-bold font-['Outfit',sans-serif] text-white"
               >
-                {language === 'ar' ? 'بطاقة المرور والقسائم وسائق البدو' : 'Unified Passbook & Bedouin Driver Pass'}
+                {t('common.unifiedPassbookBedouinDriver')}
               </h2>
             </div>
           </div>
@@ -150,7 +150,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -158,16 +158,16 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
 
         {/* Pass Card Visual Body (Apple Wallet / Passbook Style) */}
         <div className="p-5 sm:p-6 space-y-5 overflow-y-auto max-h-[75vh]">
-          <div className="rounded-2xl bg-gradient-to-br from-[#0F6F78] via-[#083E4B] to-[#04171D] border-2 border-[#20A89A]/40 p-5 shadow-inner space-y-5 relative overflow-hidden">
+          <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] via-[var(--surface-container)] to-[var(--text-primary)] border-2 border-[var(--accent-primary)]/40 p-5 shadow-inner space-y-5 relative overflow-hidden">
             {/* Watermark / Glow */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#E7A83B]/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-[#20A89A]/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[var(--accent-secondary)]/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-[var(--accent-primary)]/15 rounded-full blur-2xl pointer-events-none" />
 
             {/* Pass Header Row */}
             <div className="flex items-start justify-between gap-3 relative z-10">
               <div>
-                <span className="text-[11px] uppercase font-mono tracking-widest text-[#E7D3AE]/80">
-                  {language === 'ar' ? 'جنوب سيناء · تصريح رحلة' : 'SOUTH SINAI · TRIP PASS'}
+                <span className="text-[11px] uppercase font-mono tracking-widest text-[var(--surface-container)]/80">
+                  {t('common.sOUTHSINAITRIPPASS')}
                 </span>
                 <h3 className="text-xl font-bold text-white font-['Outfit',sans-serif]">
                   {travelerName}
@@ -176,15 +176,15 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
 
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-[12px] font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{language === 'ar' ? 'معتمد رسمياً' : 'Active ✓'}</span>
+                <span>{t('common.active')}</span>
               </div>
             </div>
 
             {/* QR Code & Pass Metadata */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#04171D]/70 p-4 rounded-xl border border-white/10 relative z-10">
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--text-primary)]/70 p-4 rounded-xl border border-[var(--border-subtle)] relative z-10">
               {/* High-Contrast Standalone SVG QR Matrix (Works 100% Offline) */}
-              <div className="w-28 h-28 bg-white rounded-lg p-2 flex flex-col items-center justify-center flex-shrink-0 shadow-md">
-                <svg viewBox="0 0 100 100" className="w-full h-full text-[#062C35]">
+              <div className="w-28 h-28 bg-[var(--surface-card)] rounded-lg p-2 flex flex-col items-center justify-center flex-shrink-0 shadow-md">
+                <svg viewBox="0 0 100 100" className="w-full h-full text-[var(--surface-container)]">
                   {/* Position detection patterns */}
                   <rect x="5" y="5" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="4" rx="2" />
                   <rect x="11" y="11" width="14" height="14" fill="currentColor" rx="1" />
@@ -222,19 +222,19 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
                   <rect x="72" y="82" width="6" height="6" fill="currentColor" />
                   <rect x="86" y="82" width="6" height="6" fill="currentColor" />
                 </svg>
-                <span className="text-[7px] font-mono font-black text-[#062C35] mt-0.5 tracking-tighter">OFFLINE VERIFIED</span>
+                <span className="text-[7px] font-mono font-black text-[var(--surface-container)] mt-0.5 tracking-tighter">OFFLINE VERIFIED</span>
               </div>
 
               {/* Pass Details */}
               <div className="w-full space-y-2 text-xs">
-                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                  <span className="text-white/60">{language === 'ar' ? 'الرقم المرجعي:' : 'Pass Reference:'}</span>
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5">
+                  <span className="text-[var(--text-muted)]">{t('common.passReference')}</span>
                   <div className="flex items-center gap-1">
-                    <span className="font-mono font-bold text-[#E7A83B]">{passId}</span>
+                    <span className="font-mono font-bold text-[var(--accent-secondary)]">{passId}</span>
                     <button 
                       type="button" 
                       onClick={handleCopy}
-                      className="p-1 hover:text-white text-white/70 transition-colors"
+                      className="p-1 hover:text-[var(--text-primary)] text-[var(--text-muted)] transition-colors"
                       title="Copy Pass ID"
                     >
                       {copiedCode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -242,77 +242,77 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                  <span className="text-white/60">{language === 'ar' ? 'مدة الإقامة:' : 'Trip Duration:'}</span>
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5">
+                  <span className="text-[var(--text-muted)]">{t('common.tripDuration')}</span>
                   <span className="font-bold text-white">
-                    {language === 'ar' ? `${duration} أيام (أكتوبر ٢٠٢٦)` : `${duration} Days (Oct 2026)`}
+                    {t('common.daysOct2026', { duration })}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-white/60">{language === 'ar' ? 'مستوى الأمان:' : 'Safety Clearance:'}</span>
+                  <span className="text-[var(--text-muted)]">{t('common.safetyClearance')}</span>
                   <span className="font-bold text-emerald-300 flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>{language === 'ar' ? 'كمائن سيناء + CDWS' : 'Sinai Checkpoints + CDWS'}</span>
+                    <span>{t('common.sinaiCheckpointsCDWS')}</span>
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Bedouin Driver Card (Included in Pass) */}
-            <div className="p-3.5 rounded-xl bg-[#04171D]/90 border border-[#E7A83B]/30 space-y-2 relative z-10">
+            <div className="p-3.5 rounded-xl bg-[var(--text-primary)]/90 border border-[var(--accent-secondary)]/30 space-y-2 relative z-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#E7A83B] font-bold text-xs">
+                <div className="flex items-center gap-2 text-[var(--accent-secondary)] font-bold text-xs">
                   <Car className="w-4 h-4" />
-                  <span>{language === 'ar' ? 'بطاقة السائق البدوي المعتمد:' : 'Verified Bedouin Driver Card:'}</span>
+                  <span>{t('common.verifiedBedouinDriverCard')}</span>
                 </div>
                 <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                  {language === 'ar' ? 'معتمد رسمي' : 'Authorized'}
+                  {t('common.authorized')}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-white/90 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-muted)] pt-1">
                 <div>
-                  <span className="text-white/50 block text-[11px]">{language === 'ar' ? 'الكابتن:' : 'Driver:'}</span>
+                  <span className="text-[var(--text-muted)] block text-[11px]">{t('common.driver')}</span>
                   <span className="font-bold">{language === 'ar' ? driver.nameAr : driver.name}</span>
                 </div>
                 <div>
-                  <span className="text-white/50 block text-[11px]">{language === 'ar' ? 'السيارة واللوحة:' : 'Vehicle & Plate:'}</span>
+                  <span className="text-[var(--text-muted)] block text-[11px]">{t('common.vehiclePlate')}</span>
                   <span className="font-mono text-amber-200">{driver.vehicle} · {driver.plate}</span>
                 </div>
               </div>
               <div className="pt-1 flex items-center justify-between text-xs">
                 <a 
                   href={`tel:${driver.phone.replace(/\s+/g, '')}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#20A89A]/20 hover:bg-[#20A89A]/30 text-[#52C4B7] border border-[#20A89A]/40 font-bold transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 font-bold transition-colors"
                 >
                   <Phone className="w-3.5 h-3.5" />
                   <span>{driver.phone}</span>
                 </a>
-                <span className="text-[11px] text-white/60">{language === 'ar' ? 'متاح بدون نت على الهاتف' : 'Accessible 100% Offline'}</span>
+                <span className="text-[11px] text-[var(--text-muted)]">{t('common.accessible100Offline')}</span>
               </div>
             </div>
 
             {/* Integrated Components Included */}
             <div className="space-y-2 relative z-10">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#E7D3AE]/70 block">
-                {language === 'ar' ? 'الخدمات المعتمدة داخل البطاقة:' : 'Bundled Services in Pass:'}
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--surface-container)]/70 block">
+                {t('common.bundledServicesInPass')}
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
-                  <Building className="w-4 h-4 text-[#E7A83B] flex-shrink-0" />
-                  <span className="truncate">{language === 'ar' ? 'إقامة فندقية معتمدة' : 'Hotel Check-in Pass'}</span>
+                <div className="p-2.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center gap-2">
+                  <Building className="w-4 h-4 text-[var(--accent-secondary)] flex-shrink-0" />
+                  <span className="truncate">{t('common.hotelCheckinPass')}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
-                  <Car className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span className="truncate">{language === 'ar' ? 'سيارة المطار وسائق معتمد' : 'Airport Private Transfer'}</span>
+                <div className="p-2.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center gap-2">
+                  <Car className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                  <span className="truncate">{t('common.airportPrivateTransfer')}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center gap-2">
                   <Waves className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                  <span className="truncate">{language === 'ar' ? 'تصريح محميات الغوص' : 'Marine Reserve Passes'}</span>
+                  <span className="truncate">{t('common.marineReservePasses')}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
+                <div className="p-2.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center gap-2">
                   <Compass className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span className="truncate">{language === 'ar' ? 'دليل سفاري الصحراء' : 'Desert Canyon Guide'}</span>
+                  <span className="truncate">{t('common.desertCanyonGuide')}</span>
                 </div>
               </div>
             </div>
@@ -322,30 +322,28 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
           <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
             <Sparkles className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-400" />
             <p className="leading-relaxed">
-              {language === 'ar'
-                ? 'هذا التصريح وبطاقة السائق يعملان بالكامل بدون إنترنت (Offline). يمكنك إبرازهما لضباط كمائن شرم ودهب ومسؤولي مراكز الغوص مباشرة من شاشة هاتفك.'
-                : 'This digital pass & driver credentials are 100% offline-ready. Display directly on your screen at Sharm/Dahab checkpoints and certified dive centers without physical paper prints.'}
+              {t('common.thisDigitalPassDriver')}
             </p>
           </div>
         </div>
 
         {/* Modal Actions */}
-        <div className="p-4 sm:p-5 bg-[#04171D] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 bg-[var(--text-primary)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleSaveOffline}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#E7A83B] hover:bg-[#F4C36C] text-[#062C35] font-bold text-xs transition-all cursor-pointer shadow-md"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] font-bold text-xs transition-all cursor-pointer shadow-md"
           >
-            {savedOffline ? <Check className="w-4 h-4 text-[#062C35]" /> : <Download className="w-4 h-4" />}
-            <span>{savedOffline ? (language === 'ar' ? 'تم الحفظ على الهاتف ✓' : 'Saved to Phone ✓') : (language === 'ar' ? 'حفظ البطاقة أوفلاين' : 'Save Offline Pass')}</span>
+            {savedOffline ? <Check className="w-4 h-4 text-[var(--surface-container)]" /> : <Download className="w-4 h-4" />}
+            <span>{savedOffline ? (t('common.savedToPhone')) : (t('common.saveOfflinePass'))}</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-bold text-xs transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white font-bold text-xs transition-all cursor-pointer"
           >
-            {language === 'ar' ? 'إغلاق' : 'Close'}
+            {t('common.close-2')}
           </button>
         </div>
       </div>

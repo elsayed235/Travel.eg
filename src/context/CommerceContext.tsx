@@ -8,9 +8,9 @@ import { useAuth } from './AuthContext';
 import { useUI } from './UIContext';
 import { api } from '../services/api';
 import { ApiError } from '../services/apiError';
-import { buildTravelerBookings, selectActiveTrip } from '../services/tripBookingMapper';
+import { buildTravelerBookings, rentalBookingToConfirmedBookingItem, selectActiveTrip } from '../services/tripBookingMapper';
 import { journeyStageFromTrip } from '../services/travelerLifecycleResolver';
-import type { TripEntity, TripItemWithSupplier } from '../shared';
+import type { TripEntity, TripItemWithSupplier } from '../shared/types/trip';
 
 /**
  * Five fabricated transactions totalling 20,800 EGP for "Ahmed Mansour".
@@ -324,7 +324,22 @@ export const CommerceProvider: React.FC<{
         // The supplier-enriched items, not detail.items: the timeline needs the
         // provider behind each item and only this response carries it.
         setActiveTripItems(bookingsResponse.items);
-        setBookings(buildTravelerBookings(bookingsResponse.items, bookingsResponse.bookings));
+        const tripBookings = buildTravelerBookings(bookingsResponse.items, bookingsResponse.bookings);
+
+        // Rental bookings live in their own table with their own lifecycle; the
+        // trip-bookings endpoint does not see them, so they are fetched here and
+        // merged. A failure to load them must not blank the trip's bookings —
+        // rentals are additive, so the failure degrades to showing only the
+        // commerce bookings.
+        let rentalBookings: ConfirmedBookingItem[] = [];
+        try {
+          const rentals = await api.getMyRentalBookings(signal);
+          if (!cancelled) rentalBookings = rentals.bookings.map(rentalBookingToConfirmedBookingItem);
+        } catch {
+          // Ignored: commerce bookings still render without the rental section.
+        }
+        if (cancelled) return;
+        setBookings([...tripBookings, ...rentalBookings]);
       } catch (error: unknown) {
         if (cancelled || signal.aborted) return;
         if (error instanceof DOMException && error.name === 'AbortError') return;

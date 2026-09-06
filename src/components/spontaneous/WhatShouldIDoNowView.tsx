@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { 
   Compass, 
   Clock, 
@@ -18,7 +18,18 @@ import {
   Plus
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
+import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
+import { useApiResource } from '../../hooks/useApiResource';
+import { mapFitWindowOptions } from '../../services/spontaneousMapper';
+
+// These moved to src/shared/types/spontaneous.ts. The mapper above is a
+// service, and importing a component from a service is a cycle: Vite's module
+// graph broke and the whole app fell into its ErrorBoundary. Re-exported here
+// so existing importers are unaffected.
+export type { RecommendationMood, SpontaneousOption } from '../../shared/types/spontaneous';
+import type { SpontaneousOption } from '../../shared/types/spontaneous';
 
 interface WhatShouldIDoNowViewProps {
   onBackToMyTrip: () => void;
@@ -33,40 +44,12 @@ interface WhatShouldIDoNowViewProps {
     duration: string;
     tag: string;
   }) => void;
-}
-
-export type RecommendationMood = 'chill' | 'explore' | 'adventure';
-
-export interface SpontaneousOption {
-  id: string;
-  mood: RecommendationMood;
-  tag: 'Chill' | 'Explore' | 'Adventure';
-  tagAr: 'روقان' | 'استكشاف' | 'مغامرة';
-  title: string;
-  titleAr: string;
-  description: string;
-  descriptionAr: string;
-  duration: string;
-  durationAr: string;
-  durationMinutes: number;
-  priceLevel: 'Low' | 'Moderate';
-  priceEstimate: string;
-  priceEstimateAr: string;
-  distance: string;
-  distanceAr: string;
-  distanceKm: string;
-  pace: string;
-  paceAr: string;
-  icon: string;
-  timeSlot: string;
-  whyItFits: string;
-  whyItFitsAr: string;
-  whyThisDetailed: string;
-  whyThisDetailedAr: string;
-  whyItWorks: string;
-  whyItWorksAr: string;
-  isTightFit?: boolean;
-  timeBufferMinutes?: number;
+  /**
+   * Minutes until the next scheduled activity, computed by the parent
+   * (MyTripView owns the "next up" activity). Defaults to the 2h window the
+   * backend assumes when no boundary is known.
+   */
+  availableMinutes?: number;
 }
 
 export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
@@ -76,8 +59,13 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
   onExploreClick,
   onOpenHelp,
   onActivityAddedToTrip,
+  availableMinutes = 120,
 }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
+  const { profile, user, sessionUser } = useTrip();
+  // First name only, from the session: a greeting is how someone is addressed,
+  // not a record lookup. With no name the greeting is simply neutral.
+  const travelerName = (profile.name || user?.displayName || sessionUser?.name || '').trim().split(/\s+/)[0] || '';
   const [activeTab, setActiveTab] = useState<'home' | 'mytrip' | 'explore' | 'bookings' | 'profile'>('mytrip');
 
   // Currently selected recommendation for focused detail view
@@ -89,9 +77,6 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
     'opt-explore': false,
     'opt-adventure': false,
   });
-
-  // State to simulate "No good options / low time window (< 30 min)" state
-  const [isLowTimeWindowMode, setIsLowTimeWindowMode] = useState<boolean>(false);
 
   // Time protection modal state for tight fits (like Adventure)
   const [tightFitModalOption, setTightFitModalOption] = useState<SpontaneousOption | null>(null);
@@ -110,9 +95,21 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 3 Primary Curated Recommendations based on Ahmed's exact situation:
-  // 11:30 AM, Diving finished early, 2h available, moderate budget, balanced pace, Lunch at 01:30 PM
-  const options: SpontaneousOption[] = [
+  /**
+   * Live recommendations from /api/context/fit-window. Stable fetcher so
+   * useApiResource does not re-request on every render. The three curated
+   * fallback options below keep rendering until live data lands, and stay on a
+   * failed request (useApiResource leaves `data` untouched on error).
+   */
+  const fetchFitWindowOptions = useCallback(
+    (signal: AbortSignal) => api.getFitWindowOptions({ availableMinutes }, signal),
+    [availableMinutes]
+  );
+  const fitWindow = useApiResource(fetchFitWindowOptions);
+
+  // Fallback: three curated recommendations for the classic 2h, post-dive
+  // morning. Served while live options load, and on a failed request.
+  const fallbackOptions: SpontaneousOption[] = [
     {
       id: 'opt-chill',
       mood: 'chill',
@@ -208,7 +205,14 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
     },
   ];
 
-  const selectedOption = options.find(o => o.id === selectedOptionId) || options[0];
+  const options: SpontaneousOption[] = useMemo(() => {
+    if (fitWindow.data && fitWindow.data.options.length > 0) {
+      return mapFitWindowOptions(fitWindow.data.options, availableMinutes);
+    }
+    return fallbackOptions;
+  }, [fitWindow.data, availableMinutes, fallbackOptions]);
+
+  const selectedOption = options.find(o => o.id === selectedOptionId) || options[0] || fallbackOptions[0];
 
   const toggleWhyThis = (optionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -234,13 +238,13 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
   const commitAddToTrip = (option: SpontaneousOption) => {
     setAddedActivity(option);
     setTightFitModalOption(null);
-    showToast(language === 'ar' ? `تمت إضافة "${option.titleAr}" لجدول يومك بنجاح ✓` : `Added "${option.title}" to your trip ✓`);
+    showToast(t('spontaneous.addToTrip', { title: language === 'ar' ? option.titleAr : option.title }));
     
     if (onActivityAddedToTrip) {
       onActivityAddedToTrip({
         id: option.id,
         title: language === 'ar' ? option.titleAr : option.title,
-        time: '12:00 PM',
+        time: option.timeSlot.split('–')[0].trim(),
         duration: option.duration,
         tag: option.tag,
       });
@@ -251,9 +255,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
     e.stopPropagation();
     setPreferenceFeedback(prev => ({ ...prev, [optionId]: type }));
     if (type === 'liked') {
-      showToast(language === 'ar' ? 'تم الحفظ: سنرشح لك المزيد من الأنشطة الهادئة المشابهة ✓' : 'Saved: We will suggest more relaxed options like this ✓');
+      showToast(t('spontaneous.savedWeWillSuggest'));
     } else {
-      showToast(language === 'ar' ? 'تم الحفظ: سنضبط الترشيحات المستقبلية بعيداً عن هذا النمط' : 'Saved: We will adjust future suggestions away from this style');
+      showToast(t('spontaneous.savedWeWillAdjust'));
     }
   };
 
@@ -266,14 +270,18 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
     } else if (tab === 'bookings') {
       onBackToMyTrip();
     } else if (tab === 'profile') {
-      showToast(language === 'ar' ? 'مسجل الدخول كـ أحمد منصور (ahmed.traveler@example.com)' : 'Logged in as Ahmed (ahmed.traveler@example.com)');
+      showToast(
+        sessionUser
+          ? t('spontaneous.loggedInAs', { login: sessionUser.name || sessionUser.email })
+          : t('food.notSignedIn')
+      );
     }
   };
 
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Outfit',sans-serif] pb-28 md:pb-16 selection:bg-[#F4C36C]/30"
+      className="min-h-screen bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col font-['Outfit',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/30"
     >
       
       {/* 1. TRAVELER TOP NAVIGATION (My Trip is active) */}
@@ -293,19 +301,19 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               type="button"
               id="back-to-companion-btn"
               onClick={onBackToCompanion || onBackToMyTrip}
-              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[#D2E3DE]/70 hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
               <ArrowLeft className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
-              <span>{language === 'ar' ? 'الرجوع للرفيق اليومي (اليوم ٢)' : 'Back to Daily Companion (Day 2)'}</span>
+              <span>{t('spontaneous.backToDailyCompanion')}</span>
             </button>
             <span className="text-white/20">•</span>
             <button
               type="button"
               id="back-to-mytrip-overview-link"
               onClick={onBackToMyTrip}
-              className="text-xs font-medium text-[#D2E3DE]/50 hover:text-white transition-colors cursor-pointer"
+              className="text-xs font-medium text-[var(--text-secondary)]/50 hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             >
-              {language === 'ar' ? 'الجدول الكامل' : 'Full Itinerary'}
+              {t('food.fullItinerary')}
             </button>
             {onNavigateToFoodNow && (
               <>
@@ -314,39 +322,13 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   type="button"
                   id="go-to-food-now-btn"
                   onClick={onNavigateToFoodNow}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#F4C36C] hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent-secondary)] hover:underline cursor-pointer"
                 >
                   <Utensils className="w-3 h-3" />
-                  <span>{language === 'ar' ? 'جعان؟ اطلب أكل دلوقتي ←' : 'Hungry? Food Now →'}</span>
+                  <span>{t('spontaneous.hungryFoodNow')}</span>
                 </button>
               </>
             )}
-          </div>
-
-          {/* Prototype Switcher: Normal 2h Window vs Low Time Window (< 30 min) */}
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-1 bg-[#0E2520] border border-white/10 p-1 rounded-full text-[12px] font-semibold text-[#D2E3DE]/80">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLowTimeWindowMode(false);
-                  showToast(language === 'ar' ? 'الوضع: وقت فراغ ساعتين (٣ اختيارات متناسقة)' : 'Mode: 2h free window (3 curated options)');
-                }}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${!isLowTimeWindowMode ? 'bg-[#F4C36C] text-[#081714] font-bold shadow-md' : 'hover:text-white'}`}
-              >
-                {language === 'ar' ? 'ساعتين فراغ' : '2h Free Time'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsLowTimeWindowMode(true);
-                  showToast(language === 'ar' ? 'الوضع: وقت ضيق (< ٣٠ دقيقة) — نصيحة بالراحة' : 'Mode: Short window (< 30 min) — Low-opportunity state');
-                }}
-                className={`px-3 py-1 rounded-full transition-all cursor-pointer ${isLowTimeWindowMode ? 'bg-[#F4C36C] text-[#081714] font-bold shadow-md' : 'hover:text-white'}`}
-              >
-                {language === 'ar' ? 'وقت قصير (< ٣٠ د)' : 'Short Window (<30m)'}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -355,150 +337,109 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
           
           {/* Header Badges */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#13312B] text-[#F4C36C] border border-[#F4C36C]/30 text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-xs font-bold">
               <Compass className="w-3.5 h-3.5" />
-              <span>{language === 'ar' ? 'دعم القرارات التلقائية الفورية' : 'Spontaneous Decision Support'}</span>
+              <span>{t('spontaneous.spontaneousDecisionSupport')}</span>
             </div>
 
             {/* Constraints Pills */}
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#13312B] border border-white/10 text-[#F7F3EA] shadow-xs">
-                <Clock className="w-3.5 h-3.5 text-[#F4C36C]" />
-                <span>{isLowTimeWindowMode ? (language === 'ar' ? 'متاح ٢٥ دقيقة' : '25 min available') : (language === 'ar' ? 'متاح ساعتين' : '2h available')}</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                <Utensils className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{language === 'ar' ? 'التالي: وجبة الغداء · ٠١:٣٠ م' : 'Next: Lunch · 1:30 PM'}</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-primary)] shadow-xs">
+                <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                <span>{t('spontaneous.minAvailable', { mins: language === 'ar' ? availableMinutes.toLocaleString('ar-EG') : String(availableMinutes) })}</span>
               </div>
             </div>
           </div>
 
           {/* Title & Subtitle */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#F7F3EA] tracking-tight">
-              {language === 'ar' ? 'تحب تعمل إيه دلوقتي يا أحمد؟' : 'What should you do now, Ahmed?'}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+              {travelerName ? t('spontaneous.whatShouldYouDoNamed', { travelerName }) : t('spontaneous.whatShouldYouDoGeneric')}
             </h1>
-            <p className="text-base sm:text-lg text-[#D2E3DE]/80 max-w-3xl font-medium leading-relaxed">
-              {language === 'ar' 
-                ? 'خلصت الغطس بدري ومعاك وقت رايق. جهزنالك بالظبط ٣ اختيارات متفصلة على مكانك والوقت الفاضي.'
-                : "You finished diving early. We've found a few things that fit the exact time you have before lunch."}
+            <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-3xl font-medium leading-relaxed">
+              {t('spontaneous.youFinishedDivingEarly')}
             </p>
           </div>
         </div>
 
         {/* ============================================================ */}
-        {/* VIEW BODY: NORMAL 2-HOUR WINDOW vs LOW-OPPORTUNITY STATE */}
+        {/* VIEW BODY: LIVE OPTIONS vs HONEST EMPTY STATE                  */}
         {/* ============================================================ */}
 
-        {isLowTimeWindowMode ? (
+        {options.length === 0 ? (
           /* ------------------------------------------------------------ */
           /* LOW OPPORTUNITY / SHORT WINDOW STATE (< 30 min)              */
           /* ------------------------------------------------------------ */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8 space-y-6">
               
-              <div className="bg-[#0E2520] rounded-3xl p-7 sm:p-9 border border-white/10 shadow-xl space-y-6">
-                <div className="w-12 h-12 rounded-2xl bg-[#13312B] border border-[#F4C36C]/30 text-[#F4C36C] flex items-center justify-center text-2xl shadow-md">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border border-[var(--border-subtle)] shadow-xl space-y-6">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-[var(--accent-secondary)] flex items-center justify-center text-2xl shadow-md">
                   ☕
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar' ? 'مفيش داعي تستعجل على أي حاجة دلوقتي.' : 'Nothing worth rushing for right now.'}
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                    {t('spontaneous.nothingWorthRushingFor')}
                   </h2>
-                  <p className="text-sm sm:text-base text-[#D2E3DE]/80 leading-relaxed">
-                    {language === 'ar'
-                      ? 'فاضل أقل من نصف ساعة على نشاطك التالي. الأفضل تستمتع بقعدة روقان هادية.'
-                      : 'You have a short window before your next activity. We recommend keeping it easy and resting.'}
+                  <p className="text-sm sm:text-base text-[var(--text-secondary)]/80 leading-relaxed">
+                    {t('spontaneous.youHaveAShort')}
                   </p>
                 </div>
 
                 {/* 3 Low-friction easy options */}
                 <div className="space-y-3 pt-2">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                    {language === 'ar' ? 'خيارات مريحة وسريعة بدون مجهود' : 'Recommended Easy Moves'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                    {t('spontaneous.recommendedEasyMoves')}
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
+                    <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">☕</span>
-                        <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'شاي أو قهوة قريبة' : 'Coffee nearby'}</h4>
+                        <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.coffeeNearby')}</h4>
                       </div>
-                      <p className="text-xs text-[#D2E3DE]/70">
-                        {language === 'ar' ? 'كوب شاي بالحبق على تراس شمس على بعد ٦٠ متر بس.' : 'Grab a quick mint tea at Shams terrace just 60m away.'}
+                      <p className="text-xs text-[var(--text-secondary)]/70">
+                        {t('spontaneous.grabAQuickMint')}
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
+                    <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🌊</span>
-                        <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'استرخاء ع البحر' : 'Relax by the sea'}</h4>
+                        <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.relaxByTheSea')}</h4>
                       </div>
-                      <p className="text-xs text-[#D2E3DE]/70">
-                        {language === 'ar' ? 'افرد جسمك على شلتة بدوية واستمتع بنسيم البحر.' : 'Unwind on a Bedouin cushion and enjoy the breeze.'}
+                      <p className="text-xs text-[var(--text-secondary)]/70">
+                        {t('spontaneous.unwindOnABedouin')}
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
+                    <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">🍽️</span>
-                        <h4 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? 'التحرك للغداء' : 'Head toward lunch'}</h4>
+                        <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.headTowardLunch')}</h4>
                       </div>
-                      <p className="text-xs text-[#D2E3DE]/70">
-                        {language === 'ar' ? 'تمشية هادية جداً في اتجاه طاولة الغداء المحجوزة.' : 'Stroll casually to your 1:30 PM waterfront table.'}
+                      <p className="text-xs text-[var(--text-secondary)]/70">
+                        {t('spontaneous.strollCasuallyToYour')}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-xs text-[#D2E3DE]/50 font-medium">
-                    {language === 'ar' ? 'التركيز على الراحة بدل التشتيت' : 'Relevance > Discovery Overload'}
+                <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-xs text-[var(--text-secondary)]/50 font-medium">
+                    {t('spontaneous.relevanceDiscoveryOverload')}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsLowTimeWindowMode(false)}
-                    className="text-xs font-bold text-[#F4C36C] hover:underline cursor-pointer"
-                  >
-                    {language === 'ar' ? 'عرض ترشيحات الساعتين القياسية ←' : 'View standard 2h recommendations →'}
-                  </button>
                 </div>
               </div>
 
-            </div>
-
-            {/* Sidebar Context */}
-            <div className="lg:col-span-4 space-y-6">
-              <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                    {language === 'ar' ? 'السياق الحالي' : 'Current Context'}
-                  </span>
-                  <span className="text-xs font-mono font-bold text-[#F4C36C]">11:30 AM</span>
-                </div>
-                <div className="space-y-2.5 text-xs text-[#D2E3DE]/80">
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/50">{language === 'ar' ? 'الموقع:' : 'Location:'}</span>
-                    <span className="font-bold text-[#F7F3EA]">📍 {language === 'ar' ? 'اللايتهاوس، دهب' : 'Dahab Lighthouse'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/50">{language === 'ar' ? 'النشاط التالي:' : 'Next Activity:'}</span>
-                    <span className="font-bold text-emerald-300">{language === 'ar' ? 'غداء البحر (٠١:٣٠ م)' : 'Lunch (01:30 PM)'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/50">{language === 'ar' ? 'النمط المفضل:' : 'Pace Target:'}</span>
-                    <span className="font-bold text-[#F4C36C]">{language === 'ar' ? 'متوازن ومريح' : 'Balanced'}</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
         ) : (
 
           /* ------------------------------------------------------------ */
-          /* STANDARD 2-HOUR WINDOW MODE                                  */
+          /* LIVE OPTIONS MODE (curated fallback until the API replies)   */
           /* ------------------------------------------------------------ */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
@@ -509,19 +450,19 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               {addedActivity && (
                 <div 
                   id="added-activity-success-banner"
-                  className="bg-[#13312B] border-2 border-emerald-500/80 rounded-3xl p-5 sm:p-6 shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-200"
+                  className="bg-[var(--surface-container)] border-2 border-emerald-500/80 rounded-3xl p-5 sm:p-6 shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-200"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-[#081714] flex items-center justify-center text-xl font-bold shadow-md">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-[var(--surface-container)] flex items-center justify-center text-xl font-bold shadow-md">
                         ✓
                       </div>
                       <div>
                         <span className="text-[11px] font-black uppercase tracking-wider text-emerald-300 block">
-                          {language === 'ar' ? 'تم تحديث الجدول' : 'Trip Updated'}
+                          {t('spontaneous.tripUpdated')}
                         </span>
-                        <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                          {language === 'ar' ? 'اتضافت لجدول رحلتك بنجاح ✓' : 'Added to your trip ✓'}
+                        <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                          {t('spontaneous.addedToYourTrip')}
                         </h3>
                       </div>
                     </div>
@@ -529,30 +470,30 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setAddedActivity(null)}
-                      className="text-[#D2E3DE]/60 hover:text-white p-1 rounded-full hover:bg-white/10 cursor-pointer"
+                      className="text-[var(--text-secondary)]/60 hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--surface-card)]/10 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#D2E3DE] leading-relaxed font-medium">
-                    <strong>{language === 'ar' ? addedActivity.titleAr : addedActivity.title}</strong> {language === 'ar' ? 'اتضافت لجدولك الساعة ١٢:٠٠ ظهراً، وهتخلص ١:١٥ م قبل ميعاد غداك بـ ١٥ دقيقة كاملة.' : 'has been added to your schedule at 12:00 PM. You will finish by 1:15 PM with ample time before your 1:30 PM lunch.'}
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-medium">
+                    <strong>{language === 'ar' ? addedActivity.titleAr : addedActivity.title}</strong> {t('spontaneous.hasBeenAddedTo')}
                   </p>
 
                   <div className="pt-2 flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={onBackToCompanion || onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all shadow-md cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all shadow-md cursor-pointer"
                     >
-                      {language === 'ar' ? 'عرض في الرفيق اليومي ←' : 'View in Daily Companion →'}
+                      {t('spontaneous.viewInDailyCompanion')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddedActivity(null)}
-                      className="text-xs font-semibold text-[#F4C36C] hover:underline cursor-pointer"
+                      className="text-xs font-semibold text-[var(--accent-secondary)] hover:underline cursor-pointer"
                     >
-                      {language === 'ar' ? 'اختيار نشاط تاني بداله' : 'Pick another option instead'}
+                      {t('spontaneous.pickAnotherOptionInstead')}
                     </button>
                   </div>
                 </div>
@@ -562,16 +503,16 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               <section id="three-recommendations-section" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                      {language === 'ar' ? 'ترشيحات متوافقة مع وقتك ومكانك' : 'Contextual Decision Support'}
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                      {t('spontaneous.contextualDecisionSupport')}
                     </span>
-                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F7F3EA]">
-                      {language === 'ar' ? '٣ اختيارات تناسبك دلوقتي بالظبط' : '3 Choices for Right Now'}
+                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                      {t('spontaneous.3ChoicesForRight')}
                     </h2>
                   </div>
 
-                  <span className="text-xs text-[#D2E3DE]/50 font-medium">
-                    {language === 'ar' ? 'مرتبة حسب أولوياتك' : 'Ranked for you'}
+                  <span className="text-xs text-[var(--text-secondary)]/50 font-medium">
+                    {t('spontaneous.rankedForYou')}
                   </span>
                 </div>
 
@@ -588,14 +529,14 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         key={option.id}
                         id={`recommendation-card-${option.id}`}
                         onClick={() => handleSelectOption(option)}
-                        className={`bg-[#0E2520] rounded-3xl p-5 sm:p-6 border transition-all cursor-pointer relative overflow-hidden ${
+                        className={`bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border transition-all cursor-pointer relative overflow-hidden ${
                           isSelected
-                            ? 'border-2 border-[#F4C36C] shadow-[0_0_25px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30 bg-[#13312B]'
-                            : 'border-white/10 shadow-xl hover:border-white/20'
+                            ? 'border-2 border-[var(--accent-secondary)] shadow-[0_0_25px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30 bg-[var(--surface-container)]'
+                            : 'border-[var(--border-subtle)] shadow-xl hover:border-white/20'
                         }`}
                       >
                         {/* Card Header & Tag Pill */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
                           <div className="flex items-center gap-2">
                             {/* Mood Tag */}
                             <span className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full ${
@@ -605,23 +546,23 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                                   : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                             }`}>
-                              {language === 'ar' ? `الخيار ${idx + 1} — ${option.tagAr}` : `Option ${idx + 1} — ${option.tag}`}
+                              {t('spontaneous.optionTag', { idx: idx + 1, tag: language === 'ar' ? option.tagAr : option.tag })}
                             </span>
 
                             {idx === 0 && (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F4C36C] bg-[#0E2520] border border-[#F4C36C]/30 px-2.5 py-0.5 rounded-full">
-                                <Sparkles className="w-3 h-3 text-[#F4C36C]" />
-                                <span>{language === 'ar' ? 'الأكثر ملاءمة' : 'Top Pick'}</span>
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[var(--accent-secondary)] bg-[var(--surface-card)] border border-[var(--accent-secondary)]/30 px-2.5 py-0.5 rounded-full">
+                                <Sparkles className="w-3 h-3 text-[var(--accent-secondary)]" />
+                                <span>{t('spontaneous.topPick')}</span>
                               </span>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono font-bold text-[#F4C36C]">
+                            <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
                               {language === 'ar' ? option.durationAr : option.duration}
                             </span>
                             <span className="text-white/20 text-xs">•</span>
-                            <span className="text-xs text-[#D2E3DE]/70 font-medium">
+                            <span className="text-xs text-[var(--text-secondary)]/70 font-medium">
                               {language === 'ar' ? option.distanceAr : option.distance}
                             </span>
                           </div>
@@ -630,30 +571,30 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         {/* Title & Description */}
                         <div className="py-3.5 flex items-start gap-3.5">
                           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl shadow-md ${
-                            isSelected ? 'bg-[#F4C36C] text-[#081714]' : 'bg-[#13312B] text-[#F7F3EA] border border-white/10'
+                            isSelected ? 'bg-[var(--accent-secondary)] text-[var(--surface-container)]' : 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)]'
                           }`}>
                             <span>{option.icon}</span>
                           </div>
 
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center justify-between">
-                              <h3 className="font-serif font-bold text-lg sm:text-xl text-[#F7F3EA]">
+                              <h3 className="font-serif font-bold text-lg sm:text-xl text-[var(--text-primary)]">
                                 {language === 'ar' ? option.titleAr : option.title}
                               </h3>
-                              <span className="text-xs font-bold text-[#F4C36C]">
+                              <span className="text-xs font-bold text-[var(--accent-secondary)]">
                                 {language === 'ar' ? option.priceEstimateAr : option.priceEstimate}
                               </span>
                             </div>
-                            <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
                               {language === 'ar' ? option.descriptionAr : option.description}
                             </p>
                           </div>
                         </div>
 
                         {/* Why it fits pill */}
-                        <div className="p-2.5 rounded-2xl bg-[#081714]/60 border border-white/5 flex items-center justify-between text-xs">
-                          <span className="text-[#D2E3DE]/80 font-medium">
-                            <strong className="text-[#F4C36C]">{language === 'ar' ? 'ليه متفصلة ليك:' : 'Why it fits:'}</strong> {language === 'ar' ? option.whyItFitsAr : option.whyItFits}
+                        <div className="p-2.5 rounded-2xl bg-[var(--surface-container)]/60 border border-white/5 flex items-center justify-between text-xs">
+                          <span className="text-[var(--text-secondary)]/80 font-medium">
+                            <strong className="text-[var(--accent-secondary)]">{t('spontaneous.whyItFits')}</strong> {language === 'ar' ? option.whyItFitsAr : option.whyItFits}
                           </span>
                         </div>
 
@@ -662,19 +603,19 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                           <button
                             type="button"
                             onClick={(e) => toggleWhyThis(option.id, e)}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F4C36C] hover:text-[#E5B55D] cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent-secondary)] hover:text-[#E5B55D] cursor-pointer"
                           >
                             <Info className="w-3.5 h-3.5" />
-                            <span>{language === 'ar' ? 'تفاصيل التوافق الزمني' : 'Why this?'}</span>
+                            <span>{t('spontaneous.whyThis')}</span>
                             <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isWhyExpanded ? 'rotate-180' : ''}`} />
                           </button>
 
                           {isWhyExpanded && (
-                            <div className="mt-2 p-3.5 rounded-2xl bg-[#081714]/80 border border-white/10 text-xs text-[#D2E3DE] leading-relaxed animate-in fade-in duration-150 space-y-1">
+                            <div className="mt-2 p-3.5 rounded-2xl bg-[var(--surface-container)]/80 border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] leading-relaxed animate-in fade-in duration-150 space-y-1">
                               <p>{language === 'ar' ? option.whyThisDetailedAr : option.whyThisDetailed}</p>
                               {option.isTightFit && (
                                 <p className="text-amber-300 font-semibold pt-1">
-                                  ⏱ {language === 'ar' ? 'ملاحظة: النشاط بينتهي ٠١:١٥ م، وبيسيب ١٥ دقيقة راحة للوصول لطاولة الغداء.' : '⏱ Note: Finishes at 1:15 PM, leaving 15 min to reach your 1:30 PM lunch.'}
+                                  ⏱ {t('spontaneous.noteFinishesAt115')}
                                 </p>
                               )}
                             </div>
@@ -682,10 +623,10 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         </div>
 
                         {/* Action Bar & CTA */}
-                        <div className="pt-4 border-t border-white/10 mt-3 flex flex-wrap items-center justify-between gap-3">
+                        <div className="pt-4 border-t border-[var(--border-subtle)] mt-3 flex flex-wrap items-center justify-between gap-3">
                           {/* Basic Preference Feedback Buttons */}
-                          <div className="flex items-center gap-1.5 text-xs text-[#D2E3DE]/60">
-                            <span className="text-[12px]">{language === 'ar' ? 'رأيك:' : 'Feedback:'}</span>
+                          <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/60">
+                            <span className="text-[12px]">{t('spontaneous.feedback')}</span>
                             <button
                               type="button"
                               id={`feedback-more-${option.id}`}
@@ -693,9 +634,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                               className={`p-1.5 rounded-full transition-colors cursor-pointer ${
                                 feedback === 'liked'
                                   ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
-                                  : 'hover:bg-white/10 text-[#D2E3DE]/60'
+                                  : 'hover:bg-[var(--surface-card)]/10 text-[var(--text-secondary)]/60'
                               }`}
-                              title={language === 'ar' ? 'عايز حاجات شبه دي' : 'More like this'}
+                              title={t('spontaneous.moreLikeThis')}
                             >
                               <ThumbsUp className="w-3.5 h-3.5" />
                             </button>
@@ -706,9 +647,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                               className={`p-1.5 rounded-full transition-colors cursor-pointer ${
                                 feedback === 'disliked'
                                   ? 'bg-rose-500/30 text-rose-300 border border-rose-500/40'
-                                  : 'hover:bg-white/10 text-[#D2E3DE]/60'
+                                  : 'hover:bg-[var(--surface-card)]/10 text-[var(--text-secondary)]/60'
                               }`}
-                              title={language === 'ar' ? 'مش ذوقي' : 'Not my style'}
+                              title={t('spontaneous.notMyStyle')}
                             >
                               <ThumbsDown className="w-3.5 h-3.5" />
                             </button>
@@ -719,7 +660,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                             {isAdded ? (
                               <span className="px-4 py-2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5">
                                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                <span>{language === 'ar' ? 'تمت الإضافة ✓' : 'Added ✓'}</span>
+                                <span>{t('spontaneous.added')}</span>
                               </span>
                             ) : (
                               <button
@@ -732,11 +673,11 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                                 }}
                                 className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer ${
                                   isSelected
-                                    ? 'bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714]'
-                                    : 'bg-[#13312B] hover:bg-white/10 text-[#F4C36C] border border-[#F4C36C]/30'
+                                    ? 'bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)]'
+                                    : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30'
                                 }`}
                               >
-                                <span>{language === 'ar' ? `اختر ${option.tagAr}` : `Choose ${option.tag}`}</span>
+                                <span>{t('spontaneous.chooseTag', { tag: language === 'ar' ? option.tagAr : option.tag })}</span>
                                 <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
                               </button>
                             )}
@@ -752,14 +693,14 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               {/* FOCUSED ACTIVITY DETAIL VIEW */}
               <section 
                 id="selected-activity-detail-card"
-                className="bg-[#0E2520] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-xl space-y-5"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xl space-y-5"
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                      {language === 'ar' ? 'تفاصيل النشاط المحدد' : 'Activity Details'}
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                      {t('spontaneous.activityDetails')}
                     </span>
-                    <h3 className="text-xl font-serif font-bold text-[#F7F3EA]">
+                    <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
                       {language === 'ar' ? selectedOption.titleAr : selectedOption.title}
                     </h3>
                   </div>
@@ -771,75 +712,75 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                         : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                   }`}>
-                    {language === 'ar' ? `نمط ${selectedOption.tagAr}` : `${selectedOption.tag} Mode`}
+                    {t('spontaneous.tagMode', { tag: language === 'ar' ? selectedOption.tagAr : selectedOption.tag })}
                   </span>
                 </div>
 
                 {/* 5 Key Attribute Metrics */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center text-xs">
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block">{language === 'ar' ? 'المدة' : 'Duration'}</span>
-                    <span className="font-bold text-sm text-[#F7F3EA]">{selectedOption.durationMinutes} min</span>
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
+                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('arrival.duration')}</span>
+                    <span className="font-bold text-sm text-[var(--text-primary)]">{selectedOption.durationMinutes} min</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block">{language === 'ar' ? 'المسافة' : 'Distance'}</span>
-                    <span className="font-bold text-sm text-[#F7F3EA]">{selectedOption.distanceKm}</span>
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
+                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('food.distance')}</span>
+                    <span className="font-bold text-sm text-[var(--text-primary)]">{selectedOption.distanceKm}</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block">{language === 'ar' ? 'التكلفة' : 'Est. Cost'}</span>
-                    <span className="font-bold text-xs text-[#F4C36C]">{language === 'ar' ? selectedOption.priceEstimateAr : selectedOption.priceEstimate}</span>
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
+                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.estCost')}</span>
+                    <span className="font-bold text-xs text-[var(--accent-secondary)]">{language === 'ar' ? selectedOption.priceEstimateAr : selectedOption.priceEstimate}</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block">{language === 'ar' ? 'أفضل وقت' : 'Best Time'}</span>
-                    <span className="font-bold text-sm text-emerald-300">{language === 'ar' ? 'دلوقتي' : 'Now'}</span>
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
+                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.bestTime')}</span>
+                    <span className="font-bold text-sm text-emerald-300">{t('spontaneous.now')}</span>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-[#13312B] border border-white/5 space-y-1 col-span-2 sm:col-span-1">
-                    <span className="text-[11px] uppercase font-bold text-[#D2E3DE]/50 block">{language === 'ar' ? 'الإيقاع' : 'Pace'}</span>
-                    <span className="font-bold text-sm text-[#F4C36C]">{language === 'ar' ? selectedOption.paceAr : selectedOption.pace}</span>
+                  <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1 col-span-2 sm:col-span-1">
+                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.pace')}</span>
+                    <span className="font-bold text-sm text-[var(--accent-secondary)]">{language === 'ar' ? selectedOption.paceAr : selectedOption.pace}</span>
                   </div>
                 </div>
 
                 {/* "Why it works" Block */}
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-emerald-500/30 space-y-1.5 text-xs">
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-emerald-500/30 space-y-1.5 text-xs">
                   <div className="flex items-center gap-1.5 text-emerald-300 font-bold">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <span>{language === 'ar' ? 'لماذا يناسب جدولك تماماً' : 'Why it works'}</span>
+                    <span>{t('spontaneous.whyItWorks')}</span>
                   </div>
-                  <p className="text-[#D2E3DE] leading-relaxed font-medium">
+                  <p className="text-[var(--text-secondary)] leading-relaxed font-medium">
                     {language === 'ar' ? selectedOption.whyItWorksAr : selectedOption.whyItWorks}
                   </p>
                 </div>
 
                 {/* Proposed Schedule Preview */}
                 <div className="space-y-2 text-xs">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                    {language === 'ar' ? 'مسار الجدول المقترح' : 'Updated Schedule Flow'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                    {t('spontaneous.updatedScheduleFlow')}
                   </span>
                   
-                  <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/5 space-y-2">
-                    <div className="flex items-center justify-between text-[#D2E3DE]/60">
+                  <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-2">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/60">
                       <span>11:30 AM</span>
                       <span className="font-semibold text-emerald-300 flex items-center gap-1">
-                        {language === 'ar' ? 'تجربة الغطس' : 'Diving Experience'} <Check className="w-3.5 h-3.5" /> ({language === 'ar' ? 'انتهت بدري' : 'Finished early'})
+                        {t('spontaneous.divingExperience')} <Check className="w-3.5 h-3.5" /> ({t('spontaneous.finishedEarly')})
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[#F7F3EA] font-bold py-1 border-y border-white/10">
-                      <span className="text-[#F4C36C]">12:00 PM</span>
-                      <span className="text-[#F4C36C] flex items-center gap-1">
+                    <div className="flex items-center justify-between text-[var(--text-primary)] font-bold py-1 border-y border-[var(--border-subtle)]">
+                      <span className="text-[var(--accent-secondary)]">12:00 PM</span>
+                      <span className="text-[var(--accent-secondary)] flex items-center gap-1">
                         <span>{selectedOption.icon}</span>
-                        <span>{language === 'ar' ? selectedOption.titleAr : selectedOption.title} ({language === 'ar' ? 'مقترح' : 'Proposed'})</span>
+                        <span>{language === 'ar' ? selectedOption.titleAr : selectedOption.title} ({t('spontaneous.proposed')})</span>
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between text-[#D2E3DE]">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]">
                       <span>01:30 PM</span>
-                      <span className="font-semibold text-[#F7F3EA]">
-                        🍽️ {language === 'ar' ? 'غداء البحر في علي بابا (مؤكد)' : 'Lunch by the Bay (Confirmed)'}
+                      <span className="font-semibold text-[var(--text-primary)]">
+                        🍽️ {t('spontaneous.lunchByTheBay')}
                       </span>
                     </div>
                   </div>
@@ -850,21 +791,21 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      showToast(language === 'ar' ? 'تم تخطي الترشيح' : 'Selection dismissed');
+                      showToast(t('spontaneous.selectionDismissed'));
                     }}
-                    className="text-xs font-semibold text-[#D2E3DE]/60 hover:text-white transition-colors cursor-pointer"
+                    className="text-xs font-semibold text-[var(--text-secondary)]/60 hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                   >
-                    {language === 'ar' ? 'مش دلوقتي' : 'Not now'}
+                    {t('spontaneous.notNow')}
                   </button>
 
                   <button
                     type="button"
                     id="add-to-my-trip-main-btn"
                     onClick={() => handleTriggerAddToTrip(selectedOption)}
-                    className="px-6 py-3 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                    className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-98"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>{language === 'ar' ? 'إضافة إلى جدول رحلتي' : 'Add to My Trip'}</span>
+                    <span>{t('spontaneous.addToMyTrip')}</span>
                   </button>
                 </div>
               </section>
@@ -877,105 +818,101 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               {/* 1. COMPACT "RIGHT NOW" CONTEXT CARD */}
               <div 
                 id="current-context-card"
-                className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4"
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                      {language === 'ar' ? 'سياقك اللحظي' : 'Right Now'}
+                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                      {t('spontaneous.rightNow')}
                     </h3>
                   </div>
 
-                  <span className="text-xs font-mono font-bold text-[#F4C36C] bg-[#13312B] border border-[#F4C36C]/30 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-mono font-bold text-[var(--accent-secondary)] bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 px-2.5 py-0.5 rounded-full">
                     11:30 AM
                   </span>
                 </div>
 
                 {/* 5 Context Rows */}
-                <div className="space-y-2.5 text-xs text-[#D2E3DE]/80">
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#F4C36C]" />
-                      <span>{language === 'ar' ? 'الموقع' : 'Location'}</span>
+                <div className="space-y-2.5 text-xs text-[var(--text-secondary)]/80">
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
+                    <span className="text-[var(--text-secondary)]/60 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                      <span>{t('spontaneous.location')}</span>
                     </span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'قرب شاطئ اللايتهاوس' : 'Near Dahab Lighthouse'}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('spontaneous.nearDahabLighthouse')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#F4C36C]" />
-                      <span>{language === 'ar' ? 'الوقت المتاح' : 'Available Time'}</span>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
+                    <span className="text-[var(--text-secondary)]/60 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                      <span>{t('spontaneous.availableTime')}</span>
                     </span>
-                    <span className="font-bold text-[#F4C36C]">{language === 'ar' ? 'ساعتين تقريباً' : 'Approx. 2 hours'}</span>
+                    <span className="font-bold text-[var(--accent-secondary)]">{t('spontaneous.approx2Hours')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">💰 {language === 'ar' ? 'الميزانية' : 'Budget'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'متوسطة' : 'Moderate'}</span>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
+                    <span className="text-[var(--text-secondary)]/60">💰 {t('spontaneous.budget')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('spontaneous.moderate')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">🎯 {language === 'ar' ? 'الاهتمامات' : 'Interests'}</span>
-                    <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'غطس · مغامرة · أكل رايق' : 'Diving · Adventure · Food'}</span>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
+                    <span className="text-[var(--text-secondary)]/60">🎯 {t('spontaneous.interests')}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{t('spontaneous.divingAdventureFood')}</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-[#13312B] border border-white/5">
-                    <span className="text-[#D2E3DE]/60">⚖️ {language === 'ar' ? 'الإيقاع' : 'Pace'}</span>
-                    <span className="font-bold text-[#F4C36C]">{language === 'ar' ? 'متوازن ومرن' : 'Balanced pace'}</span>
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
+                    <span className="text-[var(--text-secondary)]/60">⚖️ {t('spontaneous.pace')}</span>
+                    <span className="font-bold text-[var(--accent-secondary)]">{t('spontaneous.balancedPace')}</span>
                   </div>
                 </div>
 
                 {/* Reassurance text */}
-                <p className="text-[12px] text-[#D2E3DE]/60 leading-relaxed italic text-center pt-1">
-                  {language === 'ar'
-                    ? 'الترشيحات مفلترة حسب مكانك الحالي، راحة ما بعد الغطس، وميعاد غداء الساعة ١:٣٠ م.'
-                    : 'Recommendations filtered by your current position, morning dive recovery, and upcoming 1:30 PM lunch.'}
+                <p className="text-[12px] text-[var(--text-secondary)]/60 leading-relaxed italic text-center pt-1">
+                  {t('spontaneous.recommendationsFilteredByYour')}
                 </p>
               </div>
 
               {/* 2. TIME PROTECTION CARD */}
               <div 
                 id="next-planned-activity-card"
-                className="bg-[#0E2520] rounded-3xl p-6 border-2 border-emerald-500/40 shadow-xl space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 border-2 border-emerald-500/40 shadow-xl space-y-4"
               >
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <Utensils className="w-4 h-4 text-emerald-400" />
-                    <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                      {language === 'ar' ? 'النشاط القادم المحمي' : 'Next Scheduled Activity'}
+                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                      {t('spontaneous.nextScheduledActivity')}
                     </h3>
                   </div>
 
                   <span className="text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                    {language === 'ar' ? 'محمي ومؤكد' : 'Protected'}
+                    {t('spontaneous.protected')}
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#13312B] border border-emerald-500/30 flex items-center justify-between gap-3">
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-emerald-500/30 flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
                     <span className="text-xs font-mono font-bold text-emerald-300">
-                      {language === 'ar' ? '٠١:٣٠ م (بعد ساعتين)' : '01:30 PM (in 2 hours)'}
+                      {t('spontaneous.0130PMIn2')}
                     </span>
-                    <h4 className="font-bold text-sm text-[#F7F3EA]">
-                      {language === 'ar' ? 'غداء الوداع ع البحر' : 'Lunch by the Bay'}
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">
+                      {t('spontaneous.lunchByTheBay-2')}
                     </h4>
-                    <p className="text-xs text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'علي بابا للأسماك والمقبلات البدوية' : 'Ali Baba Seafood & Bedouin Mezze'}
+                    <p className="text-xs text-[var(--text-secondary)]/70">
+                      {t('spontaneous.aliBabaSeafoodBedouin')}
                     </p>
                   </div>
                   <span className="text-2xl">🍽️</span>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#081714]/60 border border-white/5 space-y-1 text-xs text-[#D2E3DE]/80">
-                  <div className="flex items-center gap-1.5 text-[#F4C36C] font-bold">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#F4C36C]" />
-                    <span>{language === 'ar' ? 'نظام حماية التوقيت مفعّل' : 'Time Protection Active'}</span>
+                <div className="p-3 rounded-2xl bg-[var(--surface-container)]/60 border border-white/5 space-y-1 text-xs text-[var(--text-secondary)]/80">
+                  <div className="flex items-center gap-1.5 text-[var(--accent-secondary)] font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                    <span>{t('spontaneous.timeProtectionActive')}</span>
                   </div>
                   <p>
-                    {language === 'ar'
-                      ? 'جميع الخيارات تنتهي قبل الساعة ٠١:١٥ م لتضمن وصولك لغدائك بكل راحة وهدوء.'
-                      : 'All recommendations are calculated to finish before 1:15 PM so your lunch remains relaxed and on time.'}
+                    {t('spontaneous.allRecommendationsAreCalculated')}
                   </p>
                 </div>
               </div>
@@ -983,48 +920,48 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               {/* 3. LIGHTWEIGHT ORIENTATION MAP PREVIEW */}
               <div 
                 id="orientation-map-preview-card"
-                className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-3.5"
+                className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3.5"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-[#F4C36C]" />
-                    <h4 className="font-serif font-bold text-sm text-[#F7F3EA]">
-                      {language === 'ar' ? 'الخريطة القريبة منك' : 'Near You (Orientation)'}
+                    <MapPin className="w-4 h-4 text-[var(--accent-secondary)]" />
+                    <h4 className="font-serif font-bold text-sm text-[var(--text-primary)]">
+                      {t('spontaneous.nearYouOrientation')}
                     </h4>
                   </div>
-                  <span className="text-[12px] text-[#D2E3DE]/50 font-medium">
-                    {language === 'ar' ? 'خليج اللايتهاوس' : 'Lighthouse Bay'}
+                  <span className="text-[12px] text-[var(--text-secondary)]/50 font-medium">
+                    {t('spontaneous.lighthouseBay')}
                   </span>
                 </div>
 
                 {/* Stylized lightweight schematic map */}
-                <div className="h-44 rounded-2xl bg-[#081714] border border-white/10 relative overflow-hidden flex flex-col justify-between p-3">
+                <div className="h-44 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] relative overflow-hidden flex flex-col justify-between p-3">
                   {/* Sea background representation */}
-                  <div className="absolute right-0 top-0 bottom-0 w-2/5 bg-[#13312B]/80 border-l border-teal-500/20 flex items-center justify-center">
+                  <div className="absolute right-0 top-0 bottom-0 w-2/5 bg-[var(--surface-container)]/80 border-l border-teal-500/20 flex items-center justify-center">
                     <span className="text-[11px] uppercase tracking-wider font-extrabold text-teal-300/60 rotate-90">
-                      {language === 'ar' ? 'البحر الأحمر' : 'Red Sea (Bay)'}
+                      {t('spontaneous.redSeaBay')}
                     </span>
                   </div>
 
                   {/* You are here marker */}
-                  <div className="relative z-10 inline-flex items-center gap-1 bg-[#13312B] text-[#F7F3EA] border border-white/10 px-2 py-1 rounded-full text-[11px] font-bold shadow-md">
+                  <div className="relative z-10 inline-flex items-center gap-1 bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] px-2 py-1 rounded-full text-[11px] font-bold shadow-md">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>{language === 'ar' ? 'مكانك الآن (١١:٣٠ ص)' : 'You are here (11:30 AM)'}</span>
+                    <span>{t('spontaneous.youAreHere1130')}</span>
                   </div>
 
                   {/* Landmarks representation */}
                   <div className="relative z-10 space-y-1 text-[11px]">
-                    <div className="inline-flex items-center gap-1 bg-[#0E2520] border border-white/10 px-2 py-0.5 rounded-md font-bold text-[#F7F3EA] shadow-sm">
-                      <span>☕ {language === 'ar' ? 'كافيه اللايتهاوس (٨٠٠م)' : 'Lighthouse Cafe (0.8km)'}</span>
+                    <div className="inline-flex items-center gap-1 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-md font-bold text-[var(--text-primary)] shadow-sm">
+                      <span>☕ {t('spontaneous.lighthouseCafe08km')}</span>
                     </div>
                     <br />
-                    <div className="inline-flex items-center gap-1 bg-[#0E2520] border border-white/10 px-2 py-0.5 rounded-md font-bold text-[#F7F3EA] shadow-sm">
-                      <span>🍽️ {language === 'ar' ? 'علي بابا (غداء · ٠١:٣٠ م)' : 'Ali Baba (Lunch · 1:30 PM)'}</span>
+                    <div className="inline-flex items-center gap-1 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-md font-bold text-[var(--text-primary)] shadow-sm">
+                      <span>🍽️ {t('spontaneous.aliBabaLunch130')}</span>
                     </div>
                   </div>
 
-                  <div className="relative z-10 text-[11px] text-[#D2E3DE]/60 bg-[#0E2520]/80 backdrop-blur-xs px-2 py-0.5 rounded-md border border-white/5 self-start">
-                    {language === 'ar' ? 'جميع الخيارات على بُعد ٥–١٠ دقائق مشي' : 'All options within 5–10 min walking radius'}
+                  <div className="relative z-10 text-[11px] text-[var(--text-secondary)]/60 bg-[var(--surface-card)]/80 backdrop-blur-xs px-2 py-0.5 rounded-md border border-white/5 self-start">
+                    {t('spontaneous.allOptionsWithin510')}
                   </div>
                 </div>
               </div>
@@ -1046,48 +983,46 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
         >
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-white/10 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2 text-amber-400">
                 <AlertCircle className="w-5 h-5" />
-                <h3 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'النشاط مناسب لكن وقته أضيق شوية' : "This fits, but it'll be a little tighter."}
+                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  {t('spontaneous.thisFitsButItll')}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setTightFitModalOption(null)}
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[#D2E3DE] cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[var(--surface-card)]/5 hover:bg-[var(--surface-card)]/10 flex items-center justify-center text-[var(--text-secondary)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-[#D2E3DE]/80">
+            <div className="space-y-3 text-xs text-[var(--text-secondary)]/80">
               <p className="leading-relaxed">
-                {language === 'ar' 
-                  ? `أنت اخترت ${tightFitModalOption.titleAr}. ده هيكون تسلسل الوقت:`
-                  : `You selected ${tightFitModalOption.title}. Here is how the timeline will look:`}
+                {t('spontaneous.youSelectedTimeline', { title: language === 'ar' ? tightFitModalOption.titleAr : tightFitModalOption.title })}
               </p>
 
-              <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
-                <div className="flex items-center justify-between font-bold text-[#F7F3EA]">
-                  <span>🤿 {language === 'ar' ? 'السنوركلينج' : 'Snorkeling'}</span>
-                  <span className="font-mono text-[#F4C36C]">12:00 PM – 01:15 PM</span>
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
+                <div className="flex items-center justify-between font-bold text-[var(--text-primary)]">
+                  <span>🤿 {t('spontaneous.snorkeling')}</span>
+                  <span className="font-mono text-[var(--accent-secondary)]">12:00 PM – 01:15 PM</span>
                 </div>
-                <div className="flex items-center justify-between font-bold text-emerald-300 pt-1 border-t border-white/10">
-                  <span>🍽️ {language === 'ar' ? 'غداء البحر' : 'Lunch by the Bay'}</span>
+                <div className="flex items-center justify-between font-bold text-emerald-300 pt-1 border-t border-[var(--border-subtle)]">
+                  <span>🍽️ {t('spontaneous.lunchByTheBay-3')}</span>
                   <span className="font-mono text-emerald-300">01:30 PM</span>
                 </div>
               </div>
 
               <div className="p-3 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                <span className="font-bold block">⏱ {language === 'ar' ? 'فارق الوقت: ١٥ دقيقة' : 'Buffer: 15 minutes'}</span>
+                <span className="font-bold block">⏱ {t('spontaneous.buffer15Minutes')}</span>
                 <p className="text-[12px] leading-relaxed pt-0.5 text-amber-200/90">
-                  {language === 'ar' ? 'هيكون معاك حوالي ١٥ دقيقة لتغيير الهدوم والوصول لمكان الغداء.' : "You'll have about 15 minutes to dry off and get to your lunch table."}
+                  {t('spontaneous.youllHaveAbout15')}
                 </p>
               </div>
             </div>
@@ -1097,9 +1032,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 type="button"
                 id="add-anyway-btn"
                 onClick={() => commitAddToTrip(tightFitModalOption)}
-                className="w-full sm:flex-1 py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs shadow-md transition-colors cursor-pointer"
+                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] font-bold text-xs shadow-md transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'إضافة على أي حال' : 'Add Anyway'}
+                {t('spontaneous.addAnyway')}
               </button>
 
               <button
@@ -1109,9 +1044,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   setTightFitModalOption(null);
                   setSelectedOptionId('opt-chill');
                 }}
-                className="w-full sm:flex-1 py-2.5 rounded-full bg-[#13312B] hover:bg-white/10 text-[#F7F3EA] font-bold text-xs border border-white/10 transition-colors cursor-pointer"
+                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--text-primary)] font-bold text-xs border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'اختيار نشاط أهدى' : 'Choose Something Easier'}
+                {t('spontaneous.chooseSomethingEasier')}
               </button>
             </div>
           </div>
@@ -1123,9 +1058,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
         <div 
           role="status" 
           aria-live="polite"
-          className="fixed bottom-20 md:bottom-8 right-4 sm:right-8 bg-[#0E2520] text-[#F7F3EA] border border-white/10 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5 z-50 animate-in slide-in-from-bottom-2 duration-150 backdrop-blur-md"
+          className="fixed bottom-20 md:bottom-8 right-4 sm:right-8 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5 z-50 animate-in slide-in-from-bottom-2 duration-150 backdrop-blur-md"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#F4C36C] flex-shrink-0" />
+          <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)] flex-shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}

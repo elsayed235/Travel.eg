@@ -9,6 +9,7 @@ import { requireRole } from '../middleware/rbacMiddleware';
 import { AuthenticatedRequest } from '../middleware/correlationMiddleware';
 import { db } from '../db/database';
 import { isFactStale } from '../domain/factFreshness';
+import { runDkosLiveProductProof } from '../test/runDkosLiveProductProof';
 
 export const adminDahabRouter = Router();
 
@@ -203,7 +204,6 @@ adminDahabRouter.get('/logs', (req: AuthenticatedRequest, res: Response) => {
  * Execute 30-Point DKOS Live Product Proof Suite
  */
 adminDahabRouter.post('/proof', (req: AuthenticatedRequest, res: Response) => {
-  const { runDkosLiveProductProof } = require('../test/runDkosLiveProductProof');
   const proofResult = runDkosLiveProductProof();
 
   res.json({

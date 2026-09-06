@@ -19,13 +19,14 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
 import { GroundedIntelligenceQueryResponse, ProductOpportunity } from '../../types/intelligence';
 
 export const GroundedAiAssistantView: React.FC<{
   onOpportunityCreated?: (opp: ProductOpportunity) => void;
 }> = ({ onOpportunityCreated }) => {
   const { showToast, addOpportunity, opportunities } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
 
   const [queryInput, setQueryInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -71,18 +72,8 @@ export const GroundedAiAssistantView: React.FC<{
     setQueryInput(queryText);
 
     try {
-      const res = await fetch('/api/intelligence/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: queryText, language })
-      });
-
-      if (res.ok) {
-        const data: GroundedIntelligenceQueryResponse = await res.json();
-        setActiveResponse(data);
-      } else {
-        throw new Error('API query failed');
-      }
+      const data = await api.askIntelligence({ query: queryText, language });
+      setActiveResponse(data);
     } catch (e) {
       // Was a fabricated answer claiming "Processed against 145 raw
       // observations, 18 sources" at 89% confidence. A failed request must not
@@ -90,9 +81,7 @@ export const GroundedAiAssistantView: React.FC<{
       console.error('Intelligence query failed', e);
       setActiveResponse({
         query: queryText,
-        answer: language === 'ar'
-          ? 'تعذّر الوصول لخدمة التحليل. لم يتم إنتاج أي إجابة — حاول مرة أخرى.'
-          : 'The intelligence service could not be reached. No answer was produced — please try again.',
+        answer: t('intel.theIntelligenceServiceCould'),
         isGrounded: false,
         hasSufficientEvidence: false,
         answerSource: 'deterministic',
@@ -106,25 +95,18 @@ export const GroundedAiAssistantView: React.FC<{
 
   const handleDraftOpportunityFromInsight = async () => {
     setIsDraftingOpp(true);
-    showToast(language === 'ar' ? 'جاري تحويل الرؤية الاستخباراتية إلى فرصة منتج...' : 'Synthesizing Product Opportunity from grounded insight...');
+    showToast(t('intel.synthesizingProductOpportunityFrom'));
 
     try {
-      const res = await fetch('/api/intelligence/draft-opportunity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signalIds: ['TRND-001', 'REV-003', 'OBS-008'],
-          contextNotes: activeResponse?.answer || ''
-        })
+      const data = await api.draftOpportunity({
+        signalIds: ['TRND-001', 'REV-003', 'OBS-008'],
+        contextNotes: activeResponse?.answer || ''
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.opportunity) {
-          addOpportunity(data.opportunity);
-          if (onOpportunityCreated) onOpportunityCreated(data.opportunity);
-          showToast(language === 'ar' ? 'تمت إضافة فرصة المنتج الجديدة إلى قائمة المراجعة بنجاح ✓' : 'New Product Opportunity added to review backlog ✓');
-        }
+      if (data?.opportunity) {
+        addOpportunity(data.opportunity);
+        if (onOpportunityCreated) onOpportunityCreated(data.opportunity);
+        showToast(t('intel.newProductOpportunityAdded'));
       }
     } catch (e) {
       console.error(e);
@@ -137,57 +119,55 @@ export const GroundedAiAssistantView: React.FC<{
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl bg-gradient-to-br from-[#062C35] via-[#0A3D4A] to-[#041D23] p-6 text-white border border-[#20A89A]/30 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#20A89A]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="rounded-2xl bg-gradient-to-br from-[var(--surface-container)] via-[var(--surface-container)] to-[var(--surface-container)] p-6 text-white border border-[var(--accent-primary)]/30 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-primary)]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#20A89A]/20 border border-[#20A89A]/40 text-[#20A89A] text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold uppercase tracking-wider mb-2">
               <Bot className="w-3.5 h-3.5" />
-              {language === 'ar' ? 'ذكاء دهب المؤرض بالأدلة' : 'Grounded Sinai Intelligence Q&A'}
+              {t('intel.groundedSinaiIntelligenceQA')}
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight">
-              {language === 'ar' ? 'اسأل ذكاء دهب للسوق والمنتج' : 'Ask Dahab Market & Product Intelligence'}
+              {t('intel.askDahabMarketProduct')}
             </h2>
             <p className="text-emerald-100/80 text-sm max-w-2xl mt-1">
-              {language === 'ar'
-                ? 'استعلام مباشر عبر نماذج Gemini المؤرضة بقاعدة سجلات الاستخبارات الحقيقية (الموردين، المراجعات، مؤشرات الأسعار، وتنبيهات الطقس).'
-                : 'Direct natural-language querying grounded strictly in structured Dahab market observations, supplier records, price indices, and regulatory conditions.'}
+              {t('intel.directNaturallanguageQueryingGrounded')}
             </p>
           </div>
-          <div className="flex items-center gap-3 self-start md:self-auto bg-black/30 p-3 rounded-xl border border-white/10 text-xs">
+          <div className="flex items-center gap-3 self-start md:self-auto bg-black/30 p-3 rounded-xl border border-[var(--border-subtle)] text-xs">
             <div className="text-right">
               <div className="text-emerald-400 font-bold flex items-center gap-1.5 justify-end">
-                <ShieldCheck className="w-4 h-4 text-[#20A89A]" />
-                {language === 'ar' ? 'مؤرض ١٠٠٪ بدون هلوسة' : '100% Grounded · Anti-Slop'}
+                <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)]" />
+                {t('intel.100GroundedAntiSlop')}
               </div>
               <div className="text-gray-400 text-[12px] mt-0.5">
-                {language === 'ar' ? 'يفصح عن المصادر وتاريخ المشاهدة' : 'Exposes sources, dates & confidence'}
+                {t('intel.exposesSourcesDatesConfidence')}
               </div>
             </div>
           </div>
         </div>
 
         {/* Suggested Queries Chips */}
-        <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-2">
+        <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center gap-2">
           <span className="text-xs text-gray-300 font-medium flex items-center gap-1">
             <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-            {language === 'ar' ? 'استعلامات سريعة مقترحة:' : 'Suggested Operator Queries:'}
+            {t('intel.suggestedOperatorQueries')}
           </span>
           {suggestedQueries.map((sq, idx) => (
             <button
               key={idx}
               onClick={() => handleAskQuery(sq.query)}
-              className="text-xs bg-white/10 hover:bg-white/20 text-white/90 px-3 py-1.5 rounded-lg border border-white/15 transition-all duration-150 flex items-center gap-1.5 hover:border-[#20A89A]/50"
+              className="text-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] transition-all duration-150 flex items-center gap-1.5 hover:border-[var(--accent-primary)]/50"
             >
               <span>{language === 'ar' ? sq.labelAr : sq.label}</span>
-              <ChevronRight className="w-3 h-3 text-[#20A89A]" />
+              <ChevronRight className="w-3 h-3 text-[var(--accent-primary)]" />
             </button>
           ))}
         </div>
       </div>
 
       {/* Query Search Bar */}
-      <div className="bg-white dark:bg-[#0B252C] rounded-xl p-3 border border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-xl p-3 border border-gray-200 dark:border-gray-800 shadow-sm">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -201,28 +181,27 @@ export const GroundedAiAssistantView: React.FC<{
               type="text"
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
+              aria-label={t('intel.search')}
               placeholder={
-                language === 'ar'
-                  ? 'اكتب سؤالك حول السوق، المنافسين، الموردين، أو شكاوى المسافرين في دهب...'
-                  : 'Ask about market trends, supplier vetting, pricing disparities, or traveler friction in Dahab...'
+                t('intel.askAboutMarketTrends')
               }
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-gray-50 dark:bg-[#071E23] text-gray-900 dark:text-gray-100 text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#20A89A]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-gray-50 dark:bg-[var(--surface-container)] text-gray-900 dark:text-gray-100 text-sm border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading || !queryInput.trim()}
-            className="px-5 py-2.5 bg-[#20A89A] hover:bg-[#1a8c80] disabled:opacity-50 text-[#04231F] font-medium rounded-lg text-sm transition-colors flex items-center gap-2"
+            className="px-5 py-2.5 bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] disabled:opacity-50 text-[var(--text-primary)] font-medium rounded-lg text-sm transition-colors flex items-center gap-2"
           >
             {isLoading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>{language === 'ar' ? 'جاري التحليل...' : 'Analyzing...'}</span>
+                <span>{t('intel.analyzing')}</span>
               </>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                <span>{language === 'ar' ? 'استعلم' : 'Ask AI'}</span>
+                <span>{t('intel.askAI')}</span>
               </>
             )}
           </button>
@@ -231,19 +210,19 @@ export const GroundedAiAssistantView: React.FC<{
 
       {/* Grounded AI Answer Display */}
       {activeResponse && (
-        <div className="bg-white dark:bg-[#082228] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
+        <div className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden">
           {/* Answer Header */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-[#061B20] border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="px-6 py-4 bg-gray-50 dark:bg-[var(--surface-container)] border-b border-gray-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#20A89A]/20 border border-[#20A89A]/40 flex items-center justify-center text-[#20A89A]">
+              <div className="w-8 h-8 rounded-lg bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 flex items-center justify-center text-[var(--accent-primary)]">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                  {language === 'ar' ? 'إجابة مؤرضة بسجلات الاستخبارات' : 'Grounded Intelligence Synthesis'}
+                  {t('intel.groundedIntelligenceSynthesis')}
                 </h4>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {language === 'ar' ? 'الاستعلام: ' : 'Query: '}"{activeResponse.query}"
+                  {t('intel.query')}"{activeResponse.query}"
                 </div>
               </div>
             </div>
@@ -254,20 +233,20 @@ export const GroundedAiAssistantView: React.FC<{
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {activeResponse.answerSource === 'gemini'
-                  ? (language === 'ar' ? `تحليل بالذكاء الاصطناعي · ${activeResponse.model ?? ''}` : `AI analysis · ${activeResponse.model ?? ''}`)
-                  : (language === 'ar' ? 'مطابقة قواعد على البيانات المخزنة' : 'Rule-based match over stored data')}
+                  ? (t('intel.aiAnalysis', { model: activeResponse.model ?? '' }))
+                  : (t('intel.rulebasedMatchOverStored'))}
               </div>
               <button
                 onClick={handleDraftOpportunityFromInsight}
                 disabled={isDraftingOpp}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#20A89A] hover:bg-[#1a8c80] text-[#04231F] text-xs font-semibold shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-sm transition-all"
               >
                 {isDraftingOpp ? (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <PlusCircle className="w-3.5 h-3.5" />
                 )}
-                {language === 'ar' ? 'تحويل إلى فرصة منتج' : 'Synthesize Product Opportunity'}
+                {t('intel.synthesizeProductOpportunity')}
               </button>
             </div>
           </div>
@@ -288,11 +267,11 @@ export const GroundedAiAssistantView: React.FC<{
               <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Database className="w-3.5 h-3.5 text-[#20A89A]" />
-                    {language === 'ar' ? 'البيانات المستخدمة في الإجابة:' : 'Data used to answer:'}
+                    <Database className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                    {t('intel.dataUsedToAnswer')}
                   </div>
                   <span className="text-[12px] text-gray-500">
-                    {language === 'ar' ? 'من قاعدة بيانات المنصة' : 'From the platform database'}
+                    {t('intel.fromThePlatformDatabase')}
                   </span>
                 </div>
 
@@ -300,13 +279,13 @@ export const GroundedAiAssistantView: React.FC<{
                   {activeResponse.groundedIn.map(source => (
                     <div
                       key={source.dataset}
-                      className="p-3 rounded-xl bg-gray-50 dark:bg-[#071D22] border border-gray-200 dark:border-gray-700/60 text-xs flex items-center justify-between gap-3"
+                      className="p-3 rounded-xl bg-gray-50 dark:bg-[var(--surface-container)] border border-gray-200 dark:border-gray-700/60 text-xs flex items-center justify-between gap-3"
                     >
                       <span className="font-semibold text-gray-900 dark:text-white truncate">
                         {source.dataset.replace(/_/g, ' ')}
                       </span>
                       <span className="text-gray-500 whitespace-nowrap">
-                        {source.recordCount} {language === 'ar' ? 'سجل' : source.recordCount === 1 ? 'record' : 'records'}
+                        {source.recordCount} {source.recordCount === 1 ? t('intel.recordSingle') : t('intel.recordPlural')}
                       </span>
                     </div>
                   ))}

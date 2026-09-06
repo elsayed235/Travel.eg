@@ -22,6 +22,23 @@ import { rowToEntity } from './schemaBuilder';
  * Reads here therefore see everything committed. Inside an open transaction,
  * pending changes have not been flushed yet, so these helpers fall back to the
  * in-memory collection to avoid reading a stale row.
+ *
+ * ---------------------------------------------------------------------------
+ * THESE RETURN COPIES. DO NOT MUTATE THE RESULT.
+ * ---------------------------------------------------------------------------
+ * Every entity here is hydrated with `JSON.parse` from the `data` column, so it
+ * is a fresh object, not the element inside `db.<collection>`. The existing code
+ * routinely mutates what `db.bookings.find(...)` returns and relies on that
+ * landing in the store — for example authService's legacy-password upgrade does
+ * `user.passwordSalt = newSalt` on the found record and expects the next
+ * `save()` to persist it.
+ *
+ * Doing that to a value from this module writes to a throwaway object: no
+ * error, no persistence, and a password that silently never upgrades. Only
+ * migrate a call site to these helpers after checking that it reads.
+ *
+ * For a read-modify-write, keep using `db.<collection>.find(...)`, which
+ * returns the live object the adapter will diff and persist.
  */
 
 function adapter(): SqlitePersistenceAdapter | null {

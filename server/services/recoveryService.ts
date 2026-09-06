@@ -38,6 +38,9 @@ export class RecoveryService {
     const oldPrice = originalItem.priceEGP;
     const newPrice = params.newPriceEGP !== undefined ? params.newPriceEGP : oldPrice;
     const priceVariance = oldPrice - newPrice; // Positive = refund due to traveler; Negative = additional charge
+    // The previous title must be captured before the item is overwritten, or
+    // the recovery history records the new title as the "previous" one.
+    const previousTitle = originalItem.title;
 
     const newBookingRef = `DHB-RECOV-${Date.now().toString().slice(-4)}`;
     const transactionId = `TXN-RECOV-${Date.now()}`;
@@ -54,7 +57,7 @@ export class RecoveryService {
         ...(originalItem.metadata || {}),
         recoveryReason: params.reason,
         recoveredAt: now,
-        previousTitle: originalItem.title
+        previousTitle
       };
 
       // 2. Cancel or update previous booking if exists
@@ -69,9 +72,16 @@ export class RecoveryService {
 
       // 3. Double-entry ledger adjustment
       if (priceVariance > 0) {
-        // Price of alternative is lower: Issue refund of difference
+        // Price of alternative is lower: issue a refund of the difference.
+        //
+        // This used to pass bookingId: newBookingRef, a booking that is never
+        // created — the trip item is mutated in place and no booking is filed
+        // with that ref. refundableAmountEGP matched PAYMENT_CAPTURED entries by
+        // bookingRef, found none, and threw 409, failing every cheaper
+        // substitution. The refund is keyed to the trip's captured funds ("what
+        // was captured and not yet refunded"), which is what a price-variance
+        // refund actually draws against.
         paymentService.processRefund({
-          bookingId: newBookingRef,
           tripId: params.tripId,
           amountEGP: priceVariance,
           reason: `Automatic price variance refund for itinerary substitution: ${params.reason}`,

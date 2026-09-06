@@ -254,9 +254,14 @@ export class PaymentService {
           rawPayloadHash: crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex')
         });
 
-        if (payload.success && payment.state !== 'CAPTURED') {
+        // The previous guard was inverted: payments are created CAPTURED (line
+        // 87), so `state !== 'CAPTURED'` was false and a gateway-declared
+        // failure could never mark the payment FAILED — it stayed CAPTURED
+        // forever. The success branch re-asserts CAPTURED; a failure always
+        // transitions to FAILED (unless already failed).
+        if (payload.success) {
           payment.state = 'CAPTURED';
-        } else if (!payload.success && payment.state !== 'CAPTURED') {
+        } else if (payment.state !== 'FAILED') {
           payment.state = 'FAILED';
         }
 

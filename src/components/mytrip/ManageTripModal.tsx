@@ -31,25 +31,25 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
       id: 'edit-itinerary',
       title: 'Edit itinerary',
       desc: 'Rearrange free time, adjust morning pacing, or swap suggested dining spots.',
-      icon: <Edit3 className="w-4 h-4 text-[#EA8E75]" />,
+      icon: <Edit3 className="w-4 h-4 text-[var(--brand-coral)]" />,
     },
     {
       id: 'add-activity',
       title: 'Add activity',
       desc: 'Browse optional yoga sessions, windsurfing lessons, or Ras Abu Galum boat trips.',
-      icon: <PlusCircle className="w-4 h-4 text-[#20A89A]" />,
+      icon: <PlusCircle className="w-4 h-4 text-[var(--accent-primary)]" />,
     },
     {
       id: 'change-booking',
       title: 'Change booking',
       desc: 'Request date shifts, room category upgrades, or change transfer pickup times.',
-      icon: <RefreshCw className="w-4 h-4 text-[#EA8E75]" />,
+      icon: <RefreshCw className="w-4 h-4 text-[var(--brand-coral)]" />,
     },
     {
       id: 'view-booking-details',
       title: 'View booking details',
       desc: 'Access unified voucher codes, operator contact cards, and payment receipts.',
-      icon: <FileText className="w-4 h-4 text-[#20A89A]" />,
+      icon: <FileText className="w-4 h-4 text-[var(--accent-primary)]" />,
     },
   ];
 
@@ -57,29 +57,29 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
         className={`rounded-3xl max-w-lg w-full p-6 sm:p-7 border shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 ${
-          isDark ? 'bg-[#0E2520] text-[#F7F3EA] border-white/10' : 'bg-white text-[#122420] border-[#122420]/10'
+          'bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--border-subtle)]'
         }`}
         role="dialog"
         aria-modal="true"
       >
         {/* Modal Header */}
         <div className={`flex items-center justify-between border-b pb-3.5 ${
-          isDark ? 'border-white/10' : 'border-[#122420]/10'
+          'border-[var(--border-subtle)]'
         }`}>
           <div className="flex items-center gap-2.5">
             <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${
-              isDark ? 'bg-[#13312B] text-[#52C4B7] border-white/10' : 'bg-stone-100 text-[#0E2520] border-[#122420]/10'
+              'bg-[var(--surface-container)] text-[var(--accent-primary)] border-[var(--border-subtle)]'
             }`}>
               <SlidersHorizontal className="w-4 h-4" />
             </div>
             <div>
               <span className={`text-[11px] font-bold uppercase tracking-wider block font-['Outfit',sans-serif] ${
-                isDark ? 'text-[#52C4B7]' : 'text-[#0E2520]'
+                'text-[var(--accent-primary)]'
               }`}>
                 Trip Options
               </span>
               <h3 className={`text-lg font-bold font-['Outfit',sans-serif] ${
-                isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
+                'text-[var(--text-primary)]'
               }`}>
                 Manage Trip
               </h3>
@@ -89,8 +89,9 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close"
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${
-              isDark ? 'bg-white/5 hover:bg-white/10 text-[#D2E3DE]/70 hover:text-[#F7F3EA] border-white/10' : 'bg-stone-100 hover:bg-stone-200 text-[#4A635D] hover:text-[#122420] border-[#122420]/10'
+              'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-subtle)]'
             }`}
           >
             <X className="w-4 h-4" />
@@ -110,24 +111,24 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
               }}
               className={`w-full p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 text-left group cursor-pointer ${
                 isDark 
-                  ? 'bg-[#13312B] border-white/10 hover:border-white/20 hover:bg-[#13312B]/90' 
-                  : 'bg-stone-50 border-[#122420]/10 hover:border-[#122420]/20 hover:bg-stone-100'
+                  ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)] hover:bg-[var(--surface-container)]/90' 
+                  : 'bg-stone-50 border-[var(--surface-card)]/10 hover:border-[var(--surface-card)]/20 hover:bg-stone-100'
               }`}
             >
               <div className="flex items-start gap-3">
                 <div className={`w-8 h-8 rounded-xl border flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:scale-105 transition-transform ${
-                  isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10'
+                  'bg-[var(--surface-card)] border-[var(--border-subtle)]'
                 }`}>
                   {opt.icon}
                 </div>
                 <div className="space-y-0.5">
                   <h4 className={`text-xs font-bold transition-colors ${
-                    isDark ? 'text-[#F7F3EA] group-hover:text-[#F4C36C]' : 'text-[#122420] group-hover:text-[#EA8E75]'
+                    isDark ? 'text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]' : 'text-[var(--surface-card)] group-hover:text-[var(--brand-coral)]'
                   }`}>
                     {opt.title}
                   </h4>
                   <p className={`text-[12px] leading-relaxed ${
-                    isDark ? 'text-[#D2E3DE]/75' : 'text-[#4A635D]'
+                    'text-[var(--text-secondary)]'
                   }`}>
                     {opt.desc}
                   </p>
@@ -135,7 +136,7 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
               </div>
 
               <ChevronRight className={`w-4 h-4 group-hover:translate-x-0.5 transition-all flex-shrink-0 ${
-                isDark ? 'text-[#D2E3DE]/40 group-hover:text-[#F7F3EA]' : 'text-[#4A635D]/50 group-hover:text-[#122420]'
+                'text-[var(--text-secondary)]/40 group-hover:text-[var(--text-primary)]'
               }`} />
             </button>
           ))}
@@ -143,9 +144,9 @@ export const ManageTripModal: React.FC<ManageTripModalProps> = ({
 
         {/* Footer reassurance */}
         <div className={`pt-2 text-center text-xs flex items-center justify-center gap-1.5 border-t ${
-          isDark ? 'text-[#D2E3DE]/70 border-white/10' : 'text-[#4A635D] border-[#122420]/10'
+          'text-[var(--text-secondary)] border-[var(--border-subtle)]'
         }`}>
-          <ShieldCheck className="w-3.5 h-3.5 text-[#20A89A]" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>Changes are protected by Dahab Booking Care</span>
         </div>
       </div>

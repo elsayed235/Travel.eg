@@ -18,6 +18,18 @@ export interface RouteParams {
   programSlug?: string;
   experienceSlug?: string;
   /**
+   * The hotel opened on the /hotels page, carried as a path segment exactly
+   * like program/experience slugs: `/hotels/:slug` resolves to route
+   * '/hotels' with hotelSlug set.
+   */
+  hotelSlug?: string;
+  /**
+   * The rental opened on the /rentals page, carried as a path segment exactly
+   * like hotel/program slugs: `/rentals/:slug` resolves to route '/rentals'
+   * with rentalSlug set.
+   */
+  rentalSlug?: string;
+  /**
    * The product a checkout page should open on.
    *
    * Book Now used to always open on its full grid, so "book this experience"
@@ -56,6 +68,7 @@ export const ROUTES = [
   '/quick-book',
   '/book-now',
   '/food',
+  '/transfers',
   '/help',
   '/change-recovery',
   '/departure',
@@ -72,7 +85,15 @@ export const ROUTES = [
   '/auth/verify',
   '/auth/callback',
   '/programs',
-  '/experiences'
+  '/experiences',
+  '/about',
+  '/faq',
+  '/travel-guides',
+  '/listings',
+  '/restaurants',
+  '/hotels',
+  '/rentals',
+  '/attractions'
 ] as const satisfies readonly AppRoute[];
 
 /** Empty when ROUTES covers the union. Anything else is a compile error below. */
@@ -102,6 +123,12 @@ export function urlFromRoute(route: AppRoute, params?: RouteParams): string {
   }
   if (route === '/experiences' && params?.experienceSlug) {
     return `/experiences/${encodeURIComponent(params.experienceSlug)}`;
+  }
+  if (route === '/hotels' && params?.hotelSlug) {
+    return `/hotels/${encodeURIComponent(params.hotelSlug)}`;
+  }
+  if (route === '/rentals' && params?.rentalSlug) {
+    return `/rentals/${encodeURIComponent(params.rentalSlug)}`;
   }
 
   const query = new URLSearchParams();
@@ -151,6 +178,22 @@ export function routeFromUrl(pathname: string, search = ''): { route: AppRoute; 
       .trim();
     if (slug) {
       return { route: '/experiences', params: { experienceSlug: decodeURIComponent(slug) } };
+    }
+  }
+
+  // Handle direct canonical hotel slugs: /hotels/:slug
+  if (normalized.startsWith('/hotels/')) {
+    const slug = normalized.replace(/^\/hotels\//, '').trim();
+    if (slug) {
+      return { route: '/hotels', params: { hotelSlug: decodeURIComponent(slug) } };
+    }
+  }
+
+  // Handle direct canonical rental slugs: /rentals/:slug
+  if (normalized.startsWith('/rentals/')) {
+    const slug = normalized.replace(/^\/rentals\//, '').trim();
+    if (slug) {
+      return { route: '/rentals', params: { rentalSlug: decodeURIComponent(slug) } };
     }
   }
 

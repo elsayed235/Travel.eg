@@ -178,7 +178,7 @@ export const CinematicVideo: React.FC<CinematicVideoProps> = ({
         <div
           className={
             overlayClassName ||
-            'absolute inset-0 bg-gradient-to-t from-[#071417] via-[#071417]/50 to-[#071417]/35 backdrop-brightness-90'
+            'absolute inset-0 bg-gradient-to-t from-[var(--surface-container)] via-[var(--surface-container)]/50 to-[var(--surface-container)]/35 backdrop-brightness-90'
           }
           aria-hidden="true"
         />

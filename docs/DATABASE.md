@@ -6,11 +6,18 @@ The platform runs on a local **SQLite** database at `data/dahab.sqlite`, through
 ## Commands
 
 ```bash
-npm run db:migrate    # data/dahab_db.json -> data/dahab.sqlite (one-off)
-npm run db:check      # integrity report: FKs, JSON, ledger balance, orphans
-npm run db:backup     # consistent copy into data/backups/
-npm run db:schema     # regenerate server/db/sql/sqlite-schema.sql from the specs
+npm run db:migrate             # data/dahab_db.json -> data/dahab.sqlite
+npm run db:migrate:dry         # report what would be rejected, write nothing
+npm run db:migrate:quarantine  # migrate, setting aside rows that fail a constraint
+npm run db:check               # integrity: FKs, JSON, ledger balance, orphans
+npm run db:backup              # consistent copy into data/backups/
+npm run db:schema              # regenerate server/db/sql/sqlite-schema.sql
 ```
+
+Pass the flags through these scripts, not with `npm run db:migrate -- --force`:
+npm treats `--force` as its own option and swallows it, so the migration never
+sees it. Running `npx tsx server/db/sqlite/migrateJsonToSqlite.ts <flags>`
+directly also works.
 
 ## Why SQLite and not PostgreSQL
 

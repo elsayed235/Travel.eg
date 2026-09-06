@@ -44,22 +44,22 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200 ${isRTL ? 'rtl' : 'ltr'}`}>
       <div 
-        className="bg-[#0E2520] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-white/10 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+        className="bg-[var(--surface-card)] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-[var(--border-subtle)] shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-3.5">
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#13312B] text-[#52C4B7] flex items-center justify-center font-bold border border-white/10">
+            <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center font-bold border border-[var(--border-subtle)]">
               <Building className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#52C4B7] block font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'فندق خليج دهب' : 'Dahab Bay Hotel'}
+              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                {t('arrival.dahabBayHotel')}
               </span>
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[#F7F3EA]">
-                {language === 'ar' ? 'حالة تسجيل الوصول المبكر' : 'Early Check-in Status'}
+              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                {t('arrival.earlyCheckinStatus')}
               </h3>
             </div>
           </div>
@@ -67,7 +67,8 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-[#D2E3DE] cursor-pointer"
+            aria-label="Close"
+            className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-secondary)] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -76,39 +77,36 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
         {/* Dynamic Checking vs Result State */}
         {isChecking ? (
           <div className="py-8 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-[#13312B] text-[#52C4B7] flex items-center justify-center mx-auto animate-spin border border-white/10">
+            <div className="w-12 h-12 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center mx-auto animate-spin border border-[var(--border-subtle)]">
               <RefreshCw className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <p className="font-bold text-sm text-[#F7F3EA]">
-                {language === 'ar' ? 'جاري التحقق مع إدارة الفندق...' : 'Checking with your hotel...'}
+              <p className="font-bold text-sm text-[var(--text-primary)]">
+                {t('arrival.checkingWithYourHotel')}
               </p>
-              <p className="text-xs text-[#D2E3DE]/70">
-                {language === 'ar' ? 'التواصل مع قسم الإشراف الداخلي واستقبال Dahab Bay Hotel' : 'Contacting Dahab Bay Hotel front desk housekeeping'}
+              <p className="text-xs text-[var(--text-secondary)]/70">
+                {t('arrival.contactingDahabBayHotel')}
               </p>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Reassuring Notification */}
-            <div className="p-4 rounded-2xl bg-[#13312B] border border-amber-500/30 space-y-1.5">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-amber-500/30 space-y-1.5">
               <div className="flex items-center gap-2 text-amber-300 font-bold text-sm font-['Outfit',sans-serif]">
                 <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>{language === 'ar' ? 'الغرفة لسه بتجهز ومش متاحة حالياً.' : "Early check-in isn't available yet."}</span>
+                <span>{t('arrival.earlyCheckinIsntAvailable')}</span>
               </div>
-              <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                {language === 'ar' ? (
-                  <>غرفة الديلوكس المطلة ع البحر بتخضع لعملية تعقيم وتنظيف شاملة وميعاد الاستلام الأساسي مازال <strong className="text-[#F7F3EA]">٣:٠٠ عصراً</strong>.</>
-                ) : (
-                  <>Your Sea View Deluxe room is currently undergoing thorough turnover cleaning. Your room is still scheduled for <strong className="text-[#F7F3EA]">3:00 PM</strong>.</>
-                )}
+              <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                {t('arrival.yourSeaViewDeluxe')}{' '}
+                <strong className="text-[var(--text-primary)]">{t('arrival.seaViewCheckinTime')}</strong>.
               </p>
             </div>
 
             {/* Alternatives - Do not leave user at a dead end */}
             <div className="space-y-2 pt-1">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[#D2E3DE]/70 block font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'اقتراحات ممتازة لقضاء الساعتين القادمتين:' : 'Great ways to spend the next 2h 20m:'}
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block font-['Outfit',sans-serif]">
+                {t('arrival.greatWaysToSpend')}
               </span>
 
               <button
@@ -118,22 +116,22 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('luggage');
                 }}
-                className="w-full p-3 rounded-2xl bg-[#13312B] hover:bg-white/10 border border-white/10 text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#0E2520] text-[#52C4B7] flex items-center justify-center border border-white/10">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">
                     <Luggage className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-xs text-[#F7F3EA] block">
-                      {language === 'ar' ? 'سيب شنطك في استقبال الفندق' : 'Leave your bags at reception'}
+                    <span className="font-bold text-xs text-[var(--text-primary)] block">
+                      {t('arrival.leaveYourBagsAt')}
                     </span>
-                    <span className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'خدمة أمانات مجانية وآمنة (دقيقتين مشي)' : 'Complimentary & safe luggage drop (2 min walk)'}
+                    <span className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('arrival.complimentarySafeLuggageDrop')}
                     </span>
                   </div>
                 </div>
-                {isRTL ? <ArrowLeft className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" />}
+                {isRTL ? <ArrowLeft className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" />}
               </button>
 
               <button
@@ -143,22 +141,22 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('breakfast');
                 }}
-                className="w-full p-3 rounded-2xl bg-[#13312B] hover:bg-white/10 border border-white/10 text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#0E2520] text-[#F4C36C] flex items-center justify-center border border-white/10">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center border border-[var(--border-subtle)]">
                     <Coffee className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-xs text-[#F7F3EA] block">
-                      {language === 'ar' ? 'افطر فطار ساحلي ع البحر' : 'Grab seaside breakfast'}
+                    <span className="font-bold text-xs text-[var(--text-primary)] block">
+                      {t('arrival.grabSeasideBreakfast')}
                     </span>
-                    <span className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'عصائر فريش وشكشوكة وشاي بدوي ع الممشى' : 'Fresh juice & Shakshuka along the promenade'}
+                    <span className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('arrival.freshJuiceShakshukaAlong')}
                     </span>
                   </div>
                 </div>
-                {isRTL ? <ArrowLeft className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" />}
+                {isRTL ? <ArrowLeft className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" />}
               </button>
 
               <button
@@ -168,22 +166,22 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('beach');
                 }}
-                className="w-full p-3 rounded-2xl bg-[#13312B] hover:bg-white/10 border border-white/10 text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#0E2520] text-[#52C4B7] flex items-center justify-center border border-white/10">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">
                     <Waves className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-xs text-[#F7F3EA] block">
-                      {language === 'ar' ? 'استرخي على شاطئ اللايتهاوس' : 'Relax by the Lighthouse beach'}
+                    <span className="font-bold text-xs text-[var(--text-primary)] block">
+                      {t('arrival.relaxByTheLighthouse')}
                     </span>
-                    <span className="text-[12px] text-[#D2E3DE]/70">
-                      {language === 'ar' ? 'شلت مظللة ونسيم بحري هادي' : 'Shaded cushions & calm sea breeze'}
+                    <span className="text-[12px] text-[var(--text-secondary)]/70">
+                      {t('arrival.shadedCushionsCalmSea')}
                     </span>
                   </div>
                 </div>
-                {isRTL ? <ArrowLeft className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[#D2E3DE]/40 group-hover:text-[#F4C36C] transition-colors" />}
+                {isRTL ? <ArrowLeft className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" /> : <ArrowRight className="w-4 h-4 text-[var(--text-secondary)]/40 group-hover:text-[var(--accent-secondary)] transition-colors" />}
               </button>
             </div>
 
@@ -191,9 +189,9 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 rounded-full bg-[#13312B] hover:bg-white/10 text-xs font-bold text-[#D2E3DE] border border-white/10 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-secondary)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'إغلاق' : 'Close'}
+                {t('arrival.close')}
               </button>
             </div>
           </div>

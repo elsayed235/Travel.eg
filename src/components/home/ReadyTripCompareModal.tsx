@@ -40,17 +40,17 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#1A1A1A]/10 animate-in fade-in zoom-in-95 duration-200"
+        className="bg-[var(--surface-card)] rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#1A1A1A]/10 animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div className="p-5 sm:p-6 bg-[#FDFBF7] border-b border-[#1A1A1A]/8 flex items-center justify-between">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#5A5A40]">
-              {language === 'ar' ? 'مقارنة البرامج الخمسة' : 'Compare All 5 Programs'}
+              {t('home.compareAll5Programs')}
             </span>
             <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#1A1A1A]">
-              {language === 'ar' ? 'أي رحلة تناسب ريتمك ومزاجك؟' : 'Which Dahab trip fits your style?'}
+              {t('home.whichDahabTripFits')}
             </h2>
           </div>
 
@@ -58,7 +58,7 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
             id="close-compare-modal-btn"
             onClick={onClose}
             aria-label={t('readyTrip.close')}
-            className="w-9 h-9 rounded-full bg-white hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -70,22 +70,22 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
             {/* Attribute Label Column */}
             <div className="col-span-1 space-y-6 pt-12 text-xs font-bold text-[#1A1A1A]/60">
               <div className="h-10 flex items-center">
-                {language === 'ar' ? 'المدة' : 'Duration'}
+                {t('attractions.duration')}
               </div>
               <div className="h-10 flex items-center">
-                {language === 'ar' ? 'الريتم' : 'Pace'}
+                {t('home.pace')}
               </div>
               <div className="h-10 flex items-center">
-                {language === 'ar' ? 'المجهود' : 'Intensity'}
+                {t('home.intensity')}
               </div>
               <div className="h-10 flex items-center">
-                {language === 'ar' ? 'وقت الفراغ' : 'Free Time'}
+                {t('home.freeTime')}
               </div>
               <div className="h-10 flex items-center">
-                {language === 'ar' ? 'السعر التقديري' : 'Starting From'}
+                {t('home.startingFrom')}
               </div>
               <div className="h-28 flex items-center">
-                {language === 'ar' ? 'أهم الأنشطة' : 'Top Highlights'}
+                {t('home.topHighlights')}
               </div>
             </div>
 
@@ -105,11 +105,11 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
 
                   <div className="space-y-6 text-xs text-[#1A1A1A]">
                     <div className="h-10 flex items-center font-bold">
-                      {prog.durationDays} {language === 'ar' ? 'أيام' : 'Days'}
+                      {prog.durationDays} {t('home.days-3')}
                     </div>
 
                     <div className="h-10 flex items-center">
-                      <span className="bg-white border border-[#1A1A1A]/10 px-2 py-0.5 rounded text-[12px] font-medium">
+                      <span className="bg-[var(--surface-card)] border border-[#1A1A1A]/10 px-2 py-0.5 rounded text-[12px] font-medium">
                         {language === 'ar' ? prog.paceAr : prog.pace}
                       </span>
                     </div>
@@ -137,7 +137,7 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
                   onClick={() => handleSelect(prog)}
                   className="mt-4 w-full py-2 bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
                 >
-                  {language === 'ar' ? 'عرض البرنامج' : 'View Program'}
+                  {t('home.viewProgram-2')}
                 </button>
               </div>
             ))}

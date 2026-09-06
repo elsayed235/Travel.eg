@@ -7,7 +7,6 @@
 interface ImportMetaEnv {
   /** Opt in to the internal 18-stage journey simulator outside staff accounts. */
   readonly VITE_SHOW_JOURNEY_SIMULATOR?: string;
-  readonly VITE_GOOGLE_MAPS_API_KEY?: string;
 }
 
 interface ImportMeta {

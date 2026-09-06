@@ -34,14 +34,14 @@ export class SectionErrorBoundary extends React.Component<Props, State> {
             <div className="text-sm font-bold text-red-300">
               {this.props.fallbackTitle || 'Section Error'}
             </div>
-            <div className="text-xs text-white/50 mt-1 max-w-md mx-auto">
+            <div className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
               {this.state.error?.message || 'An unexpected error occurred'}
             </div>
           </div>
           <button
             type="button"
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/70 text-xs font-bold flex items-center gap-2 mx-auto cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold flex items-center gap-2 mx-auto cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Retry

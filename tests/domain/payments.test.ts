@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { db } from '../../server/db/database';
 import { paymentService, PaymentService } from '../../server/services/paymentService';
 import { commerceService } from '../../server/services/commerceService';
-import { resetDb, seedSku, nextIdempotencyKey } from '../helpers/fixtures';
+import { resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
 
 /**
  * Payment settlement and webhook trust — CRIT-5 and CRIT-7.
@@ -38,7 +38,7 @@ describe('simulated settlement gating', () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalOverride = process.env.ALLOW_SIMULATED_PAYMENTS;
 
-  beforeEach(() => { resetDb(); seedSku(); });
+  beforeEach(() => { resetDb(); seedSku(); seedTrip(); });
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
     if (originalOverride === undefined) delete process.env.ALLOW_SIMULATED_PAYMENTS;
@@ -116,7 +116,7 @@ describe('paymob webhook verification', () => {
 });
 
 describe('booking references', () => {
-  beforeEach(() => { resetDb(); seedSku(); });
+  beforeEach(() => { resetDb(); seedSku(); seedTrip(); });
 
   it('issues a unique reference per booking', () => {
     const refs = new Set<string>();

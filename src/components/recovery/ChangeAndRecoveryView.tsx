@@ -77,7 +77,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
   onOpenHelp,
   onTripUpdated,
 }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const { recordLedgerEntry, shiftActivityBetweenDays, updateActivityInDay, activeTrip, profile } = useTrip();
 
   /**
@@ -325,9 +325,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
         });
       }
       showToast(
-        language === 'ar'
-          ? `تم تأكيد "${currentOption.titleAr}" بنجاح! تم تحديث جدول رحلتك وإشعار المنظمين ✓`
-          : `Confirmed: ${currentOption.title}! Your trip schedule and coordinators are updated ✓`
+        t('recovery.confirmedUpdatedCoordinators', { title: language === 'ar' ? currentOption.titleAr : currentOption.title })
       );
     }, 1200);
   };
@@ -336,9 +334,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
     setConflictResolutionChoice('move_safari');
     setIsConflictModalOpen(false);
     showToast(
-      language === 'ar'
-        ? 'تم ترحيل نشاط السفاري إلى ٠٤:٠٠ عصراً تلقائياً. الجدول أصبح آمناً ✓'
-        : 'Quad Safari moved to 04:00 PM. Schedule conflict resolved ✓'
+      t('recovery.quadSafariMovedTo')
     );
   };
 
@@ -358,7 +354,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[#F4C36C]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/*
         This view had no <h1> at all — its only h2s are the two conditional
@@ -368,7 +364,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
         deliberately leads with the disruption message, not a page title.
       */}
       <h1 className="sr-only">
-        {language === 'ar' ? 'تغيير الخطة والإنقاذ' : 'Trip Changes & Recovery'}
+        {t('recovery.tripChangesRecovery')}
       </h1>
 
       {/* Traveler Top Navigation */}
@@ -388,20 +384,20 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               type="button"
               id="back-to-companion-btn"
               onClick={onBackToCompanion || onBackToMyTrip}
-              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[#D2E3DE]/70 hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-              <span>{language === 'ar' ? 'الرجوع للمرافق اليومي (اليوم ٢)' : 'Back to Daily Companion (Day 2)'}</span>
+              <span>{t('recovery.backToDailyCompanion')}</span>
             </button>
-            <span className="text-white/20">•</span>
-            <span className="text-xs font-bold text-[#F4C36C]">
-              {language === 'ar' ? 'نظام الحماية وتعديل الجدول التلقائي' : 'Smart Plan Recovery'}
+            <span className="text-[var(--text-muted)]">•</span>
+            <span className="text-xs font-bold text-[var(--accent-secondary)]">
+              {t('recovery.smartPlanRecovery')}
             </span>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#13312B] border border-white/10 text-xs text-[#D2E3DE]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{language === 'ar' ? 'الحماية النشطة مفعلة لرحلة أحمد' : 'Active Plan Protection'}</span>
+            <span>{t('recovery.activePlanProtection')}</span>
           </div>
         </div>
 
@@ -411,106 +407,104 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
 
         {rebookingStep === 'success' ? (
           /* SUCCESS CONFIRMATION VIEW */
-          <div className="max-w-3xl mx-auto bg-[#0E2520] rounded-3xl p-7 sm:p-9 border-2 border-emerald-500/50 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="max-w-3xl mx-auto bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border-2 border-emerald-500/50 shadow-2xl space-y-6 animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-2xl shadow-xs">
                 ✓
               </div>
               <div>
                 <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 block font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'تم التعديل والتنسيق التلقائي' : 'Plan Successfully Updated'}
+                  {t('recovery.planSuccessfullyUpdated')}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'ظبطنالك يومك بالكامل يا أحمد ✓' : "We've fixed your day ✓"}
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                  {t('recovery.weveFixedYourDay')}
                 </h2>
               </div>
             </div>
 
-            <p className="text-sm sm:text-base text-[#D2E3DE] leading-relaxed font-medium">
-              {language === 'ar'
-                ? `تم تأكيد "${currentOption.titleAr}" بنجاح وتحديث كافة تفاصيل ومواعيد رحلتك وتنسيقها مع المنظمين والسائق بدون أي مجهود منك.`
-                : `Your choice (${currentOption.title}) has been locked into your live schedule. Drivers, skippers, and your itinerary are all aligned.`}
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed font-medium">
+              {t('recovery.lockedIntoSchedule', { title: language === 'ar' ? currentOption.titleAr : currentOption.title })}
             </p>
 
             {/* Confirmed Details Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#13312B] border border-white/10 space-y-3">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
                 <div className="space-y-0.5">
-                  <span className="text-[11px] font-bold text-[#F4C36C] uppercase font-['Outfit',sans-serif]">{language === 'ar' ? 'النشاط المعتمد الجديد' : 'New Confirmed Activity'}</span>
-                  <h3 className="font-serif font-bold text-lg text-[#F7F3EA]">
+                  <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('recovery.newConfirmedActivity')}</span>
+                  <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
                     {language === 'ar' ? currentOption.titleAr : currentOption.title}
                   </h3>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/40">
-                  {language === 'ar' ? 'مؤكد ومنسق ✓' : 'Confirmed ✓'}
+                  {t('recovery.confirmed')}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[#D2E3DE]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[var(--text-secondary)]">
                 <div>
-                  <span className="text-[#D2E3DE]/60 block font-semibold">{language === 'ar' ? 'الموعد المجدول:' : 'Scheduled Time:'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? currentOption.dayLabelAr : currentOption.dayLabel}</span>
+                  <span className="text-[var(--text-secondary)]/60 block font-semibold">{t('recovery.scheduledTime')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? currentOption.dayLabelAr : currentOption.dayLabel}</span>
                 </div>
                 <div>
-                  <span className="text-[#D2E3DE]/60 block font-semibold">{language === 'ar' ? 'الموقع:' : 'Location:'}</span>
-                  <span className="font-bold text-[#F7F3EA]">{language === 'ar' ? 'مارينا دهب والشعب المرجانية' : 'Dahab Marina & Reefs'}</span>
+                  <span className="text-[var(--text-secondary)]/60 block font-semibold">{t('recovery.location')}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{t('recovery.dahabMarinaReefs')}</span>
                 </div>
                 <div>
-                  <span className="text-[#D2E3DE]/60 block font-semibold">{language === 'ar' ? 'التنسيق:' : 'Coordination:'}</span>
-                  <span className="font-bold text-emerald-400">{language === 'ar' ? 'تلقائي · تم إبلاغ القبطان' : 'Automated · Skipper Notified'}</span>
+                  <span className="text-[var(--text-secondary)]/60 block font-semibold">{t('recovery.coordination')}</span>
+                  <span className="font-bold text-emerald-400">{t('recovery.automatedSkipperNotified')}</span>
                 </div>
               </div>
             </div>
 
             {/* Timeline Preview */}
             <div className="space-y-3">
-              <h3 className="text-base font-serif font-bold text-[#F7F3EA]">
-                {language === 'ar' ? 'الجدول المحدث لليوم وغداً' : 'Updated Trip Timeline'}
+              <h3 className="text-base font-serif font-bold text-[var(--text-primary)]">
+                {t('recovery.updatedTripTimeline')}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                    <span className="text-xs font-bold text-[#F4C36C]">{language === 'ar' ? 'اليوم (اليوم ٢) · ١٣ أكتوبر' : 'Today (Day 2)'}</span>
-                    <span className="text-[11px] text-[#D2E3DE]/60">Oct 13</span>
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5">
+                    <span className="text-xs font-bold text-[var(--accent-secondary)]">{t('recovery.todayDay2')}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)]/60">Oct 13</span>
                   </div>
-                  <div className="space-y-1.5 text-xs text-[#D2E3DE]">
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                  <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>09:00 AM</span>
-                      <span>{language === 'ar' ? 'فطار في الفندق' : 'Breakfast'}</span>
+                      <span>{t('recovery.breakfast')}</span>
                     </div>
                     <div className="flex items-center justify-between text-emerald-300 font-bold bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/30">
                       <span>11:30 AM</span>
-                      <span>✨ {language === 'ar' ? 'وقت حر وممشى اللايتهاوس' : 'Free Time & Beach Walk'}</span>
+                      <span>✨ {t('recovery.freeTimeBeachWalk')}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>01:00 PM</span>
-                      <span>{language === 'ar' ? 'غداء في ممشى دهب' : 'Lunch by the Bay'}</span>
+                      <span>{t('recovery.lunchByTheBay')}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>03:00 PM</span>
-                      <span>{language === 'ar' ? 'سفاري البيتش باجي في الصحراء' : 'Desert Quad Safari'}</span>
+                      <span>{t('recovery.desertQuadSafari')}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-                    <span className="text-xs font-bold text-[#F4C36C]">{language === 'ar' ? 'غداً (اليوم ٣) · ١٤ أكتوبر' : 'Tomorrow (Day 3)'}</span>
-                    <span className="text-[11px] text-[#D2E3DE]/60">Oct 14</span>
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5">
+                    <span className="text-xs font-bold text-[var(--accent-secondary)]">{t('recovery.tomorrowDay3')}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)]/60">Oct 14</span>
                   </div>
-                  <div className="space-y-1.5 text-xs text-[#D2E3DE]">
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                  <div className="space-y-1.5 text-xs text-[var(--text-secondary)]">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>09:00 AM</span>
-                      <span>{language === 'ar' ? 'فطار هادئ' : 'Breakfast'}</span>
+                      <span>{t('recovery.breakfast-2')}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#F7F3EA] font-bold bg-[#0E2520] p-2 rounded-xl border border-[#F4C36C]/40 text-[#F4C36C]">
+                    <div className="flex items-center justify-between text-[var(--text-primary)] font-bold bg-[var(--surface-card)] p-2 rounded-xl border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)]">
                       <span>10:00 AM</span>
-                      <span>⛵ {language === 'ar' ? 'رحلة اليخت (الموعد الجديد ✓)' : 'Boat Trip (Rescheduled ✓)'}</span>
+                      <span>⛵ {t('recovery.boatTripRescheduled')}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[#D2E3DE]/70">
+                    <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>01:30 PM</span>
-                      <span>{language === 'ar' ? 'غداء سمك طازة' : 'Seafood Lunch'}</span>
+                      <span>{t('recovery.seafoodLunch')}</span>
                     </div>
                   </div>
                 </div>
@@ -518,23 +512,23 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
             </div>
 
             {/* Back Button */}
-            <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 id="view-updated-itinerary-btn"
                 onClick={onBackToCompanion || onBackToMyTrip}
-                className="px-6 py-3 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer active:scale-98"
               >
-                <span>{language === 'ar' ? 'الرجوع للمرافق اليومي' : 'Return to Daily Companion'}</span>
+                <span>{t('recovery.returnToDailyCompanion')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
 
               <button
                 type="button"
                 onClick={() => setRebookingStep('viewing')}
-                className="text-xs font-semibold text-[#D2E3DE]/70 hover:text-[#F4C36C] transition-colors cursor-pointer"
+                className="text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'مراجعة الخيارات الأخرى مرة ثانية' : 'Review other alternatives again'}
+                {t('recovery.reviewOtherAlternativesAgain')}
               </button>
             </div>
           </div>
@@ -546,7 +540,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
             <div className="lg:col-span-7 space-y-6">
 
               {/* 1. ALERT & REASSURANCE BANNER */}
-              <section id="change-alert-card" className="bg-[#0E2520] rounded-3xl p-6 sm:p-7 border border-amber-500/40 shadow-xl space-y-5">
+              <section id="change-alert-card" className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-amber-500/40 shadow-xl space-y-5">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center flex-shrink-0 text-2xl shadow-xs">
                     ⚠️
@@ -555,36 +549,34 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                         {observedLabel
-                          ? language === 'ar' ? `قراءة بحرية ${observedLabel}` : `Marine reading ${observedLabel}`
-                          : language === 'ar' ? 'تغيير الخطة' : 'Change of plan'}
+                          ? t('recovery.marineReading', { observedLabel })
+                          : t('recovery.changeOfPlan')}
                       </span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F7F3EA]">
+                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
                       {isChoppy
-                        ? language === 'ar'
-                          ? `الرياح ${wind!.knots} عقدة دلوقتي — الخروج بالقارب مش هيكون مريح.`
-                          : `Wind is ${wind!.knots} kn right now — a boat trip will not be comfortable.`
-                        : language === 'ar'
-                          ? 'عايز تغيّر حاجة في يومك؟'
-                          : 'Want to change something about your day?'}
+                        ? t('recovery.windNotComfortable', { knots: wind!.knots })
+                        : t('recovery.wantToChangeSomething')}
                     </h2>
                     <p className="text-xs sm:text-sm text-emerald-300 font-semibold flex items-center gap-1.5 pt-0.5">
                       <ShieldCheck className="w-4 h-4 text-emerald-400" />
                       <span>
-                        {language === 'ar'
-                          ? `${travelerFirstName ? `يا ${travelerFirstName}، ` : ''}تحت ٣ بدائل تقدر تبدّل بيها من غير رسوم.`
-                          : `${travelerFirstName ? `${travelerFirstName}, t` : 'T'}here are 3 alternatives below you can switch to at no charge.`}
+                        {t('recovery.threeAlternativesNoCharge', {
+                          lead: language === 'ar'
+                            ? (travelerFirstName ? t('recovery.nameLeadAr', { name: travelerFirstName }) : '')
+                            : (travelerFirstName ? `${travelerFirstName}, t` : 'T'),
+                        })}
                       </span>
                     </p>
                   </div>
                 </div>
 
                 {/* Weather details */}
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2 text-xs text-[#D2E3DE]">
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 text-xs text-[var(--text-secondary)]">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#F7F3EA] flex items-center gap-1.5">
+                    <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                       <Waves className="w-4 h-4 text-cyan-400" />
-                      <span>{language === 'ar' ? 'حالة البحر الحالية:' : 'Sea Condition:'}</span>
+                      <span>{t('recovery.seaCondition')}</span>
                     </span>
                     {/* Was "24 knots · 1.4m chop" — a wind speed and a wave
                         height, neither observed, on the page a traveler reads
@@ -593,17 +585,13 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                     <span className="font-mono text-amber-300 font-bold">
                       {wind
                         ? `${wind.knots} kn ${wind.direction}`
-                        : language === 'ar' ? 'القراءة مش متاحة' : 'Reading unavailable'}
+                        : t('live.readingUnavailable')}
                     </span>
                   </div>
-                  <p className="text-[#D2E3DE]/70 leading-relaxed">
+                  <p className="text-[var(--text-secondary)]/70 leading-relaxed">
                     {isChoppy
-                      ? language === 'ar'
-                        ? 'الرياح دي بتخلي القعدة في عرض البحر صعبة، بس أنشطة دهب البرية والشاطئية شغالة عادي.'
-                        : 'This wind makes deep reef stops uncomfortable, but inland and coastal spots are unaffected.'
-                      : language === 'ar'
-                        ? 'الظروف البحرية عادية دلوقتي. لو عايز تغيّر خطتك لأي سبب تاني، البدائل تحت.'
-                        : 'Marine conditions are normal right now. If you want to change your plan for another reason, the alternatives are below.'}
+                      ? t('recovery.thisWindMakesDeep')
+                      : t('recovery.marineConditionsAreNormal')}
                   </p>
                 </div>
               </section>
@@ -611,11 +599,11 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               {/* 2. 3 CURATED ALTERNATIVES */}
               <section id="alternatives-section" className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar' ? 'اختر البديل الأنسب ليك' : 'Choose Your Best Alternative'}
+                  <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+                    {t('recovery.chooseYourBestAlternative')}
                   </h3>
-                  <span className="text-xs text-[#D2E3DE]/60">
-                    {language === 'ar' ? '٣ خيارات محسوبة' : '3 evaluated options'}
+                  <span className="text-xs text-[var(--text-secondary)]/60">
+                    {t('recovery.3EvaluatedOptions')}
                   </span>
                 </div>
 
@@ -630,8 +618,8 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                         aria-pressed={isSelected}
                         className={`w-full text-start rounded-3xl p-5 sm:p-6 border transition-all cursor-pointer space-y-3 ${
                           isSelected
-                            ? 'bg-[#13312B] border-2 border-[#F4C36C] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30'
-                            : 'bg-[#0E2520] hover:bg-[#13312B] border-white/10'
+                            ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
+                            : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -645,15 +633,15 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                             }`}>
                               {language === 'ar' ? alt.badgeAr : alt.badge}
                             </span>
-                            <span className="text-xs font-bold text-[#D2E3DE]">
+                            <span className="text-xs font-bold text-[var(--text-secondary)]">
                               {language === 'ar' ? alt.labelAr : alt.label}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono text-[#F4C36C] font-bold">{language === 'ar' ? alt.dayLabelAr : alt.dayLabel}</span>
+                            <span className="text-xs font-mono text-[var(--accent-secondary)] font-bold">{language === 'ar' ? alt.dayLabelAr : alt.dayLabel}</span>
                             <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                              isSelected ? 'bg-[#F4C36C] border-[#F4C36C] text-[#081714]' : 'border-white/30'
+                              isSelected ? 'bg-[var(--accent-secondary)] border-[var(--accent-secondary)] text-[var(--surface-card)]' : 'border-[var(--border-subtle)]'
                             }`}>
                               {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
@@ -661,16 +649,16 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                         </div>
 
                         <div className="space-y-1">
-                          <h4 className="text-lg font-serif font-bold text-[#F7F3EA]">
+                          <h4 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                             {language === 'ar' ? alt.titleAr : alt.title}
                           </h4>
-                          <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed">
+                          <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
                             {language === 'ar' ? alt.descriptionAr : alt.description}
                           </p>
                         </div>
 
                         {/* Bullet points */}
-                        <div className="space-y-1 text-xs text-[#D2E3DE]/70 pt-1">
+                        <div className="space-y-1 text-xs text-[var(--text-secondary)]/70 pt-1">
                           {(language === 'ar' ? alt.keyPointsAr : alt.keyPoints).map((pt, idx) => (
                             <div key={idx} className="flex items-center gap-2">
                               <span className="text-emerald-400 text-xs">✓</span>
@@ -683,7 +671,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                           <div className="p-3 rounded-2xl bg-amber-950/60 border border-amber-500/40 text-xs text-amber-200 space-y-1">
                             <span className="font-bold flex items-center gap-1 text-amber-300">
                               <AlertTriangle className="w-3.5 h-3.5" />
-                              <span>{language === 'ar' ? 'تنبيه تعارض زمني بسيط:' : 'Schedule Conflict Notice:'}</span>
+                              <span>{t('recovery.scheduleConflictNotice')}</span>
                             </span>
                             <p>{language === 'ar' ? alt.conflictDetails?.explanationAr : alt.conflictDetails?.explanation}</p>
                           </div>
@@ -695,11 +683,11 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               </section>
 
               {/* 3. PRIMARY REBOOK CTA */}
-              <div className="p-6 rounded-3xl bg-[#0E2520] border border-white/10 shadow-xl space-y-4">
+              <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-[#F4C36C] uppercase font-['Outfit',sans-serif]">{language === 'ar' ? 'الخيار المختار حالياً' : 'Selected Alternative'}</span>
-                    <h4 className="font-serif font-bold text-base text-[#F7F3EA]">
+                    <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('recovery.selectedAlternative')}</span>
+                    <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
                       {language === 'ar' ? currentOption.titleAr : currentOption.title}
                     </h4>
                   </div>
@@ -710,16 +698,14 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                   type="button"
                   id="confirm-rebooking-btn"
                   onClick={handleRebookingConfirmation}
-                  className="w-full py-3.5 px-6 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                  className="w-full py-3.5 px-6 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
-                  <RefreshCw className="w-4 h-4 text-[#081714]" />
-                  <span>{language === 'ar' ? `تأكيد التعديل (${currentOption.titleAr})` : `Confirm and Apply This Plan`}</span>
+                  <RefreshCw className="w-4 h-4 text-[var(--surface-card)]" />
+                  <span>{t('recovery.confirmApplyThisPlan', { title: language === 'ar' ? currentOption.titleAr : '' })}</span>
                 </button>
 
-                <p className="text-[12px] text-center text-[#D2E3DE]/60">
-                  {language === 'ar'
-                    ? 'مش هتحتاج تتواصل مع أي حد بنفسك. النظام هيعدل كل الحجوزات وينسق مع السائق والمركب فوراً.'
-                    : "You don't need to coordinate with hotels or drivers yourself. We manage the updates."}
+                <p className="text-[12px] text-center text-[var(--text-secondary)]/60">
+                  {t('recovery.youDontNeedTo')}
                 </p>
               </div>
 
@@ -729,57 +715,53 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
             <div className="lg:col-span-5 space-y-6">
 
               {/* 1. PEACE OF MIND GUARANTEE */}
-              <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-                <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+                <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'ضمان راحة البال' : 'Automated Coordination'}
+                  <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('recovery.automatedCoordination')}
                   </h3>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed">
-                  {language === 'ar'
-                    ? 'أي تعديل على جدول رحلتك بيتم مزامنته فوراً وبدون أي رسوم إضافية، مع الحفاظ على تناسق باقي اليوم.'
-                    : 'Any schedule change is instantly synchronized across all your activities and verified with local partners.'}
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
+                  {t('recovery.anyScheduleChangeIs')}
                 </p>
 
-                <div className="space-y-2 text-xs text-[#D2E3DE]">
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#13312B] border border-white/5">
+                <div className="space-y-2 text-xs text-[var(--text-secondary)]">
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span>{language === 'ar' ? 'إبلاغ قبطان اليخت والمارينا' : 'Boat & Marina notified'}</span>
+                    <span>{t('recovery.boatMarinaNotified')}</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#13312B] border border-white/5">
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span>{language === 'ar' ? 'تعديل مواعيد سيارة التنقل' : 'Private driver schedule synced'}</span>
+                    <span>{t('recovery.privateDriverScheduleSynced')}</span>
                   </div>
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#13312B] border border-white/5">
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span>{language === 'ar' ? 'حماية مواعيد الغداء والأنشطة اللاحقة' : 'Afternoon activities 100% protected'}</span>
+                    <span>{t('recovery.afternoonActivities100Protected')}</span>
                   </div>
                 </div>
               </div>
 
               {/* 2. NEED HUMAN EXPERT? */}
-              <div className="bg-[#13312B] rounded-3xl p-6 border border-white/10 shadow-xl space-y-3.5">
+              <div className="bg-[var(--surface-container)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3.5">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-[#F4C36C]" />
-                  <h4 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'عايز تستشير خبير سيناء؟' : 'Need Expert Advice?'}
+                  <MessageSquare className="w-4 h-4 text-[var(--accent-secondary)]" />
+                  <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('recovery.needExpertAdvice')}
                   </h4>
                 </div>
 
-                <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                  {language === 'ar'
-                    ? 'فريق خبراء دهب متاح على مدار الساعة للمساعدة الفورية أو تقديم اقتراحات خاصة.'
-                    : 'Our local Dahab trip experts are on standby 24/7 to answer questions or customize changes.'}
+                <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                  {t('recovery.ourLocalDahabTrip')}
                 </p>
 
                 <button
                   type="button"
                   onClick={() => onOpenHelp && onOpenHelp('boat-weather')}
-                  className="w-full py-2.5 px-4 rounded-full bg-[#0E2520] hover:bg-[#1a4038] text-[#F4C36C] font-bold text-xs border border-[#F4C36C]/40 transition-all cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--accent-secondary)] font-bold text-xs border border-[var(--accent-secondary)]/40 transition-all cursor-pointer"
                 >
-                  {language === 'ar' ? 'تواصل مع خبير دهب الآن' : 'Chat with Dahab Expert'}
+                  {t('recovery.chatWithDahabExpert')}
                 </button>
               </div>
 
@@ -794,46 +776,44 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
       {isConflictModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
           <div 
-            className="bg-[#0E2520] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-amber-500/50 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[#F7F3EA]"
+            className="bg-[var(--surface-card)] rounded-3xl max-w-md w-full p-6 sm:p-7 border border-amber-500/50 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 text-[var(--text-primary)]"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
               <div className="flex items-center gap-2 text-amber-300">
                 <AlertTriangle className="w-5 h-5" />
-                <h3 className="text-base font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'حل التعارض الزمني التلقائي' : 'Schedule Conflict Detected'}
+                <h3 className="text-base font-serif font-bold text-[var(--text-primary)]">
+                  {t('recovery.scheduleConflictDetected')}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsConflictModalOpen(false)}
-                className="text-white/60 hover:text-white p-1 rounded-full hover:bg-white/10 cursor-pointer"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--btn-util-bg)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-[#D2E3DE] leading-relaxed">
-              {language === 'ar'
-                ? 'جولة الوديان تنتهي الساعة ٢:٤٥ م، تاركة ١٥ دقيقة فقط قبل سفاري البيتش باجي (٣:٠٠ م). نقترح ترحيل السفاري إلى ٤:٠٠ م لضمان راحتك التامة.'
-                : 'Canyon trek finishes at 02:45 PM. We recommend shifting your 03:00 PM Quad safari to 04:00 PM.'}
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+              {t('recovery.canyonTrekFinishesAt')}
             </p>
 
             <div className="pt-2 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={handleResolveConflict}
-                className="w-full py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer"
               >
-                {language === 'ar' ? 'موافق: ترحيل السفاري لـ ٤:٠٠ م وتأكيد الخطة' : 'Shift Quad Tour to 04:00 PM & Confirm'}
+                {t('recovery.shiftQuadTourTo')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsConflictModalOpen(false)}
-                className="w-full py-2 rounded-full bg-transparent hover:bg-white/5 text-[#D2E3DE]/70 text-xs font-semibold cursor-pointer"
+                className="w-full py-2 rounded-full bg-transparent hover:bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/70 text-xs font-semibold cursor-pointer"
               >
-                {language === 'ar' ? 'إلغاء واختيار بديل آخر' : 'Cancel and choose another option'}
+                {t('recovery.cancelAndChooseAnother')}
               </button>
             </div>
           </div>
@@ -842,7 +822,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
 
       {/* Global Toast Message */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#13312B] text-[#F7F3EA] border border-[#F4C36C]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--accent-secondary)]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <Check className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>

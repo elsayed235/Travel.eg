@@ -59,6 +59,34 @@ export function enumParam<T extends string>(
   return match;
 }
 
+/** A comma-separated list of strings, or undefined if absent. */
+export function stringListParam(value: unknown, param = 'parameter', maxItems = 20): string[] | undefined {
+  const raw = stringParam(value, param);
+  if (raw === undefined) return undefined;
+  const items = raw.split(',').map(s => s.trim()).filter(Boolean);
+  if (items.length === 0) return undefined;
+  if (items.length > maxItems) {
+    throw new InvalidQueryParameterError(param, `must contain at most ${maxItems} items.`);
+  }
+  return items;
+}
+
+/** A comma-separated list where every item must be one of a known set. */
+export function enumListParam<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  param = 'parameter',
+  maxItems = 20
+): T[] | undefined {
+  const items = stringListParam(value, param, maxItems);
+  if (items === undefined) return undefined;
+  const invalid = items.filter(item => !allowed.includes(item as T));
+  if (invalid.length > 0) {
+    throw new InvalidQueryParameterError(param, `contains invalid value(s): ${invalid.join(', ')}. Must be one of: ${allowed.join(', ')}.`);
+  }
+  return items as T[];
+}
+
 export const VERIFICATION_LEVELS = [
   'SOURCE_REPORTED',
   'INSTAGRAM_REPORTED',

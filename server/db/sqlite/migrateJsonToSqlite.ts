@@ -18,6 +18,7 @@ import path from 'path';
 import Database from 'better-sqlite3';
 import { TABLE_SPECS, TableSpec } from './tableSpecs';
 import { buildSchemaDdl, entityToRow, upsertSql } from './schemaBuilder';
+import { SQLITE_FILE, JSON_STORE_FILE } from '../paths';
 
 interface Rejection {
   table: string;
@@ -35,8 +36,8 @@ interface Rejection {
   entity: any;
 }
 
-const JSON_PATH = path.join(process.cwd(), 'data', 'dahab_db.json');
-const SQLITE_PATH = path.join(process.cwd(), 'data', 'dahab.sqlite');
+const JSON_PATH = JSON_STORE_FILE();
+const SQLITE_PATH = SQLITE_FILE();
 
 function loadJsonStore(): Record<string, any> {
   if (!fs.existsSync(JSON_PATH)) {

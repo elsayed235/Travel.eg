@@ -20,11 +20,13 @@ import {
   FileCheck2,
   Lock,
   ExternalLink,
-  History
+  History,
+  Bike
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
+import { RentalsProviderPanel } from './RentalsProviderPanel';
 
 export const SupplierPortalView: React.FC = () => {
   const {
@@ -34,9 +36,9 @@ export const SupplierPortalView: React.FC = () => {
     activeSupplierId,
     setActiveSupplierId
   } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
 
-  const [activeTab, setActiveTab] = useState<'inbox' | 'inventory' | 'resources' | 'reliability' | 'audit'>('inbox');
+  const [activeTab, setActiveTab] = useState<'inbox' | 'inventory' | 'resources' | 'rentals' | 'reliability' | 'audit'>('inbox');
 
   // Selected Authoritative Supplier
   const selectedSupplier = authoritativeSuppliers.find(s => s.id === activeSupplierId) || authoritativeSuppliers[0];
@@ -93,13 +95,9 @@ export const SupplierPortalView: React.FC = () => {
     }
 
     showToast(
-      language === 'ar'
-        ? decision === 'ACCEPT'
-          ? 'تم قبول الحجز وإرسال التأكيد الفوري للعميل ✓'
-          : 'تم الاعتذار عن الحجز وتحويل الرحلة لمحرك الاسترجاع والبدائل'
-        : decision === 'ACCEPT'
-        ? 'Booking accepted & traveler notified ✓'
-        : 'Booking rejected · Change Engine triggered'
+      decision === 'ACCEPT'
+        ? t('supplier.decisionACCEPTBookingAccepted')
+        : t('supplier.decisionREJECTBookingRejected')
     );
   };
 
@@ -110,14 +108,14 @@ export const SupplierPortalView: React.FC = () => {
     <div
       id="supplier-portal-view"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#FDFBF7] text-[#1A1A1A] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
     >
       {/* 1. Supplier Header */}
-      <header className="bg-white border-b border-[#1A1A1A]/10 px-4 sm:px-6 lg:px-8 pt-8 pb-6 shadow-xs">
+      <header className="bg-[var(--surface-card)] border-b border-[var(--text-primary)]/10 px-4 sm:px-6 lg:px-8 pt-8 pb-6 shadow-xs">
         <div className="max-w-7xl mx-auto space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#062C35] text-[#E7A83B] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center font-bold">
                 {selectedSupplier?.category.includes('Diving') ? (
                   <Waves className="w-5 h-5" />
                 ) : selectedSupplier?.category.includes('Transfer') ? (
@@ -128,7 +126,7 @@ export const SupplierPortalView: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl font-bold font-['Outfit',sans-serif] text-[#1A1A1A]">
+                  <h1 className="text-xl sm:text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
                     {selectedSupplier?.businessName || 'Dahab Supplier & Partner OS'}
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
@@ -141,7 +139,7 @@ export const SupplierPortalView: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-[#1A1A1A]/60 flex items-center gap-2">
+                <p className="text-xs text-[var(--text-primary)]/60 flex items-center gap-2">
                   <span>{selectedSupplier?.area} · {selectedSupplier?.category}</span>
                   <span>•</span>
                   <span className="font-mono text-emerald-800 font-semibold">{selectedSupplier?.licenseNumber}</span>
@@ -153,32 +151,32 @@ export const SupplierPortalView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/market-intelligence')}
-                className="px-4 py-2 rounded-full bg-[#062C35]/10 hover:bg-[#062C35]/15 text-[#062C35] text-xs font-bold transition-all border border-[#062C35]/20 flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[var(--surface-container)]/10 hover:bg-[var(--surface-container)]/15 text-[var(--surface-container)] text-xs font-bold transition-all border border-[var(--surface-container)]/20 flex items-center gap-1.5 cursor-pointer"
               >
-                <Globe className="w-3.5 h-3.5 text-[#0F6F78]" />
-                <span>{language === 'ar' ? 'استخبارات السوق والأسعار ←' : 'Market & Discovery Intel →'}</span>
+                <Globe className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span>{t('supplier.marketDiscoveryIntel')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => navigateTo('/ops-console')}
-                className="px-4 py-2 rounded-full bg-[#062C35] text-[#F7F3EA] hover:bg-[#083E4B] text-xs font-bold transition-all cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-container)] text-xs font-bold transition-all cursor-pointer"
               >
-                {language === 'ar' ? '← لوحة العمليات' : '← Ops Console'}
+                {t('supplier.opsConsole')}
               </button>
               <button
                 type="button"
                 onClick={() => navigateTo('/my-trip')}
-                className="px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-[#1A1A1A] text-xs font-bold transition-all cursor-pointer"
+                className="px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer"
               >
-                {language === 'ar' ? 'الرجوع للمنصة' : 'Traveler View'}
+                {t('supplier.travelerView')}
               </button>
             </div>
           </div>
 
           {/* Dynamic Supplier Partner Switcher (Includes Newly Promoted Candidates!) */}
-          <div className="flex items-center gap-2 pt-2 border-t border-[#1A1A1A]/6 overflow-x-auto">
-            <span className="text-[12px] font-bold text-[#1A1A1A]/50 me-1 whitespace-nowrap">
-              {language === 'ar' ? 'الشركاء المعتمدون:' : 'Authoritative Partners:'}
+          <div className="flex items-center gap-2 pt-2 border-t border-[var(--text-primary)]/6 overflow-x-auto">
+            <span className="text-[12px] font-bold text-[var(--text-primary)]/50 me-1 whitespace-nowrap">
+              {t('supplier.authoritativePartners')}
             </span>
             {authoritativeSuppliers.map(p => {
               const isSelected = p.id === (selectedSupplier?.id || activeSupplierId);
@@ -189,8 +187,8 @@ export const SupplierPortalView: React.FC = () => {
                   onClick={() => setActiveSupplierId(p.id)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                     isSelected
-                      ? 'bg-[#062C35] text-white shadow-xs'
-                      : 'bg-stone-100 text-[#1A1A1A]/70 hover:text-[#1A1A1A] hover:bg-stone-200'
+                      ? 'bg-[var(--surface-container)] text-white shadow-xs'
+                      : 'bg-stone-100 text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-stone-200'
                   }`}
                 >
                   {p.category.includes('Diving') ? (
@@ -214,13 +212,14 @@ export const SupplierPortalView: React.FC = () => {
       {/* 2. Main Body */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-[#1A1A1A]/8 pb-3 overflow-x-auto">
+        <div className="flex items-center gap-2 border-b border-[var(--text-primary)]/8 pb-3 overflow-x-auto">
           {([
-            { id: 'inbox', label: language === 'ar' ? 'صندوق الطلبات الواردة (S05/S06)' : 'Incoming Requests (S05/S06)' },
-            { id: 'inventory', label: language === 'ar' ? 'جدول السعة والمواعيد (S03)' : 'Capacity & Slots (S03)' },
-            { id: 'resources', label: language === 'ar' ? 'الأسطول والمدربين (S04)' : 'Fleet & Resource Roster (S04)' },
-            { id: 'reliability', label: language === 'ar' ? 'مؤشر الموثوقية ومعدل القبول (S09)' : 'Reliability & SLA Score (S09)' },
-            { id: 'audit', label: language === 'ar' ? 'سجل التدقيق والمصدر القانوني' : 'Provenance & Audit Trail' }
+            { id: 'inbox', label: t('supplier.incomingRequestsS05S06') },
+            { id: 'inventory', label: t('supplier.capacitySlotsS03') },
+            { id: 'resources', label: t('supplier.fleetResourceRosterS04') },
+            { id: 'rentals', label: t('supplier.rentalBookings') },
+            { id: 'reliability', label: t('supplier.reliabilitySLAScoreS09') },
+            { id: 'audit', label: t('supplier.provenanceAuditTrail') }
           ] as const).map(tab => (
             <button
               key={tab.id}
@@ -228,8 +227,8 @@ export const SupplierPortalView: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'bg-[#062C35] text-[#F7F3EA] shadow-xs'
-                  : 'text-[#1A1A1A]/70 hover:text-[#1A1A1A] hover:bg-stone-100'
+                  ? 'bg-[var(--surface-container)] text-[var(--text-primary)] shadow-xs'
+                  : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-stone-100'
               }`}
             >
               {tab.label}
@@ -237,15 +236,20 @@ export const SupplierPortalView: React.FC = () => {
           ))}
         </div>
 
+        {/* TAB: Rentals (bikes) */}
+        {activeTab === 'rentals' && (
+          <RentalsProviderPanel showToast={showToast} />
+        )}
+
         {/* TAB 1: Incoming Requests Inbox */}
         {activeTab === 'inbox' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-[#1A1A1A]">
-                  {language === 'ar' ? 'طلبات الحجز المباشرة عبر الوكالة' : 'Live Booking Requests Queue'}
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                  {t('supplier.liveBookingRequestsQueue')}
                 </h2>
-                <p className="text-xs text-[#1A1A1A]/60">
+                <p className="text-xs text-[var(--text-primary)]/60">
                   {selectedSupplier?.businessName} · WhatsApp Instant Dispatch Sync Active
                 </p>
               </div>
@@ -258,28 +262,28 @@ export const SupplierPortalView: React.FC = () => {
               {activeRequests.map(req => (
                 <div
                   key={req.id}
-                  className="p-5 rounded-3xl bg-white border border-[#1A1A1A]/10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--text-primary)]/10 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-stone-100 text-[#1A1A1A]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-stone-100 text-[var(--text-primary)]">
                         {req.id}
                       </span>
-                      <span className="font-bold text-base text-[#1A1A1A]">{req.service}</span>
+                      <span className="font-bold text-base text-[var(--text-primary)]">{req.service}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-[#1A1A1A]/80 pt-1">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-[var(--text-primary)]/80 pt-1">
                       <div>
-                        <span className="text-[11px] text-[#1A1A1A]/50 block">{language === 'ar' ? 'المسافر:' : 'Traveler:'}</span>
+                        <span className="text-[11px] text-[var(--text-primary)]/50 block">{t('supplier.traveler')}</span>
                         <span className="font-semibold">{req.traveler}</span>
                       </div>
                       <div>
-                        <span className="text-[11px] text-[#1A1A1A]/50 block">{language === 'ar' ? 'الموعد:' : 'Pickup Time:'}</span>
+                        <span className="text-[11px] text-[var(--text-primary)]/50 block">{t('supplier.pickupTime')}</span>
                         <span className="font-semibold text-emerald-800">{req.pickupTime}</span>
                       </div>
                       <div>
-                        <span className="text-[11px] text-[#1A1A1A]/50 block">{language === 'ar' ? 'مستحقات المورد:' : 'Supplier Payout:'}</span>
-                        <span className="font-bold text-[#1A1A1A]">{req.payoutEGP} EGP</span>
+                        <span className="text-[11px] text-[var(--text-primary)]/50 block">{t('supplier.supplierPayout')}</span>
+                        <span className="font-bold text-[var(--text-primary)]">{req.payoutEGP} EGP</span>
                       </div>
                     </div>
                   </div>
@@ -294,7 +298,7 @@ export const SupplierPortalView: React.FC = () => {
                           className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200 flex items-center gap-1 cursor-pointer"
                         >
                           <X className="w-4 h-4" />
-                          <span>{language === 'ar' ? 'اعتذار' : 'Decline'}</span>
+                          <span>{t('supplier.decline')}</span>
                         </button>
                         <button
                           type="button"
@@ -302,7 +306,7 @@ export const SupplierPortalView: React.FC = () => {
                           className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-98"
                         >
                           <Check className="w-4 h-4" />
-                          <span>{language === 'ar' ? 'قبول وتأكيد ✓' : 'Accept & Confirm ✓'}</span>
+                          <span>{t('supplier.acceptConfirm')}</span>
                         </button>
                       </>
                     ) : (
@@ -319,20 +323,20 @@ export const SupplierPortalView: React.FC = () => {
 
         {/* TAB 2: Capacity & Slots */}
         {activeTab === 'inventory' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1A]/10 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-[#1A1A1A]/8 pb-4">
+          <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-[var(--text-primary)]/8 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-[#1A1A1A]">
-                  {language === 'ar' ? 'سعة المقاعد والرحلات اليومية (S03)' : 'Daily Capacity & Slots Calendar (S03)'}
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                  {t('supplier.dailyCapacitySlotsCalendar')}
                 </h2>
-                <p className="text-xs text-[#1A1A1A]/60">
+                <p className="text-xs text-[var(--text-primary)]/60">
                   {selectedSupplier?.capacitySummary || 'Real-time capacity locking to prevent oversell collisions'}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => showToast(language === 'ar' ? 'تم تحديث التوفر بنجاح' : 'Availability synced')}
-                className="px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-xs font-bold text-[#1A1A1A] flex items-center gap-1.5 cursor-pointer"
+                onClick={() => showToast(t('supplier.availabilitySynced'))}
+                className="px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Sync Inventory</span>
@@ -354,7 +358,7 @@ export const SupplierPortalView: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#1A1A1A]">{slot.time} - {slot.title}</span>
+                    <span className="font-bold text-[var(--text-primary)]">{slot.time} - {slot.title}</span>
                     <span
                       className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                         slot.booked >= slot.total
@@ -365,7 +369,7 @@ export const SupplierPortalView: React.FC = () => {
                       {slot.booked} / {slot.total} {slot.booked >= slot.total ? 'FULL' : 'Booked'}
                     </span>
                   </div>
-                  <p className="text-[#1A1A1A]/70">{slot.notes}</p>
+                  <p className="text-[var(--text-primary)]/70">{slot.notes}</p>
                 </div>
               ))}
             </div>
@@ -374,13 +378,13 @@ export const SupplierPortalView: React.FC = () => {
 
         {/* TAB 3: Fleet & Resource Roster */}
         {activeTab === 'resources' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1A]/10 shadow-xs space-y-6">
-            <div className="border-b border-[#1A1A1A]/8 pb-4">
-              <h2 className="text-lg font-bold text-[#1A1A1A]">
-                {language === 'ar' ? 'سجل الأسطول والكوادر المعتمدة (S04)' : 'Certified Fleet & Guides Registry (S04)'}
+          <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6">
+            <div className="border-b border-[var(--text-primary)]/8 pb-4">
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                {t('supplier.certifiedFleetGuidesRegistry')}
               </h2>
-              <p className="text-xs text-[#1A1A1A]/60">
-                {language === 'ar' ? 'تخصيص السائقين والمعدات لكل حجز نشط' : 'Driver & instructor assignments for active itineraries'}
+              <p className="text-xs text-[var(--text-primary)]/60">
+                {t('supplier.driverInstructorAssignmentsFor')}
               </p>
             </div>
 
@@ -390,10 +394,10 @@ export const SupplierPortalView: React.FC = () => {
                 { name: 'Captain Tarek', role: 'Airport Shuttle Driver', status: 'Available for 14:00 PM Slot', license: 'Commercial Class 1' }
               ]).map((member, idx) => (
                 <div key={idx} className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                  <div className="font-bold text-sm text-[#1A1A1A]">{member.name}</div>
+                  <div className="font-bold text-sm text-[var(--text-primary)]">{member.name}</div>
                   <div className="text-emerald-800 font-medium">Role: {member.role}</div>
-                  <div className="text-[#1A1A1A]/70 text-[12px]">Status: {member.status}</div>
-                  <div className="text-[#1A1A1A]/50 text-[11px] font-mono">License: {member.license}</div>
+                  <div className="text-[var(--text-primary)]/70 text-[12px]">Status: {member.status}</div>
+                  <div className="text-[var(--text-primary)]/50 text-[11px] font-mono">License: {member.license}</div>
                 </div>
               ))}
             </div>
@@ -402,34 +406,34 @@ export const SupplierPortalView: React.FC = () => {
 
         {/* TAB 4: Reliability Score */}
         {activeTab === 'reliability' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1A]/10 shadow-xs space-y-6">
-            <div className="border-b border-[#1A1A1A]/8 pb-4">
-              <h2 className="text-lg font-bold text-[#1A1A1A]">
-                {language === 'ar' ? 'مؤشر الموثوقية والأداء التشغيلي (S09)' : 'Operational Reliability & SLA Score (Epic S09)'}
+          <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6">
+            <div className="border-b border-[var(--text-primary)]/8 pb-4">
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                {t('supplier.operationalReliabilitySLAScore')}
               </h2>
-              <p className="text-xs text-[#1A1A1A]/60">
-                {language === 'ar' ? 'معايير جودة الخدمة وسرعة الاستجابة لطلبات المسافرين' : 'On-time pickup rate, acceptance SLA, and traveler review health'}
+              <p className="text-xs text-[var(--text-primary)]/60">
+                {t('supplier.ontimePickupRateAcceptance')}
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50">Acceptance Rate</span>
+                <span className="text-[11px] text-[var(--text-primary)]/50">Acceptance Rate</span>
                 <div className="text-2xl font-bold text-emerald-800">98.4%</div>
                 <span className="text-[11px] text-emerald-700">{selectedSupplier?.tier || 'Top Tier Partner'}</span>
               </div>
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50">Avg Response Time</span>
-                <div className="text-2xl font-bold text-[#062C35]">2.1 mins</div>
+                <span className="text-[11px] text-[var(--text-primary)]/50">Avg Response Time</span>
+                <div className="text-2xl font-bold text-[var(--surface-container)]">2.1 mins</div>
                 <span className="text-[11px] text-emerald-700">&lt; 5 min SLA ✓</span>
               </div>
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50">On-Time Pickups</span>
-                <div className="text-2xl font-bold text-[#062C35]">99.1%</div>
+                <span className="text-[11px] text-[var(--text-primary)]/50">On-Time Pickups</span>
+                <div className="text-2xl font-bold text-[var(--surface-container)]">99.1%</div>
                 <span className="text-[11px] text-emerald-700">Zero Delays</span>
               </div>
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50">Traveler Rating</span>
+                <span className="text-[11px] text-[var(--text-primary)]/50">Traveler Rating</span>
                 {/* The fallbacks were the problem: a supplier with no rating was
                     shown "4.9 ★" and "100+ Verified Reviews" — a specific,
                     flattering claim about a real business, invented by an `||`.
@@ -438,15 +442,15 @@ export const SupplierPortalView: React.FC = () => {
                   <>
                     <div className="text-2xl font-bold text-amber-800">{selectedSupplier.rating} ★</div>
                     {typeof selectedSupplier.reviewCount === 'number' && (
-                      <span className="text-[11px] text-[#1A1A1A]/60">
+                      <span className="text-[11px] text-[var(--text-primary)]/60">
                         {selectedSupplier.reviewCount} verified reviews
                       </span>
                     )}
                   </>
                 ) : (
                   <>
-                    <div className="text-2xl font-bold text-[#1A1A1A]/30">—</div>
-                    <span className="text-[11px] text-[#1A1A1A]/60">No ratings collected yet</span>
+                    <div className="text-2xl font-bold text-[var(--text-primary)]/30">—</div>
+                    <span className="text-[11px] text-[var(--text-primary)]/60">No ratings collected yet</span>
                   </>
                 )}
               </div>
@@ -456,14 +460,14 @@ export const SupplierPortalView: React.FC = () => {
 
         {/* TAB 5: Provenance & Audit Trail (Proof of Strict Governance) */}
         {activeTab === 'audit' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1A]/10 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b border-[#1A1A1A]/8 pb-4">
+          <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-[var(--text-primary)]/8 pb-4">
               <div>
-                <h2 className="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+                <h2 className="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
                   <FileCheck2 className="w-5 h-5 text-emerald-700" />
-                  <span>{language === 'ar' ? 'سجل التدقيق والمصدر الأمني الموثق' : 'Provenance & Operational Audit Trail'}</span>
+                  <span>{t('supplier.provenanceOperationalAuditTrail')}</span>
                 </h2>
-                <p className="text-xs text-[#1A1A1A]/60">
+                <p className="text-xs text-[var(--text-primary)]/60">
                   Proof that supplier was vetted through the 5-stage human approval state machine before authoritative promotion.
                 </p>
               </div>
@@ -475,21 +479,21 @@ export const SupplierPortalView: React.FC = () => {
             {/* Provenance Metadata Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50 font-bold uppercase">Authorized Approver</span>
+                <span className="text-[11px] text-[var(--text-primary)]/50 font-bold uppercase">Authorized Approver</span>
                 <div className="font-semibold text-emerald-900">{selectedSupplier?.approvedBy}</div>
-                <span className="text-[11px] text-[#1A1A1A]/60">Onboarded: {selectedSupplier?.onboardedAt}</span>
+                <span className="text-[11px] text-[var(--text-primary)]/60">Onboarded: {selectedSupplier?.onboardedAt}</span>
               </div>
 
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50 font-bold uppercase">License Credential</span>
+                <span className="text-[11px] text-[var(--text-primary)]/50 font-bold uppercase">License Credential</span>
                 <div className="font-mono font-semibold text-sky-900">{selectedSupplier?.licenseNumber}</div>
                 <span className="text-[11px] text-emerald-700">Official Regulatory Check Passed ✓</span>
               </div>
 
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="text-[11px] text-[#1A1A1A]/50 font-bold uppercase">Discovery Candidate Link</span>
-                <div className="font-mono font-semibold text-[#062C35]">{selectedSupplier?.linkedCandidateId}</div>
-                <span className="text-[11px] text-[#1A1A1A]/60 truncate block font-mono" title={selectedSupplier?.provenanceSignature}>
+                <span className="text-[11px] text-[var(--text-primary)]/50 font-bold uppercase">Discovery Candidate Link</span>
+                <div className="font-mono font-semibold text-[var(--surface-container)]">{selectedSupplier?.linkedCandidateId}</div>
+                <span className="text-[11px] text-[var(--text-primary)]/60 truncate block font-mono" title={selectedSupplier?.provenanceSignature}>
                   SHA-256: {selectedSupplier?.provenanceSignature?.substring(0, 16)}...
                 </span>
               </div>
@@ -497,7 +501,7 @@ export const SupplierPortalView: React.FC = () => {
 
             {/* Audit History Timeline */}
             <div className="space-y-3 pt-2">
-              <h3 className="text-xs font-bold uppercase text-[#1A1A1A]/50 tracking-wider">
+              <h3 className="text-xs font-bold uppercase text-[var(--text-primary)]/50 tracking-wider">
                 Immutable Lifecycle Log ({selectedSupplier?.auditLog?.length || 0} Events)
               </h3>
               <div className="space-y-2">
@@ -507,10 +511,10 @@ export const SupplierPortalView: React.FC = () => {
                       <span className="font-mono font-bold text-emerald-900 bg-emerald-100/60 px-2 py-0.5 rounded">
                         {entry.action}
                       </span>
-                      <span className="text-[#1A1A1A]/50 font-mono">{entry.timestamp}</span>
+                      <span className="text-[var(--text-primary)]/50 font-mono">{entry.timestamp}</span>
                     </div>
-                    <div className="text-[#1A1A1A]/80 font-medium">Actor: {entry.actor}</div>
-                    <p className="text-[#1A1A1A]/70 text-[12px] italic">"{entry.notes}"</p>
+                    <div className="text-[var(--text-primary)]/80 font-medium">Actor: {entry.actor}</div>
+                    <p className="text-[var(--text-primary)]/70 text-[12px] italic">"{entry.notes}"</p>
                   </div>
                 ))}
               </div>

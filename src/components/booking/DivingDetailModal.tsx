@@ -60,7 +60,7 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
       aria-modal="true"
       aria-labelledby="diving-detail-modal-dialog-1-title"
     >
-      <div className="bg-[#0E2520] text-[#F7F3EA] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-white/15 flex flex-col max-h-[90vh] my-auto">
+      <div className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-white/15 flex flex-col max-h-[90vh] my-auto">
         {/* Modal Header with Close Button */}
         <div className="relative h-48 sm:h-64 w-full bg-black/40 flex-shrink-0">
           <img
@@ -69,36 +69,36 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0E2520] via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-transparent" />
 
           {/* Close X Button */}
           <button
             type="button"
             id="close-diving-detail-btn"
             onClick={onClose}
-            className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer`}
+            className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-[var(--text-primary)] flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer`}
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Top Badges */}
           <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} flex items-center gap-2`}>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#F4C36C] text-[#081714] backdrop-blur-md shadow-sm">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-container)] backdrop-blur-md shadow-sm">
               {badgeLabel}
             </span>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-black/60 text-white backdrop-blur-md flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-[#52C4B7]" />
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-black/60 text-[var(--text-primary)] backdrop-blur-md flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
               <span>{duration}</span>
             </span>
           </div>
 
           {/* Title on bottom of banner */}
-          <div className="absolute bottom-4 left-4 right-4 text-white">
-            <h2 id="diving-detail-modal-dialog-1-title" className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#F7F3EA]">
+          <div className="absolute bottom-4 left-4 right-4 text-[var(--text-primary)]">
+            <h2 id="diving-detail-modal-dialog-1-title" className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[var(--text-primary)]">
               {title}
             </h2>
-            <p className="text-xs sm:text-sm text-[#D2E3DE]/80 flex items-center gap-1.5 mt-1">
-              <MapPin className="w-4 h-4 text-[#52C4B7]" />
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 flex items-center gap-1.5 mt-1">
+              <MapPin className="w-4 h-4 text-[var(--accent-primary)]" />
               <span>{location}</span>
             </p>
           </div>
@@ -108,56 +108,56 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
         <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 font-['Plus_Jakarta_Sans',sans-serif]">
           {/* Overview Description */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#52C4B7] mb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-1.5">
               {isAr ? 'نظرة عامة على التجربة' : 'Experience overview'}
             </h3>
-            <p className="text-sm sm:text-base text-[#D2E3DE]/90 leading-relaxed font-normal">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)]/90 leading-relaxed font-normal">
               {description} {isAr ? 'تتميز طبيعة دهب الساحلية برؤية نقية تحت الماء تتجاوز ٣٠ متراً وشعاب مرجانية خلابة ونقاط دخول هادئة على طول خليج العقبة.' : "Dahab's legendary coastal topography offers crystal-clear visibility exceeding 30 meters, vibrant coral pinnacles, and calm entry points along the Gulf of Aqaba."}
             </p>
           </div>
 
           {/* Key Activity Attributes Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-[#D2E3DE]/60 font-semibold">
-                <Clock className="w-4 h-4 text-[#52C4B7]" />
+            <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/60 font-semibold">
+                <Clock className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'المدة' : 'Duration'}</span>
               </div>
-              <div className="text-sm font-bold text-[#F7F3EA]">{duration}</div>
-              <div className="text-[12px] text-[#D2E3DE]/50 font-normal">{isAr ? 'حوالي ٣–٤ ساعات إجمالاً' : 'Approx 3–4 hrs total'}</div>
+              <div className="text-sm font-bold text-[var(--text-primary)]">{duration}</div>
+              <div className="text-[12px] text-[var(--text-secondary)]/50 font-normal">{isAr ? 'حوالي ٣–٤ ساعات إجمالاً' : 'Approx 3–4 hrs total'}</div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-[#D2E3DE]/60 font-semibold">
-                <Compass className="w-4 h-4 text-[#52C4B7]" />
+            <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/60 font-semibold">
+                <Compass className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'مستوى التجربة' : 'Experience Level'}</span>
               </div>
-              <div className="text-sm font-bold text-[#F7F3EA]">{level}</div>
-              <div className="text-[12px] text-[#D2E3DE]/50 font-normal">{isAr ? 'لا تشترط شهادة غطس مسبقة' : 'No prior depth cert required'}</div>
+              <div className="text-sm font-bold text-[var(--text-primary)]">{level}</div>
+              <div className="text-[12px] text-[var(--text-secondary)]/50 font-normal">{isAr ? 'لا تشترط شهادة غطس مسبقة' : 'No prior depth cert required'}</div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#13312B] border border-white/10 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-[#D2E3DE]/60 font-semibold">
-                <Users className="w-4 h-4 text-[#52C4B7]" />
+            <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/60 font-semibold">
+                <Users className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'حجم المجموعة' : 'Group Size'}</span>
               </div>
-              <div className="text-sm font-bold text-[#F7F3EA]">{group}</div>
-              <div className="text-[12px] text-[#D2E3DE]/50 font-normal">{isAr ? 'اهتمام وإرشاد فردي مضمون' : 'Personal attention guaranteed'}</div>
+              <div className="text-sm font-bold text-[var(--text-primary)]">{group}</div>
+              <div className="text-[12px] text-[var(--text-secondary)]/50 font-normal">{isAr ? 'اهتمام وإرشاد فردي مضمون' : 'Personal attention guaranteed'}</div>
             </div>
           </div>
 
           {/* Included Features & What to Bring */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-[var(--border-subtle)]">
             {/* What's Included */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#52C4B7] mb-3 flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-[#52C4B7] stroke-[2.5]" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-[var(--accent-primary)] stroke-[2.5]" />
                 <span>{isAr ? 'ما تتضمنه التجربة' : 'What is included'}</span>
               </h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-[#D2E3DE]/90">
+              <ul className="space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]/90">
                 {includes.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-4 h-4 rounded-full bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="w-4 h-4 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-2.5 h-2.5 stroke-[2.5]" />
                     </span>
                     <span>{item}</span>
@@ -168,14 +168,14 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
 
             {/* What to Bring */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#52C4B7] mb-3 flex items-center gap-1.5">
-                <Luggage className="w-4 h-4 text-[#52C4B7]" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
+                <Luggage className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'ما يجب إحضاره' : 'What to bring'}</span>
               </h4>
-              <ul className="space-y-2 text-xs sm:text-sm text-[#D2E3DE]/90">
+              <ul className="space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]/90">
                 {whatToBring.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#20A89A] flex-shrink-0 mt-1.5" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)] flex-shrink-0 mt-1.5" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -184,30 +184,30 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
           </div>
 
           {/* Meeting & Safety Info */}
-          <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-3 text-xs">
+          <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3 text-xs">
             <div>
-              <span className="font-bold text-[#F7F3EA] block mb-0.5">
+              <span className="font-bold text-[var(--text-primary)] block mb-0.5">
                 {isAr ? 'معلومات التجمع والاستقبال:' : 'Meeting & Pickup Information:'}
               </span>
-              <p className="text-[#D2E3DE]/70 font-normal leading-relaxed">
+              <p className="text-[var(--text-secondary)]/70 font-normal leading-relaxed">
                 {meetingInfo}
               </p>
             </div>
-            <div className="border-t border-white/10 pt-2">
-              <span className="font-bold text-[#F7F3EA] block mb-0.5 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#52C4B7]" />
+            <div className="border-t border-[var(--border-subtle)] pt-2">
+              <span className="font-bold text-[var(--text-primary)] block mb-0.5 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'معايير السلامة والمعدات:' : 'Safety & Equipment Standards:'}</span>
               </span>
-              <p className="text-[#D2E3DE]/70 font-normal leading-relaxed">
+              <p className="text-[var(--text-secondary)]/70 font-normal leading-relaxed">
                 {safetyInfo}
               </p>
             </div>
-            <div className="border-t border-white/10 pt-2">
-              <span className="font-bold text-[#F7F3EA] block mb-0.5 flex items-center gap-1">
-                <CalendarCheck className="w-3.5 h-3.5 text-[#52C4B7]" />
+            <div className="border-t border-[var(--border-subtle)] pt-2">
+              <span className="font-bold text-[var(--text-primary)] block mb-0.5 flex items-center gap-1">
+                <CalendarCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'سياسة الإلغاء وتعديل المواعيد:' : 'Cancellation & Rescheduling:'}</span>
               </span>
-              <p className="text-[#D2E3DE]/70 font-normal leading-relaxed">
+              <p className="text-[var(--text-secondary)]/70 font-normal leading-relaxed">
                 {cancellationPolicy}
               </p>
             </div>
@@ -215,15 +215,15 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
         </div>
 
         {/* Modal Sticky Footer Action */}
-        <div className="p-4 sm:p-6 bg-[#13312B] border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
+        <div className="p-4 sm:p-6 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl sm:text-2xl font-black text-[#F7F3EA]">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text-primary)]">
                 {diving.pricePerPersonEGP.toLocaleString()} {isAr ? 'ج.م' : 'EGP'}
               </span>
-              <span className="text-xs text-[#D2E3DE]/60 font-medium">{isAr ? '/ للفرد' : '/ person'}</span>
+              <span className="text-xs text-[var(--text-secondary)]/60 font-medium">{isAr ? '/ للفرد' : '/ person'}</span>
             </div>
-            <div className="text-[12px] text-[#D2E3DE]/70 font-semibold">
+            <div className="text-[12px] text-[var(--text-secondary)]/70 font-semibold">
               {isAr ? `تقديرياً ${totalPrice.toLocaleString()} ج.م إجمالي (فردين)` : `Estimated EGP ${totalPrice.toLocaleString()} total (2 adults)`}
             </div>
           </div>
@@ -232,7 +232,7 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-1/2 sm:w-auto px-5 py-3 rounded-full text-xs font-bold text-[#D2E3DE] hover:text-white hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+              className="w-1/2 sm:w-auto px-5 py-3 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]/10 border border-[var(--border-subtle)] transition-colors cursor-pointer"
             >
               {isAr ? 'إغلاق' : 'Close'}
             </button>
@@ -246,8 +246,8 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
               }}
               className={`w-1/2 sm:w-auto px-7 py-3 rounded-full text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 ${
                 isSelected
-                  ? 'bg-[#20A89A] hover:bg-[#1a8c80] text-[#081714]'
-                  : 'bg-[#52C4B7] hover:bg-[#40a397] text-[#081714]'
+                  ? 'bg-[var(--accent-primary)] hover:bg-[#1a8c80] text-[var(--surface-container)]'
+                  : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-container)]'
               }`}
             >
               {isSelected ? (

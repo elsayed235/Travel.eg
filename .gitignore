@@ -27,6 +27,7 @@ coverage/
 # checkout without them cannot start the server at all.
 !/data/dahab_local_commerce.json
 !/data/dahab_hotels.json
+!/data/dahab_rentals.json
 !/data/instagram/
 
 

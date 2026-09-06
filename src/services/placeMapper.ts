@@ -1,4 +1,4 @@
-import type { DahabPlace } from '../shared';
+import type { DahabPlace, SpatialCoordinates } from '../shared/types/knowledge';
 
 /**
  * Turns the destination corpus's places into what the maps render.
@@ -142,6 +142,18 @@ export interface MappedPlace {
 const NOT_A_DESTINATION = /checkpoint|highway|transport hub|public services/i;
 
 export function toMappedPlace(place: DahabPlace, origin = DAHAB_CENTRE): MappedPlace {
+  // A record the research pipeline could not position (an unconfirmed dive
+  // site, say) has no coordinates to derive a distance or bearing from. The
+  // maps filter those out in buildMapPlaces; a direct call that slips past
+  // the guard should name the record rather than throw about 'null'.
+  if (
+    !place.coordinates ||
+    !Number.isFinite(place.coordinates.lat) ||
+    !Number.isFinite(place.coordinates.lng)
+  ) {
+    throw new Error(`Place '${place.nameEn}' has no usable coordinates to map.`);
+  }
+
   const km = distanceKm(origin, place.coordinates);
   const bearing = bearingLabel(origin, place.coordinates);
   const position = projectToIllustration(place.coordinates);
@@ -167,11 +179,29 @@ export function toMappedPlace(place: DahabPlace, origin = DAHAB_CENTRE): MappedP
   };
 }
 
+/**
+ * Whether a record has coordinates a map can place.
+ *
+ * The corpus stores null until a position is confirmed — the research import
+ * creates dive sites from text rather than GPS — so this is a data condition,
+ * not an invented one. A record without a position is excluded from the map
+ * exactly like a non-destination or a suspended one: it exists for other
+ * surfaces, not for drawing markers.
+ */
+function hasUsableCoordinates(
+  place: DahabPlace
+): place is DahabPlace & { coordinates: SpatialCoordinates } {
+  const c = place.coordinates;
+  if (!c) return false;
+  return Number.isFinite(c.lat) && Number.isFinite(c.lng);
+}
+
 export function buildMapPlaces(places: DahabPlace[], origin = DAHAB_CENTRE): MappedPlace[] {
   return places
     .filter(p => !NOT_A_DESTINATION.test(p.category))
     // A suspended or rejected record is not somewhere to send a traveler.
     .filter(p => p.operationalStatus !== 'SUSPENDED' && p.operationalStatus !== 'REJECTED')
+    .filter(hasUsableCoordinates)
     .map(p => toMappedPlace(p, origin))
     .sort((a, b) => a.distanceKm - b.distanceKm);
 }

@@ -6,6 +6,7 @@ import { IPersistenceAdapter } from '../adapters/IPersistenceAdapter';
 import { DatabaseState } from '../database';
 import { TABLE_SPECS, TableSpec } from './tableSpecs';
 import { buildSchemaDdl, entityToRow, rowToEntity, upsertSql } from './schemaBuilder';
+import { SQLITE_FILE } from '../paths';
 
 /**
  * A real local database behind the existing synchronous persistence contract.
@@ -55,7 +56,7 @@ export class SqlitePersistenceAdapter implements IPersistenceAdapter {
   private transactionBackup: string | null = null;
 
   constructor(customDbPath?: string) {
-    this.dbFile = customDbPath || path.join(process.cwd(), 'data', 'dahab.sqlite');
+    this.dbFile = customDbPath || SQLITE_FILE();
     const dir = path.dirname(this.dbFile);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 

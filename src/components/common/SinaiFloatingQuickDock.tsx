@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
 import { EmergencyModal } from './EmergencyModal';
 import { SinaiPassbookModal } from './SinaiPassbookModal';
 
@@ -22,8 +21,8 @@ export const SinaiFloatingQuickDock: React.FC = () => {
   // panel with no open/close concept. The reference was permanently undefined,
   // so it contributed nothing to isModalActive. Removed rather than invented.
   const { navigateTo, currentRoute } = useTrip();
-  const { language, isRTL } = useLanguage();
-  const { isDark } = useTheme();
+  const { language, isRTL , t} = useLanguage();
+
   const [isEmergencyOpen, setIsEmergencyOpen] = useState(false);
   const [isPassbookOpen, setIsPassbookOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -42,23 +41,15 @@ export const SinaiFloatingQuickDock: React.FC = () => {
       >
         {/* Expanded Quick Drawer */}
         {isExpanded && (
-          <div className={`backdrop-blur-xl border p-3 rounded-2xl shadow-2xl space-y-2 mb-1 w-64 animate-in slide-in-from-bottom-3 duration-200 ${
-            isDark 
-              ? 'bg-[#0E2520]/95 border-[#52C4B7]/40 text-[#F7F3EA]' 
-              : 'bg-white/95 border-[#122420]/15 text-[#122420]'
-          }`}>
-            <div className={`flex items-center justify-between border-b pb-2 px-1 ${
-              isDark ? 'border-white/10' : 'border-[#122420]/10'
-            }`}>
-              <span className={`text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif] ${
-                isDark ? 'text-[#F4C36C]' : 'text-[#EA8E75]'
-              }`}>
-                {language === 'ar' ? 'أدوات دهب السريعة' : 'Dahab Travel Toolkit'}
+          <div className="backdrop-blur-xl border p-3 rounded-2xl shadow-2xl space-y-2 mb-1 w-64 animate-in slide-in-from-bottom-3 duration-200 bg-[var(--surface-card)]/95 border-[var(--border-subtle)] text-[var(--text-primary)]">
+            <div className="flex items-center justify-between border-b pb-2 px-1 border-[var(--border-subtle)]">
+              <span className="text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif] text-[var(--accent-secondary)]">
+                {t('common.dahabTravelToolkit')}
               </span>
               <button 
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className={`transition-colors ${isDark ? 'text-white/60 hover:text-white' : 'text-[#4A635D] hover:text-[#122420]'}`}
+                className="transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -71,19 +62,15 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 setIsEmergencyOpen(true);
                 setIsExpanded(false);
               }}
-              className={`w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer ${
-                isDark 
-                  ? 'bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30 text-rose-300' 
-                  : 'bg-rose-50 hover:bg-rose-100 border-rose-200 text-rose-800'
-              }`}
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30 text-rose-300"
             >
               <LifeBuoy className="w-4 h-4 text-rose-500 flex-shrink-0" />
               <div>
-                <div className={`text-[12px] font-bold ${isDark ? 'text-rose-200' : 'text-rose-900'}`}>
-                  {language === 'ar' ? 'طوارئ سيناء وغرفة الضغط' : 'Sinai 24/7 Rapid Emergency'}
+                <div className="text-[12px] font-bold text-rose-200">
+                  {t('common.sinai247RapidEmergency')}
                 </div>
-                <div className={`text-[11px] font-normal ${isDark ? 'text-rose-300/80' : 'text-rose-700'}`}>
-                  {language === 'ar' ? 'إسعاف (١٢٣) · أطباء غوص' : 'Ambulance · Hyperbaric Med'}
+                <div className="text-[11px] font-normal text-rose-300/80">
+                  {t('common.ambulanceHyperbaricMed')}
                 </div>
               </div>
             </button>
@@ -95,19 +82,15 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 setIsPassbookOpen(true);
                 setIsExpanded(false);
               }}
-              className={`w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer ${
-                isDark 
-                  ? 'bg-[#20A89A]/15 hover:bg-[#20A89A]/25 border-[#20A89A]/30 text-[#52C4B7]' 
-                  : 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900'
-              }`}
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-[var(--accent-primary)]/15 hover:bg-[var(--accent-primary)]/25 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
             >
-              <ShieldCheck className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-[#20A89A]' : 'text-[#0E2520]'}`} />
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-[var(--accent-primary)]" />
               <div>
-                <div className={`text-[12px] font-bold ${isDark ? 'text-white' : 'text-[#122420]'}`}>
-                  {language === 'ar' ? 'تصريح سيناء الرقمي' : 'Sinai Digital Passbook'}
+                <div className="text-[12px] font-bold text-[var(--text-primary)]">
+                  {t('common.sinaiDigitalPassbook')}
                 </div>
-                <div className={`text-[11px] font-normal ${isDark ? 'text-white/70' : 'text-[#4A635D]'}`}>
-                  {language === 'ar' ? 'كمائن سيناء · تصريح الغوص' : 'Checkpoint Clearance · QR'}
+                <div className="text-[11px] font-normal text-[var(--text-secondary)]">
+                  {t('common.checkpointClearanceQR')}
                 </div>
               </div>
             </button>
@@ -119,19 +102,15 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 navigateTo('/food');
                 setIsExpanded(false);
               }}
-              className={`w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer ${
-                isDark 
-                  ? 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300' 
-                  : 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-900'
-              }`}
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300"
             >
-              <Compass className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-[#F4C36C]' : 'text-[#EA8E75]'}`} />
+              <Compass className="w-4 h-4 flex-shrink-0 text-[var(--accent-secondary)]" />
               <div>
-                <div className={`text-[12px] font-bold ${isDark ? 'text-amber-200' : 'text-amber-900'}`}>
-                  {language === 'ar' ? 'أكل وقهاوي دلوقتي' : 'Food & Chill Now'}
+                <div className="text-[12px] font-bold text-amber-200">
+                  {t('common.foodChillNow')}
                 </div>
-                <div className={`text-[11px] font-normal ${isDark ? 'text-amber-300/80' : 'text-amber-700'}`}>
-                  {language === 'ar' ? 'أماكن مفتوحة وقريبة منك' : 'Live Curated Spots Nearby'}
+                <div className="text-[11px] font-normal text-amber-300/80">
+                  {t('common.liveCuratedSpotsNearby')}
                 </div>
               </div>
             </button>
@@ -146,11 +125,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
             onClick={() => setIsEmergencyOpen(true)}
             aria-label="Sinai 24/7 Emergency"
             title="Sinai 24/7 Emergency Hotline"
-            className={`w-11 h-11 rounded-full border-2 shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md ${
-              isDark 
-                ? 'bg-rose-950/90 text-rose-300 border-rose-500/60 hover:bg-rose-900' 
-                : 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
-            }`}
+            className="w-11 h-11 rounded-full border-2 shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md bg-rose-950/90 text-rose-300 border-rose-500/60 hover:bg-rose-900"
           >
             <LifeBuoy className="w-5 h-5 animate-pulse text-rose-500" />
           </button>
@@ -159,15 +134,11 @@ export const SinaiFloatingQuickDock: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-full border-2 shadow-xl transition-all hover:scale-102 active:scale-98 cursor-pointer backdrop-blur-md text-xs font-bold font-['Outfit',sans-serif] ${
-              isDark 
-                ? 'bg-[#0E2520]/95 text-white border-[#52C4B7]/50 hover:bg-[#13312B]' 
-                : 'bg-white text-[#122420] border-[#122420]/15 hover:bg-stone-50'
-            }`}
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-full border-2 shadow-xl transition-all hover:scale-102 active:scale-98 cursor-pointer backdrop-blur-md text-xs font-bold font-['Outfit',sans-serif] bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--accent-primary)]/50 hover:bg-[var(--surface-container)]"
           >
-            <Sparkles className={`w-4 h-4 ${isDark ? 'text-[#F4C36C]' : 'text-[#EA8E75]'}`} />
+            <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
             <span className="hidden sm:inline">
-              {language === 'ar' ? 'أدوات دهب' : 'Dahab Tools'}
+              {t('common.dahabTools')}
             </span>
           </button>
         </div>

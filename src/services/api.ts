@@ -1,22 +1,225 @@
 import { apiErrorFrom, readJson } from './apiError';
-import type {
-  CommerceServiceType,
-  DahabCuratedStory,
-  DahabGalleryPhoto,
-  SupportMessage,
-  DahabActivity,
-  DahabDiningVenue,
-  DahabPlace,
-  TripBookingRecord,
-  TripEntity,
-  TripItemEntity,
-  TripItemWithSupplier,
-  ProductSkuEntity
-} from '../shared';
+import type { CommerceServiceType, TripBookingRecord, ProductSkuEntity } from '../shared/types/commerce';
+import type { DahabCuratedStory, DahabGalleryPhoto, DahabActivity, DahabAttraction, DahabDiningVenue, DahabPlace, AttractionCategory } from '../shared/types/knowledge';
+import type { SupportMessage } from '../shared/types/user';
+import type { TripEntity, TripItemEntity, TripItemWithSupplier } from '../shared/types/trip';
+import type { TransferResolveGeoResponse } from '../shared/types/transfers';
+import type { FitWindowResponse, PostActivityFoodResponse, RouteEstimate } from '../shared/types/context';
+import type { GroundedIntelligenceQueryResponse, ProductOpportunity } from '../types/intelligence';
+import type { Language } from '../i18n/translations';
+
+// ---------------------------------------------------------------------------
+// CMS public content — wire shapes served by the /api/content endpoints.
+// The CMS hooks reshape these into view models; the shapes live here so api.ts
+// is the single source of truth and the hooks never declare them a second time.
+// ---------------------------------------------------------------------------
+
+export interface CmsContentPage {
+  id: string;
+  slug: string;
+  type: string;
+  title_en: string;
+  title_ar: string;
+  subtitle_en: string;
+  subtitle_ar: string;
+  description_en: string;
+  description_ar: string;
+  body_en: string;
+  body_ar: string;
+  hero_image_url: string;
+  hero_image_alt_en: string;
+  hero_image_alt_ar: string;
+  status: string;
+  sort_order: number;
+  featured: number;
+}
+
+export interface CmsHomepageSection {
+  id: string;
+  section_key: string;
+  title_en: string;
+  title_ar: string;
+  visible: number;
+  sort_order: number;
+  config: Record<string, any>;
+  updated_at: string;
+}
+
+export interface HomepageContent {
+  hero: {
+    title_en: string;
+    title_ar: string;
+    config: Record<string, any>;
+  } | null;
+  sections: CmsHomepageSection[];
+  featuredPrograms: CmsContentPage[];
+  featuredGallery: CmsContentPage[];
+  featuredStories: CmsContentPage[];
+}
+
+export interface CmsPageBlockWire {
+  id: string;
+  type: string;
+  sort_order: number;
+  visible: number;
+  title_en: string;
+  title_ar: string;
+  body_en: string;
+  body_ar: string;
+  config?: string | Record<string, any>;
+}
+
+export interface CmsPageWithBlocks {
+  page: CmsContentPage | null;
+  blocks: CmsPageBlockWire[];
+}
+
+export interface NavigationItemWire {
+  id: string;
+  menu_key: string;
+  item_order: number;
+  label_en: string;
+  label_ar: string;
+  route: string;
+  external_url: string;
+  visible: number;
+  open_in_new: number;
+  group_label_en: string;
+  group_label_ar: string;
+}
+
+export interface ExploreCategoryWire {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_ar: string;
+  subtitle_en: string;
+  subtitle_ar: string;
+  description_en: string;
+  description_ar: string;
+  hero_image_url: string;
+  sort_order: number;
+  config?: string | Record<string, any>;
+}
 
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
+}
+
+/**
+ * Real contracts served by the /api/market/* and /api/events/* endpoints.
+ * These mirror the server-side entities (server/db/schema.ts) so callers stop
+ * guessing at `unknown[]` and casting malformed shapes onto local models.
+ * See `refreshMarketIntelligence` / `getMarketSourceHealth` / `getMarketAlerts`.
+ */
+export interface MarketSchedulePolicy {
+  id: string;
+  sourceId: string;
+  sourceReference: string;
+  sourceType: string;
+  scheduleInterval: string;
+  ingestionMode: 'LIVE_FETCH' | 'IMPORTED_SNAPSHOT' | 'MANUAL_REFRESH';
+  enabled: boolean;
+  requiresReview: boolean;
+  maxRetries: number;
+  consecutiveFailures: number;
+  lastScheduledRun?: string;
+  nextScheduledRun?: string;
+  lastCompletedRun?: string;
+}
+
+export type SourceHealthReadiness = 'HEALTHY' | 'DEGRADED' | 'FAILING' | 'STALE' | 'DISABLED';
+
+export interface SourceHealth {
+  id: string;
+  sourceId?: string;
+  sourceReference: string;
+  sourceType: string;
+  healthStatus: SourceHealthReadiness;
+  consecutiveFailures: number;
+  lastAttempt?: string;
+  lastSuccess?: string;
+  lastFailure?: string;
+  lastSuccessfulRefresh?: string;
+  lastFailedRefresh?: string;
+  lastError?: string;
+  latencyMs?: number;
+  recordsObserved?: number;
+  changesDetected?: number;
+  totalRuns: number;
+  successfulRuns: number;
+  updatedAt?: string;
+}
+
+export type MarketAlertType =
+  | 'SOURCE_FAILURE'
+  | 'SOURCE_STALE'
+  | 'PRICE_ANOMALY'
+  | 'REGULATORY_CHANGE'
+  | 'IMPORT_FAILURE'
+  | 'REFRESH_BACKLOG'
+  | 'PRICE_DROP'
+  | 'PRICE_INCREASE';
+
+export interface MarketAlert {
+  id: string;
+  alertType: MarketAlertType;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  titleEn: string;
+  titleAr: string;
+  messageEn: string;
+  messageAr: string;
+  sourceReference?: string;
+  supplierId?: string;
+  activityId?: string;
+  createdAt: string;
+  acknowledged: boolean;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+}
+
+export type MarketReviewStatus =
+  | 'PENDING_REVIEW'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'DISMISSED'
+  | 'MARKED_VERIFIED'
+  | 'MARKED_STALE'
+  | 'SOURCE_SUSPENDED'
+  | 'SOURCE_REACTIVATED'
+  | 'AUTO_RESOLVED';
+
+export interface MarketReviewItem {
+  id: string;
+  issueType: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  status: MarketReviewStatus;
+  detectedAt: string;
+  summaryEn?: string;
+  summaryAr?: string;
+}
+
+export interface MarketOpsOverview {
+  totalSuppliers: number;
+  totalOffers: number;
+  totalPriceObservations: number;
+  recentChangeEventsCount: number;
+  pendingReviewCount: number;
+  activeSourcesCount: number;
+  freshnessScore: number;
+  recentRuns: unknown[];
+  recentEvents: unknown[];
+  pendingReviews: MarketReviewItem[];
+}
+
+export interface BackgroundEvent {
+  eventId: string;
+  eventType: string;
+  timestamp: string;
+  actorId?: string;
+  correlationId?: string;
+  data: Record<string, any>;
 }
 
 /**
@@ -130,12 +333,6 @@ export const api = {
   // be compiled into the components that rendered them, so a copy change meant
   // a rebuild and a deploy.
 
-  async getGalleryPhotos(signal?: AbortSignal): Promise<{ photos: DahabGalleryPhoto[] }> {
-    const res = await fetchWithTimeout('/api/dahab/content/gallery', { headers: defaultHeaders(), signal });
-    if (!res.ok) throw await apiErrorFrom(res, 'Could not load the Dahab gallery.');
-    return await readJson<{ photos: DahabGalleryPhoto[] }>(res, 'Could not load the Dahab gallery.');
-  },
-
   async getCuratedStories(signal?: AbortSignal): Promise<{ stories: DahabCuratedStory[] }> {
     const res = await fetchWithTimeout('/api/dahab/content/stories', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load the Dahab stories.');
@@ -166,8 +363,47 @@ export const api = {
     return await readJson<{ activities: DahabActivity[] }>(res, 'Could not load things to do in Dahab.');
   },
 
-  async getDahabDining(signal?: AbortSignal): Promise<{ venues: DahabDiningVenue[] }> {
-    const res = await fetchWithTimeout('/api/dahab/food', { headers: defaultHeaders(), signal });
+  async getDahabAttractions(
+    filters?: {
+      category?: string;
+      q?: string;
+      area?: string;
+      sort?: 'top' | 'rating' | 'popular' | 'name' | 'price';
+      order?: 'asc' | 'desc';
+    },
+    signal?: AbortSignal
+  ): Promise<{ attractions: DahabAttraction[]; categories: AttractionCategory[]; count: number }> {
+    const params = new URLSearchParams();
+    if (filters?.category) params.set('category', filters.category);
+    if (filters?.q) params.set('q', filters.q);
+    if (filters?.area) params.set('area', filters.area);
+    if (filters?.sort && filters.sort !== 'top') params.set('sort', filters.sort);
+    if (filters?.order) params.set('order', filters.order);
+    const qs = params.toString();
+    const res = await fetchWithTimeout(`/api/dahab/attractions${qs ? `?${qs}` : ''}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load things to do in Dahab.');
+    return await readJson<{ attractions: DahabAttraction[]; categories: AttractionCategory[]; count: number }>(
+      res,
+      'Could not load things to do in Dahab.'
+    );
+  },
+
+  async getDahabDining(
+    filters?: { area?: string; cuisine?: string[]; price?: string[]; q?: string; sort?: 'rating' | 'popular' | 'name' | 'price' | 'default'; order?: 'asc' | 'desc' },
+    signal?: AbortSignal
+  ): Promise<{ venues: DahabDiningVenue[] }> {
+    const params = new URLSearchParams();
+    if (filters?.area) params.set('area', filters.area);
+    if (filters?.cuisine?.length) params.set('cuisine', filters.cuisine.join(','));
+    if (filters?.price?.length) params.set('price', filters.price.join(','));
+    if (filters?.q) params.set('q', filters.q);
+    if (filters?.sort && filters.sort !== 'default') params.set('sort', filters.sort);
+    if (filters?.order) params.set('order', filters.order);
+    const qs = params.toString();
+    const res = await fetchWithTimeout(`/api/dahab/food${qs ? `?${qs}` : ''}`, { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load places to eat in Dahab.');
     return await readJson<{ venues: DahabDiningVenue[] }>(res, 'Could not load places to eat in Dahab.');
   },
@@ -182,12 +418,6 @@ export const api = {
     const res = await fetchWithTimeout('/api/dahab/regulations', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load regulations.');
     return await readJson<{ regulations: unknown[] }>(res, 'Could not load regulations.');
-  },
-
-  async searchDahab(query: string, signal?: AbortSignal): Promise<{ results: unknown }> {
-    const res = await fetchWithTimeout(`/api/dahab/search?q=${encodeURIComponent(query)}`, { headers: defaultHeaders(), signal });
-    if (!res.ok) throw await apiErrorFrom(res, 'Search failed.');
-    return await readJson<{ results: unknown }>(res, 'Search failed.');
   },
 
   async getDahabAreas(signal?: AbortSignal): Promise<{ areas: unknown[] }> {
@@ -447,29 +677,477 @@ export const api = {
     );
   },
 
-  async checkMultiAvailability(params: {
-    serviceType: CommerceServiceType;
-    skuId?: string;
-    date: string;
-    timeSlot?: string;
-    passengers?: number;
-  }) {
+  async getHotels(
+    params?: { category?: string; priceBand?: string; area?: string },
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').HotelCatalogueResponse> {
+    const query = new URLSearchParams();
+    if (params?.category) query.set('category', params.category);
+    if (params?.priceBand) query.set('priceBand', params.priceBand);
+    if (params?.area) query.set('area', params.area);
+    const res = await fetchWithTimeout(`/api/hotels${query.size ? `?${query.toString()}` : ''}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load Dahab hotels.');
+    return await readJson<import('../shared/types/commerce').HotelCatalogueResponse>(
+      res,
+      'Could not load Dahab hotels.'
+    );
+  },
+
+  async getHotelBySlug(
+    slug: string,
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').HotelDetailResponse> {
+    const res = await fetchWithTimeout(`/api/hotels/${encodeURIComponent(slug)}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load that hotel.');
+    return await readJson<import('../shared/types/commerce').HotelDetailResponse>(
+      res,
+      'Could not load that hotel.'
+    );
+  },
+
+  async checkHotelAvailability(skuId: string, date: string, rooms = 1) {
     const res = await fetchWithTimeout('/api/commerce/availability', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ serviceType: 'hotel', skuId, date, timeSlot: 'Standard Check-in 14:00', passengers: rooms })
+    });
+    if (!res.ok) throw new Error('Failed to check hotel availability');
+    return await res.json();
+  },
+
+  async getAccommodations(
+    params?: {
+      q?: string;
+      propertyType?: string[];
+      category?: string[];
+      priceBand?: string[];
+      areaId?: string[];
+      guests?: number;
+      maxPerNightEGP?: number;
+      minRating?: number;
+      mustHaveAmenities?: string[];
+      sort?: string;
+    },
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').AccommodationCatalogueResponse> {
+    const query = new URLSearchParams();
+    if (params?.q) query.set('q', params.q);
+    if (params?.propertyType?.length) query.set('propertyType', params.propertyType.join(','));
+    if (params?.category?.length) query.set('category', params.category.join(','));
+    if (params?.priceBand?.length) query.set('priceBand', params.priceBand.join(','));
+    if (params?.areaId?.length) query.set('areaId', params.areaId.join(','));
+    if (params?.guests) query.set('guests', String(params.guests));
+    if (params?.maxPerNightEGP) query.set('maxPerNightEGP', String(params.maxPerNightEGP));
+    if (params?.minRating) query.set('minRating', String(params.minRating));
+    if (params?.mustHaveAmenities?.length) query.set('mustHaveAmenities', params.mustHaveAmenities.join(','));
+    if (params?.sort) query.set('sort', params.sort);
+    const res = await fetchWithTimeout(`/api/accommodations${query.size ? `?${query.toString()}` : ''}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load Dahab accommodations.');
+    return await readJson<import('../shared/types/commerce').AccommodationCatalogueResponse>(
+      res,
+      'Could not load Dahab accommodations.'
+    );
+  },
+
+  async getAccommodationBySlug(
+    slug: string,
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').AccommodationDetailResponse> {
+    const res = await fetchWithTimeout(`/api/accommodations/${encodeURIComponent(slug)}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load that stay.');
+    return await readJson<import('../shared/types/commerce').AccommodationDetailResponse>(
+      res,
+      'Could not load that stay.'
+    );
+  },
+
+  async parseAccommodationSearchIntent(
+    query: string,
+    language: 'en' | 'ar' = 'en'
+  ): Promise<import('../shared/types/commerce').AccommodationSearchIntentResult> {
+    const res = await fetchWithTimeout('/api/accommodations/search-intent', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ query, language })
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not understand that search.');
+    return await readJson<import('../shared/types/commerce').AccommodationSearchIntentResult>(
+      res,
+      'Could not understand that search.'
+    );
+  },
+
+  // ---------------------------------------------------------------------------
+  // Rentals (bikes MVP — generic rental domain)
+  // ---------------------------------------------------------------------------
+
+  async getRentals(
+    params?: {
+      category?: string;
+      subcategory?: string;
+      zone?: string;
+      q?: string;
+      sort?: string;
+      startDate?: string;
+      endDate?: string;
+      quantity?: number;
+    },
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').RentalCatalogueResponse> {
+    const query = new URLSearchParams();
+    if (params?.category) query.set('category', params.category);
+    if (params?.subcategory) query.set('subcategory', params.subcategory);
+    if (params?.zone) query.set('zone', params.zone);
+    if (params?.q) query.set('q', params.q);
+    if (params?.sort) query.set('sort', params.sort);
+    if (params?.startDate) query.set('startDate', params.startDate);
+    if (params?.endDate) query.set('endDate', params.endDate);
+    if (params?.quantity) query.set('quantity', String(params.quantity));
+    // No trailing slash: the API policy matches `/rentals` exactly, and
+    // `/rentals/` falls through to deny-by-default.
+    const res = await fetchWithTimeout(`/api/rentals${query.size ? `?${query.toString()}` : ''}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load Dahab rentals.');
+    return await readJson<import('../shared/types/commerce').RentalCatalogueResponse>(
+      res,
+      'Could not load Dahab rentals.'
+    );
+  },
+
+  async getRentalBySlug(
+    slug: string,
+    signal?: AbortSignal
+  ): Promise<import('../shared/types/commerce').RentalDetailResponse> {
+    const res = await fetchWithTimeout(`/api/rentals/${encodeURIComponent(slug)}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load that rental.');
+    return await readJson<import('../shared/types/commerce').RentalDetailResponse>(
+      res,
+      'Could not load that rental.'
+    );
+  },
+
+  async checkRentalAvailability(params: {
+    listingId: string;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+  }): Promise<import('../shared/types/commerce').RentalAvailabilityResult> {
+    const res = await fetchWithTimeout('/api/rentals/check-availability', {
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) throw new Error('Failed to check inventory availability');
+    if (!res.ok) throw await apiErrorFrom(res, 'Availability check failed.');
+    return await readJson<import('../shared/types/commerce').RentalAvailabilityResult>(
+      res,
+      'Availability check failed.'
+    );
+  },
+
+  async quoteRental(params: {
+    listingId: string;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    extraIds?: string[];
+    deliveryMode?: 'PICKUP' | 'DELIVERY';
+    deliveryZoneId?: string;
+  }): Promise<import('../shared/types/commerce').RentalQuoteResult> {
+    const res = await fetchWithTimeout('/api/rentals/quote', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Quote failed.');
+    return await readJson<import('../shared/types/commerce').RentalQuoteResult>(
+      res,
+      'Quote failed.'
+    );
+  },
+
+  async createRentalBooking(params: {
+    listingId: string;
+    tripId: string;
+    travelerPhone?: string;
+    startDate: string;
+    endDate: string;
+    quantity: number;
+    deliveryMode?: 'PICKUP' | 'DELIVERY';
+    deliveryZoneId?: string;
+    deliveryAddress?: string;
+    pickupTime?: string;
+    extraIds?: string[];
+    notes?: string;
+    idempotencyKey?: string;
+  }): Promise<{ booking: import('../shared/types/commerce').RentalBookingView; replayed?: boolean }> {
+    const res = await fetchWithTimeout('/api/rental-bookings', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not create the rental booking.');
+    return await readJson<{ booking: import('../shared/types/commerce').RentalBookingView; replayed?: boolean }>(
+      res,
+      'Could not create the rental booking.'
+    );
+  },
+
+  async checkoutRentalBooking(params: {
+    rentalBookingId: string;
+    tripId: string;
+    travelerPhone?: string;
+    idempotencyKey: string;
+    provider?: 'PAYMOB' | 'STRIPE' | 'CASH_ON_ARRIVAL';
+    cardLast4?: string;
+    cardBrand?: string;
+    cardHolderName?: string;
+  }): Promise<{ success: boolean; bookingRef: string; totalAmountEGP: number; replayed?: boolean }> {
+    const res = await fetchWithTimeout(`/api/rental-bookings/${encodeURIComponent(params.rentalBookingId)}/checkout`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Checkout failed.');
+    return await readJson<{ success: boolean; bookingRef: string; totalAmountEGP: number; replayed?: boolean }>(
+      res,
+      'Checkout failed.'
+    );
+  },
+
+  async cancelRentalBooking(
+    bookingId: string,
+    reason?: string
+  ): Promise<{ booking: import('../shared/types/commerce').RentalBookingView }> {
+    const res = await fetchWithTimeout(`/api/rental-bookings/${encodeURIComponent(bookingId)}/cancel`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ reason })
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not cancel the rental booking.');
+    return await readJson<{ booking: import('../shared/types/commerce').RentalBookingView }>(
+      res,
+      'Could not cancel the rental booking.'
+    );
+  },
+
+  async getMyRentalBookings(signal?: AbortSignal): Promise<{
+    bookings: import('../shared/types/commerce').RentalBookingView[];
+  }> {
+    const res = await fetchWithTimeout('/api/rental-bookings', {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load your rental bookings.');
+    return await readJson<{ bookings: import('../shared/types/commerce').RentalBookingView[] }>(
+      res,
+      'Could not load your rental bookings.'
+    );
+  },
+
+  // -- provider surfaces ------------------------------------------------------
+
+  async getProviderRentals(signal?: AbortSignal): Promise<{
+    rentals: import('../shared/types/commerce').RentalListingView[];
+  }> {
+    const res = await fetchWithTimeout('/api/rentals/provider', {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load your rental listings.');
+    return await readJson<{ rentals: import('../shared/types/commerce').RentalListingView[] }>(
+      res,
+      'Could not load your rental listings.'
+    );
+  },
+
+  async getProviderRentalBookings(
+    params?: { status?: string; from?: string; to?: string },
+    signal?: AbortSignal
+  ): Promise<{ bookings: import('../shared/types/commerce').RentalBookingView[] }> {
+    const query = new URLSearchParams();
+    if (params?.status) query.set('status', params.status);
+    if (params?.from) query.set('from', params.from);
+    if (params?.to) query.set('to', params.to);
+    const res = await fetchWithTimeout(`/api/rental-bookings/provider${query.size ? `?${query.toString()}` : ''}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load your rental bookings.');
+    return await readJson<{ bookings: import('../shared/types/commerce').RentalBookingView[] }>(
+      res,
+      'Could not load your rental bookings.'
+    );
+  },
+
+  async acceptRentalBooking(
+    bookingId: string
+  ): Promise<{ booking: import('../shared/types/commerce').RentalBookingView }> {
+    const res = await fetchWithTimeout(`/api/rental-bookings/${encodeURIComponent(bookingId)}/accept`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({})
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not accept the rental booking.');
+    return await readJson<{ booking: import('../shared/types/commerce').RentalBookingView }>(
+      res,
+      'Could not accept the rental booking.'
+    );
+  },
+
+  async rejectRentalBooking(
+    bookingId: string,
+    reason?: string
+  ): Promise<{ booking: import('../shared/types/commerce').RentalBookingView }> {
+    const res = await fetchWithTimeout(`/api/rental-bookings/${encodeURIComponent(bookingId)}/reject`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ reason })
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not reject the rental booking.');
+    return await readJson<{ booking: import('../shared/types/commerce').RentalBookingView }>(
+      res,
+      'Could not reject the rental booking.'
+    );
+  },
+
+  async markRentalReturned(
+    bookingId: string,
+    opts: { damageReport?: string; depositDeductionEGP?: number; lateFeeEGP?: number } = {}
+  ): Promise<{ booking: import('../shared/types/commerce').RentalBookingView }> {
+    const res = await fetchWithTimeout(`/api/rental-bookings/${encodeURIComponent(bookingId)}/mark-returned`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(opts)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not mark the rental returned.');
+    return await readJson<{ booking: import('../shared/types/commerce').RentalBookingView }>(
+      res,
+      'Could not mark the rental returned.'
+    );
+  },
+
+  async addRentalMaintenanceBlock(
+    listingId: string,
+    opts: { startDate: string; endDate: string; quantityBlocked: number; reason?: string }
+  ): Promise<{ block: import('../shared/types/commerce').RentalMaintenanceBlock }> {
+    const res = await fetchWithTimeout(`/api/rentals/${encodeURIComponent(listingId)}/maintenance-blocks`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(opts)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not add the maintenance block.');
+    return await readJson<{ block: import('../shared/types/commerce').RentalMaintenanceBlock }>(
+      res,
+      'Could not add the maintenance block.'
+    );
+  },
+
+  async removeRentalMaintenanceBlock(listingId: string, blockId: string): Promise<{ removed: boolean }> {
+    const res = await fetchWithTimeout(
+      `/api/rentals/${encodeURIComponent(listingId)}/maintenance-blocks/${encodeURIComponent(blockId)}`,
+      {
+        method: 'DELETE',
+        headers: defaultHeaders()
+      }
+    );
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not remove the maintenance block.');
     return await res.json();
   },
 
-  async checkTransferAvailability(skuId: string, date: string, timeSlot?: string, passengers = 2) {
-    const res = await fetchWithTimeout('/api/inventory/transfers/check', {
+  async getTransferOrigins(transferType?: 'within_dahab' | 'anywhere', query?: string) {
+    const params = new URLSearchParams();
+    if (transferType) params.set('transferType', transferType);
+    if (query) params.set('query', query);
+    const res = await fetchWithTimeout(`/api/transfers/origins?${params.toString()}`, {
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to load transfer origins');
+    return await res.json();
+  },
+
+  async getTransferRoute(originId: string, tierId?: 'private' | 'shared' | 'premium') {
+    const params = new URLSearchParams({ origin: originId });
+    if (tierId) params.set('tier', tierId);
+    const res = await fetchWithTimeout(`/api/transfers/route?${params.toString()}`, {
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to quote transfer route');
+    return await res.json();
+  },
+
+  async resolveTransferGeo(latitude: number, longitude: number): Promise<TransferResolveGeoResponse> {
+    const res = await fetchWithTimeout(`/api/transfers/resolve-geo?lat=${latitude}&lng=${longitude}`, {
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to resolve location');
+    return await res.json();
+  },
+
+  async prepareTransferBooking(params: {
+    tripId: string;
+    originId: string;
+    tierId: 'private' | 'shared' | 'premium';
+    date: string;
+    timeSlot: string;
+    passengersCount: number;
+    idempotencyKey: string;
+  }) {
+    const res = await fetchWithTimeout('/api/transfers/prepare-booking', {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ skuId, date, timeSlot, passengers })
+      body: JSON.stringify(params)
     });
-    if (!res.ok) throw new Error('Failed to check transfer inventory');
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to prepare transfer booking');
+    }
+    return await res.json();
+  },
+
+  async completeTransferBooking(params: {
+    holdToken: string;
+    tripId: string;
+    travelerName: string;
+    travelerPhone: string;
+    travelerEmail: string;
+    pickupLocation: string;
+    dropoffLocation: string;
+    flightNumber?: string;
+    specialRequests?: string;
+    scheduledDate: string;
+    scheduledTime: string;
+    idempotencyKey: string;
+    cardLast4?: string;
+    cardBrand?: string;
+    cardHolderName?: string;
+    provider?: 'PAYMOB' | 'STRIPE' | 'CASH_ON_ARRIVAL';
+  }) {
+    const res = await fetchWithTimeout('/api/commerce/checkout', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Checkout failed');
+    }
     return await res.json();
   },
 
@@ -536,28 +1214,6 @@ export const api = {
     return await res.json();
   },
 
-  async substituteItineraryItem(params: {
-    tripId: string;
-    originalItemId: string;
-    alternativeTitle: string;
-    alternativeServiceType: string;
-    newScheduledTime: string;
-    newPriceEGP?: number;
-    reason: string;
-    idempotencyKey: string;
-  }) {
-    const res = await fetchWithTimeout('/api/commerce/recovery/substitute', {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify(params)
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Itinerary substitution failed');
-    }
-    return await res.json();
-  },
-
   async processRefund(params: {
     bookingId?: string;
     tripId: string;
@@ -612,13 +1268,6 @@ export const api = {
     return await res.json();
   },
 
-  async getTelemetry(bookingId: string) {
-    const res = await fetchWithTimeout(`/api/transfers/telemetry/${bookingId}`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Telemetry fetch failed');
-    return await res.json();
-  },
-
-  // 3. Ledger & Audits
   async getLedger() {
     const res = await fetchWithTimeout('/api/commerce/ledger', { headers: defaultHeaders() });
     return await res.json();
@@ -664,15 +1313,6 @@ export const api = {
     return await res.json();
   },
 
-  async updateSupplierBookingStatus(bookingId: string, supplierState: string, resource?: any) {
-    const res = await fetchWithTimeout(`/api/suppliers/bookings/${bookingId}/status`, {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ supplierState, resource })
-    });
-    return await res.json();
-  },
-
   async getOperationsOverview() {
     const res = await fetchWithTimeout('/api/operations/overview', { headers: defaultHeaders() });
     return await res.json();
@@ -681,6 +1321,106 @@ export const api = {
   async getHealthData() {
     const res = await fetchWithTimeout('/api/health', { headers: defaultHeaders() });
     return await res.json();
+  },
+
+  /** Liveness ping for the app boot path. Resolves `null` when the server
+   *  answers without health data (r.ok false); rejects on a network failure so
+   *  the caller's catch can reset the federated-sign-in flag. */
+  async pingHealth(): Promise<{ firebaseAdminConfigured?: boolean; paymentsSimulated?: boolean } | null> {
+    const res = await fetchWithTimeout('/api/health', { headers: defaultHeaders() });
+    if (!res.ok) return null;
+    return await readJson<{ firebaseAdminConfigured?: boolean; paymentsSimulated?: boolean }>(res, 'health');
+  },
+
+  async askIntelligence(
+    payload: { query: string; language: Language },
+    signal?: AbortSignal
+  ): Promise<GroundedIntelligenceQueryResponse> {
+    const res = await fetchWithTimeout('/api/intelligence/ask', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(payload),
+      signal
+    });
+    if (!res.ok) throw new Error('API query failed');
+    return await readJson<GroundedIntelligenceQueryResponse>(res, 'API query failed');
+  },
+
+  async draftOpportunity(
+    payload: { signalIds: string[]; contextNotes: string }
+  ): Promise<{ opportunity?: ProductOpportunity } | null> {
+    const res = await fetchWithTimeout('/api/intelligence/draft-opportunity', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) return null;
+    return await readJson<{ opportunity?: ProductOpportunity }>(res, '');
+  },
+
+  async listAdminContentMedia(signal?: AbortSignal): Promise<{ media?: any[] }> {
+    const res = await fetchWithTimeout('/api/admin/content/media', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error(res.status === 401 || res.status === 403 ? 'Not authorized to view media' : 'Failed to load media');
+    return await readJson<{ media?: any[] }>(res, 'Could not load media.');
+  },
+
+  // ---------------------------------------------------------------------------
+  // CMS public content (GET, read-only). The wire shapes below are the single
+  // source of truth; src/hooks/useCMSContent reshapes them into view models.
+  // ---------------------------------------------------------------------------
+
+  async getCmsHomepage(signal?: AbortSignal): Promise<HomepageContent> {
+    const res = await fetchWithTimeout('/api/content/homepage', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS homepage unavailable');
+    return await readJson<HomepageContent>(res, 'CMS homepage');
+  },
+
+  async getCmsGallery(signal?: AbortSignal): Promise<{ photos?: CmsContentPage[] }> {
+    const res = await fetchWithTimeout('/api/content/gallery', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS gallery unavailable');
+    return await readJson<{ photos?: CmsContentPage[] }>(res, 'CMS gallery');
+  },
+
+  async getCmsProgrammes(signal?: AbortSignal): Promise<{ programmes?: CmsContentPage[] }> {
+    const res = await fetchWithTimeout('/api/content/programmes', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS programmes unavailable');
+    return await readJson<{ programmes?: CmsContentPage[] }>(res, 'CMS programmes');
+  },
+
+  async getCmsStories(signal?: AbortSignal): Promise<{ stories?: CmsContentPage[] }> {
+    const res = await fetchWithTimeout('/api/content/stories', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS stories unavailable');
+    return await readJson<{ stories?: CmsContentPage[] }>(res, 'CMS stories');
+  },
+
+  async getCmsPage(slug: string, signal?: AbortSignal): Promise<CmsPageWithBlocks> {
+    const res = await fetchWithTimeout(`/api/content/pages/${slug}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) return { page: null, blocks: [] };
+    return await readJson<CmsPageWithBlocks>(res, 'CMS page');
+  },
+
+  async getCmsNavigation(menuKey: string, signal?: AbortSignal): Promise<{ items?: NavigationItemWire[] }> {
+    const res = await fetchWithTimeout(`/api/content/navigation/${menuKey}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS navigation unavailable');
+    return await readJson<{ items?: NavigationItemWire[] }>(res, 'CMS navigation');
+  },
+
+  async getCmsExploreCategories(signal?: AbortSignal): Promise<{ categories?: ExploreCategoryWire[] }> {
+    const res = await fetchWithTimeout('/api/content/explore-categories', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS explore categories unavailable');
+    return await readJson<{ categories?: ExploreCategoryWire[] }>(res, 'CMS explore categories');
+  },
+
+  async getCmsHowItWorks(signal?: AbortSignal): Promise<{ blocks?: CmsPageBlockWire[] }> {
+    const res = await fetchWithTimeout('/api/content/pages/how-it-works?include_blocks=true', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS how-it-works unavailable');
+    return await readJson<{ blocks?: CmsPageBlockWire[] }>(res, 'CMS how-it-works');
+  },
+
+  async getCmsTripPreview(signal?: AbortSignal): Promise<{ blocks?: CmsPageBlockWire[] }> {
+    const res = await fetchWithTimeout('/api/content/pages/trip-preview?include_blocks=true', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('CMS trip-preview unavailable');
+    return await readJson<{ blocks?: CmsPageBlockWire[] }>(res, 'CMS trip-preview');
   },
 
   async getAuditEvents(limit = 50) {
@@ -698,29 +1438,9 @@ export const api = {
     return await res.json();
   },
 
-  async resolveMarketAlert(alertId: string, resolutionNotes?: string) {
-    const res = await fetchWithTimeout(`/api/market/alerts/${encodeURIComponent(alertId)}/resolve`, {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ resolutionNotes })
-    });
-    if (!res.ok) throw new Error('Failed to resolve alert');
-    return await res.json();
-  },
-
-  async resolveReviewQueueItem(itemId: string, action: string, notes?: string, reviewer?: string) {
-    const res = await fetchWithTimeout(`/api/market/review-queue/${encodeURIComponent(itemId)}/resolve`, {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ action, notes, reviewer })
-    });
-    if (!res.ok) throw new Error('Failed to resolve review item');
-    return await res.json();
-  },
-
-  async getRecentEvents(limit = 20) {
+  async getRecentEvents(limit = 20): Promise<{ events: BackgroundEvent[] }> {
     const res = await fetchWithTimeout(`/api/events/recent?limit=${limit}`, { headers: defaultHeaders() });
-    return await res.json();
+    return await readJson<{ events: BackgroundEvent[] }>(res, 'Could not load recent events.');
   },
 
   async replyToSupportMessage(messageId: string, reply: string) {
@@ -738,50 +1458,36 @@ export const api = {
     return await res.json();
   },
 
-  async runGoldenJourneySuite() {
-    const res = await fetchWithTimeout('/api/testing/golden-journey', {
-      method: 'POST',
-      headers: defaultHeaders()
-    });
-    return await res.json();
-  },
-
-  // 5. Background Spatial Context Engine ("I Have Two Hours", Food Proximity, Routing)
-  async getFitWindowOptions(params?: { originArea?: string; availableMinutes?: number; category?: string }) {
+  async getFitWindowOptions(
+    params?: { originArea?: string; availableMinutes?: number; category?: string },
+    signal?: AbortSignal
+  ): Promise<FitWindowResponse> {
     const res = await fetchWithTimeout('/api/context/fit-window', {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify(params || { originArea: 'lighthouse', availableMinutes: 120 })
+      body: JSON.stringify(params || { originArea: 'lighthouse', availableMinutes: 120 }),
+      signal
     });
-    if (!res.ok) throw new Error('Failed to fetch window fit options');
-    return await res.json();
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load what fits your available time right now.');
+    return await readJson<FitWindowResponse>(res, 'Could not load what fits your available time right now.');
   },
 
-  async getPostActivityFood(locationId: string = 'place-lighthouse', limit: number = 3) {
+  async getPostActivityFood(locationId: string = 'place-lighthouse', limit: number = 3, signal?: AbortSignal): Promise<PostActivityFoodResponse> {
     const res = await fetchWithTimeout(`/api/context/post-activity-food?locationId=${encodeURIComponent(locationId)}&limit=${limit}`, {
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to fetch post activity food');
-    return await res.json();
-  },
-
-  async getTravelEstimate(origin: string, destination: string) {
-    const res = await fetchWithTimeout(`/api/context/travel-time?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`, {
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to fetch travel estimate');
-    return await res.json();
-  },
-
-  async parseSearchIntent(query: string) {
-    const res = await fetchWithTimeout('/api/context/parse-intent', {
-      timeout: AI_TIMEOUT_MS,
-      method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ query })
+      signal
     });
-    if (!res.ok) throw new Error('Failed to parse search intent');
-    return await res.json();
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load places to eat nearby.');
+    return await readJson<PostActivityFoodResponse>(res, 'Could not load places to eat nearby.');
+  },
+
+  async getTravelEstimate(origin: string, destination: string, signal?: AbortSignal): Promise<RouteEstimate> {
+    const res = await fetchWithTimeout(`/api/context/travel-time?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`, {
+      headers: defaultHeaders(),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load travel time.');
+    return await readJson<RouteEstimate>(res, 'Could not load travel time.');
   },
 
   async getBackgroundJobsStatus() {
@@ -793,6 +1499,16 @@ export const api = {
     try {
       const res = await fetchWithTimeout('/api/telemetry/weather', { headers: defaultHeaders() });
       if (!res.ok) throw new Error('Weather fetch failed');
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  async getResearchOverview() {
+    try {
+      const res = await fetchWithTimeout('/api/research/dahab-overview', { headers: defaultHeaders() });
+      if (!res.ok) throw new Error('Research overview fetch failed');
       return await res.json();
     } catch {
       return null;
@@ -827,6 +1543,45 @@ export const api = {
     });
     if (!res.ok) throw new Error('Failed to generate AI trip');
     return await res.json();
+  },
+
+  /**
+   * POST /api/trip/apply-ai
+   * Persists a generated "Plan with AI" itinerary as the signed-in traveler's
+   * trip. Requires a session; identity is taken from it server-side.
+   */
+  async applyAiItinerary(
+    payload: {
+      itinerary: {
+        tripTitle?: string;
+        days: Array<{
+          dayNumber?: number;
+          activities: Array<{
+            title: string;
+            timeSlot?: string;
+            estimatedPriceEGP?: number;
+            category?: string;
+            location?: string;
+            description?: string;
+          }>;
+        }>;
+      };
+      lengthDays?: number;
+      travelersCount?: number;
+      budget?: 'Budget' | 'Moderate' | 'Premium';
+      pace?: 'Relaxed' | 'Balanced' | 'Active';
+      interests?: string[];
+    },
+    signal?: AbortSignal
+  ): Promise<{ trip: { id: string } }> {
+    const res = await fetchWithTimeout('/api/trip/apply-ai', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(payload),
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not save your AI plan.');
+    return await readJson<{ trip: { id: string } }>(res, 'Could not save your AI plan.');
   },
 
   async queryDayGi(context: {
@@ -937,14 +1692,6 @@ export const api = {
     return await res.json();
   },
 
-  async getDayGiTask(taskId: string) {
-    const res = await fetchWithTimeout(`/api/daygi/tasks/${encodeURIComponent(taskId)}`, {
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to fetch orchestrated task');
-    return await res.json();
-  },
-
   async executeDayGiTaskStep(taskId: string, stepId: string, actionToken: string) {
     const res = await fetchWithTimeout(`/api/daygi/tasks/${encodeURIComponent(taskId)}/execute-step`, {
       method: 'POST',
@@ -981,18 +1728,6 @@ export const api = {
     return await res.json();
   },
 
-  async runGoldenJourneyTest() {
-    const res = await fetchWithTimeout('/api/testing/golden-journey', {
-      method: 'POST',
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Golden journey test failed');
-    return await res.json();
-  },
-
-  // ---------------------------------------------------------------------------
-  // DayGI Closed Beta Telemetry & Productization API
-  // ---------------------------------------------------------------------------
   async trackDayGiFunnel(event: {
     sessionId: string;
     tripId: string;
@@ -1033,34 +1768,6 @@ export const api = {
     return await res.json();
   },
 
-  async trackDayGiAlertInteraction(alertId: string, lifecycle: 'SHOWN' | 'OPENED' | 'IGNORED' | 'ACTED_ON' | 'DISMISSED') {
-    const res = await fetchWithTimeout('/api/daygi/beta/alert-interaction', {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ alertId, lifecycle })
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  },
-
-  async trackDayGiCardInteraction(cardType: string, action: 'SHOWN' | 'CLICKED' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED', durationSec: number = 0) {
-    const res = await fetchWithTimeout('/api/daygi/beta/card-interaction', {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ cardType, action, durationSec })
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  },
-
-  async getDayGiBetaDashboard() {
-    const res = await fetchWithTimeout('/api/daygi/beta/dashboard', {
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to fetch beta dashboard');
-    return await res.json();
-  },
-
   async getDayGiBetaExperiments() {
     const res = await fetchWithTimeout('/api/daygi/beta/experiments', {
       headers: defaultHeaders()
@@ -1079,21 +1786,6 @@ export const api = {
     return await res.json();
   },
 
-  async runDayGiGoldenScenarios() {
-    const res = await fetchWithTimeout('/api/daygi/beta/run-scenarios', {
-      method: 'POST',
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to run golden scenarios');
-    return await res.json();
-  },
-
-  /**
-   * Recomputes market statistics, freshness buckets and change events from the
-   * observations already stored. It does NOT fetch from external sources — the
-   * ops console button that used to be labelled "Trigger Crawl" fabricated a
-   * completed Google Maps crawl in a setTimeout without any network call.
-   */
   async refreshMarketIntelligence() {
     const res = await fetchWithTimeout('/api/market/refresh', {
       method: 'POST',
@@ -1104,26 +1796,13 @@ export const api = {
     return await res.json();
   },
 
-  async generateDayGiWeeklyReport() {
-    const res = await fetchWithTimeout('/api/daygi/beta/generate-weekly-report', {
-      method: 'POST',
-      headers: defaultHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to generate weekly report');
-    return await res.json();
-  },
-
-  // ────────────────────────────────────────────────────────────────────────
-  // Market Intelligence Endpoints (/api/market/*)
-  // ────────────────────────────────────────────────────────────────────────
-
-  async getMarketJobs(signal?: AbortSignal): Promise<{ jobs: unknown[] }> {
+  async getMarketJobs(signal?: AbortSignal): Promise<{ policies: MarketSchedulePolicy[] }> {
     const res = await fetchWithTimeout('/api/market/jobs', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load market jobs.');
-    return await readJson<{ jobs: unknown[] }>(res, 'Could not load market jobs.');
+    return await readJson<{ policies: MarketSchedulePolicy[] }>(res, 'Could not load market jobs.');
   },
 
-  async triggerMarketJob(payload: { jobType?: string }, signal?: AbortSignal): Promise<unknown> {
+  async triggerMarketJob(payload: { sourceId: string }, signal?: AbortSignal): Promise<unknown> {
     const res = await fetchWithTimeout('/api/market/jobs/trigger', {
       method: 'POST', headers: defaultHeaders(), body: JSON.stringify(payload), signal
     });
@@ -1131,46 +1810,39 @@ export const api = {
     return await res.json();
   },
 
-  async getMarketSourceHealth(signal?: AbortSignal): Promise<{ sources: unknown[] }> {
+  async getMarketSourceHealth(signal?: AbortSignal): Promise<{ health: SourceHealth[] }> {
     const res = await fetchWithTimeout('/api/market/sources/health', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load source health.');
-    return await readJson<{ sources: unknown[] }>(res, 'Could not load source health.');
+    return await readJson<{ health: SourceHealth[] }>(res, 'Could not load source health.');
   },
 
-  async getMarketReviewQueue(signal?: AbortSignal): Promise<{ queue: unknown[] }> {
+  async getMarketReviewQueue(signal?: AbortSignal): Promise<{ items: MarketReviewItem[] }> {
     const res = await fetchWithTimeout('/api/market/review-queue', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load review queue.');
-    return await readJson<{ queue: unknown[] }>(res, 'Could not load review queue.');
+    return await readJson<{ items: MarketReviewItem[] }>(res, 'Could not load review queue.');
   },
 
-  async getMarketOpsOverview(signal?: AbortSignal): Promise<{ overview: unknown }> {
+  async getMarketOpsOverview(signal?: AbortSignal): Promise<{ overview: MarketOpsOverview }> {
     const res = await fetchWithTimeout('/api/market/ops/overview', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load ops overview.');
-    return await readJson<{ overview: unknown }>(res, 'Could not load ops overview.');
+    return await readJson<{ overview: MarketOpsOverview }>(res, 'Could not load ops overview.');
   },
 
-  async getMarketAlerts(signal?: AbortSignal): Promise<{ alerts: unknown[] }> {
+  async getMarketAlerts(signal?: AbortSignal): Promise<{ alerts: MarketAlert[] }> {
     const res = await fetchWithTimeout('/api/market/alerts', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load market alerts.');
-    return await readJson<{ alerts: unknown[] }>(res, 'Could not load market alerts.');
-  },
-
-  async getMarketStats(signal?: AbortSignal): Promise<{ stats: unknown[] }> {
+    return await readJson<{ alerts: MarketAlert[] }>(res, 'Could not load market alerts.');
+  },  async getMarketStats(signal?: AbortSignal): Promise<{ stats: unknown[] }> {
     const res = await fetchWithTimeout('/api/dahab/commerce/market-stats', { headers: defaultHeaders(), signal });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load market stats.');
+
     return await readJson<{ stats: unknown[] }>(res, 'Could not load market stats.');
   },
 
-  async getMarketTrends(signal?: AbortSignal): Promise<{ trends: unknown }> {
-    const res = await fetchWithTimeout('/api/dahab/commerce/market-trends', { headers: defaultHeaders(), signal });
-    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market trends.');
-    return await readJson<{ trends: unknown }>(res, 'Could not load market trends.');
-  },
-
-  async getMarketSnapshots(signal?: AbortSignal): Promise<{ snapshots: unknown[] }> {
-    const res = await fetchWithTimeout('/api/market/snapshots', { headers: defaultHeaders(), signal });
-    if (!res.ok) throw await apiErrorFrom(res, 'Could not load market snapshots.');
-    return await readJson<{ snapshots: unknown[] }>(res, 'Could not load market snapshots.');
+  async getCommerceSuppliers(signal?: AbortSignal): Promise<{ suppliers: import('../shared/types/commerce').SupplierEntity[] }> {
+    const res = await fetchWithTimeout('/api/dahab/commerce/suppliers', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load suppliers in Dahab.');
+    return await readJson<{ suppliers: import('../shared/types/commerce').SupplierEntity[] }>(res, 'Could not load suppliers in Dahab.');
   },
 
   async getMarketPriceHistory() {
@@ -1178,60 +1850,11 @@ export const api = {
     return await res.json();
   },
 
-  async getMarketEvents() {
-    const res = await fetchWithTimeout('/api/market/events', { headers: defaultHeaders() });
-    return await res.json();
-  },
-
-  async getMarketSourceFreshness() {
-    const res = await fetchWithTimeout('/api/market/source-freshness', { headers: defaultHeaders() });
-    return await res.json();
-  },
-
-  // ---------------------------------------------------------------------------
-  // Twilio & Sinai SMS Gateway API
-  // ---------------------------------------------------------------------------
   async getSmsLogs(limit: number = 30) {
     const res = await fetchWithTimeout(`/api/sms/logs?limit=${limit}`, {
       headers: defaultHeaders()
     });
     if (!res.ok) return { count: 0, logs: [] };
-    return await res.json();
-  },
-
-  async sendSmsDispatch(params: {
-    to: string;
-    recipientName: string;
-    recipientRole: 'DRIVER' | 'DIVE_INSTRUCTOR' | 'HOTEL_DESK' | 'TRAVELER' | 'BEDOUIN_GUIDE';
-    message: string;
-    bookingRef?: string;
-    channel?: 'TWILIO_SMS' | 'WHATSAPP_BUSINESS';
-  }) {
-    const res = await fetchWithTimeout('/api/sms/send-dispatch', {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify(params)
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to dispatch SMS');
-    }
-    return await res.json();
-  },
-
-  // ─── Operations Admin Endpoints (Command Center) ────────────────────
-  async getOperationsTrips() {
-    const res = await fetchWithTimeout('/api/operations/trips', { headers: defaultHeaders() });
-    return await res.json();
-  },
-
-  async getOperationsBookings(params?: { status?: string; supplierId?: string; paymentState?: string; limit?: number }) {
-    const qs = new URLSearchParams();
-    if (params?.status) qs.set('status', params.status);
-    if (params?.supplierId) qs.set('supplierId', params.supplierId);
-    if (params?.paymentState) qs.set('paymentState', params.paymentState);
-    if (params?.limit) qs.set('limit', String(params.limit));
-    const res = await fetchWithTimeout(`/api/operations/bookings?${qs}`, { headers: defaultHeaders() });
     return await res.json();
   },
 
@@ -1295,11 +1918,6 @@ export const api = {
     return await res.json();
   },
 
-  async getIntelligenceSummary() {
-    const res = await fetchWithTimeout('/api/intelligence/summary', { headers: defaultHeaders() });
-    return await res.json();
-  },
-
   async getOperationsIntegrations() {
     const res = await fetchWithTimeout('/api/operations/integrations', { headers: defaultHeaders() });
     return await res.json();
@@ -1330,27 +1948,17 @@ export const api = {
     return await res.json();
   },
 
-  async resolveAdminReviewQueue(itemId: string, action: string, notes?: string) {
+  async resolveAdminReviewQueue(reviewId: string, decision: string, notes?: string) {
     const res = await fetchWithTimeout('/api/dahab/admin/review-queue/resolve', {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ itemId, action, notes }),
+      body: JSON.stringify({ reviewId, decision: decision.toUpperCase(), notes }),
     });
     if (!res.ok) throw new Error('Failed to resolve review item');
     return await res.json();
   },
 
-  async resolveAdminEntity(params: { entityId: string; resolution: string }) {
-    const res = await fetchWithTimeout('/api/dahab/admin/entities/resolve', {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify(params),
-    });
-    if (!res.ok) throw new Error('Failed to resolve entity');
-    return await res.json();
-  },
-
-  async mergeAdminEntities(params: { primaryEntityId: string; secondaryEntityId: string }) {
+  async mergeAdminEntities(params: { sourceId: string; targetId: string }) {
     const res = await fetchWithTimeout('/api/dahab/admin/entities/merge', {
       method: 'POST',
       headers: defaultHeaders(),

@@ -80,7 +80,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   initialCategory,
   initialTopic,
 }) => {
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   // Every message in this panel used to address the traveler as "Ahmed" in
   // both languages. The name comes from the session now, and is simply omitted
   // when there is none.
@@ -267,7 +267,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   const handleSubmitCustomText = () => {
     const clean = sanitizeText(customText);
     if (!clean) {
-      showToast(language === 'ar' ? 'من فضلك اوصف المشكلة باختصار.' : 'Please describe the issue briefly.');
+      showToast(t('help.pleaseDescribeTheIssue'));
       return;
     }
     setSelectedIssue(clean);
@@ -374,9 +374,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
       showToast(
         sessionUser
           ? `Signed in as ${sessionUser.name || sessionUser.email}`
-          : language === 'ar'
-            ? 'مش مسجّل دخول'
-            : 'Not signed in'
+          : t('help.notSignedIn')
       );
     }
   };
@@ -384,7 +382,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[#F4C36C]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/* Traveler Top Navigation */}
       <TravelerNav
@@ -403,24 +401,24 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
               type="button"
               id="back-to-companion-btn"
               onClick={onBackToCompanion || onBackToMyTrip}
-              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[#D2E3DE]/70 hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-              <span>{language === 'ar' ? 'الرجوع للمرافق اليومي' : 'Back to Daily Companion'}</span>
+              <span>{t('help.backToDailyCompanion')}</span>
             </button>
-            <span className="text-white/20">•</span>
+            <span className="text-[var(--text-muted)]">•</span>
             <button
               type="button"
               onClick={onBackToMyTrip}
-              className="text-xs font-bold text-[#52C4B7] hover:text-[#F4C36C] transition-colors cursor-pointer"
+              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
             >
-              {language === 'ar' ? 'الجدول الكامل' : 'Full Itinerary'}
+              {t('help.fullItinerary')}
             </button>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#13312B] border border-white/10 text-xs text-[#D2E3DE] font-bold">
-            <span className="w-2 h-2 rounded-full bg-[#52C4B7] animate-pulse"></span>
-            <span>{language === 'ar' ? 'دعم دهب المباشر ٢٤/٧' : 'Dahab Live Support 24/7'}</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] font-bold">
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse"></span>
+            <span>{t('help.dahabLiveSupport247')}</span>
           </div>
         </div>
 
@@ -431,26 +429,18 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
           <div className="lg:col-span-7 space-y-6">
 
             {/* 1. Header Banner */}
-            <div className="bg-[#0E2520] rounded-3xl p-6 sm:p-7 border border-white/10 shadow-xl space-y-2">
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xl space-y-2">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[#F4C36C]/15 text-[#F4C36C] border border-[#F4C36C]/30 text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'كونسيرج وخبير سيناء' : 'Sinai Expert Concierge'}
+                <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                  {t('help.sinaiExpertConcierge')}
                 </span>
-                <span className="text-xs text-[#D2E3DE]/50 font-mono">{language === 'ar' ? 'استجابة فورية' : 'Real-time response'}</span>
+                <span className="text-xs text-[var(--text-secondary)]/50 font-mono">{t('help.realtimeResponse')}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#F7F3EA] tracking-tight">
-                {language === 'ar'
-                  ? travelerName
-                    ? `محتاج مساعدة يا ${travelerName}؟ 🤝`
-                    : 'محتاج مساعدة؟ 🤝'
-                  : travelerName
-                    ? `Need help, ${travelerName}? 🤝`
-                    : 'Need help? 🤝'}
+              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+                {travelerName ? t('help.needHelpNamed', { travelerName }) : t('help.needHelpGeneric')}
               </h1>
-              <p className="text-xs sm:text-sm text-[#D2E3DE]/80 leading-relaxed font-medium">
-                {language === 'ar'
-                  ? 'قولنا إيه اللي حصل وإحنا هنتصرف فوراً علشان يومك يفضل ماشي بسلاسة.'
-                  : "Tell us what happened and we'll resolve it immediately to keep your day relaxed."}
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
+                {t('help.tellUsWhatHappened')}
               </p>
             </div>
 
@@ -465,12 +455,10 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                 </div>
                 <div className="space-y-1 text-xs">
                   <h2 className="font-bold text-amber-200 text-sm">
-                    {language === 'ar' ? 'حالة طارئة تتطلب تدخلاً سريعاً' : 'Time-sensitive issue'}
+                    {t('help.timesensitiveIssue')}
                   </h2>
                   <p className="text-amber-200/80 leading-relaxed">
-                    {language === 'ar'
-                      ? 'فريق خفر دهب والمشرف الميداني تم إشعارهم بالأولوية القصوى.'
-                      : 'Our local coordinator is prioritizing this for immediate resolution.'}
+                    {t('help.ourLocalCoordinatorIs')}
                   </p>
                 </div>
               </div>
@@ -479,8 +467,8 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {/* STEP 1: CATEGORIES SELECTOR */}
             {currentStep === 'categories' && (
               <div className="space-y-4">
-                <h2 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'الموضوع متعلق بإيه؟' : 'What is your issue related to?'}
+                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  {t('help.whatIsYourIssue')}
                 </h2>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -496,10 +484,10 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                       key={cat.id}
                       type="button"
                       onClick={() => handleSelectCategory(cat.id)}
-                      className="p-4 rounded-2xl bg-[#0E2520] hover:bg-[#13312B] border border-white/10 hover:border-[#F4C36C]/40 transition-all text-start rtl:text-right space-y-2 cursor-pointer group"
+                      className="p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all text-start rtl:text-right space-y-2 cursor-pointer group"
                     >
                       <span className="text-2xl block">{cat.icon}</span>
-                      <span className="font-bold text-xs sm:text-sm text-[#F7F3EA] group-hover:text-[#F4C36C]">
+                      <span className="font-bold text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {language === 'ar' ? cat.titleAr : cat.title}
                       </span>
                     </button>
@@ -512,15 +500,15 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {currentStep === 'select_booking' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                    {language === 'ar' ? 'أي حجز تقصد؟' : 'Which booking is this about?'}
+                  <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                    {t('help.whichBookingIsThis')}
                   </h2>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('categories')}
-                    className="text-xs text-[#F4C36C] hover:underline cursor-pointer"
+                    className="text-xs text-[var(--accent-secondary)] hover:underline cursor-pointer"
                   >
-                    {language === 'ar' ? 'تغيير القسم' : 'Change category'}
+                    {t('help.changeCategory')}
                   </button>
                 </div>
 
@@ -530,13 +518,13 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                       key={b.id}
                       type="button"
                       onClick={() => handleSelectBooking(b.name)}
-                      className="w-full p-4 rounded-2xl bg-[#0E2520] hover:bg-[#13312B] border border-white/10 hover:border-[#F4C36C]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
+                      className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{b.icon}</span>
                         <div>
-                          <h3 className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? b.nameAr : b.name}</h3>
-                          <span className="text-xs text-[#D2E3DE]/60">{language === 'ar' ? b.timeAr : b.time}</span>
+                          <h3 className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? b.nameAr : b.name}</h3>
+                          <span className="text-xs text-[var(--text-secondary)]/60">{language === 'ar' ? b.timeAr : b.time}</span>
                         </div>
                       </div>
                       <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
@@ -556,15 +544,15 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {currentStep === 'specific_issue' && selectedCategory && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-serif font-bold text-[#F7F3EA]">
+                  <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? categoryIssues[selectedCategory].titleAr : categoryIssues[selectedCategory].title}
                   </h2>
                   <button
                     type="button"
                     onClick={() => setCurrentStep('categories')}
-                    className="text-xs text-[#F4C36C] hover:underline cursor-pointer"
+                    className="text-xs text-[var(--accent-secondary)] hover:underline cursor-pointer"
                   >
-                    {language === 'ar' ? 'تغيير' : 'Back'}
+                    {t('help.back')}
                   </button>
                 </div>
 
@@ -574,10 +562,10 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                       key={idx}
                       type="button"
                       onClick={() => handleSelectIssue(opt.en)}
-                      className="w-full p-4 rounded-2xl bg-[#0E2520] hover:bg-[#13312B] border border-white/10 hover:border-[#F4C36C]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
+                      className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
                     >
-                      <span className="font-bold text-sm text-[#F7F3EA]">{language === 'ar' ? opt.ar : opt.en}</span>
-                      <ChevronRight className="w-4 h-4 text-[#F4C36C] rtl:rotate-180" />
+                      <span className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? opt.ar : opt.en}</span>
+                      <ChevronRight className="w-4 h-4 text-[var(--accent-secondary)] rtl:rotate-180" />
                     </button>
                   ))}
                 </div>
@@ -586,16 +574,16 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
             {/* STEP 4: CUSTOM TEXT INPUT */}
             {currentStep === 'custom_input' && (
-              <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-                <h2 className="text-lg font-serif font-bold text-[#F7F3EA]">
-                  {language === 'ar' ? 'اكتب تفاصيل المشكلة' : 'Describe the issue in your own words'}
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  {t('help.describeTheIssueIn')}
                 </h2>
                 <textarea
                   value={customText}
                   onChange={(e) => setCustomText(e.target.value)}
-                  placeholder={language === 'ar' ? 'مثال: السائق مش ظاهر عند الفندق ورقم تليفونه مغلق...' : 'e.g., Driver is not at the meeting point and phone is unreachable...'}
+                  placeholder={t('help.egDriverIsNot')}
                   rows={4}
-                  className="w-full p-3.5 rounded-2xl bg-[#13312B] border border-white/10 text-xs sm:text-sm text-[#F7F3EA] placeholder:text-[#D2E3DE]/40 focus:border-[#F4C36C] focus:outline-none"
+                  className="w-full p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-secondary)] focus:outline-none"
                 />
 
                 <div className="flex items-center justify-between">
@@ -605,19 +593,19 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
                       hasPhotoAttached
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-[#13312B] text-[#D2E3DE] border-white/10 hover:bg-white/5'
+                        : 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
                     }`}
                   >
                     <Paperclip className="w-3.5 h-3.5" />
-                    <span>{hasPhotoAttached ? (language === 'ar' ? 'تم إرفاق صورة ✓' : 'Photo Attached ✓') : (language === 'ar' ? 'إرفاق صورة أو سكرين شوت' : 'Attach photo/screenshot')}</span>
+                    <span>{hasPhotoAttached ? (t('help.photoAttached')) : (t('help.attachPhotoscreenshot'))}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleSubmitCustomText}
-                    className="px-5 py-2 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-xs cursor-pointer"
                   >
-                    {language === 'ar' ? 'متابعة وفحص الحلول' : 'Check Solutions'}
+                    {t('help.checkSolutions')}
                   </button>
                 </div>
               </div>
@@ -625,16 +613,16 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
             {/* STEP 5: DIAGNOSIS ANIMATION */}
             {currentStep === 'diagnosis' && (
-              <div className="bg-[#0E2520] rounded-3xl p-8 border border-white/10 shadow-xl text-center space-y-4">
-                <div className="w-12 h-12 rounded-full bg-[#13312B] border border-[#F4C36C]/40 text-[#F4C36C] flex items-center justify-center mx-auto animate-spin">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-8 border border-[var(--border-subtle)] shadow-xl text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--surface-container)] border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] flex items-center justify-center mx-auto animate-spin">
                   <RefreshCw className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="font-serif font-bold text-lg text-[#F7F3EA]">
-                    {language === 'ar' ? 'جاري فحص الحجز والتنسيق المباشر...' : 'Diagnosing and verifying live status...'}
+                  <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                    {t('help.diagnosingAndVerifyingLive')}
                   </h2>
-                  <p className="text-xs text-[#D2E3DE]/70">
-                    {language === 'ar' ? 'بنتواصل مع النظام والمورد المحلي في دهب' : 'Checking providers and telemetry in Dahab'}
+                  <p className="text-xs text-[var(--text-secondary)]/70">
+                    {t('help.checkingProvidersAndTelemetry')}
                   </p>
                 </div>
               </div>
@@ -642,7 +630,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
             {/* STEP 6: SELF SERVICE RESULT (Automated resolution) */}
             {currentStep === 'self_service_result' && (
-              <div className="bg-[#0E2520] rounded-3xl p-6 sm:p-7 border border-emerald-500/40 shadow-xl space-y-5">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-emerald-500/40 shadow-xl space-y-5">
                 <div className="flex items-center gap-3">
                   {/*
                     This panel used to open with a green tick, "Instant Solution
@@ -657,29 +645,25 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     What is real is the two routes out: the Change & Recovery
                     flow, and support. The panel offers those.
                   */}
-                  <div className="w-10 h-10 rounded-2xl bg-[#13312B] text-[#F4C36C] border border-white/10 flex items-center justify-center text-xl">
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-xl">
                     →
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#52C4B7] block font-['Outfit',sans-serif]">
-                      {language === 'ar' ? 'الخطوة الجاية' : 'What you can do'}
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                      {t('help.whatYouCanDo')}
                     </span>
-                    <h2 className="font-serif font-bold text-lg text-[#F7F3EA]">
-                      {language === 'ar' ? 'فيه طريقتين نحلها بيهم' : 'Two ways to sort this out'}
+                    <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                      {t('help.twoWaysToSort')}
                     </h2>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#13312B] border border-white/10 space-y-2 text-xs text-[#D2E3DE]">
-                  <p className="font-bold text-[#F7F3EA]">
-                    {language === 'ar'
-                      ? 'تقدر تشوف بدائل الحجز وتغيّر بنفسك، أو تبعتلنا التفاصيل ونتابعها معاك.'
-                      : 'You can look at alternatives and change the booking yourself, or send us the details and we will follow it up.'}
+                <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 text-xs text-[var(--text-secondary)]">
+                  <p className="font-bold text-[var(--text-primary)]">
+                    {t('help.youCanLookAt')}
                   </p>
-                  <p className="text-[#D2E3DE]/70">
-                    {language === 'ar'
-                      ? 'لو الموضوع مستعجل، رقم الدعم تحت وشغّال على مدار اليوم.'
-                      : 'If it cannot wait, the support number is below.'}
+                  <p className="text-[var(--text-secondary)]/70">
+                    {t('help.ifItCannotWait')}
                   </p>
                 </div>
 
@@ -689,18 +673,18 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     onClick={() => {
                       if (onNavigateToChangeRecovery) onNavigateToChangeRecovery();
                     }}
-                    className="px-5 py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                   >
-                    <span>{language === 'ar' ? 'شوف البدائل وغيّر الحجز' : 'Open Change & Recovery'}</span>
+                    <span>{t('help.openChangeRecovery')}</span>
                     <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setCurrentStep('expert_chat')}
-                    className="text-xs font-semibold text-[#D2E3DE] hover:text-[#F4C36C] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-secondary)] hover:underline cursor-pointer"
                   >
-                    {language === 'ar' ? 'ابعت التفاصيل للدعم' : 'Send the details to support'}
+                    {t('help.sendTheDetailsTo')}
                   </button>
                 </div>
               </div>
@@ -708,56 +692,54 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
             {/* STEP 7: ESCALATE TO EXPERT */}
             {currentStep === 'escalate_expert' && (
-              <div className="bg-[#0E2520] rounded-3xl p-6 sm:p-7 border border-[#F4C36C]/40 shadow-xl space-y-5">
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--accent-secondary)]/40 shadow-xl space-y-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#F4C36C]/20 text-[#F4C36C] border border-[#F4C36C]/40 flex items-center justify-center text-xl">
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40 flex items-center justify-center text-xl">
                     👤
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block font-['Outfit',sans-serif]">
-                      {language === 'ar' ? 'تحويل لخبير دهب وسيناء' : 'Escalating to Sinai Expert'}
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                      {t('help.escalatingToSinaiExpert')}
                     </span>
-                    <h2 className="font-serif font-bold text-lg text-[#F7F3EA]">
+                    <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
                       {/* Was "Kareem from Dahab Support is taking over" —
                           stated as an accomplished fact while nothing had been
                           sent anywhere. It now describes what the traveler can
                           do, which is what actually exists. */}
-                      {language === 'ar' ? 'محتاج تواصل مباشر مع المزوّد' : 'This needs the provider directly'}
+                      {t('help.thisNeedsTheProvider')}
                     </h2>
                   </div>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#D2E3DE] leading-relaxed">
-                  {language === 'ar'
-                    ? 'الحالة دي محتاجة تواصل مباشر مع السائق أو الفندق. ابعت التفاصيل هنا أو اتصل بخط الدعم فوق، وهنرجعلك بالرد.'
-                    : 'This needs direct coordination with your driver or hotel. Send the details here, or call the support line above, and we will come back to you.'}
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
+                  {t('help.thisNeedsDirectCoordination')}
                 </p>
 
                 <button
                   type="button"
                   onClick={() => setCurrentStep('expert_chat')}
-                  className="w-full py-3 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>{language === 'ar' ? 'افتح محادثة الدعم' : 'Open support chat'}</span>
+                  <span>{t('help.openSupportChat')}</span>
                 </button>
               </div>
             )}
 
             {/* STEP 8: LIVE EXPERT CHAT */}
             {currentStep === 'expert_chat' && (
-              <div className="bg-[#0E2520] rounded-3xl border border-white/10 shadow-xl overflow-hidden flex flex-col h-[480px]">
+              <div className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col h-[480px]">
                 {/* Chat Header */}
-                <div className="p-4 bg-[#13312B] border-b border-white/10 flex items-center justify-between">
+                <div className="p-4 bg-[var(--surface-container)] border-b border-[var(--border-subtle)] flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#F4C36C] text-[#081714] font-bold flex items-center justify-center text-xs">
+                    <div className="w-8 h-8 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold flex items-center justify-center text-xs">
                       K
                     </div>
                     <div>
-                      <h3 className="font-bold text-xs text-[#F7F3EA]">{language === 'ar' ? 'دعم دهب' : 'Dahab Support'}</h3>
+                      <h3 className="font-bold text-xs text-[var(--text-primary)]">{t('help.dahabSupport')}</h3>
                       <span className="text-[11px] text-emerald-400 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>{language === 'ar' ? 'متصل الآن ومتاح' : 'Online now'}</span>
+                        <span>{t('help.onlineNow')}</span>
                       </span>
                     </div>
                   </div>
@@ -765,9 +747,9 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setCurrentStep('categories')}
-                    className="text-xs text-[#D2E3DE]/60 hover:text-white cursor-pointer"
+                    className="text-xs text-[var(--text-secondary)]/60 hover:text-[var(--text-primary)] cursor-pointer"
                   >
-                    {language === 'ar' ? 'إنهاء' : 'Close'}
+                    {t('help.close')}
                   </button>
                 </div>
 
@@ -783,13 +765,13 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                         <div
                           className={`p-3.5 rounded-2xl max-w-[80%] leading-relaxed ${
                             isMe
-                              ? 'bg-[#F4C36C] text-[#081714] font-semibold rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none'
-                              : 'bg-[#13312B] text-[#F7F3EA] border border-white/10 rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none'
+                              ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-semibold rounded-tr-none rtl:rounded-tr-2xl rtl:rounded-tl-none'
+                              : 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-tl-none rtl:rounded-tl-2xl rtl:rounded-tr-none'
                           }`}
                         >
                           {language === 'ar' ? msg.textAr : msg.text}
                         </div>
-                        <span className="text-[11px] text-[#D2E3DE]/40 mt-1 px-1">
+                        <span className="text-[11px] text-[var(--text-secondary)]/40 mt-1 px-1">
                           {msg.time}
                         </span>
                       </div>
@@ -798,21 +780,22 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                 </div>
 
                 {/* Input Bar */}
-                <div className="p-3 bg-[#13312B] border-t border-white/10 flex items-center gap-2">
+                <div className="p-3 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex items-center gap-2">
                   <input
                     type="text"
                     value={newChatInput}
                     onChange={(e) => setNewChatInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') void handleSendMessage(); }}
-                    placeholder={language === 'ar' ? 'اكتب رسالتك للدعم...' : 'Type your message to support...'}
-                    className="flex-1 p-2.5 rounded-xl bg-[#081714] border border-white/10 text-xs text-[#F7F3EA] placeholder:text-[#D2E3DE]/40 focus:border-[#F4C36C] focus:outline-none"
+                    aria-label={t('help.typeYourMessageTo')}
+                    placeholder={t('help.typeYourMessageTo-2')}
+                    className="flex-1 p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-secondary)] focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={handleSendMessage}
                     disabled={isSendingSupport || !newChatInput.trim()}
-                    aria-label={language === 'ar' ? 'إرسال الرسالة للدعم' : 'Send message to support'}
-                    className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-[#F4C36C] hover:bg-[#E5B55D] disabled:opacity-40 disabled:cursor-not-allowed text-[#081714] font-bold cursor-pointer transition-all"
+                    aria-label={t('help.sendMessageToSupport')}
+                    className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--surface-card)] font-bold cursor-pointer transition-all"
                   >
                     <Send className="w-4 h-4 rtl:rotate-180" />
                   </button>
@@ -826,18 +809,16 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
           <div className="lg:col-span-5 space-y-6">
 
             {/* 1. Direct Hotline */}
-            <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-              <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <PhoneCall className="w-5 h-5 text-[#F4C36C]" />
-                <h2 className="font-serif font-bold text-base text-[#F7F3EA]">
-                  {language === 'ar' ? 'الخط الساخن المباشر وغرفة الطوارئ' : 'Emergency & Driver Hotline'}
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+              <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
+                <PhoneCall className="w-5 h-5 text-[var(--accent-secondary)]" />
+                <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  {t('help.emergencyDriverHotline')}
                 </h2>
               </div>
 
-              <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                {language === 'ar'
-                  ? 'لو في حاجة طارئة ومحتاج مكالمة صوتية فورية، فريق دهب الميداني وكابتن النقل متاحون على مدار الساعة بنقرة واحدة.'
-                  : 'If you need immediate voice assistance or roadside coordination, connect directly to our 24/7 Dahab dispatch desk.'}
+              <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                {t('help.ifYouNeedImmediate')}
               </p>
 
               {/* Emergency hotlines from backend */}
@@ -846,13 +827,13 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   <a
                     key={idx}
                     href={`tel:${hotline.number.replace(/[^+\d]/g, '')}`}
-                    className="p-3 rounded-2xl bg-[#13312B] hover:bg-[#1b423a] border border-white/10 flex items-center justify-between transition-colors block cursor-pointer group"
+                    className="p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between transition-colors block cursor-pointer group"
                   >
                     <div>
-                      <span className="text-[11px] text-[#D2E3DE]/60 uppercase font-bold block">{hotline.service}</span>
-                      <span className="font-mono text-sm font-bold text-[#F4C36C] group-hover:text-amber-300 transition-colors">{hotline.number}</span>
+                      <span className="text-[11px] text-[var(--text-secondary)]/60 uppercase font-bold block">{hotline.service}</span>
+                      <span className="font-mono text-sm font-bold text-[var(--accent-secondary)] group-hover:text-amber-300 transition-colors">{hotline.number}</span>
                     </div>
-                    <div className="w-9 h-9 rounded-xl bg-[#F4C36C]/20 text-[#F4C36C] flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] flex items-center justify-center">
                       <PhoneForwarded className="w-4 h-4" />
                     </div>
                   </a>
@@ -863,36 +844,34 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <a 
                   href="mailto:ops@dahabtravelos.com?subject=Urgent%20Dahab%20Assistance%20Request%20-%20Ahmed"
-                  className="p-2.5 rounded-xl bg-[#13312B] hover:bg-white/10 border border-white/10 text-xs font-bold text-[#D2E3DE] hover:text-white flex items-center justify-center gap-1.5 transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5 text-[#F4C36C]" />
-                  <span>{language === 'ar' ? 'إرسال بريد' : 'Email Ops'}</span>
+                  <Mail className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+                  <span>{t('help.emailOps')}</span>
                 </a>
                 <a 
                   href="https://maps.google.com/?q=28.5097,34.5136"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-[#13312B] hover:bg-white/10 border border-white/10 text-xs font-bold text-[#D2E3DE] hover:text-white flex items-center justify-center gap-1.5 transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <LocateFixed className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{language === 'ar' ? 'إحداثيات دهب' : 'Dahab GPS'}</span>
+                  <span>{t('help.dahabGPS')}</span>
                 </a>
               </div>
             </div>
 
             {/* 2. Peace of Mind Guarantee */}
-            <div className="bg-[#13312B] rounded-3xl p-6 border border-white/10 shadow-xl space-y-3">
+            <div className="bg-[var(--surface-container)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-serif font-bold text-base text-[#F7F3EA]">
-                  {language === 'ar' ? 'ضمان حماية المسافر' : 'Traveler Protection Guarantee'}
+                <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  {t('help.travelerProtectionGuarantee')}
                 </h3>
               </div>
 
-              <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                {language === 'ar'
-                  ? 'أي تأخير في المواصلات أو تغيير في الأنشطة بيتم تعويضه فورياً وتعديل الجدول تلقائياً بدون أي تكلفة إضافية.'
-                  : 'All transport delays and activity changes are backed by our real-time rescheduling guarantee.'}
+              <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                {t('help.allTransportDelaysAnd')}
               </p>
             </div>
 
@@ -904,7 +883,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
       {/* Global Toast Message */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#13312B] text-[#F7F3EA] border border-[#F4C36C]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--accent-secondary)]/40 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <Check className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>

@@ -49,7 +49,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$$',
     tag: 'Artisan Bakery & Cafe',
     tagAr: 'مخبز يدوي وكافيه روقان',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop',
+    image: '/images/restaurants/breakfast-by-the-sea.jpg',
     description: 'Famous for freshly baked sourdough, apple strudel, pretzels, and fresh organic Sinai herbal teas.',
     descriptionAr: 'أشهر مخبز في دهب للعيش الساوردو الفريش، فطيرة التفاح (أبل شترودل)، البريتزل، وشاي الأعشاب السيناوية العضوية.',
     location: 'Lighthouse Area, Dahab',
@@ -69,7 +69,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$$',
     tag: 'Seafood & Bedouin Grill',
     tagAr: 'سي فود ومشاوي ع البحر',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop',
+    image: '/images/restaurants/ali-baba-restaurant.jpg',
     description: 'Pick your fresh Red Sea catch directly from the ice counter, grilled over charcoal right by the sea.',
     descriptionAr: 'اختار سمكتك الطازة من التلج مباشرة، وتتشوي ع الفحم وتجيلك على طاولة ممتدة ع البحر مع الشوربة والمقبلات.',
     location: 'Lighthouse Promenade',
@@ -89,7 +89,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$',
     tag: 'Snorkeling & Coral Entry',
     tagAr: 'نزلة بحر وسنوركلينج شاطئي سهل',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+    image: '/images/attractions/coral-gardens.jpg',
     description: 'One of the easiest shore dives and snorkeling spots with vibrant table corals, clownfish, and eagle rays.',
     descriptionAr: 'أسهل نزلة بحر شاطئية في دهب؛ مياه هادية، شعب مرجانية ملونة، سمك نيمو وشعاع الراي على بعد خطوات من الشاطئ.',
     location: 'Lighthouse Bay',
@@ -109,7 +109,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$$',
     tag: 'Acoustic Music & Sea Terrace',
     tagAr: 'تراس بحري وموسيقى لايف',
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800&auto=format&fit=crop',
+    image: '/images/restaurants/the-roof-restaurant.jpg',
     description: 'Iconic seafront terrace with hanging swings over the water, live acoustic guitar and Bedouin tea.',
     descriptionAr: 'قعدة مريحة على البحر ومراجيح خشبية فوق المية، وعزف عود وجيتار هادئ مع شاي المرمية والشيشة.',
     location: 'Mashraba Promenade',
@@ -129,7 +129,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$$$',
     tag: 'World Heritage Dive Site',
     tagAr: 'أشهر موقع غطس عالمي',
-    image: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=800&auto=format&fit=crop',
+    image: '/images/attractions/blue-hole.jpg',
     description: 'The legendary 120m deep blue submarine sinkhole surrounded by dramatic coral walls.',
     descriptionAr: 'الثقب الأزرق الأسطوري بعمق ١٢٠ متراً وجدران مرجانية عمودية تبهر الغطاسين من كل أنحاء العالم.',
     location: 'North Dahab Coastal Protected Zone',
@@ -149,7 +149,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
     priceLevel: '$',
     tag: 'Natural Marine Phenomenon',
     tagAr: 'ظاهرة بحرية رملية ممتعة',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+    image: '/images/attractions/underwater-elephant.jpg',
     description: 'Sandy bottom hosting hundreds of garden eels swaying like tall grass with gentle water currents.',
     descriptionAr: 'قاع رملي ساحر يضم مئات من ثعابين البحر الرملية المسالمة اللي بتتراقص مع تيار المية اللطيف.',
     location: 'Eel Garden Bay, Dahab',
@@ -166,7 +166,7 @@ export const NEAR_ME_DATA: NearMeItem[] = [
  * useApiResource takes the fetcher as a dependency — an inline arrow would
  * re-request on every render.
  */
-const fetchDestinationCorpus = (signal: AbortSignal) =>
+export const fetchDestinationCorpus = (signal: AbortSignal) =>
   Promise.all([
     api.getDahabActivities(signal).catch(() => ({ activities: [] })),
     api.getDahabPlaces(signal).catch(() => ({ places: [] })),
@@ -186,15 +186,14 @@ const fetchDestinationCorpus = (signal: AbortSignal) =>
 
 export const ExploreView: React.FC = () => {
   // `trip` was destructured but never used, and has never existed on the context.
-  const { addActivityToDay, navigateTo } = useTrip();
-  const { language, isRTL } = useLanguage();
+  const { addActivityToDay, navigateTo, savedItems, setSavedItems } = useTrip();
+  const { language, isRTL , t} = useLanguage();
   const { isDark } = useTheme();
 
   const [activeTab, setActiveTab] = useState<'near_me' | 'areas' | 'categories'>('near_me');
   const [nearMeFilter, setNearMeFilter] = useState<'all' | 'food' | 'coffee' | 'beach' | 'experience' | 'nightlife'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [savedFavorites, setSavedFavorites] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   
   // Quick Add modal
@@ -208,17 +207,16 @@ export const ExploreView: React.FC = () => {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  /**
+   * One save system: hearts here write straight into the shared bucket list
+   * the profile dossier reads, so a saved place actually appears under Saved.
+   * The named toast stays local; setSavedItems itself stays silent, which is
+   * what keeps a single toast per tap instead of two.
+   */
   const toggleFavorite = (id: string, name: string) => {
-    setSavedFavorites(prev => {
-      const exists = prev.includes(id);
-      if (exists) {
-        showToast(language === 'ar' ? `تم إزالة ${name} من المفضلة` : `Removed ${name} from favorites`);
-        return prev.filter(item => item !== id);
-      } else {
-        showToast(language === 'ar' ? `تم حفظ ${name} في المفضلة ✓` : `Saved ${name} to favorites ✓`);
-        return [...prev, id];
-      }
-    });
+    const exists = savedItems.includes(id);
+    setSavedItems(exists ? savedItems.filter(item => item !== id) : [...savedItems, id]);
+    showToast(exists ? t('explore.removedFromFavorites', { name }) : t('explore.savedToFavorites', { name }));
   };
 
   const handleQuickAddClick = (item: any) => {
@@ -257,7 +255,7 @@ export const ExploreView: React.FC = () => {
       // Was `approx. 150 EGP` on every card regardless of what it actually costs.
       notes: priceEGP > 0
         ? `${itemToAdd.priceLevel || ''} · ${priceEGP.toLocaleString()} EGP`.trim()
-        : (language === 'ar' ? 'دخول مجاني' : 'Free entry')
+        : (t('explore.freeEntry'))
     });
   };
 
@@ -298,8 +296,8 @@ export const ExploreView: React.FC = () => {
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[#F4C36C]/20 ${
-        isDark ? 'bg-[#081714] text-[#F7F3EA]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20 ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
       }`}
     >
       {/* Traveler Top Navigation */}
@@ -312,32 +310,37 @@ export const ExploreView: React.FC = () => {
         }}
       />
 
-      {/* Main Hero Banner */}
-      <section className={`relative border-b overflow-hidden ${
-        isDark ? 'bg-[#0E2520] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-      }`}>
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F4C36C_1px,transparent_1px)] [background-size:16px_16px]" />
+      {/* Main Hero Banner with authentic photography backdrop */}
+      <section className="relative border-b overflow-hidden">
+        <img
+          src="/images/hero/golden-beach.jpg"
+          alt="Dahab Live Discovery"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className={`absolute inset-0 ${
+          isDark
+            ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
+            : 'bg-gradient-to-r from-[#FBF9F5]/96 via-[#FBF9F5]/92 to-[#FBF9F5]/80 backdrop-blur-[2px]'
+        }`} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-2">
               <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${
-                isDark ? 'bg-[#13312B] border-white/10 text-[#F4C36C]' : 'bg-white border-[#122420]/10 text-[#0E2520]'
+                isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 text-[var(--surface-card)]'
               }`}>
-                <Compass className="w-3.5 h-3.5 text-[#20A89A]" />
-                <span>{language === 'ar' ? 'استكشاف دهب الحي' : 'Dahab Live Discovery'}</span>
+                <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span>{t('explore.dahabLiveDiscovery')}</span>
               </div>
               <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-serif font-bold tracking-tight ${
-                isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
+                isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'
               }`}>
-                {language === 'ar' ? 'أماكن وتجارب قريبة منك' : 'Curated Spots Around You'}
+                {t('explore.curatedSpotsAroundYou')}
               </h1>
               <p className={`text-xs sm:text-sm max-w-2xl font-medium ${
-                isDark ? 'text-[#D2E3DE]/80' : 'text-[#4A635D]'
+                isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'
               }`}>
-                {language === 'ar'
-                  ? 'ممشى اللايتهاوس، كافيهات الغروب، عشاء السي فود الطازة، والشواطئ الهادية على بعد خطوات.'
-                  : 'Hand-picked cafes, beach entries, seafood grills, and sunset terraces around Lighthouse & Dahab bay.'}
+                {t('explore.handpickedCafesBeachEntries')}
               </p>
             </div>
 
@@ -346,10 +349,10 @@ export const ExploreView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/food')}
-                className="px-4 py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
                 <Utensils className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'أكل ودليفري ع الشط' : 'Food Now'}</span>
+                <span>{t('explore.foodNow')}</span>
               </button>
 
               <button
@@ -357,29 +360,29 @@ export const ExploreView: React.FC = () => {
                 onClick={() => navigateTo('/my-trip')}
                 className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   isDark
-                    ? 'bg-[#13312B] hover:bg-[#1a4038] text-[#D2E3DE] border-white/10'
-                    : 'bg-white hover:bg-stone-100 text-[#122420] border-[#122420]/15'
+                    ? 'bg-[var(--surface-container)] hover:bg-[#1a4038] text-[var(--text-secondary)] border-[var(--border-subtle)]'
+                    : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[#122420] border-[#122420]/15'
                 }`}
               >
                 <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-                <span>{language === 'ar' ? 'الرجوع لجدولي' : 'My Trip'}</span>
+                <span>{t('explore.myTrip')}</span>
               </button>
             </div>
           </div>
 
           {/* Search Bar */}
           <div className="relative max-w-xl">
-            <Search className={`absolute ${isRTL ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[#D2E3DE]/50' : 'text-[#4A635D]/50'}`} />
+            <Search className={`absolute ${isRTL ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[#4A635D]/50'}`} />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label={language === 'ar' ? 'ابحث في أماكن دهب' : 'Search Dahab places'}
-              placeholder={language === 'ar' ? 'ابحث عن مكان، كافيه، مطعم، أو شاطئ...' : 'Search places, cafes, seafood, reef entries...'}
+              aria-label={t('explore.searchDahabPlaces')}
+              placeholder={t('explore.searchPlacesCafesSeafood')}
               className={`w-full py-3 ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} rounded-2xl border text-xs sm:text-sm shadow-inner transition-colors ${
                 isDark
-                  ? 'bg-[#13312B] border-white/10 text-[#F7F3EA] placeholder:text-[#D2E3DE]/40 focus:border-[#F4C36C]'
-                  : 'bg-white border-[#122420]/15 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[#20A89A]'
+                  ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-secondary)]'
+                  : 'bg-[var(--surface-card)] border-[#122420]/15 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)]'
               } focus:outline-none`}
             />
           </div>
@@ -391,16 +394,16 @@ export const ExploreView: React.FC = () => {
         
         {/* Filter Pills */}
         <div className={`flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl border ${
-          isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10 shadow-xs'
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[#122420]/10 shadow-xs'
         }`}>
           <div className="flex flex-wrap items-center gap-1.5">
             {([
-              { id: 'all', label: language === 'ar' ? 'الكل' : 'All Places' },
-              { id: 'food', label: language === 'ar' ? '🍽️ أكل وسي فود' : '🍽️ Food & Seafood' },
-              { id: 'coffee', label: language === 'ar' ? '☕ كافيهات وقهوة' : '☕ Artisan Coffee' },
-              { id: 'beach', label: language === 'ar' ? '🏖️ شواطئ ونزول بحر' : '🏖️ Reef & Beach' },
-              { id: 'nightlife', label: language === 'ar' ? '🌙 سهرات ومزيكا' : '🌙 Evening Chill' },
-              { id: 'experience', label: language === 'ar' ? '🧭 مغامرات وغطس' : '🧭 Experiences' },
+              { id: 'all', label: t('explore.allPlaces') },
+              { id: 'food', label: t('explore.foodSeafood') },
+              { id: 'coffee', label: t('explore.artisanCoffee') },
+              { id: 'beach', label: t('explore.reefBeach') },
+              { id: 'nightlife', label: t('explore.eveningChill') },
+              { id: 'experience', label: t('explore.experiences') },
             ] as const).map((f) => (
               <button
                 key={f.id}
@@ -408,9 +411,9 @@ export const ExploreView: React.FC = () => {
                 onClick={() => setNearMeFilter(f.id)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   nearMeFilter === f.id
-                    ? 'bg-[#20A89A] text-[#081714] shadow-xs'
+                    ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] shadow-xs'
                     : isDark
-                    ? 'bg-[#13312B] text-[#D2E3DE] hover:text-[#F7F3EA] hover:bg-[#1a4038] border border-white/5'
+                    ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[#1a4038] border border-white/5'
                     : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD] border border-[#122420]/10'
                 }`}
               >
@@ -419,8 +422,8 @@ export const ExploreView: React.FC = () => {
             ))}
           </div>
 
-          <span className={`text-xs px-2 ${isDark ? 'text-[#D2E3DE]/60' : 'text-[#4A635D]'}`}>
-            {filteredNearMe.length} {language === 'ar' ? 'أماكن متاحة' : 'spots available'}
+          <span className={`text-xs px-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>
+            {filteredNearMe.length} {t('explore.spotsAvailable')}
           </span>
         </div>
 
@@ -430,22 +433,22 @@ export const ExploreView: React.FC = () => {
             nothing naming the results. Visually hidden because the filter row
             immediately above already states the count on screen. */}
         <h2 className="sr-only">
-          {language === 'ar' ? 'الأماكن المتاحة' : 'Available places'}
+          {t('explore.availablePlaces')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredNearMe.map((place) => {
-            const isFav = savedFavorites.includes(place.id);
+            const isFav = savedItems.includes(place.id);
             return (
               <div
                 key={place.id}
                 className={`rounded-3xl border transition-all overflow-hidden shadow-xl flex flex-col group ${
                   isDark
-                    ? 'bg-[#0E2520] border-white/10 hover:border-[#F4C36C]/40 text-[#F7F3EA]'
-                    : 'bg-white border-[#122420]/10 hover:border-[#20A89A] text-[#122420]'
+                    ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]'
+                    : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
                 }`}
               >
                 {/* Image Header */}
-                <div className="relative h-48 w-full overflow-hidden bg-[#0E2520]">
+                <div className="relative h-48 w-full overflow-hidden bg-[var(--surface-card)]">
                   {/* Records from the destination corpus carry no photograph.
                       A tinted panel is the honest stand-in; a stock image
                       would imply the platform has a picture of this place. */}
@@ -457,17 +460,17 @@ export const ExploreView: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#13312B] via-[#0E2520] to-[#081714]" />
+                    <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] via-[var(--surface-card)] to-[var(--surface-container)]" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
                   {/* Top Badges */}
                   <div className="absolute top-3 inset-x-3 flex items-center justify-between">
                     {place.distance ? (
-                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold text-[#F4C36C] border border-white/10">
+                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-bold text-[var(--accent-secondary)] border border-[var(--border-subtle)]">
                         {place.distance}
                         {place.walkMinutes
-                          ? ` (${place.walkMinutes} ${language === 'ar' ? 'دقيقة مشي' : 'min walk'})`
+                          ? ` (${place.walkMinutes} ${t('explore.minWalk')})`
                           : ''}
                       </span>
                     ) : (
@@ -479,10 +482,10 @@ export const ExploreView: React.FC = () => {
                       onClick={() => toggleFavorite(place.id, language === 'ar' && place.nameAr ? place.nameAr : place.name)}
                       aria-pressed={isFav}
                       aria-label={`${isFav
-                        ? (language === 'ar' ? 'إزالة من المفضلة' : 'Remove from favourites')
-                        : (language === 'ar' ? 'إضافة إلى المفضلة' : 'Add to favourites')}: ${language === 'ar' && place.nameAr ? place.nameAr : place.name}`}
+                        ? (t('explore.removeFromFavourites'))
+                        : (t('explore.addToFavourites'))}: ${language === 'ar' && place.nameAr ? place.nameAr : place.name}`}
                       className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer ${
-                        isFav ? 'bg-rose-500 text-white' : 'bg-black/50 text-white hover:bg-black/80'
+                        isFav ? 'bg-rose-500 text-[var(--text-primary)]' : 'bg-black/50 text-[var(--text-primary)] hover:bg-black/80'
                       }`}
                     >
                       <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -491,7 +494,7 @@ export const ExploreView: React.FC = () => {
 
                   {/* Bottom Image Tag */}
                   <div className="absolute bottom-2.5 inset-x-3">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#52C4B7] block drop-shadow-md">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block drop-shadow-md">
                       {language === 'ar' && place.tagAr ? place.tagAr : place.tag}
                     </span>
                   </div>
@@ -501,15 +504,15 @@ export const ExploreView: React.FC = () => {
                 <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className={`font-serif font-bold text-lg leading-snug cursor-pointer hover:text-[#20A89A] transition-colors ${
-                        isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
+                      <h3 className={`font-serif font-bold text-lg leading-snug cursor-pointer hover:text-[var(--accent-primary)] transition-colors ${
+                        isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'
                       }`}
                       onClick={() => handleOpenExperienceDetail(place)}
                       >
                         {language === 'ar' && place.nameAr ? place.nameAr : place.name}
                       </h3>
                       {typeof place.rating === 'number' && (
-                        <div className="flex items-center gap-1 text-xs font-bold text-[#F4C36C] flex-shrink-0">
+                        <div className="flex items-center gap-1 text-xs font-bold text-[var(--accent-secondary)] flex-shrink-0">
                           <Star className="w-3.5 h-3.5 fill-current" />
                           <span>{place.rating}</span>
                         </div>
@@ -517,22 +520,22 @@ export const ExploreView: React.FC = () => {
                     </div>
 
                     <p className={`text-xs leading-relaxed line-clamp-2 ${
-                      isDark ? 'text-[#D2E3DE]/75' : 'text-[#4A635D]'
+                      isDark ? 'text-[var(--text-secondary)]/75' : 'text-[#4A635D]'
                     }`}>
                       {language === 'ar' && place.descriptionAr ? place.descriptionAr : place.description}
                     </p>
 
                     <div className={`flex items-center gap-2 text-xs pt-1 ${
-                      isDark ? 'text-[#D2E3DE]/60' : 'text-[#4A635D]'
+                      isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'
                     }`}>
-                      <MapPin className="w-3.5 h-3.5 text-[#20A89A]" />
+                      <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                       <span>{language === 'ar' && place.locationAr ? place.locationAr : place.location}</span>
                     </div>
                   </div>
 
                   {/* Footer Actions */}
                   <div className={`pt-3 border-t flex items-center gap-2 ${
-                    isDark ? 'border-white/10' : 'border-[#122420]/10'
+                    isDark ? 'border-[var(--border-subtle)]' : 'border-[#122420]/10'
                   }`}>
                     <button
                       type="button"
@@ -540,22 +543,22 @@ export const ExploreView: React.FC = () => {
                       onClick={() => handleOpenExperienceDetail(place)}
                       className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
                         isDark
-                          ? 'bg-[#13312B] hover:bg-[#1a4038] text-[#D2E3DE] hover:text-[#F7F3EA] border-white/5'
+                          ? 'bg-[var(--surface-container)] hover:bg-[#1a4038] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-white/5'
                           : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420] border-[#122420]/10'
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5" />
-                      <span>{language === 'ar' ? 'التفاصيل' : 'Details'}</span>
+                      <span>{t('explore.details')}</span>
                     </button>
 
                     <button
                       type="button"
                       id={`explore-card-add-btn-${place.id}`}
                       onClick={() => handleQuickAddClick(place)}
-                      className="flex-1 py-2.5 rounded-xl bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
+                      className="flex-1 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>{language === 'ar' ? 'إضافة للجدول' : 'Add to Trip'}</span>
+                      <span>{t('explore.addToTrip')}</span>
                     </button>
                   </div>
                 </div>
@@ -566,17 +569,15 @@ export const ExploreView: React.FC = () => {
 
         {/* Area Profiles Section */}
         {areaProfiles.length > 0 && (
-          <section className="space-y-4 pt-6 border-t border-[#122420]/10 dark:border-white/10">
+          <section className="space-y-4 pt-6 border-t border-[#122420]/10 dark:border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#20A89A]" />
-              <h2 className={`text-lg font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                {language === 'ar' ? 'مناطق دهب' : 'Dahab Areas'}
+              <MapPin className="w-5 h-5 text-[var(--accent-primary)]" />
+              <h2 className={`text-lg font-serif font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+                {t('explore.dahabAreas')}
               </h2>
             </div>
-            <p className={`text-xs ${isDark ? 'text-[#D2E3DE]/70' : 'text-[#4A635D]'}`}>
-              {language === 'ar'
-                ? 'استكشف المناطق المختلفة في دهب بناءً على الأجواء والمشي والأنشطة المتاحة.'
-                : 'Explore Dahab neighborhoods by atmosphere, walkability, and available activities.'}
+            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+              {t('explore.exploreDahabNeighborhoodsBy')}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {areaProfiles.map((area) => (
@@ -584,26 +585,26 @@ export const ExploreView: React.FC = () => {
                   key={area.id}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md ${
                     isDark
-                      ? 'bg-[#0E2520] border-white/10 hover:border-[#20A89A]/40'
-                      : 'bg-white border-[#122420]/10 hover:border-[#20A89A]'
+                      ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
+                      : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className={`font-serif font-bold text-sm ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                    <h3 className={`font-serif font-bold text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
                       {language === 'ar' ? area.nameAr : area.nameEn}
                     </h3>
-                    <span className="px-2 py-0.5 rounded-full bg-[#20A89A]/15 text-[#20A89A] text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] text-[10px] font-bold">
                       {area.walkabilityScore}/10
                     </span>
                   </div>
-                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[#D2E3DE]/70' : 'text-[#4A635D]'}`}>
+                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
                     {language === 'ar' ? area.atmosphereAr : area.atmosphere}
                   </p>
                   <div className="flex items-center gap-2 mt-2 text-[10px]">
-                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[#13312B] text-[#D2E3DE]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
                       {area.noiseProfile}
                     </span>
-                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[#13312B] text-[#D2E3DE]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
                       {area.transportFriction}
                     </span>
                   </div>
@@ -629,15 +630,15 @@ export const ExploreView: React.FC = () => {
           <div 
             onClick={(e) => e.stopPropagation()}
             className={`rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border animate-in zoom-in-95 duration-150 text-start rtl:text-right ${
-              isDark ? 'bg-[#0E2520] border-white/10 text-[#F7F3EA]' : 'bg-white border-[#122420]/15 text-[#122420]'
+              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/15 text-[#122420]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#20A89A]">
-                  {language === 'ar' ? 'إضافة إلى خطة الرحلة' : 'Add Experience to Itinerary'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+                  {t('explore.addExperienceToItinerary')}
                 </span>
-                <h3 id="explore-view-dialog-2-title" className={`text-lg font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                <h3 id="explore-view-dialog-2-title" className={`text-lg font-serif font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
                   {language === 'ar' && itemToAdd.nameAr ? itemToAdd.nameAr : itemToAdd.name || itemToAdd.title}
                 </h3>
               </div>
@@ -645,17 +646,15 @@ export const ExploreView: React.FC = () => {
                 type="button"
                 onClick={() => setIsDaySelectorOpen(false)}
                 className={`w-7 h-7 rounded-full flex items-center justify-center ${
-                  isDark ? 'bg-[#13312B] text-white/70 hover:bg-white/10' : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD]'
+                  isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]/70 hover:bg-[var(--surface-card)]/10' : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD]'
                 }`}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <p className={`text-xs ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-              {language === 'ar' 
-                ? 'اختر اليوم اللي تحب تضيف النشاط ده فيه لجدولك في دهب:' 
-                : 'Select which day in your Dahab journey to place this activity:'}
+            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              {t('explore.selectWhichDayIn')}
             </p>
 
             <div className="grid grid-cols-5 gap-1.5">
@@ -666,12 +665,12 @@ export const ExploreView: React.FC = () => {
                   onClick={() => confirmAddActivityToTargetDay(d)}
                   className={`py-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 cursor-pointer group ${
                     isDark
-                      ? 'bg-[#13312B] hover:bg-[#F4C36C] hover:text-[#081714] text-[#D2E3DE] border-white/5'
-                      : 'bg-[#F2EFE9] hover:bg-[#20A89A] hover:text-[#081714] text-[#122420] border-[#122420]/10'
+                      ? 'bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)] hover:text-[var(--surface-container)] text-[var(--text-secondary)] border-white/5'
+                      : 'bg-[#F2EFE9] hover:bg-[var(--accent-primary)] hover:text-[var(--surface-container)] text-[#122420] border-[#122420]/10'
                   }`}
                 >
-                  <span className={`text-[11px] group-hover:text-[#081714]/80 font-normal ${isDark ? 'text-[#D2E3DE]/60' : 'text-[#4A635D]'}`}>
-                    {language === 'ar' ? 'يوم' : 'Day'}
+                  <span className={`text-[11px] group-hover:text-[var(--surface-container)]/80 font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>
+                    {t('explore.day')}
                   </span>
                   <span className="text-sm font-black">{d}</span>
                 </button>
@@ -682,10 +681,10 @@ export const ExploreView: React.FC = () => {
               type="button"
               onClick={() => setIsDaySelectorOpen(false)}
               className={`w-full py-2.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-                isDark ? 'bg-[#13312B] hover:bg-white/10 text-[#D2E3DE]' : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420]'
+                isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--text-secondary)]' : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420]'
               }`}
             >
-              {language === 'ar' ? 'إلغاء' : 'Cancel'}
+              {t('explore.cancel')}
             </button>
           </div>
         </div>
@@ -694,7 +693,7 @@ export const ExploreView: React.FC = () => {
       {/* Global Toast Message */}
       {toastMessage && (
         <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200 border ${
-          isDark ? 'bg-[#13312B] text-[#F7F3EA] border-[#F4C36C]/40' : 'bg-white text-[#122420] border-[#20A89A] shadow-lg'
+          isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--accent-secondary)]/40' : 'bg-[var(--surface-card)] text-[#122420] border-[var(--accent-primary)] shadow-lg'
         }`}>
           <Check className="w-4 h-4 text-emerald-500" />
           <span>{toastMessage}</span>

@@ -52,7 +52,7 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     intensityScore: 3,
     freeTimeScore: 45,
     startingPriceEGP: 9800,
-    heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop',
+    heroImage: '/images/hero/coral-reef-split.jpg',
     badge: 'Most Popular',
     badgeAr: 'الأكثر طلباً',
     highlights: [
@@ -177,7 +177,7 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     intensityScore: 5,
     freeTimeScore: 25,
     startingPriceEGP: 14200,
-    heroImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop',
+    heroImage: '/images/attractions/bouldering-wadi-gnai.jpg',
     badge: 'High Energy',
     badgeAr: 'طاقة ومغامرة',
     highlights: [
@@ -285,7 +285,7 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     intensityScore: 1,
     freeTimeScore: 75,
     startingPriceEGP: 7400,
-    heroImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
+    heroImage: '/images/hero/boho-cafe-dreams.jpg',
     badge: 'Pure Relaxation',
     badgeAr: 'فصلان وراحة بال',
     highlights: [
@@ -377,7 +377,7 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     intensityScore: 5,
     freeTimeScore: 30,
     startingPriceEGP: 16500,
-    heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop',
+    heroImage: '/images/attractions/blue-hole.jpg',
     badge: 'Pro Diver Choice',
     badgeAr: 'اختيار الغواصين',
     highlights: [
@@ -485,7 +485,7 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     intensityScore: 2,
     freeTimeScore: 60,
     startingPriceEGP: 18900,
-    heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop',
+    heroImage: '/images/hero/gulf-sunset.jpg',
     badge: 'Romantic Suite',
     badgeAr: 'رومانسية وخصوصية',
     highlights: [

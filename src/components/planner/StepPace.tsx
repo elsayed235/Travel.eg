@@ -59,21 +59,21 @@ export const StepPace: React.FC<StepPaceProps> = ({
     <div id="step-pace-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#13312B] text-[#52C4B7] border border-white/10 text-xs font-bold uppercase tracking-widest mb-4">
-          <Gauge className="w-3.5 h-3.5 text-[#52C4B7]" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+          <Gauge className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step5.badge')}</span>
         </div>
 
         <h1
           id="pace-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#F7F3EA] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step5.title')}
         </h1>
 
         <p
           id="pace-supporting-text"
-          className="mt-3 sm:mt-4 text-base sm:text-lg text-[#D2E3DE] leading-relaxed font-normal"
+          className="mt-3 sm:mt-4 text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal"
         >
           {t('planner.step5.subtitle')}
         </p>
@@ -98,8 +98,8 @@ export const StepPace: React.FC<StepPaceProps> = ({
               role="radio"
               className={`w-full text-left p-5 sm:p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group ${
                 isSelected
-                  ? 'bg-[#13312B] border-[#F4C36C] shadow-lg ring-2 ring-[#F4C36C]/30'
-                  : 'bg-[#0E2520] hover:bg-[#13312B] border-white/10 hover:border-white/20'
+                  ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-lg ring-2 ring-[var(--accent-secondary)]/30'
+                  : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
               }`}
             >
               {/* Left Details */}
@@ -108,8 +108,8 @@ export const StepPace: React.FC<StepPaceProps> = ({
                 <div
                   className={`w-5 h-5 rounded-full flex items-center justify-center mt-1 sm:mt-0.5 transition-colors flex-shrink-0 ${
                     isSelected
-                      ? 'bg-[#F4C36C] text-[#081714] font-bold'
-                      : 'border-2 border-white/30 bg-transparent'
+                      ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold'
+                      : 'border-2 border-[var(--border-subtle)] bg-transparent'
                   }`}
                 >
                   {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -117,7 +117,7 @@ export const StepPace: React.FC<StepPaceProps> = ({
 
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <span className={`text-lg sm:text-xl font-bold tracking-tight ${isSelected ? 'text-[#F4C36C]' : 'text-[#F7F3EA]'}`}>
+                    <span className={`text-lg sm:text-xl font-bold tracking-tight ${isSelected ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-primary)]'}`}>
                       {t(option.titleKey)}
                     </span>
 
@@ -125,30 +125,30 @@ export const StepPace: React.FC<StepPaceProps> = ({
                     <span
                       className={`text-[12px] font-semibold px-2.5 py-0.5 rounded-full ${
                         isSelected
-                          ? 'bg-[#F4C36C]/20 text-[#F4C36C] border border-[#F4C36C]/40'
-                          : 'bg-[#13312B] text-[#52C4B7] border border-white/10'
+                          ? 'bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40'
+                          : 'bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]'
                       }`}
                     >
                       {t(option.sublabelKey)}
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-[#D2E3DE] mt-1.5 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1.5 leading-relaxed font-normal">
                     {t(option.descriptionKey)}
                   </p>
                 </div>
               </div>
 
               {/* Right Visual Thumbnail */}
-              <div className="sm:w-28 sm:h-20 h-24 w-full rounded-xl overflow-hidden relative flex-shrink-0 bg-[#081714] border border-white/10">
+              <div className="sm:w-28 sm:h-20 h-24 w-full rounded-xl overflow-hidden relative flex-shrink-0 bg-[var(--surface-card)] border border-[var(--border-subtle)]">
                 <img
                   src={option.image}
                   alt={t(option.titleKey)}
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 opacity-90"
                 />
-                <div className="absolute inset-0 bg-[#081714]/25" />
-                <div className={`absolute bottom-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} p-1 rounded-md bg-[#081714]/80 backdrop-blur-xs text-[#F4C36C]`}>
+                <div className="absolute inset-0 bg-[var(--surface-card)]/25" />
+                <div className={`absolute bottom-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} p-1 rounded-md bg-[var(--surface-card)]/80 backdrop-blur-xs text-[var(--accent-secondary)]`}>
                   {option.icon}
                 </div>
               </div>
@@ -158,13 +158,13 @@ export const StepPace: React.FC<StepPaceProps> = ({
       </div>
 
       {/* Action Footer Navigation */}
-      <div className="pt-6 border-t border-white/10 flex items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between gap-4">
         {/* Back Button */}
         <button
           type="button"
           id="planner-pace-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#D2E3DE] hover:text-[#F7F3EA] px-4 py-3 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -175,9 +175,9 @@ export const StepPace: React.FC<StepPaceProps> = ({
           type="button"
           id="planner-build-trip-btn"
           onClick={onBuildTrip}
-          className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-sm sm:text-base font-bold tracking-tight text-[#081714] bg-[#F4C36C] hover:bg-[#E7A83B] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-sm sm:text-base font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
         >
-          <Sparkles className="w-4 h-4 text-[#081714] group-hover:rotate-12 transition-transform" />
+          <Sparkles className="w-4 h-4 text-[var(--surface-card)] group-hover:rotate-12 transition-transform" />
           <span>{t('planner.step5.buildBtn')}</span>
         </button>
       </div>

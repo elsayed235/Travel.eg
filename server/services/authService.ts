@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { db } from '../db/database';
 import { UserEntity, SessionEntity } from '../db/schema';
+import { findByKey, findOneBy } from '../db/sqlite/query';
 
 const SESSION_TTL_HOURS = 72;
 
@@ -67,6 +68,9 @@ export class AuthService {
     password: string,
     role: UserEntity['role'] = 'Traveler'
   ): { user: Omit<UserEntity, 'passwordHash' | 'passwordSalt'>; session: SessionEntity } {
+    // Self-service account creation may never request a privileged role. Admin,
+    // Operations, and Supplier are provisioned through seeded/gated paths only.
+    const safeRole: UserEntity['role'] = 'Traveler';
     const existing = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
       throw new Error('User with this email already exists.');
@@ -85,19 +89,19 @@ export class AuthService {
       passwordHash,
       passwordSalt: salt,
       passwordAlgorithm: 'scrypt',
-      role,
+      role: safeRole,
       createdAt: now,
       updatedAt: now
     };
 
-    const session = this.createSession(userId, role);
+    const session = this.createSession(userId, safeRole);
 
     db.runInTransaction(() => {
       db.users.push(newUser);
       db.sessions.push(session);
-      db.logAudit(userId, role, 'USER_REGISTERED', 'User', userId, {
+      db.logAudit(userId, safeRole, 'USER_REGISTERED', 'User', userId, {
         email,
-        role,
+        role: safeRole,
         algorithm: 'scrypt'
       });
     });
@@ -176,14 +180,21 @@ export class AuthService {
   public validateToken(tokenOrHeader?: string, cookieHeader?: string): { user: Omit<UserEntity, 'passwordHash' | 'passwordSalt'>; session: SessionEntity } | null {
     const cleanToken = this.extractTokenFromRequest(tokenOrHeader, cookieHeader);
     if (!cleanToken) return null;
-    const session = db.sessions.find(s => s.token === cleanToken);
+
+    // The hottest read in the system: this runs on every authenticated request.
+    // It used to scan the whole sessions array and then the whole users array.
+    // Both are now single indexed lookups — sessions.token is UNIQUE and
+    // users.id is the primary key. findOneBy/findByKey fall back to the
+    // in-memory scan when a transaction is mid-flight, so behaviour is
+    // unchanged; only the cost is.
+    const session = findOneBy<SessionEntity>('sessions', 'token', cleanToken);
     if (!session) return null;
 
     if (new Date(session.expiresAt) < new Date()) {
       return null;
     }
 
-    const user = db.users.find(u => u.id === session.userId);
+    const user = findByKey<UserEntity>('users', session.userId);
     if (!user) return null;
 
     const { passwordHash: _, passwordSalt: __, ...safeUser } = user;

@@ -9,6 +9,7 @@ import { ANONYMOUS_PROFILE } from '../data/dahabContent';
 // Fetched only when there is a cloud write to make. See AuthContext.
 const loadFirebase = () => import('../lib/firebase');
 import { useAuth } from './AuthContext';
+import { useLanguage } from '../i18n/LanguageContext';
 import { useUI } from './UIContext';
 import { useCommerce } from './CommerceContext';
 import { buildTimelineDays } from '../services/tripBookingMapper';
@@ -48,6 +49,7 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [savedItems, setSavedItems] = useState<string[]>([]);
 
   const { user, sessionUser, isSignedIn, setIntendedRoute } = useAuth();
+  const { t } = useLanguage();
   const { showToast, navigateTo } = useUI();
   const { activeTrip, activeTripItems, openTrip, reloadTrip } = useCommerce();
 
@@ -382,11 +384,11 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setSavedItems(prev => {
         const exists = prev.includes(itemId);
         const updated = exists ? prev.filter(id => id !== itemId) : [...prev, itemId];
-        showToast(exists ? 'Removed from saved experiences' : 'Saved to your Dahab bucket list ⭐');
+        showToast(exists ? t('profile.removedFromSaved') : t('profile.savedToBucketList'));
         return updated;
       });
     },
-    [showToast]
+    [showToast, t]
   );
 
   // See the note in UIContext.

@@ -74,63 +74,50 @@ export class DahabKnowledgeOs {
 
   /**
    * Bootstraps and seeds the validated Dahab Knowledge Corpus into DB if empty or expanding
+   *
+   * Every collection below used to upsert with `collection[idx] = seedRecord` —
+   * a whole-record REPLACE that ran on every boot. Anything the seed did not
+   * know about was destroyed: the research import added access modes, dive
+   * profiles, connectivity and remoteness tiers to 10 places, and one restart
+   * removed all of them, silently and completely. Only the two dive sites the
+   * seed had never heard of survived, which is what made it visible.
+   *
+   * `seedInto` merges instead: seed fields win (it is the authority for what it
+   * defines), and fields it does not define are left alone. That makes the seed
+   * idempotent without it being destructive.
    */
+  private seedInto<T extends { id: string }>(collection: T[], seeds: readonly T[]): void {
+    for (const seed of seeds) {
+      const idx = collection.findIndex(existing => existing.id === seed.id);
+      if (idx >= 0) collection[idx] = { ...collection[idx], ...seed };
+      else collection.push(seed);
+    }
+  }
+
   public bootstrapValidatedCorpus() {
     // 1. Authoritative Research Sources
-    for (const src of EXPANDED_RESEARCH_SOURCES) {
-      const idx = db.researchSources.findIndex(s => s.id === src.id);
-      if (idx >= 0) db.researchSources[idx] = src;
-      else db.researchSources.push(src);
-    }
+    this.seedInto(db.researchSources as any, EXPANDED_RESEARCH_SOURCES as any);
 
     // 2. Geographic Micro-Zone Area Profiles (17 Certified Micro-Zones)
-    for (const area of EXPANDED_AREA_PROFILES) {
-      const idx = db.areaProfiles.findIndex(a => a.id === area.id);
-      if (idx >= 0) db.areaProfiles[idx] = area;
-      else db.areaProfiles.push(area);
-    }
+    this.seedInto(db.areaProfiles as any, EXPANDED_AREA_PROFILES as any);
 
     // 3. Certified POIs & Places
-    for (const place of EXPANDED_PLACES) {
-      const idx = db.places.findIndex(p => p.id === place.id);
-      if (idx >= 0) db.places[idx] = place;
-      else db.places.push(place);
-    }
+    this.seedInto(db.places as any, EXPANDED_PLACES as any);
 
     // 4. Dining Venues
-    for (const dining of EXPANDED_DINING_VENUES) {
-      const idx = db.diningVenues.findIndex(d => d.id === dining.id);
-      if (idx >= 0) db.diningVenues[idx] = dining;
-      else db.diningVenues.push(dining);
-    }
+    this.seedInto(db.diningVenues as any, EXPANDED_DINING_VENUES as any);
 
     // 5. Activities & Experiences
-    for (const act of EXPANDED_ACTIVITIES) {
-      const idx = db.activities.findIndex(a => a.id === act.id);
-      if (idx >= 0) db.activities[idx] = act;
-      else db.activities.push(act);
-    }
+    this.seedInto(db.activities as any, EXPANDED_ACTIVITIES as any);
 
     // 6. Emergency & Medical Resources
-    for (const emerg of EXPANDED_EMERGENCIES) {
-      const idx = db.emergencyResources.findIndex(e => e.id === emerg.id);
-      if (idx >= 0) db.emergencyResources[idx] = emerg;
-      else db.emergencyResources.push(emerg);
-    }
+    this.seedInto(db.emergencyResources as any, EXPANDED_EMERGENCIES as any);
 
     // 7. Regulatory & Safety Decrees
-    for (const dec of EXPANDED_REGULATORY_DECREES) {
-      const idx = db.regulatoryDecrees.findIndex(r => r.id === dec.id);
-      if (idx >= 0) db.regulatoryDecrees[idx] = dec;
-      else db.regulatoryDecrees.push(dec);
-    }
+    this.seedInto(db.regulatoryDecrees as any, EXPANDED_REGULATORY_DECREES as any);
 
     // 8. Dense Temporal Facts
-    for (const f of EXPANDED_TEMPORAL_FACTS) {
-      const idx = db.temporalFacts.findIndex(fact => fact.id === f.id);
-      if (idx >= 0) db.temporalFacts[idx] = f;
-      else db.temporalFacts.push(f);
-    }
+    this.seedInto(db.temporalFacts as any, EXPANDED_TEMPORAL_FACTS as any);
 
     // 9. Core Verified Knowledge Suppliers
     const bedouinDiveIdx = db.suppliers.findIndex(s => s.id === 'SUP-BEDOUIN-DIVE');

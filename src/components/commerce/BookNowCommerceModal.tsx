@@ -384,7 +384,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
   const bookingTripId = activeTrip?.id || '';
   /** Why the booking failed, if it did. Shown instead of a success screen. */
   const [bookingError, setBookingError] = useState<string | null>(null);
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
 
   const [activeCategory, setActiveCategory] = useState<BookNowCategory>(preselectedCategory);
   const [selectedServiceId, setSelectedServiceId] = useState<string>(
@@ -446,9 +446,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
     if (!isSignedIn) {
       setIntendedRoute('/book-now');
       showToast(
-        language === 'ar'
-          ? 'سجّل دخولك عشان نكمّل الحجز.'
-          : 'Sign in to complete this booking.'
+        t('commerce.signInToComplete')
       );
       navigateTo('/auth/sign-in');
       return;
@@ -495,9 +493,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
       setIsProcessing(false);
       const message = String(err?.message || '');
       setBookingError(
-        language === 'ar'
-          ? `لم يتم إتمام الحجز: ${message}`
-          : `The booking was not completed: ${message}`
+        t('commerce.theBookingWasNot', { message })
       );
       return;
     }
@@ -575,9 +571,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
       setIsProcessing(false);
       setIsSuccess(true);
       showToast(
-        language === 'ar'
-          ? `تم تأكيد حجزك الفوري بنجاح! كود الحجز: ${code}`
-          : `Instant booking confirmed! Reference: ${code}`
+        t('commerce.instantBookingConfirmedReference', { code })
       );
       onBookingSuccess?.({ id: code, code, totalPriceEGP });
     }
@@ -608,7 +602,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-400/30">
-                  {language === 'ar' ? 'خدمات فورية بدهب' : 'IN-DESTINATION COMMERCE'}
+                  {t('commerce.iNDESTINATIONCOMMERCE')}
                 </span>
                 <span className="flex items-center gap-1 text-[12px] text-amber-300 font-mono">
                   <Clock className="w-3 h-3" />
@@ -616,7 +610,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                 </span>
               </div>
               <h2 id="book-now-commerce-modal-dialog-1-title" className="font-serif font-bold text-lg sm:text-xl text-white mt-0.5">
-                {language === 'ar' ? 'احجز دلوقتي بدهب · Book Now' : 'Dahab Now — Book Instantly'}
+                {t('commerce.dahabNowBookInstantly')}
               </h2>
             </div>
           </div>
@@ -634,7 +628,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
+            className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
           >
             <X className="w-4 h-4" />
           </button>
@@ -645,7 +639,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
           <div className="flex items-center gap-2 text-stone-300">
             <MapPin className="w-3.5 h-3.5 text-teal-400" />
             <span>
-              {language === 'ar' ? 'موقعك الحالي:' : 'Current Location:'}{' '}
+              {t('commerce.currentLocation')}{' '}
               <strong className="text-white">{contextLocation}</strong>
             </span>
           </div>
@@ -668,7 +662,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
             {/* Category Filter Chips */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-2">
-                {language === 'ar' ? 'ماذا تحتاج الآن؟' : 'What do you want right now?'}
+                {t('commerce.whatDoYouWant')}
               </label>
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {[
@@ -685,7 +679,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
                       activeCategory === tab.id
                         ? 'bg-teal-500 text-stone-950 border-teal-400 shadow-md scale-102'
-                        : 'bg-stone-800/80 text-stone-300 hover:text-white border-stone-700 hover:bg-stone-750'
+                        : 'bg-stone-800/80 text-stone-300 hover:text-[var(--text-primary)] border-stone-700 hover:bg-stone-750'
                     }`}
                   >
                     {language === 'ar' ? tab.labelAr : tab.label}
@@ -765,7 +759,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                 <div className="space-y-3.5">
                   <div className="border-b border-stone-800 pb-3">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 block">
-                      {language === 'ar' ? 'الخدمة المختارة' : 'SELECTED SERVICE'}
+                      {t('commerce.sELECTEDSERVICE')}
                     </span>
                     <h3 className="font-bold text-base text-white mt-1">
                       {language === 'ar' ? selectedService.titleAr : selectedService.title}
@@ -791,7 +785,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   <div className="space-y-3 text-xs">
                     <div>
                       <label className="block font-bold text-stone-400 mb-1">
-                        {language === 'ar' ? 'عدد الأفراد' : 'Number of Guests'}
+                        {t('commerce.numberOfGuests')}
                       </label>
                       <div className="flex items-center gap-2">
                         {[1, 2, 3, 4].map((count) => (
@@ -804,7 +798,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                                 : 'bg-stone-850 text-stone-300 border-stone-700 hover:bg-stone-800'
                             }`}
                           >
-                            {count} {language === 'ar' ? (count === 1 ? 'فرد' : 'أفراد') : count === 1 ? 'Guest' : 'Guests'}
+                            {count} {count === 1 ? t('commerce.guestSingle') : t('commerce.guestPlural')}
                           </button>
                         ))}
                       </div>
@@ -812,7 +806,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
                     <div>
                       <label className="block font-bold text-stone-400 mb-1">
-                        {language === 'ar' ? 'مكان التوصيل / الفندق' : 'Pickup / Drop-off Location'}
+                        {t('commerce.pickupDropoffLocation')}
                       </label>
                       <input
                         type="text"
@@ -825,7 +819,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
                     <div>
                       <label className="block font-bold text-stone-400 mb-1">
-                        {language === 'ar' ? 'ملاحظة خاصة للسائق / المركز' : 'Special Note / Requests'}
+                        {t('commerce.specialNoteRequests')}
                       </label>
                       <input
                         type="text"
@@ -845,9 +839,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                         className="rounded border-stone-700 text-teal-500 focus:ring-teal-400"
                       />
                       <span>
-                        {language === 'ar'
-                          ? 'إضافة تلقائية لجدول اليوم النشط بالرحلة'
-                          : 'Auto-add to active Day 2 Companion timeline'}
+                        {t('commerce.autoaddToActiveDay')}
                       </span>
                     </label>
                   </div>
@@ -858,7 +850,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   {/* Currency Switcher */}
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-stone-400 font-medium">
-                      {language === 'ar' ? 'عملة العرض:' : 'Currency:'}
+                      {t('commerce.currency')}
                     </span>
                     <div className="flex items-center gap-1 bg-stone-900 p-0.5 rounded-lg border border-stone-800">
                       {(['EGP', 'USD', 'EUR'] as const).map((curr) => (
@@ -880,7 +872,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
                   <div className="flex items-center justify-between text-xs pt-1">
                     <span className="text-stone-400">
-                      {language === 'ar' ? 'الإجمالي الشامل (شامل الضرائب):' : 'Guaranteed Price (incl. tax):'}
+                      {t('commerce.guaranteedPriceInclTax')}
                     </span>
                     <div className="text-end">
                       <span className="font-bold text-lg text-amber-400 font-mono">
@@ -912,10 +904,10 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-teal-400 text-stone-950 font-black text-sm hover:brightness-110 disabled:opacity-50 transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {isProcessing ? (
-                      <span>{language === 'ar' ? 'جاري تثبيت حجز الإسكرو...' : 'Securing Escrow Hold...'}</span>
+                      <span>{t('commerce.securingEscrowHold')}</span>
                     ) : (
                       <>
-                        <span>{language === 'ar' ? 'تأكيد الحجز الفوري الآن' : 'Confirm Instant Booking Now'}</span>
+                        <span>{t('commerce.confirmInstantBookingNow')}</span>
                         <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                       </>
                     )}
@@ -941,15 +933,13 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
             <div>
               <span className="text-xs uppercase font-bold tracking-widest text-emerald-400">
-                {language === 'ar' ? 'تم تأكيد الحجز الفوري بنجاح' : 'INSTANT BOOKING DISPATCHED'}
+                {t('commerce.iNSTANTBOOKINGDISPATCHED')}
               </span>
               <h2 className="font-serif font-bold text-2xl text-white mt-1">
                 {language === 'ar' ? confirmedBooking?.service.titleAr : confirmedBooking?.service.title}
               </h2>
               <p className="text-stone-400 text-sm mt-1">
-                {language === 'ar'
-                  ? 'تم إرسال الإشعار لغرفة العمليات وسائق / مرشد سيناء المعتمد.'
-                  : 'Fulfillment dispatched directly to the certified Sinai operator.'}
+                {t('commerce.fulfillmentDispatchedDirectlyTo')}
               </p>
             </div>
 
@@ -958,7 +948,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
               <div className="flex items-center justify-between border-b border-stone-800 pb-3">
                 <div>
                   <span className="text-[11px] uppercase font-bold text-stone-400 block">
-                    {language === 'ar' ? 'كود الحجز المؤكد' : 'CONFIRMATION CODE'}
+                    {t('commerce.cONFIRMATIONCODE')}
                   </span>
                   <span className="font-mono font-bold text-lg text-amber-400">
                     {confirmedBooking?.code}
@@ -966,7 +956,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                 </div>
                 <div className="text-end">
                   <span className="text-[11px] uppercase font-bold text-stone-400 block">
-                    {language === 'ar' ? 'القيمة المسجلة بالليدجر' : 'SETTLED IN ESCROW'}
+                    {t('commerce.sETTLEDINESCROW')}
                   </span>
                   <span className="font-mono font-bold text-base text-white">
                     {confirmedBooking?.totalPriceEGP} EGP
@@ -976,23 +966,23 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-stone-400 block">{language === 'ar' ? 'الجهة المنفذة:' : 'Provider:'}</span>
+                  <span className="text-stone-400 block">{t('commerce.provider')}</span>
                   <strong className="text-teal-300">
                     {language === 'ar' ? confirmedBooking?.service.supplierNameAr : confirmedBooking?.service.supplierName}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-stone-400 block">{language === 'ar' ? 'هاتف التواصل المباشر:' : 'Direct Phone:'}</span>
+                  <span className="text-stone-400 block">{t('commerce.directPhone')}</span>
                   <strong className="font-mono text-white">{confirmedBooking?.service.supplierPhone}</strong>
                 </div>
                 <div>
-                  <span className="text-stone-400 block">{language === 'ar' ? 'مكان اللقاء / الاستلام:' : 'Meeting Point:'}</span>
+                  <span className="text-stone-400 block">{t('commerce.meetingPoint')}</span>
                   <strong className="text-stone-200">
                     {language === 'ar' ? confirmedBooking?.service.meetingPointAr : confirmedBooking?.service.meetingPoint}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-stone-400 block">{language === 'ar' ? 'وقت الوصول المقدر:' : 'Estimated Fulfillment:'}</span>
+                  <span className="text-stone-400 block">{t('commerce.estimatedFulfillment')}</span>
                   <strong className="text-amber-300 font-mono">
                     {language === 'ar' ? confirmedBooking?.service.pickupWindowAr : confirmedBooking?.service.pickupWindow}
                   </strong>
@@ -1002,7 +992,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
               {/* What to bring note */}
               <div className="bg-stone-900 p-3 rounded-xl border border-stone-800 text-xs">
                 <span className="font-bold text-stone-300 block mb-1">
-                  {language === 'ar' ? 'تجهيزات مطلوبة معك:' : 'What to prepare & bring:'}
+                  {t('commerce.whatToPrepareBring')}
                 </span>
                 <ul className="list-disc list-inside text-stone-400 space-y-0.5">
                   {(language === 'ar' ? confirmedBooking?.service.whatToBringAr : confirmedBooking?.service.whatToBring)?.map((item, idx) => (
@@ -1021,13 +1011,13 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                 }}
                 className="px-6 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-stone-950 font-bold text-xs transition-colors cursor-pointer"
               >
-                {language === 'ar' ? 'عرض في جدول رحلتي' : 'View in My Trip Timeline'}
+                {t('commerce.viewInMyTrip')}
               </button>
               <button
                 onClick={handleReset}
-                className="px-6 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs transition-colors cursor-pointer border border-stone-700"
+                className="px-6 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-[var(--text-primary)] font-bold text-xs transition-colors cursor-pointer border border-stone-700"
               >
-                {language === 'ar' ? 'إغلاق ومتابعة الرحلة' : 'Close & Continue Trip'}
+                {t('commerce.closeContinueTrip')}
               </button>
             </div>
           </div>

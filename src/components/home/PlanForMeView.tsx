@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, memo } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -157,6 +157,20 @@ const PACES: { id: PaceBand; labelEn: string; labelAr: string; hintEn: string; h
 /** Steps 0–2 are single-choice, so answering one is also the intent to move on. */
 const AUTO_ADVANCE_STEPS = new Set([0, 1, 2]);
 
+const SelectedDot: React.FC<{ on: boolean }> = memo(({ on }) => (
+  <span
+    aria-hidden="true"
+    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+      on
+        ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)]'
+        : 'border-[var(--text-secondary)]/40 group-hover:border-[var(--accent-primary)]/60'
+    }`}
+  >
+    {on && <Check className="w-3 h-3 text-[var(--accent-primary-ink)]" strokeWidth={3.5} />}
+  </span>
+));
+SelectedDot.displayName = 'SelectedDot';
+
 export const PlanForMeView: React.FC = () => {
   const { language, t, isRTL } = useLanguage();
   const { reducedMotion } = useTheme();
@@ -310,19 +324,6 @@ export const PlanForMeView: React.FC = () => {
   const optionActive =
     'bg-[var(--accent-primary)]/12 border-[var(--accent-primary)] shadow-lg ring-1 ring-[var(--accent-primary)]/30';
 
-  const SelectedDot: React.FC<{ on: boolean }> = ({ on }) => (
-    <span
-      aria-hidden="true"
-      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-        on
-          ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)]'
-          : 'border-[var(--text-secondary)]/40 group-hover:border-[var(--accent-primary)]/60'
-      }`}
-    >
-      {on && <Check className="w-3 h-3 text-[var(--accent-primary-ink)]" strokeWidth={3.5} />}
-    </span>
-  );
-
   /* ------------------------------------------------------------------ */
   /* Synthesis                                                          */
   /* ------------------------------------------------------------------ */
@@ -353,9 +354,7 @@ export const PlanForMeView: React.FC = () => {
               {language === 'ar' ? lines[synthesisStep].ar : lines[synthesisStep].en}
             </h1>
             <p className="text-sm text-[var(--text-secondary)]">
-              {language === 'ar'
-                ? `${days} أيام · ${partyLabel} · ${budgetLabel} · ${paceLabel}`
-                : `${days} days · ${partyLabel} · ${budgetLabel} · ${paceLabel}`}
+              {t('home.days', { days, partyLabel, budgetLabel, paceLabel })}
             </p>
           </div>
 
@@ -371,7 +370,7 @@ export const PlanForMeView: React.FC = () => {
               className={`w-4 h-4 text-[var(--accent-primary)] ${reducedMotion ? '' : 'animate-spin'}`}
               aria-hidden="true"
             />
-            <span>{language === 'ar' ? 'ثواني وتلاقي رحلتك جاهزة' : 'Your itinerary is seconds away'}</span>
+            <span>{t('home.yourItineraryIsSeconds')}</span>
           </div>
         </div>
       </div>
@@ -410,7 +409,7 @@ export const PlanForMeView: React.FC = () => {
               className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
-              <span>{language === 'ar' ? 'الرجوع للرئيسية' : 'Back to home'}</span>
+              <span>{t('home.backToHome')}</span>
             </button>
           </nav>
 
@@ -418,7 +417,7 @@ export const PlanForMeView: React.FC = () => {
             <div className="max-w-2xl space-y-3">
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold uppercase tracking-widest">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>{language === 'ar' ? 'مرشد دهب الذكي' : 'Dahab Travel Director'}</span>
+                <span>{t('home.dahabTravelDirector')}</span>
               </span>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold tracking-tight leading-tight">
@@ -426,9 +425,7 @@ export const PlanForMeView: React.FC = () => {
               </h1>
 
               <p className="text-base text-[var(--text-secondary)] leading-relaxed">
-                {language === 'ar'
-                  ? 'خمس أسئلة سريعة، وإحنا نبني لك جدول دهب كامل ومتناسق — مربوط بحالة البحر والرياح، وبأماكن ومرشدين موثقين.'
-                  : 'Five quick questions and we build your full Dahab schedule — grounded in live sea and wind conditions, with verified stays and guides.'}
+                {t('home.fiveQuickQuestionsAnd')}
               </p>
             </div>
 
@@ -461,7 +458,7 @@ export const PlanForMeView: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 space-y-2.5">
           <ol
             className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
-            aria-label={language === 'ar' ? 'خطوات التخطيط' : 'Planning steps'}
+            aria-label={t('home.planningSteps')}
           >
             {STEPS.map((s, idx) => {
               const isCurrent = idx === stepIndex;
@@ -496,7 +493,7 @@ export const PlanForMeView: React.FC = () => {
             aria-valuenow={stepIndex + 1}
             aria-valuemin={1}
             aria-valuemax={STEPS.length}
-            aria-label={language === 'ar' ? 'تقدّم التخطيط' : 'Planning progress'}
+            aria-label={t('home.planningProgress')}
           >
             <div
               className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-300"
@@ -517,9 +514,7 @@ export const PlanForMeView: React.FC = () => {
             </span>
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-secondary)]">
-                {language === 'ar'
-                  ? `سؤال ${stepIndex + 1} من ${STEPS.length}`
-                  : `Question ${stepIndex + 1} of ${STEPS.length}`}
+                {t('home.questionOf', { idx: stepIndex + 1, length: STEPS.length })}
               </p>
               <h2
                 ref={headingRef}
@@ -553,7 +548,7 @@ export const PlanForMeView: React.FC = () => {
                   >
                     <span className="text-3xl font-bold font-mono tabular-nums">{num}</span>
                     <span className="text-xs font-bold text-[var(--text-secondary)]">
-                      {language === 'ar' ? 'أيام' : num === 1 ? 'day' : 'days'}
+                      {num === 1 ? t('home.daySingle') : t('home.dayPlural')}
                     </span>
                   </button>
                 );
@@ -704,12 +699,8 @@ export const PlanForMeView: React.FC = () => {
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
               <span>
                 {stepIndex === 0
-                  ? language === 'ar'
-                    ? 'إلغاء'
-                    : 'Cancel'
-                  : language === 'ar'
-                  ? 'رجوع'
-                  : 'Back'}
+                  ? t('explore.cancel')
+                  : t('home.back')}
               </span>
             </button>
 
@@ -720,7 +711,7 @@ export const PlanForMeView: React.FC = () => {
               className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold shadow-lg transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
             >
               {isLastStep && <Sparkles className="w-4 h-4" aria-hidden="true" />}
-              <span>{isLastStep ? t('tripEntry.modeC.cta') : language === 'ar' ? 'التالي' : 'Next'}</span>
+              <span>{isLastStep ? t('tripEntry.modeC.cta') : t('home.next')}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
             </button>
           </div>
@@ -732,7 +723,7 @@ export const PlanForMeView: React.FC = () => {
         <aside className="lg:col-span-4 lg:sticky lg:top-44 space-y-4">
           <div className="bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-3xl p-5 shadow-lg">
             <h2 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-secondary)] mb-4">
-              {language === 'ar' ? 'ملخص رحلتك' : 'Your brief so far'}
+              {t('home.yourBriefSoFar')}
             </h2>
 
             <dl className="space-y-3">
@@ -741,7 +732,7 @@ export const PlanForMeView: React.FC = () => {
                   stepIdx: 0,
                   labelEn: 'Length',
                   labelAr: 'المدة',
-                  value: language === 'ar' ? `${days} أيام` : `${days} days`,
+                  value: t('home.days-2', { days }),
                   icon: Calendar
                 },
                 { stepIdx: 1, labelEn: 'Party', labelAr: 'المسافرين', value: partyLabel, icon: Users },
@@ -773,7 +764,7 @@ export const PlanForMeView: React.FC = () => {
             <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
               <span className="flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] mb-2">
                 <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
-                <span>{language === 'ar' ? 'التجارب' : 'Experiences'}</span>
+                <span>{t('home.experiences')}</span>
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {interests.map((id) => {
@@ -795,9 +786,7 @@ export const PlanForMeView: React.FC = () => {
           <div className="bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-2xl p-4 flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              {language === 'ar'
-                ? 'مفيش أي دفع في الخطوة دي. هتشوف الجدول كامل وتقدر تعدّل أو تشيل أي حاجة قبل ما تحجز.'
-                : 'Nothing is charged here. You will see the whole schedule and can change or drop anything before booking.'}
+              {t('home.nothingIsChargedHere')}
             </p>
           </div>
         </aside>

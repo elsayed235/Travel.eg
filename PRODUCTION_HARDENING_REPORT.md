@@ -7,6 +7,31 @@
 
 ---
 
+> ## ⚠️ ARCHITECTURAL CORRECTION — READ FIRST (2026-09-02)
+>
+> This document is a **historical certification** and describes an older intended
+> architecture. It does **not** match the current authoritative codebase. Per
+> `AGENTS.md`, the executable source is the source of truth; this report only
+> records prior intent.
+>
+> **Persistence (do NOT rely on the "PostgreSQL" claims here):**
+> - The current default and only production-grade adapter is **SQLite**
+>   (`server/db/adapters/SqlitePersistenceAdapter.ts`, DB at `data/dahab.sqlite`,
+>   WAL, foreign keys, indexes, per-row writes). Selected via `PERSISTENCE_ADAPTER`.
+> - **`PostgresPersistenceAdapter.save()` is an empty stub.** It never persists
+>   application state, so all data is lost on restart. It refuses to boot unless
+>   `ALLOW_NONPERSISTENT_POSTGRES_ADAPTER=true`. This is a deliberate safety
+>   guard: `/api/health` no longer implies "PostgreSQL Relational" as a working
+>   store. Section B below is superseded.
+> - Active runtime state is verified by the current suite: **`npm test` → 422/422
+>   passing**, `npm run lint` (type-check) clean, `npm run build` successful.
+>
+> **Frontend:** React 19 (not 18), Vite, Tailwind 4; persistence is adapter-based
+> (SQLite/JSON), **not** Google Firestore. Any Firestore references in other docs
+> are stale design notes.
+
+---
+
 ## 1. Executive Summary
 
 All previous conditional caveats and infrastructure blockers have been systematically resolved, implemented, and verified under zero-trust conditions.

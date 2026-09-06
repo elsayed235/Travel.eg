@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { db } from '../database';
+import { seedPath } from '../paths';
 import {
   SupplierEntity,
   RawSupplierSourceEntity,
@@ -81,7 +82,7 @@ export function importDahabLocalCommerce(options: { forceReload?: boolean } = {}
 
   return db.runInTransaction(() => {
     // 1. Load Master Dataset JSON with fallback
-    let datasetPath = path.join(process.cwd(), 'data', 'dahab_local_commerce.json');
+    let datasetPath = seedPath('dahab_local_commerce.json');
     let rawData: any = null;
 
     if (fs.existsSync(datasetPath)) {
@@ -1148,7 +1149,7 @@ export function importDahabLocalCommerce(options: { forceReload?: boolean } = {}
     let sourceRecordsCount = 0;
     let priceObservationsCount = 0;
 
-    const instagramPath = path.join(process.cwd(), 'data', 'instagram', 'dahab_instagram_sources.json');
+    const instagramPath = seedPath('instagram', 'dahab_instagram_sources.json');
     if (fs.existsSync(instagramPath)) {
       try {
         const instaContent = fs.readFileSync(instagramPath, 'utf-8');

@@ -1,61 +1,12 @@
 import { DAHAB_PLACES, DAHAB_RESTAURANTS } from '../../src/data/dahabGeography';
 import { asyncJobService } from './asyncJobService';
-
-export interface RouteEstimate {
-  origin: string;
-  destination: string;
-  durationMinutes: number;
-  distanceKm: number;
-  transitMode: 'Walk' | '4x4 Taxi' | 'Boat / Camel' | 'Minibus';
-  transitModeAr: string;
-  displayEstimateEn: string;
-  displayEstimateAr: string;
-  isWalkable: boolean;
-  confidence: number;
-  observedAt: string;
-  source: string;
-}
-
-export interface WindowFitOption {
-  id: string;
-  titleEn: string;
-  titleAr: string;
-  category: 'dive' | 'food' | 'sunset' | 'desert' | 'relaxation';
-  categoryLabelEn: string;
-  categoryLabelAr: string;
-  totalRequiredMinutes: number;
-  activityDurationMinutes: number;
-  travelMinutesOneWay: number;
-  transitMode: string;
-  transitModeAr: string;
-  locationNameEn: string;
-  locationNameAr: string;
-  costEgp: number;
-  fitHeadlineEn: string;
-  fitHeadlineAr: string;
-  reasonEn: string;
-  reasonAr: string;
-  actionRoute: string;
-  imageUrl: string;
-}
-
-export interface PostActivityFoodSpot {
-  id: string;
-  nameEn: string;
-  nameAr: string;
-  cuisineEn: string;
-  cuisineAr: string;
-  travelMinutes: number;
-  isWalkable: boolean;
-  distanceDisplay: string;
-  bestDishEn: string;
-  bestDishAr: string;
-  priceBand: 'EGP 80–180' | 'EGP 150–350' | 'EGP 250–550';
-  highlightEn: string;
-  highlightAr: string;
-  rating: number;
-  imageUrl: string;
-}
+import type {
+  FitWindowResponse,
+  PostActivityFoodResponse,
+  PostActivityFoodSpot,
+  RouteEstimate,
+  WindowFitOption,
+} from '../../src/shared/index';
 
 // In-Memory Stale-While-Revalidate Cache for Geospatial Matrices
 const ROUTE_CACHE = new Map<string, { estimate: RouteEstimate; expiresAt: number }>();
@@ -241,12 +192,7 @@ export class MapsContextService {
     originArea: string = 'lighthouse',
     availableMinutes: number = 120,
     categoryFilter?: string
-  ): {
-    availableMinutes: number;
-    options: WindowFitOption[];
-    recommendedContextEn: string;
-    recommendedContextAr: string;
-  } {
+  ): FitWindowResponse {
     const candidates: WindowFitOption[] = [
       {
         id: 'win-snork-eel',
@@ -343,11 +289,42 @@ export class MapsContextService {
       (c) => c.totalRequiredMinutes <= availableMinutes
     );
 
+    const options = eligible.slice(0, 3);
+
     return {
       availableMinutes,
-      options: eligible.slice(0, 3),
-      recommendedContextEn: `Calculated 3 micro-adventures with safe buffers for your ${Math.floor(availableMinutes / 60)}h window.`,
-      recommendedContextAr: `تم حساب ٣ أنشطة موثقة مع فترات أمان ملائمة لوقتك المتاح (${availableMinutes} دقيقة).`,
+      options,
+      ...this.fitWindowContext(options.length, availableMinutes),
+    };
+  }
+
+  /**
+   * Human, count-aware context line for the fit-window reply. Sub-hour
+   * windows used to render as "0h" while the Arabic side read minutes — the
+   * two labels must stay in agreement.
+   */
+  private fitWindowContext(count: number, minutes: number): { recommendedContextEn: string; recommendedContextAr: string } {
+    if (count <= 0) {
+      return {
+        recommendedContextEn: `No activities fit your ${minutes} min window.`,
+        recommendedContextAr: `لم نجد أنشطة مناسبة لوقتك المتاح (${minutes} دقيقة).`,
+      };
+    }
+    if (count === 1) {
+      return {
+        recommendedContextEn: `Found 1 activity that fits your ${minutes} min window.`,
+        recommendedContextAr: `وجدنا نشاطًا واحدًا مناسبًا لوقتك المتاح (${minutes} دقيقة).`,
+      };
+    }
+    if (count === 2) {
+      return {
+        recommendedContextEn: `Found 2 activities that fit your ${minutes} min window.`,
+        recommendedContextAr: `وجدنا نشاطين مناسبين لوقتك المتاح (${minutes} دقيقة).`,
+      };
+    }
+    return {
+      recommendedContextEn: `Found ${count} activities that fit your ${minutes} min window.`,
+      recommendedContextAr: `وجدنا ${count} أنشطة مناسبة لوقتك المتاح (${minutes} دقيقة).`,
     };
   }
 
@@ -358,12 +335,7 @@ export class MapsContextService {
   public getPostActivityFood(
     locationId: string = 'place-lighthouse',
     limit: number = 3
-  ): {
-    anchorLocation: string;
-    spots: PostActivityFoodSpot[];
-    contextPromptEn: string;
-    contextPromptAr: string;
-  } {
+  ): PostActivityFoodResponse {
     const loc = locationId.toLowerCase();
 
     if (loc.includes('blue-hole') || loc.includes('blue hole')) {

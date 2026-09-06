@@ -1,4 +1,6 @@
-import type { DahabDiningVenue, FoodCategory, FoodOption } from '../shared';
+import { normalizeDiningVenue } from '../shared/diningVenue';
+import type { DahabDiningVenue } from '../shared/types/knowledge';
+import type { FoodCategory, FoodOption } from '../shared/types/food';
 
 /**
  * Turns the destination corpus's dining venues into the cards Food renders.
@@ -31,8 +33,15 @@ const PRICE_LEVEL: Record<DahabDiningVenue['priceBand'], FoodOption['priceLevel'
   'Premium ($$$)': 'Moderate'
 };
 
-/** 'eel_garden' → 'Eel Garden'. The corpus stores area ids, not labels. */
-export function areaLabel(areaId: string): string {
+/**
+ * 'eel_garden' → 'Eel Garden'. The corpus stores area ids, not labels.
+ *
+ * Accepts the absent case: the research importer writes `areaId: null` when a
+ * row's zone matches no known area, and `null.split('_')` is what crashed the
+ * whole Food & Dining screen into its error boundary.
+ */
+export function areaLabel(areaId: string | null | undefined): string {
+  if (!areaId) return '';
   return areaId
     .split('_')
     .filter(Boolean)
@@ -40,7 +49,10 @@ export function areaLabel(areaId: string): string {
     .join(' ');
 }
 
-export function diningVenueToFoodOption(venue: DahabDiningVenue): FoodOption {
+export function diningVenueToFoodOption(rawVenue: DahabDiningVenue): FoodOption {
+  // Single choke point for the /food path. Four corpus rows violate
+  // DahabDiningVenue on four fields at once; see src/shared/diningVenue.ts.
+  const venue = normalizeDiningVenue(rawVenue);
   const area = areaLabel(venue.areaId);
   const cuisine = venue.cuisine.join(' · ');
   const diets = [
@@ -68,7 +80,7 @@ export function diningVenueToFoodOption(venue: DahabDiningVenue): FoodOption {
     distanceKm: area,
     estimatedTime: venue.openingHours,
     estimatedTimeAr: venue.openingHours,
-    priceLevel: PRICE_LEVEL[venue.priceBand],
+    priceLevel: PRICE_LEVEL[venue.priceBand] ?? 'Low–Moderate',
     priceEstimate: `EGP ${venue.averageMealPriceEGP} per person (average)`,
     priceEstimateAr: `متوسط ${venue.averageMealPriceEGP} ج.م للفرد`,
     // rating and reviewCount are deliberately absent: nothing measures them.

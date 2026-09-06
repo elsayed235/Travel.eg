@@ -43,6 +43,7 @@ import { daygiMemoryService } from './server/services/daygiMemoryService';
 import { daygiTripHealthService } from './server/services/daygiTripHealthService';
 import { daygiTaskOrchestrator } from './server/services/daygiTaskOrchestrator';
 import { daygiProductTelemetryService } from './server/services/daygiProductTelemetryService';
+import { MediaAssetService } from './server/services/mediaAssetService';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { correlationMiddleware } from './server/middleware/correlationMiddleware';
@@ -85,10 +86,14 @@ import { contentRouter } from './server/api/contentRoutes';
 import { adminContentRouter } from './server/api/adminContentRoutes';
 import { marketRouter } from './server/api/marketRoutes';
 import { hotelRouter } from './server/api/hotelRoutes';
+import { accommodationRouter } from './server/api/accommodationRoutes';
+import { adminAccommodationRouter } from './server/api/adminAccommodationRoutes';
+import { rentalRouter, rentalBookingRouter } from './server/api/rentalRoutes';
 import { initializeCmsSchema } from './server/db/sqlite/cmsSchema';
 import { seedCmsContent } from './server/db/sqlite/cmsSeed';
 import { migrateMediaAssets } from './server/db/sqlite/cmsMediaMigration';
 import { dahabKnowledgeOs } from './server/services/dahabKnowledgeOs';
+import { rentalService } from './server/services/rentalService';
 import { reconcileActivityBookability, resolveBookability } from './server/services/bookabilityReconciler';
 import { reconcileTripStatus, reconcileTripsForUser } from './server/services/tripStatusReconciler';
 import { marketFreshnessService } from './server/services/marketFreshnessService';
@@ -192,6 +197,13 @@ app.use('/api/content', contentRouter);
 
 // Dahab hotels catalogue (public GET list + detail)
 app.use('/api/hotels', hotelRouter);
+app.use('/api/accommodations', accommodationRouter);
+app.use('/api/admin/accommodations', adminAccommodationRouter);
+
+// Dahab rentals catalogue (public list/detail/check/quote) + rental bookings
+// (traveler hold/checkout/cancel and provider actions).
+app.use('/api/rentals', rentalRouter);
+app.use('/api/rental-bookings', rentalBookingRouter);
 
 // CMS uploaded media — serve static files from data/cms-media/
 //
@@ -495,16 +507,6 @@ app.post('/api/context/parse-intent', async (req, res) => {
     if (!query) return res.status(400).json({ error: 'Query string is required' });
     const parsed = await geminiReasoningService.parseTravelerSearchIntent(query);
     res.json(parsed);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.post('/api/context/daily-briefing', async (req, res) => {
-  try {
-    const { dayTitle = 'Day 2 · Diving & Seafront Promenade', activitiesCount = 3, conditions = 'Calm sea' } = req.body;
-    const briefing = await geminiReasoningService.generateDailyBriefing(dayTitle, activitiesCount, conditions);
-    res.json(briefing);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -3200,6 +3202,14 @@ Return ONLY valid JSON matching this schema:
 // 5. Vite Middleware (Dev) & Static Serving (Prod)
 // ---------------------------------------------------------------------------
 async function setupViteOrStatic() {
+  // Sync real Dahab media photography from local storage into public/images
+  try {
+    MediaAssetService.syncDahabMediaAssets();
+  } catch (err: any) {
+    console.warn('[Boot] Media asset sync skipped:', err.message);
+  }
+  app.use('/images', express.static(path.join(process.cwd(), 'public', 'images')));
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
@@ -3237,6 +3247,10 @@ async function setupViteOrStatic() {
     );
   }
   retentionService.startScheduledSweep();
+
+  // Rentals: expire unpaid holds and reconcile READY_FOR_PICKUP/OVERDUE at
+  // boot and hourly, mirroring the retention sweep.
+  rentalService.startScheduledSweep();
 
   // CMS: Check for scheduled content publishing at boot and every 60 seconds
   const checkScheduled = () => {

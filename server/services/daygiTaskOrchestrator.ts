@@ -19,8 +19,9 @@ import { recoveryService } from './recoveryService';
 import { transferService } from './transferService';
 import { ledgerService } from './ledgerService';
 import { mapsContextService } from './mapsContextService';
+import { dataPath } from '../db/paths';
 
-const TASKS_FILE = path.join(process.cwd(), 'data', 'daygi_tasks.json');
+const TASKS_FILE = dataPath('daygi_tasks.json');
 
 // Strict State Transition Matrices
 export const VALID_TASK_TRANSITIONS: Record<DayGiTaskState, DayGiTaskState[]> = {

@@ -63,7 +63,7 @@ const DAHAB_STORIES: StoryExperience[] = [
     durationAr: 'فترة بعد الظهر (٤ ساعات)',
     location: 'Ras Abu Galum Protected Reserve',
     locationAr: 'محمية رأس أبو جالوم',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/hero/blue-lagoon-kitesurf.jpg',
     description: 'Cruise past rugged granite sea cliffs on a local wooden boat to arrive at the crystal shallows of the Blue Lagoon. Swim, unwind in shaded palm palapas, and enjoy fresh baked Bedouin flatbread.',
     descriptionAr: 'انطلق بقارب خشبي محلي بمحاذاة منحدرات الجرانيت الشاهقة لتصل إلى مياه البلو لاجون الفيروزية الصافية. استمتع بالسباحة والاسترخاء في العشش البدوية وتناول خبز الفراشيح الطازج.',
     activityToAdd: {
@@ -91,7 +91,7 @@ const DAHAB_STORIES: StoryExperience[] = [
     durationAr: 'سهرة المساء (٣.٥ ساعات)',
     location: 'Wadi Gnai Desert Canyon',
     locationAr: 'وادي قني الصحراوي',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/attractions/bouldering-wadi-gnai.jpg',
     description: 'Ride into the deep canyon by 4x4 as the granite mountains turn purple and amber at dusk. Gather around a crackling acacia wood fire for Bedouin-grilled meats, habak tea, and acoustic oud melodies.',
     descriptionAr: 'انطلق بسيارة الدفع الرباعي في أعماق الوادي مع تحول ألوان الجرانيت للوردي والكهرماني عند الغروب. استمتع بعشاء مشويات على حطب السنط، وشاي بالحبق ونغمات العود والسمسمية.',
     activityToAdd: {
@@ -119,7 +119,7 @@ const DAHAB_STORIES: StoryExperience[] = [
     durationAr: 'الصباح (٢.٥ ساعة)',
     location: 'The Canyon Shore Entry',
     locationAr: 'مدخل شاطئ الكانيون',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/attractions/underwater-elephant.jpg',
     description: 'Enter through a natural coral chimney into a spectacular underwater volcanic dome. Millions of glassy sweepers hover in the blue light as sunlight streams from above.',
     descriptionAr: 'ادخل عبر مدخنة مرجانية طبيعية إلى قبة بركانية مذهلة تحت الماء. ملايين الأسماك الزجاجية تسبح في الضوء الأزرق مع تدفق أشعة الشمس الساحرة من الأعلى.',
     activityToAdd: {
@@ -147,7 +147,7 @@ const DAHAB_STORIES: StoryExperience[] = [
     durationAr: 'أواخر العصر (ساعتان)',
     location: 'Assalah Square & Lighthouse',
     locationAr: 'ميدان العصلة وممشى اللايتهاوس',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop',
+    image: '/images/restaurants/breakfast-by-the-sea.jpg',
     description: 'Taste authentic Dahab street delicacies: freshly fried herb falafel, warm tahini bread from brick ovens, mountain oregano teas, and freshly squeezed mango nectars.',
     descriptionAr: 'تذوق أشهى مأكولات دهب الأصيلة: فلافل الأعشاب المقرمشة، خبز الأفران الساخن مع الطحينة، شاي الزعتر الجبلي وعصائر المانجو الطازجة.',
     activityToAdd: {
@@ -201,7 +201,9 @@ export const CuratedStoriesRail: React.FC = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-2xl p-6 sm:p-8 space-y-6">
+      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] tidal-card shadow-2xl p-6 sm:p-8 space-y-6">
+        {/* Tidal shimmer wash across the panel top */}
+        <div className="absolute inset-x-0 top-0 h-px tidal-shimmer" aria-hidden="true" />
         <div className="relative z-10 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
             <div>
@@ -211,12 +213,12 @@ export const CuratedStoriesRail: React.FC = () => {
                   {isAr ? 'مختارات تحريرية' : 'Editorial Highlights'}
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight font-serif">
+              <h2 className="tidal-heading text-2xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
                 {isAr ? 'تجارب سيناء المنتقاة' : 'Curated Sinai Experiences'}
               </h2>
             </div>
 
-            <span className="text-xs text-[var(--text-secondary)] font-medium bg-[var(--surface-container)] px-3.5 py-1.5 rounded-full border border-[var(--border-subtle)]">
+            <span className="tidal-badge tidal-badge-ocean text-xs font-medium">
               {isAr ? 'منتقاة بعناية بواسطة مستكشفي ومرشدي دهب المحليين' : 'Hand-picked by Dahab resident explorers & guides'}
             </span>
           </div>
@@ -234,7 +236,7 @@ export const CuratedStoriesRail: React.FC = () => {
               return (
                 <article
                   key={story.id}
-                  className="bg-[var(--surface-container)] hover:bg-[var(--surface-card)] rounded-3xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 shadow-xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1"
+                  className="tidal-card rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-1.5"
                 >
                   {/* Card Image Container */}
                   <div className="relative h-52 w-full overflow-hidden bg-[var(--bg-canvas)]">
@@ -248,7 +250,7 @@ export const CuratedStoriesRail: React.FC = () => {
 
                     {/* Top Category Badge */}
                     <div className="absolute top-3.5 start-3.5">
-                      <span className="px-3 py-1 rounded-full bg-[var(--bg-canvas)]/90 text-[var(--accent-secondary)] text-[11px] font-bold uppercase tracking-wider border border-[var(--border-subtle)] shadow-xs">
+                      <span className="tidal-badge tidal-badge-sunset text-[11px] uppercase tracking-wider shadow-xs bg-[var(--bg-canvas)]/70">
                         {cardCategory}
                       </span>
                     </div>
@@ -258,9 +260,9 @@ export const CuratedStoriesRail: React.FC = () => {
                       type="button"
                       onClick={() => toggleSaveItem(story.id)}
                       aria-label={isSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ التجربة' : 'Save experience')}
-                      className={`absolute top-3.5 end-3.5 p-2 rounded-full transition-all cursor-pointer ${
+                      className={`absolute top-3.5 end-3.5 p-2 rounded-full transition-all cursor-pointer active:scale-90 ${
                         isSaved
-                          ? 'bg-rose-500 text-white shadow-md'
+                          ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] shadow-md'
                           : 'bg-[var(--bg-canvas)]/80 text-[var(--text-primary)] hover:bg-[var(--bg-canvas)]'
                       }`}
                     >

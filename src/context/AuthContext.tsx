@@ -124,8 +124,8 @@ export const AuthProvider: React.FC<{
       })
       .catch(() => { /* no session yet — the normal case for a first visit */ });
 
-    fetch('/api/health')
-      .then(r => r.ok ? r.json() : null)
+    api
+      .pingHealth()
       .then(health => {
         if (cancelled || !health) return;
         setIsFederatedSignInAvailable(!!health.firebaseAdminConfigured);

@@ -1,4 +1,4 @@
-import type { DahabActivity, DahabPlace } from '../shared';
+import type { DahabActivity, DahabPlace } from '../shared/types/knowledge';
 import type { NearMeItem } from '../types';
 
 /**

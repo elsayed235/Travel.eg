@@ -96,9 +96,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
   return (
     <section
       id="how-do-you-want-to-experience-dahab"
-      className={`py-14 sm:py-20 border-b relative overflow-hidden transition-colors duration-300 ${
-        isDark ? 'bg-[#081714] border-white/10' : 'bg-[#FBF9F5] border-[#122420]/10'
-      }`}
+      className="py-14 sm:py-20 border-b relative overflow-hidden transition-colors duration-300 bg-[var(--bg-canvas)] border-[var(--border-subtle)]"
       aria-label="Trip Planning Entry Experience"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -106,8 +104,8 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
       <div
         className={`absolute top-0 inset-x-0 h-96 pointer-events-none ${
           isDark
-            ? 'bg-gradient-to-b from-[#0E2520]/40 via-transparent to-transparent'
-            : 'bg-gradient-to-b from-[#F2EFE9]/70 via-transparent to-transparent'
+            ? 'bg-gradient-to-b from-[var(--surface-card)]/40 via-transparent to-transparent'
+            : 'bg-gradient-to-b from-[var(--surface-container)]/70 via-transparent to-transparent'
         }`}
       />
 
@@ -117,43 +115,60 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
         {hasExistingTrip && (
           <div
             id="active-trip-resume-banner"
-            className={`mb-10 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border ${
+            className={`relative mb-10 rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border overflow-hidden ${
               isDark
-                ? 'bg-[#0E2520] border-[#20A89A]/40'
-                : 'bg-white border-[#20A89A]/40 text-[#122420]'
+                ? 'border-[var(--accent-primary)]/40 bg-[var(--surface-card)]'
+                : 'border-[var(--accent-primary)]/40 bg-[var(--surface-card)] text-[var(--text-primary)]'
             }`}
           >
-            <div className="flex items-center gap-4">
+            {/* Ambient Dahab reef backdrop */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              <img
+                src="/images/hero/coral-reef-split.jpg"
+                alt="Active Trip Backdrop"
+                loading="lazy"
+                className="w-full h-full object-cover object-center scale-105 opacity-20 dark:opacity-15"
+              />
+              <div
+                className={`absolute inset-0 ${
+                  isDark
+                    ? 'bg-gradient-to-r from-[var(--surface-card)]/96 via-[var(--surface-card)]/90 to-[var(--surface-card)]/75 backdrop-blur-[1px]'
+                    : 'bg-gradient-to-r from-[var(--surface-card)]/96 via-[var(--surface-card)]/92 to-[var(--surface-card)]/80 backdrop-blur-[1px]'
+                }`}
+              />
+            </div>
+
+            <div className="relative z-10 flex items-center gap-4">
               <div
                 className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-md border ${
                   isDark
-                    ? 'bg-[#13312B] text-[#52C4B7] border-white/10'
-                    : 'bg-[#F2EFE9] text-[#0F6F78] border-[#122420]/10'
+                    ? 'bg-[var(--surface-container)] text-[var(--accent-secondary)] border-[var(--border-subtle)]'
+                    : 'bg-[var(--surface-container)] text-[var(--accent-secondary)] border-[var(--border-subtle)]'
                 }`}
               >
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#20A89A] bg-[#20A89A]/15 px-2.5 py-0.5 rounded-full border border-[#20A89A]/30">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--accent-primary)]/15 px-2.5 py-0.5 rounded-full border border-[var(--accent-primary)]/30">
                     {t('tripEntry.resume.badge')}
                   </span>
-                  <span className={`text-xs font-medium ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-                    {tripDays.length} {language === 'ar' ? 'أيام مبرمجة وجاهزة' : 'Days Scheduled'}
+                  <span className={`text-xs font-medium text-[var(--text-secondary)]`}>
+                    {tripDays.length} {t('home.daysScheduled')}
                   </span>
                 </div>
-                <h4 className={`text-base font-bold mt-1 ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                  {t('tripEntry.resume.title')} · {profile.name || (language === 'ar' ? 'المسافر' : 'Traveler')}
+                <h4 className="text-base font-bold mt-1 text-[var(--text-primary)]">
+                  {t('tripEntry.resume.title')} · {profile.name || (t('home.traveler'))}
                 </h4>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative z-10 flex items-center gap-3 w-full sm:w-auto">
               <button
                 type="button"
                 id="resume-active-itinerary-btn"
                 onClick={onOpenItinerary}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-[#F4C36C] hover:bg-[#E7A83B] text-[#081714] text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 hover:scale-105"
               >
                 <span>{t('tripEntry.resume.cta')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -165,39 +180,29 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
         {/* Unified Section Header: "What kind of trip do you want?" */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div
-            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm mb-4 border ${
-              isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10'
-            }`}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm mb-4 border bg-[var(--surface-card)] border-[var(--border-subtle)]"
           >
-            <span className="w-2 h-2 rounded-full bg-[#52C4B7]" />
+            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
             <span
               id="trip-entry-eyebrow"
-              className={`text-[12px] font-extrabold uppercase tracking-widest ${
-                isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'
-              }`}
+              className="text-[12px] font-extrabold uppercase tracking-widest text-[var(--accent-secondary)]"
             >
-              {language === 'ar' ? 'تخطيط رحلتك إلى دهب' : 'Trip Planning Entry'}
+              {t('home.tripPlanningEntry')}
             </span>
           </div>
 
           <h2
             id="trip-entry-title"
-            className={`text-3xl sm:text-4xl md:text-5xl font-serif tracking-tight leading-tight font-bold ${
-              isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'
-            }`}
+            className="tidal-heading text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight font-bold text-[var(--text-primary)]"
           >
-            {language === 'ar' ? 'عايز رحلتك لدهب تكون إزاي؟' : 'What kind of trip do you want?'}
+            {t('home.whatKindOfTrip')}
           </h2>
 
           <p
             id="trip-entry-subtitle"
-            className={`mt-3 text-base sm:text-lg leading-relaxed font-normal ${
-              isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'
-            }`}
+            className="mt-3 text-base sm:text-lg leading-relaxed font-normal text-[var(--text-secondary)]"
           >
-            {language === 'ar'
-              ? '٣ مسارات واضحة تبدأ بيهم نفس الرحلة حسب أسلوبك وتفضيلك.. وكل طريق بيوصلك لجدول مصمم على ذوقك.'
-              : 'Three distinct ways to start the same unforgettable Dahab journey. Choose how you want to begin.'}
+            {t('home.threeDistinctWaysTo')}
           </p>
         </div>
 
@@ -210,74 +215,72 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           {/* PATHWAY 1: I KNOW WHAT I WANT (Build It Yourself)         */}
           {/* ========================================================= */}
+          {/* ========================================================= */}
+          {/* PATHWAY 1: I KNOW WHAT I WANT (Build It Yourself)         */}
+          {/* ========================================================= */}
           <div
             id="pathway-build-myself"
-            className={`group rounded-3xl p-7 sm:p-8 border shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
-              isDark
-                ? 'bg-[#0E2520] border-white/10 hover:border-white/25 text-[#F7F3EA]'
-                : 'bg-white border-[#122420]/10 hover:border-[#122420]/25 text-[#122420]'
-            }`}
+            className="tidal-card group rounded-3xl border hover:shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]"
           >
-            <div>
-              {/* Header Badge + Icon */}
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#20A89A] bg-[#20A89A]/15 px-3 py-1 rounded-full border border-[#20A89A]/30">
-                  {language === 'ar' ? 'عارف طلبي · تحكم كامل' : 'I know what I want'}
+            {/* Photo Header */}
+            <div className="relative h-40 w-full overflow-hidden">
+              <img
+                src="/images/hero/golden-beach.jpg"
+                alt="Build Custom Dahab Itinerary"
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
+              <div className="absolute top-4 start-4 end-4 flex items-center justify-between">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                  {t('home.iKnowWhatI')}
                 </span>
-                <div
-                  className={`w-11 h-11 rounded-2xl border flex items-center justify-center text-[#20A89A] shadow-sm group-hover:scale-105 transition-transform ${
-                    isDark ? 'bg-[#13312B] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-                  }`}
-                >
+                <div className="w-10 h-10 rounded-2xl border border-white/20 backdrop-blur-md flex items-center justify-center text-white bg-black/40 shadow-xs group-hover:scale-105 transition-transform">
                   <Compass className="w-5 h-5" />
-                </div>
-              </div>
-
-              <h3 className={`text-2xl font-serif font-bold mb-2 leading-tight ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                {t('tripEntry.modeA.title')}
-              </h3>
-
-              <p className={`text-sm leading-relaxed mb-6 font-normal ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-                {language === 'ar'
-                  ? 'اختار التواريخ، عدد المسافرين، ميزانيتك، والأنشطة اللي في بالك بكل حرية ومرونة.'
-                  : 'Build your custom itinerary step-by-step with full control over dates, pace, budget, and activities.'}
-              </p>
-
-              {/* Concise Feature Highlights */}
-              <div
-                className={`space-y-2.5 p-4 rounded-2xl border mb-6 text-xs ${
-                  isDark ? 'bg-[#13312B] border-white/10 text-[#D2E3DE]' : 'bg-[#FAF7F0] border-[#122420]/10 text-[#4A635D]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'تحديد مدة الرحلة وعدد المسافرين' : 'Custom duration & group size'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'اختيار الأنشطة والمطاعم البحرية' : 'Curated reefs, safaris & seafront tables'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'تعديل وحجز كل خدمة خطوة بخطوة' : 'Fine-tune & book services individually'}</span>
                 </div>
               </div>
             </div>
 
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              id="build-my-trip-pathway-btn"
-              onClick={handleSelectBuildMyself}
-              className={`w-full py-4 px-5 rounded-2xl active:scale-[0.98] text-xs font-bold flex items-center justify-center gap-2 border shadow-md transition-all cursor-pointer group/btn ${
-                isDark
-                  ? 'bg-[#13312B] hover:bg-[#20A89A] hover:text-[#081714] text-[#F7F3EA] border-white/10'
-                  : 'bg-[#122420] hover:bg-[#20A89A] text-[#F7F3EA] border-[#122420]/20'
-              }`}
-            >
-              <span>{t('tripEntry.modeA.cta')}</span>
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
-            </button>
+            <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                  {t('tripEntry.modeA.title')}
+                </h3>
+
+                <p className="text-sm leading-relaxed mb-6 font-normal text-[var(--text-secondary)]">
+                  {t('home.buildYourCustomItinerary')}
+                </p>
+
+                {/* Concise Feature Highlights */}
+                <div
+                  className="space-y-2.5 p-4 rounded-2xl border mb-6 text-xs bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                >
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.customDurationGroupSize')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.curatedReefsSafarisSeafront')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.finetuneBookServicesIndividually')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary Action Button */}
+              <button
+                type="button"
+                id="build-my-trip-pathway-btn"
+                onClick={handleSelectBuildMyself}
+                className="w-full py-4 px-5 rounded-2xl active:scale-[0.98] text-xs font-bold flex items-center justify-center gap-2 border shadow-md transition-all cursor-pointer group/btn bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]/20"
+              >
+                <span>{t('tripEntry.modeA.cta')}</span>
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
+              </button>
+            </div>
           </div>
 
           {/* ========================================================= */}
@@ -285,98 +288,91 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           <div
             id="pathway-ready-trips"
-            className={`group rounded-3xl p-7 sm:p-8 border-2 border-[#F4C36C] shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
-              isDark ? 'bg-[#0E2520] text-[#F7F3EA]' : 'bg-white text-[#122420]'
-            }`}
+            className="tidal-card group rounded-3xl border-2 border-[var(--accent-secondary)] shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] ring-1 ring-[var(--accent-secondary)]/20"
           >
-            {/* Highlight Ribbon */}
-            <div className="absolute top-0 right-0 bg-[#F4C36C] text-[#081714] text-[11px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5">
-              <Star className="w-3 h-3 fill-[#081714] text-[#081714]" />
-              <span>{language === 'ar' ? 'الأكثر ترشيحاً' : 'Recommended'}</span>
-            </div>
-
-            <div>
-              {/* Header Badge + Icon */}
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#E7A83B] bg-[#F4C36C]/15 px-3 py-1 rounded-full border border-[#F4C36C]/30">
-                  {language === 'ar' ? 'جاهزة ومجربة' : 'Show me a great trip'}
+            {/* Photo Header */}
+            <div className="relative h-40 w-full overflow-hidden">
+              <img
+                src="/images/hero/coral-reef-split.jpg"
+                alt="Ready Made Dahab Itineraries"
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
+              {/* Highlight Ribbon */}
+              <div className="absolute top-0 end-0 bg-gradient-to-l from-[var(--accent-secondary)] to-[var(--accent-secondary)] text-[var(--surface-card)] text-[11px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5 z-10">
+                <Star className="w-3 h-3 fill-[var(--surface-card)] text-[var(--surface-card)]" />
+                <span>{t('home.recommended')}</span>
+              </div>
+              <div className="absolute top-4 start-4 flex items-center gap-2">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                  {t('home.showMeAGreat')}
                 </span>
-                <div
-                  className={`w-11 h-11 rounded-2xl border flex items-center justify-center shadow-sm text-[#F4C36C] group-hover:scale-105 transition-transform ${
-                    isDark ? 'bg-[#13312B] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-                  }`}
-                >
-                  <Layers className="w-5 h-5" />
-                </div>
-              </div>
-
-              <h3 className={`text-2xl font-serif font-bold mb-2 leading-tight ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                {t('tripEntry.modeB.title')}
-              </h3>
-
-              <p className={`text-sm leading-relaxed mb-6 font-normal ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-                {language === 'ar'
-                  ? 'برامج كاملة مصممة من خبراء دهب بإيقاع متوازن، أسعار عادلة، ومرونة كاملة للتعديل.'
-                  : 'Start immediately with 5 field-tested itineraries featuring verified stays, guides, and locked rates.'}
-              </p>
-
-              {/* Concise Feature Highlights */}
-              <div
-                className={`space-y-2.5 p-4 rounded-2xl border mb-6 text-xs ${
-                  isDark ? 'bg-[#13312B] border-white/10 text-[#D2E3DE]' : 'bg-[#FAF7F0] border-[#122420]/10 text-[#4A635D]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#F4C36C] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'برامج مختبرة وموثقة من أهل دهب' : 'Field-tested by verified Bedouin guides'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'إضافة فورية للرحلة بدون تعقيد' : 'Instant start with zero guesswork'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-[#52C4B7] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'قابلة للتخصيص والتعديل في أي وقت' : '100% customizable anytime'}</span>
-                </div>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                id="explore-ready-trips-pathway-btn"
-                onClick={handleSelectReadyTrips}
-                className="w-full py-4 px-5 rounded-2xl bg-[#F4C36C] hover:bg-[#E7A83B] active:scale-[0.98] text-[#081714] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
-              >
-                <span>{t('tripEntry.modeB.cta')}</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
-              </button>
+            <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                  {t('tripEntry.modeB.title')}
+                </h3>
 
-              {/* Compare / Match utilities */}
-              <div className="flex items-center justify-between text-xs px-1 font-bold">
+                <p className="text-sm leading-relaxed mb-6 font-normal text-[var(--text-secondary)]">
+                  {t('home.startImmediatelyWith5')}
+                </p>
+
+                {/* Concise Feature Highlights */}
+                <div
+                  className="space-y-2.5 p-4 rounded-2xl border mb-6 text-xs bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                >
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[var(--accent-secondary)] flex-shrink-0" />
+                    <span>{t('home.fieldtestedByVerifiedBedouin')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.instantStartWithZero')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.100CustomizableAnytime')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3">
                 <button
                   type="button"
-                  id="compare-programs-link"
-                  onClick={() => setIsCompareOpen(true)}
-                  className={`cursor-pointer flex items-center gap-1 ${
-                    isDark ? 'text-[#D2E3DE] hover:text-white' : 'text-[#4A635D] hover:text-[#122420]'
-                  }`}
+                  id="explore-ready-trips-pathway-btn"
+                  onClick={handleSelectReadyTrips}
+                  className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
                 >
-                  <Layers className="w-3.5 h-3.5 text-[#20A89A]" />
-                  <span>{t('tripEntry.modeB.compareBtn')}</span>
+                  <span>{t('tripEntry.modeB.cta')}</span>
+                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
                 </button>
-                <button
-                  type="button"
-                  id="quiz-match-programs-link"
-                  onClick={() => setIsQuizOpen(true)}
-                  className={`cursor-pointer flex items-center gap-1 ${
-                    isDark ? 'text-[#F4C36C] hover:text-[#E7A83B]' : 'text-[#8F7242] hover:text-[#0E2520]'
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{t('tripEntry.modeB.whichIsRight')}</span>
-                </button>
+
+                {/* Compare / Match utilities */}
+                <div className="flex items-center justify-between text-xs px-1 font-bold">
+                  <button
+                    type="button"
+                    id="compare-programs-link"
+                    onClick={() => setIsCompareOpen(true)}
+                    className="cursor-pointer flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    <Layers className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                    <span>{t('tripEntry.modeB.compareBtn')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="quiz-match-programs-link"
+                    onClick={() => setIsQuizOpen(true)}
+                    className="cursor-pointer flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-primary)] transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{t('tripEntry.modeB.whichIsRight')}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -386,69 +382,68 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           <div
             id="pathway-plan-it-for-me"
-            className={`group rounded-3xl p-7 sm:p-8 border shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
-              isDark
-                ? 'bg-[#0E2520] text-[#F7F3EA] border-white/10 hover:border-white/25'
-                : 'bg-white text-[#122420] border-[#122420]/10 hover:border-[#122420]/25'
-            }`}
+            className="tidal-card group rounded-3xl border hover:shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40"
           >
-            <div>
-              {/* Header Badge + Icon */}
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#20A89A] bg-[#20A89A]/15 px-3 py-1 rounded-full border border-[#20A89A]/30">
-                  {language === 'ar' ? 'فصلّي على ذوقي' : 'You choose for me'}
+            {/* Photo Header */}
+            <div className="relative h-40 w-full overflow-hidden">
+              <img
+                src="/images/hero/gulf-sunset.jpg"
+                alt="AI Dahab Concierge"
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
+              <div className="absolute top-4 start-4 end-4 flex items-center justify-between">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                  {t('home.youChooseForMe')}
                 </span>
-                <div
-                  className={`w-11 h-11 rounded-2xl border flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform ${
-                    isDark ? 'bg-[#13312B] border-white/10' : 'bg-[#F2EFE9] border-[#122420]/10'
-                  }`}
-                >
-                  <Sparkles className="w-5 h-5 text-[#F4C36C]" />
-                </div>
-              </div>
-
-              <h3 className={`text-2xl font-serif font-bold mb-2 leading-tight ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
-                {t('tripEntry.modeC.title')}
-              </h3>
-
-              <p className={`text-sm leading-relaxed mb-6 font-normal ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
-                {language === 'ar'
-                  ? 'قول لنا إيه أكتر جو يعجبك وإحنا نبني لك جدول كامل متناسق في ٦٠ ثانية.'
-                  : 'Tell us your vibe and preferences, and our Sinai travel engine will generate a bespoke schedule in 60s.'}
-              </p>
-
-              {/* Concise Feature Highlights */}
-              <div
-                className={`space-y-2.5 p-4 rounded-2xl border mb-6 text-xs ${
-                  isDark ? 'bg-[#13312B] border-white/10 text-[#D2E3DE]' : 'bg-[#FAF7F0] border-[#122420]/10 text-[#4A635D]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#F4C36C] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'جدول ذكي متفصل على مودك في دقيقة' : 'Bespoke schedule designed in 60 seconds'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'مربوط بحالة البحر والرياح المباشرة' : 'Synced with live sea tides & wind conditions'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#20A89A] flex-shrink-0" />
-                  <span>{language === 'ar' ? 'توصيات أماكن وفنادق معتمدة' : 'Curated boutique stays & seaside spots'}</span>
+                <div className="w-10 h-10 rounded-2xl border border-white/20 backdrop-blur-md flex items-center justify-center text-white bg-black/40 shadow-xs group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-5 h-5 text-amber-300" />
                 </div>
               </div>
             </div>
 
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              id="plan-it-for-me-pathway-btn"
-              onClick={handleSelectAiMode}
-              className="w-full py-4 px-5 rounded-2xl bg-[#20A89A] hover:bg-[#52C4B7] active:scale-[0.98] text-[#081714] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
-            >
-              <Sparkles className="w-4 h-4 text-[#081714]" />
-              <span>{t('tripEntry.modeC.cta')}</span>
-              <ArrowRight className="w-4 h-4 text-[#081714] group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
-            </button>
+            <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                  {t('tripEntry.modeC.title')}
+                </h3>
+
+                <p className="text-sm leading-relaxed mb-6 font-normal text-[var(--text-secondary)]">
+                  {t('home.tellUsYourVibe')}
+                </p>
+
+                {/* Concise Feature Highlights */}
+                <div
+                  className="space-y-2.5 p-4 rounded-2xl border mb-6 text-xs bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[var(--accent-secondary)] flex-shrink-0" />
+                    <span>{t('home.bespokeScheduleDesignedIn')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.syncedWithLiveSea')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+                    <span>{t('home.curatedBoutiqueStaysSeaside')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary Action Button */}
+              <button
+                type="button"
+                id="plan-it-for-me-pathway-btn"
+                onClick={handleSelectAiMode}
+                className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
+              >
+                <Sparkles className="w-4 h-4 text-[var(--surface-card)]" />
+                <span>{t('tripEntry.modeC.cta')}</span>
+                <ArrowRight className="w-4 h-4 text-[var(--surface-card)] group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
+              </button>
+            </div>
           </div>
 
         </div>

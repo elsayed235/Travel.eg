@@ -32,6 +32,7 @@ const PUBLIC_RULES: Rule[] = [
   // Session establishment and teardown.
   { pattern: /^\/auth\/(register|login|firebase-session|logout)$/, methods: ['POST'] },
   { pattern: /^\/health$/, methods: ['GET'] },
+  { pattern: /^\/media\/sync$/, methods: ['GET'] },
 
   // Destination knowledge: the public marketing and discovery surface.
   // /dahab/admin is excluded below and carries its own auth.
@@ -40,6 +41,9 @@ const PUBLIC_RULES: Rule[] = [
   // Ambient conditions shown on the public homepage.
   { pattern: /^\/telemetry\/(weather|cameras)$/, methods: ['GET'] },
 
+  // Research-grounded homepage handbook (season / experiences / landmarks / safety).
+  { pattern: /^\/research\/dahab-overview$/, methods: ['GET'] },
+
   // Browsing the catalogue and checking prices before signing up.
   { pattern: /^\/inventory\/[^/]+$/, methods: ['GET'] },
   { pattern: /^\/commerce\/availability$/, methods: ['POST'] },
@@ -47,8 +51,33 @@ const PUBLIC_RULES: Rule[] = [
   // Spatial helpers used by the anonymous homepage ("I have two hours").
   { pattern: /^\/context\//, methods: ['GET', 'POST'] },
 
+  // Hotels catalogue: browsing the list, filters and per-hotel detail before
+  // signing up. Bookability itself runs through /commerce/availability.
+  { pattern: /^\/hotels(\/|$)/, methods: ['GET'] },
+
+  // Accommodations catalogue (generalized successor to hotels): browsing,
+  // per-property detail, and NL search-intent parsing before signing up.
+  // Admin CRUD paths are excluded and carry role rules below.
+  { pattern: /^\/accommodations$/, methods: ['GET'] },
+  { pattern: /^\/accommodations\/search-intent$/, methods: ['POST'] },
+  { pattern: /^\/accommodations\/[^/]+$/, methods: ['GET'] },
+
+  // Rentals catalogue: browsing, per-listing detail, availability checks and
+  // server-computed quotes before signing up. Provider/admin management paths
+  // (/rentals/provider, /rentals/:id/...) are excluded and carry role rules
+  // below.
+  { pattern: /^\/rentals$/, methods: ['GET'] },
+  { pattern: /^\/rentals\/(?!provider)[^/]+$/, methods: ['GET'] },
+  { pattern: /^\/rentals\/(check-availability|quote)$/, methods: ['POST'] },
+
+  // Transfer route discovery: browsing origins and quoting prices before signup.
+  { pattern: /^\/transfers\/(origins|route|resolve-geo)$/, methods: ['GET'] },
+
   // The public trip planner.
-  { pattern: /^\/trip\/generate$/, methods: ['POST'] }
+  { pattern: /^\/trip\/generate$/, methods: ['POST'] },
+
+  // CMS public content APIs — published content for the website.
+  { pattern: /^\/content\//, methods: ['GET'] }
 ];
 
 /**
@@ -69,6 +98,26 @@ const ROLE_RULES: RoleRule[] = [
   { pattern: /^\/market\//, roles: ['Product', 'Operations', 'Admin'] },
   { pattern: /^\/intelligence\//, roles: ['Product', 'Operations', 'Admin'] },
 
+  // Accommodations admin surface: create/edit/deactivate properties and
+  // manage their external reference links.
+  { pattern: /^\/admin\/accommodations(\/|$)/, roles: ['Operations', 'Admin', 'Product'] },
+
+  // Rental provider and admin surfaces.
+  { pattern: /^\/rentals\/provider/, roles: ['Supplier', 'Operations', 'Admin'] },
+  { pattern: /^\/rentals\/[^/]+\/maintenance-blocks/, roles: ['Supplier', 'Operations', 'Admin'] },
+  { pattern: /^\/rentals\/[^/]+\/status$/, roles: ['Operations', 'Admin'] },
+  { pattern: /^\/rental-bookings\/provider/, roles: ['Supplier', 'Operations', 'Admin'] },
+  { pattern: /^\/rental-bookings\/[^/]+\/(accept|reject|mark-returned|complete)$/, roles: ['Supplier', 'Operations', 'Admin'] },
+
+  // /dahab/commerce is publicly readable (public /dahab GET surface), but the
+  // mutation endpoints drive the back-office data-ops machine: triggering and
+  // retargeting schedule policies, resolving the review queue, creating and
+  // rolling back knowledge snapshots, acknowledging/resolving alerts, and
+  // resetting the market-freshness circuit breakers. A Traveler must never do
+  // these. Refresh is read-mostly (product-market data) so Product is included.
+  { pattern: /^\/dahab\/commerce\/refresh$/, roles: ['Product', 'Operations', 'Admin'] },
+  { pattern: /^\/dahab\/commerce\/(review-queue\/[^/]+\/resolve|jobs\/|run-all-scheduled|alerts\/[^/]+\/(acknowledge|resolve)|snapshots\/|circuit-breakers\/)/, roles: ['Operations', 'Admin'] },
+
   // Answering a traveler's support message is an Operations act; sending one
   // and reading your own thread is not, and is left to the default (any
   // authenticated user), with the handler scoping the list to its owner.
@@ -85,7 +134,10 @@ const ROLE_RULES: RoleRule[] = [
   { pattern: /^\/daygi\/beta\/(dashboard|experiments|run-scenarios|generate-weekly-report)/, roles: ['Product', 'Operations', 'Admin'] },
 
   // Test harness, if it has been explicitly enabled.
-  { pattern: /^\/testing\//, roles: ['Admin'] }
+  { pattern: /^\/testing\//, roles: ['Admin'] },
+
+  // CMS content management — Operations and Admin can publish, Product can draft.
+  { pattern: /^\/admin\/content\//, roles: ['Operations', 'Admin', 'Product'] }
 ];
 
 function matches(rule: Rule, path: string, method: string): boolean {

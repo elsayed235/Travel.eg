@@ -201,7 +201,7 @@ async function run() {
   }
 
   await p3.screenshot({ path: 'tests/browser-qa/screenshots/diag-palette.png', fullPage: false });
-  await c3.keyboard.press('Escape');
+  await p3.keyboard.press('Escape');
   await c3.close();
 
   // ── Sidebar Collapse Behavior ────────────────────────────────

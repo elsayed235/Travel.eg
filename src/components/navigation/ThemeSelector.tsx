@@ -42,7 +42,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     largeText,
     toggleLargeText,
   } = useTheme();
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL , t} = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'themes' | 'accessibility'>('themes');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -97,12 +97,12 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   };
 
   const getShortName = (theme: ThemeOption) => {
-    if (theme.id === 'charcoal-minimal') return language === 'ar' ? 'رمادي هادئ' : 'Soft Charcoal';
-    if (theme.id === 'deep-reef') return language === 'ar' ? 'أخضر زمردي' : 'Emerald Green';
-    if (theme.id === 'sinai-midnight') return language === 'ar' ? 'أزرق ليلي' : 'Midnight Blue';
-    if (theme.id === 'editorial-sand') return language === 'ar' ? 'رمال الصحراء' : 'Warm Sand';
-    if (theme.id === 'lagoon-breeze') return language === 'ar' ? 'أزرق فيروزي' : 'Lagoon Blue';
-    if (theme.id === 'high-contrast-pro') return language === 'ar' ? 'أقصى وضوح' : 'High Contrast';
+    if (theme.id === 'charcoal-minimal') return t('nav.softCharcoal');
+    if (theme.id === 'deep-reef') return t('nav.emeraldGreen');
+    if (theme.id === 'sinai-midnight') return t('nav.midnightBlue');
+    if (theme.id === 'editorial-sand') return t('nav.warmSand');
+    if (theme.id === 'lagoon-breeze') return t('nav.lagoonBlue');
+    if (theme.id === 'high-contrast-pro') return t('nav.highContrast');
     return language === 'ar' ? theme.nameAr : theme.nameEn;
   };
 
@@ -119,11 +119,11 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         aria-label={`Theme: ${getShortName(activeTheme)}. Open Theme Menu.`}
-        title={language === 'ar' ? `السمة: ${getShortName(activeTheme)}` : `Theme: ${getShortName(activeTheme)}`}
+        title={t('nav.theme', { getShortName_activeTheme_: getShortName(activeTheme) })}
         className={`group relative h-9 px-2.5 sm:px-3 rounded-full flex items-center gap-2 transition-all duration-200 cursor-pointer border shadow-sm select-none ${
           isDark
-            ? 'bg-[#292929]/90 hover:bg-[#333333] border-white/12 text-white hover:border-white/20'
-            : 'bg-white/90 hover:bg-[#F2EFE9] border-[#122420]/12 text-[#091815] hover:border-[#122420]/20'
+            ? 'bg-[var(--surface-container)]/90 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] text-white hover:border-[var(--border-subtle)]'
+            : 'bg-[var(--btn-util-bg)] hover:bg-[var(--surface-container)] border-[var(--text-primary)]/12 text-[var(--text-primary)] hover:border-[var(--text-primary)]/20'
         } ${isOpen ? 'ring-2 ring-[var(--focus-ring)]' : ''}`}
       >
         {/* Dynamic Theme Icon with Glowing Dot */}
@@ -139,18 +139,18 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         </div>
 
         {/* Short Clean Name */}
-        <span className="text-xs font-semibold tracking-tight hidden md:inline whitespace-nowrap">
+        <span className="text-xs font-semibold tracking-tight hidden xl:inline whitespace-nowrap">
           {getShortName(activeTheme)}
         </span>
 
         {/* Color Palette Duo Dot */}
         <div className="flex items-center -space-x-1">
           <div
-            className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-xs"
+            className="w-2.5 h-2.5 rounded-full border border-[var(--border-subtle)] shadow-xs"
             style={{ backgroundColor: activeTheme.swatches.bg }}
           />
           <div
-            className="w-2.5 h-2.5 rounded-full border border-black/20 shadow-xs"
+            className="w-2.5 h-2.5 rounded-full border border-[var(--border-subtle)] shadow-xs"
             style={{ backgroundColor: activeTheme.swatches.accent }}
           />
         </div>
@@ -179,16 +179,16 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               isRTL ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
             } ${
               isDark
-                ? 'bg-[#1F1F1F]/98 border-white/15 text-white shadow-[0_20px_50px_rgba(0,0,0,0.85)]'
-                : 'bg-white/98 border-[#122420]/15 text-[#091815] shadow-[0_20px_50px_rgba(18,36,32,0.15)]'
+                ? 'bg-[var(--surface-container)]/98 border-[var(--border-subtle)] text-white shadow-[0_20px_50px_rgba(0,0,0,0.85)]'
+                : 'bg-[var(--btn-util-bg)] border-[var(--text-primary)]/15 text-[var(--text-primary)] shadow-[0_20px_50px_rgba(18,36,32,0.15)]'
             }`}
           >
             {/* Header: Minimal Icon Tabs */}
-            <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/10 dark:border-white/10">
+            <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
                 <Palette className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span className="text-xs font-bold font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'مظهر التطبيق' : 'Appearance'}
+                  {t('nav.appearance')}
                 </span>
               </div>
 
@@ -204,7 +204,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   }`}
                 >
                   <Palette className="w-3 h-3" />
-                  <span>{language === 'ar' ? 'السمات' : 'Themes'}</span>
+                  <span>{t('nav.themes')}</span>
                 </button>
                 <button
                   type="button"
@@ -216,7 +216,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   }`}
                 >
                   <Sliders className="w-3 h-3" />
-                  <span>{language === 'ar' ? 'الإتاحة' : 'A11y'}</span>
+                  <span>{t('nav.a11y')}</span>
                 </button>
               </div>
             </div>
@@ -227,8 +227,8 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 {/* 1. Dark Modes Section */}
                 <div>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 px-1">
-                    <Moon className="w-3 h-3 text-[#38BDF8]" />
-                    <span>{language === 'ar' ? 'الوضع الليلي' : 'Dark Mode'}</span>
+                    <Moon className="w-3 h-3 text-[var(--accent-primary)]" />
+                    <span>{t('nav.darkMode')}</span>
                   </div>
                   <div className="grid grid-cols-1 gap-1.5">
                     {darkThemes.map((opt) => renderCleanThemePill(opt))}
@@ -236,10 +236,10 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 </div>
 
                 {/* 2. Light Modes Section */}
-                <div className="pt-2 border-t border-white/8 dark:border-white/8">
+                <div className="pt-2 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 px-1">
-                    <Sun className="w-3 h-3 text-[#F59E0B]" />
-                    <span>{language === 'ar' ? 'الوضع النهاري' : 'Light Mode'}</span>
+                    <Sun className="w-3 h-3 text-[var(--accent-secondary)]" />
+                    <span>{t('nav.lightMode')}</span>
                   </div>
                   <div className="grid grid-cols-1 gap-1.5">
                     {lightThemes.map((opt) => renderCleanThemePill(opt))}
@@ -248,10 +248,10 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
                 {/* 3. Ultra High Contrast Mode (Single Sleek Pill) */}
                 {proTheme && (
-                  <div className="pt-2 border-t border-white/8 dark:border-white/8">
+                  <div className="pt-2 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1.5 px-1">
                       <Eye className="w-3 h-3 text-amber-400" />
-                      <span>{language === 'ar' ? 'أقصى وضوح' : 'High Contrast'}</span>
+                      <span>{t('nav.highContrast')}</span>
                     </div>
                     {renderCleanThemePill(proTheme, true)}
                   </div>
@@ -269,19 +269,19 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
                     highContrastMode
                       ? 'bg-amber-500/15 border-amber-500 text-[var(--text-primary)]'
-                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-white/20'
+                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className={`p-1.5 rounded-lg ${highContrastMode ? 'bg-amber-500 text-black' : 'bg-black/10 dark:bg-white/10'}`}>
+                    <div className={`p-1.5 rounded-lg ${highContrastMode ? 'bg-amber-500 text-black' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
                       <Eye className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-xs font-semibold">
-                      {language === 'ar' ? 'حدود عالية التباين (2px)' : 'High Contrast Outlines'}
+                      {t('nav.highContrastOutlines')}
                     </span>
                   </div>
                   <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${highContrastMode ? 'bg-amber-500' : 'bg-gray-400/40'}`}>
-                    <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${highContrastMode ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                    <div className={`w-3.5 h-3.5 rounded-full bg-[var(--surface-card)] transition-transform ${highContrastMode ? 'translate-x-3.5' : 'translate-x-0'}`} />
                   </div>
                 </button>
 
@@ -292,19 +292,19 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
                     largeText
                       ? 'bg-teal-500/15 border-teal-500 text-[var(--text-primary)]'
-                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-white/20'
+                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className={`p-1.5 rounded-lg ${largeText ? 'bg-teal-500 text-white' : 'bg-black/10 dark:bg-white/10'}`}>
+                    <div className={`p-1.5 rounded-lg ${largeText ? 'bg-teal-500 text-white' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
                       <Type className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-xs font-semibold">
-                      {language === 'ar' ? 'تكبير النصوص' : 'Large Text (110%)'}
+                      {t('nav.largeText110')}
                     </span>
                   </div>
                   <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${largeText ? 'bg-teal-500' : 'bg-gray-400/40'}`}>
-                    <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${largeText ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                    <div className={`w-3.5 h-3.5 rounded-full bg-[var(--surface-card)] transition-transform ${largeText ? 'translate-x-3.5' : 'translate-x-0'}`} />
                   </div>
                 </button>
 
@@ -315,26 +315,26 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
                     reducedMotion
                       ? 'bg-rose-500/15 border-rose-500 text-[var(--text-primary)]'
-                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-white/20'
+                      : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className={`p-1.5 rounded-lg ${reducedMotion ? 'bg-rose-500 text-white' : 'bg-black/10 dark:bg-white/10'}`}>
+                    <div className={`p-1.5 rounded-lg ${reducedMotion ? 'bg-rose-500 text-white' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
                       <ZapOff className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-xs font-semibold">
-                      {language === 'ar' ? 'تقليل الحركة' : 'Reduce Motion'}
+                      {t('nav.reduceMotion')}
                     </span>
                   </div>
                   <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${reducedMotion ? 'bg-rose-500' : 'bg-gray-400/40'}`}>
-                    <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${reducedMotion ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                    <div className={`w-3.5 h-3.5 rounded-full bg-[var(--surface-card)] transition-transform ${reducedMotion ? 'translate-x-3.5' : 'translate-x-0'}`} />
                   </div>
                 </button>
               </div>
             )}
 
             {/* Minimalist Micro Footer */}
-            <div className="pt-2 mt-2.5 border-t border-white/8 dark:border-white/8 flex items-center justify-between text-[11px] text-[var(--text-secondary)] px-1">
+            <div className="pt-2 mt-2.5 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-secondary)] px-1">
               <span className="flex items-center gap-1 font-medium">
                 <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                 <span>WCAG AAA</span>
@@ -367,7 +367,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             ? 'bg-[var(--surface-container)] border-[var(--focus-ring)] shadow-xs ring-1 ring-[var(--focus-ring)]'
             : isSpecial
             ? 'bg-amber-500/10 hover:bg-amber-500/15 border-amber-500/30'
-            : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-white/20'
+            : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
         }`}
       >
         {/* Left: Icon & Clean Short Label */}
@@ -397,11 +397,11 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* 3-Dot Swatch Capsule */}
           <div
-            className="flex items-center p-0.5 rounded-full border border-white/10 gap-0.5"
+            className="flex items-center p-0.5 rounded-full border border-[var(--border-subtle)] gap-0.5"
             style={{ backgroundColor: opt.swatches.bg }}
           >
             <div
-              className="w-2.5 h-2.5 rounded-full border border-white/20"
+              className="w-2.5 h-2.5 rounded-full border border-[var(--border-subtle)]"
               style={{ backgroundColor: opt.swatches.card }}
             />
             <div

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { humanizeAuthError } from '../../lib/firebase';
+import { humanizeAuthError } from '../../lib/authErrorMessages';
 import { 
   Compass, 
   ShieldCheck, 
@@ -43,13 +43,11 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
 
   const [mode, setMode] = useState<'sign-in' | 'sign-up' | 'forgot-password' | 'verify'>(initialMode);
   /**
-   * Was hardcoded to 'ar' and ignored the site language, so a visitor browsing
+   * Was hardcoded to 'ar' and ignored the site siteLanguageuage, so a visitor browsing
    * in English hit an entirely Arabic sign-in screen — on the one page where
    * confusion costs you the account.
    */
-  const { language: siteLanguage } = useLanguage();
-  const [lang, setLang] = useState<'ar' | 'en'>(siteLanguage);
-  useEffect(() => { setLang(siteLanguage); }, [siteLanguage]);
+  const { language: siteLanguage, setLanguage , t} = useLanguage();
 
   // Form fields
   const [name, setName] = useState('');
@@ -88,7 +86,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         handlePostAuthRedirect('Traveler');
       }
     } catch (err: any) {
-      setErrorMessage(humanizeAuthError(err, lang));
+      setErrorMessage(humanizeAuthError(err, siteLanguage));
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +101,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
     try {
       if (mode === 'sign-in') {
         if (!email || !password) {
-          setErrorMessage(lang === 'ar' ? 'يرجى إدخال البريد الإلكتروني وكلمة المرور' : 'Please enter your email and password');
+          setErrorMessage(t('auth.pleaseEnterYourEmail'));
           setIsSubmitting(false);
           return;
         }
@@ -118,7 +116,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         }
       } else if (mode === 'sign-up') {
         if (!name || !email || !password) {
-          setErrorMessage(lang === 'ar' ? 'يرجى إدخال الاسم والبريد وكلمة المرور' : 'Please complete all required fields');
+          setErrorMessage(t('auth.pleaseCompleteAllRequired'));
           setIsSubmitting(false);
           return;
         }
@@ -130,26 +128,24 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         }
       } else if (mode === 'forgot-password') {
         if (!email) {
-          setErrorMessage(lang === 'ar' ? 'يرجى إدخال بريدك الإلكتروني' : 'Please enter your email');
+          setErrorMessage(t('auth.pleaseEnterYourEmail-2'));
           setIsSubmitting(false);
           return;
         }
         await sendResetPasswordEmail(email);
         setSuccessInfo(
-          lang === 'ar' 
-            ? 'تم إرسال تعليمات إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح.' 
-            : 'Password reset link sent to your email address.'
+          t('auth.passwordResetLinkSent')
         );
       }
     } catch (err: any) {
-      setErrorMessage(humanizeAuthError(err, lang));
+      setErrorMessage(humanizeAuthError(err, siteLanguage));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-[88vh] bg-[#06181F] text-[#F8F6F0] flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-[88vh] bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden" dir={siteLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Subtle Sinai Topographic Glow Background */}
       <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top_right,#E7A83B_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,#20A89A_0%,transparent_50%)]" />
       
@@ -159,22 +155,22 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigateTo(intendedRoute ? (intendedRoute as AppRoute) : '/home')}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors bg-white/5 border border-white/10 px-3 py-1.5 rounded-full"
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-[var(--text-primary)] transition-colors bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-full"
           >
-            <ArrowLeft className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
-            <span>{lang === 'ar' ? 'الرجوع إلى دهب' : 'Back to Dahab'}</span>
+            <ArrowLeft className={`w-3.5 h-3.5 ${siteLanguage === 'ar' ? 'rotate-180' : ''}`} />
+            <span>{t('auth.backToDahab')}</span>
           </button>
 
-          <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-0.5 rounded-full">
+          <div className="flex items-center gap-1 bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] p-0.5 rounded-full">
             <button
-              onClick={() => setLang('ar')}
-              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${lang === 'ar' ? 'bg-[#E7A83B] text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setLanguage('ar')}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${siteLanguage === 'ar' ? 'bg-[var(--accent-secondary)] text-slate-950 font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
             >
               العربية
             </button>
             <button
-              onClick={() => setLang('en')}
-              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${lang === 'en' ? 'bg-[#E7A83B] text-slate-950 font-bold' : 'text-slate-400 hover:text-white'}`}
+              onClick={() => setLanguage('en')}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${siteLanguage === 'en' ? 'bg-[var(--accent-secondary)] text-slate-950 font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
             >
               English
             </button>
@@ -182,39 +178,37 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         </div>
 
         {/* Main Card */}
-        <div className="bg-[#0B2530] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+        <div className="bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
           
           {/* Logo & Headline */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#E7A83B] to-[#20A89A] text-slate-950 shadow-lg mb-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--accent-secondary)] to-[var(--accent-primary)] text-slate-950 shadow-lg mb-3">
               <Compass className="w-6 h-6 animate-pulse" />
             </div>
             
             <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
-              {mode === 'sign-in' && (lang === 'ar' ? 'أهلاً بيك تاني في دهب' : 'Welcome Back to Dahab')}
-              {mode === 'sign-up' && (lang === 'ar' ? 'انضم إلى مجتمع دهب' : 'Join the Dahab Community')}
-              {mode === 'forgot-password' && (lang === 'ar' ? 'استعادة كلمة المرور' : 'Reset Password')}
+              {mode === 'sign-in' && (t('auth.welcomeBackToDahab'))}
+              {mode === 'sign-up' && (t('auth.joinTheDahabCommunity'))}
+              {mode === 'forgot-password' && (t('auth.resetPassword'))}
             </h1>
             
             <p className="text-xs text-slate-300">
-              {mode === 'sign-in' && (lang === 'ar' ? 'سجل دخولك لحفظ واسترجاع خططك وتجاربك' : 'Sign in to access your itinerary, ledger, and bookings')}
-              {mode === 'sign-up' && (lang === 'ar' ? 'احفظ رحلتك واستمتع بالمرافقة الذكية وتأكيد الحجوزات' : 'Create your account in seconds with seamless cloud sync')}
-              {mode === 'forgot-password' && (lang === 'ar' ? 'أدخل بريدك الإلكتروني وسنرسل لك رابط الاستعادة' : 'Enter your email address and we will send you a reset link')}
+              {mode === 'sign-in' && (t('auth.signInToAccess'))}
+              {mode === 'sign-up' && (t('auth.createYourAccountIn'))}
+              {mode === 'forgot-password' && (t('auth.enterYourEmailAddress'))}
             </p>
           </div>
 
           {/* Active Trip Draft Preservation Banner */}
           {hasActiveTripDraft && mode !== 'forgot-password' && (
-            <div className="mb-5 bg-gradient-to-r from-[#20A89A]/15 to-[#E7A83B]/10 border border-[#20A89A]/30 rounded-xl p-3 flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-[#E7A83B] shrink-0 mt-0.5" />
+            <div className="mb-5 bg-gradient-to-r from-[var(--accent-primary)]/15 to-[var(--accent-secondary)]/10 border border-[var(--accent-primary)]/30 rounded-xl p-3 flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-[var(--accent-secondary)] shrink-0 mt-0.5" />
               <div className="text-xs">
                 <span className="font-semibold text-white block">
-                  {lang === 'ar' ? 'رحلتك الحالية محفوظة بالكامل' : 'Your Trip Draft is Active'}
+                  {t('auth.yourTripDraftIs')}
                 </span>
                 <span className="text-slate-300">
-                  {lang === 'ar' 
-                    ? `سيتم حفظ جدول الـ ${tripDays.length} أيام وحجوزاتك الحالية وربطها بحسابك تلقائياً.` 
-                    : `Your ${tripDays.length}-day itinerary and custom selections will stay intact after signing in.`}
+                  {t('auth.tripDraftKept', { length: tripDays.length })}
                 </span>
               </div>
             </div>
@@ -245,7 +239,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isSubmitting || isAuthLoading}
-                className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 hover:bg-slate-100 font-semibold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.99] disabled:opacity-50 text-sm"
+                className="w-full flex items-center justify-center gap-3 bg-[var(--surface-card)] text-slate-900 hover:bg-slate-100 font-semibold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.99] disabled:opacity-50 text-sm"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
@@ -269,16 +263,16 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                     />
                   </svg>
                 )}
-                <span>{lang === 'ar' ? 'المتابعة بحساب Google' : 'Continue with Google'}</span>
+                <span>{t('auth.continueWithGoogle')}</span>
               </button>
 
               <div className="relative my-5">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
+                  <div className="w-full border-t border-[var(--border-subtle)]"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-[#0B2530] px-3 text-slate-400">
-                    {lang === 'ar' ? 'أو عبر البريد الإلكتروني' : 'or with email'}
+                  <span className="bg-[var(--surface-container)] px-3 text-slate-400">
+                    {t('auth.orWithEmail')}
                   </span>
                 </div>
               </div>
@@ -293,7 +287,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
               <>
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    {lang === 'ar' ? 'الاسم الكامل' : 'Full Name'}
+                    {t('auth.fullName')}
                   </label>
                   <div className="relative">
                     <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 rtl:left-auto rtl:right-3 pointer-events-none" />
@@ -302,8 +296,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder={lang === 'ar' ? 'مثال: أحمد مصطفى' : 'e.g., Ahmed Mostafa'}
-                      className="w-full bg-white/5 border border-white/15 focus:border-[#E7A83B] focus:ring-1 focus:ring-[#E7A83B] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                      placeholder={t('auth.egAhmedMostafa')}
+                      className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
                     />
                   </div>
                 </div>
@@ -314,10 +308,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                   back-office consoles. Every account is created as a Traveler;
                   elevation is an administrative action against the database.
                 */}
-                <p className="text-[12px] leading-relaxed text-slate-400 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
-                  {lang === 'ar'
-                    ? 'يتم إنشاء الحسابات كحساب مسافر. لو إنت شريك أو مورد، تواصل مع فريق التشغيل لتفعيل صلاحيات البوابة.'
-                    : 'Accounts are created as Traveler. If you are a partner or supplier, contact the operations team to have portal access enabled.'}
+                <p className="text-[12px] leading-relaxed text-slate-400 bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5">
+                  {t('auth.accountsAreCreatedAs')}
                 </p>
               </>
             )}
@@ -325,7 +317,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
             {/* Email Field */}
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                {lang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}
+                {t('auth.emailAddress')}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 rtl:left-auto rtl:right-3 pointer-events-none" />
@@ -334,8 +326,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={lang === 'ar' ? 'name@example.com' : 'name@example.com'}
-                  className="w-full bg-white/5 border border-white/15 focus:border-[#E7A83B] focus:ring-1 focus:ring-[#E7A83B] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                  placeholder={siteLanguage === 'ar' ? 'name@example.com' : 'name@example.com'}
+                  className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -345,15 +337,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-medium text-slate-300">
-                    {lang === 'ar' ? 'كلمة المرور' : 'Password'}
+                    {t('auth.password')}
                   </label>
                   {mode === 'sign-in' && (
                     <button
                       type="button"
                       onClick={() => { setMode('forgot-password'); setErrorMessage(null); setSuccessInfo(null); }}
-                      className="text-xs text-[#E7A83B] hover:underline"
+                      className="text-xs text-[var(--accent-secondary)] hover:underline"
                     >
-                      {lang === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?'}
+                      {t('auth.forgotPassword')}
                     </button>
                   )}
                 </div>
@@ -365,7 +357,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-white/5 border border-white/15 focus:border-[#E7A83B] focus:ring-1 focus:ring-[#E7A83B] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                    className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -375,47 +367,47 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
             <button
               type="submit"
               disabled={isSubmitting || isAuthLoading}
-              className="w-full mt-2 bg-gradient-to-r from-[#E7A83B] to-[#20A89A] text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+              className="w-full mt-2 bg-gradient-to-r from-[var(--accent-secondary)] to-[var(--accent-primary)] text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
               ) : (
                 <>
                   <span>
-                    {mode === 'sign-in' && (lang === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
-                    {mode === 'sign-up' && (lang === 'ar' ? 'إنشاء الحساب وحفظ الخطة' : 'Create Account & Save Trip')}
-                    {mode === 'forgot-password' && (lang === 'ar' ? 'إرسال رابط الاستعادة' : 'Send Reset Link')}
+                    {mode === 'sign-in' && (t('auth.signIn'))}
+                    {mode === 'sign-up' && (t('auth.createAccountSaveTrip'))}
+                    {mode === 'forgot-password' && (t('auth.sendResetLink'))}
                   </span>
-                  <ArrowRight className={`w-4 h-4 ${lang === 'ar' ? 'rotate-180' : ''}`} />
+                  <ArrowRight className={`w-4 h-4 ${siteLanguage === 'ar' ? 'rotate-180' : ''}`} />
                 </>
               )}
             </button>
           </form>
 
           {/* Toggle between Sign In / Sign Up */}
-          <div className="mt-6 text-center text-xs text-slate-400 border-t border-white/10 pt-4">
+          <div className="mt-6 text-center text-xs text-slate-400 border-t border-[var(--border-subtle)] pt-4">
             {mode === 'sign-in' && (
               <p>
-                {lang === 'ar' ? 'ليس لديك حساب بعد؟ ' : "Don't have an account yet? "}
+                {t('auth.dontHaveAnAccount')}
                 <button
                   type="button"
                   onClick={() => { setMode('sign-up'); setErrorMessage(null); setSuccessInfo(null); }}
-                  className="text-[#E7A83B] font-semibold hover:underline"
+                  className="text-[var(--accent-secondary)] font-semibold hover:underline"
                 >
-                  {lang === 'ar' ? 'سجّل مجاناً' : 'Sign up free'}
+                  {t('auth.signUpFree')}
                 </button>
               </p>
             )}
 
             {mode === 'sign-up' && (
               <p>
-                {lang === 'ar' ? 'لديك حساب بالفعل؟ ' : 'Already have an account? '}
+                {t('auth.alreadyHaveAnAccount')}
                 <button
                   type="button"
                   onClick={() => { setMode('sign-in'); setErrorMessage(null); setSuccessInfo(null); }}
-                  className="text-[#E7A83B] font-semibold hover:underline"
+                  className="text-[var(--accent-secondary)] font-semibold hover:underline"
                 >
-                  {lang === 'ar' ? 'سجّل الدخول' : 'Sign in'}
+                  {t('auth.signIn-2')}
                 </button>
               </p>
             )}
@@ -424,18 +416,18 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
               <button
                 type="button"
                 onClick={() => { setMode('sign-in'); setErrorMessage(null); setSuccessInfo(null); }}
-                className="text-[#E7A83B] font-semibold hover:underline inline-flex items-center gap-1"
+                className="text-[var(--accent-secondary)] font-semibold hover:underline inline-flex items-center gap-1"
               >
-                <ArrowLeft className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
-                <span>{lang === 'ar' ? 'الرجوع لتسجيل الدخول' : 'Back to Sign In'}</span>
+                <ArrowLeft className={`w-3.5 h-3.5 ${siteLanguage === 'ar' ? 'rotate-180' : ''}`} />
+                <span>{t('auth.backToSignIn')}</span>
               </button>
             )}
           </div>
 
           {/* Trust Footnote */}
-          <div className="mt-6 flex items-center justify-center gap-2 text-[12px] text-slate-400 border-t border-white/5 pt-3">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#20A89A]" />
-            <span>{lang === 'ar' ? 'بياناتك ودفتر حساباتك مشفرة ومؤمّنة سحابياً' : 'End-to-end encrypted identity & double-entry ledger'}</span>
+          <div className="mt-6 flex items-center justify-center gap-2 text-[12px] text-slate-400 border-t border-[var(--border-subtle)] pt-3">
+            <ShieldCheck className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+            <span>{t('auth.endtoendEncryptedIdentityDoubleentry')}</span>
           </div>
 
         </div>

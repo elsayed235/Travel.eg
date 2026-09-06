@@ -23,7 +23,7 @@ export const BookingReviewTermsModal: React.FC<BookingReviewTermsModalProps> = (
       aria-modal="true"
       aria-labelledby="booking-review-terms-modal-dialog-1-title"
     >
-      <div className="bg-white text-[#1A1A1A] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-[#1A1A1A]/10 flex flex-col max-h-[90vh] my-auto">
+      <div className="bg-[var(--surface-card)] text-[#1A1A1A] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-[#1A1A1A]/10 flex flex-col max-h-[90vh] my-auto">
         {/* Modal Header */}
         <div className="p-6 border-b border-[#1A1A1A]/8 flex items-center justify-between bg-[#FDFBF7]">
           <div className="flex items-center gap-2.5">
@@ -72,28 +72,28 @@ export const BookingReviewTermsModal: React.FC<BookingReviewTermsModalProps> = (
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-white space-y-1">
+              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-[var(--surface-card)] space-y-1">
                 <span className="font-bold text-[#1A1A1A] block">{isAr ? '٠١ الإقامة الفندقية' : '01 Hotel Accommodation'}</span>
                 <p className="text-[#1A1A1A]/70">
                   {isAr ? 'إلغاء مجاني أو تعديل التاريخ حتى ٤٨ ساعة قبل موعد تسجيل الدخول.' : 'Free cancellation or date adjustment up to 48 hours prior to your scheduled check-in.'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-white space-y-1">
+              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-[var(--surface-card)] space-y-1">
                 <span className="font-bold text-[#1A1A1A] block">{isAr ? '٠٢ انتقالات المطار' : '02 Airport Transfer'}</span>
                 <p className="text-[#1A1A1A]/70">
                   {isAr ? 'تحديث مجاني لوقت وصول الرحلة حتى ١٢ ساعة قبل الهبوط في شرم الشيخ.' : 'Free flight arrival time updates up to 12 hours before airport landing in Sharm El Sheikh.'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-white space-y-1">
+              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-[var(--surface-card)] space-y-1">
                 <span className="font-bold text-[#1A1A1A] block">{isAr ? '٠٣ رحلات الغطس الإرشادية' : '03 Guided Diving'}</span>
                 <p className="text-[#1A1A1A]/70">
                   {isAr ? 'استرداد كامل أو نقل اليوم مجاناً حتى ٢٤ ساعة قبل موعد الغطس.' : 'Full refund or free day shift up to 24 hours prior to dive briefing.'}
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-white space-y-1">
+              <div className="p-3.5 rounded-2xl border border-[#1A1A1A]/10 bg-[var(--surface-card)] space-y-1">
                 <span className="font-bold text-[#1A1A1A] block">{isAr ? '٠٤ سفاري الصحراء' : '04 Desert Safari'}</span>
                 <p className="text-[#1A1A1A]/70">
                   {isAr ? 'إلغاء مجاني أو إعادة جدولة بسبب الطقس حتى ٢٤ ساعة قبل التحرك.' : 'Free cancellation or weather rescheduling up to 24 hours before desert departure.'}

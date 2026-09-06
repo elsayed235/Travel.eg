@@ -4,6 +4,9 @@ import { db } from './database';
 import { SupplierEntity } from './schema';
 import { initialOpportunities } from '../../src/data/intelligenceData';
 import { importDahabLocalCommerce } from './seeds/importDahabLocalCommerce';
+import { importDahabHotels } from './seeds/importDahabHotels';
+import { importDahabAccommodations } from './seeds/importDahabAccommodations';
+import { importDahabRentals } from './seeds/importDahabRentals';
 
 export function runMigrationsAndSeed() {
   db.runInTransaction(() => {
@@ -185,8 +188,12 @@ export function runMigrationsAndSeed() {
       else db.productSkus.push(sku);
     }
 
-    // 3. Seed Transfer SKUs (Reference Vertical) if empty
-    if (db.productSkus.length === 0) {
+    // 3. Seed Transfer SKUs (Reference Vertical) if the canonical transfer SKU
+    // is missing. Keyed on identity, not on "collection empty": step 2b above
+    // seeds the Book Now catalogue SKUs, so the collection is never empty on a
+    // fresh boot — and those additions must not suppress the reference SKUs
+    // that inventory slots and seeded bookings below reference by id.
+    if (!db.productSkus.some(s => s.id === 'SKU-TRF-001')) {
       db.productSkus.push(
         {
           id: 'SKU-TRF-001',
@@ -602,6 +609,21 @@ export function runMigrationsAndSeed() {
 
     // 8. Import Master Dahab Local Commerce Dataset (Suppliers, Offers, Provenance)
     importDahabLocalCommerce();
+
+    // 9. Import the Dahab Hotels Catalogue (hotel suppliers, 5-night package
+    // SKUs and catalogue rows, idempotently — see importDahabHotels).
+    importDahabHotels();
+
+    // 9b. Import the generalized Dahab Accommodations Catalogue (hotels plus
+    // hostels/apartments/villas/camps/guesthouses) — the live surface behind
+    // /api/accommodations. Runs after importDahabHotels, which is left in
+    // place unmodified but now unread once hotelRoutes.ts is repointed to
+    // this table; see importDahabAccommodations.
+    importDahabAccommodations();
+
+    // 10. Import the Dahab Rentals Catalogue (bike/e-bike suppliers, 'rental'
+    // SKUs, listings and extras, idempotently — see importDahabRentals).
+    importDahabRentals();
   });
 
   console.log('[DB] Migrations and authoritative seed data verified successfully.');

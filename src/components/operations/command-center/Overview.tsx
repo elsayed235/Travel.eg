@@ -85,11 +85,10 @@ function useOperationalSummary() {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const [opsOverview, supportData, marketAlerts, supplierBookings, transfersData, notificationsData] = await Promise.allSettled([
+      const [opsOverview, supportData, marketAlerts, transfersData, notificationsData] = await Promise.allSettled([
         api.getOperationsOverview(),
         api.getSupportMessages(),
         api.getMarketAlerts(),
-        api.getSuppliers(),
         api.getOperationsTransfers(),
         api.getOperationsNotifications(),
       ]);
@@ -111,11 +110,12 @@ function useOperationalSummary() {
 
       if (opsOverview.status === 'fulfilled') {
         const ov = opsOverview.value as any;
-        next.activeTrips = ov?.activeTrips ?? ov?.trips?.active ?? 0;
-        next.pendingBookings = ov?.pendingBookings ?? ov?.bookings?.pending ?? 0;
-        next.pendingSupplierConfirmations = ov?.pendingSupplierConfirmations ?? 0;
-        next.paymentIssues = ov?.paymentIssues ?? ov?.payments?.failed ?? 0;
-        next.atRiskTrips = ov?.atRiskTrips ?? 0;
+        const s = ov?.summary;
+        next.activeTrips = s?.activeTrips ?? ov?.activeTrips ?? ov?.trips?.active ?? 0;
+        next.pendingBookings = s?.pendingBookings ?? ov?.pendingBookings ?? ov?.bookings?.pending ?? 0;
+        next.pendingSupplierConfirmations = s?.pendingSupplierConfirmations ?? ov?.pendingSupplierConfirmations ?? 0;
+        next.paymentIssues = s?.paymentIssues ?? ov?.paymentIssues ?? ov?.payments?.failed ?? 0;
+        next.atRiskTrips = s?.atRiskTrips ?? ov?.atRiskTrips ?? 0;
       }
 
       if (supportData.status === 'fulfilled') {
@@ -252,17 +252,17 @@ function useRecentEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await api.getOperationsOverview();
-        const ov = data as any;
-        // The operations overview may include recent events
-        const recentEvents = ov?.recentEvents || ov?.events || [];
-        setEvents(recentEvents.slice(0, 8).map((e: any) => ({
-          id: e.id || `evt-${Math.random()}`,
-          type: e.type || e.action || 'UNKNOWN',
-          title: e.title || e.description || e.action || 'Event',
-          entity: e.entity || e.entityId,
-          timestamp: e.timestamp || e.createdAt || new Date().toISOString(),
-          actor: e.actor,
+        const data = await api.getRecentEvents();
+        // GET /api/events/recent returns { events: BackgroundEventPayload[] } —
+        // each carries eventId, eventType, timestamp, actorId and a data blob.
+        const list = (data as { events: any[] }).events || [];
+        setEvents(list.slice(0, 8).map(e => ({
+          id: e.eventId || e.id || `evt-${Math.random()}`,
+          type: e.eventType || e.type || 'UNKNOWN',
+          title: e.data?.title || e.data?.description || e.eventType || 'Event',
+          entity: e.data?.entity || e.data?.entityName || e.actorId,
+          timestamp: e.timestamp || new Date().toISOString(),
+          actor: e.actorId,
         })));
       } catch {
         setEvents([]);
@@ -313,21 +313,21 @@ const HEALTH_COLORS = {
   healthy: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
   degraded: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
   down: 'text-red-400 bg-red-500/20 border-red-500/30',
-  unknown: 'text-white/40 bg-white/5 border-white/10',
+  unknown: 'text-[var(--text-muted)] bg-[var(--btn-util-bg)] border-[var(--border-subtle)]',
 };
 
 const HEALTH_DOTS = {
   healthy: 'bg-emerald-400',
   degraded: 'bg-amber-400',
   down: 'bg-red-400 animate-pulse',
-  unknown: 'bg-white/30',
+  unknown: 'bg-[var(--btn-util-bg)]',
 };
 
 const PRIORITY_STYLES = {
   CRITICAL: 'bg-red-500/20 text-red-300 border-red-500/30',
   HIGH: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
   MEDIUM: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
-  LOW: 'bg-white/10 text-white/50 border-white/10',
+  LOW: 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)]',
 };
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -340,11 +340,11 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
 };
 
 function FreshnessIndicator({ date, t }: { date: Date | null; t: (k: string) => string }) {
-  if (!date) return <span className="text-[10px] text-white/30">{t('cmd.loading')}</span>;
+  if (!date) return <span className="text-[11px] text-[var(--text-muted)]">{t('cmd.loading')}</span>;
   const secondsAgo = Math.round((Date.now() - date.getTime()) / 1000);
-  if (secondsAgo < 60) return <span className="text-[10px] text-emerald-400/80">Updated {secondsAgo}s ago</span>;
-  if (secondsAgo < 600) return <span className="text-[10px] text-amber-400/80">Updated {Math.round(secondsAgo / 60)}m ago</span>;
-  return <span className="text-[10px] text-red-400/80">Stale ({Math.round(secondsAgo / 60)}m)</span>;
+  if (secondsAgo < 60) return <span className="text-[11px] text-emerald-400/80">Updated {secondsAgo}s ago</span>;
+  if (secondsAgo < 600) return <span className="text-[11px] text-amber-400/80">Updated {Math.round(secondsAgo / 60)}m ago</span>;
+  return <span className="text-[11px] text-red-400/80">Stale ({Math.round(secondsAgo / 60)}m)</span>;
 }
 
 function formatAge(minutes: number): string {
@@ -380,7 +380,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full ${hasUrgentItems ? 'bg-red-400 animate-pulse' : isHealthy ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
           <div>
-            <div className="text-sm font-bold text-[#F7F3EA]">
+            <div className="text-sm font-bold text-[var(--text-primary)]">
               {hasUrgentItems
                 ? t('cmd.overview.actionRequired')
                 : isHealthy
@@ -388,7 +388,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
                   : t('cmd.overview.needsAttention')
               }
             </div>
-            <div className="text-[11px] text-white/50">
+            <div className="text-[11px] text-[var(--text-muted)]">
               {t('cmd.title')} · <FreshnessIndicator date={lastUpdated} t={t} />
             </div>
           </div>
@@ -396,7 +396,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
         <button
           type="button"
           onClick={() => refreshSummary()}
-          className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white/70 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           {t('cmd.overview.refresh')}
@@ -406,10 +406,10 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
       {/* ─── Operational Status Cards ─────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: t('cmd.overview.activeTrips'), value: summary.activeTrips, icon: Plane, color: 'text-[#52C4B7]', onClick: () => onNavigate('trips') },
+          { label: t('cmd.overview.activeTrips'), value: summary.activeTrips, icon: Plane, color: 'text-[var(--accent-primary)]', onClick: () => onNavigate('trips') },
           { label: t('cmd.overview.pendingBookings'), value: summary.pendingBookings, icon: Package, color: 'text-amber-400', onClick: () => onNavigate('trips') },
           { label: t('cmd.overview.supplierConfirmations'), value: summary.pendingSupplierConfirmations, icon: Users, color: 'text-sky-400', onClick: () => onNavigate('suppliers') },
-          { label: t('cmd.overview.supportQueue'), value: summary.unreadSupport, icon: MessageSquare, color: 'text-[#E7A83B]', onClick: () => onNavigate('support') },
+          { label: t('cmd.overview.supportQueue'), value: summary.unreadSupport, icon: MessageSquare, color: 'text-[var(--accent-secondary)]', onClick: () => onNavigate('support') },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
@@ -417,20 +417,20 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               key={i}
               type="button"
               onClick={card.onClick}
-              className="p-4 rounded-2xl bg-[#062C35] border border-white/8 hover:border-white/15 transition-all text-left cursor-pointer group"
+              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all text-left cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-2">
                 <Icon className={`w-4 h-4 ${card.color}`} />
                 {card.value > 0 && (
-                  <span className="text-[10px] font-mono font-bold text-white/30 group-hover:text-white/50 transition-colors">
+                  <span className="text-[11px] font-mono font-bold text-[var(--text-muted)] group-hover:text-[var(--text-muted)] transition-colors">
                     →
                   </span>
                 )}
               </div>
-              <div className={`text-2xl font-bold font-mono ${card.value > 0 ? card.color : 'text-white/30'}`}>
+              <div className={`text-2xl font-bold font-mono ${card.value > 0 ? card.color : 'text-[var(--text-muted)]'}`}>
                 {summaryLoading ? '—' : card.value}
               </div>
-              <div className="text-[11px] text-white/50 mt-0.5">{card.label}</div>
+              <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{card.label}</div>
             </button>
           );
         })}
@@ -439,10 +439,10 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
       {/* ─── Exceptions & Payment Quick Stats ─────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: t('cmd.overview.exceptions'), value: summary.exceptions, icon: AlertTriangle, color: summary.exceptions > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('exceptions') },
-          { label: t('cmd.overview.paymentIssues'), value: summary.paymentIssues, icon: DollarSign, color: summary.paymentIssues > 0 ? 'text-red-400' : 'text-white/30', onClick: () => onNavigate('commerce') },
-          { label: t('cmd.overview.activeTransfers'), value: summary.activeTransfers, icon: Car, color: summary.activeTransfers > 0 ? 'text-sky-400' : 'text-white/30', onClick: () => onNavigate('transfers') },
-          { label: t('cmd.overview.unreadNotifications'), value: summary.unreadNotifications, icon: Bell, color: summary.unreadNotifications > 0 ? 'text-amber-400' : 'text-white/30', onClick: () => onNavigate('notifications') },
+          { label: t('cmd.overview.exceptions'), value: summary.exceptions, icon: AlertTriangle, color: summary.exceptions > 0 ? 'text-red-400' : 'text-[var(--text-muted)]', onClick: () => onNavigate('exceptions') },
+          { label: t('cmd.overview.paymentIssues'), value: summary.paymentIssues, icon: DollarSign, color: summary.paymentIssues > 0 ? 'text-red-400' : 'text-[var(--text-muted)]', onClick: () => onNavigate('commerce') },
+          { label: t('cmd.overview.activeTransfers'), value: summary.activeTransfers, icon: Car, color: summary.activeTransfers > 0 ? 'text-sky-400' : 'text-[var(--text-muted)]', onClick: () => onNavigate('transfers') },
+          { label: t('cmd.overview.unreadNotifications'), value: summary.unreadNotifications, icon: Bell, color: summary.unreadNotifications > 0 ? 'text-amber-400' : 'text-[var(--text-muted)]', onClick: () => onNavigate('notifications') },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
@@ -450,13 +450,13 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               key={i}
               type="button"
               onClick={card.onClick}
-              className="p-4 rounded-2xl bg-[#062C35] border border-white/8 hover:border-white/15 transition-all text-left cursor-pointer"
+              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all text-left cursor-pointer"
             >
               <Icon className={`w-4 h-4 ${card.color} mb-2`} />
-              <div className={`text-2xl font-bold font-mono ${card.value > 0 ? card.color : 'text-white/30'}`}>
+              <div className={`text-2xl font-bold font-mono ${card.value > 0 ? card.color : 'text-[var(--text-muted)]'}`}>
                 {summaryLoading ? '—' : card.value}
               </div>
-              <div className="text-[11px] text-white/50 mt-0.5">{card.label}</div>
+              <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{card.label}</div>
             </button>
           );
         })}
@@ -466,27 +466,27 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
         {/* ─── Action Queue (2/3 width) ──────────────────────────────── */}
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#E7A83B]" />
+            <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[var(--accent-secondary)]" />
               {t('cmd.overview.needsAction')}
             </h3>
-            <span className="text-[10px] text-white/40 font-mono">
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
               {actions.length} item{actions.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           {actionsLoading ? (
-            <div className="py-8 text-center text-xs text-white/40">
-              <span className="inline-block w-4 h-4 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin mr-2" />
+            <div className="py-8 text-center text-xs text-[var(--text-muted)]">
+              <span className="inline-block w-4 h-4 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin mr-2" />
               {t('cmd.loading')}
             </div>
           ) : actions.length === 0 ? (
-            <div className="p-6 rounded-2xl bg-[#062C35] border border-white/8 text-center">
+            <div className="p-6 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-center">
               <CheckCircle2 className="w-8 h-8 text-emerald-400/50 mx-auto mb-2" />
               <div className="text-sm font-bold text-emerald-400/80">
                 {t('cmd.overview.noPendingActions')}
               </div>
-              <div className="text-[11px] text-white/40 mt-1">{t('cmd.overview.allClear')}</div>
+              <div className="text-[11px] text-[var(--text-muted)] mt-1">{t('cmd.overview.allClear')}</div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -495,32 +495,32 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
                 return (
                   <div
                     key={action.id}
-                    className="p-4 rounded-xl bg-[#062C35] border border-white/8 hover:border-white/15 transition-all"
+                    className="p-4 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-4 h-4 text-white/60" />
+                        <div className="w-8 h-8 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-4 h-4 text-[var(--text-muted)]" />
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${PRIORITY_STYLES[action.priority]}`}>
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${PRIORITY_STYLES[action.priority]}`}>
                               {action.priority}
                             </span>
-                            <span className="text-xs font-bold text-[#F7F3EA] truncate">{action.title}</span>
+                            <span className="text-xs font-bold text-[var(--text-primary)] truncate">{action.title}</span>
                           </div>
                           {action.description && (
-                            <p className="text-[11px] text-white/50 mt-1 line-clamp-2">{action.description}</p>
+                            <p className="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">{action.description}</p>
                           )}
-                          <p className="text-[10px] text-white/30 mt-1 italic">{action.reason}</p>
+                          <p className="text-[11px] text-[var(--text-muted)] mt-1 italic">{action.reason}</p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <div className="text-[10px] text-white/40 font-mono">{formatAge(action.ageMinutes)}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] font-mono">{formatAge(action.ageMinutes)}</div>
                         {action.entityId && (
                           <button
                             type="button"
-                            className="mt-1 px-2 py-1 rounded bg-[#20A89A]/20 hover:bg-[#20A89A]/30 text-[#52C4B7] text-[10px] font-bold transition-all cursor-pointer"
+                            className="mt-1 px-2 py-1 rounded bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[11px] font-bold transition-all cursor-pointer"
                             onClick={() => {
                               if (action.entityType === 'support') onNavigate('support');
                               else if (action.entityType === 'market') onNavigate('intelligence');
@@ -543,13 +543,13 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
         <div className="space-y-6">
           {/* System Health */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
               <HeartPulse className="w-4 h-4 text-emerald-400" />
               {t('cmd.overview.systemHealth')}
             </h3>
-            <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-3">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
               {healthLoading ? (
-                <div className="py-4 text-center text-xs text-white/40">{t('cmd.loading')}</div>
+                <div className="py-4 text-center text-xs text-[var(--text-muted)]">{t('cmd.loading')}</div>
               ) : (
                 [
                   { label: 'API Gateway', status: health.api },
@@ -560,9 +560,9 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
                   <div key={i} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${HEALTH_DOTS[item.status]}`} />
-                      <span className="text-xs text-white/70">{item.label}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{item.label}</span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${HEALTH_COLORS[item.status]}`}>
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${HEALTH_COLORS[item.status]}`}>
                       {item.status.toUpperCase()}
                     </span>
                   </div>
@@ -571,7 +571,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               <button
                 type="button"
                 onClick={() => onNavigate('health')}
-                className="w-full text-center text-[10px] text-white/40 hover:text-white/60 transition-colors pt-2 border-t border-white/5 cursor-pointer"
+                className="w-full text-center text-[11px] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-colors pt-2 border-t border-[var(--border-subtle)] cursor-pointer"
               >
                 View full health →
               </button>
@@ -580,22 +580,22 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
 
           {/* Recent Events Stream */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-[#F7F3EA] flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Activity className="w-4 h-4 text-sky-400" />
               {t('cmd.overview.recentEvents')}
             </h3>
-            <div className="p-4 rounded-2xl bg-[#062C35] border border-white/8 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2.5">
               {eventsLoading ? (
-                <div className="py-4 text-center text-xs text-white/40">{t('cmd.loading')}</div>
+                <div className="py-4 text-center text-xs text-[var(--text-muted)]">{t('cmd.loading')}</div>
               ) : events.length === 0 ? (
-                <div className="py-4 text-center text-xs text-white/40">{t('cmd.overview.noEvents')}</div>
+                <div className="py-4 text-center text-xs text-[var(--text-muted)]">{t('cmd.overview.noEvents')}</div>
               ) : (
                 events.map(event => (
-                  <div key={event.id} className="flex items-start gap-2.5 pb-2.5 border-b border-white/5 last:border-0 last:pb-0">
-                    <div className="w-1.5 h-1.5 rounded-full bg-white/20 mt-1.5 flex-shrink-0" />
+                  <div key={event.id} className="flex items-start gap-2.5 pb-2.5 border-b border-[var(--border-subtle)] last:border-0 last:pb-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--btn-util-bg)] mt-1.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <div className="text-[11px] font-semibold text-white/80 truncate">{event.title}</div>
-                      <div className="text-[10px] text-white/40 font-mono mt-0.5">
+                      <div className="text-[11px] font-semibold text-[var(--text-muted)] truncate">{event.title}</div>
+                      <div className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5">
                         {event.actor && <span>{event.actor} · </span>}
                         {event.entity && <span>{event.entity} · </span>}
                         {formatAge(Math.round((Date.now() - new Date(event.timestamp).getTime()) / 60_000))}

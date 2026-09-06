@@ -90,6 +90,124 @@ CREATE INDEX IF NOT EXISTS idx_product_skus_supplier_id ON product_skus(supplier
 CREATE INDEX IF NOT EXISTS idx_product_skus_service_type ON product_skus(service_type);
 CREATE INDEX IF NOT EXISTS idx_product_skus_service_type_active ON product_skus(service_type, active);
 
+-- Hotels (DatabaseState.hotels)
+CREATE TABLE IF NOT EXISTS hotels (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  sku_id TEXT,
+  slug TEXT UNIQUE,
+  category TEXT,
+  price_band TEXT,
+  area TEXT,
+  rating REAL,
+  review_count INTEGER,
+  per_night_egp REAL,
+  active INTEGER,
+  created_at TEXT,
+  updated_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_hotels_seq ON hotels(seq);
+CREATE INDEX IF NOT EXISTS idx_hotels_sku_id ON hotels(sku_id);
+CREATE INDEX IF NOT EXISTS idx_hotels_category ON hotels(category);
+CREATE INDEX IF NOT EXISTS idx_hotels_price_band ON hotels(price_band);
+CREATE INDEX IF NOT EXISTS idx_hotels_area ON hotels(area);
+CREATE INDEX IF NOT EXISTS idx_hotels_created_at ON hotels(created_at);
+CREATE INDEX IF NOT EXISTS idx_hotels_category_area ON hotels(category, area);
+
+-- Accommodations (DatabaseState.accommodations)
+CREATE TABLE IF NOT EXISTS accommodations (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  sku_id TEXT,
+  slug TEXT UNIQUE,
+  property_type TEXT NOT NULL,
+  category TEXT,
+  price_band TEXT,
+  area_id TEXT NOT NULL REFERENCES area_profiles(id) ON DELETE RESTRICT,
+  area TEXT,
+  rating REAL,
+  review_count INTEGER,
+  per_night_egp REAL,
+  latitude REAL,
+  longitude REAL,
+  active INTEGER,
+  featured INTEGER,
+  created_at TEXT,
+  updated_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_accommodations_seq ON accommodations(seq);
+CREATE INDEX IF NOT EXISTS idx_accommodations_sku_id ON accommodations(sku_id);
+CREATE INDEX IF NOT EXISTS idx_accommodations_property_type ON accommodations(property_type);
+CREATE INDEX IF NOT EXISTS idx_accommodations_category ON accommodations(category);
+CREATE INDEX IF NOT EXISTS idx_accommodations_price_band ON accommodations(price_band);
+CREATE INDEX IF NOT EXISTS idx_accommodations_area_id ON accommodations(area_id);
+CREATE INDEX IF NOT EXISTS idx_accommodations_area ON accommodations(area);
+CREATE INDEX IF NOT EXISTS idx_accommodations_created_at ON accommodations(created_at);
+CREATE INDEX IF NOT EXISTS idx_accommodations_property_type_area_id ON accommodations(property_type, area_id);
+CREATE INDEX IF NOT EXISTS idx_accommodations_property_type_active ON accommodations(property_type, active);
+CREATE INDEX IF NOT EXISTS idx_accommodations_category_area_id ON accommodations(category, area_id);
+
+-- Property external reference links (DatabaseState.propertySources)
+CREATE TABLE IF NOT EXISTS property_sources (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  accommodation_id TEXT NOT NULL REFERENCES accommodations(id) ON DELETE CASCADE,
+  source_type TEXT NOT NULL,
+  active INTEGER,
+  created_at TEXT,
+  updated_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_property_sources_seq ON property_sources(seq);
+CREATE INDEX IF NOT EXISTS idx_property_sources_accommodation_id ON property_sources(accommodation_id);
+CREATE INDEX IF NOT EXISTS idx_property_sources_source_type ON property_sources(source_type);
+CREATE INDEX IF NOT EXISTS idx_property_sources_created_at ON property_sources(created_at);
+CREATE INDEX IF NOT EXISTS idx_property_sources_accommodation_id_source_type ON property_sources(accommodation_id, source_type);
+
+-- Rental listings (DatabaseState.rentalListings)
+CREATE TABLE IF NOT EXISTS rental_listings (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  supplier_id TEXT NOT NULL REFERENCES suppliers(id) ON DELETE CASCADE,
+  sku_id TEXT,
+  slug TEXT UNIQUE,
+  category TEXT,
+  subcategory TEXT,
+  quantity INTEGER,
+  daily_rate_egp REAL,
+  status TEXT,
+  active INTEGER,
+  featured INTEGER,
+  created_at TEXT,
+  updated_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_seq ON rental_listings(seq);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_supplier_id ON rental_listings(supplier_id);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_sku_id ON rental_listings(sku_id);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_category ON rental_listings(category);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_subcategory ON rental_listings(subcategory);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_status ON rental_listings(status);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_created_at ON rental_listings(created_at);
+CREATE INDEX IF NOT EXISTS idx_rental_listings_category_active ON rental_listings(category, active);
+
+-- Rental extras (DatabaseState.rentalExtras)
+CREATE TABLE IF NOT EXISTS rental_extras (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  listing_id TEXT NOT NULL REFERENCES rental_listings(id) ON DELETE CASCADE,
+  name TEXT,
+  name_ar TEXT,
+  price_egp REAL,
+  pricing_basis TEXT,
+  active INTEGER,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rental_extras_seq ON rental_extras(seq);
+CREATE INDEX IF NOT EXISTS idx_rental_extras_listing_id ON rental_extras(listing_id);
+
 -- Inventory slots (DatabaseState.inventorySlots)
 CREATE TABLE IF NOT EXISTS inventory_slots (
   id TEXT PRIMARY KEY NOT NULL,
@@ -187,6 +305,58 @@ CREATE INDEX IF NOT EXISTS idx_bookings_traveler_email ON bookings(traveler_emai
 CREATE INDEX IF NOT EXISTS idx_bookings_scheduled_date ON bookings(scheduled_date);
 CREATE INDEX IF NOT EXISTS idx_bookings_created_at ON bookings(created_at);
 CREATE INDEX IF NOT EXISTS idx_bookings_supplier_id_supplier_state ON bookings(supplier_id, supplier_state);
+
+-- Rental bookings (DatabaseState.rentalBookings)
+CREATE TABLE IF NOT EXISTS rental_bookings (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  booking_ref TEXT NOT NULL UNIQUE,
+  listing_id TEXT NOT NULL REFERENCES rental_listings(id) ON DELETE RESTRICT,
+  sku_id TEXT NOT NULL REFERENCES product_skus(id) ON DELETE RESTRICT,
+  supplier_id TEXT NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
+  trip_id TEXT NOT NULL,
+  user_id TEXT,
+  status TEXT NOT NULL,
+  payment_state TEXT,
+  start_date TEXT,
+  end_date TEXT,
+  quantity INTEGER,
+  created_at TEXT,
+  updated_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_seq ON rental_bookings(seq);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_listing_id ON rental_bookings(listing_id);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_sku_id ON rental_bookings(sku_id);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_supplier_id ON rental_bookings(supplier_id);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_trip_id ON rental_bookings(trip_id);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_user_id ON rental_bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_status ON rental_bookings(status);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_payment_state ON rental_bookings(payment_state);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_start_date ON rental_bookings(start_date);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_end_date ON rental_bookings(end_date);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_created_at ON rental_bookings(created_at);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_listing_id_status ON rental_bookings(listing_id, status);
+CREATE INDEX IF NOT EXISTS idx_rental_bookings_listing_id_start_date_end_date ON rental_bookings(listing_id, start_date, end_date);
+
+-- Rental maintenance blocks (DatabaseState.rentalMaintenanceBlocks)
+CREATE TABLE IF NOT EXISTS rental_maintenance_blocks (
+  id TEXT PRIMARY KEY NOT NULL,
+  seq INTEGER NOT NULL,
+  listing_id TEXT NOT NULL REFERENCES rental_listings(id) ON DELETE CASCADE,
+  start_date TEXT,
+  end_date TEXT,
+  quantity_blocked INTEGER,
+  reason TEXT,
+  created_by TEXT,
+  created_at TEXT,
+  data TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rental_maintenance_blocks_seq ON rental_maintenance_blocks(seq);
+CREATE INDEX IF NOT EXISTS idx_rental_maintenance_blocks_listing_id ON rental_maintenance_blocks(listing_id);
+CREATE INDEX IF NOT EXISTS idx_rental_maintenance_blocks_start_date ON rental_maintenance_blocks(start_date);
+CREATE INDEX IF NOT EXISTS idx_rental_maintenance_blocks_end_date ON rental_maintenance_blocks(end_date);
+CREATE INDEX IF NOT EXISTS idx_rental_maintenance_blocks_listing_id_start_date_end_date ON rental_maintenance_blocks(listing_id, start_date, end_date);
 
 -- Payments (DatabaseState.payments)
 CREATE TABLE IF NOT EXISTS payments (

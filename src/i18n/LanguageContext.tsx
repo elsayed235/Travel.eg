@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { TRANSLATIONS, Language } from './translations';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { Language, translate, TVars } from './translations';
 
 interface LanguageContextType {
   language: Language;
   isRTL: boolean;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
-  t: (key: string, fallback?: string) => string;
+  t: {
+    (key: string): string;
+    (key: string, fallback?: string): string;
+    (key: string, vars: TVars, fallback?: string): string;
+  };
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -57,14 +61,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setLanguageState((prev) => (prev === 'en' ? 'ar' : 'en'));
   };
 
-  const t = (key: string, fallback?: string): string => {
-    const entry = TRANSLATIONS[key];
-    if (entry && entry[language]) {
-      return entry[language];
-    }
-    if (fallback) return fallback;
-    return entry ? entry.en : key;
-  };
+  const t = useCallback(
+    (key: string, arg2?: TVars | string, arg3?: string): string => {
+      if (typeof arg2 === 'object') {
+        return translate(key, language, arg2, arg3);
+      }
+      return translate(key, language, undefined, typeof arg2 === 'string' ? arg2 : undefined);
+    },
+    [language]
+  );
 
   return (
     <LanguageContext.Provider

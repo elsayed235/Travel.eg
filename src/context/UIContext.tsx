@@ -27,6 +27,10 @@ export interface UIContextType {
   setSelectedProgramSlug: (slug: string | null) => void;
   selectedExperienceSlug: string | null;
   setSelectedExperienceSlug: (slug: string | null) => void;
+  selectedHotelSlug: string | null;
+  setSelectedHotelSlug: (slug: string | null) => void;
+  selectedRentalSlug: string | null;
+  setSelectedRentalSlug: (slug: string | null) => void;
   /** The product a checkout page should open on, from the address bar. */
   selectedSkuId: string | null;
   setSelectedSkuId: (skuId: string | null) => void;
@@ -75,6 +79,12 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   );
   const [selectedExperienceSlug, setSelectedExperienceSlug] = useState<string | null>(
     () => readLocation().params.experienceSlug ?? null
+  );
+  const [selectedHotelSlug, setSelectedHotelSlug] = useState<string | null>(
+    () => readLocation().params.hotelSlug ?? null
+  );
+  const [selectedRentalSlug, setSelectedRentalSlug] = useState<string | null>(
+    () => readLocation().params.rentalSlug ?? null
   );
   const [selectedSkuId, setSelectedSkuId] = useState<string | null>(
     () => readLocation().params.skuId ?? null
@@ -161,6 +171,8 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
       if (params?.programSlug !== undefined) setSelectedProgramSlug(params.programSlug);
       if (params?.experienceSlug !== undefined) setSelectedExperienceSlug(params.experienceSlug);
+      if (params?.hotelSlug !== undefined) setSelectedHotelSlug(params.hotelSlug);
+      if (params?.rentalSlug !== undefined) setSelectedRentalSlug(params.rentalSlug);
       // Cleared when navigating without one, so a stale sku cannot make a later
       // visit to Book Now open on a product the traveler did not choose.
       setSelectedSkuId(params?.skuId ?? null);
@@ -230,6 +242,8 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       setSelectedBookingId(params.bookingId ?? null);
       setSelectedProgramSlug(params.programSlug ?? null);
       setSelectedExperienceSlug(params.experienceSlug ?? null);
+      setSelectedHotelSlug(params.hotelSlug ?? null);
+      setSelectedRentalSlug(params.rentalSlug ?? null);
       setSelectedSkuId(params.skuId ?? null);
     };
 
@@ -241,15 +255,38 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
    * Canonicalises the entry URL once, so an unrecognised path that resolved to
    * /home does not stay visible in the address bar — otherwise a later Back
    * press would return to a URL that never rendered.
+   *
+   * Query keys the router itself models (day/activity/booking/slug/sku and
+   * their aliases) are re-emitted by urlFromRoute; anything else belongs to a
+   * view — /listings ?type=&view=, /restaurants ?restaurant=, /attractions
+   * ?attraction=&category=&sort= — and is preserved, because those views seed
+   * their state from the URL on mount and stripping the query here would
+   * silently drop the deep link the traveler just opened.
    */
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const { route, params } = readLocation();
     const canonical = urlFromRoute(route, params);
-    if (`${window.location.pathname}${window.location.search}` !== canonical) {
-      window.history.replaceState({ route }, '', canonical);
+    const preserved = preserveViewQueryParams(window.location.search);
+    const next = preserved ? `${canonical}?${preserved}` : canonical;
+    if (`${window.location.pathname}${window.location.search}` !== next) {
+      window.history.replaceState({ route }, '', next);
     }
   }, []);
+
+  /**
+   * Returns the incoming search minus the keys the router consumes. Kept in
+   * routeUrl's PARAM_KEYS terms so a key moved into the router is automatically
+   * dropped here and no longer duplicated.
+   */
+  const preserveViewQueryParams = (search: string): string => {
+    if (!search) return '';
+    const params = new URLSearchParams(search);
+    for (const key of ['day', 'activity', 'booking', 'slug', 'sku', 'id', 'program', 'experience', 'place']) {
+      params.delete(key);
+    }
+    return params.toString();
+  };
 
   /**
    * A few routes are an act, not a location.
@@ -286,6 +323,10 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       setSelectedProgramSlug,
       selectedExperienceSlug,
       setSelectedExperienceSlug,
+      selectedHotelSlug,
+      setSelectedHotelSlug,
+      selectedRentalSlug,
+      setSelectedRentalSlug,
       selectedSkuId,
       setSelectedSkuId,
       journeyStage,
@@ -312,6 +353,8 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       selectedBookingId,
       selectedProgramSlug,
       selectedExperienceSlug,
+      selectedHotelSlug,
+      selectedRentalSlug,
       selectedSkuId,
       journeyStage,
       isEasyMode,

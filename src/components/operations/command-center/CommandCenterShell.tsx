@@ -27,6 +27,7 @@ import {
   Bell,
   Car,
   Lightbulb,
+  PenTool,
 } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { api } from '../../../services/api';
@@ -49,7 +50,8 @@ export type SectionId =
   | 'audit'
   | 'flags'
   | 'jobs'
-  | 'health';
+  | 'health'
+  | 'cms';
 
 interface NavSection {
   id: SectionId;
@@ -77,6 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
   { id: 'flags', label: 'Feature Flags', labelAr: 'أعلام الميزات', icon: Flag, group: 'system' },
   { id: 'jobs', label: 'Market Jobs', labelAr: 'الوظائف', icon: Zap, group: 'system' },
   { id: 'health', label: 'System Health', labelAr: 'صحة النظام', icon: HeartPulse, group: 'system' },
+  { id: 'cms', label: 'CMS Content', labelAr: 'إدارة المحتوى', icon: PenTool, group: 'core' },
 ];
 
 // ─── Lazy section views ─────────────────────────────────────────────────────
@@ -96,6 +99,7 @@ const AuditCenter = React.lazy(() => import('./AuditCenter'));
 const FeatureFlagsView = React.lazy(() => import('./FeatureFlagsView'));
 const MarketJobsSection = React.lazy(() => import('./MarketJobsSection'));
 const SystemHealth = React.lazy(() => import('./SystemHealth'));
+const CmsContentDashboard = React.lazy(() => import('./CmsContentDashboard').then(m => ({ default: m.CmsContentDashboard })));
 const CommandPalette = React.lazy(() => import('./CommandPalette'));
 
 // ─── Section Badge Polling ──────────────────────────────────────────────────
@@ -120,7 +124,8 @@ function useSectionBadges() {
         }
         if (opsOverview.status === 'fulfilled') {
           const ov = opsOverview.value as any;
-          const pending = ov?.pendingSupplierConfirmations || ov?.pendingBookings || 0;
+          const s = ov?.summary;
+          const pending = s?.pendingSupplierConfirmations || s?.pendingBookings || ov?.pendingSupplierConfirmations || ov?.pendingBookings || 0;
           if (pending > 0) next.trips = pending;
         }
         if (marketAlerts.status === 'fulfilled') {
@@ -178,6 +183,8 @@ function SectionContent({ section, onNavigate }: { section: SectionId; onNavigat
       return <MarketJobsSection />;
     case 'health':
       return <SystemHealth />;
+    case 'cms':
+      return <CmsContentDashboard />;
     default:
       return <Overview onNavigate={onNavigate} />;
   }
@@ -188,8 +195,8 @@ function SectionLoading() {
   const { t } = useLanguage();
   return (
     <div className="flex items-center justify-center py-20">
-      <div className="flex items-center gap-3 text-sm text-white/50">
-        <span className="w-5 h-5 border-2 border-[#20A89A] border-t-transparent rounded-full animate-spin" />
+      <div className="flex items-center gap-3 text-sm text-[var(--text-muted)]">
+        <span className="w-5 h-5 border-2 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin" />
         <span>{t('cmd.loading')}</span>
       </div>
     </div>
@@ -250,25 +257,25 @@ export const CommandCenterShell: React.FC = () => {
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[#04171D] text-[#F7F3EA] font-['Plus_Jakarta_Sans',sans-serif] flex">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] flex">
       {/* ─── Sidebar ──────────────────────────────────────────────────── */}
       <aside
-        className={`flex-shrink-0 border-r border-white/8 bg-[#062C35]/80 flex flex-col transition-all duration-200 ${
+        className={`flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface-container)]/80 flex flex-col transition-all duration-200 ${
           sidebarCollapsed ? 'w-16' : 'w-56'
         }`}
       >
         {/* Logo area */}
-        <div className="px-3 py-4 border-b border-white/8">
+        <div className="px-3 py-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#20A89A]/20 border border-[#20A89A]/40 flex items-center justify-center text-[#52C4B7] flex-shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 flex items-center justify-center text-[var(--accent-primary)] flex-shrink-0">
               <Radio className="w-4 h-4 animate-pulse" />
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <div className="text-xs font-bold text-[#F7F3EA] truncate font-['Outfit',sans-serif]">
+                <div className="text-xs font-bold text-[var(--text-primary)] truncate font-['Outfit',sans-serif]">
                   {t('cmd.title')}
                 </div>
-                <div className="text-[10px] text-white/40 truncate">{t('cmd.subtitle')}</div>
+                <div className="text-[11px] text-[var(--text-muted)] truncate">{t('cmd.subtitle')}</div>
               </div>
             )}
           </div>
@@ -279,7 +286,7 @@ export const CommandCenterShell: React.FC = () => {
           {(['core', 'domain', 'system'] as const).map(group => (
             <div key={group}>
               {              !sidebarCollapsed && (
-                <div className="px-2 pt-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/30">
+                <div className="px-2 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                   {group === 'core' ? t('cmd.group.liveOps') : group === 'domain' ? t('cmd.group.domains') : t('cmd.group.system')}
                 </div>
               )}
@@ -294,8 +301,8 @@ export const CommandCenterShell: React.FC = () => {
                     onClick={() => handleNavigate(section.id)}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#20A89A]/20 text-[#52C4B7] border border-[#20A89A]/30'
-                        : 'text-white/60 hover:text-white/90 hover:bg-white/5 border border-transparent'
+                        ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] border border-transparent'
                     }`}
                     title={sidebarCollapsed ? (language === 'ar' ? section.labelAr : section.label) : undefined}
                   >
@@ -304,7 +311,7 @@ export const CommandCenterShell: React.FC = () => {
                       <>
                         <span className="flex-1 text-left truncate">{language === 'ar' ? section.labelAr : section.label}</span>
                         {badgeCount && badgeCount > 0 ? (
-                          <span className="px-1.5 py-0.5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-bold min-w-[18px] text-center">
+                          <span className="px-1.5 py-0.5 rounded-full bg-amber-500/30 text-amber-300 text-[11px] font-bold min-w-[18px] text-center">
                             {badgeCount}
                           </span>
                         ) : null}
@@ -318,11 +325,11 @@ export const CommandCenterShell: React.FC = () => {
         </nav>
 
         {/* Collapse toggle */}
-        <div className="px-2 py-2 border-t border-white/8">
+        <div className="px-2 py-2 border-t border-[var(--border-subtle)]">
           <button
             type="button"
             onClick={() => setSidebarCollapsed(prev => !prev)}
-            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] text-white/40 hover:text-white/70 hover:bg-white/5 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
           >
             {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             {!sidebarCollapsed && <span>{t('cmd.collapse')}</span>}
@@ -333,9 +340,9 @@ export const CommandCenterShell: React.FC = () => {
       {/* ─── Main Content ─────────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <header className="flex-shrink-0 h-12 border-b border-white/8 bg-[#062C35]/40 flex items-center justify-between px-4 sm:px-6">
+        <header className="flex-shrink-0 h-12 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/40 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-[#F7F3EA] font-['Outfit',sans-serif]">
+            <h2 className="text-sm font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
               {NAV_SECTIONS.find(s => s.id === activeSection)
                 ? (language === 'ar' ? NAV_SECTIONS.find(s => s.id === activeSection)!.labelAr : NAV_SECTIONS.find(s => s.id === activeSection)!.label)
                 : t('cmd.nav.overview')}
@@ -346,11 +353,11 @@ export const CommandCenterShell: React.FC = () => {
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white/80 text-xs transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-muted)] text-xs transition-all cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t('cmd.search')}</span>
-              <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-white/10 text-white/40 font-mono">⌘K</kbd>
+              <kbd className="hidden sm:inline text-[11px] px-1 py-0.5 rounded bg-[var(--btn-util-bg)] text-[var(--text-muted)] font-mono">⌘K</kbd>
             </button>
           </div>
         </header>

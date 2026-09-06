@@ -9,7 +9,8 @@ export type CommerceServiceType =
   | 'hotel'
   | 'safari'
   | 'wellness'
-  | 'dining';
+  | 'dining'
+  | 'rental';
 
 export type PaymentState =
   | 'INITIATED'
@@ -52,7 +53,7 @@ export interface ConfirmedBookingItem {
   confirmationCode: string;
   status: 'Confirmed ✓' | 'Pending' | 'Changed';
   location: string;
-  iconType: 'building' | 'car' | 'waves' | 'compass' | 'sparkles' | 'utensils';
+  iconType: 'building' | 'car' | 'waves' | 'compass' | 'sparkles' | 'utensils' | 'bike';
   phone?: string;
   included?: string[];
   cancellationPolicy?: string;
@@ -201,7 +202,9 @@ export interface TripBookingRecord {
     | 'CONFIRMED'
     | 'ASSIGNED'
     | 'DISPATCHED'
+    | 'EN_ROUTE'
     | 'IN_PROGRESS'
+    | 'ARRIVED'
     | 'COMPLETED'
     | 'REJECTED'
     | 'CANCELLED';
@@ -407,4 +410,432 @@ export interface MarketPriceStatEntity {
   }>;
   label: 'OBSERVED_MARKET_DATA';
   lastCalculatedAt: string;
+}
+
+// ------------------------------------------------------------------ hotels
+// Wire shapes for GET /api/hotels and GET /api/hotels/:slug. They mirror
+// HotelEntity in server/db/schema.ts plus the server-side enrichments
+// (packageTotalEGP, bookable) that a listing page needs.
+
+export type HotelCategory = 'budget' | 'mid-range' | 'boutique' | 'resort';
+export type HotelPriceBand = 'budget' | 'moderate' | 'premium';
+
+export interface HotelEntity {
+  id: string;
+  slug: string;
+  name: string;
+  nameAr: string;
+  category: HotelCategory;
+  priceBand: HotelPriceBand;
+  area: string;
+  areaName: string;
+  areaNameAr: string;
+  rating: number;
+  reviewCount: number;
+  ratingSource?: string;
+  typeChips: string[];
+  typeChipsAr: string[];
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  amenities: string[];
+  amenitiesAr: string[];
+  perNightEGP: number;
+  packageNights: number;
+  rooms: number;
+  bestFor: string;
+  bestForAr: string;
+  note: string;
+  noteAr: string;
+  coordinates?: [number, number];
+  skuId: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /** 5-night package cost = perNightEGP x packageNights. */
+  packageTotalEGP: number;
+  /** Resolved by the server so the card reflects real sellable inventory. */
+  bookable: {
+    skuId: string;
+    serviceType: string;
+    basePriceEGP: number;
+    currency: string;
+    supplierId: string;
+    maxCapacityPerSlot: number;
+    cancellationPolicyHours?: number;
+  } | null;
+}
+
+export interface HotelAreaGuideEntry {
+  id: string;
+  name: string;
+  nameAr: string;
+  description: string;
+  descriptionAr: string;
+  spots?: string[];
+  spotsAr?: string[];
+}
+
+export interface HotelCatalogueStats {
+  total: number;
+  averageRating: number;
+  totalReviews: number;
+  priceBands: string[];
+  updatedLabel?: string;
+}
+
+export interface HotelCatalogueResponse {
+  hotels: HotelEntity[];
+  areas: HotelAreaGuideEntry[];
+  stats: HotelCatalogueStats;
+  disclaimer?: { en: string; ar: string };
+  filters: { categories: HotelCategory[]; priceBands: HotelPriceBand[] };
+}
+
+export interface HotelDetailSku {
+  id: string;
+  title: string;
+  titleAr: string;
+  basePriceEGP: number;
+  maxCapacityPerSlot: number;
+  active: boolean;
+  serviceType: string;
+}
+
+export interface HotelDetailSupplier {
+  id: string;
+  businessName: string;
+  businessNameAr?: string;
+  area?: string;
+  city?: string;
+  coordinates?: { lat: number; lng: number };
+  rating?: number;
+  reviewCount?: number;
+}
+
+export interface HotelDetailResponse {
+  hotel: HotelEntity;
+  sku: HotelDetailSku | null;
+  supplier: HotelDetailSupplier | null;
+  areaGuide: HotelAreaGuideEntry | null;
+  disclaimer?: { en: string; ar: string };
+}
+
+// ---------------------------------------------------------------------------
+// Accommodations — generalized successor to the hotels shapes above. Mirrors
+// AccommodationEntity in server/db/schema.ts. /api/hotels keeps working as a
+// compatibility shim over this same data (see server/api/hotelRoutes.ts).
+// ---------------------------------------------------------------------------
+
+export type PropertyType =
+  | 'hotel' | 'hostel' | 'apartment' | 'studio' | 'villa'
+  | 'guesthouse' | 'camp' | 'eco-lodge' | 'boutique-hotel' | 'resort';
+
+export type PropertySourceType = 'WHATSAPP' | 'INSTAGRAM' | 'WEBSITE' | 'BOOKING_COM' | 'AIRBNB' | 'OTHER';
+
+export interface PropertySourceEntity {
+  id: string;
+  accommodationId: string;
+  sourceType: PropertySourceType;
+  url: string;
+  label?: string;
+  displayOrder: number;
+  active: boolean;
+}
+
+export interface AccommodationEntity {
+  id: string;
+  slug: string;
+  name: string;
+  nameAr: string;
+  propertyType: PropertyType;
+  category: HotelCategory;
+  priceBand: HotelPriceBand;
+  areaId: string;
+  area: string;
+  areaName: string;
+  areaNameAr: string;
+  rating: number;
+  reviewCount: number;
+  ratingSource?: string;
+  typeChips: string[];
+  typeChipsAr: string[];
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  amenities: string[];
+  amenitiesAr: string[];
+  perNightEGP: number;
+  packageNights: number;
+  rooms: number;
+  maxGuests: number;
+  bestFor: string;
+  bestForAr: string;
+  note: string;
+  noteAr: string;
+  latitude?: number;
+  longitude?: number;
+  skuId: string;
+  active: boolean;
+  featured: boolean;
+  packageTotalEGP: number;
+  bookable: { skuId: string } | null;
+}
+
+export interface AccommodationSearchFilters {
+  q?: string;
+  propertyTypes?: PropertyType[];
+  categories?: HotelCategory[];
+  priceBands?: HotelPriceBand[];
+  areaIds?: string[];
+  minRating?: number;
+  maxPerNightEGP?: number;
+  guests?: number;
+  mustHaveAmenities?: string[];
+  niceToHaveAmenities?: string[];
+  sort?: 'relevance' | 'rating' | 'price_asc' | 'price_desc';
+}
+
+export interface AccommodationCatalogueResponse {
+  accommodations: AccommodationEntity[];
+  areas: HotelAreaGuideEntry[];
+  stats: { total: number; averageRating: number; totalReviews: number; updatedLabel?: string };
+  disclaimer?: { en: string; ar: string };
+  filters: { propertyTypes: PropertyType[]; categories: HotelCategory[]; priceBands: HotelPriceBand[] };
+}
+
+export interface AccommodationDetailResponse {
+  accommodation: AccommodationEntity;
+  sku: HotelDetailSku | null;
+  supplier: HotelDetailSupplier | null;
+  areaGuide: HotelAreaGuideEntry | null;
+  sources: PropertySourceEntity[];
+  disclaimer?: { en: string; ar: string };
+}
+
+export interface AccommodationSearchIntentResult {
+  filters: AccommodationSearchFilters;
+  confidence: number;
+  source: 'gemini' | 'fallback';
+}
+
+// ---------------------------------------------------------------------------
+// Rentals (bikes MVP — the generic rental domain)
+// ---------------------------------------------------------------------------
+
+export type RentalCategory = 'bike' | 'e-bike';
+
+export interface RentalDeliveryZone {
+  zoneId: string;
+  feeEGP: number;
+}
+
+export interface RentalExtra {
+  id: string;
+  name: string;
+  nameAr: string;
+  priceEGP: number;
+  /** FLAT = once per booking; PER_DAY = price x span days. */
+  pricingBasis: 'FLAT' | 'PER_DAY';
+  active: boolean;
+}
+
+/** The listing view the server builds in rentalService.getListingView. */
+export interface RentalListingView {
+  id: string;
+  slug: string;
+  supplierId: string;
+  skuId: string;
+  category: RentalCategory;
+  subcategory: string;
+  name: string;
+  nameAr: string;
+  tagline: string;
+  taglineAr: string;
+  description: string;
+  descriptionAr: string;
+  features: string[];
+  featuresAr: string[];
+  specs: Record<string, string | number | boolean>;
+  images: string[];
+  /** Fleet size — the availability engine subtracts committed + blocked per day. */
+  quantity: number;
+  dailyRateEGP: number;
+  weeklyRateEGP?: number;
+  multiDayMinDays?: number;
+  multiDayDiscountPercent?: number;
+  /** Refundable deposit; recorded at booking, settled manually at return in MVP. */
+  depositEGP: number;
+  pickupZoneId: string;
+  deliveryZones: RentalDeliveryZone[];
+  pickupMode: 'SHOP' | 'BOTH';
+  rating?: number;
+  reviewCount?: number;
+  featured: boolean;
+  status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
+  active: boolean;
+  cancellationPolicyHours: number;
+  policies: { en: string; ar: string };
+  createdAt: string;
+  updatedAt: string;
+  /** Resolved against real sellable inventory. */
+  bookable: boolean;
+  sku: {
+    id: string;
+    title: string;
+    titleAr: string;
+    basePriceEGP: number;
+    maxCapacityPerSlot: number;
+    active: boolean;
+    serviceType: string;
+  } | null;
+  supplier: {
+    id: string;
+    businessName: string;
+    businessNameAr?: string;
+    area?: string;
+    address?: string;
+    city?: string;
+    rating?: number;
+    reviewCount?: number;
+    whatsapp?: string;
+    phone?: string;
+  } | null;
+  extras: RentalExtra[];
+  maintenanceBlocks: RentalMaintenanceBlock[];
+}
+
+export interface RentalDayAvailability {
+  date: string;
+  available: number;
+  committed: number;
+  blocked: number;
+}
+
+export interface RentalAvailabilityResult {
+  listingId: string;
+  startDate: string;
+  endDate: string;
+  quantity: number;
+  available: boolean;
+  windowAvailable: number;
+  availablePerDay: RentalDayAvailability[];
+  reasonDay?: string;
+}
+
+export interface RentalPriceBreakdown {
+  days: number;
+  dailyRateEGP: number;
+  baseEGP: number;
+  discountEGP: number;
+  extrasEGP: number;
+  deliveryEGP: number;
+  /** Refundable — recorded at booking, not part of the payable total. */
+  depositEGP: number;
+  totalEGP: number;
+}
+
+export interface RentalQuoteExtra {
+  extraId: string;
+  name: string;
+  nameAr: string;
+  priceEGP: number;
+  count: number;
+}
+
+export interface RentalQuoteResult {
+  listingId: string;
+  startDate: string;
+  endDate: string;
+  quantity: number;
+  breakdown: RentalPriceBreakdown;
+  extras: RentalQuoteExtra[];
+  deliveryMode: 'PICKUP' | 'DELIVERY';
+  deliveryZoneId?: string;
+  deliveryFeeEGP: number;
+  cancellationPolicyHours: number;
+}
+
+export type RentalBookingStatus =
+  | 'PENDING_PAYMENT'
+  | 'PENDING_CONFIRMATION'
+  | 'CONFIRMED'
+  | 'READY_FOR_PICKUP'
+  | 'ACTIVE'
+  | 'OVERDUE'
+  | 'RETURNED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'REJECTED';
+
+export interface RentalBookingView {
+  id: string;
+  bookingRef: string;
+  listingId: string;
+  skuId: string;
+  supplierId: string;
+  tripId: string;
+  userId: string;
+  travelerName: string;
+  travelerPhone: string;
+  travelerEmail: string;
+  startDate: string;
+  endDate: string;
+  quantity: number;
+  status: RentalBookingStatus;
+  paymentState: string;
+  holdToken?: string;
+  priceBreakdown: RentalPriceBreakdown;
+  deliveryMode: 'PICKUP' | 'DELIVERY';
+  deliveryZoneId?: string;
+  deliveryAddress?: string;
+  pickupTime?: string;
+  extras: { extraId: string; name: string; nameAr: string; priceEGP: number; count: number }[];
+  depositStatus: 'RECORDED' | 'RETURNED' | 'DEDUCTED';
+  depositDeductionEGP?: number;
+  damageReport?: string;
+  lateFeeEGP?: number;
+  notes?: string;
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  listing?: Pick<RentalListingView, 'id' | 'slug' | 'name' | 'nameAr' | 'images' | 'dailyRateEGP' | 'depositEGP' | 'category' | 'pickupZoneId'> & { supplierName?: string; supplierNameAr?: string };
+}
+
+export interface RentalCatalogueStats {
+  total: number;
+  averageRating: number;
+}
+
+export interface RentalZone {
+  id: string;
+  name: string;
+  nameAr: string;
+}
+
+export interface RentalCatalogueResponse {
+  rentals: RentalListingView[];
+  categories: RentalCategory[];
+  zones: RentalZone[];
+  stats: RentalCatalogueStats;
+  filters: { sortOptions: ('featured' | 'price_asc' | 'price_desc' | 'rating')[] };
+}
+
+export interface RentalDetailResponse {
+  rental: RentalListingView;
+  zones: RentalZone[];
+  availability: RentalAvailabilityResult | null;
+}
+
+export interface RentalMaintenanceBlock {
+  id: string;
+  listingId: string;
+  startDate: string;
+  endDate: string;
+  quantityBlocked: number;
+  reason: string;
+  createdBy: string;
+  createdAt: string;
 }

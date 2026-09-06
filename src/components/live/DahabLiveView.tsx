@@ -175,7 +175,7 @@ export const DahabLiveView: React.FC = () => {
     if (explicit) return explicit;
 
     const full = language === 'ar' ? cam.nameAr : cam.name;
-    const stopWords = language === 'ar' ? ['و'] : ['the', 'a', 'an', '&'];
+    const stopWords = t('live.theAAn');
     const words = full
       .split(/\s+/)
       .filter(w => w && !stopWords.includes(w.toLowerCase()));
@@ -204,21 +204,20 @@ export const DahabLiveView: React.FC = () => {
   const firstName = (profile.name || '').trim().split(/\s+/)[0] || '';
   const nextBooking = bookings.find(b => b.status === 'Confirmed ✓') || bookings[0];
   const morningPreview = [
-    language === 'ar'
-      ? `☀️ صباح الفل${firstName ? ` يا ${firstName}` : ''}!`
-      : `☀️ Good morning${firstName ? `, ${firstName}` : ''}!`,
+    t('live.goodMorning', {
+      name: firstName ? t('live.goodMorningName', { name: firstName }) : '',
+    }),
     reading
-      ? language === 'ar'
-        ? `🌡 حرارة دهب النهارده ${reading.airTempC}°م${reading.waterTempC != null ? ` · 🌊 البحر ${reading.waterTempC}°م` : ''}`
-        : `🌡 ${reading.airTempC}°C in Dahab${reading.waterTempC != null ? ` · 🌊 sea ${reading.waterTempC}°C` : ''}`
+      ? t('live.weather', {
+          air: reading.airTempC,
+          sea: reading.waterTempC != null ? t('live.seaReading', { water: reading.waterTempC }) : '',
+        })
       : null,
     nextBooking
       ? language === 'ar'
         ? `🤿 ${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
         : `🤿 ${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
-      : language === 'ar'
-        ? '🤿 لسه مفيش حجوزات مؤكدة في رحلتك'
-        : '🤿 No confirmed bookings on your trip yet',
+      : t('live.noConfirmedBookingsOn'),
     activeTrip
       ? language === 'ar' ? `🧭 ${activeTrip.title}` : `🧭 ${activeTrip.title}`
       : null
@@ -237,12 +236,12 @@ export const DahabLiveView: React.FC = () => {
     setIsRefreshing(true);
     setTimeout(() => {
       setIsRefreshing(false);
-      showToast(language === 'ar' ? 'تم تحديث بث الكاميرا الحية بنجاح' : 'Camera stream telemetry refreshed');
+      showToast(t('live.cameraStreamTelemetryRefreshed'));
     }, 600);
   };
 
   const handleTakeSnapshot = () => {
-    showToast(language === 'ar' ? `تم التقاط صورة حية من ${selectedCam.nameAr}` : `Snapshot saved from ${selectedCam.name}`);
+    showToast(t('live.snapshotSavedFrom', { name: language === 'ar' ? selectedCam.nameAr : selectedCam.name }));
   };
 
   /**
@@ -261,43 +260,35 @@ export const DahabLiveView: React.FC = () => {
   const spotsConditionList = [
     {
       id: 'canyon',
-      name: language === 'ar' ? 'الكانيون والبيلز (The Canyon)' : 'The Canyon & The Bells',
-      type: language === 'ar' ? 'غطس أعماق وشعاب مرجانية' : 'Deep Reef & Wall Diving',
+      name: t('live.theCanyonTheBells'),
+      type: t('live.deepReefWallDiving'),
       bestWindow: '09:00 AM — 12:30 PM',
       bestWindowAr: '٠٩:٠٠ ص — ١٢:٣٠ م',
-      insight: language === 'ar'
-        ? 'أشعة شمس صباحية مائلة تعبر فوهة الكانيون وتخلق ستائر ضوئية زرقاء خلابة داخل الكهف.'
-        : 'Morning sun angles pierce the canyon slit, creating dramatic azure light curtains inside the cavern.',
+      insight: t('live.morningSunAnglesPierce'),
     },
     {
       id: 'bluehole',
-      name: language === 'ar' ? 'البلو هول وحاجز السرج (Blue Hole)' : 'The Blue Hole & The Saddle',
-      type: language === 'ar' ? 'غطس حر وسنوركلينج' : 'Freediving & Wall Snorkeling',
+      name: t('live.theBlueHoleThe'),
+      type: t('live.freedivingWallSnorkeling'),
       bestWindow: '10:00 AM — 02:00 PM',
       bestWindowAr: '١٠:٠٠ ص — ٠٢:٠٠ م',
-      insight: language === 'ar'
-        ? 'المياه داخل الدائرة الزرقاء ساكنة وهادئة ومثالية للغطس الحر ومراقبة المرجان المروحي.'
-        : 'Water inside the blue circle is calm and glass-like, ideal for freediving depths and soft corals.',
+      insight: t('live.waterInsideTheBlue'),
     },
     {
       id: 'lagoon',
-      name: language === 'ar' ? 'شاطئ اللاجونا (Dahab Lagoon)' : 'Dahab Laguna & Baby Bay',
-      type: language === 'ar' ? 'كايت سيرف وويند سيرف' : 'Kitesurfing & Windsurfing',
+      name: t('live.dahabLagunaBabyBay'),
+      type: t('live.kitesurfingWindsurfing'),
       bestWindow: '01:30 PM — 05:00 PM',
       bestWindowAr: '٠١:٣٠ م — ٠٥:٠٠ م',
-      insight: language === 'ar'
-        ? 'تشتد الرياح الحرارية بعد الظهر فوق المياه الضحلة المسطحة، مما يوفر ظروفاً رائعة للتزلج الشراعي.'
-        : 'Thermal afternoon breeze builds over flat, knee-deep sandbars for effortless cruising and jumps.',
+      insight: t('live.thermalAfternoonBreezeBuilds'),
     },
     {
       id: 'lighthouse',
-      name: language === 'ar' ? 'شاطئ اللايتهاوس (Lighthouse Reef)' : 'Lighthouse Promenade Reef',
-      type: language === 'ar' ? 'سنوركلينج وغروب ومقاهي' : 'Snorkeling, Sunset & Cafes',
+      name: t('live.lighthousePromenadeReef'),
+      type: t('live.snorkelingSunsetCafes'),
       bestWindow: '04:30 PM — 06:45 PM',
       bestWindowAr: '٠٤:٣٠ م — ٠٦:٤٥ م',
-      insight: language === 'ar'
-        ? 'انعكاس ألوان الشفق على جبال سيناء المقابلة مع كوب شاي بدوي بالحبق على الطاولات الشاطئية.'
-        : 'Pastel sunset reflection over the Sinai mountain rim while enjoying Habak tea on beach carpet.',
+      insight: t('live.pastelSunsetReflectionOver'),
     },
   ];
 
@@ -306,30 +297,30 @@ export const DahabLiveView: React.FC = () => {
     : spotsConditionList.filter(s => s.id === activeSpotTab);
 
   return (
-    <div className="w-full bg-[#FDFBF7] text-[#142126] pb-28 md:pb-20 font-['Plus_Jakarta_Sans',sans-serif]" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="w-full bg-[var(--text-primary)] text-[var(--text-primary)] pb-28 md:pb-20 font-['Plus_Jakarta_Sans',sans-serif]" dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* 1. Internal Page Header */}
       <InternalPageHeader
         variant="trip"
-        eyebrow={language === 'ar' ? 'رادار دهب البيئي والبحري الحي' : 'LIVE RED SEA ENVIRONMENTAL RADAR'}
-        eyebrowIcon={<span className="w-2 h-2 rounded-full bg-[#20A89A] animate-pulse" />}
+        eyebrow={t('live.lIVEREDSEAENVIRONMENTAL')}
+        eyebrowIcon={<span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse" />}
         title={t('live.title')}
         subtitle={t('live.subtitle')}
         breadcrumbs={[
-          { label: language === 'ar' ? 'الرئيسية' : 'Home', to: '/home' },
-          { label: language === 'ar' ? 'رحلتي' : 'My Trip', to: '/my-trip' },
-          { label: language === 'ar' ? 'الرادار الحي' : 'Live Radar' }
+          { label: t('daygi.home'), to: '/home' },
+          { label: t('live.myTrip'), to: '/my-trip' },
+          { label: t('live.liveRadar') }
         ]}
         badges={[
-          { text: language === 'ar' ? 'تحديث حي' : 'Live Sync', icon: <Waves className="w-3 h-3 text-[#52C4B7]" /> }
+          { text: t('live.liveSync'), icon: <Waves className="w-3 h-3 text-[var(--accent-primary)]" /> }
         ]}
         actions={
           <button
             type="button"
             onClick={() => navigateTo('/my-trip')}
-            className="px-5 py-2.5 rounded-full bg-[#E7A83B] hover:bg-[#F4C36C] text-[#04171D] font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2"
+            className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--text-primary)] font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2"
           >
-            <span>{language === 'ar' ? 'مطابقة مع جدول رحلتي' : 'Sync With My Itinerary'}</span>
+            <span>{t('live.syncWithMyItinerary')}</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           </button>
         }
@@ -349,58 +340,58 @@ export const DahabLiveView: React.FC = () => {
           rather than guessed.
         */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
-          <div className="bg-[#04171D]/60 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-[#E7A83B]">
+          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
               <Sun className="w-4 h-4" />
               <span>{t('live.airTemp')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[#F7F3EA]">
+            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
               {reading ? `${reading.airTempC}°C` : '—'}
             </div>
-            <div className="text-[12px] text-[#E7D3AE]/80">
-              {conditionLabel || (language === 'ar' ? 'القراءة مش متاحة' : 'Reading unavailable')}
+            <div className="text-[12px] text-[var(--surface-container)]/80">
+              {conditionLabel || (t('live.readingUnavailable'))}
             </div>
           </div>
 
-          <div className="bg-[#04171D]/60 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-[#52C4B7]">
+          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--accent-primary)]">
               <Thermometer className="w-4 h-4" />
               <span>{t('live.waterTemp')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[#F7F3EA]">
+            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
               {reading?.waterTempC != null ? `${reading.waterTempC}°C` : '—'}
             </div>
-            <div className="text-[12px] text-[#52C4B7]">
+            <div className="text-[12px] text-[var(--accent-primary)]">
               {reading?.waterTempC != null
-                ? language === 'ar' ? 'حرارة سطح البحر' : 'Sea surface'
-                : language === 'ar' ? 'مش منشورة دلوقتي' : 'Not published now'}
+                ? t('live.seaSurface')
+                : t('live.notPublishedNow')}
             </div>
           </div>
 
-          <div className="bg-[#04171D]/60 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-[#E7A83B]">
+          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
               <Wind className="w-4 h-4" />
               <span>{t('live.wind')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[#F7F3EA]">
+            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
               {reading ? `${reading.windKnots} kn` : '—'}
             </div>
-            <div className="text-[12px] text-[#E7D3AE]/80">
+            <div className="text-[12px] text-[var(--surface-container)]/80">
               {reading ? reading.windDirection : '—'}
             </div>
           </div>
 
-          <div className="bg-[#04171D]/60 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 space-y-1">
-            <div className="flex items-center gap-1.5 text-xs text-[#E7A83B]">
+          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
               <Clock className="w-4 h-4" />
-              <span>{language === 'ar' ? 'موعد الغروب' : 'Sunset'}</span>
+              <span>{t('live.sunset')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[#F7F3EA]">
+            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
               {sunsetLabel || '—'}
             </div>
-            <div className="text-[12px] text-[#E7A83B]">
+            <div className="text-[12px] text-[var(--accent-secondary)]">
               {observedAtLabel
-                ? language === 'ar' ? `قراءة ${observedAtLabel}` : `reading ${observedAtLabel}`
+                ? t('live.reading', { observedAtLabel })
                 : ''}
             </div>
           </div>
@@ -411,28 +402,28 @@ export const DahabLiveView: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* 🎥 LIVE STREAMING BEACH CAMERAS PLAYER (100% PRODUCTION HARNESS) */}
-        <section aria-label="Live Dahab Beach Cameras" className="rounded-3xl bg-[#04171D] text-[#F7F3EA] border border-cyan-500/20 shadow-2xl overflow-hidden">
+        <section aria-label="Live Dahab Beach Cameras" className="rounded-3xl bg-[var(--text-primary)] text-[var(--text-primary)] border border-cyan-500/20 shadow-2xl overflow-hidden">
           <div className="p-6 sm:p-8 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
               <div className="space-y-1">
                 {/* Was a pulsing red dot, "LIVE BEACHFRONT CAMERAS" and a
                     "1080p 60fps" badge, over four stock photographs. */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#52C4B7] font-['Outfit',sans-serif] flex items-center gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)] font-['Outfit',sans-serif] flex items-center gap-1.5">
                     <Radio className="w-3.5 h-3.5" />
-                    {language === 'ar' ? 'مواقع دهب وحالة الجو دلوقتي' : 'DAHAB SPOTS & CURRENT CONDITIONS'}
+                    {t('live.dAHABSPOTSCURRENTCONDITIONS')}
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-white font-['Outfit',sans-serif]">
                   {language === 'ar' ? selectedCam.nameAr : selectedCam.name}
                 </p>
-                <p className="text-xs text-[#E7D3AE]/80">
+                <p className="text-xs text-[var(--surface-container)]/80">
                   {selectedCam.highlights}
                 </p>
               </div>
 
               {/* Camera Switcher Tabs */}
-              <div className="flex flex-wrap items-center gap-1.5 bg-black/50 p-1.5 rounded-2xl border border-white/10">
+              <div className="flex flex-wrap items-center gap-1.5 bg-black/50 p-1.5 rounded-2xl border border-[var(--border-subtle)]">
                 {cameras.map((cam) => {
                   const isCurrent = cam.id === selectedCameraId;
                   return (
@@ -442,8 +433,8 @@ export const DahabLiveView: React.FC = () => {
                       onClick={() => setSelectedCameraId(cam.id)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                         isCurrent
-                          ? 'bg-[#0F6F78] text-white shadow-md border border-[#52C4B7]/50'
-                          : 'text-[#E7D3AE] hover:text-white hover:bg-white/10'
+                          ? 'bg-[var(--accent-primary)] text-white shadow-md border border-[var(--accent-primary)]/50'
+                          : 'text-[var(--surface-container)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
                       }`}
                     >
                       <Video className="w-3 h-3" />
@@ -455,7 +446,7 @@ export const DahabLiveView: React.FC = () => {
             </div>
 
             {/* Video Player Display Canvas */}
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-black shadow-inner">
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-black shadow-inner">
               <img
                 src={selectedCam.imageUrl}
                 alt={selectedCam.name}
@@ -472,15 +463,15 @@ export const DahabLiveView: React.FC = () => {
                 {/* Was "REC · LIVE" beside a running timecode, and a viewer
                     count — 42, 68, 55, 31 — that was written into the file and
                     never moved. Nothing here streams; this is a photograph. */}
-                <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15 text-xs text-white">
-                  <span className="font-bold uppercase tracking-wider text-[12px] text-[#E7D3AE]">
-                    {language === 'ar' ? 'صورة للمكان' : 'SPOT PHOTO'}
+                <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-[var(--border-subtle)] text-xs text-white">
+                  <span className="font-bold uppercase tracking-wider text-[12px] text-[var(--surface-container)]">
+                    {t('live.sPOTPHOTO')}
                   </span>
                   {observedAtLabel && (
                     <>
-                      <span className="text-white/40">|</span>
-                      <span className="font-mono text-xs text-[#E7D3AE]">
-                        {language === 'ar' ? `قراءة ${observedAtLabel}` : `reading ${observedAtLabel}`}
+                      <span className="text-[var(--text-muted)]">|</span>
+                      <span className="font-mono text-xs text-[var(--surface-container)]">
+                        {t('live.reading', { observedAtLabel })}
                       </span>
                     </>
                   )}
@@ -490,18 +481,18 @@ export const DahabLiveView: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleRefreshFeed}
-                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-white/15 transition-all cursor-pointer"
+                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-all cursor-pointer"
                     title="Refresh stream buffer"
-                    aria-label={language === 'ar' ? 'تحديث البث' : 'Refresh stream buffer'}
+                    aria-label={t('live.refreshStreamBuffer')}
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
                   </button>
                   <button
                     type="button"
                     onClick={handleTakeSnapshot}
-                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-white/15 transition-all cursor-pointer"
+                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-all cursor-pointer"
                     title="Capture HD snapshot"
-                    aria-label={language === 'ar' ? 'التقاط صورة عالية الدقة' : 'Capture HD snapshot'}
+                    aria-label={t('live.captureHDSnapshot')}
                   >
                     <Camera className="w-3.5 h-3.5" />
                   </button>
@@ -509,23 +500,23 @@ export const DahabLiveView: React.FC = () => {
               </div>
 
               {/* Bottom Stream Telemetry Bar */}
-              <div className="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pointer-events-auto bg-black/70 backdrop-blur-md p-3.5 rounded-xl border border-white/15">
+              <div className="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pointer-events-auto bg-black/70 backdrop-blur-md p-3.5 rounded-xl border border-[var(--border-subtle)]">
                 <div className="flex items-center gap-4 text-xs">
                   <button
                     type="button"
                     onClick={() => setIsPlaying((p) => !p)}
                     aria-label={isPlaying
-                      ? (language === 'ar' ? 'إيقاف البث المؤقت' : 'Pause the live stream')
-                      : (language === 'ar' ? 'تشغيل البث' : 'Play the live stream')}
+                      ? (t('live.pauseTheLiveStream'))
+                      : (t('live.playTheLiveStream'))}
                     aria-pressed={isPlaying}
                     /* Was squeezed to 21px wide by the flex row, and carried no
                        accessible name at all — an icon-only stream control. */
-                    className="w-9 h-9 flex-shrink-0 rounded-lg bg-[#0F6F78] hover:bg-[#158F9B] text-white flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                    className="w-9 h-9 flex-shrink-0 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-white flex items-center justify-center transition-all cursor-pointer shadow-sm"
                   >
                     {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   </button>
                   <div>
-                    <span className="text-[11px] text-[#E7D3AE]/70 block font-mono">LOCATION ORIENTATION</span>
+                    <span className="text-[11px] text-[var(--surface-container)]/70 block font-mono">LOCATION ORIENTATION</span>
                     <span className="font-bold text-white text-xs">{selectedCam.orientation}</span>
                   </div>
                 </div>
@@ -534,22 +525,22 @@ export const DahabLiveView: React.FC = () => {
                     level ("Moderate & Relaxed", "Active Kites in Air") that
                     nothing observes, so it is gone rather than guessed. */}
                 {selectedCam.conditions ? (
-                  <div className="flex items-center gap-3 text-xs text-[#F7F3EA]">
-                    <span className="px-2.5 py-1 rounded-md bg-white/10 text-white font-mono">
+                  <div className="flex items-center gap-3 text-xs text-[var(--text-primary)]">
+                    <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-white font-mono">
                       💨 {selectedCam.conditions.windKnots} kn {selectedCam.conditions.windDirection}
                     </span>
                     {selectedCam.conditions.waterTempC !== null && (
-                      <span className="px-2.5 py-1 rounded-md bg-white/10 text-[#52C4B7] font-mono">
+                      <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-[var(--accent-primary)] font-mono">
                         🌊 {selectedCam.conditions.waterTempC}°C
                       </span>
                     )}
-                    <span className="px-2.5 py-1 rounded-md bg-white/10 text-[#E7A83B] font-mono">
+                    <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-[var(--accent-secondary)] font-mono">
                       ☀️ {selectedCam.conditions.airTempC}°C
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-[#D2E3DE]/60">
-                    {language === 'ar' ? 'القراءة مش متاحة دلوقتي' : 'Conditions unavailable right now'}
+                  <span className="text-xs text-[var(--text-secondary)]/60">
+                    {t('live.conditionsUnavailableRightNow')}
                   </span>
                 )}
               </div>
@@ -560,62 +551,62 @@ export const DahabLiveView: React.FC = () => {
         {/* Recommended Action Cards for Right Now */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Best Time to Dive Canyon */}
-          <div className="p-6 rounded-3xl bg-white border border-[#142126]/10 shadow-xs space-y-4 relative overflow-hidden">
+          <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--text-primary)]/10 shadow-xs space-y-4 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#0F6F78] bg-[#062C35]/5 px-3 py-1 rounded-full border border-[#0F6F78]/20 font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20 font-['Outfit',sans-serif]">
                   {t('live.bestTimeCanyon')}
                 </span>
-                <h2 className="text-xl font-bold text-[#142126] font-['Outfit',sans-serif]">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
                   {t('live.canyonTime')}
                 </h2>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-[#062C35]/5 text-[#0F6F78] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)]/5 text-[var(--accent-primary)] flex items-center justify-center font-bold">
                 🤿
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-[#142126]/75">
+            <p className="text-xs sm:text-sm text-[var(--text-primary)]/75">
               {t('live.canyonReason')}
             </p>
-            <div className="pt-3 border-t border-[#142126]/8 flex items-center justify-between text-xs font-semibold text-[#142126]">
-              <span>{language === 'ar' ? 'الموقع: الكانيون دهب' : 'Location: The Canyon, Dahab'}</span>
+            <div className="pt-3 border-t border-[var(--text-primary)]/8 flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
+              <span>{t('live.locationTheCanyonDahab')}</span>
               <button
                 type="button"
                 onClick={() => navigateTo('/my-trip', { dayId: 2 })}
-                className="text-[#0F6F78] hover:text-[#062C35] font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[var(--accent-primary)] hover:text-[var(--surface-container)] font-bold flex items-center gap-1 cursor-pointer"
               >
-                <span>{language === 'ar' ? 'حجز جلسة غوص' : 'Book Dive'}</span>
+                <span>{t('live.bookDive')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
             </div>
           </div>
 
           {/* Best Kite Window Lagoon */}
-          <div className="p-6 rounded-3xl bg-white border border-[#142126]/10 shadow-xs space-y-4 relative overflow-hidden">
+          <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--text-primary)]/10 shadow-xs space-y-4 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#0F6F78] bg-[#062C35]/5 px-3 py-1 rounded-full border border-[#0F6F78]/20 font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20 font-['Outfit',sans-serif]">
                   {t('live.bestTimeKite')}
                 </span>
-                <h2 className="text-xl font-bold text-[#142126] font-['Outfit',sans-serif]">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
                   {t('live.kiteTime')}
                 </h2>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-[#062C35]/5 text-[#0F6F78] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)]/5 text-[var(--accent-primary)] flex items-center justify-center font-bold">
                 🏄
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-[#142126]/75">
+            <p className="text-xs sm:text-sm text-[var(--text-primary)]/75">
               {t('live.kiteReason')}
             </p>
-            <div className="pt-3 border-t border-[#142126]/8 flex items-center justify-between text-xs font-semibold text-[#142126]">
-              <span>{language === 'ar' ? 'الموقع: شاطئ اللاجونا' : 'Location: Dahab Laguna'}</span>
+            <div className="pt-3 border-t border-[var(--text-primary)]/8 flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
+              <span>{t('live.locationDahabLaguna')}</span>
               <button
                 type="button"
                 onClick={() => navigateTo('/explore')}
-                className="text-[#0F6F78] hover:text-[#062C35] font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[var(--accent-primary)] hover:text-[var(--surface-container)] font-bold flex items-center gap-1 cursor-pointer"
               >
-                <span>{language === 'ar' ? 'عرض على الخريطة' : 'View on Map'}</span>
+                <span>{t('live.viewOnMap')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
             </div>
@@ -624,39 +615,39 @@ export const DahabLiveView: React.FC = () => {
 
         {/* 3. Spot-by-Spot Live Status */}
         <section
-          aria-label={language === 'ar' ? 'حالة مواقع دهب الآن' : 'Live conditions by spot'}
-          className="bg-white rounded-3xl p-6 sm:p-8 border border-[#142126]/10 shadow-xs space-y-6"
+          aria-label={t('live.liveConditionsBySpot')}
+          className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142126]/8 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--text-primary)]/8 pb-5">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#142126] font-['Outfit',sans-serif]">
-                {language === 'ar' ? 'حالة مواقع الغوص والأنشطة في دهب الآن' : 'Live Conditions by Dahab Spot'}
+              <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                {t('live.liveConditionsByDahab')}
               </h2>
-              <p className="text-xs sm:text-sm text-[#142126]/60 font-normal">
-                {language === 'ar' ? 'تم التحديث قبل ٥ دقائق من المراكز البحرية الشريكة' : 'Updated 5 mins ago from Dahab Marine Centers'}
+              <p className="text-xs sm:text-sm text-[var(--text-primary)]/60 font-normal">
+                {t('live.updated5MinsAgo')}
               </p>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 bg-[#062C35]/5 p-1 rounded-2xl">
+            <div className="flex items-center gap-1.5 bg-[var(--surface-container)]/5 p-1 rounded-2xl">
               {(['all', 'canyon', 'bluehole', 'lagoon', 'lighthouse'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveSpotTab(tab)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer font-['Outfit',sans-serif] ${
-                    activeSpotTab === tab ? 'bg-[#062C35] text-[#F7F3EA] shadow-xs' : 'text-[#142126]/70 hover:text-[#142126]'
+                    activeSpotTab === tab ? 'bg-[var(--surface-container)] text-[var(--text-primary)] shadow-xs' : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)]'
                   }`}
                 >
                   {tab === 'all'
                     ? t('common.viewAll')
                     : tab === 'canyon'
-                    ? (language === 'ar' ? 'الكانيون' : 'Canyon')
+                    ? (t('live.canyon'))
                     : tab === 'bluehole'
-                    ? (language === 'ar' ? 'البلو هول' : 'Blue Hole')
+                    ? (t('live.blueHole'))
                     : tab === 'lagoon'
-                    ? (language === 'ar' ? 'اللاجونا' : 'Laguna')
-                    : (language === 'ar' ? 'اللايتهاوس' : 'Lighthouse')}
+                    ? (t('daygi.laguna'))
+                    : (t('daygi.lighthouse'))}
                 </button>
               ))}
             </div>
@@ -666,14 +657,14 @@ export const DahabLiveView: React.FC = () => {
             {filteredSpots.map((spot) => (
               <div
                 key={spot.id}
-                className="p-5 rounded-2xl bg-[#F7F3EA]/40 border border-[#142126]/10 hover:border-[#20A89A]/40 transition-all space-y-3"
+                className="p-5 rounded-2xl bg-[var(--text-primary)]/40 border border-[var(--text-primary)]/10 hover:border-[var(--accent-primary)]/40 transition-all space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-[#142126] font-['Outfit',sans-serif]">
+                    <h3 className="text-base font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
                       {spot.name}
                     </h3>
-                    <p className="text-xs text-[#142126]/60 font-medium">
+                    <p className="text-xs text-[var(--text-primary)]/60 font-medium">
                       {spot.type}
                     </p>
                   </div>
@@ -682,47 +673,47 @@ export const DahabLiveView: React.FC = () => {
                 </div>
 
                 {reading ? (
-                  <div className="grid grid-cols-3 gap-2 py-2 border-y border-[#142126]/8 text-xs">
+                  <div className="grid grid-cols-3 gap-2 py-2 border-y border-[var(--text-primary)]/8 text-xs">
                     <div>
-                      <span className="text-[11px] text-[#142126]/60 block">{t('live.waterTemp')}</span>
-                      <span className="font-bold text-[#142126]">
+                      <span className="text-[11px] text-[var(--text-primary)]/60 block">{t('live.waterTemp')}</span>
+                      <span className="font-bold text-[var(--text-primary)]">
                         {reading.waterTempC !== null ? `${reading.waterTempC}°C` : '—'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#142126]/60 block">{language === 'ar' ? 'الرياح' : 'Wind'}</span>
-                      <span className="font-bold text-[#142126]">
+                      <span className="text-[11px] text-[var(--text-primary)]/60 block">{t('live.windLabel')}</span>
+                      <span className="font-bold text-[var(--text-primary)]">
                         {reading.windKnots} kn {reading.windDirection}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[11px] text-[#142126]/60 block">{language === 'ar' ? 'حرارة الجو' : 'Air'}</span>
-                      <span className="font-bold text-[#142126]">{reading.airTempC}°C</span>
+                      <span className="text-[11px] text-[var(--text-primary)]/60 block">{t('live.air')}</span>
+                      <span className="font-bold text-[var(--text-primary)]">{reading.airTempC}°C</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="py-2 border-y border-[#142126]/8 text-xs text-[#142126]/60">
-                    {language === 'ar' ? 'القراءة مش متاحة دلوقتي' : 'Conditions unavailable right now'}
+                  <div className="py-2 border-y border-[var(--text-primary)]/8 text-xs text-[var(--text-primary)]/60">
+                    {t('live.conditionsUnavailableRightNow')}
                   </div>
                 )}
 
-                <p className="text-xs text-[#142126]/75 leading-relaxed font-normal">
+                <p className="text-xs text-[var(--text-primary)]/75 leading-relaxed font-normal">
                   {spot.insight}
                 </p>
 
-                <div className="pt-2 flex items-center justify-between text-xs font-semibold text-[#0F6F78]">
-                  <span className="flex items-center gap-1 text-[#142126]/70">
-                    <Clock className="w-3.5 h-3.5 text-[#E7A83B]" />
+                <div className="pt-2 flex items-center justify-between text-xs font-semibold text-[var(--accent-primary)]">
+                  <span className="flex items-center gap-1 text-[var(--text-primary)]/70">
+                    <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                     <span>{language === 'ar' ? spot.bestWindowAr : spot.bestWindow}</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => {
-                      showToast(language === 'ar' ? `تم إضافة ${spot.name} إلى مسودة يومك` : `Added ${spot.name} to day plan`);
+                      showToast(t('live.addedToDayPlan', { name: spot.name }));
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#062C35] hover:bg-[#083E4B] text-[#F7F3EA] text-xs font-bold transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] text-xs font-bold transition-colors cursor-pointer"
                   >
-                    {language === 'ar' ? 'إضافة إلى يومي' : 'Add to Day'}
+                    {t('live.addToDay')}
                   </button>
                 </div>
               </div>
@@ -731,17 +722,17 @@ export const DahabLiveView: React.FC = () => {
         </section>
 
         {/* 4. WhatsApp Companion Morning Briefing Preview */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-[#04171D] text-[#F7F3EA] border border-cyan-500/20 shadow-xl space-y-4">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[var(--text-primary)] text-[var(--text-primary)] border border-cyan-500/20 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#062C35] text-[#52C4B7] border border-[#20A89A]/30 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center font-bold">
                 <Smartphone className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#52C4B7] font-['Outfit',sans-serif]">
-                  {language === 'ar' ? 'ميزة واتساب التلقائية الذكية' : 'AUTOMATED WHATSAPP MORNING SYNC'}
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif]">
+                  {t('live.aUTOMATEDWHATSAPPMORNINGSYNC')}
                 </span>
-                <h2 className="text-lg sm:text-xl font-bold font-['Outfit',sans-serif] text-[#F7F3EA]">
+                <h2 className="text-lg sm:text-xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
                   {t('whatsapp.title')}
                 </h2>
               </div>
@@ -749,10 +740,10 @@ export const DahabLiveView: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => showToast(language === 'ar' ? 'تم تفعيل التنبيه الصباحي على الواتساب بنجاح' : 'WhatsApp morning briefing enabled!')}
-              className="px-4 py-2 rounded-xl bg-[#E7A83B] hover:bg-[#F4C36C] text-[#04171D] font-bold text-xs transition-colors cursor-pointer self-start sm:self-center"
+              onClick={() => showToast(t('live.whatsAppMorningBriefingEnabled'))}
+              className="px-4 py-2 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--text-primary)] font-bold text-xs transition-colors cursor-pointer self-start sm:self-center"
             >
-              {language === 'ar' ? 'تفعيل تنبيهات ٧:٣٠ ص' : 'Enable 07:30 AM Sync'}
+              {t('live.enable0730AMSync')}
             </button>
           </div>
 
@@ -765,7 +756,7 @@ export const DahabLiveView: React.FC = () => {
             Mahmoud arrives at 08:30 AM" — a name, a temperature, a dive and a
             driver, none of them the reader's, shown to everyone.
           */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-white/8 font-mono text-xs text-[#E7D3AE]/90 whitespace-pre-line leading-relaxed">
+          <div className="p-4 rounded-2xl bg-black/40 border border-[var(--border-subtle)] font-mono text-xs text-[var(--surface-container)]/90 whitespace-pre-line leading-relaxed">
             {morningPreview}
           </div>
         </div>

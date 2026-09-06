@@ -1,12 +1,63 @@
 import crypto from 'crypto';
 import { db } from '../db/database';
-import { HoldEntity, BookingEntity, TransferTelemetryEntity, InventorySlotEntity } from '../db/schema';
+import { HoldEntity, BookingEntity, TransferTelemetryEntity, InventorySlotEntity, ProductSkuEntity } from '../db/schema';
 import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
+import { transferRouteService } from './transferRouteService';
 
 const HOLD_TTL_MINUTES = 15;
 
 export class TransferService {
+  /**
+   * Materialize (or reuse) a real ProductSku for a route + tier.
+   *
+   * The dynamic route catalog is priced by formula (base + per-km × tier) rather
+   * than a flat list of SKUs, but the commerce pipeline — hold → checkout →
+   * ledger → telemetry — is SKU-keyed and takes `sku.basePriceEGP` as the
+   * amount. Materialising a SKU per route/tier with the computed price lets the
+   * whole existing pipeline handle a transfer without any price ever being
+   * trusted from the client. Idempotent: same id returns the existing SKU.
+   */
+  public ensureSkuForRoute(routeId: string, tierId: 'private' | 'shared' | 'premium'): ProductSkuEntity {
+    const route = transferRouteService.getById(routeId);
+    if (!route) throw new Error(`Transfer origin not found: ${routeId}`);
+
+    const tier = transferRouteService.getTier(tierId);
+    const skuId = `SKU-TRF-${route.id}-${tier.id}`;
+
+    const existing = db.productSkus.find(s => s.id === skuId);
+    if (existing) return existing;
+
+    const quote = transferRouteService.quoteRoute(route, tier.id)[0];
+    const routeLabelEn = `${route.originEn} → ${route.destinationEn}`;
+    const routeLabelAr = `${route.originAr} ← ${route.destinationAr}`;
+
+    const sku: ProductSkuEntity = {
+      id: skuId,
+      supplierId: 'SUP-SHUTTLE-01',
+      serviceType: 'transfer',
+      title: `${tier.labelEn} · ${routeLabelEn}`,
+      titleAr: `${tier.labelAr} · ${routeLabelAr}`,
+      description: tier.vehicleEn,
+      routeFrom: route.originEn,
+      routeTo: route.destinationEn,
+      durationMinutes: route.baseDurationMinutes,
+      basePriceEGP: quote.priceEGP,
+      currency: 'EGP',
+      maxCapacityPerSlot: tier.capacity,
+      active: true,
+      includedItems: route.originType === 'airport' ? ['60-minute flight-delay wait'] : undefined,
+      cancellationPolicyHours: 12
+    };
+
+    db.runInTransaction(() => {
+      if (!db.productSkus.some(s => s.id === sku.id)) {
+        db.productSkus.push(sku);
+      }
+    });
+
+    return sku;
+  }
   // Check and clean expired holds
   public releaseExpiredHolds() {
     const now = new Date().toISOString();
@@ -345,7 +396,9 @@ export class TransferService {
       const telemetry = db.transferTelemetry.find(t => t.bookingId === booking.id || t.referenceCode === booking.bookingRef);
       if (telemetry) {
         if (supplierState === 'DISPATCHED') telemetry.status = 'DISPATCHED';
+        if (supplierState === 'EN_ROUTE') telemetry.status = 'EN_ROUTE';
         if (supplierState === 'IN_PROGRESS') telemetry.status = 'PASSENGER_PICKED_UP';
+        if (supplierState === 'ARRIVED') telemetry.status = 'ARRIVED';
         if (supplierState === 'COMPLETED') telemetry.status = 'COMPLETED';
         telemetry.updatedAt = new Date().toISOString();
       }

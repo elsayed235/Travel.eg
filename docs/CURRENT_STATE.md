@@ -5,6 +5,15 @@
 **Date:** 2026-08-27  
 **Status:** Baseline Established & Code Verified  
 
+> ## ⚠️ SUPERSEDED — READ FIRST (2026-09-02)
+>
+> Dated baseline audit describing the then-persisted **Firestore**/JSON state.
+> The current authoritative persistence is adapter-based with **SQLite** as the
+> default (`PERSISTENCE_ADAPTER=sqlite`, store at `data/dahab.sqlite`); the
+> Postgres adapter's `save()` is an empty stub and Firestore is not a production
+> store. Per `AGENTS.md` the executable source is authoritative over this doc.
+> Current baseline: `npm test` → 422/422, `npm run lint` clean, `npm run build` OK.
+
 ---
 
 ## 1. Executive Baseline Summary

@@ -82,9 +82,7 @@ export const ProgramDetailView: React.FC = () => {
     if (!isSignedIn) {
       setIntendedRoute(`/programs/${activeProgram.id}`);
       showToast(
-        language === 'ar'
-          ? 'سجّل دخولك أولاً عشان نضيف البرنامج ده لرحلتك.'
-          : 'Sign in so we can add this programme to your trips.'
+        t('programs.signInSoWe')
       );
       navigateTo('/auth/sign-in');
       return;
@@ -116,16 +114,12 @@ export const ProgramDetailView: React.FC = () => {
 
       openTrip(trip.id);
       showToast(
-        language === 'ar'
-          ? `تمت إضافة «${activeProgram.titleAr}» لرحلتك — احجز خدماتك خطوة بخطوة.`
-          : `"${trip.title}" added to your trips — explore and book services next.`
+        t('programs.addedToTrips', { title: language === 'ar' ? activeProgram.titleAr : trip.title })
       );
       navigateTo('/my-trip');
     } catch (err: any) {
       setActionError(
-        language === 'ar'
-          ? `تعذّرت إضافة البرنامج: ${err?.message || ''}`
-          : `The programme could not be added: ${err?.message || ''}`
+        t('programs.couldNotBeAdded', { message: err?.message || '' })
       );
     } finally {
       setIsStartingTrip(false);
@@ -157,7 +151,7 @@ export const ProgramDetailView: React.FC = () => {
     <div
       id="program-detail-page"
       className={`min-h-screen pb-28 transition-colors duration-300 ${
-        isDark ? 'bg-[#081714] text-[#F7F3EA]' : 'bg-[#FBF9F5] text-[#122420]'
+        'bg-[var(--surface-card)] text-[var(--text-primary)]'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -166,8 +160,8 @@ export const ProgramDetailView: React.FC = () => {
         aria-label="Breadcrumb navigation"
         className={`border-b sticky top-16 sm:top-20 z-30 backdrop-blur-xl transition-colors ${
           isDark
-            ? 'bg-[#081714]/85 border-white/10 text-[#D2E3DE]'
-            : 'bg-[#FBF9F5]/90 border-[#122420]/10 text-[#4A635D]'
+            ? 'bg-[var(--surface-card)]/85 border-[var(--border-subtle)] text-[var(--text-secondary)]'
+            : 'bg-[var(--text-primary)]/90 border-[var(--text-primary)]/10 text-[var(--text-secondary)]'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 text-xs font-semibold">
@@ -177,7 +171,7 @@ export const ProgramDetailView: React.FC = () => {
               id="back-to-home-link"
               onClick={() => navigateTo('/home')}
               className={`inline-flex items-center gap-1.5 transition-colors hover:underline cursor-pointer ${
-                isDark ? 'hover:text-white' : 'hover:text-[#122420]'
+                'hover:text-[var(--text-primary)]'
               }`}
             >
               {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -197,7 +191,7 @@ export const ProgramDetailView: React.FC = () => {
                 }, 100);
               }}
               className={`transition-colors hover:underline cursor-pointer ${
-                isDark ? 'hover:text-white' : 'hover:text-[#122420]'
+                'hover:text-[var(--text-primary)]'
               }`}
             >
               {t('programPage.breadcrumbReady')}
@@ -205,7 +199,7 @@ export const ProgramDetailView: React.FC = () => {
 
             <span className="opacity-40">/</span>
 
-            <span className={`font-bold truncate max-w-[200px] sm:max-w-xs ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}>
+            <span className={`font-bold truncate max-w-[200px] sm:max-w-xs text-[var(--accent-primary)]`}>
               {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
             </span>
           </div>
@@ -217,8 +211,8 @@ export const ProgramDetailView: React.FC = () => {
             onClick={() => navigateTo('/home')}
             className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
               isDark
-                ? 'bg-[#13312B] hover:bg-[#173832] text-[#F7F3EA] border-white/10'
-                : 'bg-white hover:bg-stone-100 text-[#122420] border-[#122420]/15 shadow-xs'
+                ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
+                : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/15 shadow-xs'
             }`}
           >
             {isRTL ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
@@ -252,15 +246,15 @@ export const ProgramDetailView: React.FC = () => {
             
             {/* Badges & Trust Strip */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#F4C36C] text-[#081714] shadow-md">
-                <Star className="w-3.5 h-3.5 fill-[#081714] text-[#081714]" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md">
+                <Star className="w-3.5 h-3.5 fill-[var(--surface-card)] text-[var(--surface-card)]" />
                 <span>{language === 'ar' ? activeProgram.badgeAr : activeProgram.badge}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-white/15 backdrop-blur-md text-white border border-white/20">
-                <Calendar className="w-3.5 h-3.5 text-[#52C4B7]" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-[var(--btn-util-bg)] backdrop-blur-md text-white border border-[var(--border-subtle)]">
+                <Calendar className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>
-                  {activeProgram.durationDays} {language === 'ar' ? 'أيام مبرمجة' : 'Days'} · {language === 'ar' ? activeProgram.paceAr : activeProgram.pace}
+                  {activeProgram.durationDays} {t('programs.days')} · {language === 'ar' ? activeProgram.paceAr : activeProgram.pace}
                 </span>
               </span>
 
@@ -273,13 +267,13 @@ export const ProgramDetailView: React.FC = () => {
             {/* Program Title */}
             <h1
               id="program-title"
-              className="text-3xl sm:text-5xl md:text-6xl font-serif font-bold tracking-tight text-[#F7F3EA] leading-[1.1]"
+              className="text-3xl sm:text-5xl md:text-6xl font-serif font-bold tracking-tight text-[var(--text-primary)] leading-[1.1]"
             >
               {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
             </h1>
 
             {/* Tagline / Subtitle */}
-            <p className="text-base sm:text-xl text-[#D2E3DE] font-normal leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-xl text-[var(--text-secondary)] font-normal leading-relaxed max-w-2xl">
               {language === 'ar' ? activeProgram.taglineAr : activeProgram.tagline}
             </p>
 
@@ -287,14 +281,14 @@ export const ProgramDetailView: React.FC = () => {
             <div className="pt-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
               
               {/* Pricing Box */}
-              <div className="bg-black/50 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/15 inline-block self-start">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D2E3DE]/80 block">
+              <div className="bg-black/50 backdrop-blur-md px-5 py-3 rounded-2xl border border-[var(--border-subtle)] inline-block self-start">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/80 block">
                   {t('programPage.startingFrom')}
                 </span>
-                <div className="text-2xl sm:text-3xl font-bold font-serif text-[#F4C36C]">
+                <div className="text-2xl sm:text-3xl font-bold font-serif text-[var(--accent-secondary)]">
                   {activeProgram.startingPriceEGP.toLocaleString()}{' '}
-                  <span className="text-xs font-sans font-normal text-white/80">
-                    EGP / {language === 'ar' ? 'للفرد' : 'person'}
+                  <span className="text-xs font-sans font-normal text-[var(--text-muted)]">
+                    EGP / {t('programs.person')}
                   </span>
                 </div>
               </div>
@@ -307,10 +301,10 @@ export const ProgramDetailView: React.FC = () => {
                   id="program-hero-start-trip-btn"
                   onClick={handleStartTrip}
                   disabled={isStartingTrip}
-                  className="px-8 py-4 rounded-2xl bg-[#F4C36C] hover:bg-[#E7A83B] active:scale-[0.98] text-[#081714] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer group/btn"
+                  className="px-8 py-4 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer group/btn"
                 >
-                  <span>{isStartingTrip ? (language === 'ar' ? 'جاري الإضافة...' : 'Starting...') : t('programPage.startThisTrip')}</span>
-                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180 text-[#081714]" />
+                  <span>{isStartingTrip ? (t('programs.starting')) : t('programPage.startThisTrip')}</span>
+                  <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180 text-[var(--surface-card)]" />
                 </button>
 
                 {/* Secondary CTA: Customize */}
@@ -318,9 +312,9 @@ export const ProgramDetailView: React.FC = () => {
                   type="button"
                   id="program-hero-customize-btn"
                   onClick={handleCustomizeTrip}
-                  className="px-6 py-4 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-[0.98] backdrop-blur-md text-[#F7F3EA] text-sm font-bold border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="px-6 py-4 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] active:scale-[0.98] backdrop-blur-md text-[var(--text-primary)] text-sm font-bold border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Sliders className="w-4 h-4 text-[#52C4B7]" />
+                  <Sliders className="w-4 h-4 text-[var(--accent-primary)]" />
                   <span>{t('programPage.customizeThisTrip')}</span>
                 </button>
               </div>
@@ -343,10 +337,10 @@ export const ProgramDetailView: React.FC = () => {
         {/* SECTION A: PROGRAM FIT, PACING & INTENSITY GAUGES */}
         <section aria-labelledby="program-fit-heading" className="space-y-6">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#20A89A]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)]" />
             <h2
               id="program-fit-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}
+              className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}
             >
               {t('programPage.overviewTitle')}
             </h2>
@@ -356,44 +350,44 @@ export const ProgramDetailView: React.FC = () => {
             
             {/* Ideal For Card */}
             <div className={`p-6 sm:p-7 rounded-3xl border shadow-md flex flex-col justify-between ${
-              isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10'
+              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
               <div>
-                <span className={`text-[11px] font-bold uppercase tracking-wider block mb-2 ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
+                <span className={`text-[11px] font-bold uppercase tracking-wider block mb-2 ${'text-[var(--text-secondary)]'}`}>
                   {t('programPage.whoIsThisFor')}
                 </span>
-                <h3 className={`text-xl font-serif font-bold leading-snug mb-3 ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                <h3 className={`text-xl font-serif font-bold leading-snug mb-3 text-[var(--text-primary)]`}>
                   {language === 'ar' ? activeProgram.idealForAr : activeProgram.idealFor}
                 </h3>
               </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-[#20A89A] pt-4 border-t border-current/10">
+              <div className="flex items-center gap-2 text-xs font-medium text-[var(--accent-primary)] pt-4 border-t border-current/10">
                 <Users className="w-4 h-4" />
-                <span>{language === 'ar' ? 'مصممة لراحة المسافر ومرونة الوقت' : 'Designed for optimal group flow & pacing'}</span>
+                <span>{t('programs.designedForOptimalGroup')}</span>
               </div>
             </div>
 
             {/* Pacing & Intensity Gauges */}
             <div className={`p-6 sm:p-7 rounded-3xl border shadow-md space-y-5 ${
-              isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10'
+              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
-              <span className={`text-[11px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
-                {language === 'ar' ? 'ميزان الإيقاع والنشاط' : 'Pacing & Intensity Balance'}
+              <span className={`text-[11px] font-bold uppercase tracking-wider block ${'text-[var(--text-secondary)]'}`}>
+                {t('programs.pacingIntensityBalance')}
               </span>
 
               {/* Activity Intensity */}
               <div>
                 <div className="flex items-center justify-between text-xs font-bold mb-1.5">
                   <span className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-[#EA8E75]" />
+                    <Zap className="w-3.5 h-3.5 text-[var(--brand-coral)]" />
                     <span>{t('readyTrip.intensity')}</span>
                   </span>
-                  <span className={isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}>
+                  <span className={'text-[var(--text-primary)]'}>
                     Level {activeProgram.intensityScore} / 5
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div className="h-2 rounded-full bg-black/10 dark:bg-[var(--btn-util-bg)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[#EA8E75] transition-all duration-500"
+                    className="h-full rounded-full bg-[var(--brand-coral)] transition-all duration-500"
                     style={{ width: `${(activeProgram.intensityScore / 5) * 100}%` }}
                   />
                 </div>
@@ -403,14 +397,14 @@ export const ProgramDetailView: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-xs font-bold mb-1.5">
                   <span className="flex items-center gap-1.5">
-                    <Coffee className="w-3.5 h-3.5 text-[#20A89A]" />
+                    <Coffee className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>{t('readyTrip.freeTime')}</span>
                   </span>
-                  <span className="text-[#20A89A]">{activeProgram.freeTimeScore}% Open Relax</span>
+                  <span className="text-[var(--accent-primary)]">{activeProgram.freeTimeScore}% Open Relax</span>
                 </div>
-                <div className="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div className="h-2 rounded-full bg-black/10 dark:bg-[var(--btn-util-bg)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[#20A89A] transition-all duration-500"
+                    className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-500"
                     style={{ width: `${activeProgram.freeTimeScore}%` }}
                   />
                 </div>
@@ -419,13 +413,13 @@ export const ProgramDetailView: React.FC = () => {
 
             {/* Sinai Verified Guarantee Card */}
             <div className={`p-6 sm:p-7 rounded-3xl border shadow-md flex flex-col justify-between ${
-              isDark ? 'bg-[#13312B] border-emerald-500/20 text-[#F7F3EA]' : 'bg-emerald-50/70 border-emerald-900/15 text-[#122420]'
+              isDark ? 'bg-[var(--surface-container)] border-emerald-500/20 text-[var(--text-primary)]' : 'bg-emerald-50/70 border-emerald-900/15 text-[var(--text-primary)]'
             }`}>
               <div>
                 <div className="flex items-center gap-2 mb-2 text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck className="w-5 h-5" />
                   <span className="text-xs font-extrabold uppercase tracking-wider">
-                    {language === 'ar' ? 'ضمان دهب الميداني' : 'Sinai Local Guarantee'}
+                    {t('programs.sinaiLocalGuarantee')}
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed font-medium mt-2">
@@ -446,21 +440,21 @@ export const ProgramDetailView: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-current/10">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <Calendar className="w-4 h-4 text-[#20A89A]" />
-                <span className={`text-xs font-extrabold uppercase tracking-widest ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}>
+                <Calendar className="w-4 h-4 text-[var(--accent-primary)]" />
+                <span className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
                   {t('programPage.daysScheduled')}
                 </span>
               </div>
               <h2
                 id="day-by-day-heading"
-                className={`text-2xl sm:text-4xl font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}
+                className={`text-2xl sm:text-4xl font-serif font-bold text-[var(--text-primary)]`}
               >
                 {t('programPage.dayByDayTitle')}
               </h2>
             </div>
 
-            <div className={`text-xs font-medium ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
-              {language === 'ar' ? `اليوم ${selectedDayIdx + 1} من إجمالي ${activeProgram.dayByDay.length} أيام` : `Day ${selectedDayIdx + 1} of ${activeProgram.dayByDay.length} days`}
+            <div className={`text-xs font-medium ${'text-[var(--text-secondary)]'}`}>
+              {t('programs.dayOf', { idx: selectedDayIdx + 1, length: activeProgram.dayByDay.length })}
             </div>
           </div>
 
@@ -476,22 +470,22 @@ export const ProgramDetailView: React.FC = () => {
                   onClick={() => setSelectedDayIdx(idx)}
                   className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2.5 shadow-sm ${
                     isSelected
-                      ? 'bg-[#20A89A] text-[#081714] ring-2 ring-[#20A89A]/30 scale-[1.02]'
+                      ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] ring-2 ring-[var(--accent-primary)]/30 scale-[1.02]'
                       : isDark
-                      ? 'bg-[#0E2520] text-[#D2E3DE] hover:bg-[#13312B] border border-white/10'
-                      : 'bg-white text-[#4A635D] hover:bg-[#F2EFE9] border border-[#122420]/10'
+                      ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)]'
+                      : 'bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] border border-[var(--text-primary)]/10'
                   }`}
                 >
                   <span className="text-sm font-extrabold font-serif">
-                    {language === 'ar' ? `يوم ٠${day.day}` : `Day 0${day.day}`}
+                    {t('programs.dayZero', { day: day.day })}
                   </span>
                   <span
                     className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                       isSelected
-                        ? 'bg-[#081714]/20 text-[#081714]'
+                        ? 'bg-[var(--surface-card)]/20 text-[var(--surface-card)]'
                         : isDark
-                        ? 'bg-[#13312B] text-[#9DB5AF]'
-                        : 'bg-[#F2EFE9] text-[#6B7C83]'
+                        ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
+                        : 'bg-[var(--surface-container)] text-[var(--text-muted)]'
                     }`}
                   >
                     {day.tag}
@@ -505,22 +499,22 @@ export const ProgramDetailView: React.FC = () => {
           <div
             id={`program-active-day-card-${activeDay.day}`}
             className={`p-6 sm:p-10 rounded-3xl border shadow-xl transition-all duration-300 ${
-              isDark ? 'bg-[#0E2520] border-white/10 text-[#F7F3EA]' : 'bg-white border-[#122420]/10 text-[#122420]'
+              'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
             }`}
           >
             {/* Active Day Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-current/10 gap-4">
               <div>
-                <span className={`text-xs font-extrabold uppercase tracking-wider ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}>
-                  {language === 'ar' ? `محور اليوم ٠${activeDay.day}` : `Day 0${activeDay.day} Focus & Rhythm`}
+                <span className={`text-xs font-extrabold uppercase tracking-wider text-[var(--accent-primary)]`}>
+                  {t('programs.dayFocusRhythm', { day: activeDay.day })}
                 </span>
-                <h3 className={`text-2xl sm:text-3xl font-serif font-bold mt-1 ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                <h3 className={`text-2xl sm:text-3xl font-serif font-bold mt-1 text-[var(--text-primary)]`}>
                   {activeDay.title}
                 </h3>
               </div>
 
               <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-bold self-start sm:self-auto ${
-                isDark ? 'bg-[#13312B] border-white/10 text-[#52C4B7]' : 'bg-[#F2EFE9] border-[#122420]/10 text-[#0F6F78]'
+                isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--accent-primary)]' : 'bg-[var(--surface-container)] border-[var(--text-primary)]/10 text-[var(--accent-primary)]'
               }`}>
                 <Clock className="w-4 h-4" />
                 <span>{activeDay.timeEstimate}</span>
@@ -529,7 +523,7 @@ export const ProgramDetailView: React.FC = () => {
 
             {/* Narrative Subtitle */}
             <p className={`text-sm sm:text-base leading-relaxed mb-8 max-w-3xl font-normal ${
-              isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'
+              'text-[var(--text-secondary)]'
             }`}>
               {activeDay.subtitle}
             </p>
@@ -537,9 +531,9 @@ export const ProgramDetailView: React.FC = () => {
             {/* Highlights Grid */}
             <div>
               <h4 className={`text-xs font-extrabold uppercase tracking-wider mb-4 ${
-                isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'
+                'text-[var(--text-secondary)]'
               }`}>
-                {language === 'ar' ? 'أبرز محطات اليوم:' : 'Curated Day Highlights:'}
+                {t('programs.curatedDayHighlights')}
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -548,11 +542,11 @@ export const ProgramDetailView: React.FC = () => {
                     key={idx}
                     className={`flex items-start gap-3 p-4 rounded-2xl border transition-all ${
                       isDark
-                        ? 'bg-[#13312B]/70 border-white/10 hover:border-white/20'
-                        : 'bg-[#FAF7F0] border-[#122420]/10 hover:border-[#122420]/25'
+                        ? 'bg-[var(--surface-container)]/70 border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
+                        : 'bg-[var(--text-primary)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25'
                     }`}
                   >
-                    <div className="w-6 h-6 rounded-full bg-[#20A89A]/20 text-[#20A89A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                     <span className="text-xs sm:text-sm font-medium leading-snug">{highlight}</span>
@@ -567,12 +561,12 @@ export const ProgramDetailView: React.FC = () => {
         {/* SECTION C: INCLUSIONS VS CUSTOMIZABILITY */}
         <section aria-labelledby="inclusions-heading" className="space-y-6">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#F4C36C]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)]" />
             <h2
               id="inclusions-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest ${isDark ? 'text-[#F4C36C]' : 'text-[#8F7242]'}`}
+              className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-secondary)]'}`}
             >
-              {language === 'ar' ? 'التفاصيل والشفافية الكاملة' : 'Transparent Inclusions & Customization'}
+              {t('programs.transparentInclusionsCustomization')}
             </h2>
           </div>
 
@@ -580,18 +574,18 @@ export const ProgramDetailView: React.FC = () => {
             
             {/* What's Included Card */}
             <div className={`p-7 sm:p-8 rounded-3xl border shadow-xl ${
-              isDark ? 'bg-[#0E2520] border-emerald-500/20' : 'bg-white border-emerald-900/15'
+              'bg-[var(--surface-card)] border-[var(--accent-primary)]/20'
             }`}>
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-current/10">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-sm">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                  <h3 className={`text-lg font-serif font-bold text-[var(--text-primary)]`}>
                     {t('programPage.includedTitle')}
                   </h3>
-                  <span className={`text-xs ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
-                    {language === 'ar' ? 'مشمولة بالكامل ضمن السعر التقديري' : 'Standard in this curated itinerary'}
+                  <span className={`text-xs ${'text-[var(--text-secondary)]'}`}>
+                    {t('programs.standardInThisCurated')}
                   </span>
                 </div>
               </div>
@@ -602,7 +596,7 @@ export const ProgramDetailView: React.FC = () => {
                     <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Check className="w-3.5 h-3.5" />
                     </div>
-                    <span className={isDark ? 'text-[#D2E3DE]' : 'text-[#122420]'}>{item}</span>
+                    <span className={'text-[var(--text-primary)]'}>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -610,18 +604,18 @@ export const ProgramDetailView: React.FC = () => {
 
             {/* What You Can Customize Card */}
             <div className={`p-7 sm:p-8 rounded-3xl border shadow-xl ${
-              isDark ? 'bg-[#0E2520] border-white/10' : 'bg-white border-[#122420]/10'
+              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-current/10">
-                <div className="w-10 h-10 rounded-2xl bg-[#20A89A]/20 text-[#20A89A] flex items-center justify-center shadow-sm">
+                <div className="w-10 h-10 rounded-2xl bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center shadow-sm">
                   <Sliders className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-serif font-bold ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}>
+                  <h3 className={`text-lg font-serif font-bold text-[var(--text-primary)]`}>
                     {t('programPage.customizableTitle')}
                   </h3>
-                  <span className={`text-xs ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
-                    {language === 'ar' ? 'تقدر تعدلها قبل أو أثناء الرحلة' : 'Adjust freely to match your vibe'}
+                  <span className={`text-xs ${'text-[var(--text-secondary)]'}`}>
+                    {t('programs.adjustFreelyToMatch')}
                   </span>
                 </div>
               </div>
@@ -629,10 +623,10 @@ export const ProgramDetailView: React.FC = () => {
               <ul className="space-y-3.5">
                 {(language === 'ar' ? activeProgram.customizableItemsAr : activeProgram.customizableItems).map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3 text-xs sm:text-sm font-medium">
-                    <div className="w-5 h-5 rounded-full bg-[#20A89A]/20 text-[#20A89A] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Sparkles className="w-3.5 h-3.5" />
                     </div>
-                    <span className={isDark ? 'text-[#D2E3DE]' : 'text-[#122420]'}>{item}</span>
+                    <span className={'text-[var(--text-primary)]'}>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -643,16 +637,16 @@ export const ProgramDetailView: React.FC = () => {
 
         {/* SECTION D: OTHER CURATED READY-MADE TRIPS RAIL */}
         <section aria-labelledby="other-programs-heading" className={`pt-12 border-t ${
-          isDark ? 'border-white/10' : 'border-[#122420]/10'
+          'border-[var(--border-subtle)]'
         }`}>
           <div className="flex items-center justify-between gap-4 mb-8">
             <div>
-              <span className={`text-xs font-extrabold uppercase tracking-widest ${isDark ? 'text-[#52C4B7]' : 'text-[#0F6F78]'}`}>
+              <span className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
                 {t('programPage.allFivePrograms')}
               </span>
               <h2
                 id="other-programs-heading"
-                className={`text-2xl sm:text-3xl font-serif font-bold mt-1 ${isDark ? 'text-[#F7F3EA]' : 'text-[#122420]'}`}
+                className={`text-2xl sm:text-3xl font-serif font-bold mt-1 text-[var(--text-primary)]`}
               >
                 {t('programPage.exploreOtherPrograms')}
               </h2>
@@ -669,10 +663,10 @@ export const ProgramDetailView: React.FC = () => {
                 }, 100);
               }}
               className={`hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                isDark ? 'bg-[#13312B] text-[#F7F3EA] border-white/10' : 'bg-white text-[#122420] border-[#122420]/10'
+                'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
               }`}
             >
-              <span>{language === 'ar' ? 'عرض الكل' : 'View All'}</span>
+              <span>{t('experiences.viewAll')}</span>
               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
             </button>
           </div>
@@ -686,8 +680,8 @@ export const ProgramDetailView: React.FC = () => {
                 onClick={() => navigateTo('/programs', { programSlug: prog.id })}
                 className={`group text-start rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl cursor-pointer ${
                   isDark
-                    ? 'bg-[#0E2520] border-white/10 hover:border-white/25 text-[#F7F3EA]'
-                    : 'bg-white border-[#122420]/10 hover:border-[#122420]/25 text-[#122420]'
+                    ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)] text-[var(--text-primary)]'
+                    : 'bg-[var(--surface-card)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25 text-[var(--text-primary)]'
                 }`}
               >
                 <div className="relative h-40 bg-stone-900 overflow-hidden w-full">
@@ -699,8 +693,8 @@ export const ProgramDetailView: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3 text-white">
-                    <span className="text-[11px] font-semibold text-[#52C4B7]">
-                      {prog.durationDays} {language === 'ar' ? 'أيام' : 'Days'} · {language === 'ar' ? prog.paceAr : prog.pace}
+                    <span className="text-[11px] font-semibold text-[var(--accent-primary)]">
+                      {prog.durationDays} {t('home.days-3')} · {language === 'ar' ? prog.paceAr : prog.pace}
                     </span>
                     <h4 className="text-sm font-serif font-bold text-white leading-tight truncate mt-0.5">
                       {language === 'ar' ? prog.titleAr : prog.title}
@@ -709,21 +703,21 @@ export const ProgramDetailView: React.FC = () => {
                 </div>
 
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <p className={`text-xs line-clamp-2 leading-relaxed ${isDark ? 'text-[#D2E3DE]' : 'text-[#4A635D]'}`}>
+                  <p className={`text-xs line-clamp-2 leading-relaxed text-[var(--text-secondary)]`}>
                     {language === 'ar' ? prog.taglineAr : prog.tagline}
                   </p>
 
                   <div className="flex items-center justify-between pt-2 border-t border-current/10">
                     <div>
-                      <span className={`text-[10px] uppercase font-bold block ${isDark ? 'text-[#9DB5AF]' : 'text-[#6B7C83]'}`}>
+                      <span className={`text-[10px] uppercase font-bold block ${'text-[var(--text-secondary)]'}`}>
                         {t('programPage.startingFrom')}
                       </span>
-                      <span className={`text-xs font-bold font-serif ${isDark ? 'text-[#F4C36C]' : 'text-[#0E2520]'}`}>
+                      <span className={`text-xs font-bold font-serif text-[var(--accent-secondary)]`}>
                         {prog.startingPriceEGP.toLocaleString()} EGP
                       </span>
                     </div>
 
-                    <span className="text-xs font-bold text-[#20A89A] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform rtl:rotate-180">
+                    <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform rtl:rotate-180">
                       <span>{t('programPage.viewOtherProgram')}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </span>
@@ -739,26 +733,26 @@ export const ProgramDetailView: React.FC = () => {
       {/* 4. PERSISTENT STICKY BOTTOM CONVERSION BAR */}
       <div
         id="program-bottom-sticky-bar"
-        className="fixed bottom-0 inset-x-0 z-40 p-3 sm:p-4 bg-black/80 backdrop-blur-xl border-t border-white/15 text-white transition-transform"
+        className="fixed bottom-0 inset-x-0 z-40 p-3 sm:p-4 bg-black/80 backdrop-blur-xl border-t border-[var(--border-subtle)] text-white transition-transform"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           
           {/* Price & Summary Info */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:block">
-              <span className="text-[11px] uppercase tracking-wider text-white/70 block">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] block">
                 {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
               </span>
-              <div className="text-lg font-bold font-serif text-[#F4C36C]">
-                {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-xs font-normal text-white/80">EGP / {language === 'ar' ? 'فرد' : 'person'}</span>
+              <div className="text-lg font-bold font-serif text-[var(--accent-secondary)]">
+                {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-xs font-normal text-[var(--text-muted)]">EGP / {t('programs.person-2')}</span>
               </div>
             </div>
             <div className="sm:hidden">
-              <div className="text-base font-bold font-serif text-[#F4C36C]">
-                {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-[11px] font-normal text-white/80">EGP</span>
+              <div className="text-base font-bold font-serif text-[var(--accent-secondary)]">
+                {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-[11px] font-normal text-[var(--text-muted)]">EGP</span>
               </div>
-              <span className="text-[10px] text-white/70 block">
-                {activeProgram.durationDays} {language === 'ar' ? 'أيام' : 'Days'} · {language === 'ar' ? activeProgram.paceAr : activeProgram.pace}
+              <span className="text-[10px] text-[var(--text-muted)] block">
+                {activeProgram.durationDays} {t('home.days-3')} · {language === 'ar' ? activeProgram.paceAr : activeProgram.pace}
               </span>
             </div>
           </div>
@@ -769,7 +763,7 @@ export const ProgramDetailView: React.FC = () => {
               type="button"
               id="sticky-customize-btn"
               onClick={handleCustomizeTrip}
-              className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all cursor-pointer border border-white/20"
+              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-bold transition-all cursor-pointer border border-[var(--border-subtle)]"
             >
               <span className="hidden sm:inline">{t('programPage.customizeThisTrip')}</span>
               <span className="sm:hidden">{t('readyTrip.customize')}</span>
@@ -780,7 +774,7 @@ export const ProgramDetailView: React.FC = () => {
               id="sticky-start-trip-btn"
               onClick={handleStartTrip}
               disabled={isStartingTrip}
-              className="px-6 py-2.5 rounded-xl bg-[#F4C36C] hover:bg-[#E7A83B] text-[#081714] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-all cursor-pointer active:scale-95"
+              className="px-6 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-all cursor-pointer active:scale-95"
             >
               <span>{isStartingTrip ? '...' : t('programPage.startThisTrip')}</span>
               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />

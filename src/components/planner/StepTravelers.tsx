@@ -110,21 +110,21 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
     <div id="step-travelers-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#13312B] text-[#52C4B7] border border-white/10 text-xs font-bold uppercase tracking-widest mb-4">
-          <Users className="w-3.5 h-3.5 text-[#52C4B7]" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+          <Users className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step2.badge')}</span>
         </div>
         
         <h1
           id="travelers-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#F7F3EA] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step2.title')}
         </h1>
         
         <p
           id="travelers-supporting-text"
-          className="mt-3 sm:mt-4 text-base sm:text-lg text-[#D2E3DE] leading-relaxed font-normal"
+          className="mt-3 sm:mt-4 text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal"
         >
           {t('planner.step2.subtitle')}
         </p>
@@ -136,15 +136,15 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
         {/* Adults Counter */}
         <div
           id="adults-counter-card"
-          className="p-5 sm:p-6 rounded-2xl bg-[#0E2520] border border-white/10 shadow-lg flex items-center justify-between gap-4 transition-all"
+          className="p-5 sm:p-6 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-lg flex items-center justify-between gap-4 transition-all"
         >
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg sm:text-xl font-bold text-[#F7F3EA] tracking-tight">
+              <span className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight">
                 {t('planner.step2.adults')}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-[#D2E3DE]/70 mt-0.5 font-normal">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 mt-0.5 font-normal">
               {t('planner.step2.adultsDesc')}
             </p>
           </div>
@@ -159,8 +159,8 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
               aria-label="Decrease adult count"
               className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                 adultsCount <= 1
-                  ? 'border-white/10 text-white/20 cursor-not-allowed bg-[#13312B]/40'
-                  : 'border-white/20 text-[#F7F3EA] hover:border-[#F4C36C] hover:bg-[#13312B] active:scale-95'
+                  ? 'border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed bg-[var(--surface-container)]/40'
+                  : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-secondary)] hover:bg-[var(--surface-container)] active:scale-95'
               }`}
             >
               <Minus className="w-4 h-4 stroke-[2.5]" />
@@ -168,7 +168,7 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
 
             <span
               id="adults-count-display"
-              className="text-xl sm:text-2xl font-black text-[#F4C36C] w-8 sm:w-10 text-center font-['Outfit',sans-serif]"
+              className="text-xl sm:text-2xl font-black text-[var(--accent-secondary)] w-8 sm:w-10 text-center font-['Outfit',sans-serif]"
             >
               {adultsCount}
             </span>
@@ -178,7 +178,7 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
               id="adults-increment-btn"
               onClick={handleAdultsIncrement}
               aria-label="Increase adult count"
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 text-[#F7F3EA] hover:border-[#F4C36C] hover:bg-[#13312B] active:scale-95 flex items-center justify-center transition-all cursor-pointer"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-secondary)] hover:bg-[var(--surface-container)] active:scale-95 flex items-center justify-center transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
             </button>
@@ -188,13 +188,13 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
         {/* Children Counter */}
         <div
           id="children-counter-card"
-          className="p-5 sm:p-6 rounded-2xl bg-[#0E2520] border border-white/10 shadow-lg flex items-center justify-between gap-4 transition-all"
+          className="p-5 sm:p-6 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-lg flex items-center justify-between gap-4 transition-all"
         >
           <div>
-            <span className="text-lg sm:text-xl font-bold text-[#F7F3EA] tracking-tight">
+            <span className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight">
               {t('planner.step2.children')}
             </span>
-            <p className="text-xs sm:text-sm text-[#D2E3DE]/70 mt-0.5 font-normal">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 mt-0.5 font-normal">
               {t('planner.step2.childrenDesc')}
             </p>
           </div>
@@ -209,8 +209,8 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
               aria-label="Decrease children count"
               className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                 childrenCount <= 0
-                  ? 'border-white/10 text-white/20 cursor-not-allowed bg-[#13312B]/40'
-                  : 'border-white/20 text-[#F7F3EA] hover:border-[#F4C36C] hover:bg-[#13312B] active:scale-95'
+                  ? 'border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed bg-[var(--surface-container)]/40'
+                  : 'border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-secondary)] hover:bg-[var(--surface-container)] active:scale-95'
               }`}
             >
               <Minus className="w-4 h-4 stroke-[2.5]" />
@@ -218,7 +218,7 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
 
             <span
               id="children-count-display"
-              className="text-xl sm:text-2xl font-black text-[#F4C36C] w-8 sm:w-10 text-center font-['Outfit',sans-serif]"
+              className="text-xl sm:text-2xl font-black text-[var(--accent-secondary)] w-8 sm:w-10 text-center font-['Outfit',sans-serif]"
             >
               {childrenCount}
             </span>
@@ -228,7 +228,7 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
               id="children-increment-btn"
               onClick={handleChildrenIncrement}
               aria-label="Increase children count"
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 text-[#F7F3EA] hover:border-[#F4C36C] hover:bg-[#13312B] active:scale-95 flex items-center justify-center transition-all cursor-pointer"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-secondary)] hover:bg-[var(--surface-container)] active:scale-95 flex items-center justify-center transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
             </button>
@@ -239,7 +239,7 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
       {/* Optional Trip Dynamic Selector */}
       <div className="mb-10">
         <div className="flex items-center justify-between mb-3.5">
-          <label className="text-sm font-bold text-[#F7F3EA] tracking-tight block">
+          <label className="text-sm font-bold text-[var(--text-primary)] tracking-tight block">
             {t('planner.step2.dynamicTitle')}
           </label>
         </div>
@@ -255,30 +255,30 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
                 onClick={() => toggleDynamic(option.id)}
                 className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between gap-2 ${
                   isSelected
-                    ? 'bg-[#13312B] border-[#F4C36C] shadow-md ring-2 ring-[#F4C36C]/30'
-                    : 'bg-[#0E2520] hover:bg-[#13312B] border-white/10 hover:border-white/20'
+                    ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-md ring-2 ring-[var(--accent-secondary)]/30'
+                    : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div
                     className={`w-7 h-7 rounded-xl flex items-center justify-center transition-colors ${
                       isSelected
-                        ? 'bg-[#F4C36C] text-[#081714]'
-                        : 'bg-[#13312B] text-[#52C4B7] border border-white/10'
+                        ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)]'
+                        : 'bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]'
                     }`}
                   >
                     {option.icon}
                   </div>
                   {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-[#F4C36C]" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--accent-secondary)]" />
                   )}
                 </div>
 
                 <div>
-                  <div className={`text-sm sm:text-base font-bold ${isSelected ? 'text-[#F4C36C]' : 'text-[#F7F3EA]'}`}>
+                  <div className={`text-sm sm:text-base font-bold ${isSelected ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-primary)]'}`}>
                     {t(option.labelKey)}
                   </div>
-                  <div className="text-[12px] text-[#D2E3DE]/70 font-normal leading-tight mt-0.5 line-clamp-1">
+                  <div className="text-[12px] text-[var(--text-secondary)]/70 font-normal leading-tight mt-0.5 line-clamp-1">
                     {t(option.sublabelKey)}
                   </div>
                 </div>
@@ -289,13 +289,13 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
       </div>
 
       {/* Action Footer Navigation */}
-      <div className="pt-6 border-t border-white/10 flex items-center justify-between gap-4">
+      <div className="pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between gap-4">
         {/* Back Button */}
         <button
           type="button"
           id="planner-travelers-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#D2E3DE] hover:text-[#F7F3EA] px-4 py-3 rounded-full hover:bg-white/5 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -306,13 +306,13 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
           type="button"
           id="planner-travelers-continue-btn"
           onClick={onContinue}
-          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[#081714] bg-[#F4C36C] hover:bg-[#E7A83B] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
         >
           <span>{t('planner.step2.continueBtn')}</span>
           {isRTL ? (
-            <ArrowLeft className="w-4 h-4 text-[#081714] group-hover:-translate-x-0.5 transition-transform" />
+            <ArrowLeft className="w-4 h-4 text-[var(--surface-card)] group-hover:-translate-x-0.5 transition-transform" />
           ) : (
-            <ArrowRight className="w-4 h-4 text-[#081714] group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-[var(--surface-card)] group-hover:translate-x-0.5 transition-transform" />
           )}
         </button>
       </div>

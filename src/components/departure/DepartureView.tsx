@@ -53,7 +53,7 @@ export const DepartureView: React.FC = () => {
     | undefined;
   const { language, isRTL, t } = useLanguage();
 
-  const travelerName = profile.name || user?.displayName || (language === 'ar' ? 'يا صديقنا' : 'Traveler');
+  const travelerName = profile.name || user?.displayName || (t('departure.traveler'));
 
   // Checklist items
   const [checklist, setChecklist] = useState([
@@ -170,45 +170,39 @@ export const DepartureView: React.FC = () => {
     <div 
       id="departure-mode-view" 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[#081714] text-[#F7F3EA] pb-24 font-['Outfit',sans-serif] selection:bg-[#F4C36C]/30"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 font-['Outfit',sans-serif] selection:bg-[var(--accent-secondary)]/30"
     >
       {/* 1. Coordinated Departure Header */}
-      <section className="bg-[#0E2520] border-b border-white/10 text-white pt-10 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] text-white pt-10 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#13312B] border border-[#F4C36C]/30 text-xs font-bold uppercase tracking-wider text-[#F4C36C]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)]">
                 <Plane className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'يوم السفر والرجوع · ١٦ أكتوبر' : 'Departure Day · October 16'}</span>
+                <span>{t('departure.departureDayOctober16')}</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#F7F3EA] tracking-tight">
-                {language === 'ar' ? `ترجع بالسلامة ${travelerName} 👋` : `Heading Home, ${travelerName} 👋`}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+                {t('departure.headingHome', { travelerName })}
               </h1>
-              <p className="text-xs sm:text-sm text-[#D2E3DE]/80 max-w-2xl font-medium leading-relaxed">
-                {language === 'ar'
-                  ? 'رتبنالك جدول يوم السفر بدقة عشان تودع دهب براحتك وبدون أي استعجال: الشنط في الأمانات، وجبة الغداء، ميعاد السواق، ومتابعة ميعاد الطيارة.'
-                  : 'Your entire departure day is coordinated into a stress-free schedule. We keep track of your checkout, luggage, farewell meal, transfer driver, and flight.'}
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 max-w-2xl font-medium leading-relaxed">
+                {t('departure.yourEntireDepartureDay')}
               </p>
             </div>
 
             {/* Live Buffer Countdown */}
-            <div className="p-5 rounded-3xl bg-[#13312B] border border-[#F4C36C]/30 text-center sm:text-start space-y-1 shadow-lg">
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                {language === 'ar' ? 'الوقت المتبقي على وصول السواق' : 'Time Until Airport Pickup'}
+            <div className="p-5 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-center sm:text-start space-y-1 shadow-lg">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                {t('departure.timeUntilAirportPickup')}
               </span>
               {/* Was a frozen "02h : 18m" beside "Driver arriving at 02:30 PM",
                   shown at every hour of every day. */}
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F7F3EA]">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-[var(--text-primary)]">
                 {departureTransfer?.datesOrTime || '—'}
               </div>
-              <span className="text-[12px] text-[#D2E3DE]/70 block">
+              <span className="text-[12px] text-[var(--text-secondary)]/70 block">
                 {departureTransfer
-                  ? language === 'ar'
-                    ? `موعد الانتقال · ${departureTransfer.provider}`
-                    : `Transfer time · ${departureTransfer.provider}`
-                  : language === 'ar'
-                    ? 'مفيش انتقال محجوز للمطار'
-                    : 'No airport transfer booked'}
+                  ? t('departure.transferTime', { provider: departureTransfer.provider })
+                  : t('departure.noAirportTransferBooked')}
               </span>
             </div>
           </div>
@@ -221,60 +215,60 @@ export const DepartureView: React.FC = () => {
           
           {/* Left Column (7/12): Departure Timeline */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="bg-[#0E2520] rounded-3xl p-6 sm:p-8 border border-white/10 shadow-xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl space-y-6">
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[#F4C36C] block">
-                    {language === 'ar' ? 'جدول المغادرة المنظم' : 'Coordinated Schedule'}
+                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                    {t('departure.coordinatedSchedule')}
                   </span>
-                  <h2 className="font-serif font-bold text-xl text-[#F7F3EA]">
-                    {language === 'ar' ? 'تسلسل يوم السفر والعودة' : "Today's Departure Timeline"}
+                  <h2 className="font-serif font-bold text-xl text-[var(--text-primary)]">
+                    {t('departure.todaysDepartureTimeline')}
                   </h2>
                 </div>
 
                 <span className="text-xs font-semibold text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-500/30">
-                  {language === 'ar' ? 'كل حاجة في ميعادها ✓' : 'On Track ✓'}
+                  {t('departure.onTrack')}
                 </span>
               </div>
 
               {/* Timeline Steps */}
-              <div className={`space-y-4 relative before:absolute ${isRTL ? 'before:right-5' : 'before:left-5'} before:top-4 before:bottom-4 before:w-0.5 before:bg-white/10`}>
+              <div className={`space-y-4 relative before:absolute ${isRTL ? 'before:right-5' : 'before:left-5'} before:top-4 before:bottom-4 before:w-0.5 before:bg-[var(--btn-util-bg)]`}>
                 {timelineSteps.map((step, idx) => (
                   <div
                     key={idx}
                     className={`relative flex items-start gap-4 p-4 rounded-2xl transition-all ${
                       step.isCurrent
-                        ? 'bg-[#13312B] border-2 border-[#F4C36C] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[#F4C36C]/30'
+                        ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                         : step.isDone
-                        ? 'bg-[#13312B]/40 opacity-80 border border-white/5'
-                        : 'bg-[#0E2520] border border-white/10 hover:border-white/20'
+                        ? 'bg-[var(--surface-container)]/40 opacity-80 border border-[var(--border-subtle)]'
+                        : 'bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-2xl bg-[#13312B] border border-white/10 shadow-xs flex items-center justify-center text-lg flex-shrink-0 relative z-10">
+                    <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] shadow-xs flex items-center justify-center text-lg flex-shrink-0 relative z-10">
                       {step.icon}
                     </div>
 
                     <div className="space-y-1 flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-[#F4C36C]">
+                          <span className="font-mono text-xs font-bold text-[var(--accent-secondary)]">
                             {language === 'ar' ? step.timeAr : step.time}
                           </span>
-                          <h3 className="font-bold text-sm text-[#F7F3EA]">
+                          <h3 className="font-bold text-sm text-[var(--text-primary)]">
                             {language === 'ar' ? step.titleAr : step.title}
                           </h3>
                         </div>
                         <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                           step.isCurrent
-                            ? 'bg-[#F4C36C] text-[#081714] font-extrabold'
+                            ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-extrabold'
                             : step.isDone
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'bg-white/10 text-[#D2E3DE]'
+                            : 'bg-[var(--btn-util-bg)] text-[var(--text-secondary)]'
                         }`}>
                           {language === 'ar' ? step.statusAr : step.status}
                         </span>
                       </div>
-                      <p className="text-xs text-[#D2E3DE]/70 leading-relaxed font-normal">
+                      <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed font-normal">
                         {language === 'ar' ? step.descAr : step.desc}
                       </p>
                     </div>
@@ -294,43 +288,41 @@ export const DepartureView: React.FC = () => {
               something nobody had checked.
             */}
             {flightNumber && (
-              <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-3">
-                <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-                  <Plane className="w-4 h-4 text-[#F4C36C]" />
-                  <h2 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? `رحلة العودة ${flightNumber}` : `Departure flight ${flightNumber}`}
+              <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3">
+                <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
+                  <Plane className="w-4 h-4 text-[var(--accent-secondary)]" />
+                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('departure.departureFlight', { flightNumber })}
                   </h2>
                 </div>
-                <p className="text-xs text-[#D2E3DE]/70 leading-relaxed">
-                  {language === 'ar'
-                    ? 'راجع حالة الرحلة والبوابة مع شركة الطيران — إحنا مش بنتابع الرحلات الجوية.'
-                    : 'Check the status and gate with your airline — we do not track flights.'}
+                <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
+                  {t('departure.checkTheStatusAnd')}
                 </p>
               </div>
             )}
 
             {/* Luggage Storage Pass Button */}
-            <div className="p-5 rounded-3xl bg-[#13312B] border border-[#F4C36C]/30 flex items-center justify-between gap-4">
+            <div className="p-5 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#0E2520] text-[#F4C36C] border border-[#F4C36C]/30 flex items-center justify-center font-bold text-lg">
+                <div className="w-10 h-10 rounded-2xl bg-[var(--surface-card)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 flex items-center justify-center font-bold text-lg">
                   🧳
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-[#F7F3EA]">
-                    {language === 'ar' ? 'كارت أمانات الشنط الرقمي' : 'Digital Luggage Storage Pass'}
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">
+                    {t('departure.digitalLuggageStoragePass')}
                   </h3>
-                  <p className="text-xs text-[#D2E3DE]/70">
-                    {language === 'ar' ? '٢ شنطة كبيرة + ١ حقيبة غطس محفوظة في فندق دهب باي' : '2 large bags + 1 diving gear bag stored safely'}
+                  <p className="text-xs text-[var(--text-secondary)]/70">
+                    {t('departure.2LargeBags1')}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowLuggageTicket(true)}
-                className="px-4 py-2 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+                className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-xs"
               >
                 <QrCode className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'عرض الكارت' : 'View Pass'}</span>
+                <span>{t('departure.viewPass')}</span>
               </button>
             </div>
           </div>
@@ -339,21 +331,21 @@ export const DepartureView: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             
             {/* 1. Confirmed Driver Card */}
-            <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
-                  <Car className="w-4 h-4 text-[#F4C36C]" />
-                  <h2 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'سائق التوصيل للمطار' : 'Airport Transfer Driver'}
+                  <Car className="w-4 h-4 text-[var(--accent-secondary)]" />
+                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('departure.airportTransferDriver')}
                   </h2>
                 </div>
-                <span className="text-xs font-bold text-[#F4C36C] bg-[#13312B] border border-[#F4C36C]/30 px-2.5 py-0.5 rounded-full">
-                  {departureTransfer?.datesOrTime || (language === 'ar' ? 'مفيش انتقال محجوز' : 'No transfer booked')}
+                <span className="text-xs font-bold text-[var(--accent-secondary)] bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 px-2.5 py-0.5 rounded-full">
+                  {departureTransfer?.datesOrTime || (t('departure.noTransferBooked'))}
                 </span>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#13312B] flex items-center justify-center font-bold text-2xl text-[#F4C36C] border border-white/10">
+                <div className="w-14 h-14 rounded-2xl bg-[var(--surface-container)] flex items-center justify-center font-bold text-2xl text-[var(--accent-secondary)] border border-[var(--border-subtle)]">
                   👨‍✈️
                 </div>
                 {/*
@@ -364,18 +356,16 @@ export const DepartureView: React.FC = () => {
                   assignment until the supplier makes one.
                 */}
                 <div>
-                  <h3 className="font-bold text-base text-[#F7F3EA]">
+                  <h3 className="font-bold text-base text-[var(--text-primary)]">
                     {departureTransfer?.details && departureTransfer.details !== '—'
                       ? departureTransfer.details
-                      : language === 'ar'
-                        ? 'لسه ما اتحددش سائق'
-                        : 'No driver assigned yet'}
+                      : t('departure.noDriverAssignedYet')}
                   </h3>
-                  <p className="text-xs text-[#D2E3DE]/70">
+                  <p className="text-xs text-[var(--text-secondary)]/70">
                     {departureTransfer?.provider || (language === 'ar' ? '—' : '—')}
                   </p>
                   {departureTransfer?.confirmationCode && (
-                    <p className="text-[12px] font-mono text-[#F4C36C] font-bold mt-0.5">
+                    <p className="text-[12px] font-mono text-[var(--accent-secondary)] font-bold mt-0.5">
                       {departureTransfer.confirmationCode}
                     </p>
                   )}
@@ -389,39 +379,37 @@ export const DepartureView: React.FC = () => {
                     departureTransfer?.phone
                       ? window.open(`tel:${departureTransfer.phone}`, '_self')
                       : showToast(
-                          language === 'ar'
-                            ? 'مفيش رقم اتصال للانتقال ده لحد دلوقتي.'
-                            : 'No contact number for this transfer yet.'
+                          t('departure.noContactNumberFor')
                         )
                   }
-                  className="py-2.5 px-3 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-colors"
+                  className="py-2.5 px-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-colors"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? 'اتصال بالسائق' : 'Call Driver'}</span>
+                  <span>{t('departure.callDriver')}</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => showToast(language === 'ar' ? 'تم فتح المحادثة مع عمليات سيناء كومفورت ترانسبورت' : 'Chat opened with Sinai Comfort Transport dispatch.')}
-                  className="py-2.5 px-3 rounded-full border border-white/15 text-[#D2E3DE] hover:bg-white/5 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  onClick={() => showToast(t('departure.chatOpenedWithSinai'))}
+                  className="py-2.5 px-3 rounded-full border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--btn-util-bg)] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>{language === 'ar' ? 'رسالة واتساب' : 'Message'}</span>
+                  <span>{t('departure.message')}</span>
                 </button>
               </div>
             </div>
 
             {/* 2. Departure Checklist */}
-            <div className="bg-[#0E2520] rounded-3xl p-6 border border-white/10 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <h2 className="font-serif font-bold text-base text-[#F7F3EA]">
-                    {language === 'ar' ? 'قائمة تفقد ما قبل المغادرة' : 'Departure Checklist'}
+                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    {t('departure.departureChecklist')}
                   </h2>
                 </div>
-                <span className="text-xs text-[#D2E3DE]/50 font-bold">
-                  {checklist.filter((c) => c.done).length} / {checklist.length} {language === 'ar' ? 'مكتمل' : 'Done'}
+                <span className="text-xs text-[var(--text-secondary)]/50 font-bold">
+                  {checklist.filter((c) => c.done).length} / {checklist.length} {t('daygi.done')}
                 </span>
               </div>
 
@@ -433,20 +421,20 @@ export const DepartureView: React.FC = () => {
                       key={item.id}
                       type="button"
                       onClick={() => toggleChecklist(item.id)}
-                      className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#13312B] text-start transition-colors cursor-pointer border border-white/5"
+                      className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[var(--surface-container)] text-start transition-colors cursor-pointer border border-[var(--border-subtle)]"
                     >
                       <div
                         className={`w-5 h-5 rounded-lg flex items-center justify-center transition-all ${
                           item.done
-                            ? 'bg-emerald-500 text-[#081714]'
-                            : 'border-2 border-white/20 bg-transparent'
+                            ? 'bg-emerald-500 text-[var(--surface-card)]'
+                            : 'border-2 border-[var(--border-subtle)] bg-transparent'
                         }`}
                       >
                         {item.done && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
                       <span
                         className={`text-xs font-medium ${
-                          item.done ? 'line-through text-[#D2E3DE]/40' : 'text-[#F7F3EA]'
+                          item.done ? 'line-through text-[var(--text-secondary)]/40' : 'text-[var(--text-primary)]'
                         }`}
                       >
                         {label}
@@ -458,25 +446,23 @@ export const DepartureView: React.FC = () => {
             </div>
 
             {/* 3. Completed Trip / Post-Trip Review Shortcut */}
-            <div className="p-6 rounded-3xl bg-[#13312B] border border-[#F4C36C]/30 text-white shadow-xl space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F4C36C]">
+            <div className="p-6 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-white shadow-xl space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)]">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{language === 'ar' ? 'ذكريات ومصاريف الرحلة' : 'Trip Conclusion'}</span>
+                <span>{t('departure.tripConclusion')}</span>
               </div>
-              <h3 className="font-serif font-bold text-lg text-[#F7F3EA]">
-                {language === 'ar' ? 'عايز تشوف ملخص رحلتك وصورك؟' : 'Looking back at your Dahab journey?'}
+              <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                {t('departure.lookingBackAtYour')}
               </h3>
-              <p className="text-xs text-[#D2E3DE]/80 leading-relaxed">
-                {language === 'ar'
-                  ? 'لما ترجع البيت، كل ذكريات الغطس، الأماكن اللي زرتها، الفاتورة الموحدة، وأفكار رحلتك الجاية هتكون جاهزة في صفحة ملخص الرحلة.'
-                  : 'When you return home, your trip memories, completed dives, invoice, and next-trip ideas will be ready in your Post-Trip memory hub.'}
+              <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
+                {t('departure.whenYouReturnHome')}
               </p>
               <button
                 type="button"
                 onClick={() => navigateTo('/post-trip')}
-                className="w-full py-2.5 px-4 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <span>{language === 'ar' ? 'عرض ملخص وفاتورة الرحلة' : 'View Completed Trip Hub'}</span>
+                <span>{t('departure.viewCompletedTripHub')}</span>
                 <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -492,48 +478,48 @@ export const DepartureView: React.FC = () => {
           dir={isRTL ? 'rtl' : 'ltr'}
           role="dialog"
           aria-modal="true"
-          aria-label={language === 'ar' ? 'إيصال حفظ الشنط' : 'Luggage storage receipt'}
+          aria-label={t('departure.luggageStorageReceipt')}
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
-          <div className="bg-[#0E2520] rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-white/10 space-y-5 text-center animate-in zoom-in-95 duration-200 text-[#F7F3EA]">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <span className="text-xs font-bold text-[#F4C36C]">
-                {language === 'ar' ? 'إيصال حفظ الشنط' : 'Luggage storage receipt'}
+          <div className="bg-[var(--surface-card)] rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-[var(--border-subtle)] space-y-5 text-center animate-in zoom-in-95 duration-200 text-[var(--text-primary)]">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+              <span className="text-xs font-bold text-[var(--accent-secondary)]">
+                {t('departure.luggageStorageReceipt')}
               </span>
               <button
                 type="button"
                 onClick={() => setShowLuggageTicket(false)}
-                className="text-[#D2E3DE]/60 hover:text-white p-1"
+                className="text-[var(--text-secondary)]/60 hover:text-[var(--text-primary)] p-1"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#13312B] border border-dashed border-[#F4C36C]/40 space-y-3">
-              <div className="w-32 h-32 mx-auto bg-white rounded-xl p-2 border border-white/10 flex items-center justify-center">
-                <QrCode className="w-24 h-24 text-[#081714]" />
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-dashed border-[var(--accent-secondary)]/40 space-y-3">
+              <div className="w-32 h-32 mx-auto bg-[var(--surface-card)] rounded-xl p-2 border border-[var(--border-subtle)] flex items-center justify-center">
+                <QrCode className="w-24 h-24 text-[var(--surface-card)]" />
               </div>
               <div>
-                <span className="text-[12px] text-[#D2E3DE]/60 block">{language === 'ar' ? 'كود الاستلام:' : 'Claim Code:'}</span>
-                <span className="text-lg font-mono font-bold text-[#F4C36C]">DHB-LUG-894-02</span>
+                <span className="text-[12px] text-[var(--text-secondary)]/60 block">{t('departure.claimCode')}</span>
+                <span className="text-lg font-mono font-bold text-[var(--accent-secondary)]">DHB-LUG-894-02</span>
               </div>
             </div>
 
-            <div className="text-xs text-[#D2E3DE]/80 space-y-1 text-start">
-              <p><strong className="text-[#F7F3EA]">{language === 'ar' ? 'النزيل:' : 'Guest:'}</strong> Ahmed Mansour</p>
-              <p><strong className="text-[#F7F3EA]">{language === 'ar' ? 'عدد القطع:' : 'Total Pieces:'}</strong> 3 (2 Bags + 1 Dive Gear)</p>
-              <p><strong className="text-[#F7F3EA]">{language === 'ar' ? 'ميعاد التسليم للسائق:' : 'Pickup Time:'}</strong> 02:30 PM (Lobby)</p>
+            <div className="text-xs text-[var(--text-secondary)]/80 space-y-1 text-start">
+              <p><strong className="text-[var(--text-primary)]">{t('departure.guest')}</strong> Ahmed Mansour</p>
+              <p><strong className="text-[var(--text-primary)]">{t('departure.totalPieces')}</strong> 3 (2 Bags + 1 Dive Gear)</p>
+              <p><strong className="text-[var(--text-primary)]">{t('departure.pickupTime')}</strong> 02:30 PM (Lobby)</p>
             </div>
 
             <button
               type="button"
               onClick={() => {
                 setShowLuggageTicket(false);
-                showToast(language === 'ar' ? 'تم حفظ الإيصال في صور الجهاز' : 'Luggage pass saved to device');
+                showToast(t('departure.luggagePassSavedTo'));
               }}
-              className="w-full py-2.5 rounded-full bg-[#F4C36C] hover:bg-[#E5B55D] text-[#081714] text-xs font-bold cursor-pointer transition-colors"
+              className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold cursor-pointer transition-colors"
             >
-              {language === 'ar' ? 'إغلاق وحفظ' : 'Done'}
+              {t('departure.done')}
             </button>
           </div>
         </div>
