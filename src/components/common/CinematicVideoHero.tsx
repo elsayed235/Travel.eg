@@ -20,6 +20,7 @@ import { TravelerProfile } from '../../types';
 import { CinematicVideo } from './CinematicVideo';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useDahabTime } from '../../context/DahabTimeContext';
 import { api } from '../../services/api';
 
 export interface CinematicScene {
@@ -178,6 +179,13 @@ interface CinematicVideoHeroProps {
   onOpenExplore: () => void;
   onOpenFood: () => void;
   onOpenPlanner: () => void;
+  /**
+   * Hero heading/subtitle from the CMS homepage section (the dashboard's
+   * Homepage tab edits it). When absent or when the CMS is unreachable, the
+   * compiled translations below render — the page must not depend on the CMS
+   * to show its thesis.
+   */
+  cmsHero?: { title_en: string; title_ar: string; config: Record<string, any> } | null;
 }
 
 export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
@@ -186,9 +194,11 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
   onOpenExplore,
   onOpenFood,
   onOpenPlanner,
+  cmsHero,
 }) => {
   const { language, isRTL , t} = useLanguage();
   const { theme, isDark } = useTheme();
+  const { timePhase, accentColor } = useDahabTime();
   const [activeSceneIndex, setActiveSceneIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
@@ -217,6 +227,16 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
   }, []);
 
   const currentScene = CINEMATIC_SCENES[activeSceneIndex];
+
+  // CMS-authored heading wins when published; the compiled copy is the
+  // fallback. Subtitle keys are 'subtitle_en'/'subtitle_ar' in the section
+  // config when editors provide them, matching the dashboard's field names.
+  const cmsTitle = language === 'ar'
+    ? (cmsHero?.title_ar || '').trim()
+    : (cmsHero?.title_en || '').trim();
+  const cmsSubtitle = language === 'ar'
+    ? (cmsHero?.config?.subtitle_ar || '').trim()
+    : (cmsHero?.config?.subtitle_en || '').trim();
 
   const handleNextSlide = useCallback(() => {
     setActiveSceneIndex((prev) => (prev + 1) % CINEMATIC_SCENES.length);
@@ -272,6 +292,8 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
   // Tidal depth: LTR starts with sand on left fading to ocean on right; RTL flips
   const shoreDirection = isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r';
 
+  const phaseLabel = t(`home.hero.phase${timePhase.charAt(0).toUpperCase()}${timePhase.slice(1)}`);
+
   return (
     <section
       id="cinematic-hero-cockpit"
@@ -280,9 +302,9 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
       dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* ========================================================================= */}
-      {/* 1. CINEMATIC BACKGROUND SCENE — the desert-to-sea meeting point           */}
-      {/*    Video sits inside a tidal-gradient frame so sand warms the top edge    */}
-      {/*    and ocean cools toward the base, literally showing the convergence.    */}
+      {/* 1. CINEMATIC BACKGROUND SCENE — the chart plate                          */}
+      {/*    Video sits inside night scrims with a pinprick starfield: the sky    */}
+      {/*    reads over every scene, and the 2,285m summit night is the home truth.  */}
       {/* ========================================================================= */}
       <div className="absolute inset-0 z-0">
         <CinematicVideo
@@ -304,16 +326,11 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           showOverlay={false}
         />
 
-        {/* Tidal convergence overlay — desert sand at top melting into ocean depth */}
-        <div className={`absolute inset-0 ${shoreDirection} from-[var(--bg-canvas)]/95 via-[var(--bg-canvas)]/55 to-[var(--bg-canvas)]/30`} aria-hidden="true" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-transparent to-[var(--bg-canvas)]/40" aria-hidden="true" />
-
-        {/* Night sky accents for the summit & evening scenes */}
-        <div className="absolute top-8 right-10 text-[var(--text-primary)]/30 pointer-events-none" aria-hidden="true">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/50 mr-2" />
-          <span className="inline-block w-1 h-1 rounded-full bg-white/30 mr-2" />
-          <span className="inline-block w-2 h-2 rounded-full bg-white/20" />
-        </div>
+        {/* Chart-plate scrims — night ink for legibility, starfield pinned
+            to the top edge so the sky reads even over day scenes */}
+        <div className={`absolute inset-0 ${shoreDirection} from-[#060B1F]/95 via-[#060B1F]/55 to-[#060B1F]/25`} aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-transparent to-[#060B1F]/45" aria-hidden="true" />
+        <div className="absolute inset-0 chart-starfield opacity-70 pointer-events-none" aria-hidden="true" />
       </div>
 
       {/* ========================================================================= */}
@@ -321,7 +338,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
       {/* ========================================================================= */}
       <div className="relative z-20 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-26 flex flex-col md:flex-row md:items-center gap-4">
         {/* Location capsule (part of the first-viewport story) */}
-        <div className="tidal-glass inline-flex items-center gap-3 px-4 py-2 rounded-full text-xs font-semibold text-[var(--text-primary)]">
+        <div className="chart-glass inline-flex items-center gap-3 px-4 py-2 rounded-full text-xs font-semibold text-[var(--text-primary)]">
           <span className="inline-flex items-center gap-2 text-[var(--accent-secondary)]">
             <Compass className="w-3.5 h-3.5" aria-hidden="true" />
             {profile.name
@@ -336,6 +353,19 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           </span>
         </div>
 
+        {/* Time-phase chip — what the coast feels like right now */}
+        <div
+          className="chart-glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-[var(--text-primary)]"
+          title={t('common.coastNow')}
+        >
+          <span
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{ backgroundColor: accentColor }}
+            aria-hidden="true"
+          />
+          <span>{phaseLabel}</span>
+        </div>
+
         {/* Scene selector chips */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 pe-6 sm:pe-0 py-1 md:ms-auto">
           <div role="tablist" aria-label="Cinematic video scene views" className="flex items-center gap-1.5 backdrop-blur-xl p-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 shadow-lg">
@@ -347,7 +377,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
                   role="tab"
                   aria-selected={isSelected}
                   onClick={() => handleSelectScene(idx)}
-                  className={`relative px-3.5 min-h-[44px] sm:min-h-0 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap overflow-hidden flex items-center gap-1.5 ${
+                  className={`relative px-3.5 min-h-[44px] sm:min-h-0 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap overflow-hidden flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/50'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]/5'
@@ -357,7 +387,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
                   <span className="relative z-10">{language === 'ar' ? scene.labelAr : scene.label}</span>
                   {isSelected && isAutoPlaying && (
                     <span
-                      className="absolute bottom-0 left-0 h-[2px] bg-current transition-all duration-75"
+                      className="absolute bottom-0 start-0 h-[2px] bg-current transition-[width] duration-75"
                       style={{ width: `${slideProgress}%` }}
                     />
                   )}
@@ -370,7 +400,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
             type="button"
             onClick={() => setIsAutoPlaying((prev) => !prev)}
             aria-label={isAutoPlaying ? 'Pause automatic slider' : 'Start automatic slider'}
-            className="p-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 hover:bg-[var(--surface-container)] text-[var(--text-primary)] transition-all cursor-pointer shadow-md"
+            className="p-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 hover:bg-[var(--surface-container)] text-[var(--text-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-md"
           >
             {isAutoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
           </button>
@@ -378,20 +408,24 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. HERO CONTENT — the shoreline thesis                                      */}
+      {/* 3. HERO CONTENT — the chart thesis                                          */}
       {/* ========================================================================= */}
       <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 my-auto flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-10">
         {/* Left content column */}
         <div className="max-w-2xl w-full space-y-7">
-          <div className="space-y-4 animate-tidal-reveal">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.05] font-['Outfit',sans-serif] text-[var(--text-primary)]">
-              {t('common.whereTheDesertMeets')}{' '}
-              <span className="tidal-heading-accent">{t('common.theSea')}</span>
+          <div className="space-y-4 animate-chart-rise">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-chart font-semibold tracking-tight leading-[1.05] text-[var(--text-primary)] text-balance">
+              {cmsTitle || t('common.whereTheDesertMeets')}{' '}
+              <span className="chart-heading-accent">{cmsTitle ? '' : t('common.theSea')}</span>
             </h1>
             <p className="text-base sm:text-lg font-normal leading-relaxed max-w-xl text-[var(--text-secondary)]">
-              {t('common.discoverAndBookYour')}{' '}
-              <strong className="font-semibold text-[var(--text-primary)]">{t('common.dahabSinaiJourney')}</strong>{' '}
-              {t('common.discoverAndBookYourPost')}
+              {cmsSubtitle || (
+                <>
+                  {t('common.discoverAndBookYour')}{' '}
+                  <strong className="font-semibold text-[var(--text-primary)]">{t('common.dahabSinaiJourney')}</strong>{' '}
+                  {t('common.discoverAndBookYourPost')}
+                </>
+              )}
             </p>
           </div>
 
@@ -402,7 +436,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               id="hero-start-trip-cta"
               onClick={onOpenPlanner}
               aria-label="Plan Your Dahab Trip"
-              className="tidal-cta-primary inline-flex items-center gap-3 text-sm active:scale-95 cursor-pointer group"
+              className="chart-cta-primary inline-flex items-center gap-3 text-sm active:scale-95 cursor-pointer group"
             >
               <Sparkles className="w-4 h-4 text-current" aria-hidden="true" />
               <span>{t('common.planYourDahabTrip')}</span>
@@ -414,7 +448,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               id="hero-browse-experiences-cta"
               onClick={onOpenExplore}
               aria-label="Browse Experiences"
-              className="tidal-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer group"
+              className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer group"
             >
               <Compass className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
               <span>{t('common.browseExperiences')}</span>
@@ -437,12 +471,14 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           </div>
         </div>
 
-        {/* Right: destination stack as receding tide pools */}
-        <div className="w-full lg:max-w-sm flex flex-col gap-1.5 tidal-glass p-4 rounded-3xl text-[var(--text-primary)]">
+        {/* Right: scenes plotted as a constellation — the active waypoint
+            holds firelight, the rest recede as unplotted stars */}
+        <div className="w-full lg:max-w-sm flex flex-col gap-1.5 chart-glass p-4 rounded-3xl text-[var(--text-primary)]">
           <div className="flex items-center justify-between px-2 pb-2.5 border-b border-[var(--border-subtle)] mb-1">
             <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)]">
+              <span className="w-2 h-2 rounded-full bg-[#E8A33D] shadow-[0_0_8px_2px_rgba(232,163,61,0.6)]" aria-hidden="true" />
               <MapPin className="w-4 h-4 text-[var(--accent-primary)]" />
-              <span className="font-['Outfit',sans-serif]">
+              <span className="">
                 {t('common.sinaiIconicDestinations')}
               </span>
             </div>
@@ -454,8 +490,8 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           <div className="flex flex-col gap-1">
             {CINEMATIC_SCENES.map((scene, idx) => {
               const isSelected = activeSceneIndex === idx;
-              // Receding depth: rows farther from the shoreline (active scene)
-              // sink toward ocean night, reading as tide pools at different depths.
+              // Plotted depth: waypoints farther from the plotted star fade,
+              // reading as unplotted stars on the same chart rule.
               const depth = Math.min(Math.abs(idx - activeSceneIndex), 2);
               const depthOpacity = isSelected ? 1 : 1 - depth * 0.16;
               return (
@@ -466,11 +502,11 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
                   aria-pressed={isSelected}
                   aria-label={language === 'ar' ? scene.labelAr : scene.label}
                   style={{ opacity: depthOpacity }}
-                  className={`group w-full text-start flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                  className={`group w-full text-start flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                     isSelected
                       ? 'border border-[var(--accent-primary)]/40 shadow-md'
                       : 'hover:bg-[var(--surface-container)]/50 border border-transparent'
-                  } ${isSelected ? 'tidal-gradient-section' : ''}`}
+                  } ${isSelected ? 'chart-gradient-section' : ''}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--surface-container)]">
@@ -494,7 +530,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
                   </div>
 
                   <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
-                    isSelected ? 'tidal-badge-ocean' : 'text-[var(--text-secondary)]'
+                    isSelected ? 'chart-badge-live' : 'text-[var(--text-secondary)]'
                   }`}>
                     {language === 'ar' ? scene.shortTagAr : scene.shortTag}
                   </span>
@@ -506,14 +542,14 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. BOTTOM CONDITIONS — living weather strip                                 */}
+      {/* 4. BOTTOM CONDITIONS — instrument readings                                   */}
       {/* ========================================================================= */}
       <div className="relative z-20 border-t border-[var(--border-subtle)] py-3.5 px-4 sm:px-6 lg:px-8 backdrop-blur-2xl bg-[var(--surface-card)]/75 text-[var(--text-primary)]">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 backdrop-blur-sm">
               <Sun className="w-4 h-4 text-amber-400" aria-hidden="true" />
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold dg-num text-[var(--text-primary)]">
                 {liveConditions?.airTemperatureC != null ? `${Math.round(liveConditions.airTemperatureC)}°C` : (language === 'ar' ? '—' : '—')}
               </span>
               <span className="text-[var(--text-secondary)]">
@@ -523,7 +559,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
 
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 backdrop-blur-sm">
               <Waves className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold dg-num text-[var(--text-primary)]">
                 {liveConditions?.waterTemperatureC != null ? `${Math.round(liveConditions.waterTemperatureC)}°C` : (language === 'ar' ? '—' : '—')}
               </span>
               <span className="text-[var(--text-secondary)]">{t('common.waterTemp')}</span>
@@ -531,7 +567,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
 
             <div className="hidden md:flex items-center gap-1.5 text-[var(--text-secondary)]">
               <span>{t('common.sunset')}</span>
-              <span className="font-semibold text-[var(--accent-secondary)]">
+              <span className="font-semibold dg-num text-[var(--accent-secondary)]">
                 {liveConditions?.astronomy?.sunset
                   ? new Date(liveConditions.astronomy.sunset).toLocaleTimeString(language === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
                   : (t('common._item_'))}
@@ -559,7 +595,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               </button>
             </div>
 
-            <span className="tidal-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px]">
+            <span className="chart-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px]">
               <span className={`w-1.5 h-1.5 rounded-full ${liveConditions ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`} aria-hidden="true" />
               {t('common.liveSeaWeather')}
             </span>
@@ -586,7 +622,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               <div className="flex items-center gap-2.5">
                 <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
                 <div>
-                  <h4 className="text-sm sm:text-base font-bold text-white font-['Outfit',sans-serif]">
+                  <h4 className="text-sm sm:text-base font-bold text-white">
                     {language === 'ar' ? currentScene.labelAr : currentScene.label} · 4K Ultra HD
                   </h4>
                   <p className="text-[12px] text-stone-400">
@@ -598,7 +634,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               <button
                 type="button"
                 onClick={() => setIsVideoModalOpen(false)}
-                className="w-9 h-9 rounded-full bg-[var(--surface-card)]/10 hover:bg-[var(--surface-card)]/20 text-white flex items-center justify-center transition-all cursor-pointer border border-[var(--border-subtle)]"
+                className="w-9 h-9 rounded-full bg-[var(--surface-card)]/10 hover:bg-[var(--surface-card)]/20 text-white flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-[var(--border-subtle)]"
                 aria-label="Close video player"
               >
                 <X className="w-5 h-5" />

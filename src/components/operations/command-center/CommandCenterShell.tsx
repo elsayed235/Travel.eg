@@ -40,6 +40,7 @@ export type SectionId =
   | 'transfers'
   | 'exceptions'
   | 'commerce'
+  | 'accommodations'
   | 'suppliers'
   | 'intelligence'
   | 'opportunities'
@@ -68,6 +69,7 @@ const NAV_SECTIONS: NavSection[] = [
   { id: 'transfers', label: 'Transfers', labelAr: 'النقل', icon: Car, group: 'core' },
   { id: 'exceptions', label: 'Exceptions', labelAr: 'الاستثناءات', icon: AlertTriangle, group: 'core' },
   { id: 'commerce', label: 'Commerce', labelAr: 'التجارة', icon: DollarSign, group: 'domain' },
+  { id: 'accommodations', label: 'Accommodations', labelAr: 'أماكن الإقامة', icon: Package, group: 'domain' },
   { id: 'suppliers', label: 'Suppliers', labelAr: 'الموردين', icon: Users, group: 'domain' },
   { id: 'intelligence', label: 'Intelligence', labelAr: 'الاستخبارات', icon: Globe, group: 'domain' },
   { id: 'opportunities', label: 'Opportunities', labelAr: 'الفرص', icon: Lightbulb, group: 'domain' },
@@ -88,6 +90,7 @@ const LiveTripRadar = React.lazy(() => import('./LiveTripRadar'));
 const TransfersSection = React.lazy(() => import('./TransfersSection'));
 const ExceptionsCenter = React.lazy(() => import('./ExceptionsCenter'));
 const CommerceControl = React.lazy(() => import('./CommerceControl'));
+const AccommodationsAdmin = React.lazy(() => import('./AccommodationsAdmin'));
 const SupplierCommand = React.lazy(() => import('./SupplierCommand'));
 const IntelligenceCommand = React.lazy(() => import('./IntelligenceCommand'));
 const OpportunitiesSection = React.lazy(() => import('./OpportunitiesSection'));
@@ -161,6 +164,8 @@ function SectionContent({ section, onNavigate }: { section: SectionId; onNavigat
       return <ExceptionsCenter />;
     case 'commerce':
       return <CommerceControl />;
+    case 'accommodations':
+      return <AccommodationsAdmin />;
     case 'suppliers':
       return <SupplierCommand />;
     case 'intelligence':
@@ -206,7 +211,12 @@ function SectionLoading() {
 // ─── Main Shell ─────────────────────────────────────────────────────────────
 export const CommandCenterShell: React.FC = () => {
   const { language, isRTL, t } = useLanguage();
-  const [activeSection, setActiveSection] = useState<SectionId>('overview');
+  const [activeSection, setActiveSection] = useState<SectionId>(() => {
+    // Deep-link support: /ops-console#cms opens the CMS Content section
+    // directly; a sub-tab fragment (#cms/navigation) strips to the section id.
+    const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '').split('/')[0] : '';
+    return NAV_SECTIONS.some(s => s.id === hash) ? (hash as SectionId) : 'overview';
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 1280);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const badges = useSectionBadges();
@@ -248,6 +258,9 @@ export const CommandCenterShell: React.FC = () => {
 
   const handleNavigate = useCallback((section: SectionId) => {
     setActiveSection(section);
+    if (typeof window !== 'undefined' && !window.location.hash.startsWith(`#${section}`)) {
+      window.history.replaceState(null, '', `#${section}`);
+    }
   }, []);
 
   const groupedSections = {
@@ -257,10 +270,10 @@ export const CommandCenterShell: React.FC = () => {
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] flex">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] flex">
       {/* ─── Sidebar ──────────────────────────────────────────────────── */}
       <aside
-        className={`flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface-container)]/80 flex flex-col transition-all duration-200 ${
+        className={`flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface-container)]/80 flex flex-col transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 ${
           sidebarCollapsed ? 'w-16' : 'w-56'
         }`}
       >
@@ -272,7 +285,7 @@ export const CommandCenterShell: React.FC = () => {
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <div className="text-xs font-bold text-[var(--text-primary)] truncate font-['Outfit',sans-serif]">
+                <div className="text-xs font-bold text-[var(--text-primary)] truncate">
                   {t('cmd.title')}
                 </div>
                 <div className="text-[11px] text-[var(--text-muted)] truncate">{t('cmd.subtitle')}</div>
@@ -286,7 +299,7 @@ export const CommandCenterShell: React.FC = () => {
           {(['core', 'domain', 'system'] as const).map(group => (
             <div key={group}>
               {              !sidebarCollapsed && (
-                <div className="px-2 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-[var(--text-muted)]">
                   {group === 'core' ? t('cmd.group.liveOps') : group === 'domain' ? t('cmd.group.domains') : t('cmd.group.system')}
                 </div>
               )}
@@ -299,7 +312,7 @@ export const CommandCenterShell: React.FC = () => {
                     key={section.id}
                     type="button"
                     onClick={() => handleNavigate(section.id)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                       isActive
                         ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] border border-transparent'
@@ -329,7 +342,7 @@ export const CommandCenterShell: React.FC = () => {
           <button
             type="button"
             onClick={() => setSidebarCollapsed(prev => !prev)}
-            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             {!sidebarCollapsed && <span>{t('cmd.collapse')}</span>}
@@ -342,7 +355,7 @@ export const CommandCenterShell: React.FC = () => {
         {/* Top bar */}
         <header className="flex-shrink-0 h-12 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/40 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+            <h2 className="text-sm font-bold text-[var(--text-primary)]">
               {NAV_SECTIONS.find(s => s.id === activeSection)
                 ? (language === 'ar' ? NAV_SECTIONS.find(s => s.id === activeSection)!.labelAr : NAV_SECTIONS.find(s => s.id === activeSection)!.label)
                 : t('cmd.nav.overview')}
@@ -353,7 +366,7 @@ export const CommandCenterShell: React.FC = () => {
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-muted)] text-xs transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-muted)] text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
             >
               <Search className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t('cmd.search')}</span>

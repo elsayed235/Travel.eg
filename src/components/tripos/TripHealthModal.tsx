@@ -43,11 +43,11 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span className="text-[12px] font-black uppercase tracking-wider text-emerald-300 font-['Outfit',sans-serif]">
+              <span className="text-[12px] font-black text-emerald-300">
                 {t('tripos.tRIPOSHEALTHCONFLICT')}
               </span>
             </div>
-            <h2 id="trip-health-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
+            <h2 id="trip-health-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold">
               {t('tripos.tripHealthSafetyVerifier')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
@@ -83,7 +83,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
             </div>
 
             <div>
-              <div className="text-sm font-extrabold text-slate-950 font-['Outfit',sans-serif]">
+              <div className="text-sm font-extrabold text-slate-950">
                 {language === 'ar' ? tripHealth.statusLabelAr : tripHealth.statusLabel}
               </div>
               <div className="text-xs text-slate-500">
@@ -100,7 +100,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
           {tripHealth.conflicts.map((conflict) => (
             <div
               key={conflict.id}
-              className={`p-5 rounded-2xl border transition-all space-y-3 ${
+              className={`p-5 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-3 ${
                 conflict.resolved
                   ? 'bg-emerald-50/50 border-emerald-200'
                   : conflict.severity === 'critical'
@@ -114,7 +114,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                      className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
                         conflict.resolved
                           ? 'bg-emerald-200 text-emerald-900'
                           : conflict.severity === 'critical'
@@ -133,7 +133,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-slate-950 font-['Outfit',sans-serif]">
+                  <h4 className="text-sm font-bold text-slate-950">
                     {language === 'ar' ? conflict.titleAr : conflict.title}
                   </h4>
                 </div>

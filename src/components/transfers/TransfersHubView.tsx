@@ -231,7 +231,7 @@ export const TransfersHubView: React.FC = () => {
     <button
       type="button"
       onClick={() => resetForTab(id)}
-      className={`flex-1 text-start rounded-2xl px-5 py-4 border transition-all cursor-pointer ${
+      className={`flex-1 text-start rounded-2xl px-5 py-4 border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
         activeTab === id
           ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/50 shadow-md'
           : 'bg-[var(--surface-card)]/50 border-[var(--border-subtle)] hover:border-white/25'
@@ -256,7 +256,7 @@ export const TransfersHubView: React.FC = () => {
   );
 
   const Label = ({ children }: { children: React.ReactNode }) => (
-    <div className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 mb-1.5">{children}</div>
+    <div className="text-[11px] font-bold text-[var(--text-secondary)]/70 mb-1.5">{children}</div>
   );
 
   const FieldShell = ({ children }: { children: React.ReactNode }) => (
@@ -264,15 +264,15 @@ export const TransfersHubView: React.FC = () => {
   );
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pb-24">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
         {/* ---------------- hero ---------------- */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-[var(--accent-primary)] mb-3">
-            <Car className="w-3.5 h-3.5" />
-            <span>Dahab Transfers</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-1 text-[11px] font-bold text-[var(--accent-primary)] mb-3">
+            <Car className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>{t('transfers.eyebrow', 'Dahab transfers')}</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight">
+          <h1 className="text-3xl sm:text-5xl chart-heading font-bold tracking-tight">
             {t('transfers.title', 'Ride the coast your way')}
           </h1>
           <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--text-secondary)]/80 font-normal leading-relaxed">
@@ -393,7 +393,7 @@ export const TransfersHubView: React.FC = () => {
                             className="w-full flex items-center justify-between gap-2 px-4 py-3 text-start text-sm hover:bg-[var(--surface-container)] transition-colors cursor-pointer"
                           >
                             <span className="font-medium">{isAr ? o.labelAr : o.labelEn}</span>
-                            <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-secondary)]/60 font-bold uppercase">
+                            <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-secondary)]/60 font-bold">
                               {o.originType === 'airport' ? <Plane className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
                               {o.distanceKm} {t('transfers.km', 'km')}
                             </span>
@@ -446,7 +446,7 @@ export const TransfersHubView: React.FC = () => {
                       </span>
                     </span>
                     {selectedOrigin.originType === 'airport' && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-[var(--accent-secondary)]">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[var(--accent-secondary)]">
                         <Plane className="w-3 h-3" /> Airport
                       </span>
                     )}
@@ -520,7 +520,7 @@ export const TransfersHubView: React.FC = () => {
                     value={flightNumber}
                     onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
                     placeholder="MS 028"
-                    className="w-full bg-transparent text-sm font-medium uppercase placeholder:text-[var(--text-secondary)]/40 focus:outline-none"
+                    className="w-full bg-transparent text-sm font-medium placeholder:text-[var(--text-secondary)]/40 focus:outline-none"
                   />
                 </FieldShell>
               )}
@@ -572,7 +572,7 @@ export const TransfersHubView: React.FC = () => {
                       key={quote.tier.id}
                       type="button"
                       onClick={() => setSelectedTier(quote.tier.id)}
-                      className={`w-full text-start rounded-3xl bg-[var(--surface-card)] border p-5 transition-all cursor-pointer ${TIER_ACCENTS[quote.tier.id]} ${selected ? 'ring-2 ring-[var(--accent-primary)]/30 shadow-lg' : 'shadow-sm hover:shadow-md'}`}
+                      className={`w-full text-start rounded-3xl bg-[var(--surface-card)] border p-5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${TIER_ACCENTS[quote.tier.id]} ${selected ? 'ring-2 ring-[var(--accent-primary)]/30 shadow-lg' : 'shadow-sm hover:shadow-md'}`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
@@ -589,7 +589,7 @@ export const TransfersHubView: React.FC = () => {
                         </div>
                         <div className="text-end">
                           <div className="text-xl font-black text-[var(--accent-secondary)]">{quote.priceEGP.toLocaleString()}</div>
-                          <div className="text-[10px] text-[var(--text-secondary)]/50 font-bold uppercase">{t('transfers.quote', 'Fixed price')}</div>
+                          <div className="text-[10px] text-[var(--text-secondary)]/50 font-bold">{t('transfers.quote', 'Fixed price')}</div>
                         </div>
                       </div>
                     </button>
@@ -601,10 +601,10 @@ export const TransfersHubView: React.FC = () => {
                   type="button"
                   onClick={handleBook}
                   disabled={bookingBusy}
-                  className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold text-[var(--surface-container)] shadow-lg transition-all cursor-pointer disabled:opacity-60 ${
+                  className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold text-[var(--accent-primary-ink)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-60 ${
                     bookingBusy
                       ? 'bg-[var(--text-secondary)]/40'
-                      : 'bg-[var(--accent-primary)] hover:bg-[#1a8c80] active:scale-[0.99]'
+                      : 'bg-[var(--accent-primary)] hover:opacity-90 active:scale-[0.99]'
                   }`}
                 >
                   {bookingBusy ? (
@@ -624,13 +624,13 @@ export const TransfersHubView: React.FC = () => {
                 <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 flex items-center justify-center mx-auto mb-3">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <div className="font-serif font-bold text-lg">{t('transfers.bookedTitle', 'Ride on the way')}</div>
+                <div className="chart-heading font-bold text-lg">{t('transfers.bookedTitle', 'Ride on the way')}</div>
                 <p className="text-xs text-[var(--text-secondary)]/70 mt-1">{bookedRef}</p>
                 <div className="mt-4 flex gap-2">
                   <button
                     type="button"
                     onClick={() => navigateTo('/my-trip')}
-                    className="flex-1 py-3 rounded-xl text-xs font-bold bg-[var(--accent-primary)] text-[var(--surface-container)] cursor-pointer hover:bg-[#1a8c80] transition-colors"
+                    className="flex-1 py-3 rounded-xl text-xs font-bold bg-[var(--accent-primary)] text-[#1A1206] cursor-pointer hover:brightness-110 transition-colors"
                   >
                     {t('transfers.viewMyTrip', 'View My Trip')}
                   </button>

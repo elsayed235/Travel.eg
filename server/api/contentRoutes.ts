@@ -17,8 +17,14 @@ export const contentRouter = Router();
  */
 contentRouter.get('/homepage', (req: AuthenticatedRequest, res: Response) => {
   try {
-    const sections = cmsHomepage.findAll()
-      .filter(s => s.visible);
+    // All homepage sections, including invisible ones, are returned with their
+    // `visible` flag: each consumer decides whether to render its section. The
+    // hero is extracted only from visible sections (an invisible hero is null),
+    // while the section-backed components (stats band, marquee, essence bento)
+    // honor `visible === 0` themselves and render their compiled fallback only
+    // when the CMS has no section config at all.
+    const allSections = cmsHomepage.findAll();
+    const sections = allSections;
 
     const featuredPrograms = cmsPages.findPublishedByType('trip_program')
       .filter(p => p.featured)
@@ -32,8 +38,8 @@ contentRouter.get('/homepage', (req: AuthenticatedRequest, res: Response) => {
       .filter(p => p.featured)
       .slice(0, 4);
 
-    // Hero section config
-    const heroSection = sections.find(s => s.section_key === 'hero');
+    // Hero section config — only from visible sections so an editor can hide it.
+    const heroSection = allSections.find(s => s.section_key === 'hero' && s.visible);
 
     res.json({
       status: 'success',
@@ -55,6 +61,30 @@ contentRouter.get('/homepage', (req: AuthenticatedRequest, res: Response) => {
     res.status(500).json({
       status: 'error',
       message: err.message || 'Failed to load homepage content',
+      correlationId: req.correlationId
+    });
+  }
+});
+
+/**
+ * GET /api/content/pages
+ * Published page index (optional ?type= filter). Previously missing, so the
+ * path fell through to the SPA fallback and returned HTML instead of JSON.
+ */
+contentRouter.get('/pages', (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const type = typeof req.query.type === 'string' && req.query.type ? req.query.type : undefined;
+    const pages = type ? cmsPages.findPublishedByType(type) : cmsPages.findAll('published');
+    res.json({
+      status: 'success',
+      count: pages.length,
+      pages,
+      correlationId: req.correlationId
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message || 'Failed to load pages',
       correlationId: req.correlationId
     });
   }

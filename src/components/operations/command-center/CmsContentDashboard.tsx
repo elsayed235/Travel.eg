@@ -72,6 +72,25 @@ async function cmsFetch(path: string, options?: RequestInit): Promise<any> {
   return readJson(response, `CMS API call to ${path} failed.`);
 }
 
+// ---------- media filename helpers -------------------------------------------
+
+/**
+ * Derive a clean display filename from a media URL.
+ *
+ * The naive `url.split('/').pop()` kept the query string, producing filenames
+ * like "photo-…?q=80&w=1600&auto=format&fit=crop" for CDN URLs. This strips
+ * the query/hash, decodes percent-encoding, and falls back to a generic stem.
+ */
+export function deriveMediaFilename(url: string): string {
+  try {
+    const clean = url.split(/[?#]/)[0];
+    const last = decodeURIComponent(clean.split('/').pop() || '').trim();
+    return last || 'media';
+  } catch {
+    return 'media';
+  }
+}
+
 // ============================================================================
 // Overview Tab
 // ============================================================================
@@ -189,7 +208,7 @@ function OverviewTab({ onNavigate }: { onNavigate: (tab: CmsTab) => void }) {
                 key={item.tab}
                 type="button"
                 onClick={() => onNavigate(item.tab)}
-                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs font-semibold transition-all cursor-pointer"
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 <Icon className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{item.label}</span>
@@ -272,7 +291,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
             type="button"
             onClick={() => setShowTemplateSelector(true)}
             disabled={creating}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
           >
             <Plus className="w-3 h-3" />
             {t('cmd.newPage')}
@@ -340,7 +359,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
                       setCreating(false);
                     }
                   }}
-                  className="p-4 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 text-left transition-all cursor-pointer disabled:opacity-50"
+                  className="p-4 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 text-left transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
                 >
                   <div className="text-xs font-bold text-white mb-1">
                     {language === 'ar' ? template.nameAr : template.name}
@@ -359,7 +378,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
                 type="button"
                 onClick={() => setShowTemplateSelector(false)}
                 disabled={creating}
-                className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer disabled:opacity-50"
+                className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
               >
                 {t('intel.cancel')}
               </button>
@@ -382,7 +401,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
               filter === f.key
                 ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -399,7 +418,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
           <button
             type="button"
             onClick={() => setActionError(null)}
-            className="px-2 py-1 rounded bg-[var(--btn-util-bg)] text-red-200 text-[11px] font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+            className="px-2 py-1 rounded bg-[var(--btn-util-bg)] text-red-200 text-[11px] font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             {t('cmd.dismiss')}
           </button>
@@ -420,7 +439,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
           {filtered.map(page => (
             <div
               key={page.id}
-              className="flex items-center gap-4 p-3 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] transition-all"
+              className="flex items-center gap-4 p-3 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity]"
             >
               {page.hero_image_url && (
                 <img
@@ -456,7 +475,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
                 <button
                   type="button"
                   onClick={() => onPageSelect(page.id)}
-                  className="p-1.5 rounded-lg hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                   title="Edit"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -474,7 +493,7 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
                         }
                         loadPages();
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-all cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                     >
                       {t('cmd.publish')}
                     </button>
@@ -512,6 +531,223 @@ function PagesTab({ onPageSelect }: { onPageSelect: (id: string) => void }) {
 // ============================================================================
 // Homepage Tab — Section Editor
 // ============================================================================
+
+/* ============================================================================
+ * Labeled section-config editors (Homepage tab)
+ *
+ * Each homepage section key gets friendly bilingual fields instead of raw JSON.
+ * The advanced JSON textarea remains available below for power users.
+ * ========================================================================== */
+
+function dotGet(obj: any, path: string): any {
+  return path.split('.').reduce<any>((acc, key) => (acc == null ? undefined : acc[key]), obj);
+}
+
+function dotSet(obj: any, path: string, value: any): any {
+  const keys = path.split('.');
+  const next = Array.isArray(obj) ? [...obj] : { ...(obj || {}) };
+  let node: any = next;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i];
+    const child = node[k];
+    node[k] = Array.isArray(child) ? [...child] : { ...(child != null && typeof child === 'object' ? child : {}) };
+    node = node[k];
+  }
+  node[keys[keys.length - 1]] = value;
+  return next;
+}
+
+const CFG_INPUT_CLS = 'w-full px-2.5 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-white focus:border-[var(--accent-primary)]/50 focus:outline-none';
+const CFG_SELECT_CLS = 'w-full px-2 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-white focus:border-[var(--accent-primary)]/50 focus:outline-none';
+
+const STAT_ACCENTS = [
+  { value: 'text-[var(--accent-primary)]', label: 'Teal' },
+  { value: 'text-cyan-400', label: 'Cyan' },
+  { value: 'text-[var(--accent-secondary)]', label: 'Amber' },
+  { value: 'text-rose-400', label: 'Rose' },
+];
+
+const STAT_ICONS = ['anchor', 'eye', 'mountain', 'heart'];
+
+/** Bilingual { en, ar } object field. */
+function BiObjField({ label, path, cfg, set }: {
+  label: string;
+  path: string;
+  cfg: Record<string, any>;
+  set: (path: string, value: any) => void;
+}) {
+  const node = dotGet(cfg, path) || {};
+  return (
+    <div>
+      <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">{label}</span>
+      <div className="grid grid-cols-2 gap-2 mt-0.5">
+        <input type="text" placeholder="EN" value={node.en || ''} onChange={e => set(`${path}.en`, e.target.value)} className={CFG_INPUT_CLS} />
+        <input type="text" placeholder="AR" dir="rtl" value={node.ar || ''} onChange={e => set(`${path}.ar`, e.target.value)} className={CFG_INPUT_CLS} />
+      </div>
+    </div>
+  );
+}
+
+/** Flat `key_en` / `key_ar` field (hero + marquee configs). */
+function BiFlatField({ label, keyName, cfg, set }: {
+  label: string;
+  keyName: string;
+  cfg: Record<string, any>;
+  set: (path: string, value: any) => void;
+}) {
+  return (
+    <div>
+      <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">{label}</span>
+      <div className="grid grid-cols-2 gap-2 mt-0.5">
+        <input type="text" placeholder="EN" value={cfg[`${keyName}_en`] || ''} onChange={e => set(`${keyName}_en`, e.target.value)} className={CFG_INPUT_CLS} />
+        <input type="text" placeholder="AR" dir="rtl" value={cfg[`${keyName}_ar`] || ''} onChange={e => set(`${keyName}_ar`, e.target.value)} className={CFG_INPUT_CLS} />
+      </div>
+    </div>
+  );
+}
+
+function SectionConfigEditor({ sectionKey, config, onChange }: {
+  sectionKey: string;
+  config: Record<string, any>;
+  onChange: (cfg: Record<string, any>) => void;
+}) {
+  const cfg = config || {};
+  const set = (path: string, value: any) => onChange(dotSet(cfg, path, value));
+
+  if (sectionKey === 'hero') {
+    const fields: [string, string][] = [
+      ['badge', 'Badge'],
+      ['subtitle', 'Subtitle'],
+      ['cta_itinerary', 'Primary CTA label'],
+      ['cta_whatnow', 'Secondary CTA label'],
+      ['cta_explore', 'Tertiary CTA label'],
+    ];
+    return (
+      <div className="space-y-2.5">
+        {fields.map(([k, label]) => (
+          <BiFlatField key={k} label={label} keyName={k} cfg={cfg} set={set} />
+        ))}
+      </div>
+    );
+  }
+
+  if (sectionKey === 'marquee') {
+    return (
+      <div className="space-y-2.5">
+        <div>
+          <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Marquee items (separate with —)</span>
+          <div className="grid grid-cols-2 gap-2 mt-0.5">
+            <textarea rows={3} placeholder="EN items" value={cfg.items_en || ''} onChange={e => set('items_en', e.target.value)} className={`${CFG_INPUT_CLS} resize-y`} />
+            <textarea rows={3} placeholder="AR items" dir="rtl" value={cfg.items_ar || ''} onChange={e => set('items_ar', e.target.value)} className={`${CFG_INPUT_CLS} resize-y`} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (sectionKey === 'final_cta') {
+    const fields: [string, string][] = [
+      ['badge', 'Badge'],
+      ['headline', 'Headline'],
+      ['headlineAccent', 'Headline accent'],
+      ['supporting', 'Supporting text'],
+      ['ctaPrimary', 'Primary CTA'],
+      ['ctaSecondary', 'Secondary CTA'],
+      ['footnote', 'Footnote'],
+    ];
+    return (
+      <div className="space-y-2.5">
+        {fields.map(([p, label]) => (
+          <BiObjField key={p} label={label} path={p} cfg={cfg} set={set} />
+        ))}
+      </div>
+    );
+  }
+
+  if (sectionKey === 'essence') {
+    const tileFields: Record<string, [string, string][]> = {
+      dive: [['kicker', 'Kicker'], ['title', 'Title'], ['line', 'Line'], ['desc', 'Description']],
+      food: [['title', 'Title'], ['line', 'Line']],
+      explore: [['title', 'Title'], ['line', 'Line']],
+      stay: [['title', 'Title'], ['line', 'Line'], ['cta', 'CTA']],
+      help: [['kicker', 'Kicker'], ['title', 'Title'], ['line', 'Line'], ['cta', 'CTA']],
+    };
+    const tileLabels: Record<string, string> = { dive: 'Dive tile', food: 'Food tile', explore: 'Explore tile', stay: 'Stay tile', help: 'Help tile' };
+    return (
+      <div className="space-y-2.5">
+        <BiObjField label="Eyebrow" path="eyebrow" cfg={cfg} set={set} />
+        <BiObjField label="Title" path="title" cfg={cfg} set={set} />
+        <BiObjField label="Subtitle" path="subtitle" cfg={cfg} set={set} />
+        {Object.keys(tileFields).map(tile => (
+          <div key={tile} className="rounded-lg border border-[var(--border-subtle)] p-2.5 space-y-2">
+            <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">{tileLabels[tile]}</span>
+            {tileFields[tile].map(([p, label]) => (
+              <BiObjField key={p} label={label} path={`${tile}.${p}`} cfg={cfg} set={set} />
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (sectionKey === 'stats') {
+    const items: any[] = Array.isArray(cfg.items) ? cfg.items : [];
+    const setItem = (i: number, patch: Record<string, any>) => {
+      const next = items.map((it, j) => (j === i ? { ...it, ...patch } : it));
+      set('items', next);
+    };
+    return (
+      <div className="space-y-2.5">
+        {items.map((item, i) => (
+          <div key={item.id || `row-${i}`} className="rounded-lg border border-[var(--border-subtle)] p-2.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">{item.id || `Stat ${i + 1}`}</span>
+              <button
+                type="button"
+                onClick={() => set('items', items.filter((_, j) => j !== i))}
+                className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-rose-400 cursor-pointer"
+                aria-label={`Remove stat ${i + 1}`}
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input type="text" placeholder="Value (e.g. 100)" value={item.value || ''} onChange={e => setItem(i, { value: e.target.value })} className={CFG_INPUT_CLS} />
+              <input type="text" placeholder="Suffix (e.g. m+)" value={item.suffix || ''} onChange={e => setItem(i, { suffix: e.target.value })} className={CFG_INPUT_CLS} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input type="text" placeholder="Label EN" value={item.label_en || ''} onChange={e => setItem(i, { label_en: e.target.value })} className={CFG_INPUT_CLS} />
+              <input type="text" placeholder="Label AR" dir="rtl" value={item.label_ar || ''} onChange={e => setItem(i, { label_ar: e.target.value })} className={CFG_INPUT_CLS} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <select value={item.accent || 'text-[var(--accent-primary)]'} onChange={e => setItem(i, { accent: e.target.value })} className={CFG_SELECT_CLS}>
+                {STAT_ACCENTS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+              </select>
+              <select value={item.icon || 'anchor'} onChange={e => setItem(i, { icon: e.target.value })} className={CFG_SELECT_CLS}>
+                {STAT_ICONS.map(ic => <option key={ic} value={ic}>{ic[0].toUpperCase() + ic.slice(1)}</option>)}
+              </select>
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => set('items', [...items, { id: `stat-${Date.now().toString(36)}`, value: '', suffix: '', label_en: '', label_ar: '', accent: 'text-[var(--accent-primary)]', icon: 'anchor' }])}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:text-white cursor-pointer"
+        >
+          <Plus className="w-3 h-3" /> Add stat
+        </button>
+      </div>
+    );
+  }
+
+  // Visibility-only sections (ticker, season, trip_entry, stories, micro,
+  // landmarks, gallery, footer) — content is live or compiled.
+  return (
+    <div className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+      Content for this section is live data or compiled — use the eye toggle to show or hide it.
+    </div>
+  );
+}
 
 function HomepageTab() {
   const { language, t } = useLanguage();
@@ -624,7 +860,7 @@ function HomepageTab() {
               onDragOver={(e) => handleDragOver(e, idx)}
               onDrop={() => handleDrop(idx)}
               onDragEnd={handleDragEnd}
-              className={`rounded-xl bg-[var(--btn-util-bg)] border transition-all ${
+              className={`rounded-xl bg-[var(--btn-util-bg)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                 dragIdx === idx
                   ? 'opacity-50 border-[var(--accent-primary)]/50'
                   : dragOverIdx === idx
@@ -708,18 +944,29 @@ function HomepageTab() {
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Config (JSON)</span>
-                      <textarea
-                        value={typeof editForm.config === 'object' ? JSON.stringify(editForm.config, null, 2) : (editForm.config || '{}')}
-                        onChange={e => {
-                          try {
-                            setEditForm({ ...editForm, config: JSON.parse(e.target.value) });
-                          } catch {}
-                        }}
-                        rows={3}
-                        className="w-full mt-0.5 px-2.5 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[11px] text-white font-mono focus:border-[var(--accent-primary)]/50 focus:outline-none resize-y"
-                      />
+                      <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Section Content</span>
+                      <div className="mt-0.5">
+                        <SectionConfigEditor
+                          sectionKey={section.section_key}
+                          config={editForm.config || {}}
+                          onChange={cfg => setEditForm({ ...editForm, config: cfg })}
+                        />
+                      </div>
                     </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase">Advanced — Config (JSON)</span>
+                    <textarea
+                      value={typeof editForm.config === 'object' ? JSON.stringify(editForm.config, null, 2) : (editForm.config || '{}')}
+                      onChange={e => {
+                        try {
+                          setEditForm({ ...editForm, config: JSON.parse(e.target.value) });
+                        } catch {}
+                      }}
+                      rows={3}
+                      className="w-full mt-0.5 px-2.5 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[11px] text-white font-mono focus:border-[var(--accent-primary)]/50 focus:outline-none resize-y"
+                    />
                   </div>
 
                   <div className="flex gap-2">
@@ -727,14 +974,14 @@ function HomepageTab() {
                       type="button"
                       onClick={() => handleUpdateSection(section.section_key, editForm)}
                       disabled={saving}
-                      className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+                      className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
                     >
                       {saving ? '...' : (t('cmd.save'))}
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingSection(null)}
-                      className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+                      className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                     >
                       {t('intel.cancel')}
                     </button>
@@ -868,8 +1115,10 @@ function MediaTab() {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+  const formatFileSize = (bytes: number | null | undefined) => {
+    // External URL assets carry no file size — display a dash rather than
+    // "0 B" which wrongly implies an empty file.
+    if (bytes == null || bytes <= 0) return '\u2014';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -885,7 +1134,7 @@ function MediaTab() {
         <button
           type="button"
           onClick={() => setShowUpload(!showUpload)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <Plus className="w-3 h-3" />
           {t('cmd.addMedia')}
@@ -920,7 +1169,7 @@ function MediaTab() {
               key={cat.key}
               type="button"
               onClick={() => setFilterCategory(cat.key)}
-              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border ${
+              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                 filterCategory === cat.key
                   ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
                   : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -959,7 +1208,7 @@ function MediaTab() {
             <ClickableCard
               key={asset.id}
               onClick={() => { setSelectedAsset(asset); setEditForm(asset); }}
-              className="rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] overflow-hidden hover:border-[var(--accent-primary)]/30 transition-all group"
+              className="rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] overflow-hidden hover:border-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] group"
             >
               {asset.original_url ? (
                 <div className="relative">
@@ -1060,7 +1309,7 @@ function MediaUploadForm({
   const handleSaveUrl = () => {
     onSave({
       original_url: form.url,
-      filename: form.filename || form.url.split('/').pop() || 'upload',
+      filename: form.filename || deriveMediaFilename(form.url),
       alt_en: form.alt_en,
       alt_ar: form.alt_ar,
       caption_en: form.caption_en,
@@ -1076,7 +1325,7 @@ function MediaUploadForm({
     if (!preview) return;
     onSaveFile({
       dataUrl: preview,
-      filename: form.filename || 'upload',
+      filename: form.filename || 'media-upload',
       alt_en: form.alt_en,
       alt_ar: form.alt_ar,
       category: form.category,
@@ -1094,7 +1343,7 @@ function MediaUploadForm({
         <button
           type="button"
           onClick={() => setMode('url')}
-          className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+          className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
             mode === 'url'
               ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
               : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -1105,7 +1354,7 @@ function MediaUploadForm({
         <button
           type="button"
           onClick={() => setMode('file')}
-          className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+          className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
             mode === 'file'
               ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
               : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -1132,7 +1381,7 @@ function MediaUploadForm({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => document.getElementById('cms-file-input')?.click()}
-          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+          className={`border-2 border-dashed rounded-xl p-6 text-center transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
             dragOver
               ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
               : preview
@@ -1256,14 +1505,14 @@ function MediaUploadForm({
           type="button"
           onClick={mode === 'url' ? handleSaveUrl : handleSaveFileUpload}
           disabled={(mode === 'url' && !form.url) || (mode === 'file' && !preview) || saving}
-          className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+          className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
         >
           {saving ? '...' : (t('cmd.addMedia-2'))}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+          className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           {t('intel.cancel')}
         </button>
@@ -1430,21 +1679,21 @@ function MediaEditModal({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
           >
             {saving ? '...' : (t('cmd.saveChanges'))}
           </button>
           <button
             type="button"
             onClick={onDelete}
-            className="px-4 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-all cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             {t('cmd.delete')}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer ml-auto"
+            className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ml-auto"
           >
             {t('intel.close')}
           </button>
@@ -1496,13 +1745,35 @@ function RevisionsTab() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [diffEntity, setDiffEntity] = useState<{ entityId: string; entityType: string } | null>(null);
+  const [rollingBack, setRollingBack] = useState<string | null>(null);
+  const [rollbackMessage, setRollbackMessage] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadRevisions = useCallback(() => {
     cmsFetch('/revisions?limit=100').then(d => {
       setRevisions(d.revisions || []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => { loadRevisions(); }, [loadRevisions]);
+
+  const handleRollback = async (rev: Revision) => {
+    if (!confirm(t('cmd.areYouSure'))) return;
+    setRollingBack(rev.id);
+    setRollbackMessage(null);
+    try {
+      await cmsFetch(`/pages/${rev.entity_id}/rollback`, {
+        method: 'POST',
+        body: JSON.stringify({ revisionId: rev.id }),
+      });
+      setRollbackMessage(t('cmd.rollbackDone', 'Page restored to this revision.'));
+      loadRevisions();
+    } catch (err: any) {
+      setRollbackMessage(err?.message || 'Rollback failed');
+    } finally {
+      setRollingBack(null);
+    }
+  };
 
   const filtered = filter === 'all' ? revisions : revisions.filter(r => r.entity_type === filter);
 
@@ -1540,7 +1811,7 @@ function RevisionsTab() {
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border ${
+            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
               filter === f.key
                 ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -1550,6 +1821,12 @@ function RevisionsTab() {
           </button>
         ))}
       </div>
+
+      {rollbackMessage && (
+        <div className="px-3 py-2 rounded-xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 text-[11px] font-bold text-[var(--accent-primary)]">
+          {rollbackMessage}
+        </div>
+      )}
 
       {/* List */}
       {loading ? (
@@ -1580,10 +1857,21 @@ function RevisionsTab() {
               <button
                 type="button"
                 onClick={() => setDiffEntity({ entityId: rev.entity_id, entityType: rev.entity_type })}
-                className="px-2 py-1 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 text-[10px] font-bold transition-all cursor-pointer"
+                className="px-2 py-1 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 text-[10px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 {t('cmd.compare')}
               </button>
+              {rev.entity_type === 'page' && (rev.action === 'create' || rev.action === 'update') && (
+                <button
+                  type="button"
+                  onClick={() => handleRollback(rev)}
+                  disabled={rollingBack === rev.id}
+                  title={t('cmd.restoreThisVersion', 'Restore the page to this revision')}
+                  className="px-2 py-1 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-amber-300 hover:bg-amber-500/10 text-[10px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
+                >
+                  {rollingBack === rev.id ? '…' : t('cmd.restore', 'Restore')}
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -1740,7 +2028,7 @@ function NavigationTab() {
         <button
           type="button"
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <Plus className="w-3 h-3" />
           {t('cmd.addItem')}
@@ -1754,7 +2042,7 @@ function NavigationTab() {
             key={opt.key}
             type="button"
             onClick={() => setMenuKey(opt.key)}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
               menuKey === opt.key
                 ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -1767,7 +2055,12 @@ function NavigationTab() {
 
       {/* Add Form */}
       {showAdd && (
-        <NavAddForm onSave={handleAdd} onCancel={() => setShowAdd(false)} saving={saving} />
+        <NavAddForm
+          onSave={handleAdd}
+          onCancel={() => setShowAdd(false)}
+          saving={saving}
+          menuLabel={menuOptions.find(o => o.key === menuKey)?.label || menuKey}
+        />
       )}
 
       {/* Items List */}
@@ -1789,7 +2082,7 @@ function NavigationTab() {
               onDragOver={(e) => handleDragOver(e, idx)}
               onDrop={() => handleDrop(idx)}
               onDragEnd={handleDragEnd}
-              className={`rounded-xl bg-[var(--btn-util-bg)] border transition-all ${
+              className={`rounded-xl bg-[var(--btn-util-bg)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                 dragIdx === idx
                   ? 'opacity-50 border-[var(--accent-primary)]/50'
                   : dragOverIdx === idx
@@ -1824,6 +2117,7 @@ function NavigationTab() {
                   <button
                     type="button"
                     onClick={() => handleUpdate(item.id, { visible: item.visible ? 0 : 1 })}
+                    aria-label={item.visible ? 'Hide item' : 'Show item'}
                     className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] cursor-pointer"
                   >
                     {item.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
@@ -1831,6 +2125,7 @@ function NavigationTab() {
                   <button
                     type="button"
                     onClick={() => { setEditItem(item); setEditForm(item); }}
+                    aria-label="Edit item"
                     className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] cursor-pointer"
                   >
                     <Edit3 className="w-3 h-3" />
@@ -1838,6 +2133,7 @@ function NavigationTab() {
                   <button
                     type="button"
                     onClick={() => handleDelete(item.id)}
+                    aria-label="Delete item"
                     className="p-1 rounded hover:bg-red-500/20 text-[var(--text-muted)] hover:text-red-400 cursor-pointer"
                   >
                     <Trash2 className="w-3 h-3" />
@@ -1898,14 +2194,14 @@ function NavigationTab() {
                       type="button"
                       onClick={() => handleUpdate(item.id, editForm)}
                       disabled={saving}
-                      className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+                      className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
                     >
                       {saving ? '...' : (t('cmd.save'))}
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditItem(null)}
-                      className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+                      className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                     >
                       {t('intel.cancel')}
                     </button>
@@ -1928,10 +2224,15 @@ function NavAddForm({
   onSave,
   onCancel,
   saving,
+  menuLabel,
 }: {
   onSave: (data: Partial<NavItem>) => void;
   onCancel: () => void;
   saving: boolean;
+  /** Shown in the header: which menu the new link will land in. The form used
+   * to say nothing, so an item typed for the header silently went to the
+   * default footer menu. */
+  menuLabel: string;
 }) {
   const { language, t } = useLanguage();
   const [form, setForm] = useState({
@@ -1945,8 +2246,11 @@ function NavAddForm({
 
   return (
     <div className="p-4 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--accent-primary)]/30 space-y-3">
-      <h4 className="text-xs font-bold text-[var(--accent-primary)]">
-        {t('cmd.addNavigationItem')}
+      <h4 className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-2">
+        {t('cmd.addNavigationLink')}
+        <span className="text-[10px] font-normal text-[var(--text-muted)]">
+          · {t('cmd.addingToMenu')} {menuLabel}
+        </span>
       </h4>
 
       <div className="grid grid-cols-2 gap-2">
@@ -2022,14 +2326,14 @@ function NavAddForm({
           type="button"
           onClick={() => onSave(form)}
           disabled={!form.label_en || !form.label_ar || saving}
-          className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+          className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
         >
-          {saving ? '...' : (t('cmd.add'))}
+          {saving ? '...' : t('cmd.addNavigationLink')}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+          className="px-4 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           {t('intel.cancel')}
         </button>
@@ -2044,7 +2348,13 @@ function NavAddForm({
 
 export const CmsContentDashboard: React.FC = () => {
   const { language , t} = useLanguage();
-  const [activeTab, setActiveTab] = useState<CmsTab>('overview');
+  const [activeTab, setActiveTab] = useState<CmsTab>(() => {
+    // Deep-link support: /ops-console#cms opens the CMS section; an optional
+    // sub-tab hash fragment (#cms/navigation) selects that sub-tab directly.
+    const sub = typeof window !== 'undefined' ? window.location.hash.replace('#cms/', '') : '';
+    const valid: CmsTab[] = ['overview', 'pages', 'media', 'homepage', 'navigation', 'revisions'];
+    return valid.includes(sub as CmsTab) ? (sub as CmsTab) : 'overview';
+  });
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
 
   const tabs = [
@@ -2066,8 +2376,16 @@ export const CmsContentDashboard: React.FC = () => {
             <button
               key={tab.key}
               type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-3 py-2 text-xs font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+              onClick={() => {
+                // Switching tabs always exits the page editor — otherwise the
+                // editor would keep overriding the newly selected tab's content.
+                setEditingPageId(null);
+                setActiveTab(tab.key);
+                if (typeof window !== 'undefined' && window.location.hash !== `#cms/${tab.key}`) {
+                  window.history.replaceState(null, '', `#cms/${tab.key}`);
+                }
+              }}
+              className={`flex items-center gap-2 px-3 py-2 text-xs font-bold whitespace-nowrap border-b-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 activeTab === tab.key
                   ? 'border-[var(--accent-primary)] text-[var(--accent-primary)]'
                   : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-muted)]'

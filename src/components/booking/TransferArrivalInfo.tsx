@@ -26,14 +26,14 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
       <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-6">
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
           <div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+            <h3 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
               {isAr ? 'تفاصيل وصولك' : 'Your arrival'}
             </h3>
             <p className="text-xs text-[var(--text-secondary)]/60 mt-0.5">
               {isAr ? 'مسار الرحلة المنسق من شرم الشيخ إلى دهب' : 'Trip route coordinated from Sharm El Sheikh to Dahab'}
             </p>
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
+          <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
             {isAr ? 'استقبال منسق' : 'Coordinated Pickup'}
           </span>
         </div>
@@ -42,7 +42,7 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           {/* Origin Airport */}
           <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
-            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 uppercase tracking-wider block">
+            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 block">
               {isAr ? 'المطار' : 'Airport'}
             </span>
             <div className="flex items-start gap-2 text-[var(--text-primary)] font-bold text-sm">
@@ -56,7 +56,7 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
 
           {/* Destination Hotel */}
           <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
-            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 uppercase tracking-wider block">
+            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 block">
               {isAr ? 'وجهة الوصول' : 'Destination'}
             </span>
             <div className="flex items-start gap-2 text-[var(--text-primary)] font-bold text-sm">
@@ -70,7 +70,7 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
 
           {/* Travelers */}
           <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
-            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 uppercase tracking-wider block">
+            <span className="text-[12px] font-bold text-[var(--text-secondary)]/50 block">
               {isAr ? 'المسافرون' : 'Travelers'}
             </span>
             <div className="flex items-center gap-2 text-[var(--text-primary)] font-bold text-sm">
@@ -98,7 +98,7 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
               value={flightNumber}
               onChange={(e) => onFlightNumberChange(e.target.value)}
               placeholder={isAr ? 'مثال: MS123' : 'e.g. MS123'}
-              className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-container)] text-sm text-[var(--text-primary)] placeholder-[var(--text-secondary)]/35 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]/50 focus:border-[var(--accent-primary)] transition-all font-mono"
+              className="w-full px-4 py-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-container)] text-sm text-[var(--text-primary)] placeholder-[var(--text-secondary)]/35 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]/50 focus:border-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] font-mono"
             />
           </div>
           <p className="text-[12px] text-[var(--text-secondary)]/60 mt-1.5 flex items-center gap-1.5">
@@ -112,7 +112,7 @@ export const TransferArrivalInfo: React.FC<TransferArrivalInfoProps> = ({
       <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+            <h3 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
               {isAr ? 'عند وصولك للمطار' : 'When you arrive'}
             </h3>
             <p className="text-xs text-[var(--text-secondary)]/60 mt-0.5">

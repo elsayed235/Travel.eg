@@ -51,7 +51,7 @@ export default function SupportCenter() {
         <div className="flex gap-2">
           {(['messages', 'notifications'] as const).map(tab => (
             <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)} {tab === 'notifications' && unreadNotifs.length > 0 ? `(${unreadNotifs.length})` : ''}
             </button>
           ))}
@@ -69,7 +69,7 @@ export default function SupportCenter() {
               <div className="text-sm font-bold text-[var(--text-muted)]">{t('cmd.support.noNotifications')}</div>
             </div>
           ) : notifications.map((n: any) => (
-            <div key={n.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-all ${n.read ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
+            <div key={n.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${n.read ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${n.status === 'FAILED' ? 'bg-red-500/20 border border-red-500/30' : 'bg-[var(--btn-util-bg)] border border-[var(--border-subtle)]'}`}>
@@ -91,7 +91,7 @@ export default function SupportCenter() {
           <div className="flex gap-2">
             {(['all', 'OPEN', 'ANSWERED'] as const).map(f => (
               <button key={f} type="button" onClick={() => { setFilter(f); setSelectedMsg(null); }}
-                className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+                className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
                 {f === 'OPEN' ? `Open (${messages.filter(m => m.status === 'OPEN').length})` : f === 'ANSWERED' ? 'Answered' : 'All'}
               </button>
             ))}
@@ -109,7 +109,7 @@ export default function SupportCenter() {
                   </div>
                 ) : filtered.map(msg => (
                   <button key={msg.id} type="button" onClick={() => { setSelectedMsg(msg); setReplyText(''); }}
-                    className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer ${selectedMsg?.id === msg.id ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/30' : 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
+                    className={`w-full p-3 rounded-xl border text-left transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${selectedMsg?.id === msg.id ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/30' : 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
                     <div className="flex items-center justify-between mb-1">
                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${msg.status === 'OPEN' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>{msg.status}</span>
                       {msg.urgent && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-300">URGENT</span>}
@@ -155,7 +155,7 @@ export default function SupportCenter() {
                         <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type your reply…"
                           className="w-full px-3 py-2 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 resize-none focus:outline-none focus:border-[var(--accent-primary)]/50" rows={3} />
                         <button type="button" onClick={handleReply} disabled={!replyText.trim() || sending}
-                          className="mt-2 px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+                          className="mt-2 px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
                           <Send className="w-3.5 h-3.5" />{sending ? t('cmd.support.sending') : t('cmd.support.sendReply')}
                         </button>
                       </div>

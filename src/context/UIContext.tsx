@@ -3,6 +3,15 @@ import { AppRoute, JourneyStage } from '../types';
 import { DEFAULT_ROUTE, routeFromUrl, urlFromRoute, type RouteParams } from '../lib/routeUrl';
 
 /**
+ * The first curated experience in src/services/experienceService.ts. Nav and
+ * entry links to /experiences without a slug land on this one instead of the
+ * "Experience Not Found" screen. Kept in sync by convention; importing
+ * CURATED_EXPERIENCES here would pull ExploreView (and a dependency cycle)
+ * into UIContext.
+ */
+const DEFAULT_EXPERIENCE_SLUG = 'blue-hole';
+
+/**
  * The address bar is the source of truth for which page is open.
  *
  * Reading it in a lazy useState initialiser rather than an effect matters:
@@ -77,9 +86,10 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [selectedProgramSlug, setSelectedProgramSlug] = useState<string | null>(
     () => readLocation().params.programSlug ?? null
   );
-  const [selectedExperienceSlug, setSelectedExperienceSlug] = useState<string | null>(
-    () => readLocation().params.experienceSlug ?? null
-  );
+  const [selectedExperienceSlug, setSelectedExperienceSlug] = useState<string | null>(() => {
+    const { route, params } = readLocation();
+    return params.experienceSlug ?? (route === '/experiences' ? DEFAULT_EXPERIENCE_SLUG : null);
+  });
   const [selectedHotelSlug, setSelectedHotelSlug] = useState<string | null>(
     () => readLocation().params.hotelSlug ?? null
   );
@@ -170,6 +180,11 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       if (params?.activityId !== undefined) setSelectedActivityId(params.activityId);
       if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
       if (params?.programSlug !== undefined) setSelectedProgramSlug(params.programSlug);
+      // /experiences without a slug (e.g. from the navbar) must never land on
+      // the "Experience Not Found" screen — default to the first curated one.
+      if (params?.experienceSlug === undefined && route === '/experiences') {
+        params = { ...params, experienceSlug: DEFAULT_EXPERIENCE_SLUG };
+      }
       if (params?.experienceSlug !== undefined) setSelectedExperienceSlug(params.experienceSlug);
       if (params?.hotelSlug !== undefined) setSelectedHotelSlug(params.hotelSlug);
       if (params?.rentalSlug !== undefined) setSelectedRentalSlug(params.rentalSlug);
@@ -241,7 +256,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       setSelectedActivityId(params.activityId ?? null);
       setSelectedBookingId(params.bookingId ?? null);
       setSelectedProgramSlug(params.programSlug ?? null);
-      setSelectedExperienceSlug(params.experienceSlug ?? null);
+      setSelectedExperienceSlug(params.experienceSlug ?? (route === '/experiences' ? DEFAULT_EXPERIENCE_SLUG : null));
       setSelectedHotelSlug(params.hotelSlug ?? null);
       setSelectedRentalSlug(params.rentalSlug ?? null);
       setSelectedSkuId(params.skuId ?? null);

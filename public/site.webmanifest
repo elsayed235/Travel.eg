@@ -1,0 +1,20 @@
+{
+  "name": "DAHAB — Your Dahab trip, built around you",
+  "short_name": "DAHAB",
+  "description": "A premium digital travel platform for Dahab, Egypt. Personalized planning, local experiences, and authentic adventures.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#081714",
+  "theme_color": "#081714",
+  "lang": "en",
+  "dir": "auto",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

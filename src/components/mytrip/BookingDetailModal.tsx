@@ -86,7 +86,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-[11px] font-black uppercase tracking-wider ${'text-[var(--accent-primary)]'}`}>
+                <span className={`text-[11px] font-black ${'text-[var(--accent-primary)]'}`}>
                   {booking.title} Booking
                 </span>
                 <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
@@ -99,7 +99,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
                   {booking.status}
                 </span>
               </div>
-              <h3 className={`text-xl font-bold font-['Outfit',sans-serif] mt-0.5 text-[var(--text-primary)]`}>
+              <h3 className={`text-xl font-bold mt-0.5 text-[var(--text-primary)]`}>
                 {booking.subtitle}
               </h3>
             </div>
@@ -110,7 +110,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             onClick={onClose}
             aria-label="Close"
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
-              isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]' : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-secondary)] hover:text-[var(--surface-card)]'
+              isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]' : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <X className="w-4 h-4" />
@@ -122,7 +122,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
           'bg-[var(--surface-container)] border-[var(--border-subtle)]'
         }`}>
           <div>
-            <span className={`text-[11px] font-bold uppercase tracking-wider block ${'text-[var(--text-secondary)]'}`}>
+            <span className={`text-[11px] font-bold block ${'text-[var(--text-secondary)]'}`}>
               Voucher / Reference Code
             </span>
             <span className={`font-mono text-sm font-bold text-[var(--accent-secondary)]`}>
@@ -136,7 +136,7 @@ export const BookingDetailModal: React.FC<BookingDetailModalProps> = ({
             className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm ${
               isDark 
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--btn-util-hover)]' 
-                : 'bg-[var(--surface-card)] border-[var(--surface-card)]/15 text-[var(--surface-card)] hover:bg-stone-100'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-container)]'
             }`}
           >
             <Copy className={`w-3.5 h-3.5 text-[var(--accent-secondary)]`} />

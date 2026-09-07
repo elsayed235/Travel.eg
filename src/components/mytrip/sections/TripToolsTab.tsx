@@ -31,16 +31,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-food"
         onClick={onOpenFood}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-secondary)] text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] flex items-center justify-center font-bold">
           <Utensils className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.foodNow')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.foodNow')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.freshBreakfastSeafoodAnd')}
           </p>
         </div>
@@ -51,16 +51,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-spontaneous"
         onClick={onOpenSpontaneous}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center font-bold">
           <Compass className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.whatShouldIDo')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.whatShouldIDo')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.realtimeSmartRecommendationsMatched')}
           </p>
         </div>
@@ -71,16 +71,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-briefing"
         onClick={onOpenBriefing}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center font-bold">
           <FileText className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.briefing')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.briefing')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.pretripChecklistDiveGear')}
           </p>
         </div>
@@ -91,16 +91,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-sos"
         onClick={onOpenSos}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-rose-500/30 hover:border-rose-500 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-rose-300 hover:border-rose-500 text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-rose-500/30 hover:border-rose-500 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-rose-300 hover:border-rose-500 text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">
           <AlertTriangle className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.sosEmergency')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.sosEmergency')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.dahabHyperbaricChamberTourist')}
           </p>
         </div>
@@ -111,16 +111,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-offline-pack"
         onClick={onOpenOfflinePack}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-secondary)] text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] flex items-center justify-center font-bold">
           <Download className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.offlinePack')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.offlinePack')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.downloadVouchersTaxiContacts')}
           </p>
         </div>
@@ -131,16 +131,16 @@ export const TripToolsTab: React.FC<TripToolsTabProps> = ({
         type="button"
         id="tool-card-explore"
         onClick={() => navigateTo('/explore')}
-        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-all cursor-pointer space-y-4 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
+        className={`p-6 rounded-3xl border text-start shadow-md hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-4 ${
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center font-bold">
           <Sparkles className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-lg font-serif font-bold">{t('myTrip.exploreSpots')}</h3>
-          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+          <h3 className="text-lg chart-heading font-bold">{t('myTrip.exploreSpots')}</h3>
+          <p className={`text-xs leading-relaxed mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
             {t('myTrip.browseAllNaturalReefs')}
           </p>
         </div>

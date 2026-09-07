@@ -135,7 +135,7 @@ export default function ExceptionsCenter() {
         <div className="flex items-center gap-2">
           {(['active', 'all', 'acknowledged'] as const).map(f => (
             <button key={f} type="button" onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'
               }`}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -164,7 +164,7 @@ export default function ExceptionsCenter() {
           {filtered.map(exc => {
             const Icon = SOURCE_ICONS[exc.source] || AlertTriangle;
             return (
-              <div key={exc.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-all ${
+              <div key={exc.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                 exc.status === 'acknowledged' ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
               }`}>
                 <div className="flex items-start justify-between gap-3">

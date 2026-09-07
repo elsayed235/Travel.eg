@@ -5,20 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAHAB — Your Dahab trip, built around you</title>
     <meta name="description" content="A premium digital travel platform for Dahab, Egypt. Personalized planning, local experiences, and authentic adventures." />
+    <meta name="theme-color" content="#081714" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / social. Canonical + og:url are stamped per-route by the
+         server (metaInjection) and by the pre-hydration script below using
+         the real origin; the static fallback keeps relative hrefs valid. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DAHAB" />
+    <meta property="og:title" content="DAHAB — Your Dahab trip, built around you" />
+    <meta property="og:description" content="Personalized Dahab planning, local experiences, and authentic Sinai adventures — built with the people who live here." />
+    <meta property="og:image" content="/images/hero/coral-reef-split.jpg" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ar_EG" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DAHAB — Your Dahab trip, built around you" />
+    <meta name="twitter:description" content="Personalized Dahab planning, local experiences, and authentic Sinai adventures." />
+    <meta name="twitter:image" content="/images/hero/coral-reef-split.jpg" />
+
+    <link rel="canonical" href="/" />
+    <link rel="alternate" hreflang="en" href="/" />
+    <link rel="alternate" hreflang="ar" href="/?lang=ar" />
+    <link rel="alternate" hreflang="x-default" href="/" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@200..900&family=El+Messiri:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@200..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300..700&family=Chakra+Petch:wght@500;600;700&family=El+Messiri:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300..800&display=swap" rel="stylesheet" />
+
+    <script>
+      /*
+       * Pre-hydration language/theme application.
+       *
+       * LanguageContext.applyLanguageAttributes only runs after React mounts,
+       * so an Arabic visitor's first paint was `lang="en" dir="ltr"` — wrong
+       * font stack (Latin), wrong direction, visible layout shift when the
+       * rtl attribute landed. This repeats the *reading* of the persisted
+       * choice (the same storage key), not the decision: LanguageContext
+       * remains the single source of truth and overwrites these attributes
+       * on mount.
+       */
+      (function () {
+        try {
+          var lang = localStorage.getItem('dahab_os_lang');
+          if (lang !== 'ar' && lang !== 'en') {
+            lang = (navigator.language || '').toLowerCase().indexOf('ar') === 0 ? 'ar' : 'en';
+          }
+          var root = document.documentElement;
+          root.lang = lang;
+          root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+          root.classList.remove('rtl', 'ltr');
+          root.classList.add(lang === 'ar' ? 'rtl' : 'ltr');
+          var canonical = document.querySelector('link[rel="canonical"]');
+          var origin = location.origin;
+          if (canonical && origin.indexOf('http') === 0) {
+            canonical.setAttribute('href', origin + '/');
+          }
+        } catch (e) {
+          /* storage can throw in private windows; defaults above already hold */
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-[#081714] text-[#F7F3EA] antialiased selection:bg-[#20A89A]/30 selection:text-[#F7F3EA] font-['Plus_Jakarta_Sans',sans-serif] min-h-screen">
-    <!-- impeccable:direction key=a990940c
-      THESIS: The shoreline where two landscapes meet — desert sand dissolving into Red Sea depth — made concrete in a lifecycle-aware homepage.
-      OWN-WORLD: warm Sinai sand (#E7D3AE) warming the top of the canvas, deepening through teal (#20A89A) into ocean night (#0F6F78→#062C35); the reading scrim over video; scallop-chip scene selectors; the "tide pool" receding depth in panel stacks; shoreline progress rail and wave-crest dividers; tidal-glass and -card surfaces; editorial light Outfit display with a serif-italic accent on the verb.
-      STORY: A first-time visitor understands this is a Dahab trip companion (not a generic OTA). It shows the two worlds that converge there, offers instant planning or prepared programs, and begins adapting to where they are in their journey.
-      FIRST VIEWPORT: desert-warmed cinematic scene flows down into ocean depth; bold light-display headline "Where the desert meets the sea"; one primary "Plan Your Dahab Trip" CTA in ocean teal; a destination stack as receding tide pools on the right; live conditions strip along the bottom edge.
+  <body class="bg-[#070D1F] text-[#F7F3EA] antialiased selection:bg-[#E8A33D]/30 selection:text-[#F7F3EA] min-h-screen">
+    <!-- impeccable:direction key=2cdaa49a
+      THESIS: The Sinai night sky as trip instrument, not a shoreline postcard; the homepage plots the journey as constellations a traveler reads and steers.
+      OWN-WORLD: indigo night paper (#0A1128) with bone star ink (#F2EDDF) and pinprick starfields; brass ticks (#C9A24B) for waypoints; amber firelight (#E8A33D) reserved for the single action per viewport; lagoon teal kept as live-data ink only; Chakra Petch display with El Messiri italic accent.
+      STORY: A first-time visitor knows this is a Dahab companion that reads the sky tonight, shows real conditions and real prices, and offers one clear next step for their journey phase.
+      FIRST VIEWPORT: cinematic scene framed as a chart plate under night scrims; instrument headline in chart display; one amber Plan CTA; scenes as a plotted constellation stack; live sea/air/sunset readings along the base.
+      FORM: grounded candidate 6 of 7, seed 2cdaa49a; challengers (neon promenade, instrument bay, souq shelf) weighed on audience identification and product clarity and held as alternates.
       FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md.
     -->
-    <div id="root" class="min-h-screen bg-[#081714] text-[#F7F3EA]"></div>
+    <div id="root" class="min-h-screen bg-[#070D1F] text-[#F7F3EA]"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

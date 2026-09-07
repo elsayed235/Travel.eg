@@ -15,6 +15,7 @@ import { useTrip } from '../../context/TripContext';
 import { formatTripDateRange } from '../../utils/tripDates';
 import type { TripEntity } from '../../shared/types/trip';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { localizeInterest } from '../../i18n/interests';
 import { NEAR_ME_DATA, fetchDestinationCorpus } from '../explore/ExploreView';
 import { useApiResource } from '../../hooks/useApiResource';
 import { buildExploreItems } from '../../services/exploreMapper';
@@ -190,8 +191,8 @@ export const ProfileView: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-5 relative z-10">
           <div
             aria-hidden="true"
-            className="w-16 h-16 rounded-3xl flex items-center justify-center font-bold text-2xl text-white shadow-md"
-            style={{ background: 'linear-gradient(135deg, #E7D3AE 0%, #20A89A 55%, #0F6F78 100%)' }}
+            className="w-16 h-16 rounded-3xl flex items-center justify-center font-bold text-2xl text-[#F2EDDF] shadow-md ring-1 ring-[#C9A24B]/40"
+            style={{ background: 'linear-gradient(135deg, #0A1128 0%, #1B2452 55%, #B97A1F 130%)' }}
           >
             {/* Was a literal 'A' when there was no name — the demo
                 persona's initial, shown to every anonymous visitor. */}
@@ -201,12 +202,12 @@ export const ProfileView: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Rendered an empty <h1> for anyone not signed in: the page
                   had no accessible name and no title at all. */}
-              <h1 className="tidal-heading text-2xl sm:text-3xl text-[var(--text-primary)]">
+              <h1 className="chart-heading text-2xl sm:text-3xl text-[var(--text-primary)]">
                 {displayName || t('profile.yourProfile')}
               </h1>
               {/* Claimed "Active Traveler ✓" even when signed out. */}
               {isSignedIn && (
-                <span className="tidal-badge tidal-badge-ocean">
+                <span className="chart-badge chart-badge-live">
                   <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
                   {t('profile.activeTraveler')}
                 </span>
@@ -221,7 +222,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="tidal-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                   <span>{t('profile.cancel')}</span>
@@ -229,7 +230,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="tidal-cta-primary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-primary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <Save className="w-4 h-4" aria-hidden="true" />
                   <span>{t('profile.saveChanges')}</span>
@@ -240,7 +241,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={beginEditing}
-                  className="tidal-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <Edit3 className="w-4 h-4" aria-hidden="true" />
                   <span>{t('profile.editProfile')}</span>
@@ -248,7 +249,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('/my-trip')}
-                  className="tidal-cta-primary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-primary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <Luggage className="w-4 h-4" aria-hidden="true" />
                   <span>{t('profile.activeDahabTrip')}</span>
@@ -288,9 +289,9 @@ export const ProfileView: React.FC = () => {
           {/* 3. Dossier — who travels, how they travel, and the papers to prove it */}
           <section id={SECTION_ANCHOR.dossier} aria-label={t('profile.travelPreferences')} className="scroll-mt-24 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-              <div className="md:col-span-7 tidal-card rounded-3xl p-6 sm:p-8 space-y-6">
+              <div className="md:col-span-7 chart-card rounded-3xl p-6 sm:p-8 space-y-6">
                 <div className="space-y-1">
-                  <h2 className="tidal-heading text-xl text-[var(--text-primary)]">
+                  <h2 className="chart-heading text-xl text-[var(--text-primary)]">
                     {t('profile.travelPreferences')}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)]">
@@ -420,14 +421,14 @@ export const ProfileView: React.FC = () => {
                   <div className="space-y-5">
                     <div className="space-y-2">
                       <p className="text-sm font-bold text-[var(--text-primary)]">{t('profile.travelStylePace')}</p>
-                      <span className="tidal-badge tidal-badge-ocean !text-xs !py-1.5 !px-3.5">
+                      <span className="chart-badge chart-badge-live !text-xs !py-1.5 !px-3.5">
                         {profile.pace === 'Balanced' ? t('profile.balanced12MainActivitiesday') : profile.pace}
                       </span>
                     </div>
 
                     <div className="space-y-2">
                       <p className="text-sm font-bold text-[var(--text-primary)]">{t('profile.budgetTier')}</p>
-                      <span className="tidal-badge tidal-badge-ocean !text-xs !py-1.5 !px-3.5">
+                      <span className="chart-badge chart-badge-live !text-xs !py-1.5 !px-3.5">
                         {profile.budget === 'Moderate' ? t('profile.moderateTierBalanceOf') : profile.budget}
                       </span>
                     </div>
@@ -441,7 +442,7 @@ export const ProfileView: React.FC = () => {
                               key={interest}
                               className="px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--text-primary)] font-bold border border-[var(--border-subtle)] text-xs"
                             >
-                              {interest}
+                              {localizeInterest(interest, language)}
                             </li>
                           ))}
                         </ul>
@@ -452,17 +453,17 @@ export const ProfileView: React.FC = () => {
 
                     {/* Papers — passport and next-of-kin show only what was entered */}
                     <div className="pt-5 border-t border-[var(--border-subtle)] space-y-3">
-                      <h3 className="tidal-heading text-base text-[var(--text-primary)]">
+                      <h3 className="chart-heading text-base text-[var(--text-primary)]">
                         {t('profile.sinaiTravelPermitsSecurity')}
                       </h3>
-                      <dl className="tide-ledger m-0">
-                        <div className="tide-row !py-3.5">
+                      <dl className="chart-thread m-0">
+                        <div className="chart-waypoint !py-3.5">
                           <dt className="text-sm text-[var(--text-secondary)]">{t('profile.passportDocument')}</dt>
                           <dd className="ms-auto font-mono font-bold text-sm text-[var(--text-primary)] m-0">
                             {profile.passportNumber || '—'}
                           </dd>
                         </div>
-                        <div className="tide-row !py-3.5">
+                        <div className="chart-waypoint !py-3.5">
                           <dt className="text-sm text-[var(--text-secondary)]">{t('profile.emergencyContact')}</dt>
                           <dd className="ms-auto font-bold text-sm text-[var(--text-primary)] m-0">
                             {profile.emergencyContact || '—'}
@@ -475,8 +476,8 @@ export const ProfileView: React.FC = () => {
               </div>
 
               {/* The trip right now */}
-              <div className="md:col-span-5 tidal-card rounded-3xl p-6 sm:p-7 space-y-4">
-                <span className="tidal-badge tidal-badge-sunset">
+              <div className="md:col-span-5 chart-card rounded-3xl p-6 sm:p-7 space-y-4">
+                <span className="chart-badge chart-badge-ember">
                   <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                   {t('profile.activeJourney')}
                 </span>
@@ -489,7 +490,7 @@ export const ProfileView: React.FC = () => {
                   Journey" to every traveler.
                 */}
                 <div className="space-y-1.5">
-                  <h2 className="tidal-heading text-xl text-[var(--text-primary)]">
+                  <h2 className="chart-heading text-xl text-[var(--text-primary)]">
                     {activeTrip?.title || t('profile.noActiveTripYet')}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -519,7 +520,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo(activeTrip ? '/my-trip' : '/trip-builder')}
-                  className="tidal-cta-primary w-full inline-flex items-center justify-center text-sm cursor-pointer"
+                  className="chart-cta-primary w-full inline-flex items-center justify-center text-sm cursor-pointer"
                 >
                   <span>{activeTrip ? t('profile.goToMyTrip') : t('nav.planTrip')}</span>
                 </button>
@@ -530,7 +531,7 @@ export const ProfileView: React.FC = () => {
           {/* 4. Saved — the bucket list, image first */}
           <section id={SECTION_ANCHOR.saved} aria-label={t('profile.yourSavedDahabBucket')} className="scroll-mt-24 space-y-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="tidal-heading text-xl text-[var(--text-primary)]">
+              <h2 className="chart-heading text-xl text-[var(--text-primary)]">
                 {t('profile.yourSavedDahabBucket')}
               </h2>
               {savedPlacesList.length > 0 && (
@@ -545,7 +546,7 @@ export const ProfileView: React.FC = () => {
             </div>
 
             {savedPlacesList.length === 0 ? (
-              <div className="tidal-card rounded-3xl p-10 text-center space-y-3">
+              <div className="chart-card rounded-3xl p-10 text-center space-y-3">
                 <Heart className="w-8 h-8 text-[var(--text-secondary)] mx-auto" aria-hidden="true" />
                 <p className="text-sm text-[var(--text-secondary)] max-w-[52ch] mx-auto leading-relaxed">
                   {t('profile.noPlacesSavedYet')}
@@ -553,7 +554,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('/explore')}
-                  className="tidal-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <Compass className="w-4 h-4" aria-hidden="true" />
                   <span>{t('profile.exploreMoreSpots')}</span>
@@ -569,7 +570,7 @@ export const ProfileView: React.FC = () => {
                   return (
                     <li
                       key={place.id}
-                      className="tidal-card rounded-3xl overflow-hidden flex flex-col"
+                      className="chart-card rounded-3xl overflow-hidden flex flex-col"
                     >
                       <div className="relative h-40 w-full overflow-hidden bg-[var(--surface-container)]">
                         <img
@@ -594,7 +595,7 @@ export const ProfileView: React.FC = () => {
                         <p className="text-xs font-bold text-[var(--accent-primary)] m-0">
                           {tag}
                         </p>
-                        <h3 className="tidal-heading text-base text-[var(--text-primary)]">
+                        <h3 className="chart-heading text-base text-[var(--text-primary)]">
                           {title}
                         </h3>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2 m-0">
@@ -627,12 +628,12 @@ export const ProfileView: React.FC = () => {
           {/* 5. Journeys — past trips on a timeline rail. A sequence, so the
               rail earns its structure: each dot is a trip that ended. */}
           <section id={SECTION_ANCHOR.journeys} aria-label={t('profile.pastSinaiJourneys')} className="scroll-mt-24 space-y-5 max-w-3xl">
-            <h2 className="tidal-heading text-xl text-[var(--text-primary)]">
+            <h2 className="chart-heading text-xl text-[var(--text-primary)]">
               {t('profile.pastSinaiJourneys')}
             </h2>
 
             {pastTrips.length === 0 ? (
-              <div className="tidal-card rounded-3xl p-10 text-center space-y-3">
+              <div className="chart-card rounded-3xl p-10 text-center space-y-3">
                 <Luggage className="w-8 h-8 text-[var(--text-secondary)] mx-auto" aria-hidden="true" />
                 <p className="text-sm text-[var(--text-secondary)] max-w-[52ch] mx-auto leading-relaxed">
                   {t('profile.noPastTripsYet')}
@@ -640,7 +641,7 @@ export const ProfileView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo('/trip-builder')}
-                  className="tidal-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
+                  className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer !py-2.5 !px-5"
                 >
                   <Sparkles className="w-4 h-4" aria-hidden="true" />
                   <span>{t('nav.planTrip')}</span>
@@ -654,10 +655,10 @@ export const ProfileView: React.FC = () => {
                       aria-hidden="true"
                       className="absolute top-6 -start-[31px] w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] ring-4 ring-[var(--accent-primary)]/15"
                     />
-                    <div className="tidal-card rounded-3xl p-6 space-y-3">
+                    <div className="chart-card rounded-3xl p-6 space-y-3">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <div className="space-y-1">
-                          <h3 className="tidal-heading text-base text-[var(--text-primary)]">
+                          <h3 className="chart-heading text-base text-[var(--text-primary)]">
                             {trip.title}
                           </h3>
                           <p className="tabular-nums text-xs text-[var(--text-secondary)]">
@@ -674,12 +675,12 @@ export const ProfileView: React.FC = () => {
                       {trip.interests.length > 0 && (
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">
                           <strong className="text-[var(--text-primary)]">{t('profile.interests')}</strong>{' '}
-                          {trip.interests.join(t('itinerary._item_'))}
+                          {trip.interests.map((i) => localizeInterest(i, language)).join(t('itinerary._item_'))}
                         </p>
                       )}
 
                       <div className="flex items-center justify-between pt-1">
-                        <span className="tidal-badge tidal-badge-ocean">
+                        <span className="chart-badge chart-badge-live">
                           {trip.status}
                         </span>
                         <button
@@ -702,11 +703,11 @@ export const ProfileView: React.FC = () => {
 
           {/* 6. Settings — display currency and trip pings, both kept on this device */}
           <section id={SECTION_ANCHOR.settings} aria-label={t('profile.travelerPreferencesCurrency')} className="scroll-mt-24 space-y-5 max-w-2xl">
-            <h2 className="tidal-heading text-xl text-[var(--text-primary)]">
+            <h2 className="chart-heading text-xl text-[var(--text-primary)]">
               {t('profile.travelerPreferencesCurrency')}
             </h2>
 
-            <div className="tidal-card rounded-3xl p-6 sm:p-8 space-y-6">
+            <div className="chart-card rounded-3xl p-6 sm:p-8 space-y-6">
               <div className="space-y-2.5">
                 <p id="profile-currency-label" className="text-sm font-bold text-[var(--text-primary)] m-0">
                   {t('profile.displayCurrency')}
@@ -736,7 +737,7 @@ export const ProfileView: React.FC = () => {
 
               <div className="pt-5 border-t border-[var(--border-subtle)] flex items-center justify-between gap-4">
                 <div className="space-y-1">
-                  <h3 className="tidal-heading text-base text-[var(--text-primary)]">
+                  <h3 className="chart-heading text-base text-[var(--text-primary)]">
                     {t('profile.liveTripNotificationsWeather')}
                   </h3>
                   <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">
@@ -763,10 +764,8 @@ export const ProfileView: React.FC = () => {
                 >
                   <span
                     aria-hidden="true"
-                    className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${
-                      isRTL
-                        ? (notificationsEnabled ? 'right-0.5' : 'left-0.5')
-                        : (notificationsEnabled ? 'left-[26px]' : 'left-0.5')
+                    className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                      notificationsEnabled ? 'start-[26px]' : 'start-0.5'
                     }`}
                   />
                   <Bell className="sr-only" aria-hidden="true" />
@@ -787,7 +786,7 @@ export const ProfileView: React.FC = () => {
           {isSignedIn && (
             <section aria-label={t('profile.signOut')} className="max-w-2xl rounded-3xl p-6 border border-[var(--brand-coral)]/25 bg-[var(--surface-card)] space-y-3">
               <div className="space-y-1">
-                <h2 className="tidal-heading text-base text-[var(--text-primary)]">
+                <h2 className="chart-heading text-base text-[var(--text-primary)]">
                   {t('profile.signOut')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">

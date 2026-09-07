@@ -26,7 +26,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
         </button>
@@ -46,7 +46,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
               key={pageNum}
               type="button"
               onClick={() => onPageChange(pageNum)}
-              className={`w-7 h-7 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+              className={`w-7 h-7 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 pageNum === page
                   ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]'
                   : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'
@@ -60,7 +60,7 @@ export function Pagination({ page, totalPages, totalItems, pageSize, onPageChang
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <ChevronRight className="w-3.5 h-3.5" />
         </button>

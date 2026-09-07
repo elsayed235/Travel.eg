@@ -43,7 +43,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
         {isExpanded && (
           <div className="backdrop-blur-xl border p-3 rounded-2xl shadow-2xl space-y-2 mb-1 w-64 animate-in slide-in-from-bottom-3 duration-200 bg-[var(--surface-card)]/95 border-[var(--border-subtle)] text-[var(--text-primary)]">
             <div className="flex items-center justify-between border-b pb-2 px-1 border-[var(--border-subtle)]">
-              <span className="text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif] text-[var(--accent-secondary)]">
+              <span className="text-[11px] font-bold text-[var(--accent-secondary)]">
                 {t('common.dahabTravelToolkit')}
               </span>
               <button 
@@ -62,7 +62,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 setIsEmergencyOpen(true);
                 setIsExpanded(false);
               }}
-              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30 text-rose-300"
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] text-start cursor-pointer bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/30 text-rose-300"
             >
               <LifeBuoy className="w-4 h-4 text-rose-500 flex-shrink-0" />
               <div>
@@ -82,7 +82,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 setIsPassbookOpen(true);
                 setIsExpanded(false);
               }}
-              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-[var(--accent-primary)]/15 hover:bg-[var(--accent-primary)]/25 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] text-start cursor-pointer bg-[var(--accent-primary)]/15 hover:bg-[var(--accent-primary)]/25 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]"
             >
               <ShieldCheck className="w-4 h-4 flex-shrink-0 text-[var(--accent-primary)]" />
               <div>
@@ -102,7 +102,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
                 navigateTo('/food');
                 setIsExpanded(false);
               }}
-              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-all text-start cursor-pointer bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300"
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] text-start cursor-pointer bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300"
             >
               <Compass className="w-4 h-4 flex-shrink-0 text-[var(--accent-secondary)]" />
               <div>
@@ -125,7 +125,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
             onClick={() => setIsEmergencyOpen(true)}
             aria-label="Sinai 24/7 Emergency"
             title="Sinai 24/7 Emergency Hotline"
-            className="w-11 h-11 rounded-full border-2 shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md bg-rose-950/90 text-rose-300 border-rose-500/60 hover:bg-rose-900"
+            className="w-11 h-11 rounded-full border-2 shadow-lg flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md bg-rose-950/90 text-rose-300 border-rose-500/60 hover:bg-rose-900"
           >
             <LifeBuoy className="w-5 h-5 animate-pulse text-rose-500" />
           </button>
@@ -134,7 +134,7 @@ export const SinaiFloatingQuickDock: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-full border-2 shadow-xl transition-all hover:scale-102 active:scale-98 cursor-pointer backdrop-blur-md text-xs font-bold font-['Outfit',sans-serif] bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--accent-primary)]/50 hover:bg-[var(--surface-container)]"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-full border-2 shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:scale-102 active:scale-98 cursor-pointer backdrop-blur-md text-xs font-bold bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--accent-primary)]/50 hover:bg-[var(--surface-container)]"
           >
             <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
             <span className="hidden sm:inline">

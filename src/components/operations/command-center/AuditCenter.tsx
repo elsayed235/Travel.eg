@@ -99,7 +99,7 @@ export default function AuditCenter() {
         <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[11px] font-mono">
-              <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]">
+              <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <tr>
                   <th className="py-2.5 px-3">Time</th>
                   <th className="py-2.5 px-3">Actor</th>

@@ -118,7 +118,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
     <div
       id="building-trip-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col"
     >
       {/* Minimal Header */}
       <header className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/90 backdrop-blur-md sticky top-0 z-30">
@@ -126,13 +126,13 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
           <button
             type="button"
             onClick={onReturnHome}
-            className="text-xl font-black tracking-widest text-[var(--text-primary)] font-['Outfit',sans-serif] hover:text-[var(--accent-secondary)] transition-colors"
+            className="text-xl font-black text-[var(--text-primary)] hover:text-[var(--accent-secondary)] transition-colors"
           >
             DAHAB
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 animate-spin text-[var(--accent-primary)]" />
               <span>{t('planner.tripGeneratorActive')}</span>
             </span>
@@ -156,7 +156,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
         {/* Primary Status Headline */}
         <h1
           id="building-trip-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.15]"
+          className="text-3xl sm:text-4xl md:text-5xl chart-heading text-[var(--text-primary)] tracking-tight leading-[1.15]"
         >
           {t('planner.buildingYourDahabTrip')}
         </h1>
@@ -182,7 +182,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
           <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-5">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[var(--accent-secondary)]" />
-              <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-secondary)]">
+              <span className="text-xs font-bold text-[var(--accent-secondary)]">
                 {t('planner.calibratedDahabBlueprint')}
               </span>
             </div>
@@ -193,7 +193,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
             <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block mb-1">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)]/70 block mb-1">
                 {t('planner.durationParty')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">
@@ -202,7 +202,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block mb-1">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)]/70 block mb-1">
                 {t('planner.budgetTier')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">
@@ -211,14 +211,14 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block mb-1">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)]/70 block mb-1">
                 {t('planner.coreInterests')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">{interestNames}</span>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block mb-1">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)]/70 block mb-1">
                 {t('planner.paceFlow')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">
@@ -234,7 +234,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
             type="button"
             id="building-back-btn"
             onClick={onBackToPlanner}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-5 py-2.5 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-5 py-2.5 rounded-full hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
             <span>{t('planner.editPreferences')}</span>
@@ -245,7 +245,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
               type="button"
               id="building-instant-view-btn"
               onClick={onComplete}
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] px-6 py-2.5 rounded-full shadow-lg transition-all cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] px-6 py-2.5 rounded-full shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
             >
               <span>{t('planner.viewItineraryNow')}</span>
               <Sparkles className="w-4 h-4 text-[var(--surface-card)]" />

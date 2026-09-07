@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Check, ArrowRight, Sparkles, RefreshCw, Compass } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { IMG_P1469854523086cc02fe5d8800_800, IMG_P1509316975850ff9c5deb0cd9_CARD, IMG_P15103123056538ed496efae75_CARD, IMG_P154455176346a013bb70d5_CARD } from '../../shared/placeholderImagery';
 
 export interface AlternativeItem {
   id: string;
@@ -34,7 +35,7 @@ export const ALTERNATIVES_LIST: AlternativeItem[] = [
     durationAr: '٤–٥ ساعات',
     description: 'Traverse narrow red sandstone canyons with local Bedouin guides and tea in the desert.',
     descriptionAr: 'تجول بين ممرات الحجر الرملي الوردي مع أدلاء بدو سيناء وشاي جبلي في الصحراء.',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1509316975850ff9c5deb0cd9_CARD,
     tag: 'Currently Selected',
     tagAr: 'المحدد حالياً',
     recommendedFor: 'Geology & hiking enthusiasts',
@@ -48,7 +49,7 @@ export const ALTERNATIVES_LIST: AlternativeItem[] = [
     durationAr: '٣.٥ ساعات',
     description: 'Explore the granite valley of Wadi Gnai, hike past freshwater springs, and climb desert boulders.',
     descriptionAr: 'استكشف الوادي الجرانيتي المهيب في وادي قني مع عيون المياه العذبة وتسلق الصخور الطبيعية.',
-    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1469854523086cc02fe5d8800_800,
     tag: 'Active Alternative',
     tagAr: 'بديل نشط ومغامر',
     recommendedFor: 'Hikers & climbing enthusiasts',
@@ -62,7 +63,7 @@ export const ALTERNATIVES_LIST: AlternativeItem[] = [
     durationAr: '٤ ساعات',
     description: 'Ride along the dramatic coastline cliffs between the Blue Hole and the quiet Bedouin settlement.',
     descriptionAr: 'مسار ساحلي ملحمي على ظهور الجمال بين البلو هول ومحمية رأس أبو جالوم البدوية الهادئة.',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P154455176346a013bb70d5_CARD,
     tag: 'Scenic Coast Alternative',
     tagAr: 'بديل ساحلي بانورامي',
     recommendedFor: 'Coastal views & cultural pace',
@@ -76,7 +77,7 @@ export const ALTERNATIVES_LIST: AlternativeItem[] = [
     durationAr: '٥ ساعات',
     description: 'Climb to a high ridge for panoramic sunset views followed by telescope stargazing & fresh campfire dinner.',
     descriptionAr: 'صعود لقمة جبلية لمشاهدة الغروب يعقبه رصد المجرات بالتلسكوب وعشاء طازج حول موقد النار.',
-    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P15103123056538ed496efae75_CARD,
     tag: 'Evening Alternative',
     tagAr: 'بديل مسائي ساحر',
     recommendedFor: 'Night skies & relaxed dinner',
@@ -114,7 +115,7 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
               <RefreshCw className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                 {isAr ? 'استكشف البدائل المتاحة' : 'Explore Alternatives'}
               </h3>
               <p className="text-xs text-[var(--text-secondary)]/70 font-normal">
@@ -149,7 +150,7 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
                   onSelectAlternative(item);
                   onClose();
                 }}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between ${
+                className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between ${
                   isCurrent
                     ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] ring-1 ring-[var(--accent-secondary)]/40'
                     : 'bg-[var(--surface-container)]/60 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40'
@@ -170,7 +171,7 @@ export const AlternativesModal: React.FC<AlternativesModalProps> = ({
                         {title}
                       </span>
                       {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-container)] text-[11px] font-bold uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-container)] text-[11px] font-bold">
                           {isAr ? 'النشاط الحالي' : 'Active'}
                         </span>
                       )}

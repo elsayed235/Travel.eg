@@ -350,11 +350,11 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
     <aside
       aria-label="Ahmed's 18-Stage Interactive Dahab Journey"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="fixed bottom-2 sm:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-50 transition-all duration-300 pointer-events-auto font-['Plus_Jakarta_Sans',sans-serif]"
+      className="fixed bottom-2 sm:bottom-4 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 pointer-events-auto"
     >
       {/* 1. COLLAPSED FLOATING PILL */}
       {!isOpen ? (
-        <div className={`flex items-center gap-2 p-2 sm:p-2.5 rounded-full border shadow-2xl backdrop-blur-2xl transition-all ${
+        <div className={`flex items-center gap-2 p-2 sm:p-2.5 rounded-full border shadow-2xl backdrop-blur-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
           isDark 
             ? 'bg-[var(--surface-card)]/90 text-[var(--text-primary)] border-[var(--border-subtle)] ring-1 ring-white/10' 
             : 'bg-[var(--btn-util-bg)] text-[var(--text-primary)] border-[var(--text-primary)]/15 ring-1 ring-[var(--text-primary)]/5 shadow-stone-400/30'
@@ -362,7 +362,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer group text-start border shadow-xs ${
+            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group text-start border shadow-xs ${
               isDark 
                 ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white border-[var(--border-subtle)]' 
                 : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-primary)] border-[var(--text-primary)]/10'
@@ -370,7 +370,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
           >
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)] animate-pulse shadow-xs shadow-amber-400 shrink-0" />
             <div className="flex flex-col">
-              <span className={`text-[12px] sm:text-xs font-['Outfit',sans-serif] font-bold flex items-center gap-1.5 ${
+              <span className={`text-[12px] sm:text-xs font-bold flex items-center gap-1.5 ${
                 'text-[var(--text-primary)]'
               }`}>
                 <span>{t('common.ahmeds18StageDahabJourney')}</span>
@@ -394,7 +394,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
               handleStageClick(nextStage);
             }}
             aria-label="Next Journey Stage"
-            className="p-2.5 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-secondary)] hover:brightness-110 text-[var(--text-primary)] font-bold transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-lg border border-[var(--border-subtle)]"
+            className="p-2.5 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-secondary)] hover:brightness-110 text-[var(--text-primary)] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-center shrink-0 shadow-lg border border-[var(--border-subtle)]"
           >
             <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />
           </button>
@@ -416,7 +416,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                 <Play className="w-4 h-4 fill-current" />
               </div>
               <div>
-                <h3 className={`text-sm font-bold font-['Outfit',sans-serif] ${
+                <h3 className={`text-sm font-bold ${
                   'text-[var(--text-primary)]'
                 }`}>
                   {t('common.ahmedsComplete18StageSimulator')}
@@ -445,7 +445,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
             isDark ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]' : 'bg-stone-50 border-[var(--text-primary)]/10'
           }`}>
             <div className="flex items-center justify-between text-xs">
-              <span className={`font-bold uppercase tracking-wider text-[11px] ${
+              <span className={`font-bold text-[11px] ${
                 isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--brand-coral)]'
               }`}>
                 {language === 'ar' ? currentActiveItem.categoryAr : currentActiveItem.category}
@@ -479,7 +479,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                   key={stage.id}
                   type="button"
                   onClick={() => handleStageClick(stage)}
-                  className={`w-full text-start p-2.5 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-3 border ${
+                  className={`w-full text-start p-2.5 rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-between gap-3 border ${
                     isSelected
                       ? isDark
                         ? 'bg-gradient-to-r from-[var(--accent-primary)]/50 to-[var(--accent-primary)]/40 border-teal-300/50 text-white shadow-lg backdrop-blur-md ring-1 ring-teal-300/30'
@@ -508,7 +508,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                   </div>
 
                   {isSelected && (
-                    <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full border shrink-0 ${
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
                       isDark 
                         ? 'text-[var(--accent-secondary)] bg-amber-500/20 border-amber-400/40' 
                         : 'text-[var(--brand-coral)] bg-amber-50 border-amber-300'
@@ -532,7 +532,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
                 navigateTo('/home');
                 setIsOpen(false);
               }}
-              className={`px-2.5 py-1.5 rounded-xl font-medium text-[12px] cursor-pointer transition-all border ${
+              className={`px-2.5 py-1.5 rounded-xl font-medium text-[12px] cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] border ${
                 isDark 
                   ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--surface-container)] hover:text-[var(--text-primary)] border-[var(--border-subtle)]' 
                   : 'bg-stone-100 hover:bg-stone-200 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--text-primary)]/10'
@@ -545,7 +545,7 @@ export const AhmedJourneyWalkthrough: React.FC<AhmedJourneyWalkthroughProps> = (
               onClick={() => {
                 setIsOpen(false);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-primary)] hover:brightness-110 text-white font-bold text-xs cursor-pointer transition-all shadow-md border border-teal-200/30"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-primary)] hover:brightness-110 text-white font-bold text-xs cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md border border-teal-200/30"
             >
               {t('common.close')}
             </button>

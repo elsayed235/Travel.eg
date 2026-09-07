@@ -45,10 +45,10 @@ export const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({
         {/* Header Title */}
         <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-primary)] block">
+            <span className="text-[11px] font-bold text-[var(--accent-primary)] block">
               {isAr ? 'ضمن رحلتك لدهب' : 'Part of your Dahab trip'}
             </span>
-            <h3 className="text-lg font-serif font-bold text-[var(--text-primary)] mt-0.5">
+            <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)] mt-0.5">
               {isAr ? 'ملخص رحلتك' : 'Your trip'}
             </h3>
           </div>
@@ -79,7 +79,7 @@ export const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({
         {/* Selected Component: Hotel Block */}
         <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60">
+            <span className="text-[11px] font-bold text-[var(--text-secondary)]/60">
               {isAr ? '٠١ الإقامة والفندق' : '01 Accommodation'}
             </span>
             {isSelected ? (
@@ -140,7 +140,7 @@ export const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({
         {/* Pricing Subtotal Section */}
         <div className="pt-3 border-t border-[var(--border-subtle)] space-y-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]/60">
+            <span className="text-xs font-bold text-[var(--text-secondary)]/60">
               {isAr ? 'إجمالي تكلفة الإقامة' : 'Total Hotel Cost'}
             </span>
             <div className="text-start">
@@ -163,7 +163,7 @@ export const BookingSummarySidebar: React.FC<BookingSummarySidebarProps> = ({
             id="desktop-sidebar-continue-btn"
             disabled={!isSelected}
             onClick={onContinue}
-            className={`w-full inline-flex items-center justify-center gap-2.5 py-4 rounded-full text-sm font-bold shadow-md transition-all ${
+            className={`w-full inline-flex items-center justify-center gap-2.5 py-4 rounded-full text-sm font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isSelected
                 ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold cursor-pointer active:scale-[0.98]'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'

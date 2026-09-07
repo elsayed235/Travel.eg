@@ -160,7 +160,7 @@ const AUTO_ADVANCE_STEPS = new Set([0, 1, 2]);
 const SelectedDot: React.FC<{ on: boolean }> = memo(({ on }) => (
   <span
     aria-hidden="true"
-    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
       on
         ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)]'
         : 'border-[var(--text-secondary)]/40 group-hover:border-[var(--accent-primary)]/60'
@@ -318,9 +318,9 @@ export const PlanForMeView: React.FC = () => {
   }, [pace, language]);
 
   const optionBase =
-    'group relative text-start rounded-2xl border p-4 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]';
+    'group relative text-start rounded-2xl border p-4 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]';
   const optionIdle =
-    'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:-translate-y-0.5';
+    'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50';
   const optionActive =
     'bg-[var(--accent-primary)]/12 border-[var(--accent-primary)] shadow-lg ring-1 ring-[var(--accent-primary)]/30';
 
@@ -350,7 +350,7 @@ export const PlanForMeView: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl sm:text-2xl font-serif font-bold leading-snug">
+            <h1 className="text-xl sm:text-2xl chart-heading font-bold leading-snug">
               {language === 'ar' ? lines[synthesisStep].ar : lines[synthesisStep].en}
             </h1>
             <p className="text-sm text-[var(--text-secondary)]">
@@ -360,7 +360,7 @@ export const PlanForMeView: React.FC = () => {
 
           <div className="h-1.5 rounded-full bg-[var(--surface-container)] overflow-hidden">
             <div
-              className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-500"
+              className="h-full rounded-full bg-[var(--accent-primary)] transition-[width] duration-500"
               style={{ width: `${((synthesisStep + 1) / lines.length) * 100}%` }}
             />
           </div>
@@ -406,7 +406,7 @@ export const PlanForMeView: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('/home')}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded-lg py-2 -my-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
               <span>{t('home.backToHome')}</span>
@@ -415,12 +415,12 @@ export const PlanForMeView: React.FC = () => {
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{t('home.dahabTravelDirector')}</span>
               </span>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold tracking-tight leading-tight">
                 {t('tripEntry.modeC.title')}
               </h1>
 
@@ -471,7 +471,7 @@ export const PlanForMeView: React.FC = () => {
                     onClick={() => isVisited && goToStep(idx)}
                     disabled={!isVisited}
                     aria-current={isCurrent ? 'step' : undefined}
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                       isCurrent
                         ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md'
                         : isVisited
@@ -496,7 +496,7 @@ export const PlanForMeView: React.FC = () => {
             aria-label={t('home.planningProgress')}
           >
             <div
-              className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-300"
+              className="h-full rounded-full bg-[var(--accent-primary)] transition-[width] duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -513,13 +513,13 @@ export const PlanForMeView: React.FC = () => {
               <StepIcon className="w-5 h-5" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-secondary)]">
+              <p className="text-xs font-extrabold text-[var(--text-secondary)]">
                 {t('home.questionOf', { idx: stepIndex + 1, length: STEPS.length })}
               </p>
               <h2
                 ref={headingRef}
                 tabIndex={-1}
-                className="text-xl sm:text-2xl font-serif font-bold leading-snug mt-0.5 focus:outline-none"
+                className="text-xl sm:text-2xl chart-heading font-bold leading-snug mt-0.5 focus:outline-none"
               >
                 {language === 'ar' ? step.questionAr : step.questionEn}
               </h2>
@@ -694,7 +694,7 @@ export const PlanForMeView: React.FC = () => {
             <button
               type="button"
               onClick={() => (stepIndex === 0 ? navigateTo('/home') : goToStep(stepIndex - 1))}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
               <span>
@@ -708,7 +708,7 @@ export const PlanForMeView: React.FC = () => {
               type="button"
               id={isLastStep ? 'generate-plan-btn' : 'plan-next-step-btn'}
               onClick={() => (isLastStep ? handleGenerate() : goToStep(stepIndex + 1))}
-              className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold shadow-lg transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
+              className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
             >
               {isLastStep && <Sparkles className="w-4 h-4" aria-hidden="true" />}
               <span>{isLastStep ? t('tripEntry.modeC.cta') : t('home.next')}</span>
@@ -722,7 +722,7 @@ export const PlanForMeView: React.FC = () => {
         {/* ------------------------------------------------------------- */}
         <aside className="lg:col-span-4 lg:sticky lg:top-44 space-y-4">
           <div className="bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-3xl p-5 shadow-lg">
-            <h2 className="text-xs font-extrabold uppercase tracking-widest text-[var(--text-secondary)] mb-4">
+            <h2 className="text-xs font-extrabold text-[var(--text-secondary)] mb-4">
               {t('home.yourBriefSoFar')}
             </h2>
 

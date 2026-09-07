@@ -147,7 +147,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
   return (
     <div className="min-h-[88vh] bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden" dir={siteLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Subtle Sinai Topographic Glow Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top_right,#E7A83B_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,#20A89A_0%,transparent_50%)]" />
+      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top_right,#E8A33D_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,#1B2452_0%,transparent_50%)]" />
       
       <div className="w-full max-w-md relative z-10">
         
@@ -164,13 +164,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
           <div className="flex items-center gap-1 bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] p-0.5 rounded-full">
             <button
               onClick={() => setLanguage('ar')}
-              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${siteLanguage === 'ar' ? 'bg-[var(--accent-secondary)] text-slate-950 font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] ${siteLanguage === 'ar' ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
             >
               العربية
             </button>
             <button
               onClick={() => setLanguage('en')}
-              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-all ${siteLanguage === 'en' ? 'bg-[var(--accent-secondary)] text-slate-950 font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium transition-[background-color,border-color,color,box-shadow,transform,opacity] ${siteLanguage === 'en' ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] font-bold' : 'text-slate-400 hover:text-[var(--text-primary)]'}`}
             >
               English
             </button>
@@ -182,7 +182,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
           
           {/* Logo & Headline */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--accent-secondary)] to-[var(--accent-primary)] text-slate-950 shadow-lg mb-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-[var(--accent-secondary)] to-[var(--accent-primary)] text-[var(--accent-secondary-ink)] shadow-lg mb-3">
               <Compass className="w-6 h-6 animate-pulse" />
             </div>
             
@@ -239,7 +239,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isSubmitting || isAuthLoading}
-                className="w-full flex items-center justify-center gap-3 bg-[var(--surface-card)] text-slate-900 hover:bg-slate-100 font-semibold py-3 px-4 rounded-xl transition-all shadow-md active:scale-[0.99] disabled:opacity-50 text-sm"
+                className="w-full flex items-center justify-center gap-3 bg-[var(--surface-card)] text-slate-900 hover:bg-slate-100 font-semibold py-3 px-4 rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md active:scale-[0.99] disabled:opacity-50 text-sm"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin text-slate-900" />
@@ -297,7 +297,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={t('auth.egAhmedMostafa')}
-                      className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                      className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-[background-color,border-color,color,box-shadow,transform,opacity] placeholder:text-slate-500"
                     />
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={siteLanguage === 'ar' ? 'name@example.com' : 'name@example.com'}
-                  className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                  className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-[background-color,border-color,color,box-shadow,transform,opacity] placeholder:text-slate-500"
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                     <button
                       type="button"
                       onClick={() => { setMode('forgot-password'); setErrorMessage(null); setSuccessInfo(null); }}
-                      className="text-xs text-[var(--accent-secondary)] hover:underline"
+                      className="text-xs text-[var(--accent-secondary)] hover:underline py-2 -my-2"
                     >
                       {t('auth.forgotPassword')}
                     </button>
@@ -357,7 +357,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-all placeholder:text-slate-500"
+                    className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-[background-color,border-color,color,box-shadow,transform,opacity] placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -367,7 +367,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
             <button
               type="submit"
               disabled={isSubmitting || isAuthLoading}
-              className="w-full mt-2 bg-gradient-to-r from-[var(--accent-secondary)] to-[var(--accent-primary)] text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+              className="w-full mt-2 bg-gradient-to-r from-[var(--accent-secondary)] to-[var(--accent-primary)] text-[var(--accent-secondary-ink)] font-bold py-3 px-4 rounded-xl shadow-lg hover:opacity-95 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 text-sm disabled:opacity-50"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
@@ -392,7 +392,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                 <button
                   type="button"
                   onClick={() => { setMode('sign-up'); setErrorMessage(null); setSuccessInfo(null); }}
-                  className="text-[var(--accent-secondary)] font-semibold hover:underline"
+                  className="text-[var(--accent-secondary)] font-semibold hover:underline py-2 -my-2"
                 >
                   {t('auth.signUpFree')}
                 </button>
@@ -405,7 +405,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                 <button
                   type="button"
                   onClick={() => { setMode('sign-in'); setErrorMessage(null); setSuccessInfo(null); }}
-                  className="text-[var(--accent-secondary)] font-semibold hover:underline"
+                  className="text-[var(--accent-secondary)] font-semibold hover:underline py-2 -my-2"
                 >
                   {t('auth.signIn-2')}
                 </button>

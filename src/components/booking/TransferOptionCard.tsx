@@ -45,7 +45,7 @@ export const TransferOptionCard: React.FC<TransferOptionCardProps> = ({
       id={`transfer-card-${transfer.id}`}
       dir={isRTL ? 'rtl' : 'ltr'}
       onClick={() => onSelect(transfer.id)}
-      className={`rounded-3xl border transition-all duration-200 overflow-hidden bg-[var(--surface-card)] text-[var(--text-primary)] relative ${
+      className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 overflow-hidden bg-[var(--surface-card)] text-[var(--text-primary)] relative ${
         isSelected
           ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 shadow-lg'
           : transfer.badgeType === 'recommended'
@@ -108,7 +108,7 @@ export const TransferOptionCard: React.FC<TransferOptionCardProps> = ({
             {/* Header: Title & Price */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)]">
                   {title}
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)]/70 flex items-center gap-1.5 mt-0.5 font-medium">
@@ -117,7 +117,7 @@ export const TransferOptionCard: React.FC<TransferOptionCardProps> = ({
                 </p>
               </div>
 
-              <div className="text-start sm:text-right">
+              <div className="text-start sm:text-end">
                 <div className="flex items-baseline justify-end gap-1">
                   <span className="text-2xl font-black text-[var(--accent-secondary)]">
                     {transfer.priceEGP.toLocaleString()} {isAr ? 'جنيه' : 'EGP'}
@@ -171,10 +171,10 @@ export const TransferOptionCard: React.FC<TransferOptionCardProps> = ({
                 e.stopPropagation();
                 onSelect(transfer.id);
               }}
-              className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isSelected
-                  ? 'bg-[var(--accent-primary)] hover:bg-[#1a8c80] text-[var(--surface-container)] font-bold shadow-md'
-                  : 'bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] font-bold hover:shadow-xs'
+                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[#1A1206] font-bold shadow-md'
+                  : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold hover:shadow-xs'
               }`}
             >
               {isSelected ? (

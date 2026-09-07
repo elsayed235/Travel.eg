@@ -106,18 +106,18 @@ export const PostTripView: React.FC = () => {
     <div 
       id="post-trip-view" 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24"
     >
       {/* 1. Header Hero */}
       <section className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] text-white pt-12 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{t('postTrip.tripStatusCompleted')}</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
                 {t('postTrip.welcomeBack', { travelerName })}
               </h1>
               <p className="text-sm sm:text-base text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed">
@@ -131,7 +131,7 @@ export const PostTripView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => showToast(t('postTrip.tripLinkPhotoAlbum'))}
-                className="px-4 py-2.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] text-xs font-bold flex items-center gap-1.5 border border-[var(--border-subtle)] transition-all cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] text-xs font-bold flex items-center gap-1.5 border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" />
                 <span>{t('postTrip.shareTrip')}</span>
@@ -140,7 +140,7 @@ export const PostTripView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/trip-builder')}
-                className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold flex items-center gap-1.5 shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>{t('postTrip.planAnotherTrip')}</span>
@@ -156,10 +156,10 @@ export const PostTripView: React.FC = () => {
         {/* Metric Cards Banner */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+            <span className="text-[11px] font-black text-[var(--text-secondary)]/60 block">
               {t('itinerary.tripDuration')}
             </span>
-            <div className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+            <div className="text-2xl chart-heading font-bold text-[var(--text-primary)]">
               {activeTrip
                 ? t('postTrip.daysLabel', { lengthDays: activeTrip.lengthDays })
                 : '—'}
@@ -170,10 +170,10 @@ export const PostTripView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+            <span className="text-[11px] font-black text-[var(--text-secondary)]/60 block">
               {t('postTrip.bookedServices')}
             </span>
-            <div className="text-2xl font-serif font-bold text-[var(--accent-secondary)]">
+            <div className="text-2xl chart-heading font-bold text-[var(--accent-secondary)]">
               {t('postTrip.4Services')}
             </div>
             <span className="text-xs text-emerald-400 font-bold">
@@ -182,10 +182,10 @@ export const PostTripView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+            <span className="text-[11px] font-black text-[var(--text-secondary)]/60 block">
               {t('postTrip.activitiesLogged')}
             </span>
-            <div className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+            <div className="text-2xl chart-heading font-bold text-[var(--text-primary)]">
               {t('postTrip.14Experiences')}
             </div>
             <span className="text-xs text-[var(--text-secondary)]/70 font-medium">
@@ -194,7 +194,7 @@ export const PostTripView: React.FC = () => {
           </div>
 
           <div className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xs space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+            <span className="text-[11px] font-black text-[var(--text-secondary)]/60 block">
               {t('postTrip.officialInvoice')}
             </span>
             <div className="text-2xl font-mono font-bold text-[var(--text-primary)]">14,500 EGP</div>
@@ -220,7 +220,7 @@ export const PostTripView: React.FC = () => {
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                 <div className="flex items-center gap-2">
                   <Camera className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h2 className="font-serif font-bold text-xl text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-xl text-[var(--text-primary)]">
                     {t('postTrip.visualHighlights')}
                   </h2>
                 </div>
@@ -261,7 +261,7 @@ export const PostTripView: React.FC = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3 text-white">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 block">
+                        <span className="text-[11px] font-bold text-amber-300 block">
                           {tag}
                         </span>
                         <h3 className="font-bold text-sm text-white">
@@ -277,7 +277,7 @@ export const PostTripView: React.FC = () => {
             {/* Places Visited Checklist */}
             <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xs space-y-4">
               <div className="border-b border-[var(--border-subtle)] pb-3">
-                <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                   {t('postTrip.placesExploredInDahab')}
                 </h2>
               </div>
@@ -308,7 +308,7 @@ export const PostTripView: React.FC = () => {
             {/* Feedback Review Form */}
             <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5">
               <div className="border-b border-[var(--border-subtle)] pb-3">
-                <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                   {t('postTrip.howWasYourDahab')}
                 </h2>
                 <p className="text-xs text-[var(--text-secondary)]/70">
@@ -382,7 +382,7 @@ export const PostTripView: React.FC = () => {
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-xs"
                   >
                     {t('postTrip.submitReview')}
                   </button>
@@ -395,7 +395,7 @@ export const PostTripView: React.FC = () => {
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-amber-400" />
-                  <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                     {t('postTrip.sinaiPassportStamps')}
                   </h2>
                 </div>
@@ -427,7 +427,7 @@ export const PostTripView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => showToast(t('postTrip.generatedHighresDigitalPassport'))}
-                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] text-xs font-bold border border-[var(--border-subtle)] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] text-xs font-bold border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>{t('postTrip.downloadDigitalPassport')}</span>
@@ -436,12 +436,12 @@ export const PostTripView: React.FC = () => {
 
             {/* Next Sinai Inspiration Card */}
             <div className="p-6 rounded-3xl bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] text-white space-y-4 shadow-lg border border-[var(--border-subtle)]">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--btn-util-bg)] text-amber-300 text-[11px] font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--btn-util-bg)] text-amber-300 text-[11px] font-bold">
                 <Sparkles className="w-3 h-3" />
                 <span>{t('postTrip.nextSinaiAdventure')}</span>
               </div>
 
-              <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+              <h3 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                 {t('postTrip.readyForRasAbu')}
               </h3>
 
@@ -452,7 +452,7 @@ export const PostTripView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/trip-builder')}
-                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 font-['Outfit',sans-serif]"
+                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>{t('postTrip.startDesigningNextTrip')}</span>
                 <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />

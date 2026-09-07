@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import type { CmsHomepageSection } from '../../services/api';
 
 interface StoryExperience {
   id: string;
@@ -168,7 +169,7 @@ const DAHAB_STORIES: StoryExperience[] = [
 /** Stable so useApiResource does not re-request on every render. */
 const fetchCuratedStories = (signal: AbortSignal) => api.getCuratedStories(signal);
 
-export const CuratedStoriesRail: React.FC = () => {
+export const CuratedStoriesRail: React.FC<{ cmsSection?: CmsHomepageSection | null }> = ({ cmsSection }) => {
   /** Served content, with the compiled copy above as the offline fallback. */
   const remote = useApiResource(fetchCuratedStories);
   const stories = remote.data?.stories?.length
@@ -178,6 +179,9 @@ export const CuratedStoriesRail: React.FC = () => {
   const { addActivityToDay, savedItems, toggleSaveItem } = useTrip();
   const { language, isRTL } = useLanguage();
   const isAr = language === 'ar';
+
+  // CMS visibility flag: hide the rail from the dashboard (Homepage tab).
+  if (cmsSection && cmsSection.visible === 0) return null;
 
   const handleAddStory = (story: StoryExperience) => {
     addActivityToDay(2, {
@@ -201,24 +205,18 @@ export const CuratedStoriesRail: React.FC = () => {
       dir={isRTL ? 'rtl' : 'ltr'}
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] tidal-card shadow-2xl p-6 sm:p-8 space-y-6">
+      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] chart-card shadow-2xl p-6 sm:p-8 space-y-6">
         {/* Tidal shimmer wash across the panel top */}
-        <div className="absolute inset-x-0 top-0 h-px tidal-shimmer" aria-hidden="true" />
+        <div className="absolute inset-x-0 top-0 h-px chart-shimmer" aria-hidden="true" />
         <div className="relative z-10 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-[1.5px] bg-[var(--accent-secondary)]" aria-hidden="true" />
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)] font-serif">
-                  {isAr ? 'مختارات تحريرية' : 'Editorial Highlights'}
-                </span>
-              </div>
-              <h2 className="tidal-heading text-2xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
+              <h2 className="chart-heading text-2xl sm:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
                 {isAr ? 'تجارب سيناء المنتقاة' : 'Curated Sinai Experiences'}
               </h2>
             </div>
 
-            <span className="tidal-badge tidal-badge-ocean text-xs font-medium">
+            <span className="chart-badge chart-badge-live text-xs font-medium">
               {isAr ? 'منتقاة بعناية بواسطة مستكشفي ومرشدي دهب المحليين' : 'Hand-picked by Dahab resident explorers & guides'}
             </span>
           </div>
@@ -236,7 +234,7 @@ export const CuratedStoriesRail: React.FC = () => {
               return (
                 <article
                   key={story.id}
-                  className="tidal-card rounded-3xl overflow-hidden flex flex-col justify-between group hover:-translate-y-1.5"
+                      className="chart-card rounded-3xl overflow-hidden flex flex-col justify-between group"
                 >
                   {/* Card Image Container */}
                   <div className="relative h-52 w-full overflow-hidden bg-[var(--bg-canvas)]">
@@ -250,7 +248,7 @@ export const CuratedStoriesRail: React.FC = () => {
 
                     {/* Top Category Badge */}
                     <div className="absolute top-3.5 start-3.5">
-                      <span className="tidal-badge tidal-badge-sunset text-[11px] uppercase tracking-wider shadow-xs bg-[var(--bg-canvas)]/70">
+                        <span className="chart-badge chart-badge-ember text-[11px] shadow-xs bg-[var(--bg-canvas)]/70">
                         {cardCategory}
                       </span>
                     </div>
@@ -260,7 +258,7 @@ export const CuratedStoriesRail: React.FC = () => {
                       type="button"
                       onClick={() => toggleSaveItem(story.id)}
                       aria-label={isSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ التجربة' : 'Save experience')}
-                      className={`absolute top-3.5 end-3.5 p-2 rounded-full transition-all cursor-pointer active:scale-90 ${
+                      className={`absolute top-3.5 end-3.5 p-2 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-90 ${
                         isSaved
                           ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] shadow-md'
                           : 'bg-[var(--bg-canvas)]/80 text-[var(--text-primary)] hover:bg-[var(--bg-canvas)]'
@@ -283,7 +281,7 @@ export const CuratedStoriesRail: React.FC = () => {
                         )}
                         <span className="text-[var(--text-secondary)] font-normal">{cardDuration}</span>
                       </div>
-                      <h3 className="text-base font-bold text-[var(--text-primary)] font-serif leading-tight">
+                      <h3 className="text-base font-bold text-[var(--text-primary)] chart-heading leading-tight">
                         {cardTitle}
                       </h3>
                     </div>
@@ -304,7 +302,7 @@ export const CuratedStoriesRail: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleAddStory(story)}
-                        className="px-3.5 py-2 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-secondary-ink)] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-md flex-shrink-0 active:scale-95"
+                        className="px-3.5 py-2 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-secondary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 shadow-md flex-shrink-0 active:scale-95"
                       >
                         <Plus className="w-3.5 h-3.5 text-current" />
                         <span>{isAr ? 'أضف لليوم ٢' : 'Add to Day 2'}</span>

@@ -59,6 +59,7 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
     tripBrief,
     user,
     activeTrip,
+    activeTripItems,
     tripDays,
     navigateTo,
     showToast,
@@ -91,6 +92,7 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
   const [isOfflinePackOpen, setIsOfflinePackOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<ConfirmedBookingItem | null>(null);
   const [rentalCancellingId, setRentalCancellingId] = useState<string | null>(null);
+  const [isDeletingTrip, setIsDeletingTrip] = useState(false);
 
   /** Cancels a rental booking, then re-reads the trip so the status updates. */
   const handleCancelRental = async (booking: ConfirmedBookingItem) => {
@@ -200,8 +202,8 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
   return (
     <div
       id="mytrip-command-dashboard"
-      className={`min-h-screen pb-28 font-['Plus_Jakarta_Sans',sans-serif] transition-colors duration-300 ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FAF8F5] text-[#122420]'
+      className={`min-h-screen pb-28 transition-colors duration-300 ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -274,9 +276,47 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
         <ManageTripModal
           isOpen={isManageModalOpen}
           onClose={() => setIsManageModalOpen(false)}
-          onSelectOption={(opt) => {
+          canDelete={Boolean(activeTrip) && !['BOOKED', 'CONFIRMED'].some(s => (activeTripItems || []).some(i => i.status === s))}
+          isDeleting={isDeletingTrip}
+          onDelete={async () => {
+            if (!activeTrip) return;
+            setIsDeletingTrip(true);
+            try {
+              await api.deleteTrip(activeTrip.id);
+              showToast('Trip deleted.');
+              setIsManageModalOpen(false);
+              // Re-read from the server: the deleted trip is now gone, so the
+              // empty state shows instead of a stale copy in local state.
+              reloadTrip();
+            } catch (err: any) {
+              showToast(err?.message || 'Could not delete this trip.');
+            } finally {
+              setIsDeletingTrip(false);
+            }
+          }}
+          onSelectOption={(optionId) => {
             setIsManageModalOpen(false);
-            showToast(`Opening "${opt}" settings...`);
+            // Each option now lands somewhere real: two open the flows that
+            // already exist for the exact job, two show what data exists today
+            // (bookings tab) instead of a toast pretending work is under way.
+            switch (optionId) {
+              case 'edit-itinerary':
+                setActiveTab('timeline');
+                showToast('Reorder or remove items directly in the day timeline.');
+                break;
+              case 'add-activity':
+                navigateTo('/explore');
+                break;
+              case 'change-booking':
+                setActiveTab('bookings');
+                showToast('Open a booking to request changes through Dahab Booking Care.');
+                break;
+              case 'view-booking-details':
+                setActiveTab('bookings');
+                break;
+              default:
+                break;
+            }
           }}
         />
       )}

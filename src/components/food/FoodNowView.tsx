@@ -6,12 +6,14 @@ import {
   Sparkles, 
   ArrowLeft, 
   ArrowRight, 
-  Check, 
-  ChevronRight, 
-  ChevronDown, 
-  Coffee, 
-  Bike, 
-  Heart, 
+  Check,
+  ChevronRight,
+  ChevronDown,
+  Coffee,
+  Bike,
+  Heart,
+  Sandwich,
+  Soup,
   ShieldCheck, 
   AlertCircle, 
   X, 
@@ -52,6 +54,7 @@ interface FoodNowViewProps {
 // here so existing importers are unaffected.
 export type { FoodCategory, FoodOption } from '../../shared/types/food';
 import type { FoodCategory, FoodOption } from '../../shared/types/food';
+import { IMG_P15172481354674c7edcad34c4_CARD, IMG_P15415447419380af808871cc0_800, IMG_P155593959458d7cb561ad1_800 } from '../../shared/placeholderImagery';
 
 /** Stable so useApiResource does not re-request on every render. */
 const fetchDiningVenues = (signal: AbortSignal) => api.getDahabDining(undefined, signal);
@@ -140,7 +143,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       diningDurationAr: '٤٥–٦٠ دقيقة',
       deliveryTime: '35–45 min',
       deliveryTimeAr: '٣٥–٤٥ دقيقة',
-      imageUrl: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80',
+      imageUrl: IMG_P15415447419380af808871cc0_800,
       popularDishes: [
         {
           id: 'dish-1',
@@ -197,7 +200,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       diningDurationAr: '٣٠–٤٥ دقيقة',
       deliveryTime: '25–35 min',
       deliveryTimeAr: '٢٥–٣٥ دقيقة',
-      imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+      imageUrl: IMG_P155593959458d7cb561ad1_800,
       popularDishes: [
         {
           id: 'dish-2-1',
@@ -254,7 +257,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
       diningDurationAr: '٦٠–٧٥ دقيقة',
       deliveryTime: '40–50 min',
       deliveryTimeAr: '٤٠–٥٠ دقيقة',
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+      imageUrl: IMG_P15172481354674c7edcad34c4_CARD,
       popularDishes: [
         {
           id: 'dish-3-1',
@@ -287,7 +290,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
   // 5 Intent-Based Categories
   const categories: {
     id: FoodCategory;
-    icon: string;
+    icon: React.ComponentType<{ className?: string }>;
     title: string;
     titleAr: string;
     subtitle: string;
@@ -295,7 +298,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
   }[] = [
     {
       id: 'breakfast',
-      icon: '🍳',
+      icon: Coffee,
       title: 'Breakfast',
       titleAr: 'فطار وروقان',
       subtitle: 'Light & local starters',
@@ -303,7 +306,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     },
     {
       id: 'quick',
-      icon: '🍔',
+      icon: Sandwich,
       title: 'Quick Bite',
       titleAr: 'سريع وخفيف',
       subtitle: 'Fast & casual wraps',
@@ -311,7 +314,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     },
     {
       id: 'local',
-      icon: '🍝',
+      icon: Soup,
       title: 'Local',
       titleAr: 'أكل بدوي وسي فود',
       subtitle: 'Dahab authentic taste',
@@ -319,7 +322,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     },
     {
       id: 'datenight',
-      icon: '✨',
+      icon: Sparkles,
       title: 'Sea View',
       titleAr: 'قعدة ع البحر',
       subtitle: 'Relaxed waterfront dining',
@@ -327,7 +330,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
     },
     {
       id: 'delivery',
-      icon: '🛵',
+      icon: Bike,
       title: 'Beach Delivery',
       titleAr: 'دليفري ع الشط',
       subtitle: 'Delivered to your shade',
@@ -444,7 +447,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/* 1. TRAVELER TOP NAVIGATION */}
       <TravelerNav
@@ -473,7 +476,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               type="button"
               id="full-itinerary-link"
               onClick={onBackToMyTrip}
-              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
+              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer py-2 -my-2"
             >
               {t('food.fullItinerary')}
             </button>
@@ -485,7 +488,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           
           {/* Header Context Pills */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-bold font-['Outfit',sans-serif]">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--border-subtle)] shadow-xs">
                 <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>{t('food.nearYouNearDahab')}</span>
@@ -496,7 +499,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--accent-secondary)]/30 shadow-xs font-['Outfit',sans-serif]">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--accent-secondary)]/30 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
               <span>{t('food.beforeYourNextActivity')}</span>
             </div>
@@ -504,7 +507,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
           {/* Title & Subtitle */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-3">
               <span>
                 {travelerName ? t('food.hungryGreetingNamed', { travelerName }) : t('food.hungryGreetingGeneric')}
               </span>
@@ -532,7 +535,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 </div>
 
                 <div className="space-y-2 text-start">
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)]">
                     {t('food.nothingNearbyFitsYour')}
                   </h2>
                   <p className="text-sm sm:text-base text-[var(--text-secondary)]/80 leading-relaxed">
@@ -545,10 +548,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleProceedToDelivery(recommendedOptions[0])}
-                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">🛵</span>
+                      <Bike aria-hidden="true" className="w-6 h-6 text-[var(--accent-secondary)]" />
                       <h3 className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {t('food.delivery')}
                       </h3>
@@ -563,7 +566,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     onClick={() => {
                       showToast(t('food.directionsToShamsCoffee'));
                     }}
-                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">☕</span>
@@ -581,7 +584,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     onClick={() => {
                       showToast(t('food.dinnerReservationReminderSet'));
                     }}
-                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-all space-y-2 cursor-pointer group"
+                    className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-2xl">⏳</span>
@@ -608,7 +611,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('food.contextParameters')}
                   </span>
                   <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">01:00 PM</span>
@@ -655,10 +658,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                         ✓
                       </div>
                       <div>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 block font-['Outfit',sans-serif]">
+                        <span className="text-[11px] font-black text-emerald-400 block">
                           {t('food.tripUpdated')}
                         </span>
-                        <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                        <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                           {t('food.addedToYourTrip')}
                         </h3>
                       </div>
@@ -697,7 +700,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     <button
                       type="button"
                       onClick={onBackToCompanion || onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer"
                     >
                       {t('food.viewInDailyCompanion')}
                     </button>
@@ -724,7 +727,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   {t('food.intentbasedFoodCategories')}
                 </h2>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  <span className="text-xs font-bold text-[var(--accent-secondary)] block">
                     {t('food.intentBasedFoodCategories')}
                   </span>
                   <span className="text-xs text-[var(--text-secondary)]/60 font-medium">
@@ -748,13 +751,13 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                             showToast(t('food.filteredBy', { title: language === 'ar' ? cat.titleAr : cat.title }));
                           }
                         }}
-                        className={`p-3.5 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer flex flex-col justify-between ${
+                        className={`p-3.5 rounded-2xl text-start border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex flex-col justify-between ${
                           isSelected
                             ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] text-[var(--text-primary)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                             : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)]'
                         }`}
                       >
-                        <div className="text-2xl mb-1.5">{cat.icon}</div>
+                        <cat.icon aria-hidden="true" className="w-6 h-6 mb-1.5 text-[var(--accent-secondary)]" />
                         <div className="space-y-0.5">
                           <h3 className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-primary)]'}`}>
                             {language === 'ar' ? cat.titleAr : cat.title}
@@ -772,7 +775,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* C. RECOMMENDED FOR YOU (Exactly 3 Curated Options) */}
               <section id="recommended-for-you-section" className="space-y-4">
                 <div className="space-y-1">
-                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)]">
                     {t('food.recommendedForYou')}
                   </h2>
                   <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 font-medium">
@@ -786,12 +789,12 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       <div
                         key={option.id}
                         id={`food-card-${option.id}`}
-                        className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xl hover:border-[var(--accent-secondary)]/40 hover:shadow-2xl transition-all space-y-4"
+                        className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xl hover:border-[var(--accent-secondary)]/40 hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
                       >
                         {/* Top Meta Bar */}
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full ${
+                            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full ${
                               option.badge === 'Best fit'
                                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                                 : option.badge === 'Quick'
@@ -840,7 +843,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                           </div>
 
                           <div className="space-y-1.5 flex-1">
-                            <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                            <h3 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                               {language === 'ar' ? option.titleAr : option.title}
                             </h3>
                             <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
@@ -876,7 +879,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                               type="button"
                               id={`view-btn-${option.id}`}
                               onClick={() => handleOpenRestaurant(option)}
-                              className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-98"
+                              className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer active:scale-98"
                             >
                               <span>{t('food.view')}</span>
                               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -897,7 +900,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               >
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('food.whyTheseOptions')}
                   </h3>
                 </div>
@@ -949,7 +952,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                       {t('food.currentContext')}
                     </h3>
                   </div>
@@ -1002,7 +1005,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                       {t('food.nextPlannedActivity')}
                     </h3>
                   </div>
@@ -1042,7 +1045,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 className="bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] border border-[var(--accent-secondary)]/30 text-white rounded-3xl p-6 shadow-xl space-y-3.5"
               >
                 <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] text-[11px] font-bold uppercase tracking-wider border border-[var(--accent-secondary)]/30">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] text-[11px] font-bold border border-[var(--accent-secondary)]/30">
                     <Bike className="w-3.5 h-3.5" />
                     <span>{t('food.bedouinDelivery')}</span>
                   </div>
@@ -1050,7 +1053,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h4 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('food.wantToStayWhere')}
                   </h4>
                   <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -1062,7 +1065,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   type="button"
                   id="order-delivery-shortcut-btn"
                   onClick={() => handleProceedToDelivery(recommendedOptions[0])}
-                  className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
                 >
                   <Bike className="w-3.5 h-3.5 text-[var(--surface-card)]" />
                   <span>{t('food.orderDeliveryToMy')}</span>
@@ -1140,7 +1143,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     </>
                   )}
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">
+                <h2 className="text-2xl sm:text-3xl chart-heading font-bold text-white">
                   {language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}
                 </h2>
               </div>
@@ -1176,22 +1179,22 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* 4 Metric Attributes */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.distance')}</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">{t('food.distance')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.distanceAr : selectedRestaurant.distance}</span>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.dineinTime')}</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">{t('food.dineinTime')}</span>
                   <span className="font-bold text-[var(--accent-secondary)]">{language === 'ar' ? selectedRestaurant.diningDurationAr : selectedRestaurant.diningDuration}</span>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.priceRange')}</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">{t('food.priceRange')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.priceEstimateAr : selectedRestaurant.priceLevel}</span>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-0.5">
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/60 block">{t('food.deliveryEst')}</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">{t('food.deliveryEst')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.deliveryTimeAr : selectedRestaurant.deliveryTime}</span>
                 </div>
               </div>
@@ -1215,7 +1218,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {selectedRestaurant.popularDishes.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('food.popularDishes')}
                   </span>
                   <button
@@ -1277,7 +1280,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* ORDER OPTIONS: "Eat here" vs "Delivery" */}
               {selectedRestaurant.popularDishes.length > 0 && (
               <div className="space-y-3 pt-2 border-t border-[var(--border-subtle)]">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                   {t('food.chooseFulfillment')}
                 </span>
 
@@ -1289,7 +1292,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       setFulfillmentMode('eat-here');
                       setDeliveryWorkflow('none');
                     }}
-                    className={`p-4 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer space-y-1 ${
+                    className={`p-4 rounded-2xl text-start border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-1 ${
                       fulfillmentMode === 'eat-here'
                         ? 'border-2 border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                         : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-container)]'
@@ -1315,7 +1318,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     onClick={() => {
                       setFulfillmentMode('delivery');
                     }}
-                    className={`p-4 rounded-2xl text-left rtl:text-right border transition-all cursor-pointer space-y-1 ${
+                    className={`p-4 rounded-2xl text-start border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-1 ${
                       fulfillmentMode === 'delivery'
                         ? 'border-2 border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                         : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--surface-container)]'
@@ -1323,7 +1326,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-                        <span>🛵</span>
+                        <Bike aria-hidden="true" className="w-4 h-4 text-[var(--accent-secondary)]" />
                         <span>{t('food.delivery')}</span>
                       </span>
                       {fulfillmentMode === 'delivery' && (
@@ -1361,7 +1364,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                         handleAddEatHereToTrip(selectedRestaurant);
                         setSelectedRestaurant(null);
                       }}
-                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       <Plus className="w-4 h-4" />
                       <span>{t('food.addToMyTrip')}</span>
@@ -1387,7 +1390,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       onClick={() => {
                         setDeliveryWorkflow('confirm');
                       }}
-                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       <Bike className="w-4 h-4" />
                       <span>{t('food.orderDeliveryTotal', { total: calculateCartTotals(selectedRestaurant).total })}</span>
@@ -1427,7 +1430,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
                 <Bike className="w-5 h-5 text-[var(--accent-secondary)]" />
-                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {t('food.confirmDeliveryOrder')}
                 </h3>
               </div>
@@ -1443,14 +1446,14 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             {/* Order summary */}
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
-                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase block">{t('food.restaurant')}</span>
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] block">{t('food.restaurant')}</span>
                 <p className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}</p>
                 <p className="text-[var(--text-secondary)]/70">📍 {t('food.deliveringToNearDahab')}</p>
               </div>
 
               {/* Items Breakdown */}
               <div className="space-y-1.5 p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase block mb-1">{t('food.selectedItems')}</span>
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)] block mb-1">{t('food.selectedItems')}</span>
                 {selectedRestaurant.popularDishes.map(dish => {
                   const qty = orderCart[dish.id] || 0;
                   if (qty === 0) return null;
@@ -1495,7 +1498,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 type="button"
                 id="place-delivery-order-btn"
                 onClick={handlePlaceDeliveryOrder}
-                className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>{t('food.placeOrderTotal', { total: calculateCartTotals(selectedRestaurant).total })}</span>
@@ -1522,10 +1525,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <div className="flex items-center gap-2">
                 <Bike className="w-5 h-5 text-[var(--accent-secondary)]" />
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('food.activeDelivery')}
                   </span>
-                  <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}
                   </h3>
                 </div>
@@ -1559,7 +1562,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* Progress Bar */}
               <div className="w-full h-2.5 rounded-full bg-[var(--surface-container)] overflow-hidden flex border border-[var(--border-subtle)]">
                 <div 
-                  className="h-full bg-[var(--accent-secondary)] transition-all duration-300 rounded-full shadow-[0_0_10px_rgba(244,195,108,0.5)]"
+                  className="h-full bg-[var(--accent-secondary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 rounded-full shadow-[0_0_10px_rgba(244,195,108,0.5)]"
                   style={{
                     width: 
                       deliveryStatus === 'preparing' ? '25%' :
@@ -1595,7 +1598,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               {/* Next activity reminder */}
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-[var(--text-secondary)]/60 uppercase font-bold block">{t('food.nextActivity-2')}</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]/60 font-bold block">{t('food.nextActivity-2')}</span>
                   <span className="font-bold text-sm text-[var(--text-primary)]">{t('food.0300PMDesertQuad')}</span>
                 </div>
                 <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">{t('food.in1h45m')}</span>
@@ -1619,7 +1622,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   setDeliveryWorkflow('none');
                   onBackToCompanion ? onBackToCompanion() : onBackToMyTrip();
                 }}
-                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer border border-[var(--border-subtle)]"
+                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-[var(--border-subtle)]"
               >
                 {t('food.returnToDailyCompanion')}
               </button>
@@ -1638,10 +1641,10 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           >
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                   {t('food.fullMenu')}
                 </span>
-                <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                   {language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}
                 </h3>
               </div>
@@ -1656,7 +1659,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
             <div className="overflow-y-auto space-y-4 text-xs flex-grow pr-1">
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('food.mainsSpecialties')}</span>
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)]">{t('food.mainsSpecialties')}</span>
                 {selectedRestaurant.popularDishes.map((dish) => (
                   <div key={dish.id} className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                     <div>
@@ -1669,7 +1672,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               </div>
 
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('food.sideMezzeStarters')}</span>
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)]">{t('food.sideMezzeStarters')}</span>
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
                     <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('food.tahiniDipHotPita')}</h4>

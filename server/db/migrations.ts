@@ -7,6 +7,123 @@ import { importDahabLocalCommerce } from './seeds/importDahabLocalCommerce';
 import { importDahabHotels } from './seeds/importDahabHotels';
 import { importDahabAccommodations } from './seeds/importDahabAccommodations';
 import { importDahabRentals } from './seeds/importDahabRentals';
+import type { LedgerEntryEntity } from './schema';
+
+/** Genesis hash of the ledger chain — must match LedgerService's constant. */
+export const LEDGER_GENESIS_HASH = 'sha256:0000000000000000000000000000000000000000';
+
+/**
+ * Builds the 5 seeded ledger entries with a correctly chained signature.
+ *
+ * Exported so tests can assert the seed verifies clean without booting the
+ * server: fresh-seed integrity is a release gate (a fresh DB must report
+ * balanced:true, chainIntact:true on /api/health), after placeholder hashes
+ * shipped here once and every fresh boot failed its own check.
+ *
+ * The hash algorithm is authoritative in LedgerService.calculateEntryHash;
+ * this mirrors it for unsigned seed data (no service dependency at seed time).
+ */
+export function buildSeedLedgerEntries(): LedgerEntryEntity[] {
+  const hashEntry = (params: {
+    id: string;
+    transactionId: string;
+    idempotencyKey: string;
+    type: string;
+    amountEGP: number;
+    debitAccount: string;
+    creditAccount: string;
+    timestamp: string;
+    previousHash: string;
+  }): string => {
+    const data = `${params.id}:${params.transactionId}:${params.idempotencyKey}:${params.type}:${params.amountEGP}:${params.debitAccount}:${params.creditAccount}:${params.timestamp}:${params.previousHash}`;
+    return `sha256:${crypto.createHash('sha256').update(data).digest('hex')}`;
+  };
+  const seedRows: Array<Omit<LedgerEntryEntity, 'previousHash' | 'signatureHash'>> = [
+    {
+      id: 'LEDGER-001',
+      transactionId: 'TXN-984102-PAY',
+      idempotencyKey: 'IDEMP-PAY-001-894',
+      bookingRef: 'DHB-HTL-2026-081',
+      tripId: 'DHB-TRIP-894',
+      type: 'PAYMENT_CAPTURED',
+      amountEGP: 12500,
+      debitAccount: 'TRAVELER_CC_TOKEN_4910',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      timestamp: '2026-08-23 14:15:22',
+      status: 'SETTLED',
+      metadata: { serviceType: 'hotel', supplierId: 'SUP-HTL-01', travelerName: 'Ahmed Mansour', reason: 'Ali Baba Hotel 5 Nights Escrow' }
+    },
+    {
+      id: 'LEDGER-002',
+      transactionId: 'TXN-984103-PAY',
+      idempotencyKey: 'IDEMP-PAY-002-894',
+      bookingRef: 'DHB-TRF-2026-042',
+      tripId: 'DHB-TRIP-894',
+      type: 'PAYMENT_CAPTURED',
+      amountEGP: 1400,
+      debitAccount: 'TRAVELER_CC_TOKEN_4910',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      timestamp: '2026-08-23 14:15:23',
+      status: 'SETTLED',
+      metadata: { serviceType: 'transfer', supplierId: 'SUP-SHUTTLE-01', travelerName: 'Ahmed Mansour', reason: 'SSH Airport Private Van Transfer' }
+    },
+    {
+      id: 'LEDGER-003',
+      transactionId: 'TXN-984104-PAY',
+      idempotencyKey: 'IDEMP-PAY-003-894',
+      bookingRef: 'DHB-DIV-2026-118',
+      tripId: 'DHB-TRIP-894',
+      type: 'PAYMENT_CAPTURED',
+      amountEGP: 2700,
+      debitAccount: 'TRAVELER_CC_TOKEN_4910',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      timestamp: '2026-08-23 14:15:24',
+      status: 'SETTLED',
+      metadata: { serviceType: 'diving', supplierId: 'SUP-DIVE-02', travelerName: 'Ahmed Mansour', reason: 'Coral Canyon Guided Dive' }
+    },
+    {
+      id: 'LEDGER-004',
+      transactionId: 'TXN-984105-PAY',
+      idempotencyKey: 'IDEMP-PAY-004-894',
+      bookingRef: 'DHB-SAF-2026-095',
+      tripId: 'DHB-TRIP-894',
+      type: 'PAYMENT_CAPTURED',
+      amountEGP: 4200,
+      debitAccount: 'TRAVELER_CC_TOKEN_4910',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      timestamp: '2026-08-23 14:15:25',
+      status: 'SETTLED',
+      metadata: { serviceType: 'safari', supplierId: 'SUP-SAFARI-01', travelerName: 'Ahmed Mansour', reason: 'St. Catherine Sunrise Trek' }
+    },
+    {
+      id: 'LEDGER-005',
+      transactionId: 'TXN-984106-COMM',
+      idempotencyKey: 'IDEMP-COMM-001-894',
+      bookingRef: 'DHB-TRF-2026-042',
+      tripId: 'DHB-TRIP-894',
+      type: 'PLATFORM_COMMISSION',
+      amountEGP: 210,
+      debitAccount: 'PLATFORM_ESCROW_MAIN',
+      creditAccount: 'PLATFORM_REVENUE_COMMISSIONS',
+      currency: 'EGP',
+      timestamp: '2026-08-23 14:16:00',
+      status: 'SETTLED',
+      metadata: { serviceType: 'transfer', reason: 'Platform Commission (15%)' }
+    }
+  ];
+  const entries: LedgerEntryEntity[] = [];
+  let prevHash = LEDGER_GENESIS_HASH;
+  for (const row of seedRows) {
+    const signatureHash = hashEntry({ ...row, previousHash: prevHash });
+    entries.push({ ...row, previousHash: prevHash, signatureHash });
+    prevHash = signatureHash;
+  }
+  return entries;
+}
 
 export function runMigrationsAndSeed() {
   db.runInTransaction(() => {
@@ -516,90 +633,64 @@ export function runMigrationsAndSeed() {
       });
     }
 
-    // 6. Seed Double-Entry Ledger if empty
+    // 6. Seed Double-Entry Ledger if empty.
+    //
+    // Signatures are computed by buildSeedLedgerEntries() with the same
+    // algorithm as LedgerService.calculateEntryHash, chained via previousHash
+    // from the genesis constant. They used to be hardcoded placeholder strings
+    // with no previousHash at all, so every fresh boot failed its own
+    // /api/health integrity check (5/5 "signature does not match"). Never put
+    // placeholder hashes here: a fresh seed must verify clean, or the
+    // escrow/budget UI inherits the distrust.
     if (db.ledgerEntries.length === 0) {
-      db.ledgerEntries.push(
-        {
-          id: 'LEDGER-001',
-          transactionId: 'TXN-984102-PAY',
-          idempotencyKey: 'IDEMP-PAY-001-894',
-          bookingRef: 'DHB-HTL-2026-081',
-          tripId: 'DHB-TRIP-894',
-          type: 'PAYMENT_CAPTURED',
-          amountEGP: 12500,
-          debitAccount: 'TRAVELER_CC_TOKEN_4910',
-          creditAccount: 'PLATFORM_ESCROW_MAIN',
-          currency: 'EGP',
-          timestamp: '2026-08-23 14:15:22',
-          status: 'SETTLED',
-          signatureHash: 'sha256:4a8b79e192f81498bca120934fa12480bcae8124',
-          metadata: { serviceType: 'hotel', supplierId: 'SUP-HTL-01', travelerName: 'Ahmed Mansour', reason: 'Ali Baba Hotel 5 Nights Escrow' }
-        },
-        {
-          id: 'LEDGER-002',
-          transactionId: 'TXN-984103-PAY',
-          idempotencyKey: 'IDEMP-PAY-002-894',
-          bookingRef: 'DHB-TRF-2026-042',
-          tripId: 'DHB-TRIP-894',
-          type: 'PAYMENT_CAPTURED',
-          amountEGP: 1400,
-          debitAccount: 'TRAVELER_CC_TOKEN_4910',
-          creditAccount: 'PLATFORM_ESCROW_MAIN',
-          currency: 'EGP',
-          timestamp: '2026-08-23 14:15:23',
-          status: 'SETTLED',
-          signatureHash: 'sha256:88bc410294f91048bc8190234fa9912048bac912',
-          metadata: { serviceType: 'transfer', supplierId: 'SUP-SHUTTLE-01', travelerName: 'Ahmed Mansour', reason: 'SSH Airport Private Van Transfer' }
-        },
-        {
-          id: 'LEDGER-003',
-          transactionId: 'TXN-984104-PAY',
-          idempotencyKey: 'IDEMP-PAY-003-894',
-          bookingRef: 'DHB-DIV-2026-118',
-          tripId: 'DHB-TRIP-894',
-          type: 'PAYMENT_CAPTURED',
-          amountEGP: 2700,
-          debitAccount: 'TRAVELER_CC_TOKEN_4910',
-          creditAccount: 'PLATFORM_ESCROW_MAIN',
-          currency: 'EGP',
-          timestamp: '2026-08-23 14:15:24',
-          status: 'SETTLED',
-          signatureHash: 'sha256:71048bcae9124801948291048fbca78f921e44bc',
-          metadata: { serviceType: 'diving', supplierId: 'SUP-DIVE-02', travelerName: 'Ahmed Mansour', reason: 'Coral Canyon Guided Dive' }
-        },
-        {
-          id: 'LEDGER-004',
-          transactionId: 'TXN-984105-PAY',
-          idempotencyKey: 'IDEMP-PAY-004-894',
-          bookingRef: 'DHB-SAF-2026-095',
-          tripId: 'DHB-TRIP-894',
-          type: 'PAYMENT_CAPTURED',
-          amountEGP: 4200,
-          debitAccount: 'TRAVELER_CC_TOKEN_4910',
-          creditAccount: 'PLATFORM_ESCROW_MAIN',
-          currency: 'EGP',
-          timestamp: '2026-08-23 14:15:25',
-          status: 'SETTLED',
-          signatureHash: 'sha256:948271048bcae9124801948291048fbca78f921e',
-          metadata: { serviceType: 'safari', supplierId: 'SUP-SAFARI-01', travelerName: 'Ahmed Mansour', reason: 'St. Catherine Sunrise Trek' }
-        },
-        {
-          id: 'LEDGER-005',
-          transactionId: 'TXN-984106-COMM',
-          idempotencyKey: 'IDEMP-COMM-001-894',
-          bookingRef: 'DHB-TRF-2026-042',
-          tripId: 'DHB-TRIP-894',
-          type: 'PLATFORM_COMMISSION',
-          amountEGP: 210,
-          debitAccount: 'PLATFORM_ESCROW_MAIN',
-          creditAccount: 'PLATFORM_REVENUE_COMMISSIONS',
-          currency: 'EGP',
-          timestamp: '2026-08-23 14:16:00',
-          status: 'SETTLED',
-          signatureHash: 'sha256:102384a9c18d948271048bcae912480194829104',
-          metadata: { serviceType: 'transfer', reason: 'Platform Commission (15%)' }
+      db.ledgerEntries.push(...buildSeedLedgerEntries());
+    }
+
+    // 6b. One-time repair for databases seeded with the legacy placeholder
+    // hashes (signature values that were never computed, no previousHash).
+    //
+    // Fail-closed by design. Auto-repair runs ONLY when the ledger holds
+    // exactly the five legacy seed rows and nothing else (a fresh-ish DB with
+    // no real money in it). If traveler transactions were recorded on top of
+    // the broken seed, resealing would rewrite the predecessors their
+    // signatures commit to — destroying tamper-evidence for real payments.
+    // Those databases keep failing verification loudly until an operator runs
+    // a deliberate reseal (ledgerService.repairAndSealLedgerChain, which must
+    // never run automatically — see its doc comment).
+    {
+      const LEGACY_SEED_IDS = new Set(['LEDGER-001', 'LEDGER-002', 'LEDGER-003', 'LEDGER-004', 'LEDGER-005']);
+      const LEGACY_PLACEHOLDERS = new Set([
+        'sha256:4a8b79e192f81498bca120934fa12480bcae8124',
+        'sha256:88bc410294f91048bc8190234fa9912048bac912',
+        'sha256:71048bcae9124801948291048fbca78f921e44bc',
+        'sha256:948271048bcae9124801948291048fbca78f921e',
+        'sha256:102384a9c18d948271048bcae912480194829104',
+      ]);
+      const isLegacyRow = (e: { id: string; signatureHash: string; previousHash?: string }) =>
+        LEGACY_SEED_IDS.has(e.id) && (LEGACY_PLACEHOLDERS.has(e.signatureHash) || !e.previousHash);
+      const hasLegacyRows = db.ledgerEntries.some(isLegacyRow);
+      if (hasLegacyRows) {
+        const onlyLegacySeed = db.ledgerEntries.length === LEGACY_SEED_IDS.size &&
+          db.ledgerEntries.every(e => LEGACY_SEED_IDS.has(e.id));
+        if (onlyLegacySeed) {
+          let prevHash = LEDGER_GENESIS_HASH;
+          for (const entry of db.ledgerEntries) {
+            entry.previousHash = prevHash;
+            const { signatureHash: _old, ...unsigned } = entry;
+            const data = `${unsigned.id}:${unsigned.transactionId}:${unsigned.idempotencyKey}:${unsigned.type}:${unsigned.amountEGP}:${unsigned.debitAccount}:${unsigned.creditAccount}:${unsigned.timestamp}:${prevHash}`;
+            entry.signatureHash = `sha256:${crypto.createHash('sha256').update(data).digest('hex')}`;
+            prevHash = entry.signatureHash;
+          }
+          console.log('[DB] Repaired 5 legacy ledger seed signature(s) with correct hash chain.');
+        } else {
+          console.error(
+            '[DB] Ledger holds legacy placeholder seed signatures beneath real transactions. ' +
+            'Automatic repair is refused: resealing would rewrite the predecessors those ' +
+            'transactions commit to. Run ledgerService.repairAndSealLedgerChain() deliberately ' +
+            'as an operator migration after review.'
+          );
         }
-      );
+      }
     }
 
     // 7. Seed Intelligence Opportunities if empty

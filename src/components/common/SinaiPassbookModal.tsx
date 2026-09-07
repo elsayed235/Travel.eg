@@ -127,7 +127,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-secondary)]">
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)]">
                   {t('common.vERIFIEDSINAIDIGITALPASS')}
                 </span>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
@@ -139,7 +139,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
               </div>
               <h2
                 id="passbook-modal-title"
-                className="text-lg sm:text-xl font-bold font-['Outfit',sans-serif] text-white"
+                className="text-lg sm:text-xl font-bold text-white"
               >
                 {t('common.unifiedPassbookBedouinDriver')}
               </h2>
@@ -166,10 +166,10 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
             {/* Pass Header Row */}
             <div className="flex items-start justify-between gap-3 relative z-10">
               <div>
-                <span className="text-[11px] uppercase font-mono tracking-widest text-[var(--surface-container)]/80">
+                <span className="text-[11px] font-mono text-[var(--surface-container)]/80">
                   {t('common.sOUTHSINAITRIPPASS')}
                 </span>
-                <h3 className="text-xl font-bold text-white font-['Outfit',sans-serif]">
+                <h3 className="text-xl font-bold text-white">
                   {travelerName}
                 </h3>
               </div>
@@ -294,7 +294,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
 
             {/* Integrated Components Included */}
             <div className="space-y-2 relative z-10">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--surface-container)]/70 block">
+              <span className="text-[11px] font-bold text-[var(--surface-container)]/70 block">
                 {t('common.bundledServicesInPass')}
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs">
@@ -332,7 +332,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={handleSaveOffline}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] font-bold text-xs transition-all cursor-pointer shadow-md"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] font-bold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-md"
           >
             {savedOffline ? <Check className="w-4 h-4 text-[var(--surface-container)]" /> : <Download className="w-4 h-4" />}
             <span>{savedOffline ? (t('common.savedToPhone')) : (t('common.saveOfflinePass'))}</span>
@@ -341,7 +341,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white font-bold text-xs transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white font-bold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             {t('common.close-2')}
           </button>

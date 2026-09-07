@@ -105,7 +105,7 @@ export default function LiveTripRadar() {
         <button
           type="button"
           onClick={() => fetchTrips()}
-          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Refresh
@@ -136,7 +136,7 @@ export default function LiveTripRadar() {
                 key={trip.id}
                 type="button"
                 onClick={() => setSelectedTripId(trip.id)}
-                className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--surface-container)]/80 transition-all text-left cursor-pointer group"
+                className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 hover:bg-[var(--surface-container)]/80 transition-[background-color,border-color,color,box-shadow,transform,opacity] text-left cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -271,7 +271,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
                 'text-[var(--text-muted)] bg-[var(--btn-util-bg)] border-[var(--border-subtle)]'
               }`}>{tripData.status}</span>
             </div>
-            <h2 className="text-lg font-bold text-[var(--text-primary)] mt-1 font-['Outfit',sans-serif]">{tripData.title}</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)] mt-1">{tripData.title}</h2>
             <div className="text-xs text-[var(--text-muted)] mt-1">
               {tripData.travelersCount} traveler{tripData.travelersCount !== 1 ? 's' : ''} · {tripData.lengthDays} days · {tripData.budget} · {tripData.pace}
             </div>
@@ -283,7 +283,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
                 type="button"
                 onClick={() => handleTransition(status)}
                 disabled={transitioning}
-                className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-bold border border-[var(--accent-primary)]/30 transition-all cursor-pointer disabled:opacity-50"
+                className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-bold border border-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
               >
                 {status === 'CANCELLED' ? 'Cancel Trip' : `→ ${status.replace('_', ' ')}`}
               </button>
@@ -325,7 +325,7 @@ function TripCommandView({ tripId, onBack }: { tripId: string; onBack: () => voi
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
               activeTab === tab.id ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'
             }`}
           >

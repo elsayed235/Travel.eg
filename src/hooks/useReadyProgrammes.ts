@@ -23,13 +23,19 @@ import { useTripProgrammes } from './useCMSContent';
 const fetchProgrammes = (signal: AbortSignal) => api.getReadyProgrammes(signal);
 
 /**
- * CMS slug → programme id mapping.
- * The CMS seeds programmes with slugs like "programme-first-timer",
- * while the client uses ids like "dahab-first-timer".
+ * Canonical programme key.
+ *
+ * Prefixes are unreliable on BOTH sides: CMS slugs come as "dahab-first-timer"
+ * (mostly) and bare "couples-escape" (once), while the served feed's ids are
+ * prefixed for four programmes and bare for Couples Escape. Comparing a
+ * rebuilt prefixed id against the served ids failed for exactly that one
+ * programme, so both sides are normalized to their suffix before matching.
+ * Unrelated slugs simply match no programme and are dropped.
  */
-function cmsSlugToId(slug: string): string | null {
-  const match = slug.match(/^programme-(.+)$/);
-  return match ? `dahab-${match[1]}` : null;
+export function canonicalProgrammeKey(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const match = String(value).match(/^(?:programme-|dahab-)?(.+)$/);
+  return match ? match[1] : null;
 }
 
 export function useReadyProgrammes(): ReadyTripProgram[] {
@@ -48,13 +54,19 @@ export function useReadyProgrammes(): ReadyTripProgram[] {
       const featuredIds = new Set(
         cmsData
           .filter((p: any) => p.featured)
-          .map((p: any) => cmsSlugToId(p.slug))
+          .map((p: any) => canonicalProgrammeKey(p.slug))
           .filter(Boolean) as string[]
       );
 
       if (featuredIds.size > 0) {
-        const featured = programmes.filter(p => featuredIds.has(p.id));
-        const others = programmes.filter(p => !featuredIds.has(p.id));
+        const featured = programmes.filter(p => {
+          const key = canonicalProgrammeKey(p.id);
+          return key !== null && featuredIds.has(key);
+        });
+        const others = programmes.filter(p => {
+          const key = canonicalProgrammeKey(p.id);
+          return key === null || !featuredIds.has(key);
+        });
         return [...featured, ...others];
       }
     }

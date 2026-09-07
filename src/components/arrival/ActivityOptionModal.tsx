@@ -121,10 +121,10 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
               <Icon className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                 {item.tag}
               </span>
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">
                 {item.title}
               </h3>
             </div>
@@ -141,7 +141,7 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
         </div>
 
         <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between text-xs">
-          <span className="font-semibold text-[var(--accent-primary)] flex items-center gap-1.5 font-['Outfit',sans-serif]">
+          <span className="font-semibold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
             <span>{item.timeNote}</span>
           </span>
@@ -155,10 +155,10 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
           {item.recommendations.map((rec, idx) => (
             <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <h4 className="font-['Outfit',sans-serif] font-bold text-sm text-[var(--text-primary)]">
+                <h4 className=" font-bold text-sm text-[var(--text-primary)]">
                   {rec.name}
                 </h4>
-                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full flex-shrink-0 border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full flex-shrink-0 border border-[var(--border-subtle)]">
                   {rec.distance}
                 </span>
               </div>
@@ -181,7 +181,7 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
               onSelectAction(item.primaryAction);
               onClose();
             }}
-            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <Check className="w-4 h-4 text-[var(--surface-card)] stroke-[2.5]" />
             <span>{item.primaryAction}</span>

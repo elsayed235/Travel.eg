@@ -45,14 +45,14 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
     <div id="step-placeholder-container" className="w-full">
       {/* Header */}
       <div className="mb-8">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--text-secondary)]/10 text-[var(--text-secondary)] text-xs font-bold mb-4">
           <Gauge className="w-3.5 h-3.5" />
           <span>Step 5 Preview · Travel Pace & Daily Rhythm</span>
         </div>
         
         <h1
           id="step-5-placeholder-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl chart-heading text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           How fast or relaxed do you want your days?
         </h1>
@@ -72,7 +72,7 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-bold uppercase tracking-widest text-[var(--text-secondary)]">
+            <div className="text-xs font-bold text-[var(--text-secondary)]">
               Trip Blueprint Calibrated
             </div>
             <div className="text-base font-bold text-[var(--text-primary)]">
@@ -105,7 +105,7 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
           type="button"
           id="placeholder-back-to-interests"
           onClick={onBackToInterests}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]/80 hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--text-primary)]/5 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]/80 hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--text-primary)]/5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Interests</span>
@@ -115,7 +115,7 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
           type="button"
           id="placeholder-return-home"
           onClick={onReturnHome}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-xs"
         >
           <Home className="w-4 h-4" />
           <span>Return to Homepage</span>

@@ -58,7 +58,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
     <aside
       id="sticky-booking-bottom-bar"
       aria-label="Trip booking floating status bar"
-      className="fixed bottom-[68px] md:bottom-4 inset-x-0 z-40 max-w-4xl mx-auto px-4 pointer-events-none transition-all duration-300 transform translate-y-0"
+      className="fixed bottom-[68px] md:bottom-4 inset-x-0 z-40 max-w-4xl mx-auto px-4 pointer-events-none transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 transform translate-y-0"
     >
       <div className="pointer-events-auto backdrop-blur-xl border border-[var(--border-subtle)] rounded-3xl p-3.5 sm:p-4 shadow-2xl flex items-center justify-between gap-4 transition-colors bg-[var(--surface-card)] text-[var(--text-primary)]">
         
@@ -71,7 +71,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-secondary)]">
+              <span className="text-[11px] font-extrabold text-[var(--accent-secondary)]">
                 {t('common.liveEstimate')}
               </span>
               <span className="hidden sm:inline-block text-[12px] text-[var(--text-secondary)]">
@@ -80,7 +80,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
             </div>
             
             <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-base sm:text-lg font-bold font-serif text-[var(--text-primary)]">
+              <span className="text-base sm:text-lg font-bold chart-heading text-[var(--text-primary)]">
                 {estimatedPriceEGP.toLocaleString()} <span className="text-xs font-sans font-extrabold text-[var(--accent-secondary)]">EGP</span>
               </span>
               <span className="text-[11px] hidden md:inline text-[var(--text-secondary)]">
@@ -106,7 +106,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
                 navigateTo('/home');
               }
             }}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer shadow-xs"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-xs"
           >
             <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>{t('common.mapRadar')}</span>
@@ -116,7 +116,7 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
             type="button"
             id="sticky-bar-build-itinerary-cta"
             onClick={onStartCustomPlanner}
-            className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl text-xs font-extrabold shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 whitespace-nowrap bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)]"
+            className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 rounded-2xl text-xs font-extrabold shadow-lg hover:shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95 whitespace-nowrap bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)]"
           >
             <span>{t('common.buildCustomItinerary')}</span>
             <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />

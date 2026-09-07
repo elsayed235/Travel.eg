@@ -296,8 +296,8 @@ export const ExploreView: React.FC = () => {
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20 ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20 ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}
     >
       {/* Traveler Top Navigation */}
@@ -320,25 +320,25 @@ export const ExploreView: React.FC = () => {
         <div className={`absolute inset-0 ${
           isDark
             ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
-            : 'bg-gradient-to-r from-[#FBF9F5]/96 via-[#FBF9F5]/92 to-[#FBF9F5]/80 backdrop-blur-[2px]'
+            : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[2px]'
         }`} />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-2">
               <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${
-                isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 text-[var(--surface-card)]'
+                isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[#8F5F14]'
               }`}>
                 <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>{t('explore.dahabLiveDiscovery')}</span>
               </div>
-              <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-serif font-bold tracking-tight ${
-                isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'
+              <h1 className={`text-2xl sm:text-3xl lg:text-4xl chart-heading font-bold tracking-tight ${
+                isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
               }`}>
                 {t('explore.curatedSpotsAroundYou')}
               </h1>
               <p className={`text-xs sm:text-sm max-w-2xl font-medium ${
-                isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'
+                isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'
               }`}>
                 {t('explore.handpickedCafesBeachEntries')}
               </p>
@@ -349,7 +349,7 @@ export const ExploreView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/food')}
-                className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center gap-1.5 cursor-pointer"
               >
                 <Utensils className="w-3.5 h-3.5" />
                 <span>{t('explore.foodNow')}</span>
@@ -358,10 +358,10 @@ export const ExploreView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/my-trip')}
-                className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
                   isDark
                     ? 'bg-[var(--surface-container)] hover:bg-[#1a4038] text-[var(--text-secondary)] border-[var(--border-subtle)]'
-                    : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[#122420] border-[#122420]/15'
+                    : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                 }`}
               >
                 <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -372,7 +372,7 @@ export const ExploreView: React.FC = () => {
 
           {/* Search Bar */}
           <div className="relative max-w-xl">
-            <Search className={`absolute ${isRTL ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[#4A635D]/50'}`} />
+            <Search className={`absolute ${isRTL ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/50'}`} />
             <input
               type="search"
               value={searchQuery}
@@ -382,7 +382,7 @@ export const ExploreView: React.FC = () => {
               className={`w-full py-3 ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} rounded-2xl border text-xs sm:text-sm shadow-inner transition-colors ${
                 isDark
                   ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-secondary)]'
-                  : 'bg-[var(--surface-card)] border-[#122420]/15 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)]'
+                  : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
               } focus:outline-none`}
             />
           </div>
@@ -394,7 +394,7 @@ export const ExploreView: React.FC = () => {
         
         {/* Filter Pills */}
         <div className={`flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl border ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[#122420]/10 shadow-xs'
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] shadow-xs'
         }`}>
           <div className="flex flex-wrap items-center gap-1.5">
             {([
@@ -409,12 +409,12 @@ export const ExploreView: React.FC = () => {
                 key={f.id}
                 type="button"
                 onClick={() => setNearMeFilter(f.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                   nearMeFilter === f.id
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] shadow-xs'
                     : isDark
                     ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[#1a4038] border border-white/5'
-                    : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD] border border-[#122420]/10'
+                    : 'bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)]'
                 }`}
               >
                 {f.label}
@@ -422,7 +422,7 @@ export const ExploreView: React.FC = () => {
             ))}
           </div>
 
-          <span className={`text-xs px-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>
+          <span className={`text-xs px-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>
             {filteredNearMe.length} {t('explore.spotsAvailable')}
           </span>
         </div>
@@ -441,10 +441,10 @@ export const ExploreView: React.FC = () => {
             return (
               <div
                 key={place.id}
-                className={`rounded-3xl border transition-all overflow-hidden shadow-xl flex flex-col group ${
+                className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] overflow-hidden shadow-xl flex flex-col group ${
                   isDark
                     ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]'
-                    : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
+                    : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
                 }`}
               >
                 {/* Image Header */}
@@ -484,7 +484,7 @@ export const ExploreView: React.FC = () => {
                       aria-label={`${isFav
                         ? (t('explore.removeFromFavourites'))
                         : (t('explore.addToFavourites'))}: ${language === 'ar' && place.nameAr ? place.nameAr : place.name}`}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                         isFav ? 'bg-rose-500 text-[var(--text-primary)]' : 'bg-black/50 text-[var(--text-primary)] hover:bg-black/80'
                       }`}
                     >
@@ -494,7 +494,7 @@ export const ExploreView: React.FC = () => {
 
                   {/* Bottom Image Tag */}
                   <div className="absolute bottom-2.5 inset-x-3">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block drop-shadow-md">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block drop-shadow-md">
                       {language === 'ar' && place.tagAr ? place.tagAr : place.tag}
                     </span>
                   </div>
@@ -504,8 +504,8 @@ export const ExploreView: React.FC = () => {
                 <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className={`font-serif font-bold text-lg leading-snug cursor-pointer hover:text-[var(--accent-primary)] transition-colors ${
-                        isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'
+                      <h3 className={`chart-heading font-bold text-lg leading-snug cursor-pointer hover:text-[var(--accent-primary)] transition-colors ${
+                        isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
                       }`}
                       onClick={() => handleOpenExperienceDetail(place)}
                       >
@@ -520,13 +520,13 @@ export const ExploreView: React.FC = () => {
                     </div>
 
                     <p className={`text-xs leading-relaxed line-clamp-2 ${
-                      isDark ? 'text-[var(--text-secondary)]/75' : 'text-[#4A635D]'
+                      isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'
                     }`}>
                       {language === 'ar' && place.descriptionAr ? place.descriptionAr : place.description}
                     </p>
 
                     <div className={`flex items-center gap-2 text-xs pt-1 ${
-                      isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'
+                      isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'
                     }`}>
                       <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                       <span>{language === 'ar' && place.locationAr ? place.locationAr : place.location}</span>
@@ -535,16 +535,16 @@ export const ExploreView: React.FC = () => {
 
                   {/* Footer Actions */}
                   <div className={`pt-3 border-t flex items-center gap-2 ${
-                    isDark ? 'border-[var(--border-subtle)]' : 'border-[#122420]/10'
+                    isDark ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)]'
                   }`}>
                     <button
                       type="button"
                       id={`explore-card-details-btn-${place.id}`}
                       onClick={() => handleOpenExperienceDetail(place)}
-                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer border ${
                         isDark
                           ? 'bg-[var(--surface-container)] hover:bg-[#1a4038] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-white/5'
-                          : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420] border-[#122420]/10'
+                          : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -555,7 +555,7 @@ export const ExploreView: React.FC = () => {
                       type="button"
                       id={`explore-card-add-btn-${place.id}`}
                       onClick={() => handleQuickAddClick(place)}
-                      className="flex-1 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
+                      className="flex-1 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>{t('explore.addToTrip')}</span>
@@ -569,42 +569,42 @@ export const ExploreView: React.FC = () => {
 
         {/* Area Profiles Section */}
         {areaProfiles.length > 0 && (
-          <section className="space-y-4 pt-6 border-t border-[#122420]/10 dark:border-[var(--border-subtle)]">
+          <section className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-[var(--accent-primary)]" />
-              <h2 className={`text-lg font-serif font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+              <h2 className={`text-lg chart-heading font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                 {t('explore.dahabAreas')}
               </h2>
             </div>
-            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
               {t('explore.exploreDahabNeighborhoodsBy')}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {areaProfiles.map((area) => (
                 <div
                   key={area.id}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md ${
+                  className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer hover:shadow-md ${
                     isDark
                       ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
-                      : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)]'
+                      : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className={`font-serif font-bold text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+                    <h3 className={`chart-heading font-bold text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                       {language === 'ar' ? area.nameAr : area.nameEn}
                     </h3>
                     <span className="px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] text-[10px] font-bold">
                       {area.walkabilityScore}/10
                     </span>
                   </div>
-                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                     {language === 'ar' ? area.atmosphereAr : area.atmosphere}
                   </p>
                   <div className="flex items-center gap-2 mt-2 text-[10px]">
-                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'}`}>
                       {area.noiseProfile}
                     </span>
-                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[#F2EFE9] text-[#4A635D]'}`}>
+                    <span className={`px-1.5 py-0.5 rounded ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/60' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'}`}>
                       {area.transportFriction}
                     </span>
                   </div>
@@ -629,16 +629,16 @@ export const ExploreView: React.FC = () => {
     >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className={`rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border animate-in zoom-in-95 duration-150 text-start rtl:text-right ${
-              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/15 text-[#122420]'
+            className={`rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border animate-in zoom-in-95 duration-150 text-start rtl:text-end ${
+              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)]">
                   {t('explore.addExperienceToItinerary')}
                 </span>
-                <h3 id="explore-view-dialog-2-title" className={`text-lg font-serif font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+                <h3 id="explore-view-dialog-2-title" className={`text-lg chart-heading font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                   {language === 'ar' && itemToAdd.nameAr ? itemToAdd.nameAr : itemToAdd.name || itemToAdd.title}
                 </h3>
               </div>
@@ -646,14 +646,14 @@ export const ExploreView: React.FC = () => {
                 type="button"
                 onClick={() => setIsDaySelectorOpen(false)}
                 className={`w-7 h-7 rounded-full flex items-center justify-center ${
-                  isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]/70 hover:bg-[var(--surface-card)]/10' : 'bg-[#F2EFE9] text-[#122420] hover:bg-[#EAE6DD]'
+                  isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]/70 hover:bg-[var(--surface-card)]/10' : 'bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
                 }`}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
               {t('explore.selectWhichDayIn')}
             </p>
 
@@ -663,13 +663,13 @@ export const ExploreView: React.FC = () => {
                   key={d}
                   type="button"
                   onClick={() => confirmAddActivityToTargetDay(d)}
-                  className={`py-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-1 cursor-pointer group ${
+                  className={`py-3 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col items-center gap-1 cursor-pointer group ${
                     isDark
                       ? 'bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)] hover:text-[var(--surface-container)] text-[var(--text-secondary)] border-white/5'
-                      : 'bg-[#F2EFE9] hover:bg-[var(--accent-primary)] hover:text-[var(--surface-container)] text-[#122420] border-[#122420]/10'
+                      : 'bg-[var(--surface-container)] hover:bg-[var(--accent-primary)] hover:text-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                   }`}
                 >
-                  <span className={`text-[11px] group-hover:text-[var(--surface-container)]/80 font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>
+                  <span className={`text-[11px] group-hover:text-[var(--surface-container)]/80 font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>
                     {t('explore.day')}
                   </span>
                   <span className="text-sm font-black">{d}</span>
@@ -681,7 +681,7 @@ export const ExploreView: React.FC = () => {
               type="button"
               onClick={() => setIsDaySelectorOpen(false)}
               className={`w-full py-2.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
-                isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--text-secondary)]' : 'bg-[#F2EFE9] hover:bg-[#EAE6DD] text-[#122420]'
+                isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--text-secondary)]' : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)] text-[var(--text-primary)]'
               }`}
             >
               {t('explore.cancel')}
@@ -693,7 +693,7 @@ export const ExploreView: React.FC = () => {
       {/* Global Toast Message */}
       {toastMessage && (
         <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-200 border ${
-          isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--accent-secondary)]/40' : 'bg-[var(--surface-card)] text-[#122420] border-[var(--accent-primary)] shadow-lg'
+          isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--accent-secondary)]/40' : 'bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--accent-primary)] shadow-lg'
         }`}>
           <Check className="w-4 h-4 text-emerald-500" />
           <span>{toastMessage}</span>

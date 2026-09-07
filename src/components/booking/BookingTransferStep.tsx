@@ -143,7 +143,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
     <div
       id="booking-transfer-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 lg:pb-16"
     >
       {/* 1. Global Navigation & Booking Progress Header */}
       <header className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/95 backdrop-blur-md sticky top-0 z-30 shadow-md">
@@ -159,14 +159,14 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
             <button
               type="button"
               onClick={onReturnHome}
-              className="text-xl font-black tracking-widest text-[var(--text-primary)] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity cursor-pointer"
+              className="text-xl font-black text-[var(--text-primary)] hover:opacity-80 transition-opacity cursor-pointer"
             >
               {isAr ? 'دهب' : 'DAHAB'}
             </button>
             <span className="text-[var(--text-muted)]">/</span>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] inline-block shadow-[0_0_8px_var(--accent-primary)]" />
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+              <span className="text-xs font-bold text-[var(--accent-primary)]">
                 {isAr ? 'حجز رحلتك' : 'Booking your trip'}
               </span>
             </div>
@@ -244,14 +244,14 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
         <div className="mb-8 space-y-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
+              <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                 {isAr ? 'تنسيق المواصلات والانتقال' : 'Transportation Coordination'}
               </span>
               <span className="text-xs font-semibold text-[var(--text-secondary)]/80 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                 {isAr ? '٥ أيام · فردين بالغين · ميزانية متوازنة' : '5 days · 2 adults · Moderate budget'}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
               {isAr ? 'كيف تفضل الوصول إلى دهب؟' : 'How do you want to get to Dahab?'}
             </h1>
             <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">
@@ -267,7 +267,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
                   <Plane className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[12px] text-[var(--text-secondary)]/50 font-normal uppercase tracking-wider block">
+                  <span className="text-[12px] text-[var(--text-secondary)]/50 font-normal block">
                     {isAr ? 'نقطة الانطلاق والاستقبال' : 'Pickup Location'}
                   </span>
                   <span>{isAr ? 'مطار شرم الشيخ الدولي' : 'Sharm El Sheikh Airport'}</span>
@@ -284,7 +284,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[12px] text-[var(--text-secondary)]/50 font-normal uppercase tracking-wider block">
+                  <span className="text-[12px] text-[var(--text-secondary)]/50 font-normal block">
                     {isAr ? 'وجهة الوصول' : 'Drop-off Destination'}
                   </span>
                   <span>{hotelDisplayName} {isAr ? 'في دهب' : 'in Dahab'}</span>
@@ -312,7 +312,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
             {/* Curated Transfer Options Header Banner */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {isAr ? 'خيارات الانتقال المختارة' : 'Curated transfer options'}
                 </h2>
                 <span className="text-xs text-[var(--text-secondary)]/60">
@@ -379,7 +379,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] block truncate">
+            <span className="text-[11px] font-bold text-[var(--accent-primary)] block truncate">
               {selectedTransfer ? `${transferDisplayName} · ${selectedTransfer.priceEGP.toLocaleString()} ${isAr ? 'جنيه' : 'EGP'}` : (isAr ? 'اختر الانتقال' : 'Select transfer')}
             </span>
             <div className="text-sm font-bold text-[var(--text-primary)] truncate">
@@ -395,7 +395,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
             id="mobile-continue-transfer-btn"
             disabled={!selectedTransfer}
             onClick={handleContinue}
-            className={`inline-flex items-center justify-center gap-1.5 px-6 py-3.5 rounded-full text-xs font-bold shadow-md transition-all whitespace-nowrap ${
+            className={`inline-flex items-center justify-center gap-1.5 px-6 py-3.5 rounded-full text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] whitespace-nowrap ${
               selectedTransfer
                 ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold cursor-pointer active:scale-95'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'
@@ -425,10 +425,10 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
             </div>
 
             <div className="space-y-1">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
+              <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                 {isAr ? 'تم اختيار الانتقال وحفظه' : 'Transfer Selected & Saved'}
               </span>
-              <h3 id="transfer-next-step-modal-title" className="text-xl font-serif font-bold text-[var(--text-primary)] pt-1">
+              <h3 id="transfer-next-step-modal-title" className="text-xl chart-heading font-bold text-[var(--text-primary)] pt-1">
                 {transferDisplayName} ({selectedTransfer.priceEGP.toLocaleString()} {isAr ? 'جنيه' : 'EGP'})
               </h3>
               <p className="text-xs text-[var(--text-secondary)]/70">
@@ -436,7 +436,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-left rtl:text-right text-xs space-y-2">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-start text-xs space-y-2">
               <div className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                 <Waves className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'التالي: ٠٣ اختيار باقة الغطس' : 'Next: 03 Diving Selection'}</span>
@@ -464,7 +464,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
                   showToast(isAr ? 'تم تأكيد حجز الانتقال وإدراجه في برنامج رحلتك ✓' : 'Transfer booking verified and locked into your Dahab itinerary ✓');
                   navigateTo('/my-trip');
                 }}
-                className="w-full py-3 rounded-full text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] shadow-md transition-all cursor-pointer"
+                className="w-full py-3 rounded-full text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 {isAr ? 'عرض خطة الرحلة' : 'View Itinerary'}
               </button>

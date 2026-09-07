@@ -24,14 +24,14 @@ export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount
       {/* Left Column: Bookings Matrix (7/12) */}
       <div className="lg:col-span-7 space-y-6">
         <div className={`p-6 sm:p-8 rounded-3xl border shadow-xl space-y-6 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 text-[#122420]'
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
         }`}>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--accent-primary)]">
+              <span className="text-xs font-extrabold text-[var(--accent-primary)]">
                 {t('myTrip.bookingsTitle')}
               </span>
-              <h3 className="text-xl font-serif font-bold mt-1">
+              <h3 className="text-xl chart-heading font-bold mt-1">
                 {t('myTrip.activeVouchersLogistics')}
               </h3>
             </div>
@@ -45,8 +45,8 @@ export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount
               <div
                 key={b.id}
                 onClick={() => onSelectBooking(b)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
-                  isDark ? 'bg-[var(--surface-container)] border-white/5 hover:border-white/20' : 'bg-[#FAF8F5] border-[#122420]/10 hover:border-[#122420]/20'
+                className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-between gap-4 ${
+                  isDark ? 'bg-[var(--surface-container)] border-white/5 hover:border-white/20' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -54,15 +54,15 @@ export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount
                     {b.serviceType === 'hotel' ? <Building className="w-5 h-5" /> : b.serviceType === 'transfer' ? <Car className="w-5 h-5" /> : b.serviceType === 'rental' ? <Bike className="w-5 h-5" /> : <Waves className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h4 className="text-sm font-serif font-bold text-current">{b.title}</h4>
-                    <span className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                    <h4 className="text-sm chart-heading font-bold text-current">{b.title}</h4>
+                    <span className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                       #{b.confirmationCode} · {b.provider}
                     </span>
                   </div>
                 </div>
 
                 <div className="text-end">
-                  <span className="text-sm font-bold font-serif text-[var(--accent-secondary)] block">{b.priceEGP.toLocaleString()} EGP</span>
+                  <span className="text-sm font-bold chart-heading text-[var(--accent-secondary)] block">{b.priceEGP.toLocaleString()} EGP</span>
                   <span className="text-[10px] font-bold text-emerald-400">✓ {b.status}</span>
                 </div>
               </div>

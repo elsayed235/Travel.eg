@@ -43,11 +43,11 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Wallet className="w-4 h-4 text-amber-400" />
-              <span className="text-[12px] font-black uppercase tracking-wider text-amber-300 font-['Outfit',sans-serif]">
+              <span className="text-[12px] font-black text-amber-300">
                 {t('tripos.tRIPOSCOSTENGINE')}
               </span>
             </div>
-            <h2 id="budget-breakdown-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
+            <h2 id="budget-breakdown-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold">
               {t('tripos.budgetBreakdownDrivers')}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
@@ -68,28 +68,28 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
         {/* Summary Metric Cards */}
         <div className="p-6 bg-[var(--text-primary)] border-b border-slate-200 grid grid-cols-3 gap-3 text-center">
           <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
-            <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-black text-slate-500">
               {t('tripos.estimatedTotal')}
             </div>
-            <div className="text-base sm:text-lg font-black text-slate-950 font-['Outfit',sans-serif]">
+            <div className="text-base sm:text-lg font-black text-slate-950">
               {budgetBreakdown.estimatedTotalEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
 
           <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
-            <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-black text-slate-500">
               {t('tripos.settledInLedger')}
             </div>
-            <div className="text-base sm:text-lg font-black text-emerald-600 font-['Outfit',sans-serif]">
+            <div className="text-base sm:text-lg font-black text-emerald-600">
               {budgetBreakdown.bookedTotalEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
 
           <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
-            <div className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-black text-slate-500">
               {t('tripos.plannedBalance')}
             </div>
-            <div className="text-base sm:text-lg font-black text-slate-900 font-['Outfit',sans-serif]">
+            <div className="text-base sm:text-lg font-black text-slate-900">
               {budgetBreakdown.plannedRemainingEGP.toLocaleString()} {t('tripos.eGP')}
             </div>
           </div>
@@ -98,7 +98,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
         {/* Cost Drivers Breakdown List */}
         <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1">
           <div className="space-y-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
+            <h3 className="text-xs font-black text-slate-400">
               {t('tripos.costDriversByCategory')}
             </h3>
 
@@ -133,7 +133,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
 
           {/* Actionable Budget Optimizations */}
           <div className="space-y-3 pt-2">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
+            <h3 className="text-xs font-black text-slate-400">
               {t('tripos.actionableSavingsOpportunities')}
             </h3>
 
@@ -141,7 +141,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
               {budgetBreakdown.optimizations.map((opt) => (
                 <div
                   key={opt.id}
-                  className={`p-4 rounded-2xl border transition-all space-y-2 ${
+                  className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2 ${
                     opt.applied
                       ? 'bg-emerald-50/60 border-emerald-200'
                       : 'bg-[var(--surface-card)] border-slate-200'
@@ -150,7 +150,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                           {t('tripos.saveEGP', { savingsEGP: opt.savingsEGP })}
                         </span>
                         <h4 className="text-xs font-bold text-slate-900">

@@ -45,13 +45,13 @@ export default function TransfersSection() {
         <div className="flex items-center gap-2">
           {(['within_dahab', 'anywhere', 'all'] as const).map(k => (
             <button key={k} type="button" onClick={() => setTypeFilter(k)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${typeFilter === k ? 'bg-[var(--accent-secondary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${typeFilter === k ? 'bg-[var(--accent-secondary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {k === 'within_dahab' ? 'Inside' : k === 'anywhere' ? 'Egypt' : 'All types'}
             </button>
           ))}
           {(['active', 'all', 'completed'] as const).map(f => (
             <button key={f} type="button" onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
@@ -74,7 +74,7 @@ export default function TransfersSection() {
       ) : (
         <div className="space-y-2">
           {filtered.map(t => (
-            <div key={t.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-all ${t.supplierState === 'COMPLETED' ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
+            <div key={t.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${t.supplierState === 'COMPLETED' ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="w-8 h-8 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] flex items-center justify-center flex-shrink-0">
@@ -103,7 +103,7 @@ export default function TransfersSection() {
                     {t.lastTelemetryAt ? `${Math.round((Date.now() - new Date(t.lastTelemetryAt).getTime()) / 60_000)}m ago` : 'No telemetry'}
                   </div>
                   {t.supplierState !== 'COMPLETED' && t.driverPhone && (
-                    <a href={`tel:${t.driverPhone}`} className="mt-1 inline-flex items-center gap-1 px-2 py-1 rounded bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[11px] font-bold transition-all">
+                    <a href={`tel:${t.driverPhone}`} className="mt-1 inline-flex items-center gap-1 px-2 py-1 rounded bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity]">
                       <Phone className="w-3 h-3" /> Call
                     </a>
                   )}

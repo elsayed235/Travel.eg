@@ -94,7 +94,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20">
+    <div className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20">
       {/* 1. TOP MINIMAL NAVIGATION BAR */}
       <header className="bg-[var(--surface-card)]/95 border-b border-[var(--border-subtle)] sticky top-0 z-40 shadow-md backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -110,7 +110,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
             </button>
 
             <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-[var(--border-subtle)]">
-              <span className="text-xs font-bold text-[var(--accent-primary)] uppercase tracking-wider font-['Outfit',sans-serif]">
+              <span className="text-xs font-bold text-[var(--accent-primary)]">
                 Pre-Arrival Briefing
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]"></span>
@@ -124,7 +124,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 A
               </div>
               <span className="text-xs font-bold text-[var(--text-primary)]">Ahmed</span>
-              <span className="text-[11px] font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] px-1.5 py-0.2 rounded-full font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] px-1.5 py-0.2 rounded-full">
                 Tomorrow
               </span>
             </div>
@@ -143,14 +143,14 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
             </div>
 
             {/* Compact Countdown Indicator */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--border-subtle)] text-xs font-bold font-['Outfit',sans-serif]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--border-subtle)] text-xs font-bold">
               <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
               <span>Starts tomorrow</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
               Tomorrow in Dahab 🌊
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
@@ -189,10 +189,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Car className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       Tomorrow's Journey
                     </span>
-                    <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
                       Your arrival
                     </h2>
                   </div>
@@ -258,7 +258,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   type="button"
                   id="view-transfer-details-btn"
                   onClick={() => setDetailModal({ type: 'transfer' })}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xs transition-all cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                   <span>View transfer details</span>
@@ -277,10 +277,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Building className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       Accommodation
                     </span>
-                    <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
                       Your stay
                     </h2>
                   </div>
@@ -296,10 +296,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <span className="text-xs text-[var(--accent-primary)] font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                    <span className="text-xs text-[var(--accent-primary)] font-bold">
                       Selected Hotel
                     </span>
-                    <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h3 className="text-lg font-bold text-[var(--text-primary)]">
                       Dahab Bay Hotel
                     </h3>
                   </div>
@@ -357,10 +357,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Waves className="w-4 h-4 text-[var(--accent-primary)]" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       First Adventure
                     </span>
-                    <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
                       Your first experience
                     </h2>
                   </div>
@@ -375,10 +375,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full inline-block mb-1 border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                    <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full inline-block mb-1 border border-[var(--border-subtle)]">
                       Day 2 · 09:00 AM
                     </span>
-                    <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h3 className="text-lg font-bold text-[var(--text-primary)]">
                       Guided Diving Experience
                     </h3>
                   </div>
@@ -416,10 +416,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Luggage className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       Packing Essentials
                     </span>
-                    <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
                       What to bring
                     </h2>
                   </div>
@@ -467,10 +467,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-lg space-y-4"
             >
               <div className="border-b border-[var(--border-subtle)] pb-3.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Arrival Flow
                 </span>
-                <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">
                   Arrival instructions
                 </h2>
                 <p className="text-xs text-[var(--text-secondary)]/70 mt-0.5">
@@ -481,10 +481,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
                 {/* Step 1 */}
                 <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 relative">
-                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)]">
                     01
                   </div>
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">
                     Arrive at Sharm El Sheikh Airport
                   </h3>
                   <p className="text-[var(--text-secondary)]/70 text-[12px] leading-relaxed">
@@ -494,10 +494,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
 
                 {/* Step 2 */}
                 <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 relative">
-                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)]">
                     02
                   </div>
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">
                     Collect your luggage
                   </h3>
                   <p className="text-[var(--text-secondary)]/70 text-[12px] leading-relaxed">
@@ -507,10 +507,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
 
                 {/* Step 3 */}
                 <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 relative">
-                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                  <div className="w-8 h-8 rounded-full bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-sm border border-[var(--border-subtle)]">
                     03
                   </div>
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">
                     Meet your transfer driver
                   </h3>
                   <p className="text-[var(--text-secondary)]/70 text-[12px] leading-relaxed">
@@ -532,10 +532,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-lg space-y-4"
             >
               <div className="border-b border-[var(--border-subtle)] pb-3.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Helpful Knowledge
                 </span>
-                <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl font-bold text-[var(--text-primary)]">
                   Before you arrive
                 </h2>
                 <p className="text-xs text-[var(--text-secondary)]/70 mt-0.5">
@@ -603,7 +603,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-3.5"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)]">
                   Trip Updates
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] text-[12px] font-bold border border-[var(--border-subtle)]">
@@ -613,7 +613,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-base font-bold text-[var(--text-primary)]">
                   Any changes?
                 </h3>
                 <p className="text-sm font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
@@ -633,10 +633,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Forecast Preview
                   </span>
-                  <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
                     Dahab tomorrow
                   </h3>
                 </div>
@@ -692,10 +692,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-3.5"
             >
               <div className="border-b border-[var(--border-subtle)] pb-2.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Shortcuts
                 </span>
-                <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-base font-bold text-[var(--text-primary)]">
                   Quick actions
                 </h3>
               </div>
@@ -761,10 +761,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl p-6 shadow-xl space-y-3.5 border border-[var(--border-subtle)]"
             >
               <div className="space-y-1">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Ready to go?
                 </span>
-                <h3 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">
                   Confirm your briefing
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -776,7 +776,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 type="button"
                 id="im-ready-desktop-btn"
                 onClick={handleImReadyClick}
-                className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+                className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
                 <Check className="w-4 h-4 text-[var(--surface-card)] stroke-[2.5]" />
                 <span>I'm Ready</span>
@@ -793,7 +793,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <HelpCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">
                     Need help before you leave?
                   </h3>
                   <p className="text-[12px] text-[var(--text-secondary)]/65">
@@ -806,7 +806,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 type="button"
                 id="briefing-support-help-btn"
                 onClick={() => setDetailModal({ type: 'help' })}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>Help Me Now</span>
@@ -850,7 +850,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
           type="button"
           id="im-ready-mobile-sticky-btn"
           onClick={handleImReadyClick}
-          className="w-full py-3 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+          className="w-full py-3 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
         >
           <Check className="w-4 h-4 text-[var(--surface-card)] stroke-[2.5]" />
           <span>I'm Ready</span>
@@ -884,7 +884,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h3 id="pre-arrival-briefing-dialog-1-title" className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 id="pre-arrival-briefing-dialog-1-title" className="text-2xl font-bold text-[var(--text-primary)]">
                 You're all set, Ahmed ✓
               </h3>
               <p className="text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
@@ -892,7 +892,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]/80 text-left space-y-1.5">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]/80 text-start space-y-1.5">
               <div className="flex items-center gap-1.5 font-bold text-[var(--accent-primary)]">
                 <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>Next Milestone: Airport Arrival in SSH</span>
@@ -905,7 +905,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 type="button"
                 id="finish-ready-btn"
                 onClick={handleFinishReady}
-                className="w-full py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-xs transition-colors cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-xs transition-colors cursor-pointer"
               >
                 Return to My Trip
               </button>
@@ -930,10 +930,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <Car className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Transport Service
                   </span>
-                  <h3 id="pre-arrival-briefing-dialog-2-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 id="pre-arrival-briefing-dialog-2-title" className="text-lg font-bold text-[var(--text-primary)]">
                     Transfer Details
                   </h3>
                 </div>
@@ -988,10 +988,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <Building className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Accommodation
                   </span>
-                  <h3 id="pre-arrival-briefing-dialog-3-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 id="pre-arrival-briefing-dialog-3-title" className="text-lg font-bold text-[var(--text-primary)]">
                     Dahab Bay Hotel
                   </h3>
                 </div>
@@ -1046,10 +1046,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <Waves className="w-4 h-4 text-[var(--accent-primary)]" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Day 2 Activity
                   </span>
-                  <h3 id="pre-arrival-briefing-dialog-4-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 id="pre-arrival-briefing-dialog-4-title" className="text-lg font-bold text-[var(--text-primary)]">
                     Guided Diving Experience
                   </h3>
                 </div>
@@ -1098,10 +1098,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <Luggage className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Packing Companion
                   </span>
-                  <h3 id="pre-arrival-briefing-dialog-5-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 id="pre-arrival-briefing-dialog-5-title" className="text-lg font-bold text-[var(--text-primary)]">
                     Full Packing Checklist
                   </h3>
                 </div>
@@ -1154,10 +1154,10 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                   <HelpCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-rose-400 block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-rose-400 block">
                     Traveler Care
                   </span>
-                  <h3 id="pre-arrival-briefing-dialog-6-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 id="pre-arrival-briefing-dialog-6-title" className="text-lg font-bold text-[var(--text-primary)]">
                     Help Me Now
                   </h3>
                 </div>
@@ -1188,7 +1188,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                 showToast('Concierge notified. A support agent will assist you shortly.');
                 setDetailModal({ type: null });
               }}
-              className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs cursor-pointer font-['Outfit',sans-serif]"
+              className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs cursor-pointer"
             >
               Send Concierge Message
             </button>

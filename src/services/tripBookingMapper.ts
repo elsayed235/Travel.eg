@@ -130,10 +130,10 @@ export function toConfirmedBookingItem(
   return {
     id: booking.id,
     serviceType: booking.serviceType,
-    // The card renders `title` as a small uppercase eyebrow and `subtitle` as
+    // The card renders `title` as a small eyebrow and `subtitle` as
     // the heading, so the category goes in the eyebrow and what was actually
     // booked goes in the heading. Before this the eyebrow held the full item
-    // title, set uppercase at 11px.
+    // title, set at 11px.
     title: SERVICE_LABEL[booking.serviceType] || booking.serviceType,
     subtitle: item?.title || provider,
     details: assignment || `${passengers} ${passengers === 1 ? 'traveler' : 'travelers'}`,

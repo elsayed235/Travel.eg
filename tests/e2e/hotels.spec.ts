@@ -3,7 +3,7 @@ import { registerBasicTraveler } from './helpers/auth';
 
 const plusDays = (n: number) => new Date(Date.now() + n * 864e5).toISOString().split('T')[0];
 
-const VIEW_STAY = /View stay|عرض الفندق/;
+const VIEW_STAY = /View stay|عرض الإقامة/;
 const BOOK_STAY = /Book this stay|احجز الإقامة/;
 const CHECK_AVAILABILITY = /Check availability|تحقق من التوفر/;
 

@@ -48,7 +48,7 @@ export const DahabEmptyState: React.FC<DahabEmptyStateProps> = ({
         </div>
 
         <div className="space-y-1.5 max-w-sm mx-auto">
-          <h2 className="text-lg font-bold text-dahab-ink font-['Outfit',sans-serif]">
+          <h2 className="text-lg font-bold text-dahab-ink">
             {displayTitle}
           </h2>
           <p className="text-xs sm:text-sm text-dahab-ink-secondary leading-relaxed">
@@ -62,7 +62,7 @@ export const DahabEmptyState: React.FC<DahabEmptyStateProps> = ({
             <button
               type="button"
               onClick={onAction}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--surface-container)] text-[var(--accent-primary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer active:scale-95"
             >
               <span>{actionText}</span>
             </button>

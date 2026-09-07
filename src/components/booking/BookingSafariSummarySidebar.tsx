@@ -58,13 +58,13 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
       {/* 1. Header & Progress Badge */}
       <div className="border-b border-[var(--border-subtle)] pb-4">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-[var(--accent-primary)]" />
             <span>{isAr ? 'تم تحديد ٤ من ٤ خدمات' : '4 of 4 trip services selected'}</span>
           </span>
           <span className="text-xs text-[var(--text-secondary)]/50 font-medium">{isAr ? 'الخطوة الأخيرة' : 'Final Step'}</span>
         </div>
-        <h3 className="text-xl font-serif font-bold text-[var(--text-primary)] mt-2">
+        <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)] mt-2">
           {isAr ? 'رحلتك إلى دهب' : 'Your Dahab trip'}
         </h3>
         <p className="text-xs text-[var(--text-secondary)]/60 mt-0.5">
@@ -75,7 +75,7 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
       {/* 2. Step 01 Saved: Hotel */}
       <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5" />
             <span>{isAr ? '٠١ الفندق' : '01 Hotel'}</span>
           </span>
@@ -97,7 +97,7 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
       {/* 3. Step 02 Saved: Transfer */}
       <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Car className="w-3.5 h-3.5" />
             <span>{isAr ? '٠٢ الانتقالات' : '02 Transfer'}</span>
           </span>
@@ -119,7 +119,7 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
       {/* 4. Step 03 Saved: Diving */}
       <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Waves className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>{isAr ? '٠٣ الغطس' : '03 Diving'}</span>
           </span>
@@ -141,7 +141,7 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
       {/* 5. Step 04 Active: Safari */}
       <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--accent-primary)]/40 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>{isAr ? '٠٤ السفاري' : '04 Safari'}</span>
           </span>
@@ -214,7 +214,7 @@ export const BookingSafariSummarySidebar: React.FC<BookingSafariSummarySidebarPr
           id="review-trip-btn"
           disabled={!selectedSafari}
           onClick={onReviewTrip}
-          className={`w-full py-3.5 px-6 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
+          className={`w-full py-3.5 px-6 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer ${
             selectedSafari
               ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] active:scale-98'
               : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'

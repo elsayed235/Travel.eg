@@ -1,118 +1,164 @@
-# DESIGN — Tidal Convergence
+# DESIGN — Sinai Star Chart
 
-> **Direction key:** `a990940c` · *The shoreline where two landscapes meet.*
+> **Direction key:** `2cdaa49a` · *The night sky over Sinai as trip instrument.*
 
 This document is the source of intent for the Dahab homepage's visual world. The
 executable source (CSS, components) is authoritative if it conflicts with prose.
+Replaces Tidal Convergence (`a990940c`), which is retained nowhere on the page;
+its class names survive only as deprecated aliases (see below).
 
 ## The World
 
-Tidal Convergence treats the homepage as a **shoreline** — a thin line where Sinai's
-desert sand dissolves into the Red Sea's depth. Warm, sun-bleached sand warms the
-top of the canvas; cool teal deepens into ocean night as the traveler scrolls. Every
-surface, border, and motion reads as water meeting land.
+Sinai Star Chart treats the homepage as a **Bedouin night-sky navigation chart** —
+the sky a traveler actually sleeps under in Dahab: zero light pollution over the
+lagoon, 2am departures for the Mount Sinai dawn ascent, guides who read stars
+the way kitesurfers read wind graphs. Journey phases plot as constellations the
+visitor reads and steers; the plotted (active) waypoint holds firelight while
+the rest recede as unplotted stars.
 
-This is not a decoration applied to the top of an existing design: it is the
-conceptual model that organizes the whole page. The page is a gradient in both color
-and meaning — the traveler starts at the surface (discovery, wonder) and sinks into
-depth (planning, the journey itself).
+This is the conceptual model that organizes the whole page: the visitor arrives
+under the chart, picks their star (scene, traveler type, trip pathway), and
+descends into depth soundings (numbers), field notes (stories), plates (gallery),
+and a dawn-ascent close (final CTA).
 
 ## The Palette
 
 | Token / value | Role |
 | --- | --- |
-| `#E7D3AE` warm Sinai sand | top of the canvas, highlights, the desert voice |
-| `#20A89A` teal | live conditions, primary interactive accent |
-| `#0F6F78` ocean teal | CTA gradient, mid-depth panels |
-| `#062C35` ocean night | deep sections, footer-of-meaning |
-| `#04171D` abyss | deepest layer |
-| `#F7F3EA` bone | light display type on the hero and CTA |
+| `#0A1128` Sinai night | chart ground, hero scrims, section depth |
+| `#060B1F` abyss-night | deepest layer, pre-hydration body |
+| `#F2EDDF` bone starlight | star ink, light display type |
+| `#E8A33D` amber fire / `#B97A1F` deep | the single action per viewport (primary CTAs, plotted waypoint, guide star) |
+| `#C9A24B` brass | waypoint ticks, hairline borders, secondary CTA edges |
+| `#1B2452` chart indigo | section washes, depth steps |
+| `#1B9A8B` lagoon teal | **live data ink only** (conditions, provenance, live badges) — never decoration |
 
-The transition is carried by `tidal-gradient-*` utilities and `tidal-depth-1..5`,
-implemented with `color-mix(in oklab, …)` so they adapt to the active theme (light
-or dark) instead of fighting it.
+Color strategy is Committed: night indigo carries the hero, close, and footer;
+bone carries reading sections; amber owns action. Day-paper readability comes
+from `color-mix(in oklab, …)` construction over theme vars, so light themes
+render indigo ink on bone rather than fighting it.
 
 ## The Components
 
-- **`src/components/common/CinematicVideoHero.tsx`** — the first viewport. Desert-warmed
-  cinematic scene flowing into ocean depth; the headline *"Where the desert meets the
-  sea"* owns the viewport (no kicker/eyebrow — the display face carries the weight, with
-  a serif-italic accent on the verb); one primary CTA (`Plan Your Dahab Trip`) in ocean
-  teal; the destination stack as **receding tide pools** whose opacity sinks with distance
-  from the shoreline; scallop-chip scene selectors; and a bottom conditions strip wired to
-  **live `/api/telemetry/weather`** (air/water/sunset with graceful fallback) instead of
-  hardcoded values — honoring trust-through-transparency. The greeting relocates into the
-  top location capsule rather than floating above the headline.
-- **`src/components/home/V2HomeCockpit.tsx`** — the page cockpit. Scroll progress
-  rendered as a shoreline rail (`#E7D3AE → #20A89A → #0F6F78`), Quick Services as a
-  `tide-ledger` (four depth soundings on one shoreline rule; only diving holds
-  depth via `tide-row-primary`), and a footer anchored in ocean depth. No
-  `SectionReveal` wrappers on the homepage — the hero owns the single reveal.
-- **`src/components/home/NextBestActionBanner.tsx`** — the signed-in "next best action"
-  derived card rendered as a `tidal-card` with `tidal-shimmer`, the persona toggle as a
-  `tidal-glass` channel, and a `tidal-heading` action title.
-- **`src/components/home/TripEntrySection.tsx`** — trip-style entry with a `tidal-heading`
-  header, the three pathway doorways (build-myself / ready-trips / plan-for-me) surfaced
-  as `tidal-card` panels, and the active-journey resume banner in tidal language.
-- **`src/components/common/SinaiRadarWidget.tsx`** — live sea/air intelligence in a
-  `tidal-card` shell with `tidal-shimmer`, a `tidal-heading`, `tidal-badge` reading stamps,
-  and `tidal-glass` metric tiles.
-- **`src/components/common/CuratedStoriesRail.tsx`** — editorial rail shelled in
-  `tidal-card` with `tidal-shimmer`, `tidal-heading`, `tidal-badge-ocean` provenance pill,
-  and `tidal-card` story tiles with `tidal-badge-sunset` category tags.
-- **`src/components/common/AiTravelAssistant.tsx`** — the copilot shell as `tidal-card`
-  with `tidal-shimmer`, `tidal-heading`, and `tidal-badge-ocean` live-context stamp.
-- **`src/components/gallery/DahabGallerySection.tsx`** — archive shell as `tidal-card`
-  with `tidal-shimmer` and a `tidal-heading` header.
-- **`src/components/home/DahabWeekCompanionDeck.tsx`** — weekly planner header set in
-  `tidal-heading` (kept the pre-existing conditional light/dark surface stays intact).
-- **`src/components/maps/DahabSpatialContextMap.tsx`** — geospatial companion shell as
-  `tidal-card` with `tidal-shimmer` and a `tidal-heading`.
-- **`src/components/FinalCTA.tsx`** — the closing shoreline. Tidal gradient section
-  anchoring into ocean night, tidal badge (sentence case), light display headline
-  with a same-ink serif-italic turn, quiet sentence-case reassurance line, and
-  `tidal-cta-primary` / `tidal-cta-secondary` closing actions.
+- **`src/components/common/CinematicVideoHero.tsx`** — the first viewport. The
+  cinematic scene is framed as a chart plate under night scrims with a pure-CSS
+  pinprick starfield (`chart-starfield`, symmetric for RTL, static under reduced
+  motion); the headline is set in the chart display face (CMS copy still wins
+  when published); one amber CTA (`Plan Your Dahab Trip`); scenes plotted as a
+  **constellation stack** with a lit guide star — the active waypoint holds
+  firelight, others fade as unplotted stars; the base strip is an instrument
+  readout (air/water/sunset wired to **live `/api/telemetry/weather`**, numerals
+  in bidi-safe `dg-num`). No kicker — the heading carries its own weight.
+- **`src/components/home/V2HomeCockpit.tsx`** — progress rail plotted as
+  night → fire → live (`#1B2452 → #E8A33D → #1B9A8B`); footer brand mark in the
+  same thread. All composition logic, wayfinder ids, and section order untouched.
+- **`src/components/FinalCTA.tsx`** — the dawn-ascent close. Night ground,
+  ember badge, chart display headline with same-ink serif-italic turn, quiet
+  reassurance line, amber primary + brass secondary. (Reskinned via the shared
+  system; no structural edits.)
+- **All remaining homepage sections** (stories rail, micro-experiences, landmarks
+  bento, photo showcase, essence bento, season strip, stats band, live ticker,
+  marquee, plan-with-AI, trip entry) — reskinned via the shared system; copy,
+  data hooks, booking exits, and lifecycle logic untouched.
 
-- **`src/components/navigation/V2Navbar.tsx`** — wayfinding groups, not flat
-  pills. Four jobs (Discover / Stay & Taste / Getting Around / My Trip) plus a
-  grid button that opens the site map: every route in one 4-column overview
-  grouped by what it does for the traveler, with CMS labels overlaid and the
-  hovered group spotlighted. Hover/focus opens, click lands, Escape and
-  mouse-away close. Mobile menu groups identically; per-route ids
-  (`nav-link-*` desktop, `mobile-nav-link-*` mobile) are preserved.
+## Reusable Chart CSS (in `src/index.css`)
 
-## Reusable Tidal CSS (in `src/index.css`)
+`chart-gradient-hero`, `chart-gradient-section`, `chart-depth-1..5`,
+`chart-starfield`, `animate-chart-rise` (single orchestrated hero reveal, with
+`prefers-reduced-motion` guard), `chart-shimmer` (static hairline, no loop),
+`chart-card` (brass-tinted hairlines, offset+blur depth, no lift),
+`chart-thread` / `chart-waypoint` / `chart-waypoint-active` / `chart-node`
+(round star nodes on one chart rule), `chart-cta-primary` (amber fire, dark ink
+`#1A1206`, ≈8:1), `chart-cta-secondary` (brass edge),
+`chart-heading` (Chakra Petch 700), `chart-heading-accent` (El Messiri italic,
+inherits ink — never a contrasting color), `chart-glass` (over sky media only),
+`chart-badge` + `chart-badge-live` (teal) / `chart-badge-ember` (amber),
+`chart-parallax-*`.
 
-`tidal-gradient-hero`, `tidal-gradient-section`, `tidal-depth-1..5`,
-`animate-tidal-reveal`, `animate-wave-crest`, `tidal-shimmer` (static hairline
-highlight, no loop), `tidal-card` (no lift on hover), `tide-ledger` / `tide-row` /
-`tide-row-primary` / `tide-mark`, `tidal-cta-primary`, `tidal-cta-secondary`,
-`tidal-heading`, `tidal-heading-accent` (serif-italic, inherits ink — never a
-contrasting color), `tidal-glass`, `tidal-badge(-ocean/-sunset)` (sentence case,
-never all-caps), `tidal-parallax-*`.
+**Deprecated aliases:** `tidal-*` / `tide-*` / `animate-tidal-reveal` map onto
+the chart paint so non-homepage surfaces (profile, live view) follow the
+repaint without logic churn. New code uses `chart-*`.
 
-Type is two voices only: Outfit (Latin) + Alexandria (Arabic), El Messiri italic
-for the single accent turn per viewport, JetBrains Mono for codes/times only.
-Retired faces map onto Outfit via a fallback rule so older arbitrary classes do
-not break. Coral `#D96C4F` is reserved for help/warn semantics, never decoration.
+Type is three voices: Chakra Petch (Latin display — chosen for its engraved
+instrument caps and chart-numeral character, the voice of a trip instrument;
+Arabic falls through to Alexandria), Alexandria (Arabic), El Messiri italic
+for the single accent turn per viewport, JetBrains Mono / `dg-num` for
+readings only. Body text stays on the existing stack.
 
 ## Principles
 
-1. **Depth read, not decoration.** Every gradient should imply a physical descent
-   from sand into sea — never a flat wash.
-2. **One primary action per viewport.** The hero and final CTA each surface a single
-   dominant CTA; the secondary is visually quieter.
-3. **One memorable element.** The tide ledger is the risk; everything around it
-   stays quiet — hairlines instead of shadows, no per-card arrows or lifts.
-4. **One orchestrated moment.** Only the hero plays `animate-tidal-reveal` on load;
-   homepage sections below render statically (`SectionReveal` removed there).
-5. **Theme-aware.** Tidal surfaces are built on `color-mix`/CSS variables so they stay
-   legible in both light and dark themes.
-6. **Lifecycle-aware.** The visual world reinforces where the traveler is in their
-   journey (discover → plan → operate → reflect) without overriding the existing
-   lifecycle logic.
+1. **Plot, don't decorate.** Every star, hairline, and tick implies a chart a
+   Bedouin guide could actually read — never scattered sparkle.
+2. **One fire per viewport.** Amber appears on the single dominant action (and
+   the plotted waypoint); everything else stays bone, brass, or ink.
+3. **One memorable element.** The constellation stack is the risk; surrounding
+   surfaces stay quiet — hairlines instead of shadows, no per-card lifts.
+4. **One orchestrated moment.** Only the hero plays `animate-chart-rise` on
+   load; sections below render statically.
+5. **Theme-aware.** Chart surfaces are built on `color-mix`/CSS variables so
+   they stay legible in light and dark themes.
+6. **Lifecycle-aware.** The chart reinforces where the traveler is in their
+   journey (dreaming → planning → arriving → exploring → remembering) without
+   overriding the existing lifecycle logic.
 
 ## Finish
 
-This appears across the homepage sections touched above. The visual world is
-documented here and the executable source is authoritative.
+Verified 2026-09-07: desktop + mobile hero, full-page scroll, and per-section
+captures in `tests/browser-qa/screenshots/starchart/`; `tsc --noEmit` clean;
+design detector reports zero findings in changed regions (16 pre-existing
+`gray-on-color` warnings elsewhere in `index.css` left untouched). The visual
+world is documented here and the executable source is authoritative.
+
+## Wave 0 rollout (2026-09-07)
+
+P0 readability breaks fixed on traveler routes, same system-migration technique
+(theme vars + fire/brass selected states, no layout changes): terms modal to
+theme vars with amber confirm; Explore badge ink; review-step banner to
+surface + accent ink; payment-step selected states to `text-primary`;
+NextUp banner to bone wash + accent time ink; manage-modal title ink;
+commerce modal header/tabs/selected/CTA to night/brass/fire (weather note
+keeps teal as genuine live data). Captures in
+`tests/browser-qa/screenshots/wave0/`. Detector clean on all touched files.
+
+## Wave 1 rollout (2026-09-07)
+
+Direct `tidal-*` migration complete — zero `tidal-`/`tide-` class usages remain
+in any `.tsx` (only the `index.css` alias definitions survive for safety):
+ProfileView (38 uses → `chart-*`, avatar seal to night/brass with bone
+initial, permits ledger to `chart-thread`/`chart-waypoint`, notify toggle to
+logical `start-*` props); DahabLiveView (cards → `chart-card`, readings to
+`dg-num`, cam border to lagoon ink, display headings to `chart-heading`);
+all homepage children + FinalCTA renamed to canonical `chart-*`; residual
+old-world hexes fixed (essence rail, gallery lightbox CTA, AI-widget food
+token) plus one off-world purple hover → firelight. Captures in
+`tests/browser-qa/screenshots/wave1/`.
+
+## Wave 2 rollout (2026-09-07)
+
+Paper→night unification across traveler routes (light branches now resolve
+through theme vars, so both dark and light themes render one world):
+Explore + ListingCard (incl. category inks collapsed to
+primary/secondary/brass, accent-button ink fixed cross-theme), full My Trip
+cluster (incl. two invisible-hover states in BookingDetailModal and the
+teal/gold hover strays), all stays lists (hotels, restaurants, rentals,
+attractions + detail views), transfers/companion/spontaneous/arrival
+accent-button ink, auth ambient wash to fire/indigo, booking option-card
+selected states, gallery tabs/cards, navbar brand seal, ErrorBoundary retry,
+AI-widget paper block. Intentionally kept: map-popup ink (over light tiles),
+photo scrims and over-photo chips (over imagery), ops-console colors
+(staff surfaces, out of scope). Verified in editorial-sand light theme and
+Arabic RTL. Captures in `tests/browser-qa/screenshots/wave2/`.
+
+## Wave 3 rollout (2026-09-07)
+
+Display voice + RTL sweep (traveler scope; staff consoles excluded):
+`font-serif` display → `chart-heading` across 76 files (258 swaps;
+`font-serif italic` accents → `chart-heading-accent`); physical text
+alignment → logical (`text-start`/`text-end`, 35 files); input icons and
+listing badges to `start-`/`end-*`; manage-modal chevrons mirror in RTL;
+icon-gap/pusher margins to `me-*`/`ms-*`; hero progress fill anchors to
+`start-0`; InstaPay purple box to theme surfaces. Intentionally kept:
+symmetric/over-media absolute placements, timeline rails, map CSS.
+Detector: 20 pre-existing `gray-on-color` only, none from these waves.
+Production build passes with the direction contract intact in
+`dist/index.html`. Captures in `tests/browser-qa/screenshots/wave3/`.

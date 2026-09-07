@@ -1,5 +1,6 @@
 import { NEAR_ME_DATA } from '../components/explore/ExploreView';
 import type { DahabActivity, DahabPlace, DahabDiningVenue, ResolvedBookability } from '../shared/types/knowledge';
+import { IMG_P1507525428034b723cf961d3e_CARD, IMG_P1507525428034b723cf961d3e_HERO, IMG_P1511671782779c97d3d27a1d4_HERO, IMG_P15172481354674c7edcad34c4_CARD, IMG_P15172481354674c7edcad34c4_HERO, IMG_P154455176346a013bb70d5_CARD, IMG_P154455176346a013bb70d5_HERO, IMG_P15541188111e0d58224f24_CARD, IMG_P15541188111e0d58224f24_HERO, IMG_P16826872200634742bd7fd538_CARD, IMG_P16826872200634742bd7fd538_HERO } from '../shared/placeholderImagery';
 
 export interface ExperienceDetailData {
   id: string;
@@ -84,10 +85,10 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'diving',
     categoryLabelEn: 'World Heritage Marine Sanctuary',
     categoryLabelAr: 'محمية بحرية عالمية',
-    heroImage: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P16826872200634742bd7fd538_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop'
+      'IMG_P154455176346a013bb70d5_CARD',
+      'IMG_P1507525428034b723cf961d3e_CARD'
     ],
     locationEn: 'North Dahab Coastal Protected Zone (15 min 4x4 from Lighthouse)',
     locationAr: 'شمال دهب (منطقة المحميات الساحلية · ١٥ دقيقة بالسيارة من اللايتهاوس)',
@@ -172,10 +173,10 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Promenade Shore Reef',
     categoryLabelAr: 'شاطئ وشعاب الممشى السياحي',
-    heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P154455176346a013bb70d5_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop'
+      'IMG_P1507525428034b723cf961d3e_CARD',
+      'IMG_P15541188111e0d58224f24_CARD'
     ],
     locationEn: 'Lighthouse Bay Promenade, Central Dahab',
     locationAr: 'ممشى خليج اللايتهاوس، وسط دهب',
@@ -253,9 +254,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'coffee',
     categoryLabelEn: 'Artisan Bakery & Cafe',
     categoryLabelAr: 'مخبز يدوي وكافيه روقان',
-    heroImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P15541188111e0d58224f24_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop'
+      'IMG_P15172481354674c7edcad34c4_CARD'
     ],
     locationEn: 'Lighthouse Area, 2 min walk from shore',
     locationAr: 'منطقة اللايتهاوس، دقيقتان مشي من الشاطئ',
@@ -331,9 +332,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'food',
     categoryLabelEn: 'Seafood & Bedouin Waterfront Grill',
     categoryLabelAr: 'سي فود ومشاوي ع البحر',
-    heroImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P15172481354674c7edcad34c4_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop'
+      'IMG_P15541188111e0d58224f24_CARD'
     ],
     locationEn: 'Lighthouse Promenade, Beachfront',
     locationAr: 'ممشى اللايتهاوس السياحي، على البحر مباشرة',
@@ -411,9 +412,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'nightlife',
     categoryLabelEn: 'Acoustic Music & Sea Terrace',
     categoryLabelAr: 'تراس بحري وموسيقى لايف',
-    heroImage: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P1511671782779c97d3d27a1d4_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop'
+      'IMG_P15541188111e0d58224f24_CARD'
     ],
     locationEn: 'Mashraba Promenade, South Dahab Shore',
     locationAr: 'ممشى المشربة، جنوب شاطئ دهب',
@@ -487,9 +488,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Natural Marine Reserve',
     categoryLabelAr: 'محمية بحرية طبيعية',
-    heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop',
+    heroImage: 'IMG_P154455176346a013bb70d5_HERO',
     galleryImages: [
-      'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=800&auto=format&fit=crop'
+      'IMG_P16826872200634742bd7fd538_CARD'
     ],
     locationEn: 'Eel Garden Bay, North Central Dahab',
     locationAr: 'خليج إيل جاردن، شمال وسط دهب',
@@ -616,8 +617,8 @@ export function resolveExperience(
       category: (nearMe.category as any) || 'beach',
       categoryLabelEn: nearMe.tag || '',
       categoryLabelAr: nearMe.tagAr || '',
-      heroImage: nearMe.image || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop',
-      galleryImages: [nearMe.image || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop'],
+      heroImage: nearMe.image || 'IMG_P154455176346a013bb70d5_HERO',
+      galleryImages: [nearMe.image || 'IMG_P154455176346a013bb70d5_CARD'],
       locationEn: nearMe.location || '',
       locationAr: nearMe.locationAr || '',
       durationEn: nearMe.openHours || '1 - 2 hours',
@@ -676,8 +677,8 @@ export function resolveExperience(
       category: (activity.category as any) || 'diving',
       categoryLabelEn: activity.category.toUpperCase().replace('_', ' '),
       categoryLabelAr: activity.category,
-      heroImage: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop',
-      galleryImages: ['https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=800&auto=format&fit=crop'],
+      heroImage: 'IMG_P154455176346a013bb70d5_HERO',
+      galleryImages: ['IMG_P16826872200634742bd7fd538_CARD'],
       locationEn: place?.nameEn || activity.areaId.replace(/_/g, ' '),
       locationAr: place?.nameAr || activity.areaId.replace(/_/g, ' '),
       durationEn: `${activity.durationMinutes} minutes`,
@@ -733,8 +734,8 @@ export function resolveExperience(
       category: 'beach',
       categoryLabelEn: placeMatch.category,
       categoryLabelAr: placeMatch.category,
-      heroImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop',
-      galleryImages: ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop'],
+      heroImage: 'IMG_P1507525428034b723cf961d3e_HERO',
+      galleryImages: ['IMG_P154455176346a013bb70d5_CARD'],
       locationEn: placeMatch.areaId.replace(/_/g, ' '),
       locationAr: placeMatch.areaId.replace(/_/g, ' '),
       durationEn: '1 - 2 hours',

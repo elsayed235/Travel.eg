@@ -77,7 +77,7 @@ export default function CommerceControl() {
           )}
           {(['ledger', 'payments', 'verify', 'anomalies'] as const).map(tab => (
             <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'
               }`}>
               {tab === 'ledger' ? 'Ledger' : tab === 'payments' ? 'Payments' : tab === 'anomalies' ? 'Anomalies' : 'Verify Integrity'}
@@ -162,7 +162,7 @@ export default function CommerceControl() {
               <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{t('cmd.commerce.verifyDesc')}</p>
             </div>
             <button type="button" onClick={handleVerify} disabled={verifying}
-              className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+              className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
               <Shield className={`w-3.5 h-3.5 ${verifying ? 'animate-spin' : ''}`} />
               {verifying ? t('cmd.commerce.verifying') : t('cmd.commerce.runVerification')}
             </button>
@@ -207,7 +207,7 @@ export default function CommerceControl() {
             <>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-[11px] font-mono">
-                <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]">
+                <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                   <tr>
                     <th className="py-2.5 px-3">Entry</th>
                     <th className="py-2.5 px-3">Booking</th>

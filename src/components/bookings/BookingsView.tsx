@@ -15,11 +15,9 @@ import {
   ExternalLink, 
   Download, 
   QrCode, 
-  X, 
-  ChevronRight,
+  X,
   Sparkles,
   AlertCircle,
-  ArrowRight,
   RotateCcw,
   Wifi,
   WifiOff,
@@ -144,7 +142,7 @@ export const BookingsView: React.FC = () => {
   };
 
   return (
-    <div id="bookings-hub-view" className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 font-['Plus_Jakarta_Sans',sans-serif]">
+    <div id="bookings-hub-view" className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24">
       {/* 1. Top Header */}
       <section className="bg-[var(--surface-card)] text-[var(--text-primary)] border-b border-[var(--border-subtle)] pt-10 pb-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-[var(--accent-secondary)]/10 rounded-full blur-3xl pointer-events-none" />
@@ -153,7 +151,7 @@ export const BookingsView: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-primary)] text-xs font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-primary)] text-xs font-bold">
                   <Briefcase className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                   <span>Connected Trip Bookings</span>
                 </div>
@@ -164,7 +162,7 @@ export const BookingsView: React.FC = () => {
                   <span>{isOnline ? (t('bookings.cloudSyncActive')) : (t('bookings.offlineMode'))}</span>
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)]">
                 {travelerTitle}
               </h1>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
@@ -182,8 +180,8 @@ export const BookingsView: React.FC = () => {
 
             {/* Total Budget & Status Summary */}
             <div className="flex items-center gap-3">
-              <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-right">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block">
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-end">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/70 block">
                   Total in Escrow Trust
                 </span>
                 <span className="text-xl font-mono font-bold text-[var(--accent-secondary)]">
@@ -194,9 +192,9 @@ export const BookingsView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsInvoiceModalOpen(true)}
-                className="px-4 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95"
+                className="px-4 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] text-xs font-extrabold flex items-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
               >
-                <FileText className="w-4 h-4 text-[var(--surface-card)]" />
+                <FileText className="w-4 h-4" aria-hidden="true" />
                 <span>Full Tax Invoice</span>
               </button>
             </div>
@@ -207,20 +205,21 @@ export const BookingsView: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2">
               {([
                 { id: 'all', label: `All Bookings (${bookings.length})` },
-                { id: 'hotel', label: '🏨 Hotel' },
-                { id: 'transfer', label: '🚗 Transfer' },
-                { id: 'diving', label: '🤿 Diving' },
-                { id: 'safari', label: '🏜️ Safari' },
-                { id: 'wellness', label: '💆 Wellness' },
-                { id: 'dining', label: '🍽️ Dining' },
+                { id: 'hotel', label: 'Hotel' },
+                { id: 'transfer', label: 'Transfer' },
+                { id: 'diving', label: 'Diving' },
+                { id: 'safari', label: 'Safari' },
+                { id: 'wellness', label: 'Wellness' },
+                { id: 'dining', label: 'Dining' },
               ] as const).map((f) => (
                 <button
                   key={f.id}
                   type="button"
                   onClick={() => setFilterType(f.id)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  aria-pressed={filterType === f.id}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     filterType === f.id
-                      ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md font-extrabold'
+                      ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] shadow-md font-extrabold'
                       : 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)]'
                   }`}
                 >
@@ -232,10 +231,9 @@ export const BookingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('/my-trip')}
-              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] flex items-center gap-1 cursor-pointer transition-colors py-2 -my-2"
             >
               <span>View in Day-by-Day Timeline</span>
-              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -300,7 +298,7 @@ export const BookingsView: React.FC = () => {
             {filteredBookings.map((b) => (
             <div
               key={b.id}
-              className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg hover:border-[var(--accent-primary)]/40 transition-all flex flex-col justify-between space-y-5"
+              className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg hover:border-[var(--accent-primary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col justify-between space-y-5"
             >
               <div>
                 {/* Header */}
@@ -310,10 +308,10 @@ export const BookingsView: React.FC = () => {
                       {getBookingIcon(b.iconType)}
                     </div>
                     <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif] block">
+                      <span className="text-[11px] font-bold text-[var(--accent-primary)] block">
                         {b.title}
                       </span>
-                      <h3 className="font-bold text-base sm:text-lg text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                      <h3 className="font-bold text-base sm:text-lg text-[var(--text-primary)]">
                         {b.subtitle}
                       </h3>
                     </div>
@@ -370,7 +368,7 @@ export const BookingsView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleOpenVoucher(b)}
-                    className="px-4 py-2 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-sm cursor-pointer flex items-center gap-1.5"
                   >
                     <span>View Voucher</span>
                     <QrCode className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
@@ -385,11 +383,11 @@ export const BookingsView: React.FC = () => {
         {/* Integration Callout */}
         <div className="p-6 rounded-3xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-subtle)] shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
           <div className="space-y-1 z-10">
-            <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-secondary)] uppercase tracking-wider font-['Outfit',sans-serif]">
+            <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-secondary)]">
               <ShieldCheck className="w-4 h-4 text-[var(--accent-secondary)]" />
               <span>Unified Trip &amp; Escrow Protection</span>
             </div>
-            <h2 className="font-bold text-base sm:text-lg text-[var(--text-primary)] font-['Outfit',sans-serif]">
+            <h2 className="font-bold text-base sm:text-lg text-[var(--text-primary)]">
               Need to reschedule or test transaction rollback?
             </h2>
             <p className="text-xs text-[var(--text-secondary)] max-w-2xl">
@@ -400,7 +398,7 @@ export const BookingsView: React.FC = () => {
           <button
             type="button"
             onClick={() => navigateTo('/change-recovery')}
-            className="px-5 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold shadow-md transition-all cursor-pointer flex-shrink-0 z-10"
+            className="px-5 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex-shrink-0 z-10"
           >
             Manage Changes →
           </button>
@@ -417,10 +415,10 @@ export const BookingsView: React.FC = () => {
           <div className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-[var(--border-subtle)] animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-4">
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Official Travel Voucher · Offline Ready
                 </span>
-                <h3 id="bookings-view-dialog-1-title" className="font-serif font-bold text-2xl text-[var(--text-primary)]">
+                <h3 id="bookings-view-dialog-1-title" className="chart-heading font-bold text-2xl text-[var(--text-primary)]">
                   {selectedBooking.subtitle}
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">
@@ -464,7 +462,7 @@ export const BookingsView: React.FC = () => {
                   <rect x="82" y="68" width="6" height="6" fill="currentColor" />
                 </svg>
               </div>
-              <span className="font-mono text-sm font-bold text-[var(--accent-secondary)] tracking-wider">
+              <span className="font-mono text-sm font-bold text-[var(--accent-secondary)]">
                 {selectedBooking.confirmationCode}
               </span>
               <span className="text-[12px] text-[var(--text-secondary)]/70">
@@ -550,10 +548,10 @@ export const BookingsView: React.FC = () => {
           <div className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-[var(--border-subtle)] animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-4">
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Official Travel Platform Tax Invoice
                 </span>
-                <h3 id="bookings-view-dialog-2-title" className="font-serif font-bold text-2xl text-[var(--text-primary)]">
+                <h3 id="bookings-view-dialog-2-title" className="chart-heading font-bold text-2xl text-[var(--text-primary)]">
                   Dahab Trip Official Tax Invoice
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)]/70">
@@ -576,7 +574,7 @@ export const BookingsView: React.FC = () => {
                 <div className="bg-[var(--surface-container)] p-3 font-bold text-[var(--text-primary)] grid grid-cols-12 gap-2">
                   <div className="col-span-6">Item / Service</div>
                   <div className="col-span-3">Provider</div>
-                  <div className="col-span-3 text-right">Amount (EGP)</div>
+                  <div className="col-span-3 text-end">Amount (EGP)</div>
                 </div>
 
                 {bookings.map((b) => (
@@ -586,7 +584,7 @@ export const BookingsView: React.FC = () => {
                       <div className="text-[12px] text-[var(--text-secondary)]/70">{b.details}</div>
                     </div>
                     <div className="col-span-3 text-[var(--text-secondary)]">{b.provider}</div>
-                    <div className="col-span-3 text-right font-mono font-bold text-[var(--accent-secondary)]">
+                    <div className="col-span-3 text-end font-mono font-bold text-[var(--accent-secondary)]">
                       {b.priceEGP.toLocaleString()}
                     </div>
                   </div>
@@ -610,7 +608,7 @@ export const BookingsView: React.FC = () => {
 
                 <div className="bg-[var(--surface-container)] p-3 border-t border-[var(--border-subtle)] grid grid-cols-12 gap-2 font-bold text-sm">
                   <div className="col-span-9 text-[var(--text-primary)]">Total Settlement (Gross EGP)</div>
-                  <div className="col-span-3 text-right font-mono text-[var(--accent-secondary)]">
+                  <div className="col-span-3 text-end font-mono text-[var(--accent-secondary)]">
                     EGP {totalSpentEGP.toLocaleString()}
                   </div>
                 </div>

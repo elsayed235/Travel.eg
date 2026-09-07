@@ -178,7 +178,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
 
   if (detail.status === 'loading') {
     return (
-      <div className={`min-h-screen flex items-center justify-center font-['Plus_Jakarta_Sans',sans-serif] ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'}`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'}`}>
         <span className="text-sm font-bold opacity-60">{isAr ? 'جاري التحميل…' : 'Loading…'}</span>
       </div>
     );
@@ -186,10 +186,10 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
 
   if (detail.error || !rental) {
     return (
-      <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center font-['Plus_Jakarta_Sans',sans-serif] ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'}`}>
+      <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'}`}>
         <div className="text-4xl">🚲</div>
-        <h1 className="text-xl font-serif font-bold">{t('rentals.notFoundTitle')}</h1>
-        <p className={`text-sm max-w-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>
+        <h1 className="text-xl chart-heading font-bold">{t('rentals.notFoundTitle')}</h1>
+        <p className={`text-sm max-w-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
           {t('rentals.notFoundBody')}
         </p>
         <button
@@ -215,24 +215,24 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
   const inputCls = `w-full rounded-xl border px-3 py-2.5 text-sm outline-none ${
     isDark
       ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)]'
-      : 'bg-white border-[#122420]/10 text-[#122420]'
+      : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
   }`;
-  const labelCls = `block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`;
+  const labelCls = `block text-[11px] font-bold mb-1 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`;
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'}`}>
+    <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen flex flex-col ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'}`}>
       {/* Top bar */}
-      <div className={`sticky top-0 z-20 border-b backdrop-blur-md ${isDark ? 'bg-[var(--surface-card)]/95 border-[var(--border-subtle)]' : 'bg-white/95 border-[#122420]/10'}`}>
+      <div className={`sticky top-0 z-20 border-b backdrop-blur-md ${isDark ? 'bg-[var(--surface-card)]/95 border-[var(--border-subtle)]' : 'bg-[var(--surface-card)]/95 border-[var(--border-subtle)]'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onBackToList}
-            className={`flex items-center gap-1.5 text-sm font-bold transition-all cursor-pointer ${isDark ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]' : 'text-[#4A635D] hover:text-[#122420]'}`}
+            className={`flex items-center gap-1.5 text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${isDark ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
           >
             {isRTL ? <ArrowLeft className="w-4 h-4" /> : <SkipBack className="w-4 h-4" />}
             {t('rentals.backToList')}
           </button>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
             {supplierName || t('rentals.pickupOnly')}
           </span>
         </div>
@@ -254,7 +254,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                   {rental.reviewCount ? <span className="text-white/70">({rental.reviewCount})</span> : null}
                 </span>
                 {rental.featured && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-[var(--accent-primary)]/90 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold text-white bg-[var(--accent-primary)]/90 px-2 py-0.5 rounded-full">
                     {t('rentals.featured')}
                   </span>
                 )}
@@ -263,20 +263,20 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
           </div>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-serif font-bold">{name}</h1>
-            <p className={`mt-1 text-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>{tagline}</p>
+            <h1 className="text-3xl chart-heading font-bold">{name}</h1>
+            <p className={`mt-1 text-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>{tagline}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
-              <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+              <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
                 <MapPin className="w-3 h-3" />
                 {zoneLabel(rental.pickupZoneId).name}
               </span>
               {rental.deliveryZones.length > 0 ? (
-                <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-white border-[#122420]/10 text-[#3c7a6a]'}`}>
+                <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--accent-secondary)]'}`}>
                   <Truck className="w-3 h-3" />
                   {t('rentals.deliveryAvailable')}
                 </span>
               ) : (
-                <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+                <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
                   <Bike className="w-3 h-3" />
                   {t('rentals.pickupOnly')}
                 </span>
@@ -290,7 +290,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
             {/* Features */}
             {features.length > 0 && (
               <div className="mt-6">
-                <h2 className="text-sm font-serif font-bold mb-2">{t('rentals.features')}</h2>
+                <h2 className="text-sm chart-heading font-bold mb-2">{t('rentals.features')}</h2>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
                   {features.map((f, i) => (
                     <li key={i} className={`flex items-center gap-1.5 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#33413d]'}`}>
@@ -305,12 +305,12 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
             {/* Specs */}
             {specRows.length > 0 && (
               <div className="mt-6">
-                <h2 className="text-sm font-serif font-bold mb-2">{t('rentals.specs')}</h2>
+                <h2 className="text-sm chart-heading font-bold mb-2">{t('rentals.specs')}</h2>
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                   {specRows.map(([k, v]) => (
-                    <div key={k} className="flex justify-between gap-2 border-b border-dotted border-[#122420]/15 pb-1">
-                      <dt className={`capitalize ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>{k.replace(/_/g, ' ')}</dt>
-                      <dd className="font-bold text-right">{String(v)}</dd>
+                    <div key={k} className="flex justify-between gap-2 border-b border-dotted border-[var(--border-subtle)] pb-1">
+                      <dt className={`capitalize ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>{k.replace(/_/g, ' ')}</dt>
+                      <dd className="font-bold text-end">{String(v)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -320,11 +320,11 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
             {/* Provider */}
             {rental.supplier && (
               <div className="mt-6">
-                <h2 className="text-sm font-serif font-bold mb-2">{t('rentals.provider')}</h2>
-                <div className={`rounded-xl border p-3 flex items-center justify-between ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'}`}>
+                <h2 className="text-sm chart-heading font-bold mb-2">{t('rentals.provider')}</h2>
+                <div className={`rounded-xl border p-3 flex items-center justify-between ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
                   <div>
                     <div className="text-sm font-bold">{supplierName}</div>
-                    <div className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                    <div className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                       {rental.supplier.area ? `${rental.supplier.area}${rental.supplier.city ? ` · ${rental.supplier.city}` : ''}` : rental.supplier.city || ''}
                     </div>
                   </div>
@@ -332,7 +332,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                     <span className="flex items-center gap-1 text-xs font-bold">
                       <Star className="w-3.5 h-3.5 text-amber-400" />
                       {rental.supplier.rating.toFixed(1)}
-                      {rental.supplier.reviewCount ? <span className={`opacity-60 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>({rental.supplier.reviewCount})</span> : null}
+                      {rental.supplier.reviewCount ? <span className={`opacity-60 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>({rental.supplier.reviewCount})</span> : null}
                     </span>
                   )}
                 </div>
@@ -341,13 +341,13 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
 
             {/* Policies */}
             <div className="mt-6">
-              <h2 className="text-sm font-serif font-bold mb-2">{t('rentals.policies')}</h2>
+              <h2 className="text-sm chart-heading font-bold mb-2">{t('rentals.policies')}</h2>
               <p className={`text-sm ${isDark ? 'text-[var(--text-secondary)]/90' : 'text-[#33413d]'}`}>{policies}</p>
-              <p className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+              <p className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                 <ShieldCheck className="w-3.5 h-3.5" />
                 {t('rentals.deposit')}
               </p>
-              <p className={`mt-1 flex items-center gap-1.5 text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+              <p className={`mt-1 flex items-center gap-1.5 text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                 <Clock className="w-3.5 h-3.5" />
                 {t('rentals.cancellationPolicy', { hours: rental.cancellationPolicyHours })}
               </p>
@@ -356,14 +356,14 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
 
           {/* Booking widget */}
           <aside className={`w-full lg:w-[380px] shrink-0 ${isDark ? '' : ''}`}>
-            <div className={`rounded-2xl border p-5 space-y-4 lg:sticky lg:top-20 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10 shadow-sm'}`}>
+            <div className={`rounded-2xl border p-5 space-y-4 lg:sticky lg:top-20 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] shadow-sm'}`}>
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-serif font-bold">{t('rentals.bookingWidget')}</h2>
-                <div className="text-right">
+                <h2 className="text-base chart-heading font-bold">{t('rentals.bookingWidget')}</h2>
+                <div className="text-end">
                   <span className={`text-lg font-black ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--accent-primary)]'}`}>
                     {rental.dailyRateEGP.toLocaleString()}
                   </span>
-                  <span className={`text-[10px] font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}> EGP / {isAr ? 'يوم' : 'day'}</span>
+                  <span className={`text-[10px] font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}> EGP / {isAr ? 'يوم' : 'day'}</span>
                 </div>
               </div>
 
@@ -394,12 +394,12 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                   <button
                     type="button"
                     onClick={() => setDeliveryMode('PICKUP')}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold cursor-pointer transition-all ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       deliveryMode === 'PICKUP'
                         ? 'bg-[var(--accent-primary)] text-white border-transparent'
                         : isDark
                           ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
-                          : 'bg-white border-[#122420]/10 text-[#4A635D]'
+                          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <Bike className="w-3.5 h-3.5" />
@@ -409,12 +409,12 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                     type="button"
                     onClick={() => setDeliveryMode('DELIVERY')}
                     disabled={rental.deliveryZones.length === 0}
-                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold cursor-pointer transition-all ${
+                    className={`flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       deliveryMode === 'DELIVERY'
                         ? 'bg-[var(--accent-secondary)] text-white border-transparent'
                         : isDark
                           ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)] disabled:opacity-40'
-                          : 'bg-white border-[#122420]/10 text-[#4A635D] disabled:opacity-40'
+                          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] disabled:opacity-40'
                     }`}
                   >
                     <Truck className="w-3.5 h-3.5" />
@@ -470,12 +470,12 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                       return (
                         <label
                           key={extra.id}
-                          className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
+                          className={`flex items-center justify-between gap-2 rounded-xl border px-3 py-2.5 cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                             checked
                               ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/5'
                               : isDark
                                 ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]'
-                                : 'bg-white border-[#122420]/10'
+                                : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'
                           }`}
                         >
                           <span className="flex items-center gap-2 text-xs font-semibold">
@@ -506,9 +506,9 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
 
               {/* Availability + quote */}
               {availability && quote && (
-                <div className={`rounded-xl border p-3 space-y-1.5 text-xs ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[#FBF9F5] border-[#122420]/10'}`}>
+                <div className={`rounded-xl border p-3 space-y-1.5 text-xs ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
                   {availability.available ? (
-                    <p className={`font-bold ${isDark ? 'text-[var(--accent-secondary)]' : 'text-[#3c7a6a]'}`}>
+                    <p className={`font-bold ${isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--accent-secondary)]'}`}>
                       ✓ {t('rentals.available')}
                     </p>
                   ) : (
@@ -516,7 +516,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                       ✕ {t('rentals.notAvailable', { available: availability.windowAvailable, day: availability.reasonDay || '' })}
                     </p>
                   )}
-                  <div className="flex justify-between pt-1.5 border-t border-dashed border-[#122420]/15">
+                  <div className="flex justify-between pt-1.5 border-t border-dashed border-[var(--border-subtle)]">
                     <span>{t('rentals.days', { count: quote.breakdown.days })}</span>
                     <span>{quote.breakdown.baseEGP.toLocaleString()} EGP</span>
                   </div>
@@ -538,11 +538,11 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                       <span>{quote.deliveryFeeEGP.toLocaleString()} EGP</span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-1.5 border-t border-dashed border-[#122420]/15 text-sm font-black">
+                  <div className="flex justify-between pt-1.5 border-t border-dashed border-[var(--border-subtle)] text-sm font-black">
                     <span>{t('rentals.total')}</span>
                     <span>{quote.breakdown.totalEGP.toLocaleString()} EGP</span>
                   </div>
-                  <p className={`text-[10px] ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                  <p className={`text-[10px] ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                     {t('rentals.deposit')}: {quote.breakdown.depositEGP.toLocaleString()} EGP
                   </p>
                 </div>
@@ -554,7 +554,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                 </div>
               )}
               {bookingMsg === 'success' && booking && (
-                <div className={`text-xs font-bold rounded-xl border px-3 py-2.5 ${isDark ? 'border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10' : 'border-[#3c7a6a]/30 text-[#3c7a6a] bg-[#3c7a6a]/5'}`}>
+                <div className={`text-xs font-bold rounded-xl border px-3 py-2.5 ${isDark ? 'border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10' : 'border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10'}`}>
                   ✓ {t('rentals.checkoutSuccess', { ref: booking.bookingRef || booking.id })}
                 </div>
               )}
@@ -568,10 +568,10 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                 type="button"
                 onClick={handleCheck}
                 disabled={checking || !startDate || !endDate}
-                className={`w-full rounded-xl px-4 py-3 text-sm font-bold transition-all cursor-pointer disabled:opacity-50 ${
+                className={`w-full rounded-xl px-4 py-3 text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50 ${
                   isDark
                     ? 'bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-primary)]/40'
-                    : 'bg-white border border-[#122420]/15 text-[#122420] hover:border-[var(--accent-primary)]'
+                    : 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-primary)]'
                 }`}
               >
                 {checking ? (isAr ? 'جاري التحقق…' : 'Checking…') : t('rentals.checkAvailability')}
@@ -581,7 +581,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                 type="button"
                 onClick={handleHoldAndPay}
                 disabled={!quote || !availability?.available || bookingMsg === 'success'}
-                className={`w-full rounded-xl px-4 py-3 text-sm font-bold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`w-full rounded-xl px-4 py-3 text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDark ? 'bg-[var(--accent-primary)] text-white hover:opacity-90' : 'bg-[var(--accent-primary)] text-white hover:opacity-90'
                 }`}
               >
@@ -591,7 +591,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                 <button
                   type="button"
                   onClick={() => navigateTo('/auth/sign-in')}
-                  className={`w-full text-xs font-bold underline underline-offset-2 cursor-pointer ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}
+                  className={`w-full text-xs font-bold underline underline-offset-2 cursor-pointer ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}
                 >
                   {t('rentals.signInToBook')}
                 </button>

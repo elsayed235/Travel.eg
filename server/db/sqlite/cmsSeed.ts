@@ -49,7 +49,7 @@ export function seedCmsContent(): void {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id('HSEC'), 'hero',
-    'You made it to Dahab. We\\u2019ll handle the rest.',
+    'You made it to Dahab. We’ll handle the rest.',
     'وصلت دهب؟ سيب الباقي علينا.',
     1, 0, JSON.stringify({
       badge_en: 'DAHAB OS \u00b7 ACTIVE TRAVEL COMPANION',
@@ -64,6 +64,98 @@ export function seedCmsContent(): void {
       cta_explore_ar: '\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0623\u0645\u0627\u0643\u0646 \u0627\u0644\u062d\u064a\u0629'
     }), ts
   );
+
+  // --- Homepage Stats Band (depth soundings) ---
+  c.prepare(`
+    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id('HSEC'), 'stats',
+    'The coast in numbers',
+    '\u0627\u0644\u0633\u0627\u062d\u0644 \u0628\u0627\u0644\u0623\u0631\u0642\u0627\u0645',
+    1, 1, JSON.stringify({
+      items: [
+        { id: 'bluehole', value: '100', suffix: 'm+', label_en: 'The Blue Hole drop-off', label_ar: '\u0647\u0628\u0648\u0637 \u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 \u0627\u0644\u0634\u0647\u064a\u0631', accent: 'text-[var(--accent-primary)]', icon: 'anchor' },
+        { id: 'visibility', value: '30', suffix: 'm+', label_en: 'Reef visibility this season', label_ar: '\u0631\u0624\u064a\u0629 \u0627\u0644\u0634\u0639\u0627\u0628 \u0627\u0644\u0645\u0648\u0633\u0645 \u062f\u064a', accent: 'text-cyan-400', icon: 'eye' },
+        { id: 'summit', value: '2285', suffix: 'm', label_en: 'Mount Sinai summit', label_ar: '\u0642\u0645\u0629 \u062c\u0628\u0644 \u0645\u0648\u0633\u0649', accent: 'text-[var(--accent-secondary)]', icon: 'mountain' },
+        { id: 'sos', value: '24', suffix: '/7', label_en: 'Hyperbaric & SOS response', label_ar: '\u063a\u0631\u0641\u0629 \u0636\u063a\u0637 \u0648\u0646\u062c\u062f\u0629 \u0639\u0644\u0649 \u0645\u062f\u0627\u0631 \u0627\u0644\u0633\u0627\u0639\u0629', accent: 'text-rose-400', icon: 'heart' }
+      ]
+    }), ts
+  );
+
+  // --- Homepage Marquee ---
+  c.prepare(`
+    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id('HSEC'), 'marquee',
+    'Destination marquee',
+    '\u0634\u0631\u064a\u0637 \u0627\u0644\u0648\u062c\u0647\u0627\u062a',
+    1, 2, JSON.stringify({
+      items_en: 'Blue Hole — The Canyon — Three Pools — Ras Abu Galum — Lighthouse Reef — Wadi Gnai — Mount Sinai — Blue Lagoon — Eel Garden — ',
+      items_ar: '\u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 — \u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646 — \u0627\u0644\u062b\u0644\u0627\u062b \u0628\u0631\u0643 — \u0631\u0623\u0633 \u0623\u0628\u0648 \u062c\u0627\u0644\u0648\u0645 — \u0634\u0639\u0627\u0628 \u0627\u0644\u0644\u0627\u064a\u062a\u0647\u0627\u0648\u0633 — \u0648\u0627\u062f\u064a \u0642\u0646\u064a — \u062c\u0628\u0644 \u0645\u0648\u0633\u0649 — \u0627\u0644\u0628\u0644\u0648 \u0644\u0627\u062c\u0648\u0646 — \u0625\u064a\u0644 \u062c\u0627\u0631\u062f\u0646 — '
+    }), ts
+  );
+
+  // --- Homepage Essence Bento (editorial copy) ---
+  c.prepare(`
+    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id('HSEC'), 'essence',
+    'The Dahab Edit — pick your mood',
+    '\u062c\u0648 \u062f\u0647\u0628 \u062d\u0633\u0628 \u0645\u0632\u0627\u062c\u0643',
+    1, 3, JSON.stringify({
+      eyebrow: { en: 'The Dahab Edit', ar: '\u0631\u0648\u062d \u062f\u0647\u0628' },
+      title: { en: 'One coast. Five ways to feel alive', ar: '\u0633\u0627\u062d\u0644 \u0648\u0627\u062d\u062f \u00b7 \u062e\u0645\u0633 \u062d\u0627\u0644\u0627\u062a \u062a\u0639\u064a\u0634\u0647\u0627' },
+      subtitle: { en: 'Pick the mood — we open the doors', ar: '\u0627\u062e\u062a\u0627\u0631 \u0627\u0644\u0645\u0648\u062f — \u0648\u0625\u062d\u0646\u0627 \u0646\u0641\u062a\u062d \u0644\u0643 \u0627\u0644\u0623\u0628\u0648\u0627\u0628' },
+      dive: {
+        kicker: { en: '100m+ \u00b7 The Blue Hole', ar: '\u0661\u0660\u0660\u0645+ \u00b7 \u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644' },
+        title: { en: 'Book Dive & Marine Trip', ar: '\u062d\u062c\u0632 \u063a\u0637\u0633 \u0648\u0631\u062d\u0644\u0627\u062a \u0628\u062d\u0631\u064a\u0629' },
+        line: { en: 'The Blue Hole, The Canyon & guided freedive walls with vetted centers', ar: '\u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 \u0648\u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646 \u0648\u062c\u062f\u0631\u0627\u0646 \u0627\u0644\u0641\u0631\u064a\u062f\u0627\u064a\u0641 \u0645\u0639 \u0645\u0631\u0627\u0643\u0632 \u0645\u0639\u062a\u0645\u062f\u0629' },
+        desc: { en: 'Blue Hole, The Canyon, guided freediving sessions & marine permits.', ar: '\u0627\u0644\u0628\u0644\u0648 \u0647\u0648\u0644\u060c \u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646\u060c \u0627\u0644\u063a\u0648\u0635 \u0627\u0644\u062d\u0631 \u0648\u062a\u0635\u0627\u0631\u064a\u062d \u0631\u0623\u0633 \u0623\u0628\u0648 \u062c\u0627\u0644\u0648\u0645.' }
+      },
+      food: {
+        title: { en: 'Palapa Beach Food Delivery', ar: '\u0623\u0643\u0644 \u0648\u0645\u0645\u064a\u0632\u0627\u062a \u0648\u0627\u0635\u0644\u0629 \u0644\u0644\u0634\u0627\u0637\u0626' },
+        line: { en: 'Bedouin zarb nights, fresh catch & lagoon breakfasts', ar: '\u0633\u0647\u0631\u0627\u062a \u0627\u0644\u0632\u0631\u0628 \u0627\u0644\u0628\u062f\u0648\u064a\u060c \u0635\u064a\u062f \u0637\u0627\u0632\u062c \u0648\u0641\u0637\u0627\u0631 \u0639\u0644\u0649 \u0627\u0644\u0644\u0627\u062c\u0648\u0646' }
+      },
+      explore: {
+        title: { en: 'Explore Dahab', ar: '\u0627\u0633\u062a\u0643\u0634\u0641 \u062f\u0647\u0628' },
+        line: { en: 'Canyon hikes, camel trails & Wadi Gnai boulders', ar: '\u0645\u0634\u064a \u062c\u0628\u0644\u064a\u060c \u062f\u0631\u0648\u0628 \u062c\u0645\u0627\u0644 \u0648\u0635\u062e\u0648\u0631 \u0648\u0627\u062f\u064a \u0642\u0646\u064a' }
+      },
+      stay: {
+        title: { en: 'Stay by the water', ar: '\u0628\u064a\u062a\u0643 \u0639\u0644\u0649 \u0627\u0644\u0645\u064a\u0629' },
+        line: { en: 'Seafront rooms from verified hosts', ar: '\u0623\u0648\u0627\u0636\u0639 \u0639\u0644\u0649 \u0627\u0644\u0628\u062d\u0631 \u0645\u0646 \u0645\u0636\u064a\u0641\u064a\u0646 \u0645\u0648\u062b\u0642\u064a\u0646' },
+        cta: { en: 'Browse stays', ar: '\u0634\u0648\u0641 \u0623\u0645\u0627\u0643\u0646 \u0627\u0644\u0625\u0642\u0627\u0645\u0629' }
+      },
+      help: {
+        kicker: { en: 'On call 24/7', ar: '\u0639\u0627\u0644\u062e\u0637 \u0662\u0664/\u0667' },
+        title: { en: 'Someone local, always', ar: '\u0641\u064a \u062d\u062f \u0645\u0646 \u062f\u0647\u0628 \u062f\u0627\u064a\u0645\u0627\u064b' },
+        line: { en: 'Hyperbaric chamber, SOS hotline & live concierge', ar: '\u063a\u0631\u0641\u0629 \u0627\u0644\u0636\u063a\u0637\u060c \u062e\u0637 \u0627\u0644\u0646\u062c\u062f\u0629 \u0648\u0627\u0644\u0643\u0648\u0646\u0633\u064a\u0631\u062c \u0627\u0644\u0645\u0628\u0627\u0634\u0631' },
+        cta: { en: 'Open help hub', ar: '\u0627\u0641\u062a\u062d \u0645\u0631\u0643\u0632 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629' }
+      }
+    }), ts
+  );
+
+  // --- Visibility-only sections (content is live/compiled; editors control show/hide) ---
+  const visSections = [
+    { key: 'ticker', en: 'Live conditions ticker', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u062d\u0627\u0644\u0629 \u0627\u0644\u062d\u064a\u0629' },
+    { key: 'season', en: 'Seasonal tide strip', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u0645\u0648\u0633\u0645' },
+    { key: 'trip_entry', en: 'Trip planning entry', ar: '\u0642\u0633\u0645 \u062a\u062e\u0637\u064a\u0637 \u0627\u0644\u0631\u062d\u0644\u0629' },
+    { key: 'stories', en: 'Curated experiences rail', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u062a\u062c\u0627\u0631\u0628' },
+    { key: 'micro', en: 'Micro experiences', ar: '\u062a\u062c\u0627\u0631\u0628 \u0633\u064a\u0646\u0627\u0621' },
+    { key: 'landmarks', en: 'Landmarks bento', ar: '\u0645\u0639\u0627\u0644\u0645 \u0633\u064a\u0646\u0627\u0621' },
+    { key: 'gallery', en: 'Photo showcase', ar: '\u0645\u0639\u0631\u0636 \u0627\u0644\u0635\u0648\u0631' },
+    { key: 'final_cta', en: 'Final call to action', ar: '\u0627\u0644\u062e\u0627\u062a\u0645\u0629' },
+    { key: 'footer', en: 'Site footer', ar: '\u062a\u0630\u064a\u064a\u0644 \u0627\u0644\u0645\u0648\u0642\u0639' },
+  ];
+  const visIns = c.prepare(`
+    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+    VALUES (?, ?, ?, ?, 1, ?, '{}', ?)
+  `);
+  visSections.forEach((s, i) => {
+    visIns.run(id('HSEC'), s.key, s.en, s.ar, 4 + i, ts);
+  });
 
   // --- Trip Programmes ---
   const programmes = [

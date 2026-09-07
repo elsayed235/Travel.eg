@@ -592,16 +592,16 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
       aria-modal="true"
       aria-labelledby="book-now-commerce-modal-dialog-1-title"
     >
-      <div className="relative w-full max-w-4xl bg-stone-900 text-stone-100 rounded-3xl border border-teal-500/30 shadow-2xl overflow-hidden my-auto">
+      <div className="relative w-full max-w-4xl bg-stone-900 text-stone-100 rounded-3xl border border-[#C9A24B]/30 shadow-2xl overflow-hidden my-auto">
         {/* Top Accent Header */}
-        <div className="bg-gradient-to-r from-teal-950 via-stone-900 to-amber-950 px-5 sm:px-8 py-4 border-b border-stone-800 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#0A1128] via-stone-900 to-[#1B2452] px-5 sm:px-8 py-4 border-b border-stone-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-teal-500 text-stone-950 flex items-center justify-center font-black shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#B97A1F] to-[#E8A33D] text-[#1A1206] flex items-center justify-center font-black shadow-md">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-400/30">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-400/30">
                   {t('commerce.iNDESTINATIONCOMMERCE')}
                 </span>
                 <span className="flex items-center gap-1 text-[12px] text-amber-300 font-mono">
@@ -609,7 +609,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   {contextTimeWindow}
                 </span>
               </div>
-              <h2 id="book-now-commerce-modal-dialog-1-title" className="font-serif font-bold text-lg sm:text-xl text-white mt-0.5">
+              <h2 id="book-now-commerce-modal-dialog-1-title" className="chart-heading font-bold text-lg sm:text-xl text-white mt-0.5">
                 {t('commerce.dahabNowBookInstantly')}
               </h2>
             </div>
@@ -661,7 +661,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
           <div className="p-5 sm:p-8 space-y-6">
             {/* Category Filter Chips */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-2">
+              <label className="block text-xs font-bold text-stone-400 mb-2">
                 {t('commerce.whatDoYouWant')}
               </label>
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -676,9 +676,9 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   <button
                     key={tab.id}
                     onClick={() => setActiveCategory(tab.id as BookNowCategory)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       activeCategory === tab.id
-                        ? 'bg-teal-500 text-stone-950 border-teal-400 shadow-md scale-102'
+                        ? 'bg-[#E8A33D] text-[#1A1206] border-[#E8A33D] shadow-md scale-102'
                         : 'bg-stone-800/80 text-stone-300 hover:text-[var(--text-primary)] border-stone-700 hover:bg-stone-750'
                     }`}
                   >
@@ -700,16 +700,16 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                     <div
                       key={service.id}
                       onClick={() => setSelectedServiceId(service.id)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer text-start ${
+                      className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-start ${
                         isSelected
-                          ? 'bg-stone-800/90 border-teal-400 shadow-lg ring-1 ring-teal-400/40'
+                          ? 'bg-stone-800/90 border-[#C9A24B] shadow-lg ring-1 ring-[#C9A24B]/40'
                           : 'bg-stone-950/60 border-stone-800 hover:border-stone-700 hover:bg-stone-850/60'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-teal-500 text-stone-950' : 'bg-stone-800 text-teal-400'
+                            isSelected ? 'bg-[#E8A33D] text-[#1A1206]' : 'bg-stone-800 text-teal-400'
                           }`}>
                             <Icon className="w-5 h-5" />
                           </div>
@@ -758,7 +758,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
               <div className="lg:col-span-5 bg-stone-950/90 rounded-2xl p-4 sm:p-5 border border-stone-800 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3.5">
                   <div className="border-b border-stone-800 pb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 block">
+                    <span className="text-[11px] font-bold text-teal-400 block">
                       {t('commerce.sELECTEDSERVICE')}
                     </span>
                     <h3 className="font-bold text-base text-white mt-1">
@@ -794,7 +794,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                             onClick={() => setTravelersCount(count)}
                             className={`flex-1 py-1.5 rounded-lg font-bold border transition-colors cursor-pointer ${
                               travelersCount === count
-                                ? 'bg-amber-400 text-stone-950 border-amber-300'
+                                ? 'bg-[#E8A33D] text-[#1A1206] border-[#E8A33D]'
                                 : 'bg-stone-850 text-stone-300 border-stone-700 hover:bg-stone-800'
                             }`}
                           >
@@ -860,7 +860,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                           onClick={() => setCurrencyMode(curr)}
                           className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors cursor-pointer ${
                             currencyMode === curr
-                              ? 'bg-amber-400 text-stone-950 shadow-sm'
+                              ? 'bg-[#E8A33D] text-[#1A1206] shadow-sm'
                               : 'text-stone-400 hover:text-stone-200'
                           }`}
                         >
@@ -901,7 +901,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   <button
                     disabled={isProcessing}
                     onClick={handleConfirmOrder}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-teal-400 text-stone-950 font-black text-sm hover:brightness-110 disabled:opacity-50 transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B97A1F] via-[#E8A33D] to-[#E8A33D] text-[#1A1206] font-black text-sm hover:brightness-110 disabled:opacity-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {isProcessing ? (
                       <span>{t('commerce.securingEscrowHold')}</span>
@@ -932,10 +932,10 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
             </div>
 
             <div>
-              <span className="text-xs uppercase font-bold tracking-widest text-emerald-400">
+              <span className="text-xs font-bold text-emerald-400">
                 {t('commerce.iNSTANTBOOKINGDISPATCHED')}
               </span>
-              <h2 className="font-serif font-bold text-2xl text-white mt-1">
+              <h2 className="chart-heading font-bold text-2xl text-white mt-1">
                 {language === 'ar' ? confirmedBooking?.service.titleAr : confirmedBooking?.service.title}
               </h2>
               <p className="text-stone-400 text-sm mt-1">
@@ -947,7 +947,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
             <div className="max-w-xl mx-auto bg-stone-950 rounded-2xl p-5 border border-stone-800 text-start space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-stone-800 pb-3">
                 <div>
-                  <span className="text-[11px] uppercase font-bold text-stone-400 block">
+                  <span className="text-[11px] font-bold text-stone-400 block">
                     {t('commerce.cONFIRMATIONCODE')}
                   </span>
                   <span className="font-mono font-bold text-lg text-amber-400">
@@ -955,7 +955,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   </span>
                 </div>
                 <div className="text-end">
-                  <span className="text-[11px] uppercase font-bold text-stone-400 block">
+                  <span className="text-[11px] font-bold text-stone-400 block">
                     {t('commerce.sETTLEDINESCROW')}
                   </span>
                   <span className="font-mono font-bold text-base text-white">
@@ -1009,7 +1009,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   handleReset();
                   navigateTo('/my-trip');
                 }}
-                className="px-6 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-stone-950 font-bold text-xs transition-colors cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#E8A33D] hover:brightness-110 text-[#1A1206] font-bold text-xs transition-colors cursor-pointer"
               >
                 {t('commerce.viewInMyTrip')}
               </button>

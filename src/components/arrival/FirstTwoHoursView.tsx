@@ -336,7 +336,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
   };
 
   return (
-    <div className={`min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Outfit',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/30 ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className={`min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/30 ${isRTL ? 'rtl' : 'ltr'}`}>
       
       {/* Main Content Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-grow">
@@ -358,7 +358,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               type="button"
               id="back-to-my-trip-root-btn"
               onClick={onBackToMyTrip}
-              className="text-xs font-medium text-[var(--text-secondary)]/60 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
+              className="text-xs font-medium text-[var(--text-secondary)]/60 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer py-2 -my-2"
             >
               {t('arrival.myTrip')}
             </button>
@@ -396,7 +396,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
               {t('arrival.yourFirst2Hours-2')}
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
@@ -407,15 +407,15 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
           {/* Compact Context Bar */}
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-2xs grid grid-cols-3 gap-2 text-xs max-w-2xl">
             <div className="border-r rtl:border-r-0 rtl:border-l border-[var(--border-subtle)] pr-2 rtl:pr-0 rtl:pl-2">
-              <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">{t('arrival.hotelCheckin-2')}</span>
+              <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('arrival.hotelCheckin-2')}</span>
               <span className="font-bold text-[var(--text-primary)]">{formatClock(clock.checkInAt, lang)}</span>
             </div>
             <div className="border-r rtl:border-r-0 rtl:border-l border-[var(--border-subtle)] px-2">
-              <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">{t('arrival.currentLocation')}</span>
+              <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('arrival.currentLocation')}</span>
               <span className="font-bold text-[var(--text-primary)]">{t('arrival.dahabLighthouse')}</span>
             </div>
             <div className="pl-2 rtl:pl-0 rtl:pr-2">
-              <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">{t('arrival.travelers')}</span>
+              <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('arrival.travelers')}</span>
               <span className="font-bold text-[var(--text-primary)]">{t('arrival.2Adults')}</span>
             </div>
           </div>
@@ -439,13 +439,13 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <AlertCircle className="w-5 h-5 text-amber-400" />
                     <span>{t('arrival.beforeCheckInRunningLate', { duration: formatDuration(clock.minutesUntilCheckIn, lang) })}</span>
                   </div>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-['Outfit',sans-serif]">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     {t('arrival.autoSimplified')}
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
                     {t('arrival.letsKeepItSimple')}
                   </h2>
                   <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -472,7 +472,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <button
                       type="button"
                       onClick={onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold cursor-pointer hover:bg-[var(--accent-secondary)] transition-colors font-['Outfit',sans-serif]"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold cursor-pointer hover:bg-[var(--accent-secondary)] transition-colors"
                     >
                       {t('arrival.goToCheckin')}
                     </button>
@@ -500,7 +500,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   👌
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                     {t('arrival.niceStart')}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)]/80 font-medium">
@@ -509,7 +509,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] max-w-sm mx-auto space-y-1 text-xs">
-                  <span className="text-[11px] uppercase font-bold text-[var(--accent-secondary)] tracking-wider block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-bold text-[var(--accent-secondary)] block">
                     {t('arrival.next')}
                   </span>
                   <p className="font-bold text-[var(--text-primary)] text-sm">
@@ -525,7 +525,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     type="button"
                     id="continue-to-my-trip-btn"
                     onClick={onBackToMyTrip}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all inline-flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] inline-flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>{t('arrival.continueToMyTrip')}</span>
                     {isRTL ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
@@ -546,7 +546,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <Sparkles className="w-4 h-4" />
                     <span>{t('arrival.beforeCheckIn', { duration: formatDuration(clock.minutesUntilCheckIn, lang) })}</span>
                   </div>
-                  <span className="text-xs font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-['Outfit',sans-serif]">
+                  <span className="text-xs font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                     {t('arrival.extraFreeTime')}
                   </span>
                 </div>
@@ -562,7 +562,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                         key={option.id}
                         type="button"
                         onClick={() => handleLiveOptionAction(option)}
-                        className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-left rtl:text-right space-y-1 transition-all cursor-pointer group"
+                        className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                       >
                         <span className="text-lg block">{option.icon}</span>
                         <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
@@ -579,7 +579,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActivityModalType('breakfast')}
-                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-left rtl:text-right space-y-1 transition-all cursor-pointer group"
+                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
                       <span className="text-lg block">☕</span>
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
@@ -593,7 +593,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActivityModalType('beach')}
-                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-left rtl:text-right space-y-1 transition-all cursor-pointer group"
+                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
                       <span className="text-lg block">🏖</span>
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
@@ -607,7 +607,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setActivityModalType('walk')}
-                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-left rtl:text-right space-y-1 transition-all cursor-pointer group"
+                      className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
                       <span className="text-lg block">🚶</span>
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
@@ -630,10 +630,10 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-4">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('arrival.personalizedRecommendation')}
                   </span>
-                  <h2 className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                     {t('arrival.heresWhatWedDo')}
                   </h2>
                   <p className="text-xs text-[var(--text-secondary)]/70 mt-0.5 font-medium">
@@ -647,7 +647,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     type="button"
                     id="change-plan-top-btn"
                     onClick={() => setIsEditPlanModalOpen(true)}
-                    className="px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)]/80 text-[var(--text-secondary)] border border-[var(--border-subtle)] text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+                    className="px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)]/80 text-[var(--text-secondary)] border border-[var(--border-subtle)] text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                     <span>{t('arrival.changeThisPlan')}</span>
@@ -674,7 +674,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   {steps.map((step, idx) => (
                     <div 
                       key={idx}
-                      className={`h-2 rounded-full transition-all ${
+                      className={`h-2 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                         step.isCompleted 
                           ? 'w-4 bg-emerald-500' 
                           : idx === completedCount 
@@ -699,7 +699,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                       setPlanVariant('coffee-beach');
                       showToast(t('arrival.switchedToCoffeeBeach'));
                     }}
-                    className="px-3 py-1 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-[12px] hover:bg-[var(--accent-secondary)] transition-colors cursor-pointer whitespace-nowrap font-['Outfit',sans-serif]"
+                    className="px-3.5 py-2 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-[12px] hover:bg-[var(--accent-secondary)] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     {t('arrival.coffeeBeach')}
                   </button>
@@ -715,7 +715,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                       setPlanVariant('standard');
                       showToast(t('arrival.restoredStandardBreakfastPlan'));
                     }}
-                    className="px-3 py-1 rounded-full bg-[var(--surface-card)] border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] font-bold text-[12px] hover:bg-[var(--surface-container)] transition-colors cursor-pointer whitespace-nowrap font-['Outfit',sans-serif]"
+                    className="px-3 py-1 rounded-full bg-[var(--surface-card)] border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)] font-bold text-[12px] hover:bg-[var(--surface-container)] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     {t('arrival.restoreStandardPlan')}
                   </button>
@@ -731,7 +731,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                     <div 
                       key={step.id}
                       id={`timeline-card-${step.id}`}
-                      className={`relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-3xl border transition-all ${
+                      className={`relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                         step.isCompleted
                           ? 'bg-[var(--surface-container)]/40 border-emerald-500/40 opacity-90'
                           : isCurrentActive
@@ -744,7 +744,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                         type="button"
                         onClick={() => handleToggleStepCompletion(step.id)}
                         title={step.isCompleted ? (t('arrival.markAsIncomplete')) : (t('arrival.markAsDone'))}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center flex-shrink-0 z-10 text-base sm:text-lg transition-all cursor-pointer shadow-2xs ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center flex-shrink-0 z-10 text-base sm:text-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-2xs ${
                           step.isCompleted
                             ? 'bg-emerald-600 text-white'
                             : isCurrentActive
@@ -778,21 +778,21 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                               </span>
                             )}
                             {isCurrentActive && (
-                              <span className="text-[11px] font-bold text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/30 px-2 py-0.5 rounded-full flex items-center gap-1 font-['Outfit',sans-serif]">
+                              <span className="text-[11px] font-bold text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-secondary)] animate-pulse"></span>
                                 <span>{t('arrival.upNext')}</span>
                               </span>
                             )}
                           </div>
 
-                          <span className="text-[12px] font-bold text-[var(--accent-secondary)]/80 font-['Outfit',sans-serif]">
+                          <span className="text-[12px] font-bold text-[var(--accent-secondary)]/80">
                             {step.category}
                           </span>
                         </div>
 
                         {/* Title & Description */}
                         <div>
-                          <h3 className={`text-base font-['Outfit',sans-serif] font-bold ${
+                          <h3 className={`text-base font-bold ${
                             step.isCompleted ? 'text-[var(--text-secondary)]/60 line-through decoration-[var(--text-secondary)]/40' : 'text-[var(--text-primary)]'
                           }`}>
                             {step.title}
@@ -807,7 +807,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleStepCTA(step.ctaAction)}
-                            className="px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 font-['Outfit',sans-serif]"
+                            className="px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
                           >
                             <span>{step.ctaText}</span>
                             {isRTL ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
@@ -816,7 +816,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleToggleStepCompletion(step.id)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 font-['Outfit',sans-serif] ${
+                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
                               step.isCompleted
                                 ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-950'
                                 : 'bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
@@ -861,12 +861,12 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   <div className="w-7 h-7 rounded-lg bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center font-bold">
                     <Building className="w-3.5 h-3.5" />
                   </div>
-                  <h2 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                  <h2 className=" font-bold text-base text-[var(--text-primary)]">
                     {t('arrival.dahabBayHotel-2')}
                   </h2>
                 </div>
 
-                <span className="text-[12px] font-bold text-amber-300 bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-['Outfit',sans-serif]">
+                <span className="text-[12px] font-bold text-amber-300 bg-amber-500/20 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
                   {`${t('arrival.checkin-2')} ${formatClock(clock.checkInAt, lang)}`}
                 </span>
               </div>
@@ -890,7 +890,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                 type="button"
                 id="drop-luggage-sidebar-btn"
                 onClick={() => setIsLuggageModalOpen(true)}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)]/10 text-xs font-bold text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)]/10 text-xs font-bold text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Luggage className="w-3.5 h-3.5" />
                 <span>{t('arrival.luggageStorageDirections120m')}</span>
@@ -903,7 +903,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4"
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
-                <h2 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                <h2 className=" font-bold text-base text-[var(--text-primary)]">
                   {t('arrival.morningBreakdown')}
                 </h2>
                 <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
@@ -937,16 +937,16 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3.5"
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                   {t('arrival.upcomingTripMilestone')}
                 </span>
-                <span className="text-[12px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-full font-['Outfit',sans-serif]">
+                <span className="text-[12px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                   {t('arrival.confirmed')}
                 </span>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
-                <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase tracking-wider font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-secondary)]">
                   {t('arrival.tomorrow0900AM')}
                 </span>
                 <h3 className="font-bold text-sm text-[var(--text-primary)]">
@@ -960,7 +960,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               <button
                 type="button"
                 onClick={onBackToMyTrip}
-                className="w-full py-2 px-3 rounded-full text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] hover:bg-[var(--surface-container)] transition-colors flex items-center justify-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2 px-3 rounded-full text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] hover:bg-[var(--surface-container)] transition-colors flex items-center justify-center gap-1 cursor-pointer"
               >
                 <span>{t('arrival.view5DayDahabItinerary')}</span>
                 {isRTL ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -979,7 +979,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               <button
                 type="button"
                 onClick={onOpenHelp}
-                className="w-full py-2 rounded-full bg-[var(--surface-container)] hover:bg-rose-950/40 border border-rose-500/40 text-rose-300 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2 rounded-full bg-[var(--surface-container)] hover:bg-rose-950/40 border border-rose-500/40 text-rose-300 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-rose-400" />
                 <span>{t('arrival.helpMeNow')}</span>
@@ -1003,7 +1003,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
           type="button"
           id="mobile-change-plan-btn"
           onClick={() => setIsEditPlanModalOpen(true)}
-          className="py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer hover:bg-[var(--accent-secondary)] font-['Outfit',sans-serif]"
+          className="py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer hover:bg-[var(--accent-secondary)]"
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span>{t('arrival.changePlan')}</span>
@@ -1022,7 +1022,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[var(--accent-secondary)]" />
-                <h2 id="first2h-edit-plan-title" className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 id="first2h-edit-plan-title" className="text-lg font-bold text-[var(--text-primary)]">
                   {t('arrival.changeThisPlan-2')}
                 </h2>
               </div>
@@ -1050,15 +1050,15 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   setIsEditPlanModalOpen(false);
                   showToast(t('arrival.updatedToStandardBreakfast'));
                 }}
-                className={`w-full text-start p-4 rounded-2xl border transition-all cursor-pointer space-y-1 ${
+                className={`w-full text-start p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-1 ${
                   planVariant === 'standard' ? 'border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)]' : 'border-[var(--border-subtle)] bg-[var(--surface-container)]/50 hover:border-[var(--accent-secondary)]/40'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-['Outfit',sans-serif] font-bold text-sm text-[var(--text-primary)]">
+                  <h3 className=" font-bold text-sm text-[var(--text-primary)]">
                     {t('arrival.standardBreakfastCoastalWalk')}
                   </h3>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30">
                     {t('arrival.balanced')}
                   </span>
                 </div>
@@ -1076,15 +1076,15 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   setIsEditPlanModalOpen(false);
                   showToast(t('arrival.updatedToCoffeeBeach'));
                 }}
-                className={`w-full text-start p-4 rounded-2xl border transition-all cursor-pointer space-y-1 ${
+                className={`w-full text-start p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-1 ${
                   planVariant === 'coffee-beach' ? 'border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-[0_0_15px_rgba(244,195,108,0.15)]' : 'border-[var(--border-subtle)] bg-[var(--surface-container)]/50 hover:border-[var(--accent-secondary)]/40'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-['Outfit',sans-serif] font-bold text-sm text-[var(--text-primary)]">
+                  <h3 className=" font-bold text-sm text-[var(--text-primary)]">
                     {t('arrival.skipBreakfastCoffeeBeach')}
                   </h3>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     {t('arrival.relaxed')}
                   </span>
                 </div>
@@ -1101,13 +1101,13 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                   setIsEditPlanModalOpen(false);
                   showToast(t('arrival.hotelDropoffSelected'));
                 }}
-                className="w-full text-start p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 hover:border-[var(--accent-secondary)]/40 transition-all cursor-pointer space-y-1"
+                className="w-full text-start p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 hover:border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-1"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-['Outfit',sans-serif] font-bold text-sm text-[var(--text-primary)]">
+                  <h3 className=" font-bold text-sm text-[var(--text-primary)]">
                     {t('arrival.minimalDropBagsHotel')}
                   </h3>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/70 font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/70">
                     {t('arrival.rest')}
                   </span>
                 </div>
@@ -1121,7 +1121,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsEditPlanModalOpen(false)}
-                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-secondary)] border border-[var(--border-subtle)] transition-colors cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-[var(--text-secondary)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
                 {t('arrival.keepCurrentPlan')}
               </button>

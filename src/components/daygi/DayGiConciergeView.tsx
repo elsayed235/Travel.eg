@@ -243,13 +243,16 @@ export const DayGiConciergeView: React.FC = () => {
       return;
     }
 
+    // Trip-scoped reads stay home when there is no trip: firing them with an
+    // empty tripId produced a burst of 400s on every mount for travelers who
+    // have not planned anything yet. Memory is user-scoped and always loads.
     const fetchProactiveData = async () => {
       try {
         const [proactiveRes, healthRes, memoryRes, tasksRes] = await Promise.all([
-          api.getDayGiProactive(activeTripId).catch(() => null),
-          api.getDayGiTripHealth(activeTripId).catch(() => null),
+          activeTripId ? api.getDayGiProactive(activeTripId).catch(() => null) : Promise.resolve(null),
+          activeTripId ? api.getDayGiTripHealth(activeTripId).catch(() => null) : Promise.resolve(null),
           api.getDayGiMemory().catch(() => null),
-          api.getDayGiTasks(activeTripId).catch(() => [])
+          activeTripId ? api.getDayGiTasks(activeTripId).catch(() => []) : Promise.resolve([])
         ]);
         if (proactiveRes?.suggestions) {
           setProactiveSuggestions(proactiveRes.suggestions);
@@ -1147,7 +1150,7 @@ export const DayGiConciergeView: React.FC = () => {
                                   </span>
                                   <span>{lang === 'ar' ? step.labelAr : step.labelEn}</span>
                                 </div>
-                                <span className="text-[11px] font-mono uppercase bg-[var(--dg-well)] px-1.5 py-0.5 rounded">
+                                <span className="text-[11px] font-mono bg-[var(--dg-well)] px-1.5 py-0.5 rounded">
                                   {step.systemComponent}
                                 </span>
                               </div>
@@ -1177,7 +1180,7 @@ export const DayGiConciergeView: React.FC = () => {
                       {payload.actionType === 'MULTI_STEP_OPTIONS' && payload.multiOptions && (
                         <div className="bg-gradient-to-br from-[var(--dg-panel-2)] to-[var(--dg-panel)] border border-[var(--dg-teal)]/50 rounded-xl p-4 shadow-xl space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] text-[var(--dg-teal)] font-bold uppercase tracking-wider block">
+                            <span className="text-[11px] text-[var(--dg-teal)] font-bold block">
                               {t('daygi.3VerifiedPostDiveOptions')}
                             </span>
                             <span className="text-[12px] text-[var(--dg-gold)] font-semibold">
@@ -1189,7 +1192,7 @@ export const DayGiConciergeView: React.FC = () => {
                             {payload.multiOptions.options.map((opt, idx) => (
                               <div 
                                 key={opt.id} 
-                                className="bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] border border-[var(--dg-line)] rounded-xl p-3 text-xs transition-all space-y-2"
+                                className="bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-2)] border border-[var(--dg-line)] rounded-xl p-3 text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2"
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div>
@@ -1205,7 +1208,7 @@ export const DayGiConciergeView: React.FC = () => {
                                       {lang === 'ar' ? opt.whyItFitsAr : opt.whyItFitsEn}
                                     </p>
                                   </div>
-                                  <div className="text-right shrink-0">
+                                  <div className="text-end shrink-0">
                                     <span className="font-bold text-[var(--dg-gold)] text-xs block">
                                       <span className="dg-num">{opt.priceEGP} EGP</span>
                                     </span>
@@ -1225,7 +1228,7 @@ export const DayGiConciergeView: React.FC = () => {
                                         title: opt.titleEn
                                       })}
                                       disabled={executingActionId === msg.id}
-                                      className="bg-gradient-to-r bg-[var(--dg-ok)] hover:brightness-110 text-[var(--dg-text)] font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
+                                      className="bg-gradient-to-r bg-[var(--dg-ok)] hover:brightness-110 text-[var(--dg-text)] font-bold py-1.5 px-3 rounded-lg text-xs flex items-center gap-1 shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-[0.99] disabled:opacity-50"
                                     >
                                       <CheckCircle2 className="w-3 h-3" />
                                       <span>{t('dayGi.bookOptionNext', { idx: idx + 1 })}</span>
@@ -1250,11 +1253,11 @@ export const DayGiConciergeView: React.FC = () => {
 
                           <div className="space-y-1 text-xs">
                             <div className="bg-[var(--dg-tint)] p-2.5 rounded-lg space-y-1">
-                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{t('daygi.whatChanged')}</span>
+                              <span className="text-[var(--dg-muted)] block text-[11px] font-bold">{t('daygi.whatChanged')}</span>
                               <span className="text-[var(--dg-text)] font-medium">{lang === 'ar' ? payload.whatChanged.whatChangedAr : payload.whatChanged.whatChangedEn}</span>
                             </div>
                             <div className="bg-[var(--dg-tint)] p-2.5 rounded-lg space-y-1">
-                              <span className="text-[var(--dg-muted)] block text-[11px] uppercase font-bold">{t('daygi.whatDoesItAffect')}</span>
+                              <span className="text-[var(--dg-muted)] block text-[11px] font-bold">{t('daygi.whatDoesItAffect')}</span>
                               <span className="text-[var(--dg-risk)] font-semibold">{lang === 'ar' ? payload.whatChanged.whatItAffectsAr : payload.whatChanged.whatItAffectsEn}</span>
                             </div>
                           </div>
@@ -1271,7 +1274,7 @@ export const DayGiConciergeView: React.FC = () => {
                                   <button
                                     onClick={() => handleExecuteAction(msg.id, opt.actionKey, opt.actionPayload)}
                                     disabled={executingActionId === msg.id}
-                                    className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold px-3 py-1.5 rounded-lg text-xs shrink-0 transition-all"
+                                    className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold px-3 py-1.5 rounded-lg text-xs shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity]"
                                   >
                                     {t('daygi.select')}
                                   </button>
@@ -1328,7 +1331,7 @@ export const DayGiConciergeView: React.FC = () => {
                             <button
                               onClick={() => handleExecuteAction(msg.id, payload.multiActionConfirmation!.step5ActionKey, payload.multiActionConfirmation!.step5Payload)}
                               disabled={executingActionId === msg.id}
-                              className="w-full bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
+                              className="w-full bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center gap-2 shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-[0.99] disabled:opacity-50"
                             >
                               {executingActionId === msg.id ? (
                                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -1401,7 +1404,7 @@ export const DayGiConciergeView: React.FC = () => {
                         <div className="bg-gradient-to-br from-[var(--dg-panel-2)] to-[var(--dg-panel)] border border-[var(--dg-teal)]/50 rounded-xl p-4 shadow-xl">
                           <div className="flex items-start justify-between gap-2 mb-3">
                             <div>
-                              <span className="text-[11px] text-[var(--dg-teal)] font-bold uppercase tracking-wider block">
+                              <span className="text-[11px] text-[var(--dg-teal)] font-bold block">
                                 {t('daygi.directBookingReview')}
                               </span>
                               <h4 className="font-bold text-[var(--dg-text)] text-sm">
@@ -1411,7 +1414,7 @@ export const DayGiConciergeView: React.FC = () => {
                                 {payload.actionData.bookingReview.supplierName}
                               </p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-end">
                               <span className="text-sm font-bold text-[var(--dg-gold)] block">
                                 <span className="dg-num">{payload.actionData.bookingReview.priceEGP?.toLocaleString()} EGP</span>
                               </span>
@@ -1445,7 +1448,7 @@ export const DayGiConciergeView: React.FC = () => {
                                   priceEGP: payload.actionData?.bookingReview?.priceEGP
                                 })}
                                 disabled={executingActionId === msg.id}
-                                className="bg-gradient-to-r bg-[var(--dg-ok)] hover:brightness-110 text-[var(--dg-text)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-[0.99] disabled:opacity-50"
+                                className="bg-gradient-to-r bg-[var(--dg-ok)] hover:brightness-110 text-[var(--dg-text)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-[0.99] disabled:opacity-50"
                               >
                                 {executingActionId === msg.id ? (
                                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -1457,7 +1460,7 @@ export const DayGiConciergeView: React.FC = () => {
 
                               <button
                                 onClick={() => handleOpenBookingHandoff(payload.actionData?.bookingReview?.skuId || 'SKU-DIV-001')}
-                                className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-[0.99]"
+                                className="bg-[var(--dg-gold)] hover:bg-[var(--dg-gold-hi)] text-[var(--dg-gold-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-[0.99]"
                               >
                                 <ShoppingBag className="w-3.5 h-3.5" />
                                 <span>{t('daygi.payNow')}</span>
@@ -1506,7 +1509,7 @@ export const DayGiConciergeView: React.FC = () => {
                             <button
                               onClick={() => handleExecuteAction(msg.id, 'APPLY_BUDGET_OPTIMIZATION', {})}
                               disabled={executingActionId === msg.id}
-                              className="w-full bg-[var(--dg-teal)] hover:bg-[var(--dg-teal-hi)] text-[var(--dg-teal-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                              className="w-full bg-[var(--dg-teal)] hover:bg-[var(--dg-teal-hi)] text-[var(--dg-teal-ink)] font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] disabled:opacity-50"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
                               <span>{t('daygi.applySavingsOptimizations')}</span>
@@ -1633,7 +1636,7 @@ export const DayGiConciergeView: React.FC = () => {
                               <button
                                 key={item.tag}
                                 onClick={() => handleFeedback(msg.id, msg.liked || true, item.tag)}
-                                className="px-2 py-0.5 rounded-md bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-3)] border border-[var(--dg-line)] text-[11px] text-[var(--dg-text-2)] hover:text-[var(--dg-text)] transition-all"
+                                className="px-2 py-0.5 rounded-md bg-[var(--dg-tint)] hover:bg-[var(--dg-tint-3)] border border-[var(--dg-line)] text-[11px] text-[var(--dg-text-2)] hover:text-[var(--dg-text)] transition-[background-color,border-color,color,box-shadow,transform,opacity]"
                               >
                                 {lang === 'ar' ? item.labelAr : item.labelEn}
                               </button>
@@ -1727,7 +1730,7 @@ export const DayGiConciergeView: React.FC = () => {
               type="submit"
               disabled={!inputText.trim() || isLoading}
               aria-label={t('daygi.sendMessage')}
-              className="dg-focus w-10 h-10 rounded-full bg-[var(--dg-teal)] text-[var(--dg-gold-ink)] flex items-center justify-center hover:brightness-110 active:scale-95 transition-all disabled:opacity-30 disabled:hover:brightness-100 shrink-0"
+              className="dg-focus w-10 h-10 rounded-full bg-[var(--dg-teal)] text-[var(--dg-gold-ink)] flex items-center justify-center hover:brightness-110 active:scale-95 transition-[background-color,border-color,color,box-shadow,transform,opacity] disabled:opacity-30 disabled:hover:brightness-100 shrink-0"
             >
               {isLoading
                 ? <RefreshCw className="w-4.5 h-4.5 animate-spin" aria-hidden="true" />
@@ -1892,7 +1895,7 @@ export const DayGiConciergeView: React.FC = () => {
                     <button
                       key={p}
                       onClick={() => handleUpdatePreferences({ pace: p })}
-                      className={`px-2 py-1 rounded text-xs transition-all ${userMemory.preferences.pace === p ? 'bg-[var(--dg-gold)] text-[var(--dg-gold-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
+                      className={`px-2 py-1 rounded text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] ${userMemory.preferences.pace === p ? 'bg-[var(--dg-gold)] text-[var(--dg-gold-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                     >
                       {p}
                     </button>
@@ -1906,13 +1909,13 @@ export const DayGiConciergeView: React.FC = () => {
                 <div className="flex items-center gap-1 bg-[var(--dg-well)] p-1 rounded-lg">
                   <button
                     onClick={() => handleUpdatePreferences({ morningPreference: 'Late_Start' })}
-                    className={`px-2 py-1 rounded text-xs transition-all ${userMemory.preferences.morningPreference === 'Late_Start' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
+                    className={`px-2 py-1 rounded text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] ${userMemory.preferences.morningPreference === 'Late_Start' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                   >
                     {t('daygi.after10AM')}
                   </button>
                   <button
                     onClick={() => handleUpdatePreferences({ morningPreference: 'Early_Bird' })}
-                    className={`px-2 py-1 rounded text-xs transition-all ${userMemory.preferences.morningPreference === 'Early_Bird' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
+                    className={`px-2 py-1 rounded text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] ${userMemory.preferences.morningPreference === 'Early_Bird' ? 'bg-[var(--dg-teal)] text-[var(--dg-teal-ink)] font-bold' : 'text-[var(--dg-muted)] hover:text-[var(--dg-text)]'}`}
                   >
                     {t('daygi.earlyBird')}
                   </button>

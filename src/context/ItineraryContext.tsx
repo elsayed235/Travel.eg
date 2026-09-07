@@ -161,7 +161,7 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // and the server would reject the write regardless.
       if (!isSignedIn) {
         setIntendedRoute('/my-trip');
-        showToast('Sign in to add this to your trip.');
+        showToast(t('itinerary.signInToAdd'));
         navigateTo('/auth/sign-in');
         return;
       }
@@ -182,7 +182,9 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           openTrip(trip.id);
         } catch (error: unknown) {
           showToast(
-            `Could not start a trip for this: ${error instanceof Error ? error.message : 'please try again'}`
+            t('itinerary.startTripFailed', {
+              reason: error instanceof Error ? error.message : 'please try again'
+            })
           );
           return;
         }
@@ -204,7 +206,7 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           priceEGP: activity.priceEGP ?? 0
         });
 
-        showToast(`Added "${activity.title}" to Day ${dayNumber} ✓`);
+        showToast(t('itinerary.addedToDay', { title: activity.title, day: dayNumber }));
         // Replaces the optimistic entry with the server's, which carries the
         // real item id and its SUGGESTED status — both of which the Book and
         // Remove actions need.
@@ -218,7 +220,10 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           )
         );
         showToast(
-          `"${activity.title}" was not added: ${error instanceof Error ? error.message : 'please try again'}`
+          t('itinerary.addFailed', {
+            title: activity.title,
+            reason: error instanceof Error ? error.message : 'please try again'
+          })
         );
         return;
       }
@@ -283,13 +288,13 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
 
       if (!activeTrip) {
-        showToast('Activity removed from itinerary');
+        showToast(t('itinerary.removed'));
         return;
       }
 
       try {
         await api.removeTripItem(activeTrip.id, activityId);
-        showToast('Activity removed from itinerary');
+        showToast(t('itinerary.removed'));
         reloadTrip();
       } catch (error: unknown) {
         // Put it back. A row that is still stored must still be on screen.
@@ -297,11 +302,13 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           setTripDays(prevDays => placeActivity(prevDays, dayNumber, removed));
         }
         showToast(
-          `Could not remove that: ${error instanceof Error ? error.message : 'please try again'}`
+          t('itinerary.removeFailed', {
+            reason: error instanceof Error ? error.message : 'please try again'
+          })
         );
       }
     },
-    [activeTrip, placeActivity, reloadTrip, showToast, tripDays]
+    [activeTrip, placeActivity, reloadTrip, showToast, t, tripDays]
   );
 
   const updateActivityInDay = useCallback(

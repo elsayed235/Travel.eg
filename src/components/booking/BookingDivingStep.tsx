@@ -106,7 +106,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
     <div
       id="booking-diving-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 lg:pb-16"
     >
       {/* 1. Global Navigation & Booking Progress Header */}
       <header className="border-b border-[var(--border-subtle)] bg-[var(--surface-card)]/95 backdrop-blur-md sticky top-0 z-30 shadow-md">
@@ -116,14 +116,14 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
             <button
               type="button"
               onClick={onReturnHome}
-              className="text-xl font-black tracking-widest text-[var(--text-primary)] font-['Outfit',sans-serif] hover:opacity-80 transition-opacity cursor-pointer"
+              className="text-xl font-black text-[var(--text-primary)] hover:opacity-80 transition-opacity cursor-pointer"
             >
               {isAr ? 'دهب' : 'DAHAB'}
             </button>
             <span className="text-[var(--text-muted)]">/</span>
             <div className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] inline-block shadow-[0_0_8px_var(--accent-primary)]" />
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+              <span className="text-xs font-bold text-[var(--accent-primary)]">
                 {isAr ? 'حجز رحلتك' : 'Booking your trip'}
               </span>
             </div>
@@ -201,7 +201,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
         <div className="mb-8 space-y-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
+              <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
                 {isAr ? 'تنسيق الأنشطة والفعاليات' : 'Activity Coordination'}
               </span>
               <span className="text-xs font-bold text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 border border-[var(--accent-secondary)]/30 px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -209,7 +209,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
                 <span>{isAr ? 'موصى به لرحلتك' : 'Recommended for you'}</span>
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
               {isAr ? 'اجعل الغطس جزءاً أساسياً من رحلتك إلى دهب' : 'Make diving part of your Dahab trip.'}
             </h1>
             <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">
@@ -225,7 +225,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary-ink)] bg-[var(--accent-secondary)] px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                  <span className="text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-secondary)] px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
                     <Sparkles className="w-3 h-3 text-[var(--accent-primary-ink)]" />
                     <span>{isAr ? 'الأكثر ملاءمة' : 'Best match'}</span>
                   </span>
@@ -234,7 +234,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
                   </span>
                 </div>
 
-                <p className="text-sm sm:text-base font-serif font-bold text-[var(--text-primary)] leading-snug">
+                <p className="text-sm sm:text-base chart-heading font-bold text-[var(--text-primary)] leading-snug">
                   {isAr ? 'تجربة غطس إرشادية تمنحك وقتاً ساحراً تحت الماء دون استهلاك يومك بالكامل.' : 'A guided diving experience that gives you time underwater without taking over your entire day.'}
                 </p>
 
@@ -264,7 +264,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
                 <button
                   type="button"
                   onClick={() => handleSelectDiving('guided-diving')}
-                  className="px-5 py-2.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                  className="px-5 py-2.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] text-xs font-bold shadow-xs hover:shadow transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 active:scale-95"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{isAr ? 'اختيار التجربة الموصى بها' : 'Choose recommended pick'}</span>
@@ -281,7 +281,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
             {/* 3 Curated Diving Options Section */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {isAr ? 'باقات الغطس المختارة' : 'Curated diving experiences'}
                 </h2>
                 <span className="text-xs text-[var(--text-secondary)]/60">
@@ -351,7 +351,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] block truncate">
+            <span className="text-[11px] font-bold text-[var(--accent-primary)] block truncate">
               {selectedDiving ? divingDisplayName : (isAr ? 'اختر الغطس' : 'Select diving')}
             </span>
             <div className="text-sm font-bold text-[var(--text-primary)] truncate">
@@ -367,7 +367,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
             id="mobile-continue-diving-btn"
             disabled={!selectedDiving}
             onClick={handleContinue}
-            className={`inline-flex items-center justify-center gap-1.5 px-6 py-3.5 rounded-full text-xs font-bold shadow-md transition-all whitespace-nowrap ${
+            className={`inline-flex items-center justify-center gap-1.5 px-6 py-3.5 rounded-full text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] whitespace-nowrap ${
               selectedDiving
                 ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold cursor-pointer active:scale-95'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'
@@ -401,13 +401,13 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
             if (e.target === e.currentTarget) setShowConfirmationModal(false);
           }}
         >
-          <div className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-[var(--border-subtle)] text-center space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
+          <div className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-md rounded-3xl p-6 sm:p-7 shadow-2xl border border-[var(--border-subtle)] text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
-              <h3 id="diving-confirmation-modal-title" className="text-xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 id="diving-confirmation-modal-title" className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                 {isAr ? 'تمت إضافة الغطس لرحلتك ✓' : 'Diving added to your trip ✓'}
               </h3>
               <p className="text-sm font-semibold text-[var(--accent-primary)]">
@@ -418,8 +418,8 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-left rtl:text-right text-xs space-y-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] block">
+            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-start text-xs space-y-2.5">
+              <span className="text-[11px] font-bold text-[var(--accent-primary)] block">
                 {isAr ? 'تقدم حجز الخدمات' : 'Trip Booking Progress'}
               </span>
               <div className="space-y-1.5 text-[12px] text-[var(--text-secondary)]/80">
@@ -451,7 +451,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
                 type="button"
                 id="proceed-to-safari-btn"
                 onClick={handleConfirmProceed}
-                className="w-full py-3 rounded-full text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-3 rounded-full text-xs font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>{isAr ? 'المتابعة إلى السفاري' : 'Continue to Safari'}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />

@@ -354,7 +354,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/*
         This view had no <h1> at all — its only h2s are the two conditional
@@ -413,10 +413,10 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                 ✓
               </div>
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-emerald-400 block">
                   {t('recovery.planSuccessfullyUpdated')}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)]">
                   {t('recovery.weveFixedYourDay')}
                 </h2>
               </div>
@@ -430,8 +430,8 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
             <div className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
                 <div className="space-y-0.5">
-                  <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('recovery.newConfirmedActivity')}</span>
-                  <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                  <span className="text-[11px] font-bold text-[var(--accent-secondary)]">{t('recovery.newConfirmedActivity')}</span>
+                  <h3 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                     {language === 'ar' ? currentOption.titleAr : currentOption.title}
                   </h3>
                 </div>
@@ -458,7 +458,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
 
             {/* Timeline Preview */}
             <div className="space-y-3">
-              <h3 className="text-base font-serif font-bold text-[var(--text-primary)]">
+              <h3 className="text-base chart-heading font-bold text-[var(--text-primary)]">
                 {t('recovery.updatedTripTimeline')}
               </h3>
 
@@ -517,7 +517,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                 type="button"
                 id="view-updated-itinerary-btn"
                 onClick={onBackToCompanion || onBackToMyTrip}
-                className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2 cursor-pointer active:scale-98"
               >
                 <span>{t('recovery.returnToDailyCompanion')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -547,13 +547,13 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                   </div>
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                         {observedLabel
                           ? t('recovery.marineReading', { observedLabel })
                           : t('recovery.changeOfPlan')}
                       </span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)]">
                       {isChoppy
                         ? t('recovery.windNotComfortable', { knots: wind!.knots })
                         : t('recovery.wantToChangeSomething')}
@@ -599,7 +599,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               {/* 2. 3 CURATED ALTERNATIVES */}
               <section id="alternatives-section" className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+                  <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                     {t('recovery.chooseYourBestAlternative')}
                   </h3>
                   <span className="text-xs text-[var(--text-secondary)]/60">
@@ -616,7 +616,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                         type="button"
                         onClick={() => handleSelectOption(alt.id)}
                         aria-pressed={isSelected}
-                        className={`w-full text-start rounded-3xl p-5 sm:p-6 border transition-all cursor-pointer space-y-3 ${
+                        className={`w-full text-start rounded-3xl p-5 sm:p-6 border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-3 ${
                           isSelected
                             ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                             : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)]'
@@ -624,7 +624,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full ${
+                            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full ${
                               alt.badgeStyle === 'emerald'
                                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                                 : alt.badgeStyle === 'amber'
@@ -649,7 +649,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                         </div>
 
                         <div className="space-y-1">
-                          <h4 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                          <h4 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                             {language === 'ar' ? alt.titleAr : alt.title}
                           </h4>
                           <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
@@ -686,8 +686,8 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] shadow-xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-[var(--accent-secondary)] uppercase font-['Outfit',sans-serif]">{t('recovery.selectedAlternative')}</span>
-                    <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    <span className="text-[11px] font-bold text-[var(--accent-secondary)]">{t('recovery.selectedAlternative')}</span>
+                    <h4 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                       {language === 'ar' ? currentOption.titleAr : currentOption.title}
                     </h4>
                   </div>
@@ -698,7 +698,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                   type="button"
                   id="confirm-rebooking-btn"
                   onClick={handleRebookingConfirmation}
-                  className="w-full py-3.5 px-6 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                  className="w-full py-3.5 px-6 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <RefreshCw className="w-4 h-4 text-[var(--surface-card)]" />
                   <span>{t('recovery.confirmApplyThisPlan', { title: language === 'ar' ? currentOption.titleAr : '' })}</span>
@@ -718,7 +718,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
                 <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('recovery.automatedCoordination')}
                   </h3>
                 </div>
@@ -747,7 +747,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               <div className="bg-[var(--surface-container)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3.5">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h4 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h4 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('recovery.needExpertAdvice')}
                   </h4>
                 </div>
@@ -759,7 +759,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenHelp && onOpenHelp('boat-weather')}
-                  className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--accent-secondary)] font-bold text-xs border border-[var(--accent-secondary)]/40 transition-all cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--accent-secondary)] font-bold text-xs border border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                 >
                   {t('recovery.chatWithDahabExpert')}
                 </button>
@@ -783,7 +783,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
               <div className="flex items-center gap-2 text-amber-300">
                 <AlertTriangle className="w-5 h-5" />
-                <h3 className="text-base font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-base chart-heading font-bold text-[var(--text-primary)]">
                   {t('recovery.scheduleConflictDetected')}
                 </h3>
               </div>
@@ -804,7 +804,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               <button
                 type="button"
                 onClick={handleResolveConflict}
-                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 {t('recovery.shiftQuadTourTo')}
               </button>

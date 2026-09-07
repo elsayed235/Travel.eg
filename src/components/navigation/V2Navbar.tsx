@@ -332,14 +332,14 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
       <header
         role="banner"
         dir={isRTL ? 'rtl' : 'ltr'}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 pointer-events-none ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 pointer-events-none ${
           isScrolled ? 'pt-2 sm:pt-2.5' : 'pt-2.5 sm:pt-3.5'
         }`}
       >
         <div
           ref={headerInnerRef}
           onMouseLeave={() => setOpenPanel(null)}
-          className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative"
+          className="max-w-7xl min-[1500px]:max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 relative"
         >
           <nav
             aria-label="DAHAB TRAVEL OS Header"
@@ -349,7 +349,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
               backdropFilter: 'blur(16px) saturate(180%)',
               WebkitBackdropFilter: 'blur(16px) saturate(180%)'
             }}
-            className="pointer-events-auto mx-auto rounded-full transition-all duration-300 flex items-center justify-between border px-3 sm:px-5 py-2 sm:py-2.5 shadow-lg text-[var(--text-primary)]"
+            className="pointer-events-auto mx-auto rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 flex items-center justify-between border px-3 sm:px-5 py-2 sm:py-2.5 shadow-lg text-[var(--text-primary)]"
           >
             {/* =================================================================== */}
             {/* ZONE 1: BRAND                                                       */}
@@ -362,16 +362,16 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 aria-label="DAHAB TRAVEL OS"
                 className="flex items-center gap-2.5 group cursor-pointer text-start focus:outline-none select-none"
               >
-                {/* Animated tidal gradient icon */}
+                {/* Animated chart gradient icon */}
                 <div className="relative w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shadow-md group-hover:shadow-lg transition-shadow duration-300">
                   <div
                     className="absolute inset-0 animate-[tidalShift_8s_ease-in-out_infinite]"
                     style={{
-                      background: 'linear-gradient(135deg, #E7D3AE 0%, #20A89A 50%, #0F6F78 100%)',
+                      background: 'linear-gradient(135deg, #0A1128 0%, #1B2452 50%, #B97A1F 100%)',
                       backgroundSize: '200% 200%'
                     }}
                   />
-                  <span className="relative z-10 font-black text-xs font-['Outfit',sans-serif] text-white leading-none tracking-tighter">
+                  <span className="relative z-10 font-black text-xs text-white leading-none tracking-tighter">
                     D
                   </span>
                 </div>
@@ -379,10 +379,10 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 {/* Text mark */}
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5 leading-none">
-                    <span className="font-black text-sm tracking-wider font-['Outfit',sans-serif] uppercase text-[var(--text-primary)]">
+                    <span className="font-black text-sm text-[var(--text-primary)]">
                       DAHAB
                     </span>
-                    <span className="hidden sm:inline text-[10px] font-bold tracking-widest uppercase font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded-md bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]">
+                    <span className="hidden sm:inline text-[10px] font-bold font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded-md bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]">
                       TRAVEL OS
                     </span>
                   </div>
@@ -395,7 +395,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
             {/* Four jobs instead of eleven pills; hover or focus opens the map   */}
             {/* below, click lands on the group's home.                           */}
             {/* =================================================================== */}
-            <div className="hidden lg:flex items-center gap-1 p-1 rounded-full border relative bg-[var(--header-pill-bg)] border-[var(--header-pill-border)] shadow-inner">
+            <div className="hidden lg:flex items-center gap-1 p-1 rounded-full border relative bg-[var(--header-pill-bg)] border-[var(--header-pill-border)] shadow-inner min-w-0 flex-1 justify-center overflow-x-auto no-scrollbar">
               {navGroups.map((group) => {
                 const active = isGroupActive(group);
                 const GroupIcon = group.icon;
@@ -415,7 +415,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                       navigateTo(group.landing);
                     }}
                     aria-current={active ? 'page' : undefined}
-                    className={`relative px-3 xl:px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5 z-10 whitespace-nowrap ${
+                    className={`relative px-3 xl:px-4 py-1.5 rounded-full text-xs font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer flex items-center gap-1.5 z-10 whitespace-nowrap ${
                       active
                         ? 'text-[var(--text-primary)] font-bold'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
@@ -456,7 +456,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 onClick={() => setOpenPanel('all')}
                 title={t('nav.siteMap')}
                 aria-label={t('nav.siteMap')}
-                className={`relative p-2 rounded-full transition-all duration-200 cursor-pointer flex items-center z-10 ${
+                className={`relative p-2 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer flex items-center z-10 ${
                   openPanel === 'all'
                     ? 'text-[var(--text-primary)] bg-[var(--surface-card)] border border-[var(--accent-primary)]/40'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
@@ -482,7 +482,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 onClick={onOpenSearch}
                 aria-label={t('nav.search') || 'Search'}
                 title="Search destinations & experiences (⌘K)"
-                className="w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
+                className="w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
@@ -493,10 +493,10 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 id="header-language-btn"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${language === 'en' ? 'Arabic' : 'English'}`}
-                className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1 text-xs font-bold transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
+                className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1 text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
                 <Languages className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
-                <span className="text-[12px] hidden xl:inline">{language === 'en' ? 'العربية' : 'EN'}</span>
+                <span className="text-[12px] hidden min-[1500px]:inline">{language === 'en' ? 'العربية' : 'EN'}</span>
               </button>
 
               {/* Notifications bell (signed in only) */}
@@ -506,7 +506,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                   id="header-notifications-btn"
                   onClick={() => navigateTo('/help')}
                   aria-label={t('nav.notifications')}
-                  className="hidden sm:flex w-8 h-8 rounded-full items-center justify-center transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)] relative"
+                   className="hidden min-[1500px]:flex w-8 h-8 rounded-full items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)] relative"
                 >
                   <Bell className="w-3.5 h-3.5" />
                   <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[var(--accent-secondary)] animate-pulse" />
@@ -523,7 +523,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                     aria-haspopup="menu"
                     aria-expanded={isAccountMenuOpen}
                     title={`Signed in as ${signedInName || 'Traveler'}`}
-                    className="h-8 pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--text-primary)]"
+                    className="h-8 pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--text-primary)]"
                   >
                     {/* Avatar circle */}
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-[10px] font-bold text-white">
@@ -682,7 +682,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                   id="header-signin-btn"
                   onClick={() => navigateTo('/auth/sign-in')}
                   title={t('nav.signIn')}
-                  className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1.5 text-xs font-bold transition-all cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--btn-util-text)]"
+                  className="hidden sm:flex h-8 px-2.5 rounded-full items-center gap-1.5 text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--btn-util-text)]"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span className="text-[12px]">{t('nav.signIn-2')}</span>
@@ -694,7 +694,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 type="button"
                 id="header-book-now-cta"
                 onClick={onOpenQuickBook}
-                className="h-11 sm:h-8 px-3 xl:px-4 rounded-full font-bold text-xs transition-all duration-200 shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-lg text-[var(--btn-book-text)] border border-[var(--border-subtle)] flex-shrink-0"
+                className="h-11 sm:h-8 px-3 xl:px-4 rounded-full font-bold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-lg text-[var(--btn-book-text)] border border-[var(--border-subtle)] flex-shrink-0"
               >
                 <Sparkles className="w-3.5 h-3.5 hidden sm:block flex-shrink-0" />
                 <span className="whitespace-nowrap">{ctaLabel}</span>
@@ -707,7 +707,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-expanded={isMobileMenuOpen}
                 aria-label="Toggle mobile menu"
-                className="lg:hidden w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
+                className="lg:hidden w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
                 <motion.div
                   animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
@@ -892,7 +892,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                                   setIsMobileMenuOpen(false);
                                 }}
                                 aria-current={active ? 'page' : undefined}
-                                className={`w-full p-3.5 rounded-2xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                                className={`w-full p-3.5 rounded-2xl text-sm font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-between cursor-pointer ${
                                   active
                                     ? 'bg-[var(--header-pill-active)] text-[var(--header-pill-active-text)] font-bold border border-[var(--accent-primary)]/40 shadow-md'
                                     : 'hover:bg-[var(--btn-util-hover)] text-[var(--text-secondary)] border border-transparent'
@@ -960,7 +960,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                           key={opt.id}
                           type="button"
                           onClick={() => setThemeId(opt.id)}
-                          className={`p-2 rounded-xl text-[11px] font-bold text-center flex flex-col items-center gap-1.5 border transition-all cursor-pointer ${
+                          className={`p-2 rounded-xl text-[11px] font-bold text-center flex flex-col items-center gap-1.5 border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                             isSelected
                               ? 'bg-[var(--header-pill-active)] border-[var(--accent-primary)] text-[var(--header-pill-active-text)] shadow-md'
                               : 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
@@ -1028,7 +1028,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                       onOpenQuickBook();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full py-3.5 rounded-2xl font-black text-sm text-center cursor-pointer shadow-lg transition-all active:scale-98 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-xl text-[var(--btn-book-text)] flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-2xl font-black text-sm text-center cursor-pointer shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-98 bg-gradient-to-r from-[var(--btn-book-bg)] to-[var(--accent-secondary)] hover:shadow-xl text-[var(--btn-book-text)] flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>{ctaLabel}</span>
@@ -1068,7 +1068,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
               type="button"
               onClick={() => navigateTo(item.route)}
               aria-current={active ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-0.5 px-2.5 min-h-[48px] rounded-xl transition-all cursor-pointer relative ${
+              className={`flex flex-col items-center justify-center gap-0.5 px-2.5 min-h-[48px] rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer relative ${
                 active
                   ? 'text-[var(--accent-secondary)] font-bold'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -1092,7 +1092,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
           type="button"
           onClick={onOpenSearch}
           aria-label={t('nav.searchShort')}
-          className="flex flex-col items-center justify-center gap-0.5 px-3 min-h-[48px] rounded-xl transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="flex flex-col items-center justify-center gap-0.5 px-3 min-h-[48px] rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           <Search className="w-5 h-5 opacity-60" />
           <span className="text-[10px] font-bold leading-none">{t('nav.searchShort')}</span>

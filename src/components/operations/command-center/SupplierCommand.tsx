@@ -47,13 +47,13 @@ export default function SupplierCommand() {
         <div className="flex items-center gap-2">
           {['list', 'reliability'].map(v => (
             <button key={v} type="button" onClick={() => setView(v as any)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${view === v ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${view === v ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {v === 'list' ? t('cmd.suppliers.list') : t('cmd.suppliers.reliability')}
             </button>
           ))}
           {view === 'list' && ['all', 'Active', 'Pending', 'Suspended'].map(f => (
             <button key={f} type="button" onClick={() => setFilter(f)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {f}
             </button>
           ))}
@@ -79,7 +79,7 @@ export default function SupplierCommand() {
             <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-[11px] font-mono">
-                  <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]">
+                  <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                     <tr>
                       <th className="py-2.5 px-3">Supplier</th>
                       <th className="py-2.5 px-3 text-center">Bookings</th>
@@ -135,7 +135,7 @@ export default function SupplierCommand() {
             const rel = reliability.find(r => r.supplierId === supplier.id);
             return (
               <button key={supplier.id} type="button" onClick={() => setSelectedSupplier(supplier)}
-                className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 transition-all text-left cursor-pointer group">
+                className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] text-left cursor-pointer group">
                 <div className="flex items-start justify-between mb-2">
                   <div className="text-xs font-mono text-[var(--accent-primary)]">{supplier.id}</div>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${statusColors[supplier.status] || 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)]'}`}>
@@ -205,7 +205,7 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
       <div className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">{supplier.businessName}</h3>
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">{supplier.businessName}</h3>
             <div className="text-xs text-[var(--text-muted)] mt-1">{supplier.id} · {supplier.category} · {supplier.tier}</div>
           </div>
           <div className="flex items-center gap-2">
@@ -242,7 +242,7 @@ function SupplierDetail({ supplier, onBack, reliability }: { supplier: any; onBa
       <div className="flex gap-2 border-b border-[var(--border-subtle)] pb-2">
         {(['overview', 'bookings'] as const).map(tab => (
           <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'}`}>
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'}`}>
             {tab.charAt(0).toUpperCase() + tab.slice(1)} {tab === 'bookings' ? `(${bookings.length})` : ''}
           </button>
         ))}

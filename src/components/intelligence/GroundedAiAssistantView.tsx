@@ -123,7 +123,7 @@ export const GroundedAiAssistantView: React.FC<{
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-primary)]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold mb-2">
               <Bot className="w-3.5 h-3.5" />
               {t('intel.groundedSinaiIntelligenceQA')}
             </div>
@@ -157,7 +157,7 @@ export const GroundedAiAssistantView: React.FC<{
             <button
               key={idx}
               onClick={() => handleAskQuery(sq.query)}
-              className="text-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] transition-all duration-150 flex items-center gap-1.5 hover:border-[var(--accent-primary)]/50"
+              className="text-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-150 flex items-center gap-1.5 hover:border-[var(--accent-primary)]/50"
             >
               <span>{language === 'ar' ? sq.labelAr : sq.label}</span>
               <ChevronRight className="w-3 h-3 text-[var(--accent-primary)]" />
@@ -239,7 +239,7 @@ export const GroundedAiAssistantView: React.FC<{
               <button
                 onClick={handleDraftOpportunityFromInsight}
                 disabled={isDraftingOpp}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-sm transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-sm transition-[background-color,border-color,color,box-shadow,transform,opacity]"
               >
                 {isDraftingOpp ? (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -266,7 +266,7 @@ export const GroundedAiAssistantView: React.FC<{
             {activeResponse.groundedIn && activeResponse.groundedIn.length > 0 && (
               <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                     <Database className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     {t('intel.dataUsedToAnswer')}
                   </div>

@@ -83,7 +83,10 @@ export interface CmsHomepageSection {
   title_ar: string;
   visible: number;
   sort_order: number;
-  config: string;
+  // Hydrated: hydrate() parses the stored JSON into an object for findAll/
+  // findByKey, and upsert now returns the parsed object too so PATCH responses
+  // stay consistent with GET (the dashboard editor depends on this).
+  config: Record<string, any>;
   updated_at: string;
 }
 
@@ -290,7 +293,16 @@ export const cmsPages = {
       page.published_at, page.scheduled_at, page.preview_token, page.version
     );
 
-    logRevision('page', id, 'create', actorId || '', actorName || '', { slug: page.slug });
+    // Record the initial restorable state so rollback() can return the page to
+    // its as-created form, not just note the slug.
+    logRevision('page', id, 'create', actorId || '', actorName || '', {
+      title_en: page.title_en, title_ar: page.title_ar,
+      subtitle_en: page.subtitle_en, subtitle_ar: page.subtitle_ar,
+      description_en: page.description_en, description_ar: page.description_ar,
+      body_en: page.body_en, body_ar: page.body_ar,
+      hero_image_url: page.hero_image_url,
+      sort_order: page.sort_order, featured: page.featured, status: page.status,
+    });
     return page;
   },
 
@@ -323,7 +335,12 @@ export const cmsPages = {
       actorId || '', updated.updated_at, updated.published_at, updated.scheduled_at, updated.preview_token, updated.version, id
     );
 
-    logRevision('page', id, 'update', actorId || '', actorName || '', { fields: Object.keys(data) });
+    // Record the changed field VALUES (not just names) so rollback() can restore them.
+    const changedValues: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (k in existing) changedValues[k] = v;
+    }
+    logRevision('page', id, 'update', actorId || '', actorName || '', changedValues);
     return updated;
   },
 
@@ -346,6 +363,12 @@ export const cmsPages = {
   /**
    * Rollback a page to a previous revision.
    * Finds the revision with the given ID and restores the page fields from its payload.
+   *
+   * Revision payloads historically stored only field NAMES ({ fields: [...] }), which
+   * rollback() silently ignored — a rollback appeared to succeed but changed nothing.
+   * `update()` now records the changed field VALUES, so this restores them. Payloads
+   * that only carry field names (legacy revisions) still return the page untouched
+   * rather than nulling out fields.
    */
   rollback(id: string, revisionId: string, actorId?: string, actorName?: string): CmsPage | null {
     const c = conn();
@@ -358,10 +381,6 @@ export const cmsPages = {
     let payload: Record<string, any> = {};
     try { payload = JSON.parse(revision.payload || '{}'); } catch { return null; }
 
-    // Only rollback if payload contains page fields
-    if (!payload.fields && !payload.slug) return null;
-
-    // Extract the full page state from the revision if available
     const restoreData: Partial<CmsPage> = {};
     const pageFields = ['title_en', 'title_ar', 'subtitle_en', 'subtitle_ar', 'description_en', 'description_ar',
       'body_en', 'body_ar', 'hero_image_url', 'sort_order', 'featured', 'status'] as const;
@@ -369,6 +388,11 @@ export const cmsPages = {
       if (field in payload) {
         (restoreData as any)[field] = payload[field];
       }
+    }
+
+    // Legacy payloads ({ fields: ['title_en', ...] }) list names only — nothing to restore.
+    if (Object.keys(restoreData).length === 0) {
+      return this.findById(id);
     }
 
     return this.update(id, restoreData, actorId, actorName);
@@ -625,6 +649,10 @@ export const cmsHomepage = {
     const existing = this.findByKey(data.section_key || '');
     const ts = now();
     const configStr: string = typeof data.config === 'object' ? JSON.stringify(data.config) : String(data.config || '{}');
+    // Return config parsed (like hydrate does for findAll) so PATCH responses
+    // stay consistent with GET — the dashboard editor keeps working after save.
+    let parsedConfig: Record<string, any> = {};
+    try { parsedConfig = JSON.parse(configStr); } catch { parsedConfig = {}; }
 
     if (existing) {
       c.prepare(`
@@ -639,7 +667,7 @@ export const cmsHomepage = {
         configStr, ts, data.section_key
       );
       logRevision('homepage_section', existing.id, 'update', actorId || '', actorName || '', { section_key: data.section_key });
-      return { ...existing, ...data, config: configStr, updated_at: ts } as CmsHomepageSection;
+      return { ...existing, ...data, config: parsedConfig, updated_at: ts } as CmsHomepageSection;
     }
 
     const id = generateId('HSEC');
@@ -652,7 +680,7 @@ export const cmsHomepage = {
     logRevision('homepage_section', id, 'create', actorId || '', actorName || '', { section_key: data.section_key });
     return {
       id, section_key: data.section_key || '', title_en: data.title_en || '', title_ar: data.title_ar || '',
-      visible: data.visible ?? 1, sort_order: data.sort_order ?? 0, config: configStr, updated_at: ts
+      visible: data.visible ?? 1, sort_order: data.sort_order ?? 0, config: parsedConfig, updated_at: ts
     };
   },
 

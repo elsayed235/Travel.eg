@@ -74,7 +74,7 @@ const CATEGORY_STYLE: Record<string, string> = {
   diving: '#2f7dd1',
   safari: '#c97b3c',
   adventure: '#c97b3c',
-  food: '#20A89A',
+  food: '#1B9A8B',
   relax: '#7a8c5c',
   transfer: '#7a6a4a',
   wellness: '#5b8c6f',
@@ -168,27 +168,41 @@ export const PlanWithAiWidget: React.FC = () => {
     setIntent(next);
     setView('thinking');
     setThinkingIndex(0);
-    try {
-      const res: any = await api.generateAiTrip({
-        durationDays: next.durationDays,
-        adultsCount: next.adultsCount,
-        childrenCount: next.childrenCount,
-        dynamic: next.dynamic,
-        budget: next.budget,
-        interests: next.interests,
-        pace: next.pace,
-        language
-      });
-      const genTrip: GenTrip | undefined = res?.trip;
-      if (!genTrip || !Array.isArray(genTrip.days) || genTrip.days.length === 0) {
-        throw new Error('empty');
+    // One automatic retry: the generate endpoint occasionally drops the first
+    // request (measured as a client-side ERR_ABORTED against a healthy server
+    // that answers in ~1s), and a transient abort must not become a dead end —
+    // the retry resolves it silently before the traveler ever sees an error.
+    let lastError: unknown = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        if (attempt > 0) {
+          await new Promise((r) => setTimeout(r, 800));
+          setThinkingIndex((i) => Math.min(i + 1, THINKING_LINES.en.length - 1));
+        }
+        const res: any = await api.generateAiTrip({
+          durationDays: next.durationDays,
+          adultsCount: next.adultsCount,
+          childrenCount: next.childrenCount,
+          dynamic: next.dynamic,
+          budget: next.budget,
+          interests: next.interests,
+          pace: next.pace,
+          language
+        });
+        const genTrip: GenTrip | undefined = res?.trip;
+        if (!genTrip || !Array.isArray(genTrip.days) || genTrip.days.length === 0) {
+          throw new Error('empty');
+        }
+        setTrip(genTrip);
+        setOpenDay(genTrip.days[0]?.dayNumber ?? 1);
+        setView('plan');
+        return;
+      } catch (err) {
+        lastError = err;
       }
-      setTrip(genTrip);
-      setOpenDay(genTrip.days[0]?.dayNumber ?? 1);
-      setView('plan');
-    } catch {
-      setView('error');
     }
+    void lastError;
+    setView('error');
   }, [language]);
 
   const submit = useCallback((raw?: string) => {
@@ -273,22 +287,22 @@ export const PlanWithAiWidget: React.FC = () => {
   }, []);
 
   const chipBase =
-    'px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ' +
+    'px-3 py-1.5 rounded-full text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ' +
     (isDark
       ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)]'
-      : 'bg-white text-[#4A635D] border-[#122420]/12 hover:border-[var(--accent-primary)] hover:text-[#122420]');
+      : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] hover:text-[var(--text-primary)]');
 
   const primaryBtn =
-    'w-full py-3 rounded-xl text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] ' +
+    'w-full py-3 rounded-xl text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] ' +
     (isDark
-      ? 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)]'
-      : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)]');
+      ? 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[#1A1206]'
+      : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[#1A1206]');
 
   const secondaryBtn =
-    'px-5 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ' +
+    'px-5 py-2.5 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ' +
     (isDark
       ? 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--text-primary)]'
-      : 'border-[#122420]/15 text-[#4A635D] hover:bg-[#F2EFE9] hover:text-[#122420]');
+      : 'border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--text-primary)]');
 
   return (
     <section
@@ -297,10 +311,10 @@ export const PlanWithAiWidget: React.FC = () => {
       className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 md:-mt-20"
     >
       <div
-        className={`overflow-hidden rounded-3xl border shadow-2xl transition-all duration-300 ${
+        className={`overflow-hidden rounded-3xl border shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 ${
           isDark
             ? 'bg-[var(--surface-card)]/95 backdrop-blur-xl border-[var(--border-subtle)]'
-            : 'bg-white/95 backdrop-blur-xl border-[#122420]/10'
+            : 'bg-[var(--surface-card)]/95 backdrop-blur-xl border-[var(--border-subtle)]'
         }`}
       >
         {/* Header bar */}
@@ -311,14 +325,14 @@ export const PlanWithAiWidget: React.FC = () => {
             aria-expanded={open}
             className="flex items-center gap-2.5 text-start cursor-pointer group"
           >
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--surface-container)] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[#1A1206] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <Sparkles className="w-4 h-4" aria-hidden="true" />
             </span>
             <span className="space-y-0.5">
-              <span className="block text-sm font-serif font-bold leading-none">
+              <span className="block text-sm chart-heading font-bold leading-none">
                 {l('Plan with AI', 'خطط مع الذكاء الاصطناعي')}
               </span>
-              <span className={`block text-[11px] leading-none ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]/80'}`}>
+              <span className={`block text-[11px] leading-none ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]/80'}`}>
                 {l('Describe your Dahab trip — get a plan in seconds', 'اقولنا رحلتك في دهب — وخذ الخطة في ثواني')}
               </span>
             </span>
@@ -364,6 +378,8 @@ export const PlanWithAiWidget: React.FC = () => {
                   <input
                     id="plan-with-ai-input"
                     type="text"
+                    name="trip-prompt"
+                    autoComplete="off"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder={l(
@@ -373,24 +389,24 @@ export const PlanWithAiWidget: React.FC = () => {
                     className={`flex-1 py-3 px-4 rounded-xl border text-sm outline-none transition-colors ${
                       isDark
                         ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
-                        : 'bg-[#F7F4EE] border-[#122420]/12 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)] focus:bg-white'
+                        : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)] focus:bg-[var(--surface-card)]'
                     }`}
                   />
                   <button
                     type="submit"
                     disabled={!prompt.trim()}
                     aria-label={l('Plan my trip', 'خطط رحلتي')}
-                    className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                    className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                       prompt.trim()
                         ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] hover:bg-[var(--accent-secondary)] active:scale-95'
-                        : isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/40 cursor-not-allowed' : 'bg-[#E4E0D6] text-[#4A635D]/40 cursor-not-allowed'
+                        : isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]/40 cursor-not-allowed' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]/40 cursor-not-allowed'
                     }`}
                   >
                     <Send className="w-4 h-4 rtl:rotate-180" />
                   </button>
                 </form>
 
-                <p className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[#4A635D]/60'}`}>
+                <p className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/60'}`}>
                   {l(
                     'No account needed to plan — sign in only to save it to your trip.',
                     'مش محتاج حساب عشان تخطط — سجل دخول بس عشان تحفظ الخطة في رحلتك.'
@@ -423,7 +439,7 @@ export const PlanWithAiWidget: React.FC = () => {
                 </div>
                 <div className="h-1 rounded-full bg-[var(--surface-container)] overflow-hidden max-w-sm">
                   <div
-                    className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-700"
+                    className="h-full rounded-full bg-[var(--accent-primary)] transition-[width] duration-700"
                     style={{ width: `${((thinkingIndex + 1) / THINKING_LINES.en.length) * 100}%` }}
                   />
                 </div>
@@ -433,11 +449,11 @@ export const PlanWithAiWidget: React.FC = () => {
             {/* Answer (conversational) */}
             {view === 'answer' && quickAnswer && (
               <div className="space-y-4">
-                <div className={`rounded-2xl p-4 border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[#F7F4EE] border-[#122420]/10'}`}>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-2">
+                <div className={`rounded-2xl p-4 border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
+                  <p className="text-[11px] font-bold text-[var(--accent-primary)] mb-2">
                     {l('A quick answer', 'إجابة سريعة')}
                   </p>
-                  <p className={`text-sm leading-relaxed whitespace-pre-line ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+                  <p className={`text-sm leading-relaxed whitespace-pre-line ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                     {language === 'ar' ? quickAnswer.textAr : quickAnswer.textEn}
                   </p>
                 </div>
@@ -464,9 +480,9 @@ export const PlanWithAiWidget: React.FC = () => {
             {view === 'plan' && trip && intent && (
               <div className="space-y-4">
                 {/* Plan header */}
-                <div className={`rounded-2xl p-4 sm:p-5 border ${isDark ? 'bg-gradient-to-br from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/5 border-[var(--border-subtle)]' : 'bg-gradient-to-br from-[var(--accent-primary)]/8 to-[var(--accent-secondary)]/5 border-[#122420]/10'}`}>
+                <div className={`rounded-2xl p-4 sm:p-5 border ${isDark ? 'bg-gradient-to-br from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/5 border-[var(--border-subtle)]' : 'bg-gradient-to-br from-[var(--accent-primary)]/8 to-[var(--accent-secondary)]/5 border-[var(--border-subtle)]'}`}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-serif font-bold text-lg leading-tight">
+                    <h3 className="chart-heading font-bold text-lg leading-tight">
                       {language === 'ar' ? trip.tripTitleAr || trip.tripTitle : trip.tripTitle}
                     </h3>
                     {typeof trip.fitScore === 'number' && (
@@ -475,7 +491,7 @@ export const PlanWithAiWidget: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <p className={`text-xs leading-relaxed mt-1.5 ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>
+                  <p className={`text-xs leading-relaxed mt-1.5 ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
                     {language === 'ar' ? trip.summaryAr || trip.summary : trip.summary}
                   </p>
                   <div className="flex flex-wrap items-center gap-1.5 mt-3">
@@ -497,12 +513,12 @@ export const PlanWithAiWidget: React.FC = () => {
                   {trip.days.map((day) => {
                     const openThis = openDay === day.dayNumber;
                     return (
-                      <div key={day.dayNumber} className={`rounded-2xl border overflow-hidden ${isDark ? 'border-[var(--border-subtle)]' : 'border-[#122420]/10'}`}>
+                      <div key={day.dayNumber} className={`rounded-2xl border overflow-hidden ${isDark ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)]'}`}>
                         <button
                           type="button"
                           onClick={() => setOpenDay(openThis ? null : day.dayNumber)}
                           aria-expanded={openThis}
-                          className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-start cursor-pointer transition-colors ${isDark ? 'hover:bg-[var(--surface-container)]' : 'hover:bg-[#F7F4EE]'}`}
+                          className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-start cursor-pointer transition-colors ${isDark ? 'hover:bg-[var(--surface-container)]' : 'hover:bg-[var(--surface-container)]'}`}
                         >
                           <span className="flex items-center gap-2.5 min-w-0">
                             <span className="w-7 h-7 rounded-lg bg-[var(--accent-primary)]/12 text-[var(--accent-primary)] flex items-center justify-center text-xs font-black shrink-0">
@@ -513,7 +529,7 @@ export const PlanWithAiWidget: React.FC = () => {
                                 {language === 'ar' ? day.titleAr || day.title : day.title}
                               </span>
                               {day.theme && (
-                                <span className={`block text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]/70'}`}>
+                                <span className={`block text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
                                   {day.theme}
                                 </span>
                               )}
@@ -523,11 +539,11 @@ export const PlanWithAiWidget: React.FC = () => {
                         </button>
 
                         {openThis && (
-                          <ul className={`divide-y ${isDark ? 'divide-[var(--border-subtle)]' : 'divide-[#122420]/6'}`}>
+                          <ul className={`divide-y ${isDark ? 'divide-[var(--border-subtle)]' : 'divide-[var(--border-subtle)]'}`}>
                             {(day.activities || []).map((act, i) => {
                               const color = CATEGORY_STYLE[act.category || ''] || 'var(--accent-primary)';
                               return (
-                                <li key={`${act.id || day.dayNumber}-${i}`} className={`px-4 py-2.5 flex items-start gap-3 ${isDark ? 'bg-[var(--surface-container)]/40' : 'bg-white'}`}>
+                                <li key={`${act.id || day.dayNumber}-${i}`} className={`px-4 py-2.5 flex items-start gap-3 ${isDark ? 'bg-[var(--surface-container)]/40' : 'bg-[var(--surface-card)]'}`}>
                                   <span className="w-1.5 h-full self-stretch rounded-full mt-1 shrink-0" style={{ backgroundColor: color }} aria-hidden="true" />
                                   <div className="flex-1 min-w-0 space-y-0.5">
                                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -542,7 +558,7 @@ export const PlanWithAiWidget: React.FC = () => {
                                       </span>
                                     </div>
                                     {act.description && (
-                                      <p className={`text-[11px] leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]/80'}`}>
+                                      <p className={`text-[11px] leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/80'}`}>
                                         {language === 'ar' ? act.descriptionAr || act.description : act.description}
                                       </p>
                                     )}
@@ -587,7 +603,7 @@ export const PlanWithAiWidget: React.FC = () => {
                     </button>
                   )}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[#4A635D]/60'}`}>
+                    <span className={`text-[11px] font-bold ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/60'}`}>
                       {l('Tweak', 'ظبطها')}
                     </span>
                     <button type="button" onClick={() => refine((i) => ({ ...i, durationDays: Math.min(14, i.durationDays + 1) }))} className={chipBase}>
@@ -611,7 +627,7 @@ export const PlanWithAiWidget: React.FC = () => {
             {/* Error */}
             {view === 'error' && (
               <div className="space-y-3 py-2">
-                <p className={`text-sm leading-relaxed ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+                <p className={`text-sm leading-relaxed ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                   {l(
                     'The planner is taking a breath — the sea conditions feed can be slow. Try again in a moment.',
                     'المخطط بياخد نفس — بيانات حالة البحر ممكن تكون بطيئة شوية. جرب تاني بعد لحظة.'

@@ -79,7 +79,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] pb-24 lg:pb-16">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 lg:pb-16">
       {/* 1. TOP DAHAB BRANDING & PROGRESS BAR */}
       <header className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -89,7 +89,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
               {isAr ? 'د' : 'D'}
             </div>
             <div>
-              <span className="text-xs font-black tracking-widest uppercase text-[var(--accent-primary)] block">
+              <span className="text-xs font-black text-[var(--accent-primary)] block">
                 {isAr ? 'دهب' : 'DAHAB'}
               </span>
               <h1 className="text-sm font-bold text-[var(--text-primary)]">
@@ -163,7 +163,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
             <span>{isAr ? 'موصى به لرحلتك المنسقة' : 'Recommended for your trip'}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
             {isAr ? 'أضف مغامرة صحراوية ساحرة لرحلتك في دهب.' : 'Add an adventure to your Dahab trip.'}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 max-w-3xl leading-relaxed">
@@ -180,7 +180,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
             {/* Safari Options Grid */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {isAr ? 'تجارب السفاري المنتقاة' : 'Curated Safari Experiences'}
                 </h3>
                 <span className="text-xs text-[var(--text-secondary)]/60 font-medium">
@@ -229,7 +229,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
       {/* 3. MOBILE FIXED BOTTOM ACTION BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] p-4 shadow-lg flex items-center justify-between gap-4">
         <div>
-          <div className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider">
+          <div className="text-[12px] font-bold text-[var(--accent-primary)]">
             {isAr ? 'تم اختيار ٤/٤ خدمات' : '4/4 Services Selected'}
           </div>
           <div className="text-base font-black text-[var(--text-primary)]">
@@ -246,7 +246,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
           type="button"
           id="mobile-review-trip-btn"
           onClick={handleReviewClick}
-          className="px-6 py-3 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+          className="px-6 py-3 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0"
         >
           <span>{isAr ? 'مراجعة الرحلة' : 'Review Trip'}</span>
           <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -281,7 +281,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
               <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center mx-auto shadow-xs">
                 <Check className="w-6 h-6 stroke-[2.5]" />
               </div>
-              <h3 id="review-trip-preview-modal-title" className="text-2xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 id="review-trip-preview-modal-title" className="text-2xl chart-heading font-bold text-[var(--text-primary)]">
                 {isAr ? 'خدمات رحلتك جاهزة للمراجعة' : 'Your trip services are ready'}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70">
@@ -338,7 +338,7 @@ export const BookingSafariStep: React.FC<BookingSafariStepProps> = ({
                 type="button"
                 id="modal-close-confirm-btn"
                 onClick={() => setShowReviewPromptModal(false)}
-                className="w-full py-3.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold text-xs sm:text-sm transition-all shadow-md cursor-pointer"
+                className="w-full py-3.5 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold text-xs sm:text-sm transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer"
               >
                 {isAr ? 'تم تحديد كافة الخدمات الـ ٤ بنجاح ✓' : 'All 4 Services Configured ✓'}
               </button>

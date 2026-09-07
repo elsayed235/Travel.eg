@@ -4,10 +4,12 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import type { ResearchOverview } from '../../hooks/useResearchOverview';
 import { pick } from '../../hooks/useResearchOverview';
+import type { CmsHomepageSection } from '../../services/api';
 
 interface DahabMicroExperiencesProps {
   overview?: ResearchOverview | null;
   onPlanClick?: () => void;
+  cmsSection?: CmsHomepageSection | null;
 }
 
 const EXPERIENCE_PHOTOS: Record<string, string> = {
@@ -20,10 +22,14 @@ const EXPERIENCE_PHOTOS: Record<string, string> = {
 export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
   overview,
   onPlanClick,
+  cmsSection,
 }) => {
   const { language, isRTL } = useLanguage();
   const { isDark } = useTheme();
   const isAr = language === 'ar';
+
+  // CMS visibility flag: hide this rail from the dashboard (Homepage tab).
+  if (cmsSection && cmsSection.visible === 0) return null;
 
   if (!overview || overview.experiences.length === 0) return null;
 
@@ -34,7 +40,7 @@ export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
       dir={isRTL ? 'rtl' : 'ltr'}
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
     >
-      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] tidal-card shadow-2xl transition-all">
+      <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] chart-card shadow-2xl">
         {/* Ambient Dahab desert/mountain backdrop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <img
@@ -47,28 +53,28 @@ export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
             className={`absolute inset-0 ${
               isDark
                 ? 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[1.5px]'
-                : 'bg-gradient-to-r from-[#FBF9F5]/96 via-[#FBF9F5]/90 to-[#FBF9F5]/78 backdrop-blur-[1.5px]'
+                : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/90 to-[var(--bg-canvas)]/78 backdrop-blur-[1.5px]'
             }`}
           />
         </div>
 
-        <div className="absolute inset-x-0 top-0 h-px tidal-shimmer z-10" aria-hidden="true" />
+        <div className="absolute inset-x-0 top-0 h-px chart-shimmer z-10" aria-hidden="true" />
         <div className="relative z-10 p-6 sm:p-8 text-[var(--text-primary)]">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--border-subtle)] pb-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Compass className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
-                <span className="tidal-badge tidal-badge-sunset text-[11px] font-semibold">
+                <span className="chart-badge chart-badge-ember text-[11px] font-semibold">
                   {isAr ? 'بأسعار محلية حقيقية' : 'Real local pricing'}
                 </span>
                 <span className="text-xs text-[var(--text-secondary)]">{overview.provenance}</span>
               </div>
-              <h2 className="tidal-heading text-2xl sm:text-3xl font-bold tracking-tight">
+              <h2 className="chart-heading text-2xl sm:text-3xl font-bold tracking-tight">
                 {isAr ? 'تجارب حقيقية' : 'Experiences'}
-                <span className="tidal-heading-accent"> {isAr ? 'بأسعارها الفعلية' : '· Priced in EGP'}</span>
+                <span className="chart-heading-accent"> {isAr ? 'بأسعارها الفعلية' : '· Priced in EGP'}</span>
               </h2>
             </div>
-            <p className="text-sm text-[var(--text-secondary)] max-w-sm leading-relaxed md:text-right">
+            <p className="text-sm text-[var(--text-secondary)] max-w-sm leading-relaxed md:text-end">
               {isAr
                 ? 'أوقات وأسعار تقريبية من السوق المحلي — راجع المشغّل عند الحجز.'
                 : 'Typical durations and price ranges from the local market — confirm direct at booking.'}
@@ -81,7 +87,7 @@ export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
               return (
                 <div
                   key={exp.id}
-                  className="group relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-[var(--accent-primary)]/50 transition-all duration-300 shadow-md hover:shadow-xl flex flex-col justify-between hover:-translate-y-1"
+                  className="group relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-[var(--accent-primary)]/50 transition-[border-color,box-shadow] duration-300 shadow-md hover:shadow-xl flex flex-col justify-between"
                 >
                   {/* Photo header */}
                   <div className="relative h-44 w-full overflow-hidden bg-stone-900">
@@ -134,7 +140,7 @@ export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
                     <button
                       type="button"
                       onClick={onPlanClick}
-                      className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-white text-[var(--text-primary)] text-xs font-bold transition-all duration-300 cursor-pointer shadow-xs active:scale-95"
+                      className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-primary-ink)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,color,transform] duration-300 cursor-pointer shadow-xs active:scale-95"
                     >
                       <span>{isAr ? 'خطط لها في رحلتك' : 'Plan into Itinerary'}</span>
                       <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${isRTL ? 'rotate-180 group-hover:-translate-x-1' : ''}`} aria-hidden="true" />

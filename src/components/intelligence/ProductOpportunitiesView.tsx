@@ -215,7 +215,7 @@ export const ProductOpportunitiesView: React.FC<{
       <div className="rounded-2xl bg-gradient-to-br from-[var(--surface-container)] via-[var(--surface-container)] to-[var(--surface-container)] p-6 text-white border border-[var(--accent-primary)]/30 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] text-xs font-semibold mb-2">
               <Lightbulb className="w-3.5 h-3.5" />
               {t('intel.aIProductFeedbackOpportunities')}
             </div>
@@ -230,7 +230,7 @@ export const ProductOpportunitiesView: React.FC<{
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowFeatureRegisterModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-semibold border border-[var(--border-subtle)] transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-semibold border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2"
             >
               <Layers className="w-4 h-4 text-[var(--accent-primary)]" />
               <span>{t('intel.featureRegister')}</span>
@@ -240,7 +240,7 @@ export const ProductOpportunitiesView: React.FC<{
             <button
               onClick={handleQuickSynthesize}
               disabled={isSynthesizing}
-              className="px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-md transition-all flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--text-primary)] text-xs font-semibold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2"
             >
               {isSynthesizing ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -357,7 +357,7 @@ export const ProductOpportunitiesView: React.FC<{
             return (
               <div
                 key={opp.id}
-                className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
+                className="bg-[var(--surface-card)] dark:bg-[var(--surface-container)] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md hover:shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 overflow-hidden"
               >
                 {/* Opportunity Card Header */}
                 <div className="p-5 border-b border-gray-100 dark:border-gray-800/80">
@@ -414,7 +414,7 @@ export const ProductOpportunitiesView: React.FC<{
                   {/* Action & Linked Features */}
                   <div className="lg:col-span-6 space-y-3">
                     <div>
-                      <div className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                         {t('intel.suggestedProductOpsAction')}
                       </div>
@@ -429,7 +429,7 @@ export const ProductOpportunitiesView: React.FC<{
                         <div className="flex items-center gap-2">
                           <Bookmark className="w-4 h-4 text-[var(--accent-primary)]" />
                           <div>
-                            <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                            <div className="text-[11px] text-gray-400 font-bold">
                               {t('intel.linkedPlatformFeature')}
                             </div>
                             <div className="text-xs font-bold text-gray-900 dark:text-white">
@@ -536,7 +536,7 @@ export const ProductOpportunitiesView: React.FC<{
                             setDecisionModalOpp(opp);
                             setDecisionType('Accepted');
                           }}
-                          className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-all flex items-center gap-1.5 shadow-sm"
+                          className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 shadow-sm"
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>{t('intel.acceptOpportunity')}</span>
@@ -636,7 +636,7 @@ export const ProductOpportunitiesView: React.FC<{
                       key={type}
                       type="button"
                       onClick={() => setDecisionType(type)}
-                      className={`py-2 px-3 rounded-lg border font-bold text-center transition-all ${
+                      className={`py-2 px-3 rounded-lg border font-bold text-center transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                         decisionType === type
                           ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-[var(--text-primary)] shadow-sm'
                           : 'bg-gray-50 dark:bg-[var(--surface-container)] border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'

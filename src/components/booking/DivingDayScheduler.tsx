@@ -48,7 +48,7 @@ export const DivingDayScheduler: React.FC<DivingDaySchedulerProps> = ({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-4">
         <div>
-          <h3 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+          <h3 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
             {isAr ? 'متى تفضل ممارسة الغطس؟' : 'When would you like to dive?'}
           </h3>
           <p className="text-xs text-[var(--text-secondary)]/60 mt-0.5">
@@ -76,7 +76,7 @@ export const DivingDayScheduler: React.FC<DivingDaySchedulerProps> = ({
                 type="button"
                 id={`day-select-btn-${d.dayNumber}`}
                 onClick={() => onSelectDay(d.dayNumber)}
-                className={`p-4 rounded-2xl border text-left rtl:text-right transition-all cursor-pointer relative flex flex-col justify-between space-y-2 ${
+                className={`p-4 rounded-2xl border text-start transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer relative flex flex-col justify-between space-y-2 ${
                   isDaySelected
                     ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 bg-[var(--surface-container)] shadow-xs'
                     : d.isRecommended
@@ -91,7 +91,7 @@ export const DivingDayScheduler: React.FC<DivingDaySchedulerProps> = ({
                   </span>
 
                   <span
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                    className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                       d.isRecommended
                         ? 'bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40'
                         : 'bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/60'
@@ -143,7 +143,7 @@ export const DivingDayScheduler: React.FC<DivingDaySchedulerProps> = ({
       {/* Coordinated Schedule Context */}
       <div className="p-4 sm:p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] flex items-center gap-1.5">
+          <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
             <span>{isAr ? `برنامج اليوم ${selectedDay}` : `Your Day ${selectedDay}`}</span>
           </span>

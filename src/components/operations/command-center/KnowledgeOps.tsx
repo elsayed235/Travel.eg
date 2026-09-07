@@ -65,7 +65,7 @@ export default function KnowledgeOps() {
         <div className="flex gap-1 flex-wrap">
           {TABS.map(tab => (
             <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
@@ -181,7 +181,7 @@ export default function KnowledgeOps() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-mono">
-                    <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]">
+                    <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                       <tr><th className="py-2.5 px-3">Time</th><th className="py-2.5 px-3">Query</th><th className="py-2.5 px-3">Results</th><th className="py-2.5 px-3">Latency</th></tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">

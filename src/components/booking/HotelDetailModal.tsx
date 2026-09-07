@@ -80,12 +80,12 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
       <div
         id="hotel-detail-modal-card"
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-subtle)] my-auto relative max-h-[90vh] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]"
+        className="bg-[var(--surface-card)] text-[var(--text-primary)] w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-subtle)] my-auto relative max-h-[90vh] flex flex-col"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-subtle)] bg-[var(--surface-card)] sticky top-0 z-20">
           <div className="flex items-center gap-2">
-            <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
+            <span className="text-[12px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-1 rounded-full">
               {isAr ? 'ضمن رحلتك لدهب · الخطوة الأولى' : 'Part of your Dahab trip · Step 01'}
             </span>
             {hotel.isRecommended && (
@@ -115,7 +115,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
                 src={images[activeImageIndex] || hotel.image}
                 alt={hotelName}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-all duration-300"
+                className="w-full h-full object-cover transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300"
               />
               <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} flex items-center gap-2`}>
                 {typeof hotel.rating === 'number' && (
@@ -143,7 +143,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 cursor-pointer ${
+                    className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex-shrink-0 cursor-pointer ${
                       activeImageIndex === idx
                         ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30'
                         : 'border-transparent opacity-60 hover:opacity-100'
@@ -165,7 +165,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
           <div>
             <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)]">
                   {hotelName}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]/70 flex items-center gap-1.5 mt-1">
@@ -174,7 +174,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
                 </p>
               </div>
 
-              <div className="text-left sm:text-right">
+              <div className="text-start sm:text-end">
                 <div className="text-2xl font-black text-[var(--accent-secondary)]">
                   {hotel.priceTotalEGP.toLocaleString()} {isAr ? 'جنيه' : 'EGP'}
                 </div>
@@ -203,7 +203,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
           {/* Description */}
           <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+            <h3 className="text-sm font-bold text-[var(--accent-primary)]">
               {isAr ? 'عن هذا الفندق والإقامة' : 'About This Stay'}
             </h3>
             <p className="text-sm text-[var(--text-secondary)]/90 leading-relaxed font-normal">
@@ -213,14 +213,14 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
           {/* Room Information & Bed Configuration */}
           <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)] flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[var(--accent-primary)] flex items-center gap-2">
               <BedDouble className="w-4 h-4 text-[var(--accent-primary)]" />
               <span>{isAr ? 'تفاصيل الغرفة لشخصين بالغين' : 'Room Allocation for 2 Adults'}</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {isAr ? 'نوع الغرفة' : 'Room Type'}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5">
@@ -229,7 +229,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
               </div>
 
               <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {isAr ? 'مساحة الغرفة' : 'Room Size'}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5">
@@ -238,7 +238,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
               </div>
 
               <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/60 block">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {isAr ? 'توزيع الأسرة' : 'Beds'}
                 </span>
                 <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block mt-0.5">
@@ -250,7 +250,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
           {/* Location & Proximity */}
           <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+            <h3 className="text-sm font-bold text-[var(--accent-primary)]">
               {isAr ? 'موقع الفندق والقرب من الأنشطة' : 'Trip Convenience & Proximity'}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -267,7 +267,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
 
           {/* Key Amenities */}
           <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+            <h3 className="text-sm font-bold text-[var(--accent-primary)]">
               {isAr ? 'المرافق والخدمات' : 'Amenities & Facilities'}
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -286,7 +286,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
           {/* What's Included & Policy */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+              <h3 className="text-sm font-bold text-[var(--accent-primary)]">
                 {isAr ? 'ما تشمله الإقامة' : "What's Included"}
               </h3>
               <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
@@ -300,7 +300,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
             </div>
 
             <div className="bg-[var(--surface-container)] p-5 rounded-2xl border border-[var(--border-subtle)] space-y-3">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+              <h3 className="text-sm font-bold text-[var(--accent-primary)]">
                 {isAr ? 'سياسة الإلغاء والمرونة' : 'Cancellation & Policy'}
               </h3>
               <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--accent-primary)]/30 text-xs text-[var(--text-secondary)] space-y-2">
@@ -346,7 +346,7 @@ export const HotelDetailModal: React.FC<HotelDetailModalProps> = ({
                 onSelect(hotel.id);
                 onClose();
               }}
-              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full text-xs sm:text-sm font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isSelected
                   ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold'
                   : 'bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] font-bold'

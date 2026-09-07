@@ -108,10 +108,10 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   return (
     <div
       dir={rtl ? 'rtl' : 'ltr'}
-      className={`rounded-2xl border overflow-hidden transition-all duration-300 group shadow-sm hover:shadow-xl ${
+      className={`rounded-2xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50'
-          : 'bg-white border-[#122420]/10 hover:border-[var(--accent-primary)]'
+          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       {/* Header with authentic restaurant photo */}
@@ -124,7 +124,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
         <div className="relative z-10 flex items-center justify-between w-full">
-          <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
+          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
             style={{
               color: '#ffffff',
               backgroundColor: restaurant.priceBand === 'Budget ($)' ? '#7a8c5ccc' : restaurant.priceBand === 'Moderate ($$)' ? '#c97b3ccc' : '#7a6a4acc',
@@ -142,9 +142,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       </div>
 
       {/* Body */}
-      <div className={`p-4 ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+      <div className={`p-4 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-serif font-bold text-base leading-snug line-clamp-2">
+          <h3 className="chart-heading font-bold text-base leading-snug line-clamp-2">
             {language === 'ar' ? restaurant.nameAr : restaurant.name}
           </h3>
           <button
@@ -152,7 +152,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             onClick={() => onToggleFav(restaurant.id)}
             aria-label={isFav ? t('explore.removeFromFavourites') : t('explore.addToFavourites')}
             aria-pressed={isFav}
-            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isFav ? 'bg-rose-500 text-white' : 'bg-black/30 text-white hover:bg-black/60'
             }`}
           >
@@ -172,7 +172,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         {/* Description */}
         {restaurant.description && (
           <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${
-            isDark ? 'text-[var(--text-secondary)]/75' : 'text-[#4A635D]'
+            isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'
           }`}>
             {language === 'ar' ? restaurant.descriptionAr : restaurant.description}
           </p>
@@ -180,7 +180,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
         {/* Info row */}
         <div className={`mt-3 flex items-center gap-3 text-xs ${
-          isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'
+          isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'
         }`}>
           {restaurant.openingHours && (
             <span className="flex items-center gap-1">
@@ -201,7 +201,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           <button
             type="button"
             onClick={() => onViewDetails?.(restaurant.id)}
-            className="flex-1 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
+            className="flex-1 py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
           >
             {t('viewRestaurant')}
             <ChevronRight className="w-3 h-3" />
@@ -211,7 +211,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               href={`https://wa.me/${restaurant.whatsapp.replace(/[^0-9+]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white"
+              className="py-2 px-3 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white"
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
               {t('wA')}
@@ -258,7 +258,7 @@ const RestaurantDetailModal: React.FC<{
       <div
         onClick={(e) => e.stopPropagation()}
         className={`rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-150 ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/15'
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'
         }`}
       >
         {/* Header photo */}
@@ -271,14 +271,14 @@ const RestaurantDetailModal: React.FC<{
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
           <div className="relative z-10 flex items-end justify-between w-full gap-3">
             <div className="min-w-0">
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-1.5 backdrop-blur-md shadow-xs"
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold mb-1.5 backdrop-blur-md shadow-xs"
                 style={{
                   color: '#ffffff',
                   backgroundColor: restaurant.priceBand === 'Budget ($)' ? '#7a8c5ccc' : restaurant.priceBand === 'Moderate ($$)' ? '#c97b3ccc' : '#7a6a4acc',
                 }}>
                 {priceTierLabel(restaurant.priceBand, language)}
               </span>
-              <h3 id="restaurant-detail-title" className="font-serif font-bold text-xl leading-tight truncate text-white drop-shadow-sm">
+              <h3 id="restaurant-detail-title" className="chart-heading font-bold text-xl leading-tight truncate text-white drop-shadow-sm">
                 {language === 'ar' ? restaurant.nameAr : restaurant.name}
               </h3>
             </div>
@@ -293,18 +293,18 @@ const RestaurantDetailModal: React.FC<{
           </div>
         </div>
 
-        <div className={`p-5 space-y-4 ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+        <div className={`p-5 space-y-4 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
           {/* Rating + price */}
           <div className="flex flex-wrap items-center gap-3 text-xs">
             {restaurant.rating && (
               <span className="flex items-center gap-1 font-bold">
                 <Star className="w-4 h-4 fill-[var(--accent-secondary)] text-[var(--accent-secondary)]" />
                 {restaurant.rating.toFixed(1)}
-                {restaurant.reviewCount && <span className={`${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>({restaurant.reviewCount})</span>}
+                {restaurant.reviewCount && <span className={`${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>({restaurant.reviewCount})</span>}
               </span>
             )}
             {restaurant.averageMealPriceEGP > 0 && (
-              <span className={`font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[#122420]'}`}>
+              <span className={`font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
                 {t('avgMeal')} {Math.round(restaurant.averageMealPriceEGP)} EGP
               </span>
             )}
@@ -323,29 +323,29 @@ const RestaurantDetailModal: React.FC<{
 
           {/* Description */}
           {restaurant.description && (
-            <p className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[#4A635D]'}`}>
+            <p className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'}`}>
               {language === 'ar' ? restaurant.descriptionAr : restaurant.description}
             </p>
           )}
 
           {/* Fact grid */}
           <div className={`grid grid-cols-2 gap-2 text-xs`}>
-            <div className={`p-3 rounded-xl border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[#F2EFE9] border-[#122420]/10'}`}>
+            <div className={`p-3 rounded-xl border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
               <div className={`flex items-center gap-1.5 mb-1 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--accent-primary)]'}`}>
                 <Clock className="w-3 h-3" />
                 {t('hours')}
               </div>
-              <span className={isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}>
+              <span className={isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}>
                 {language === 'ar' ? (restaurant.openingHoursAr || restaurant.openingHours) : restaurant.openingHours}
               </span>
             </div>
             {restaurant.areaName && (
-              <div className={`p-3 rounded-xl border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[#F2EFE9] border-[#122420]/10'}`}>
+              <div className={`p-3 rounded-xl border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
                 <div className={`flex items-center gap-1.5 mb-1 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--accent-primary)]'}`}>
                   <MapPin className="w-3 h-3" />
                   {t('attractions.area')}
                 </div>
-                <span className={isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}>
+                <span className={isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}>
                   {language === 'ar' ? (restaurant.areaNameAr || restaurant.areaName) : restaurant.areaName}
                 </span>
               </div>
@@ -370,7 +370,7 @@ const RestaurantDetailModal: React.FC<{
                 href={`https://wa.me/${restaurant.whatsapp.replace(/[^0-9+]/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity]"
               >
                 <WhatsAppIcon className="w-3.5 h-3.5" />
                 {t('whatsAppTheRestaurant')}
@@ -381,7 +381,7 @@ const RestaurantDetailModal: React.FC<{
                 href={restaurant.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all hover:bg-[var(--surface-container)]"
+                className="flex-1 py-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:bg-[var(--surface-container)]"
               >
                 {t('attractions.website')}
               </a>
@@ -391,7 +391,7 @@ const RestaurantDetailModal: React.FC<{
           <button
             type="button"
             onClick={() => onBook(restaurant)}
-            className="w-full py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
+            className="w-full py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
           >
             {t('bookATableOrder')}
           </button>
@@ -441,14 +441,14 @@ const PriceGuideSection: React.FC<{ language: 'en' | 'ar'; isDark: boolean }> = 
   ];
 
   return (
-    <section className={`rounded-2xl border p-5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'}`}>
-      <h3 className={`font-serif font-bold text-base mb-3 ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+    <section className={`rounded-2xl border p-5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
+      <h3 className={`chart-heading font-bold text-base mb-3 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
         {t('quickPriceGuide')}
       </h3>
       <div className="space-y-2">
         {rows.map(row => (
           <div key={row.tier} className={`flex items-center gap-3 text-xs py-1.5 px-2 rounded-lg ${
-            isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]' : 'bg-[#F2EFE9] text-[#4A635D]'
+            isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
           }`}>
             <span className="font-bold w-24 flex-shrink-0">
               {language === 'ar' ? row.tierAr : row.tier}
@@ -496,7 +496,7 @@ const BestForSection: React.FC<{ language: 'en' | 'ar'; onFilter: (cuisines: str
     <section className="space-y-3">
       <div className="flex items-center gap-2">
         <Bot className="w-4 h-4 text-[var(--accent-primary)]" />
-        <h3 className="font-serif font-bold text-sm">
+        <h3 className="chart-heading font-bold text-sm">
           {t('bestFor')}
         </h3>
       </div>
@@ -504,10 +504,10 @@ const BestForSection: React.FC<{ language: 'en' | 'ar'; onFilter: (cuisines: str
         {BEST_FOR.map(b => (
           <button key={b.key} type="button"
             onClick={() => toggle(b.key)}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+            className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               active.has(b.key)
                 ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
-                : 'bg-white border-[#122420]/10 text-[#4A635D] hover:bg-[#EAE6DD]'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
             }`}>
             {language === 'ar' ? b.ar : b.en}
           </button>
@@ -533,35 +533,35 @@ const ComparisonTable: React.FC<{
     <section className="space-y-3">
       <div className="flex items-center gap-2">
         <Filter className="w-4 h-4 text-[var(--accent-primary)]" />
-        <h3 className="font-serif font-bold text-sm">
+        <h3 className="chart-heading font-bold text-sm">
           {t('quickComparison')}
         </h3>
       </div>
-      <div className={`rounded-2xl border overflow-x-auto ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'}`}>
-        <table className="w-full text-left text-xs">
+      <div className={`rounded-2xl border overflow-x-auto ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
+        <table className="w-full text-start text-xs">
           <thead>
-            <tr className={isDark ? 'bg-[var(--surface-container)]' : 'bg-[#F2EFE9]'}>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+            <tr className={isDark ? 'bg-[var(--surface-container)]' : 'bg-[var(--surface-container)]'}>
+              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('restaurant')}
               </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('type')}
               </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('explore.rating')}
               </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('hours')}
               </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('attractions.price')}
               </th>
             </tr>
           </thead>
           <tbody>
             {restaurants.slice(0, 12).map(r => (
-              <tr key={r.id} className={`border-t ${isDark ? 'border-[var(--border-subtle)]' : 'border-[#122420]/5'}`}>
-                <td className={`px-3 py-2.5 font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+              <tr key={r.id} className={`border-t ${isDark ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)]'}`}>
+                <td className={`px-3 py-2.5 font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
                   <div className="flex items-center gap-2">
                     {r.rating && (
                       <span className="flex items-center gap-0.5 text-amber-400 flex-shrink-0">
@@ -572,16 +572,16 @@ const ComparisonTable: React.FC<{
                     <span className="truncate">{language === 'ar' ? r.nameAr : r.name}</span>
                   </div>
                 </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                   {(r.cuisine || []).slice(0, 2).join(', ')}
                 </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                   {r.rating ? `${r.rating.toFixed(1)} (${r.reviewCount || 0})` : '—'}
                 </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                   {r.openingHours || '—'}
                 </td>
-                <td className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[#122420]'}`}>
+                <td className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
                   {r.averageMealPriceEGP ? `${Math.round(r.averageMealPriceEGP)} EGP` : '—'}
                 </td>
               </tr>
@@ -605,7 +605,7 @@ const Get3PicksCta: React.FC<{ language: 'en' | 'ar' }> = ({ language }) => {
         <Bot className="w-6 h-6 text-[var(--accent-primary)]" />
       </div>
       <div className="flex-1 space-y-1">
-        <p className="font-serif font-bold text-base">
+        <p className="chart-heading font-bold text-base">
           {t('threePicksThatActually')}
         </p>
         <p className="text-xs text-[var(--text-secondary)]/70">
@@ -618,7 +618,7 @@ const Get3PicksCta: React.FC<{ language: 'en' | 'ar' }> = ({ language }) => {
           : 'https://wa.me/201222124840?text=Hi!%20I%27d%20like%203%20restaurant%20picks%20in%20Dahab'}
         target="_blank"
         rel="noopener noreferrer"
-        className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+        className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-bold flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer active:scale-[0.98]"
       >
         <WhatsAppIcon className="w-4 h-4" />
         {t('get3Picks')}
@@ -639,16 +639,16 @@ const BeforeYouArriveGuide: React.FC<{ language: 'en' | 'ar'; isDark: boolean }>
   const tips = [t('restaurants.whatsAppTip1'), t('restaurants.whatsAppTip2')];
 
   return (
-    <section className={`rounded-2xl border p-5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'}`}>
+    <section className={`rounded-2xl border p-5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
       <div className="flex items-start gap-3">
         <Info className="w-5 h-5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
         <div className="space-y-3">
-          <h3 className={`font-serif font-bold text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+          <h3 className={`chart-heading font-bold text-sm ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
             {t('beforeYouArrive')}
           </h3>
           <div className="space-y-1.5">
             {bullets.map((b, i) => (
-              <li key={i} className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>
+              <li key={i} className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
                 <span className="text-[var(--accent-primary)]">•</span> {b}
               </li>
             ))}
@@ -659,7 +659,7 @@ const BeforeYouArriveGuide: React.FC<{ language: 'en' | 'ar'; isDark: boolean }>
                 <span className="px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-bold">
                   {t('tip')}
                 </span>
-                <span className={`${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>{tipItem}</span>
+                <span className={`${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>{tipItem}</span>
               </div>
             ))}
           </div>
@@ -896,8 +896,8 @@ export const RestaurantsView: React.FC = () => {
 
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}>
 
       {/* Hero with authentic Dahab cafe backdrop */}
@@ -910,34 +910,34 @@ export const RestaurantsView: React.FC = () => {
         <div className={`absolute inset-0 ${
           isDark
             ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
-            : 'bg-gradient-to-r from-[#FBF9F5]/96 via-[#FBF9F5]/92 to-[#FBF9F5]/80 backdrop-blur-[2px]'
+            : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[2px]'
         }`} />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-start justify-between gap-6">
             <div className="space-y-2">
-              <h1 className="text-3xl font-serif font-bold">
+              <h1 className="text-3xl chart-heading font-bold">
                 {t('restaurantsInDahab')}
               </h1>
-              <p className={`text-sm max-w-lg ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>
+              <p className={`text-sm max-w-lg ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
                 {t('restaurants.heroCountMap', { count: restaurants.length })}
               </p>
             </div>
             <div className="flex items-center gap-1.5">
               <button type="button"
                 onClick={() => setShowAll(true)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   showAll
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)]'
-                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-white text-[#4A635D] border-[#122420]/10'
+                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
                 }`}>
                 {t('all')}
               </button>
               <button type="button"
                 onClick={() => setShowAll(false)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   !showAll
                     ? 'bg-rose-500 text-white'
-                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-white text-[#4A635D] border-[#122420]/10'
+                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
                 }`}>
                 {t('favourites')} ({favList.length})
               </button>
@@ -963,7 +963,7 @@ export const RestaurantsView: React.FC = () => {
               },
             ].map(stat => (
               <div key={stat.label} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${
-                isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'
+                isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
               }`}>
                 <span className="font-black">{stat.value}</span>
                 {' '}
@@ -979,7 +979,7 @@ export const RestaurantsView: React.FC = () => {
 
         {/* Search */}
         <div className="relative max-w-md mb-6">
-          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[#4A635D]/40'}`} />
+          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
           <input
             type="search"
             value={searchQuery}
@@ -988,7 +988,7 @@ export const RestaurantsView: React.FC = () => {
             className={`w-full py-3 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
-                : 'bg-white border-[#122420]/10 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)]'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
             } focus:outline-none`}
           />
         </div>
@@ -1009,10 +1009,10 @@ export const RestaurantsView: React.FC = () => {
                   else params.set('price', [...next].join(','));
                   window.history.replaceState(null, '', `?${params.toString()}`);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border ${
                   active
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
-                    : 'bg-white border-[#122420]/10 text-[#4A635D] hover:bg-[#EAE6DD]'
+                    : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
                 }`}>
                 {priceTierLabel(band, language)}
               </button>
@@ -1023,13 +1023,13 @@ export const RestaurantsView: React.FC = () => {
         {/* Featured / top picks */}
         {!showAll && (
           <section className="mb-8">
-            <h2 className="font-serif font-bold text-lg mb-3 flex items-center gap-2">
+            <h2 className="chart-heading font-bold text-lg mb-3 flex items-center gap-2">
               <Heart className="w-5 h-5 text-rose-400" />
               {t('yourFavourites')}
             </h2>
             {favList.length === 0 ? (
               <div className={`py-8 rounded-2xl border text-center text-sm ${
-                isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'
+                isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
               }`}>
                 {t('noFavouritesYetTap')}
               </div>
@@ -1053,15 +1053,15 @@ export const RestaurantsView: React.FC = () => {
 
         {/* Results grid */}
         <section className="mb-10">
-          <h2 className="font-serif font-bold text-lg mb-3 flex items-center gap-2">
+          <h2 className="chart-heading font-bold text-lg mb-3 flex items-center gap-2">
             {t('allRestaurants')}
-            <span className={`text-xs font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]'}`}>
+            <span className={`text-xs font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>
               ({visible.length})
             </span>
           </h2>
           {visible.length === 0 ? (
             <div className={`py-12 rounded-2xl border text-center text-sm ${
-              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'
+              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
             }`}>
               {t('noRestaurantsMatchThat')}
             </div>

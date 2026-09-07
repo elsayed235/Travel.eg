@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
+/* Dark mode follows the app theme attribute (set on <html>/<body> by
+   ThemeContext), not the OS. Without this, `dark:` palette classes only
+   fire when the OS prefers dark, leaving dark theme surfaces with
+   light-theme text colors on light-OS machines. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 @theme {
   --font-serif: 'El Messiri', Georgia, serif;
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Outfit', sans-serif;
+  --font-chart: 'Chakra Petch', 'Alexandria', sans-serif;
   --font-arabic: 'Alexandria', -apple-system, sans-serif;
   --font-arabic-display: 'Alexandria', sans-serif;
   --font-arabic-body: 'Alexandria', sans-serif;
@@ -1362,6 +1369,13 @@ body {
   scrollbar-width: none;
 }
 
+/* Touch interaction: no double-tap zoom delay, intentional highlight. */
+button,
+a {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(32, 168, 154, 0.25);
+}
+
 /* Accessible Universal Focus States */
 :focus-visible {
   outline: 3px solid var(--focus-ring, #F6C36E) !important;
@@ -1610,28 +1624,49 @@ body {
 }
 
 /* ==========================================================================
-   TIDAL CONVERGENCE — HOMEPAGE VISUAL WORLD
-   Desert meets Red Sea: warm sand fading into cool ocean depth
-   Direction: a990940c · THESIS: the shoreline where two landscapes meet
+   SINAI STAR CHART — HOMEPAGE VISUAL WORLD (replaces Tidal Convergence)
+   Bedouin night-sky navigation chart: indigo night paper, bone star ink,
+   brass ticks, amber firelight for action, lagoon teal for live data only.
+   Direction: 2cdaa49a · THESIS: the night sky over Sinai as trip instrument
+   `chart-*` is canonical; `tidal-*`/`tide-*` are deprecated aliases kept so
+   every surface follows the repaint without logic churn.
    ========================================================================== */
-.tidal-gradient-hero {
-  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 70%, #E7D3AE) 25%, color-mix(in oklab, var(--bg-canvas) 40%, #0F6F78) 65%, color-mix(in oklab, var(--bg-canvas) 15%, #062C35) 100%);
+.chart-gradient-hero, .tidal-gradient-hero {
+  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 62%, #0A1128) 30%, color-mix(in oklab, var(--bg-canvas) 35%, #0A1128) 66%, color-mix(in oklab, var(--bg-canvas) 12%, #060B1F) 100%);
 }
-.tidal-gradient-section {
-  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 92%, #0F6F78) 100%);
+.chart-gradient-section, .tidal-gradient-section {
+  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 90%, #1B2452) 100%);
 }
-.tidal-depth-1 { background: var(--bg-canvas); }
-.tidal-depth-2 { background: color-mix(in oklab, var(--bg-canvas) 95%, #E7D3AE); }
-.tidal-depth-3 { background: color-mix(in oklab, var(--bg-canvas) 85%, #0F6F78); }
-.tidal-depth-4 { background: color-mix(in oklab, var(--bg-canvas) 65%, #062C35); }
-.tidal-depth-5 { background: color-mix(in oklab, var(--bg-canvas) 40%, #04171D); }
+.chart-depth-1, .tidal-depth-1 { background: var(--bg-canvas); }
+.chart-depth-2, .tidal-depth-2 { background: color-mix(in oklab, var(--bg-canvas) 95%, #F2EDDF); }
+.chart-depth-3, .tidal-depth-3 { background: color-mix(in oklab, var(--bg-canvas) 85%, #1B2452); }
+.chart-depth-4, .tidal-depth-4 { background: color-mix(in oklab, var(--bg-canvas) 65%, #0A1128); }
+.chart-depth-5, .tidal-depth-5 { background: color-mix(in oklab, var(--bg-canvas) 40%, #060B1F); }
 
-@keyframes tidal-reveal {
-  0% { opacity: 0; transform: translateY(40px); filter: blur(4px); }
-  60% { filter: blur(0px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+/* Pinprick starfield: pure CSS, symmetric for RTL, inert under
+   reduced motion (static dots, no animation to disable). */
+.chart-starfield {
+  background-image:
+    radial-gradient(1.2px 1.2px at 8% 18%, rgba(242,237,223,.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 68%, rgba(242,237,223,.6) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 33% 30%, rgba(242,237,223,.9) 50%, transparent 51%),
+    radial-gradient(1px 1px at 47% 12%, rgba(242,237,223,.55) 50%, transparent 51%),
+    radial-gradient(2px 2px at 58% 44%, rgba(232,163,61,.95) 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 74%, rgba(242,237,223,.6) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 76% 26%, rgba(242,237,223,.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 58%, rgba(242,237,223,.55) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 93% 14%, rgba(242,237,223,.75) 50%, transparent 51%),
+    radial-gradient(1px 1px at 41% 86%, rgba(242,237,223,.5) 50%, transparent 51%);
 }
-.animate-tidal-reveal { animation: tidal-reveal 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes chart-rise {
+  0% { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-chart-rise, .animate-tidal-reveal { animation: chart-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-chart-rise, .animate-tidal-reveal { animation: none; }
+}
 
 @keyframes wave-crest {
   0%, 100% { transform: translateX(0) scaleY(1); }
@@ -1645,83 +1680,83 @@ body {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-.tidal-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+.chart-shimmer, .tidal-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(242,237,223,0.08) 50%, transparent 100%);
 }
 
-.tidal-card {
-  background: color-mix(in oklab, var(--surface-card) 85%, rgba(15,111,120,0.08));
-  border: 1px solid color-mix(in oklab, var(--border-subtle) 80%, rgba(15,111,120,0.15));
-  box-shadow: 0 1px 3px rgba(4,23,29,0.04), 0 8px 24px -8px rgba(4,23,29,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
+.chart-card, .tidal-card {
+  background: color-mix(in oklab, var(--surface-card) 86%, rgba(27,36,82,0.16));
+  border: 1px solid color-mix(in oklab, var(--border-subtle) 78%, rgba(201,162,75,0.22));
+  box-shadow: 0 1px 3px rgba(6,11,31,0.10), 0 10px 28px -10px rgba(6,11,31,0.25), inset 0 1px 0 rgba(242,237,223,0.07);
   transition: all 400ms cubic-bezier(0.22,1,0.36,1);
 }
-.tidal-card:hover {
-  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(15,111,120,0.3));
-  box-shadow: 0 2px 6px rgba(4,23,29,0.06), 0 16px 40px -12px rgba(4,23,29,0.12), inset 0 1px 0 rgba(255,255,255,0.1);
+.chart-card:hover, .tidal-card:hover {
+  border-color: color-mix(in oklab, var(--border-subtle) 45%, rgba(201,162,75,0.5));
+  box-shadow: 0 2px 6px rgba(6,11,31,0.12), 0 18px 44px -12px rgba(6,11,31,0.30), inset 0 1px 0 rgba(242,237,223,0.10);
 }
 
-.tidal-cta-primary {
-  background: linear-gradient(135deg, #0F6F78 0%, #20A89A 100%);
-  color: #F7F3EA;
+.chart-cta-primary, .tidal-cta-primary {
+  background: linear-gradient(135deg, #B97A1F 0%, #E8A33D 100%);
+  color: #1A1206;
   font-weight: 700;
   padding: 1rem 2rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 16px -4px rgba(15,111,120,0.4), 0 1px 2px rgba(15,111,120,0.2), inset 0 1px 1px rgba(255,255,255,0.2);
+  box-shadow: 0 6px 18px -6px rgba(232,163,61,0.55), 0 1px 2px rgba(26,18,6,0.25), inset 0 1px 1px rgba(255,255,255,0.35);
   transition: all 300ms cubic-bezier(0.22,1,0.36,1);
   position: relative;
   overflow: hidden;
 }
-.tidal-cta-primary::before {
+.chart-cta-primary::before, .tidal-cta-primary::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
   opacity: 0;
   transition: opacity 300ms;
 }
-.tidal-cta-primary:hover {
+.chart-cta-primary:hover, .tidal-cta-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px -4px rgba(15,111,120,0.5), 0 2px 4px rgba(15,111,120,0.25), inset 0 1px 2px rgba(255,255,255,0.3);
+  box-shadow: 0 10px 30px -6px rgba(232,163,61,0.6), 0 2px 4px rgba(26,18,6,0.25), inset 0 1px 2px rgba(255,255,255,0.4);
 }
-.tidal-cta-primary:hover::before { opacity: 1; }
-.tidal-cta-primary:active { transform: translateY(0) scale(0.98); }
+.chart-cta-primary:hover::before, .tidal-cta-primary:hover::before { opacity: 1; }
+.chart-cta-primary:active, .tidal-cta-primary:active { transform: translateY(0) scale(0.98); }
 
-.tidal-cta-secondary {
+.chart-cta-secondary, .tidal-cta-secondary {
   background: transparent;
   color: var(--text-primary);
   font-weight: 600;
   padding: 1rem 2rem;
   border-radius: 1rem;
-  border: 1.5px solid color-mix(in oklab, var(--border-subtle) 70%, rgba(15,111,120,0.25));
+  border: 1.5px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(201,162,75,0.45));
   transition: all 300ms cubic-bezier(0.22,1,0.36,1);
 }
-.tidal-cta-secondary:hover {
-  background: color-mix(in oklab, var(--surface-card) 80%, rgba(15,111,120,0.08));
-  border-color: rgba(15,111,120,0.4);
+.chart-cta-secondary:hover, .tidal-cta-secondary:hover {
+  background: color-mix(in oklab, var(--surface-card) 80%, rgba(232,163,61,0.10));
+  border-color: rgba(201,162,75,0.65);
 }
 
-.tidal-heading {
-  font-family: var(--font-display);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+.chart-heading, .tidal-heading {
+  font-family: var(--font-chart);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
 }
-.tidal-heading-accent {
+.chart-heading-accent, .tidal-heading-accent {
   font-family: var(--font-serif);
   font-weight: 600;
   font-style: italic;
   color: inherit;
 }
 
-.tidal-glass {
-  background: color-mix(in oklab, var(--surface-card) 75%, rgba(15,111,120,0.05));
+.chart-glass, .tidal-glass {
+  background: color-mix(in oklab, var(--surface-card) 72%, rgba(10,17,40,0.28));
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border: 1px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(255,255,255,0.08));
-  box-shadow: 0 8px 32px -8px rgba(4,23,29,0.1), inset 0 1px 0 rgba(255,255,255,0.08);
+  border: 1px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(242,237,223,0.10));
+  box-shadow: 0 8px 32px -8px rgba(6,11,31,0.35), inset 0 1px 0 rgba(242,237,223,0.10);
 }
 
-.tidal-badge {
+.chart-badge, .tidal-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -1732,25 +1767,25 @@ body {
   letter-spacing: 0;
   border: 1px solid;
 }
-.tidal-badge-ocean {
-  background: color-mix(in oklab, var(--surface-card) 85%, rgba(15,111,120,0.12));
+.chart-badge-live, .tidal-badge-ocean {
+  background: color-mix(in oklab, var(--surface-card) 85%, rgba(27,154,139,0.14));
   color: var(--accent-primary);
-  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(15,111,120,0.2));
+  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(27,154,139,0.35));
 }
-.tidal-badge-sunset {
-  background: color-mix(in oklab, var(--surface-card) 85%, rgba(217,108,79,0.1));
-  color: var(--accent-secondary);
-  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(217,108,79,0.2));
+.chart-badge-ember, .tidal-badge-sunset {
+  background: color-mix(in oklab, var(--surface-card) 85%, rgba(232,163,61,0.14));
+  color: #B97A1F;
+  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(232,163,61,0.4));
 }
 
-.tidal-parallax-container { perspective: 1000px; overflow: hidden; }
-.tidal-parallax-layer { transform-style: preserve-3d; will-change: transform; }
+.chart-parallax-container, .tidal-parallax-container { perspective: 1000px; overflow: hidden; }
+.chart-parallax-layer, .tidal-parallax-layer { transform-style: preserve-3d; will-change: transform; }
 
-/* Tide ledger — the one memorable element. Four unequal services set as
-   depth soundings on a single shoreline rule, not four identical cards.
-   Hairlines carry the structure; only the first (diving) row holds depth. */
-.tide-ledger { border-top: 1px solid var(--border-subtle); }
-.tide-row {
+/* Constellation thread — the one memorable element. Scenes set as plotted
+   stars on a single chart rule, not identical cards. Hairlines carry the
+   structure; only the plotted (active) waypoint holds firelight. */
+.chart-thread, .tide-ledger { border-top: 1px solid var(--border-subtle); }
+.chart-waypoint, .tide-row {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -1761,22 +1796,22 @@ body {
   border-radius: 0.65rem;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
-.tide-row:hover { background: color-mix(in oklab, var(--surface-card) 70%, transparent); }
-.tide-row-primary {
-  background: color-mix(in oklab, var(--surface-card) 80%, rgba(15,111,120,0.10));
-  border: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(15,111,120,0.35));
-  border-bottom: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(15,111,120,0.35));
+.chart-waypoint:hover, .tide-row:hover { background: color-mix(in oklab, var(--surface-card) 70%, transparent); }
+.chart-waypoint-active, .tide-row-primary {
+  background: color-mix(in oklab, var(--surface-card) 80%, rgba(232,163,61,0.12));
+  border: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(201,162,75,0.5));
+  border-bottom: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(201,162,75,0.5));
   padding-inline: 1rem;
 }
-.tide-mark {
+.chart-node, .tide-mark {
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 0.65rem;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(201,162,75,0.4));
 }
 
 
@@ -1784,4 +1819,86 @@ body {
 @keyframes tidalShift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+/* ==========================================================================
+   2026 HOMEPAGE UPGRADE — marquee, spotlight hover, aurora wash
+   ========================================================================== */
+
+/* Seamless marquee loop: the content row is duplicated in markup; both copies
+   are aria-hidden. Reduced motion freezes the row in place (first copy only,
+   second hidden by overflow) instead of animating. */
+@keyframes dahab-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.dahab-marquee {
+  animation: dahab-marquee-scroll 36s linear infinite;
+}
+.dahab-marquee-rtl {
+  animation: dahab-marquee-scroll 36s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dahab-marquee,
+  .dahab-marquee-rtl {
+    animation: none;
+  }
+}
+
+/* Pointer-following spotlight hover for bento tiles. --mx/--my are set from
+   JS in HomeEssenceBento; the glow only renders where the custom properties
+   exist, so touch devices (no mousemove) simply never show it. */
+.dahab-spotlight {
+  position: relative;
+}
+.dahab-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.10),
+    transparent 65%
+  );
+}
+.dahab-spotlight:hover::after { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dahab-spotlight::after { display: none; }
+}
+
+/* Slow ember wash behind the stats band — a single hue-cycling radial that
+   reads as firelight under stars. Disabled under reduced motion. */
+@keyframes dahab-aurora {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.dahab-aurora-wash {
+  background: linear-gradient(
+    115deg,
+    color-mix(in oklab, var(--bg-canvas) 90%, #E8A33D) 0%,
+    var(--bg-canvas) 35%,
+    color-mix(in oklab, var(--bg-canvas) 92%, #1B2452) 65%,
+    var(--bg-canvas) 100%
+  );
+  background-size: 220% 220%;
+  animation: dahab-aurora 22s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dahab-aurora-wash { animation: none; }
+  .animate-wave-crest { animation: none; }
+}
+
+/* Leaflet attribution: default link blue is 3.6:1 — darken for AA. */
+.leaflet-control-attribution a {
+  color: #005c80 !important;
+}
+.leaflet-control-attribution {
+  color: #444 !important;
 }

@@ -45,7 +45,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
     <div
       id={`hotel-card-${hotel.id}`}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={`rounded-3xl border transition-all duration-200 overflow-hidden bg-[var(--surface-card)] text-[var(--text-primary)] ${
+      className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 overflow-hidden bg-[var(--surface-card)] text-[var(--text-primary)] ${
         isSelected
           ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 shadow-lg'
           : hotel.isRecommended
@@ -111,7 +111,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
             {/* Title & Location */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] leading-tight">
+                <h3 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)] leading-tight">
                   {hotelName}
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)]/70 flex items-center gap-1 mt-1 font-medium">
@@ -168,7 +168,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
                 <span className="text-2xl font-black text-[var(--accent-secondary)]">
                   {hotel.priceTotalEGP.toLocaleString()} {isAr ? 'جنيه' : 'EGP'}
                 </span>
-                <span className="text-xs font-bold text-[var(--text-secondary)]/60 uppercase tracking-wide">
+                <span className="text-xs font-bold text-[var(--text-secondary)]/60 tracking-wide">
                   {isAr ? 'الإجمالي' : 'total'}
                 </span>
               </div>
@@ -193,7 +193,7 @@ export const HotelCard: React.FC<HotelCardProps> = ({
                 type="button"
                 id={`hotel-select-btn-${hotel.id}`}
                 onClick={() => onSelect(hotel.id)}
-                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer ${
+                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                   isSelected
                     ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] font-bold shadow-lg shadow-[var(--accent-primary)]/20'
                     : 'bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] font-bold hover:shadow'

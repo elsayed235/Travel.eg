@@ -109,7 +109,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   const ActiveIcon = getThemeIcon(themeId);
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={dropdownRef}>
+    <div className={`relative inline-block text-start ${className}`} ref={dropdownRef}>
       {/* Sleek Minimalist Trigger Button */}
       <button
         ref={buttonRef}
@@ -120,7 +120,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         aria-haspopup="dialog"
         aria-label={`Theme: ${getShortName(activeTheme)}. Open Theme Menu.`}
         title={t('nav.theme', { getShortName_activeTheme_: getShortName(activeTheme) })}
-        className={`group relative h-9 px-2.5 sm:px-3 rounded-full flex items-center gap-2 transition-all duration-200 cursor-pointer border shadow-sm select-none ${
+        className={`group relative h-9 px-2.5 sm:px-3 rounded-full flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer border shadow-sm select-none ${
           isDark
             ? 'bg-[var(--surface-container)]/90 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] text-white hover:border-[var(--border-subtle)]'
             : 'bg-[var(--btn-util-bg)] hover:bg-[var(--surface-container)] border-[var(--text-primary)]/12 text-[var(--text-primary)] hover:border-[var(--text-primary)]/20'
@@ -139,7 +139,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         </div>
 
         {/* Short Clean Name */}
-        <span className="text-xs font-semibold tracking-tight hidden xl:inline whitespace-nowrap">
+        <span className="text-xs font-semibold tracking-tight hidden min-[1500px]:inline whitespace-nowrap">
           {getShortName(activeTheme)}
         </span>
 
@@ -175,7 +175,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             role="dialog"
             aria-modal="true"
             aria-label="Theme Selector"
-            className={`absolute mt-2 w-72 sm:w-80 z-50 rounded-2xl p-3 shadow-2xl border backdrop-blur-2xl transition-all ${
+            className={`absolute mt-2 w-72 sm:w-80 z-50 rounded-2xl p-3 shadow-2xl border backdrop-blur-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isRTL ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
             } ${
               isDark
@@ -187,7 +187,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
                 <Palette className="w-4 h-4 text-[var(--accent-primary)]" />
-                <span className="text-xs font-bold font-['Outfit',sans-serif]">
+                <span className="text-xs font-bold">
                   {t('nav.appearance')}
                 </span>
               </div>
@@ -197,7 +197,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('themes')}
-                  className={`px-2.5 py-1 rounded-md text-[12px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 py-1 rounded-md text-[12px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 ${
                     activeTab === 'themes'
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xs'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -209,7 +209,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('accessibility')}
-                  className={`px-2.5 py-1 rounded-md text-[12px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-2.5 py-1 rounded-md text-[12px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 ${
                     activeTab === 'accessibility'
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-xs'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
@@ -226,7 +226,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               <div className="space-y-3" role="radiogroup" aria-label="Themes">
                 {/* 1. Dark Modes Section */}
                 <div>
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 px-1">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)] mb-1.5 px-1">
                     <Moon className="w-3 h-3 text-[var(--accent-primary)]" />
                     <span>{t('nav.darkMode')}</span>
                   </div>
@@ -237,7 +237,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
                 {/* 2. Light Modes Section */}
                 <div className="pt-2 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 px-1">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)] mb-1.5 px-1">
                     <Sun className="w-3 h-3 text-[var(--accent-secondary)]" />
                     <span>{t('nav.lightMode')}</span>
                   </div>
@@ -249,7 +249,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 {/* 3. Ultra High Contrast Mode (Single Sleek Pill) */}
                 {proTheme && (
                   <div className="pt-2 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-1.5 px-1">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400 mb-1.5 px-1">
                       <Eye className="w-3 h-3 text-amber-400" />
                       <span>{t('nav.highContrast')}</span>
                     </div>
@@ -266,7 +266,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <button
                   type="button"
                   onClick={toggleHighContrastMode}
-                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     highContrastMode
                       ? 'bg-amber-500/15 border-amber-500 text-[var(--text-primary)]'
                       : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
@@ -289,7 +289,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <button
                   type="button"
                   onClick={toggleLargeText}
-                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     largeText
                       ? 'bg-teal-500/15 border-teal-500 text-[var(--text-primary)]'
                       : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
@@ -312,7 +312,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <button
                   type="button"
                   onClick={toggleReducedMotion}
-                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-all cursor-pointer ${
+                  className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     reducedMotion
                       ? 'bg-rose-500/15 border-rose-500 text-[var(--text-primary)]'
                       : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
@@ -362,7 +362,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         aria-checked={isSelected}
         id={`theme-option-${opt.id}`}
         onClick={() => setThemeId(opt.id)}
-        className={`w-full h-10 px-2.5 rounded-xl transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer border relative group ${
+        className={`w-full h-10 px-2.5 rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 flex items-center justify-between gap-2.5 cursor-pointer border relative group ${
           isSelected
             ? 'bg-[var(--surface-container)] border-[var(--focus-ring)] shadow-xs ring-1 ring-[var(--focus-ring)]'
             : isSpecial

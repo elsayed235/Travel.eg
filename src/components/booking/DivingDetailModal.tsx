@@ -94,7 +94,7 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
 
           {/* Title on bottom of banner */}
           <div className="absolute bottom-4 left-4 right-4 text-[var(--text-primary)]">
-            <h2 id="diving-detail-modal-dialog-1-title" className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[var(--text-primary)]">
+            <h2 id="diving-detail-modal-dialog-1-title" className="text-2xl sm:text-3xl chart-heading font-bold tracking-tight text-[var(--text-primary)]">
               {title}
             </h2>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 flex items-center gap-1.5 mt-1">
@@ -105,10 +105,10 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 font-['Plus_Jakarta_Sans',sans-serif]">
+        <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1">
           {/* Overview Description */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-1.5">
+            <h3 className="text-xs font-bold text-[var(--accent-primary)] mb-1.5">
               {isAr ? 'نظرة عامة على التجربة' : 'Experience overview'}
             </h3>
             <p className="text-sm sm:text-base text-[var(--text-secondary)]/90 leading-relaxed font-normal">
@@ -150,7 +150,7 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-[var(--border-subtle)]">
             {/* What's Included */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-[var(--accent-primary)] stroke-[2.5]" />
                 <span>{isAr ? 'ما تتضمنه التجربة' : 'What is included'}</span>
               </h4>
@@ -168,7 +168,7 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
 
             {/* What to Bring */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[var(--accent-primary)] mb-3 flex items-center gap-1.5">
                 <Luggage className="w-4 h-4 text-[var(--accent-primary)]" />
                 <span>{isAr ? 'ما يجب إحضاره' : 'What to bring'}</span>
               </h4>
@@ -244,9 +244,9 @@ export const DivingDetailModal: React.FC<DivingDetailModalProps> = ({
                 onSelect(diving.id);
                 onClose();
               }}
-              className={`w-1/2 sm:w-auto px-7 py-3 rounded-full text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 ${
+              className={`w-1/2 sm:w-auto px-7 py-3 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer flex items-center justify-center gap-2 ${
                 isSelected
-                  ? 'bg-[var(--accent-primary)] hover:bg-[#1a8c80] text-[var(--surface-container)]'
+                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[#1A1206]'
                   : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-container)]'
               }`}
             >

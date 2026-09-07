@@ -127,7 +127,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
   };
 
   const inputCls = 'w-full rounded-xl border px-3 py-2 text-sm outline-none bg-[var(--surface-container)] border-[var(--text-primary)]/10 text-[var(--text-primary)]';
-  const labelCls = 'block text-[11px] font-bold uppercase tracking-wider mb-1 text-[var(--text-primary)]/60';
+  const labelCls = 'block text-[11px] font-bold mb-1 text-[var(--text-primary)]/60';
 
   if (loading) {
     return (
@@ -266,7 +266,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
 
       {/* Pending */}
       <section className="space-y-3">
-        <h3 className="text-sm font-serif font-bold">
+        <h3 className="text-sm chart-heading font-bold">
           {isAr ? 'طلبات التأكيد' : 'Awaiting confirmation'} ({pending.length})
         </h3>
         {pending.length === 0 ? (
@@ -278,7 +278,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
 
       {/* In progress */}
       <section className="space-y-3">
-        <h3 className="text-sm font-serif font-bold">
+        <h3 className="text-sm chart-heading font-bold">
           {isAr ? 'تأجير جارٍ' : 'Rentals in progress'} ({inProgress.length})
         </h3>
         {inProgress.length === 0 ? (
@@ -291,7 +291,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
       {/* Maintenance blocks */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-serif font-bold">
+          <h3 className="text-sm chart-heading font-bold">
             {isAr ? 'فترات الصيانة' : 'Maintenance blocks'} ({blocks.length})
           </h3>
           <button
@@ -374,7 +374,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
       {/* History */}
       {history.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-sm font-serif font-bold">{isAr ? 'السجل' : 'History'} ({history.length})</h3>
+          <h3 className="text-sm chart-heading font-bold">{isAr ? 'السجل' : 'History'} ({history.length})</h3>
           <div className="space-y-2">{history.map(renderBooking)}</div>
         </section>
       )}

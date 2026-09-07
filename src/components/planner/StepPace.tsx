@@ -1,6 +1,7 @@
 import React from 'react';
 import { Gauge, Check, Sparkles, ArrowLeft, ArrowRight, Info, Coffee, Sun, Flame } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { IMG_P1469854523086cc02fe5d8800_800, IMG_P1507525428034b723cf961d3e_CARD, IMG_P154455176346a013bb70d5_CARD } from '../../shared/placeholderImagery';
 
 export type PaceType = 'slow' | 'balanced' | 'packed';
 
@@ -19,7 +20,7 @@ const PACE_OPTIONS: PaceOption[] = [
     titleKey: 'planner.step5.slow.title',
     descriptionKey: 'planner.step5.slow.desc',
     sublabelKey: 'planner.step5.slow.sub',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1507525428034b723cf961d3e_CARD,
     icon: <Coffee className="w-4 h-4" />,
   },
   {
@@ -27,7 +28,7 @@ const PACE_OPTIONS: PaceOption[] = [
     titleKey: 'planner.step5.balanced.title',
     descriptionKey: 'planner.step5.balanced.desc',
     sublabelKey: 'planner.step5.balanced.sub',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P154455176346a013bb70d5_CARD,
     icon: <Sun className="w-4 h-4" />,
   },
   {
@@ -35,7 +36,7 @@ const PACE_OPTIONS: PaceOption[] = [
     titleKey: 'planner.step5.packed.title',
     descriptionKey: 'planner.step5.packed.desc',
     sublabelKey: 'planner.step5.packed.sub',
-    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1469854523086cc02fe5d8800_800,
     icon: <Flame className="w-4 h-4" />,
   },
 ];
@@ -59,14 +60,14 @@ export const StepPace: React.FC<StepPaceProps> = ({
     <div id="step-pace-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold mb-4">
           <Gauge className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step5.badge')}</span>
         </div>
 
         <h1
           id="pace-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl chart-heading text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step5.title')}
         </h1>
@@ -96,7 +97,7 @@ export const StepPace: React.FC<StepPaceProps> = ({
               onClick={() => onSelectPace(option.id)}
               aria-checked={isSelected}
               role="radio"
-              className={`w-full text-left p-5 sm:p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group ${
+              className={`w-full text-start p-5 sm:p-6 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group ${
                 isSelected
                   ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-lg ring-2 ring-[var(--accent-secondary)]/30'
                   : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
@@ -164,7 +165,7 @@ export const StepPace: React.FC<StepPaceProps> = ({
           type="button"
           id="planner-pace-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -175,7 +176,7 @@ export const StepPace: React.FC<StepPaceProps> = ({
           type="button"
           id="planner-build-trip-btn"
           onClick={onBuildTrip}
-          className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-sm sm:text-base font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full text-sm sm:text-base font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg hover:shadow-xl cursor-pointer group"
         >
           <Sparkles className="w-4 h-4 text-[var(--surface-card)] group-hover:rotate-12 transition-transform" />
           <span>{t('planner.step5.buildBtn')}</span>

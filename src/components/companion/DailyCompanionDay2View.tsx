@@ -315,7 +315,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20">
+    <div className="min-h-screen bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20">
       
       {/* 1. TRAVELER TOP NAVIGATION (My Trip is active) */}
       <TravelerNav
@@ -365,7 +365,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   setSeaCondition('calm');
                   showToast('Sea conditions: Calm (Ideal for diving & snorkeling)');
                 }}
-                className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${seaCondition === 'calm' ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-bold' : 'hover:text-[var(--text-primary)]'}`}
+                className={`px-2.5 py-0.5 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${seaCondition === 'calm' ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-bold' : 'hover:text-[var(--text-primary)]'}`}
               >
                 Calm Sea
               </button>
@@ -375,7 +375,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   setSeaCondition('rough');
                   showToast('Simulated rough sea: Adaptive suggestions applied');
                 }}
-                className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${seaCondition === 'rough' ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-bold' : 'hover:text-[var(--text-primary)]'}`}
+                className={`px-2.5 py-0.5 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${seaCondition === 'rough' ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-bold' : 'hover:text-[var(--text-primary)]'}`}
               >
                 Rough Sea (Adaptive)
               </button>
@@ -386,7 +386,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
         {/* 2. MAIN HEADER */}
         <div className="space-y-4 mb-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold shadow-2xs font-['Outfit',sans-serif]">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
               <span>Daily Trip Companion</span>
             </div>
@@ -401,10 +401,10 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
               Good morning, Ahmed 👋
             </h1>
-            <div className="flex items-center gap-2 text-xl sm:text-2xl font-['Outfit',sans-serif] font-semibold text-[var(--accent-primary)]">
+            <div className="flex items-center gap-2 text-xl sm:text-2xl font-semibold text-[var(--accent-primary)]">
               <span>Dahab Today</span>
             </div>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
@@ -426,7 +426,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <div 
                 id="companion-disruption-alert"
                 onClick={onNavigateToChangeRecovery}
-                className="bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 transition-all cursor-pointer shadow-md space-y-3"
+                className="bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-md space-y-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3.5">
@@ -435,14 +435,14 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-300 font-['Outfit',sans-serif]">
+                        <span className="text-[11px] font-black text-amber-300">
                           Schedule Update
                         </span>
                         <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-extrabold border border-amber-500/30">
                           Action Ready
                         </span>
                       </div>
-                      <h3 className="font-['Outfit',sans-serif] font-bold text-lg text-[var(--text-primary)]">
+                      <h3 className=" font-bold text-lg text-[var(--text-primary)]">
                         Your boat trip has changed
                       </h3>
                       <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
@@ -471,10 +471,10 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-4">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Real-Time Environment
                   </span>
-                  <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
                     Live Conditions
                   </h2>
                 </div>
@@ -488,15 +488,15 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
                   <Wind className="w-4 h-4 text-[var(--accent-primary)] mx-auto" />
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">Wind</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">Wind</span>
                   <span className="font-bold text-sm text-[var(--text-primary)]">18 knots</span>
                 </div>
 
-                <div className={`p-3 rounded-2xl border space-y-1 transition-all ${
+                <div className={`p-3 rounded-2xl border space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   seaCondition === 'calm' ? 'bg-[var(--surface-container)] border-white/5' : 'bg-[var(--surface-container)] border-amber-500/40'
                 }`}>
                   <Waves className={`w-4 h-4 mx-auto ${seaCondition === 'calm' ? 'text-[var(--accent-primary)]' : 'text-amber-400'}`} />
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">Sea</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">Sea</span>
                   <span className={`font-bold text-sm ${seaCondition === 'calm' ? 'text-[var(--text-primary)]' : 'text-amber-300'}`}>
                     {seaCondition === 'calm' ? 'Calm' : 'Choppy / Rough'}
                   </span>
@@ -508,13 +508,13 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
                   <Sun className="w-4 h-4 text-[var(--accent-secondary)] mx-auto" />
-                  <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block font-['Outfit',sans-serif]">Temperature</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">Temperature</span>
                   <span className="font-bold text-sm text-[var(--text-primary)]">Warm (28°C)</span>
                 </div>
               </div>
 
               {/* Conditions Interpretation (Translates raw weather into travel insights) */}
-              <div className={`p-4 rounded-2xl border space-y-3 transition-all ${
+              <div className={`p-4 rounded-2xl border space-y-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                 seaCondition === 'calm'
                   ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/30 text-[var(--text-primary)]'
                   : 'bg-[var(--surface-container)] border-amber-500/40 text-[var(--text-primary)]'
@@ -522,7 +522,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-base">🤿</span>
-                    <h3 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                    <h3 className="font-bold text-sm text-[var(--text-primary)]">
                       {seaCondition === 'calm' ? 'Good day for diving.' : 'Moderate conditions for sheltered dive sites.'}
                     </h3>
                   </div>
@@ -551,7 +551,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                   <div className="space-y-0.5">
-                    <span className="font-bold block font-['Outfit',sans-serif]">Sea conditions changed</span>
+                    <span className="font-bold block">Sea conditions changed</span>
                     <p className="text-[var(--text-secondary)]/80 leading-relaxed">
                       We adjusted your afternoon suggestions to comfortable land-based explorations so you don't fight the waves.
                     </p>
@@ -567,7 +567,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             >
               {/* Highlight Ribbon */}
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--border-subtle)]">
                   <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                   <span>Best today</span>
                 </div>
@@ -585,7 +585,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                       <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
                         09:00 AM
                       </span>
-                      <h3 className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                      <h3 className="text-2xl font-bold text-[var(--text-primary)]">
                         Diving Experience
                       </h3>
                     </div>
@@ -601,7 +601,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                       type="button"
                       id="open-what-should-i-do-now-from-highlight-btn"
                       onClick={onNavigateToWhatShouldIDoNow}
-                      className="px-4 py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--accent-secondary)] text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap border border-[var(--border-subtle)] shadow-2xs font-['Outfit',sans-serif]"
+                      className="px-4 py-2.5 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--accent-secondary)] text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap border border-[var(--border-subtle)] shadow-2xs"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                       <span>Finished early? What to do now →</span>
@@ -611,7 +611,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     type="button"
                     id="view-diving-details-btn"
                     onClick={() => setIsDivingDetailOpen(true)}
-                    className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap font-['Outfit',sans-serif]"
+                    className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>View details</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -627,10 +627,10 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     Today's Schedule
                   </span>
-                  <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
                     Your Day
                   </h2>
                 </div>
@@ -648,7 +648,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               </div>
 
               {/* Timeline list */}
-              <div className="space-y-3.5 relative pl-3 sm:pl-4 before:absolute before:left-7 sm:before:left-8 before:top-4 before:bottom-4 before:w-0.5 before:bg-[var(--surface-card)]/10">
+              <div className="space-y-3.5 relative ps-3 sm:ps-4 before:absolute before:start-7 sm:before:start-8 before:top-4 before:bottom-4 before:w-0.5 before:bg-[var(--surface-card)]/10">
                 {timeline.map((item) => {
                   const isConfirmed = item.status === 'Confirmed';
                   const isAdded = item.status === 'Added';
@@ -658,7 +658,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     <div
                       key={item.id}
                       id={`day2-timeline-item-${item.id}`}
-                      className={`relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-3xl border transition-all ${
+                      className={`relative flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                         isConfirmed
                           ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/40 ring-1 ring-[var(--accent-primary)]/10'
                           : isAdded
@@ -688,7 +688,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                             {item.time}
                           </span>
 
-                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full font-['Outfit',sans-serif] ${
+                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                             isConfirmed
                               ? 'bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/40'
                               : isAdded
@@ -701,7 +701,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                           </span>
                         </div>
 
-                        <h4 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h4 className="text-base font-bold text-[var(--text-primary)]">
                           {item.title}
                         </h4>
 
@@ -723,10 +723,10 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xs space-y-5"
             >
               <div className="space-y-1 border-b border-[var(--border-subtle)] pb-4">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Afternoon Opportunity
                 </span>
-                <h2 className="text-xl sm:text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
                   We have some time for you
                 </h2>
                 <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 font-medium">
@@ -743,7 +743,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     <div
                       key={sugg.id}
                       id={`smart-suggestion-card-${sugg.id}`}
-                      className={`p-4 sm:p-5 rounded-3xl border transition-all space-y-3 ${
+                      className={`p-4 sm:p-5 rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-3 ${
                         isAlreadyAdded
                           ? 'bg-[var(--surface-container)] border-emerald-400/50'
                           : 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30 hover:shadow-xs'
@@ -751,7 +751,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className={`text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full font-['Outfit',sans-serif] ${
+                          <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
                             sugg.tag === 'Chill'
                               ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                               : sugg.tag === 'Explore'
@@ -777,7 +777,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                       <div className="flex items-start gap-3">
                         <span className="text-2xl">{sugg.icon}</span>
                         <div className="space-y-0.5 flex-1">
-                          <h4 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                          <h4 className=" font-bold text-base text-[var(--text-primary)]">
                             {sugg.title}
                           </h4>
                           <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -796,10 +796,10 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                           id={`add-to-trip-btn-${sugg.id}`}
                           onClick={() => handleAddActivity(sugg)}
                           disabled={isAlreadyAdded}
-                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer font-['Outfit',sans-serif] ${
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
                             isAlreadyAdded
                               ? 'bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 cursor-default'
-                              : 'bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] shadow-xs'
+                              : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] shadow-xs'
                           }`}
                         >
                           {isAlreadyAdded ? (
@@ -822,7 +822,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
               {/* WHY THESE? Contextual Intelligence Explanation */}
               <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1 text-xs">
-                <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold font-['Outfit',sans-serif]">
+                <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-bold">
                   <Info className="w-3.5 h-3.5" />
                   <span>Why these?</span>
                 </div>
@@ -847,7 +847,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h3 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                  <h3 className=" font-bold text-base text-[var(--text-primary)]">
                     Trip Progress
                   </h3>
                 </div>
@@ -911,7 +911,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xs space-y-3.5"
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   Today's Bookings
                 </span>
                 <span className="text-xs font-mono font-bold text-[var(--text-secondary)]/60">
@@ -925,7 +925,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     🤿
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">
                       Diving Experience
                     </h4>
                     <p className="text-xs text-[var(--text-secondary)]/60">
@@ -942,7 +942,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsDivingDetailOpen(true)}
-                className="w-full py-2 px-3 rounded-full text-xs font-semibold text-[var(--accent-primary)] hover:bg-[var(--surface-card)]/5 transition-colors flex items-center justify-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2 px-3 rounded-full text-xs font-semibold text-[var(--accent-primary)] hover:bg-[var(--surface-card)]/5 transition-colors flex items-center justify-center gap-1 cursor-pointer"
               >
                 <span>View Voucher & Meeting Spot</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -955,11 +955,11 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               className="bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl p-6 shadow-md space-y-4 border border-[var(--accent-primary)]/30"
             >
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-[11px] font-extrabold uppercase tracking-wider border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-[11px] font-extrabold border border-[var(--border-subtle)]">
                   <Sparkles className="w-3 h-3 text-[var(--accent-secondary)]" />
                   <span>Spontaneous Mode</span>
                 </div>
-                <h3 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-xl font-bold text-[var(--text-primary)]">
                   What Should I Do Now?
                 </h3>
                 <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -977,7 +977,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     setIsWhatShouldIDoOpen(true);
                   }
                 }}
-                className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+                className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-xs shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
                 <Compass className="w-4 h-4 text-[var(--surface-container)]" />
                 <span>What Should I Do Now?</span>
@@ -995,7 +995,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     ⚡
                   </div>
                   <div>
-                    <h3 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                    <h3 className=" font-bold text-base text-[var(--text-primary)]">
                       Book Now · احجز دلوقتي
                     </h3>
                     <p className="text-[12px] text-[var(--accent-primary)] font-bold">
@@ -1016,7 +1016,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                 type="button"
                 id="book-now-companion-btn"
                 onClick={() => navigateTo('/quick-book')}
-                className="w-full py-3 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 border border-[var(--accent-secondary)]/50 text-[var(--accent-secondary)] font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-3 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 border border-[var(--accent-secondary)]/50 text-[var(--accent-secondary)] font-extrabold text-xs shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Browse &amp; Book Right Now</span>
                 <ArrowRight className="w-4 h-4 text-[var(--accent-secondary)]" />
@@ -1031,9 +1031,9 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Utensils className="w-4 h-4 text-[var(--accent-primary)]" />
-                  <span className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">Hungry?</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)]">Hungry?</span>
                 </div>
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
+                <span className="text-[11px] font-extrabold text-[var(--accent-primary)] bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
                   Food Now
                 </span>
               </div>
@@ -1052,7 +1052,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     setIsFoodNowOpen(true);
                   }
                 }}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-xs font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Utensils className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>Find food</span>
@@ -1066,7 +1066,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             >
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-rose-400" />
-                <span className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">Need help?</span>
+                <span className="font-bold text-sm text-[var(--text-primary)]">Need help?</span>
               </div>
 
               <p className="text-xs text-[var(--text-secondary)]/70 leading-relaxed">
@@ -1077,7 +1077,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                 type="button"
                 id="help-me-now-btn"
                 onClick={onOpenHelp}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-rose-950/40 text-xs font-bold text-rose-300 border border-rose-500/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-rose-950/40 text-xs font-bold text-rose-300 border border-rose-500/30 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-rose-400" />
                 <span>Help Me Now</span>
@@ -1108,7 +1108,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   🤿
                 </div>
                 <div>
-                  <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
                     Diving Experience Details
                   </h3>
                   <span className="text-xs font-mono text-[var(--accent-secondary)] font-bold">09:00 AM · Today</span>
@@ -1125,18 +1125,18 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
             <div className="space-y-3 text-xs text-[var(--text-secondary)]/80">
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif]">Dive Center & Meeting</span>
+                <span className="text-[11px] font-bold text-[var(--accent-primary)]">Dive Center & Meeting</span>
                 <p className="font-bold text-sm text-[var(--text-primary)]">Dahab Divers Hub (Lighthouse Shore)</p>
                 <p className="text-[var(--text-secondary)]/70">Equipment fitting starts at 08:45 AM. Briefing at 09:00 AM.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-3 rounded-xl bg-[var(--surface-container)] border border-white/5">
-                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 uppercase block font-['Outfit',sans-serif]">Guide</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">Guide</span>
                   <span className="font-bold text-[var(--text-primary)]">Tarek (PADI Master)</span>
                 </div>
                 <div className="p-3 rounded-xl bg-[var(--surface-container)] border border-white/5">
-                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 uppercase block font-['Outfit',sans-serif]">Equipment</span>
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">Equipment</span>
                   <span className="font-bold text-[var(--accent-primary)]">All Included (Tanks & BCD)</span>
                 </div>
               </div>
@@ -1171,7 +1171,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
                 <Compass className="w-5 h-5 text-[var(--accent-secondary)]" />
-                <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg font-bold text-[var(--text-primary)]">
                   What Should I Do Now?
                 </h3>
               </div>
@@ -1194,7 +1194,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             </div>
 
             <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2 text-xs">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif]">Quick Instant Options</span>
+              <span className="text-[11px] font-bold text-[var(--accent-primary)]">Quick Instant Options</span>
               <div className="space-y-1.5">
                 <button
                   type="button"
@@ -1202,7 +1202,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     setIsWhatShouldIDoOpen(false);
                     handleAddActivity(defaultSuggestions[0]);
                   }}
-                  className="w-full text-left p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
+                  className="w-full text-start p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
                 >
                   <span className="font-bold">☕ Chill at Shams Bay</span>
                   <span className="text-[12px] text-[var(--accent-primary)] font-semibold">150m</span>
@@ -1217,7 +1217,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                       setIsFoodNowOpen(true);
                     }
                   }}
-                  className="w-full text-left p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
+                  className="w-full text-start p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
                 >
                   <span className="font-bold">🍽️ Grab a coastal snack</span>
                   <span className="text-[12px] text-[var(--accent-primary)] font-semibold">5 min</span>
@@ -1249,7 +1249,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2">
                 <Utensils className="w-5 h-5 text-[var(--accent-secondary)]" />
-                <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg font-bold text-[var(--text-primary)]">
                   Food Now · Nearby Dahab
                 </h3>
               </div>
@@ -1269,7 +1269,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             <div className="space-y-2 text-xs">
               <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">Ali Baba Restaurant</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)]">Ali Baba Restaurant</span>
                   <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">Open Now</span>
                 </div>
                 <p className="text-[var(--text-secondary)]/70">Fresh red sea grilled fish, tahini & warm flatbreads right on the water.</p>
@@ -1278,7 +1278,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
               <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">Shams Cafe & Juice Bar</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)]">Shams Cafe & Juice Bar</span>
                   <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">Open Now</span>
                 </div>
                 <p className="text-[var(--text-secondary)]/70">Fresh squeezed mango & guava juice, shakshuka, and iced coffee.</p>
@@ -1287,7 +1287,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
               <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-[var(--text-primary)] font-['Outfit',sans-serif]">King Falafel</span>
+                  <span className="font-bold text-sm text-[var(--text-primary)]">King Falafel</span>
                   <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-card)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">Open Now</span>
                 </div>
                 <p className="text-[var(--text-secondary)]/70">Crispy sesame falafel wraps, ful medames, and pickled eggplant.</p>
@@ -1318,7 +1318,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
           >
             <div className="flex items-center gap-2.5 text-amber-300 border-b border-[var(--border-subtle)] pb-3.5">
               <AlertCircle className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">
                 Schedule Conflict Detected
               </h3>
             </div>
@@ -1340,7 +1340,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   setIsConflictModalOpen(null);
                   handleAddActivity({ ...target, timeSlot: '03:00 PM' });
                 }}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-colors cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-colors cursor-pointer"
               >
                 Choose another time (03:00 PM Free Slot)
               </button>

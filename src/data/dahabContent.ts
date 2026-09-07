@@ -1,4 +1,5 @@
 import { CategoryItem, HowItWorksStep, DayPlanItem, TravelerProfile } from '../types';
+import { IMG_P1507525428034b723cf961d3e_HERO, IMG_P1509316975850ff9c5deb0cd9_HERO, IMG_P15172481354674c7edcad34c4_HERO, IMG_P1534447677768be436bb09401_HERO, IMG_P154455176346a013bb70d5_HERO } from '../shared/placeholderImagery';
 
 export const ANONYMOUS_PROFILE: TravelerProfile = {
   name: '',
@@ -35,7 +36,7 @@ export const EXPLORE_CATEGORIES: CategoryItem[] = [
     taglineAr: 'اكتشف عالم تحت المية والشعب المرجانية الأسطورية',
     description: 'World-renowned shore dives, the iconic Blue Hole, vibrant coral labyrinths at the Canyon, and serene freediving bays.',
     descriptionAr: 'أشهر مواقع الغطس الشاطئي في العالم، مغامرة البلو هول، متاهات الكانيون المرجانية، وبقاع الغوص الحر الهادية.',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop',
+    image: 'IMG_P154455176346a013bb70d5_HERO',
     highlights: ['Blue Hole & The Arch', 'The Canyon', 'Eel Garden Reef', 'Lighthouse Shore Dive'],
     highlightsAr: ['البلو هول وحيد الشعب', 'كانيون دهب الكهفي', 'محمية إيل جاردن', 'شاطئ اللايتهاوس'],
   },
@@ -47,7 +48,7 @@ export const EXPLORE_CATEGORIES: CategoryItem[] = [
     taglineAr: 'جبال شاهقة، كانيونز ملونة، ودروب الصحراء الواسعة',
     description: 'Climb the rugged Sinai mountain trails, canyon trekking through Wadi Gnai, starlit Bedouin nights, and quad safaris through ancient valleys.',
     descriptionAr: 'مسارات المشي وتسلق صخور سيناء، عبور كانيون وادي قني، سهرات عشاء بدوي تحت النجوم، وسفاري البيتش باجي في الوديان.',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop',
+    image: 'IMG_P1509316975850ff9c5deb0cd9_HERO',
     highlights: ['Wadi Gnai Bouldering', 'Colored Canyon Trek', 'Mount Sinai Sunrise', 'Desert Quad Trails'],
     highlightsAr: ['تسلق وادي قني', 'الكانيون الملون', 'شروق جبل موسى', 'سفاري البيتش باجي'],
   },
@@ -59,7 +60,7 @@ export const EXPLORE_CATEGORIES: CategoryItem[] = [
     taglineAr: 'افصل وريح دماغك مع نسيم البحر الأحمر الهادي',
     description: 'Unwind along quiet pebble shores, swim in crystalline shallow lagoons, catch calm morning breezes, and read under shaded thatched palapas.',
     descriptionAr: 'استجمام في شواطئ دهب الهادية، عوم في مياه البلو لاجون الفيروزية، قعدة شلتات مظللة وقراءة كتاب على البحر مع نسيم الصبح.',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
+    image: 'IMG_P1507525428034b723cf961d3e_HERO',
     highlights: ['Blue Lagoon Hammocks', 'Lighthouse Bay Promenade', 'Laguna Kite Beach', 'Secret Cove Relax'],
     highlightsAr: ['شلتات البلو لاجون', 'ممشى خليج اللايتهاوس', 'لاجونا الكايت سيرف', 'خلجان الاسترخاء الهادية'],
   },
@@ -71,7 +72,7 @@ export const EXPLORE_CATEGORIES: CategoryItem[] = [
     taglineAr: 'سمك البحر الأحمر الطازة، مخابز مميزة، وشاي الحبق البدوي',
     description: 'Fresh grilled Red Sea catch, traditional Bedouin flatbreads baked on open fire, artisan specialty coffee, and open-air seaside terraces.',
     descriptionAr: 'صيد اليوم المشوي ع الفحم مباشرة، العيش البدوي المخبوز ع الحطب، سبشيلتي كوفي طازة، وقعدات أكل بحرية مفتوحة ع الممشى.',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop',
+    image: 'IMG_P15172481354674c7edcad34c4_HERO',
     highlights: ['Bedouin Seafood BBQ', 'Artisan Bakery Courtyards', 'Seaside Mezzes & Tea', 'Sun-drenched Smoothie Cafés'],
     highlightsAr: ['مشاوي سمك ع البحر', 'مخابز كافيهات فريش', 'مقبلات وشاي بالحبق', 'عصاير وسموذي طبيعي'],
   },
@@ -83,7 +84,7 @@ export const EXPLORE_CATEGORIES: CategoryItem[] = [
     taglineAr: 'عيش تفاصيل دهب الحقيقية بروقان وبساطة',
     description: 'Wander through Assalah market, meet local artisans and craftspeople, listen to acoustic oud melodies by the shore, and embrace the unhurried Sinai rhythm.',
     descriptionAr: 'تمشية في سوق العصلة، لقاء الحرفيين وصناع الفخار والفضة البدوية، دندنة العود ع الشط وقت الغروب، وعيش ريتم دهب اللي مفيش فيه أي استعجال.',
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1200&auto=format&fit=crop',
+    image: 'IMG_P1534447677768be436bb09401_HERO',
     highlights: ['Assalah Artisan Market', 'Bedouin Herb & Tea Gathering', 'Acoustic Sunset Circles', 'Local Pottery & Weaving'],
     highlightsAr: ['سوق العصلة التراثي', 'قعدة أعشاب وشاي بدوي', 'دوائر عزف العود والغروب', 'فخار ونسيج يدوي سيناوي'],
   },

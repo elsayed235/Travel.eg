@@ -3,6 +3,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { useTheme } from '../../context/ThemeContext';
 import { analytics } from '../../services/analytics';
+import type { CmsHomepageSection } from '../../services/api';
 import { READY_TRIP_PROGRAMS, ReadyTripProgram } from '../../data/readyTripsData';
 import { ReadyTripCompareModal } from './ReadyTripCompareModal';
 import { SmartTripMatchQuizModal } from './SmartTripMatchQuizModal';
@@ -27,9 +28,10 @@ interface TripEntrySectionProps {
   onOpenItinerary: () => void;
 }
 
-export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
+export const TripEntrySection: React.FC<TripEntrySectionProps & { cmsSection?: CmsHomepageSection | null }> = ({
   onStartCustomPlanner,
-  onOpenItinerary
+  onOpenItinerary,
+  cmsSection
 }) => {
   const { language, t, isRTL } = useLanguage();
   const { isDark } = useTheme();
@@ -50,6 +52,10 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
   useEffect(() => {
     analytics.track('trip_entry_viewed');
   }, []);
+
+  // CMS visibility flag: hide the entry from the dashboard (Homepage tab).
+  // Checked after the hooks so hook order never varies with data.
+  if (cmsSection && cmsSection.visible === 0) return null;
 
   // Pathway Handlers
   const handleSelectBuildMyself = () => {
@@ -150,7 +156,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--accent-primary)]/15 px-2.5 py-0.5 rounded-full border border-[var(--accent-primary)]/30">
+                  <span className="text-[11px] font-extrabold text-[var(--accent-primary)] bg-[var(--accent-primary)]/15 px-2.5 py-0.5 rounded-full border border-[var(--accent-primary)]/30">
                     {t('tripEntry.resume.badge')}
                   </span>
                   <span className={`text-xs font-medium text-[var(--text-secondary)]`}>
@@ -168,7 +174,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                 type="button"
                 id="resume-active-itinerary-btn"
                 onClick={onOpenItinerary}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 hover:scale-105"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-md active:scale-95"
               >
                 <span>{t('tripEntry.resume.cta')}</span>
                 <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -179,21 +185,9 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
 
         {/* Unified Section Header: "What kind of trip do you want?" */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm mb-4 border bg-[var(--surface-card)] border-[var(--border-subtle)]"
-          >
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)]" />
-            <span
-              id="trip-entry-eyebrow"
-              className="text-[12px] font-extrabold uppercase tracking-widest text-[var(--accent-secondary)]"
-            >
-              {t('home.tripPlanningEntry')}
-            </span>
-          </div>
-
           <h2
             id="trip-entry-title"
-            className="tidal-heading text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight font-bold text-[var(--text-primary)]"
+            className="chart-heading text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight font-bold text-[var(--text-primary)]"
           >
             {t('home.whatKindOfTrip')}
           </h2>
@@ -220,7 +214,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           <div
             id="pathway-build-myself"
-            className="tidal-card group rounded-3xl border hover:shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]"
+            className="chart-card group rounded-3xl border hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]"
           >
             {/* Photo Header */}
             <div className="relative h-40 w-full overflow-hidden">
@@ -232,7 +226,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
               <div className="absolute top-4 start-4 end-4 flex items-center justify-between">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                <span className="text-[11px] font-extrabold text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
                   {t('home.iKnowWhatI')}
                 </span>
                 <div className="w-10 h-10 rounded-2xl border border-white/20 backdrop-blur-md flex items-center justify-center text-white bg-black/40 shadow-xs group-hover:scale-105 transition-transform">
@@ -243,7 +237,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
 
             <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                <h3 className="text-2xl chart-heading font-bold mb-2 leading-tight text-[var(--text-primary)]">
                   {t('tripEntry.modeA.title')}
                 </h3>
 
@@ -275,7 +269,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                 type="button"
                 id="build-my-trip-pathway-btn"
                 onClick={handleSelectBuildMyself}
-                className="w-full py-4 px-5 rounded-2xl active:scale-[0.98] text-xs font-bold flex items-center justify-center gap-2 border shadow-md transition-all cursor-pointer group/btn bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]/20"
+                className="w-full py-4 px-5 rounded-2xl active:scale-[0.98] text-xs font-bold flex items-center justify-center gap-2 border shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group/btn bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]/20"
               >
                 <span>{t('tripEntry.modeA.cta')}</span>
                 <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
@@ -288,7 +282,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           <div
             id="pathway-ready-trips"
-            className="tidal-card group rounded-3xl border-2 border-[var(--accent-secondary)] shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] ring-1 ring-[var(--accent-secondary)]/20"
+            className="chart-card group rounded-3xl border-2 border-[var(--accent-secondary)] shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] ring-1 ring-[var(--accent-secondary)]/20"
           >
             {/* Photo Header */}
             <div className="relative h-40 w-full overflow-hidden">
@@ -300,12 +294,12 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
               {/* Highlight Ribbon */}
-              <div className="absolute top-0 end-0 bg-gradient-to-l from-[var(--accent-secondary)] to-[var(--accent-secondary)] text-[var(--surface-card)] text-[11px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5 z-10">
-                <Star className="w-3 h-3 fill-[var(--surface-card)] text-[var(--surface-card)]" />
+              <div className="absolute top-0 end-0 bg-gradient-to-l from-[var(--accent-secondary)] to-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] text-[11px] font-extrabold px-4 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1.5 z-10">
+                <Star className="w-3 h-3 fill-[var(--accent-secondary-ink)] text-[var(--accent-secondary-ink)]" aria-hidden="true" />
                 <span>{t('home.recommended')}</span>
               </div>
               <div className="absolute top-4 start-4 flex items-center gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                <span className="text-[11px] font-extrabold text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
                   {t('home.showMeAGreat')}
                 </span>
               </div>
@@ -313,7 +307,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
 
             <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                <h3 className="text-2xl chart-heading font-bold mb-2 leading-tight text-[var(--text-primary)]">
                   {t('tripEntry.modeB.title')}
                 </h3>
 
@@ -346,7 +340,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                   type="button"
                   id="explore-ready-trips-pathway-btn"
                   onClick={handleSelectReadyTrips}
-                  className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
+                  className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group/btn"
                 >
                   <span>{t('tripEntry.modeB.cta')}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180" />
@@ -358,7 +352,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                     type="button"
                     id="compare-programs-link"
                     onClick={() => setIsCompareOpen(true)}
-                    className="cursor-pointer flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    className="cursor-pointer flex items-center gap-1 py-2 -my-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     <Layers className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>{t('tripEntry.modeB.compareBtn')}</span>
@@ -367,7 +361,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                     type="button"
                     id="quiz-match-programs-link"
                     onClick={() => setIsQuizOpen(true)}
-                    className="cursor-pointer flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-primary)] transition-colors"
+                    className="cursor-pointer flex items-center gap-1 py-2 -my-2 text-[var(--accent-secondary)] hover:text-[var(--accent-primary)] transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>{t('tripEntry.modeB.whichIsRight')}</span>
@@ -382,7 +376,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
           {/* ========================================================= */}
           <div
             id="pathway-plan-it-for-me"
-            className="tidal-card group rounded-3xl border hover:shadow-2xl transition-all duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40"
+            className="chart-card group rounded-3xl border hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40"
           >
             {/* Photo Header */}
             <div className="relative h-40 w-full overflow-hidden">
@@ -394,7 +388,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-black/40 to-black/20" />
               <div className="absolute top-4 start-4 end-4 flex items-center justify-between">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                <span className="text-[11px] font-extrabold text-white bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
                   {t('home.youChooseForMe')}
                 </span>
                 <div className="w-10 h-10 rounded-2xl border border-white/20 backdrop-blur-md flex items-center justify-center text-white bg-black/40 shadow-xs group-hover:scale-105 transition-transform">
@@ -405,7 +399,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
 
             <div className="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-between">
               <div>
-                <h3 className="text-2xl font-serif font-bold mb-2 leading-tight text-[var(--text-primary)]">
+                <h3 className="text-2xl chart-heading font-bold mb-2 leading-tight text-[var(--text-primary)]">
                   {t('tripEntry.modeC.title')}
                 </h3>
 
@@ -437,7 +431,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps> = ({
                 type="button"
                 id="plan-it-for-me-pathway-btn"
                 onClick={handleSelectAiMode}
-                className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer group/btn"
+                className="w-full py-4 px-5 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] active:scale-[0.98] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group/btn"
               >
                 <Sparkles className="w-4 h-4 text-[var(--surface-card)]" />
                 <span>{t('tripEntry.modeC.cta')}</span>

@@ -214,7 +214,7 @@ export const ExperienceDetailView: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold">
+            <h1 className="text-2xl sm:text-3xl chart-heading font-bold">
               {t('experienceDetail.notFoundTitle')}
             </h1>
             <p className={`text-xs sm:text-sm leading-relaxed ${'text-[var(--text-secondary)]/70'}`}>
@@ -227,7 +227,7 @@ export const ExperienceDetailView: React.FC = () => {
               type="button"
               id="not-found-back-to-explore-btn"
               onClick={() => navigateTo('/explore')}
-              className="w-full py-3.5 px-6 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               <span>{t('experienceDetail.browseAll')}</span>
@@ -241,7 +241,7 @@ export const ExperienceDetailView: React.FC = () => {
   return (
     <div
       id={`experience-detail-${activeExperience.slug}`}
-      className={`min-h-screen pb-32 transition-colors duration-300 font-['Plus_Jakarta_Sans',sans-serif] ${
+      className={`min-h-screen pb-32 transition-colors duration-300 ${
         'bg-[var(--surface-card)] text-[var(--text-primary)]'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -261,7 +261,7 @@ export const ExperienceDetailView: React.FC = () => {
               type="button"
               id="breadcrumb-home-btn"
               onClick={() => navigateTo('/home')}
-              className={`hover:underline cursor-pointer transition-colors ${
+              className={`hover:underline cursor-pointer transition-colors py-2 -my-2 ${
                 'hover:text-[var(--text-primary)]'
               }`}
             >
@@ -274,7 +274,7 @@ export const ExperienceDetailView: React.FC = () => {
               type="button"
               id="breadcrumb-explore-btn"
               onClick={() => navigateTo('/explore')}
-              className={`hover:underline cursor-pointer transition-colors ${
+              className={`hover:underline cursor-pointer transition-colors py-2 -my-2 ${
                 'hover:text-[var(--text-primary)]'
               }`}
             >
@@ -295,7 +295,7 @@ export const ExperienceDetailView: React.FC = () => {
               id="share-experience-btn"
               onClick={handleShare}
               aria-label="Share experience"
-              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
+              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isDark ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/10 shadow-xs'
               }`}
             >
@@ -307,7 +307,7 @@ export const ExperienceDetailView: React.FC = () => {
               id="favorite-experience-btn"
               onClick={handleToggleFavorite}
               aria-label="Save to favorites"
-              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
+              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isSavedFavorite
                   ? 'bg-rose-500 text-white border-rose-500'
                   : isDark
@@ -322,7 +322,7 @@ export const ExperienceDetailView: React.FC = () => {
               type="button"
               id="back-to-explore-nav-btn"
               onClick={() => navigateTo('/explore')}
-              className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isDark
                   ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                   : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/15 shadow-xs'
@@ -359,7 +359,7 @@ export const ExperienceDetailView: React.FC = () => {
             
             {/* Badges & Trust Strip */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md">
                 <Sparkles className="w-3.5 h-3.5 fill-[var(--surface-card)] text-[var(--surface-card)]" />
                 <span>{language === 'ar' ? activeExperience.categoryLabelAr : activeExperience.categoryLabelEn}</span>
               </span>
@@ -378,7 +378,7 @@ export const ExperienceDetailView: React.FC = () => {
             {/* Title */}
             <h1
               id="experience-title"
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-[var(--text-primary)] leading-[1.15]"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl chart-heading font-bold tracking-tight text-[var(--text-primary)] leading-[1.15]"
             >
               {language === 'ar' ? activeExperience.titleAr : activeExperience.titleEn}
             </h1>
@@ -399,10 +399,10 @@ export const ExperienceDetailView: React.FC = () => {
               
               {/* Pricing Box */}
               <div className="bg-black/50 backdrop-blur-md px-5 py-3 rounded-2xl border border-[var(--border-subtle)] inline-block self-start">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/80 block">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/80 block">
                   {t('experienceDetail.startingPrice')}
                 </span>
-                <div className="text-2xl sm:text-3xl font-bold font-serif text-[var(--accent-secondary)]">
+                <div className="text-2xl sm:text-3xl font-bold chart-heading text-[var(--accent-secondary)]">
                   {displayPriceEGP.toLocaleString()}{' '}
                   <span className="text-xs font-sans font-normal text-[var(--text-muted)]">EGP</span>
                 </div>
@@ -415,7 +415,7 @@ export const ExperienceDetailView: React.FC = () => {
                     type="button"
                     id="hero-book-now-btn"
                     onClick={handleBookNow}
-                    className="px-8 py-4 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] active:scale-[0.98] text-[var(--surface-card)] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer"
+                    className="px-8 py-4 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] active:scale-[0.98] text-[var(--surface-card)] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4 text-[var(--surface-card)]" />
                     <span>{t('experienceDetail.bookNow')}</span>
@@ -427,7 +427,7 @@ export const ExperienceDetailView: React.FC = () => {
                   id="hero-add-to-trip-btn"
                   onClick={handleAddToItinerary}
                   disabled={isAdding}
-                  className={`px-8 py-4 rounded-2xl active:scale-[0.98] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer group/btn disabled:opacity-60 ${
+                  className={`px-8 py-4 rounded-2xl active:scale-[0.98] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group/btn disabled:opacity-60 ${
                     bookable
                       ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white border border-[var(--border-subtle)] backdrop-blur-md'
                       : 'bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)]'
@@ -453,7 +453,7 @@ export const ExperienceDetailView: React.FC = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)]" />
             <h2
               id="quick-facts-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-primary)]'}`}
+              className={`text-xs font-extrabold ${'text-[var(--accent-primary)]'}`}
             >
               {t('experienceDetail.quickFactsTitle')}
             </h2>
@@ -467,7 +467,7 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--accent-primary)] mb-2">
                 <Clock className="w-4 h-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">{t('experienceDetail.duration')}</span>
+                <span className="text-[11px] font-bold">{t('experienceDetail.duration')}</span>
               </div>
               <div className={`text-base sm:text-lg font-bold ${'text-[var(--text-primary)]'}`}>
                 {language === 'ar' ? activeExperience.durationAr : activeExperience.durationEn}
@@ -480,7 +480,7 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--brand-coral)] mb-2">
                 <Zap className="w-4 h-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">{t('experienceDetail.difficulty')}</span>
+                <span className="text-[11px] font-bold">{t('experienceDetail.difficulty')}</span>
               </div>
               <div className={`text-base sm:text-lg font-bold ${'text-[var(--text-primary)]'}`}>
                 {language === 'ar' ? activeExperience.difficultyAr : activeExperience.difficultyEn}
@@ -493,7 +493,7 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--accent-primary)] mb-2">
                 <Navigation className="w-4 h-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">{t('experienceDetail.accessMethod')}</span>
+                <span className="text-[11px] font-bold">{t('experienceDetail.accessMethod')}</span>
               </div>
               <div className={`text-base sm:text-lg font-bold truncate ${'text-[var(--text-primary)]'}`}>
                 {language === 'ar' ? activeExperience.accessMethodAr : activeExperience.accessMethodEn}
@@ -506,7 +506,7 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--accent-secondary)] mb-2">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">{t('experienceDetail.optimalTime')}</span>
+                <span className="text-[11px] font-bold">{t('experienceDetail.optimalTime')}</span>
               </div>
               <div className={`text-base sm:text-lg font-bold truncate ${'text-[var(--text-primary)]'}`}>
                 {language === 'ar' ? activeExperience.openHoursAr : activeExperience.openHoursEn}
@@ -524,10 +524,10 @@ export const ExperienceDetailView: React.FC = () => {
             'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
           }`}>
             <div>
-              <span className={`text-xs font-extrabold uppercase tracking-wider ${'text-[var(--accent-primary)]'}`}>
+              <span className={`text-xs font-extrabold ${'text-[var(--accent-primary)]'}`}>
                 {t('experienceDetail.overviewTitle')}
               </span>
-              <h2 id="story-heading" className="text-2xl sm:text-3xl font-serif font-bold mt-1">
+              <h2 id="story-heading" className="text-2xl sm:text-3xl chart-heading font-bold mt-1">
                 {t('experienceDetail.whyItFitsTitle')}
               </h2>
             </div>
@@ -538,7 +538,7 @@ export const ExperienceDetailView: React.FC = () => {
 
             {/* Highlights Grid */}
             <div className="pt-4 border-t border-current/10 space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--accent-secondary)]">
+              <h3 className="text-xs font-extrabold text-[var(--accent-secondary)]">
                 {t('experienceDetail.highlightsTitle')}
               </h3>
 
@@ -570,7 +570,7 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--accent-secondary)]">
                 <Sparkles className="w-5 h-5" />
-                <h3 className="text-xs font-extrabold uppercase tracking-wider">
+                <h3 className="text-xs font-extrabold">
                   {t('experienceDetail.localGuideNote')}
                 </h3>
               </div>
@@ -585,28 +585,28 @@ export const ExperienceDetailView: React.FC = () => {
             }`}>
               <div className="flex items-center gap-2 text-[var(--accent-primary)]">
                 <Wind className="w-4 h-4" />
-                <h3 className="text-xs font-extrabold uppercase tracking-wider">
+                <h3 className="text-xs font-extrabold">
                   {t('experienceDetail.environmentalSignals')}
                 </h3>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className={`p-3 rounded-2xl border ${'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
-                  <span className={`block text-[10px] uppercase font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
+                  <span className={`block text-[10px] font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
                     {t('experienceDetail.waterTemp')}
                   </span>
                   <span className="font-bold text-[var(--accent-primary)]">{activeExperience.environmentalSignals.waterTemp}</span>
                 </div>
 
                 <div className={`p-3 rounded-2xl border ${'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
-                  <span className={`block text-[10px] uppercase font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
+                  <span className={`block text-[10px] font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
                     {t('experienceDetail.visibility')}
                   </span>
                   <span className="font-bold text-[var(--accent-primary)]">{activeExperience.environmentalSignals.visibility}</span>
                 </div>
 
                 <div className={`p-3 rounded-2xl border col-span-2 ${'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
-                  <span className={`block text-[10px] uppercase font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
+                  <span className={`block text-[10px] font-bold mb-0.5 ${'text-[var(--text-secondary)]'}`}>
                     {t('experienceDetail.windCondition')}
                   </span>
                   <span className="font-bold">{activeExperience.environmentalSignals.windCondition}</span>
@@ -626,11 +626,11 @@ export const ExperienceDetailView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 text-[var(--accent-primary)] mb-1">
                 <Calendar className="w-4 h-4" />
-                <span className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-primary)]'}`}>
+                <span className={`text-xs font-extrabold ${'text-[var(--accent-primary)]'}`}>
                   {t('experienceDetail.selectDay')}
                 </span>
               </div>
-              <h2 id="schedule-heading" className="text-2xl sm:text-3xl font-serif font-bold">
+              <h2 id="schedule-heading" className="text-2xl sm:text-3xl chart-heading font-bold">
                 {t('experiences.chooseWhichDayTo')}
               </h2>
             </div>
@@ -647,7 +647,7 @@ export const ExperienceDetailView: React.FC = () => {
                     type="button"
                     id={`day-select-btn-${d}`}
                     onClick={() => setSelectedDayNumber(d)}
-                    className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+                    className={`px-5 py-3 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap shadow-xs ${
                       selectedDayNumber === d
                         ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] ring-2 ring-[var(--accent-secondary)]/30 scale-105'
                         : isDark
@@ -677,7 +677,7 @@ export const ExperienceDetailView: React.FC = () => {
                     key={slot.id}
                     type="button"
                     onClick={() => setSelectedTimeSlot(slot.id as any)}
-                    className={`p-3 rounded-2xl text-xs font-bold transition-all cursor-pointer border text-center ${
+                    className={`p-3 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border text-center ${
                       selectedTimeSlot === slot.id
                         ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] border-[var(--accent-primary)] shadow-sm'
                         : isDark
@@ -698,7 +698,7 @@ export const ExperienceDetailView: React.FC = () => {
                 id="schedule-confirm-add-btn"
                 onClick={handleAddToItinerary}
                 disabled={isAdding}
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95 disabled:opacity-60"
               >
                 <Plus className="w-4 h-4 text-[var(--surface-card)]" />
                 <span>
@@ -740,7 +740,7 @@ export const ExperienceDetailView: React.FC = () => {
             <div className="space-y-2 flex-1 min-w-0">
               <h2
                 id="not-bookable-heading"
-                className={`text-base sm:text-lg font-serif font-bold ${'text-[var(--text-primary)]'}`}
+                className={`text-base sm:text-lg chart-heading font-bold ${'text-[var(--text-primary)]'}`}
               >
                 {t('experienceDetail.notBookableTitle')}
               </h2>
@@ -767,7 +767,7 @@ export const ExperienceDetailView: React.FC = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)]" />
             <h2
               id="inclusions-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-secondary)]'}`}
+              className={`text-xs font-extrabold ${'text-[var(--accent-secondary)]'}`}
             >
               {t('experiences.transparencyInclusions')}
             </h2>
@@ -784,7 +784,7 @@ export const ExperienceDetailView: React.FC = () => {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-serif font-bold ${'text-[var(--text-primary)]'}`}>
+                  <h3 className={`text-lg chart-heading font-bold ${'text-[var(--text-primary)]'}`}>
                     {t('experienceDetail.includedTitle')}
                   </h3>
                 </div>
@@ -812,7 +812,7 @@ export const ExperienceDetailView: React.FC = () => {
                     <Sliders className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className={`text-lg font-serif font-bold ${'text-[var(--text-primary)]'}`}>
+                    <h3 className={`text-lg chart-heading font-bold ${'text-[var(--text-primary)]'}`}>
                       {t('experienceDetail.notIncludedTitle')}
                     </h3>
                   </div>
@@ -830,7 +830,7 @@ export const ExperienceDetailView: React.FC = () => {
 
               {/* Preparation Tips */}
               <div className="pt-4 border-t border-current/10">
-                <h4 className="text-xs font-extrabold uppercase tracking-wider mb-2 text-[var(--accent-primary)]">
+                <h4 className="text-xs font-extrabold mb-2 text-[var(--accent-primary)]">
                   {t('experienceDetail.preparationTitle')}:
                 </h4>
                 <ul className="space-y-2 text-xs">
@@ -853,10 +853,10 @@ export const ExperienceDetailView: React.FC = () => {
           <section aria-labelledby="related-heading" className={`pt-12 border-t ${'border-[var(--border-subtle)]'}`}>
             <div className="flex items-center justify-between gap-4 mb-8">
               <div>
-                <span className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-primary)]'}`}>
+                <span className={`text-xs font-extrabold ${'text-[var(--accent-primary)]'}`}>
                   {t('experienceDetail.breadcrumbExplore')}
                 </span>
-                <h2 id="related-heading" className="text-2xl sm:text-3xl font-serif font-bold mt-1">
+                <h2 id="related-heading" className="text-2xl sm:text-3xl chart-heading font-bold mt-1">
                   {t('experienceDetail.relatedTitle')}
                 </h2>
               </div>
@@ -865,7 +865,7 @@ export const ExperienceDetailView: React.FC = () => {
                 type="button"
                 id="related-browse-all-btn"
                 onClick={() => navigateTo('/explore')}
-                className={`hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                className={`hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                   isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--text-primary)]/10'
                 }`}
               >
@@ -881,7 +881,7 @@ export const ExperienceDetailView: React.FC = () => {
                   type="button"
                   id={`related-exp-card-${rel.slug}`}
                   onClick={() => navigateTo('/experiences', { experienceSlug: rel.slug })}
-                  className={`group text-start rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl cursor-pointer ${
+                  className={`group text-start rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl cursor-pointer ${
                     isDark
                       ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)] text-[var(--text-primary)]'
                       : 'bg-[var(--surface-card)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25 text-[var(--text-primary)]'
@@ -899,7 +899,7 @@ export const ExperienceDetailView: React.FC = () => {
                       <span className="text-[11px] font-semibold text-[var(--accent-primary)]">
                         {rel.durationEn} · {rel.priceLevel}
                       </span>
-                      <h4 className="text-base font-serif font-bold text-white leading-tight truncate mt-0.5">
+                      <h4 className="text-base chart-heading font-bold text-white leading-tight truncate mt-0.5">
                         {language === 'ar' ? rel.titleAr : rel.titleEn}
                       </h4>
                     </div>
@@ -912,10 +912,10 @@ export const ExperienceDetailView: React.FC = () => {
 
                     <div className="flex items-center justify-between pt-2 border-t border-current/10">
                       <div>
-                        <span className={`text-[10px] uppercase font-bold block ${'text-[var(--text-secondary)]'}`}>
+                        <span className={`text-[10px] font-bold block ${'text-[var(--text-secondary)]'}`}>
                           {t('experienceDetail.startingPrice')}
                         </span>
-                        <span className={`text-sm font-bold font-serif ${isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--surface-card)]'}`}>
+                        <span className={`text-sm font-bold chart-heading ${isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--surface-card)]'}`}>
                           {rel.basePriceEGP.toLocaleString()} EGP
                         </span>
                       </div>
@@ -944,10 +944,10 @@ export const ExperienceDetailView: React.FC = () => {
           {/* Price & Summary Info */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] truncate block">
+              <span className="text-[11px] text-[var(--text-muted)] truncate block">
                 {language === 'ar' ? activeExperience.titleAr : activeExperience.titleEn}
               </span>
-              <div className="text-base sm:text-lg font-bold font-serif text-[var(--accent-secondary)]">
+              <div className="text-base sm:text-lg font-bold chart-heading text-[var(--accent-secondary)]">
                 {displayPriceEGP.toLocaleString()} <span className="text-xs font-normal text-[var(--text-muted)]">EGP</span>
               </div>
             </div>
@@ -960,7 +960,7 @@ export const ExperienceDetailView: React.FC = () => {
               id="sticky-bar-add-btn"
               onClick={handleAddToItinerary}
               disabled={isAdding}
-              className={`px-4 sm:px-6 py-3 rounded-2xl text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-all cursor-pointer active:scale-95 disabled:opacity-60 ${
+              className={`px-4 sm:px-6 py-3 rounded-2xl text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95 disabled:opacity-60 ${
                 bookable
                   ? 'bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white border border-[var(--border-subtle)]'
                   : 'bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)]'
@@ -977,7 +977,7 @@ export const ExperienceDetailView: React.FC = () => {
                 type="button"
                 id="sticky-bar-book-btn"
                 onClick={handleBookNow}
-                className="px-6 sm:px-8 py-3 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-all cursor-pointer active:scale-95"
+                className="px-6 sm:px-8 py-3 rounded-2xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-[var(--surface-card)]" />
                 <span>{t('experienceDetail.bookNowShort')}</span>

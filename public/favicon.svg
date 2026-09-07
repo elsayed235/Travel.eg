@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- DAHAB mark — Tidal Convergence: the shoreline where desert sand meets the Red Sea. -->
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#20A89A"/>
+      <stop offset="1" stop-color="#0F6F78"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#081714"/>
+  <!-- sand: the desert voice, upper-left -->
+  <path d="M0 26 Q16 20 32 26 T64 26 L64 0 L0 0 Z" fill="#E7D3AE" opacity="0.92"/>
+  <!-- sea: the deep, lower-right, meeting the sand on a tidal line -->
+  <path d="M0 26 Q16 20 32 26 T64 26 L64 64 L0 64 Z" fill="url(#sea)"/>
+  <!-- shoreline foam line -->
+  <path d="M0 26 Q16 20 32 26 T64 26" fill="none" stroke="#F7F3EA" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -48,6 +48,11 @@ describe('deny by default', () => {
     expect(allow(o)).toBe(false);
   });
 
+  it('tells the caller an unknown path returns 401 by design, so QA does not chase a session bug', () => {
+    const o = run('/some/route/nobody/added/to/the/policy');
+    expect(JSON.stringify(o.body)).toMatch(/Unknown \/api paths/i);
+  });
+
   it('rejects anonymous access to the routes that used to leak', () => {
     for (const path of ['/commerce/ledger', '/operations/overview', '/suppliers']) {
       expect(run(path).status, path).toBe(401);

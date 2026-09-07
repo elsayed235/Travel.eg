@@ -57,15 +57,15 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
   return (
     <div
       dir={rtl ? 'rtl' : 'ltr'}
-      className={`group relative flex gap-4 sm:gap-5 rounded-2xl border p-3 sm:p-4 transition-all cursor-pointer ${
+      className={`group relative flex gap-4 sm:gap-5 rounded-2xl border p-3 sm:p-4 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
-          : 'bg-white border-[#122420]/10 hover:border-[var(--accent-primary)]'
+          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       {/* Rank */}
       <div className="hidden sm:flex flex-col items-center justify-start pt-2 w-8 flex-shrink-0">
-        <span className="font-serif font-bold text-2xl leading-none text-[var(--text-secondary)]/40">
+        <span className="chart-heading font-bold text-2xl leading-none text-[var(--text-secondary)]/40">
           {rank}
         </span>
       </div>
@@ -100,9 +100,9 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
         <button
           type="button"
           onClick={() => onViewDetails(item)}
-          className="text-left cursor-pointer"
+          className="text-start cursor-pointer min-h-[28px] flex items-start"
         >
-          <h3 className="font-serif font-bold text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-[var(--accent-primary)]">
+          <h3 className="chart-heading font-bold text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-[var(--accent-primary)]">
             {name}
           </h3>
         </button>
@@ -125,7 +125,7 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
             </span>
           )}
 
-          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
             item.kind === 'sight'
               ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
               : item.kind === 'activity'
@@ -177,7 +177,7 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
           <button
             type="button"
             onClick={() => onViewDetails(item)}
-            className="text-xs font-bold text-[var(--accent-primary)] hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-bold text-[var(--accent-primary)] hover:underline flex items-center gap-1 cursor-pointer py-2 -my-2"
           >
             {t('attractions.viewDetails')}
             <ExternalLink className="w-3.5 h-3.5" />
@@ -186,7 +186,7 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
             <button
               type="button"
               onClick={() => onBook(item)}
-              className="px-3.5 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              className="px-3.5 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <Ticket className="w-3.5 h-3.5" />
               {t('attractions.bookNow')}
@@ -238,7 +238,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className={`relative w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl ${
-        isDark ? 'bg-[var(--surface-card)] text-[var(--text-primary)]' : 'bg-white text-[#122420]'
+        isDark ? 'bg-[var(--surface-card)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] text-[var(--text-primary)]'
       }`}>
         {/* Image banner */}
         <div className="relative h-52 sm:h-64 w-full">
@@ -254,15 +254,15 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label={t('attractions.close')}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center cursor-pointer transition-all"
+            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity]"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="absolute bottom-3 left-4 right-4">
-            <span className="inline-block px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-white text-[11px] font-bold">
+            <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--surface-card)]/15 backdrop-blur-md text-white text-[11px] font-bold">
               {categoryLabel}
             </span>
-            <h2 className="mt-1.5 font-serif font-bold text-xl sm:text-2xl text-white leading-snug">
+            <h2 className="mt-1.5 chart-heading font-bold text-xl sm:text-2xl text-white leading-snug">
               {name}
             </h2>
           </div>
@@ -286,7 +286,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
                 {t('attractions.noCollectedRatingsYet')}
               </span>
             )}
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
               item.kind === 'sight'
                 ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
                 : item.kind === 'activity'
@@ -300,8 +300,8 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
           {/* Facts grid */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
             {item.durationMinutes ? (
-              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[#122420]/10 bg-[#FBF9F5]'}`}>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[var(--border-subtle)] bg-[var(--surface-card)]'}`}>
+                <div className="text-[10px] text-[var(--text-secondary)]/60">
                   {t('attractions.duration')}
                 </div>
                 <div className="mt-0.5 text-sm font-bold flex items-center gap-1.5">
@@ -311,8 +311,8 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
               </div>
             ) : null}
             {item.priceEGP ? (
-              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[#122420]/10 bg-[#FBF9F5]'}`}>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[var(--border-subtle)] bg-[var(--surface-card)]'}`}>
+                <div className="text-[10px] text-[var(--text-secondary)]/60">
                   {t('attractions.price')}
                 </div>
                 <div className="mt-0.5 text-sm font-bold text-[var(--accent-primary)]">
@@ -321,8 +321,8 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
               </div>
             ) : null}
             {area ? (
-              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[#122420]/10 bg-[#FBF9F5]'}`}>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[var(--border-subtle)] bg-[var(--surface-card)]'}`}>
+                <div className="text-[10px] text-[var(--text-secondary)]/60">
                   {t('attractions.area')}
                 </div>
                 <div className="mt-0.5 text-sm font-bold flex items-center gap-1.5">
@@ -332,16 +332,16 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
               </div>
             ) : null}
             {item.difficulty ? (
-              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[#122420]/10 bg-[#FBF9F5]'}`}>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[var(--border-subtle)] bg-[var(--surface-card)]'}`}>
+                <div className="text-[10px] text-[var(--text-secondary)]/60">
                   {t('attractions.difficulty')}
                 </div>
                 <div className="mt-0.5 text-sm font-bold">{item.difficulty}</div>
               </div>
             ) : null}
             {item.coordinates ? (
-              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[#122420]/10 bg-[#FBF9F5]'}`}>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <div className={`rounded-xl p-3 border ${isDark ? 'border-[var(--border-subtle)] bg-[var(--surface-container)]' : 'border-[var(--border-subtle)] bg-[var(--surface-card)]'}`}>
+                <div className="text-[10px] text-[var(--text-secondary)]/60">
                   {t('attractions.location')}
                 </div>
                 <div className="mt-0.5 text-sm font-bold flex items-center gap-1.5">
@@ -355,7 +355,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
           {/* Description */}
           {description && (
             <div className="mt-5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]/60">
+              <h3 className="text-xs font-bold text-[var(--text-secondary)]/60">
                 {t('attractions.aboutThisPlace')}
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]/90">
@@ -369,7 +369,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
             <div className="mt-4 flex flex-wrap gap-1.5">
               {item.tags.slice(0, 8).map(tag => (
                 <span key={tag} className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]' : 'bg-[#EAE6DD] text-[#4A635D]'
+                  isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
                 }`}>
                   {tag}
                 </span>
@@ -395,7 +395,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
                 <a
                   href={`tel:${item.contact.phone.replace(/[^0-9+]/g, '')}`}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
-                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[#122420]/10 text-[#122420]'
+                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[var(--border-subtle)] text-[var(--text-primary)]'
                   }`}
                 >
                   <Phone className="w-3.5 h-3.5" />
@@ -408,7 +408,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
                   target="_blank"
                   rel="noreferrer"
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
-                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[#122420]/10 text-[#122420]'
+                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[var(--border-subtle)] text-[var(--text-primary)]'
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -421,7 +421,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
                   target="_blank"
                   rel="noreferrer"
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
-                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[#122420]/10 text-[#122420]'
+                    isDark ? 'border-[var(--border-subtle)] text-[var(--text-primary)]' : 'border-[var(--border-subtle)] text-[var(--text-primary)]'
                   }`}
                 >
                   <Instagram className="w-3.5 h-3.5" />
@@ -436,7 +436,7 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
             <button
               type="button"
               onClick={() => onBook(item)}
-              className="mt-5 w-full py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              className="mt-5 w-full py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
               <Ticket className="w-4 h-4" />
               {t('attractions.bookThisExperience')}
@@ -558,8 +558,8 @@ export const AttractionsView: React.FC = () => {
 
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}>
 
       {/* Header */}
@@ -568,10 +568,10 @@ export const AttractionsView: React.FC = () => {
           <Mountain className="w-4 h-4" />
           {t('attractions.dahab')} · {t('attractions.activities')}
         </div>
-        <h1 className="mt-1 text-3xl sm:text-4xl font-serif font-bold">
+        <h1 className="mt-1 text-3xl sm:text-4xl chart-heading font-bold">
           {t('attractions.thingsToDoIn')}
         </h1>
-        <p className={`mt-1.5 text-sm max-w-2xl ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+        <p className={`mt-1.5 text-sm max-w-2xl ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
           {t('attractions.sightsDiveSitesDesert')}
         </p>
 
@@ -590,12 +590,12 @@ export const AttractionsView: React.FC = () => {
                 type="button"
                 onClick={() => !active && navigateTo(tab.route)}
                 aria-current={active ? 'page' : undefined}
-                className={`px-3.5 py-2 rounded-xl border transition-all cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                   active
                     ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
                     : isDark
                       ? 'bg-transparent text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)] hover:bg-[#1a4038]'
-                      : 'bg-white/60 text-[#4A635D] border-[#122420]/10 hover:text-[#122420] hover:bg-white'
+                      : 'bg-[var(--surface-card)]/60 text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
                 }`}>
                 {language === 'ar' ? tab.labelAr : tab.labelEn}
               </button>
@@ -607,7 +607,7 @@ export const AttractionsView: React.FC = () => {
       {/* Search */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-3">
         <div className="relative max-w-md">
-          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[#4A635D]/40'}`} />
+          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
           <input
             type="search"
             value={searchQuery}
@@ -616,7 +616,7 @@ export const AttractionsView: React.FC = () => {
             className={`w-full py-2.5 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
-                : 'bg-white border-[#122420]/10 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)]'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
             } focus:outline-none`}
           />
         </div>
@@ -625,23 +625,23 @@ export const AttractionsView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 flex-1 flex flex-col lg:flex-row gap-6">
         {/* Category rail — sidebar on desktop, scrollable chips on mobile */}
         <aside className="lg:w-60 flex-shrink-0">
-          <h2 className={`hidden lg:block text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]/70'}`}>
+          <h2 className={`hidden lg:block text-xs font-bold mb-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
             {t('attractions.categories')}
           </h2>
           <div className="flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0">
             <button
               type="button"
               onClick={() => selectBucket(null)}
-              className={`flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 activeBucket === null
                   ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                   : isDark
                     ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
-                    : 'bg-white text-[#4A635D] border-[#122420]/10 hover:text-[#122420]'
+                    : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
               }`}>
               <span>{t('attractions.allThingsToDo')}</span>
               <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 ${
-                activeBucket === null ? 'bg-white/20' : isDark ? 'bg-[var(--surface-container)]' : 'bg-[#EAE6DD]'
+                activeBucket === null ? 'bg-[var(--surface-card)]/20' : isDark ? 'bg-[var(--surface-container)]' : 'bg-[var(--surface-container)]'
               }`}>
                 {totalCount}
               </span>
@@ -653,19 +653,19 @@ export const AttractionsView: React.FC = () => {
                   key={cat.id}
                   type="button"
                   onClick={() => selectBucket(active ? null : cat.id)}
-                  className={`flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                  className={`flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     active
                       ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                       : isDark
                         ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
-                        : 'bg-white text-[#4A635D] border-[#122420]/10 hover:text-[#122420]'
+                        : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                   }`}>
                   <span className="flex-shrink-0">{BUCKET_EMOJI[cat.id] || '✨'}</span>
                   <span className="whitespace-nowrap lg:whitespace-normal">
                     {language === 'ar' ? cat.labelAr : cat.labelEn}
                   </span>
-                  <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 ml-auto ${
-                    active ? 'bg-white/20' : isDark ? 'bg-[var(--surface-container)]' : 'bg-[#EAE6DD]'
+                  <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 ms-auto ${
+                    active ? 'bg-[var(--surface-card)]/20' : isDark ? 'bg-[var(--surface-container)]' : 'bg-[var(--surface-container)]'
                   }`}>
                     {cat.count}
                   </span>
@@ -684,17 +684,17 @@ export const AttractionsView: React.FC = () => {
                 key={s.id}
                 type="button"
                 onClick={() => selectSort(s.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
                   sort === s.id
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                     : isDark
                       ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
-                      : 'bg-white text-[#4A635D] border-[#122420]/10 hover:text-[#122420]'
+                      : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                 }`}>
                 {language === 'ar' ? s.labelAr : s.label}
               </button>
             ))}
-            <span className={`text-xs ml-auto ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]/70'}`}>
+            <span className={`text-xs ms-auto ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
               {attractions.length} {t('attractions.results')}
             </span>
           </div>
@@ -702,10 +702,10 @@ export const AttractionsView: React.FC = () => {
           {/* Ranked list */}
           {attractions.length === 0 ? (
             <div className={`py-16 text-center rounded-2xl border ${
-              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'
+              isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
-              <Sparkles className={`w-8 h-8 mx-auto mb-3 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[#4A635D]/40'}`} />
-              <p className={`text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <Sparkles className={`w-8 h-8 mx-auto mb-3 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
+              <p className={`text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 {t('attractions.noAttractionsMatchThat')}
               </p>
             </div>

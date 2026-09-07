@@ -520,6 +520,19 @@ export const api = {
   },
 
   /**
+   * DELETE /api/trips/:tripId — removes a planned trip and its unbooked
+   * items. Blocked with 409 while anything on it is BOOKED/CONFIRMED.
+   */
+  async deleteTrip(tripId: string): Promise<{ deleted: boolean; itemsRemoved: number }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}`, {
+      method: 'DELETE',
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not delete this trip.');
+    return await readJson<{ deleted: boolean; itemsRemoved: number }>(res, 'Trip deletion');
+  },
+
+  /**
    * Creates or updates a trip. The server takes the owner from the session and
    * refuses a userId that is not the caller's, so none is sent.
    */
@@ -773,11 +786,70 @@ export const api = {
     );
   },
 
+  async adminListAccommodations(params?: { q?: string; active?: boolean }) {
+    const query = new URLSearchParams();
+    if (params?.q) query.set('q', params.q);
+    if (params?.active !== undefined) query.set('active', String(params.active));
+    const res = await fetchWithTimeout(`/api/admin/accommodations${query.size ? `?${query.toString()}` : ''}`, {
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load accommodations.');
+    return await readJson<{ accommodations: import('../shared/types/commerce').AccommodationEntity[] }>(res, 'Could not load accommodations.');
+  },
+
+  async adminSetAccommodationActive(id: string, active: boolean) {
+    const res = await fetchWithTimeout(`/api/admin/accommodations/${encodeURIComponent(id)}/active`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ active })
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not update that accommodation.');
+    return await readJson<{ accommodation: import('../shared/types/commerce').AccommodationEntity }>(res, 'Could not update that accommodation.');
+  },
+
+  async adminListPropertySources(accommodationId: string) {
+    const res = await fetchWithTimeout(`/api/admin/accommodations/${encodeURIComponent(accommodationId)}/sources`, {
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not load source links.');
+    return await readJson<{ sources: import('../shared/types/commerce').PropertySourceEntity[] }>(res, 'Could not load source links.');
+  },
+
+  async adminAddPropertySource(accommodationId: string, input: { sourceType: string; url: string; label?: string; displayOrder?: number }) {
+    const res = await fetchWithTimeout(`/api/admin/accommodations/${encodeURIComponent(accommodationId)}/sources`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(input)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not add that source link.');
+    return await readJson<{ source: import('../shared/types/commerce').PropertySourceEntity }>(res, 'Could not add that source link.');
+  },
+
+  async adminUpdatePropertySource(accommodationId: string, sourceId: string, patch: Record<string, unknown>) {
+    const res = await fetchWithTimeout(`/api/admin/accommodations/${encodeURIComponent(accommodationId)}/sources/${encodeURIComponent(sourceId)}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(patch)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not update that source link.');
+    return await readJson<{ source: import('../shared/types/commerce').PropertySourceEntity }>(res, 'Could not update that source link.');
+  },
+
+  async adminDeletePropertySource(accommodationId: string, sourceId: string) {
+    const res = await fetchWithTimeout(`/api/admin/accommodations/${encodeURIComponent(accommodationId)}/sources/${encodeURIComponent(sourceId)}`, {
+      method: 'DELETE',
+      headers: defaultHeaders()
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not remove that source link.');
+    return await readJson<{ removed: boolean }>(res, 'Could not remove that source link.');
+  },
+
   async parseAccommodationSearchIntent(
     query: string,
     language: 'en' | 'ar' = 'en'
   ): Promise<import('../shared/types/commerce').AccommodationSearchIntentResult> {
     const res = await fetchWithTimeout('/api/accommodations/search-intent', {
+      timeout: AI_TIMEOUT_MS,
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify({ query, language })

@@ -72,7 +72,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                 v{pack.packageVersion}
               </span>
             </div>
-            <h2 id="offline-trip-pack-modal-dialog-1-title" className="text-2xl font-bold font-['Outfit',sans-serif] tracking-tight text-[var(--text-primary)]">
+            <h2 id="offline-trip-pack-modal-dialog-1-title" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
               {t('dahabSinaiReservesOffline')}
             </h2>
             <p className="text-sm text-[var(--text-secondary)]/80 mt-1">
@@ -172,7 +172,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
               {pack.dynamicConditionsSnapshot && (
                 <div className="bg-[var(--surface-container)] text-[var(--text-secondary)] p-4 rounded-2xl border border-[var(--border-subtle)] text-xs space-y-2">
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <span className="font-bold uppercase tracking-wider text-[var(--accent-primary)] flex items-center gap-1.5 font-['Outfit',sans-serif]">
+                    <span className="font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
                       <Wind className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                       {t('dynamicConditionsSnapshot')}
                     </span>
@@ -204,7 +204,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                 </div>
               )}
 
-              <h3 className="font-['Outfit',sans-serif] font-bold text-lg text-[var(--text-primary)]">
+              <h3 className=" font-bold text-lg text-[var(--text-primary)]">
                 {t('staticDaybyDayRemoteLogistics')}
               </h3>
               <div className="space-y-3">
@@ -256,7 +256,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
           {/* Tab 2: Vouchers */}
           {activeTab === 'vouchers' && (
             <div className="space-y-4">
-              <h3 className="font-['Outfit',sans-serif] font-bold text-lg text-[var(--text-primary)]">
+              <h3 className=" font-bold text-lg text-[var(--text-primary)]">
                 {t('offlinePrintableServiceVouchers')}
               </h3>
               <div className="grid grid-cols-1 gap-4">
@@ -264,7 +264,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                   <div key={i} className="border-2 border-dashed border-white/15 rounded-2xl p-5 bg-[var(--surface-container)] relative">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <span className="text-xs uppercase font-bold tracking-wider text-[var(--accent-secondary)] bg-[var(--surface-card)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
+                        <span className="text-xs font-bold text-[var(--accent-secondary)] bg-[var(--surface-card)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
                           {b.type}
                         </span>
                         <h4 className="text-base font-bold text-[var(--text-primary)] mt-1">{b.title}</h4>
@@ -272,7 +272,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                           {b.provider} · <span className="font-semibold text-[var(--text-primary)]">{b.departureTime}</span>
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-end">
                         <span className="text-xs text-[var(--text-secondary)]/60 block">{t('voucherCode')}</span>
                         <span className="font-mono font-bold text-base text-[var(--accent-secondary)] bg-[var(--surface-card)] px-2 py-1 rounded border border-[var(--border-subtle)]">
                           {b.code}
@@ -300,7 +300,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
           {activeTab === 'emergency' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="font-['Outfit',sans-serif] font-bold text-lg text-[var(--text-primary)]">
+                <h3 className=" font-bold text-lg text-[var(--text-primary)]">
                   {t('emergencyHyperbaricDirectoryVerified')}
                 </h3>
                 <span className="text-xs text-[var(--accent-primary)] bg-[var(--surface-container)] px-2.5 py-1 rounded-md border border-[var(--border-subtle)]">
@@ -322,7 +322,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className={`text-[11px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
                           resource.category === 'hyperbaric' ? 'bg-red-900/60 text-red-300' : 'bg-[var(--surface-card)] text-[var(--accent-primary)]'
                         }`}>
                           {resource.category.toUpperCase()} · {resource.status}
@@ -336,7 +336,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
                     </div>
 
                     <p className="text-xs text-[var(--text-secondary)]/70 mt-2">
-                      <MapPin className="w-3 h-3 inline mr-1 text-[var(--accent-primary)]" />
+                      <MapPin className="w-3 h-3 inline me-1 text-[var(--accent-primary)]" />
                       {language === 'ar' ? resource.locationAr : resource.location}
                     </p>
 
@@ -364,13 +364,13 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
           {/* Tab 4: Checklist */}
           {activeTab === 'checklist' && (
             <div className="space-y-4">
-              <h3 className="font-['Outfit',sans-serif] font-bold text-lg text-[var(--text-primary)]">
+              <h3 className=" font-bold text-lg text-[var(--text-primary)]">
                 {t('fieldPreparationPackingChecklist')}
               </h3>
               <div className="space-y-4">
                 {pack.practicalChecklist.map((sec, idx) => (
                   <div key={idx} className="bg-[var(--surface-container)] border border-[var(--border-subtle)] rounded-2xl p-4">
-                    <h4 className="font-semibold text-[var(--text-primary)] text-sm mb-2 font-['Outfit',sans-serif]">{sec.category}</h4>
+                    <h4 className="font-semibold text-[var(--text-primary)] text-sm mb-2">{sec.category}</h4>
                     <ul className="space-y-1.5 text-xs text-[var(--text-secondary)]">
                       {sec.items.map((it, i) => (
                         <li key={i} className="flex items-center gap-2">
@@ -404,7 +404,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
 
             <button
               onClick={handleDownloadJson}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] shadow-md transition cursor-pointer font-['Outfit',sans-serif]"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] shadow-md transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
               {t('downloadOfflinePack')}

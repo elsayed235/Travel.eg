@@ -52,12 +52,12 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
       {/* 1. Header */}
       <div className="border-b border-[var(--border-subtle)] pb-4">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
             {isAr ? 'تنسيق الرحلة' : 'Trip Coordination'}
           </span>
           <span className="text-xs text-[var(--text-secondary)]/50 font-medium">{isAr ? 'الخطوة ٠٣ من ٠٤' : 'Step 03 of 04'}</span>
         </div>
-        <h3 className="text-xl font-serif font-bold text-[var(--text-primary)] mt-2">
+        <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)] mt-2">
           {isAr ? 'رحلتك إلى دهب' : 'Your Dahab trip'}
         </h3>
         <p className="text-xs text-[var(--text-secondary)]/60 mt-0.5">
@@ -68,7 +68,7 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
       {/* 2. Step 01 Saved: Hotel */}
       <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Building className="w-3.5 h-3.5" />
             <span>{isAr ? '٠١ الفندق' : '01 Hotel'}</span>
           </span>
@@ -90,7 +90,7 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
       {/* 3. Step 02 Saved: Transfer */}
       <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Car className="w-3.5 h-3.5" />
             <span>{isAr ? '٠٢ الانتقالات' : '02 Transfer'}</span>
           </span>
@@ -112,7 +112,7 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
       {/* 4. Step 03 Active: Diving */}
       <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--accent-primary)]/40 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-bold text-[var(--accent-primary)] uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-[12px] font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
             <Waves className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>{isAr ? '٠٣ الغطس' : '03 Diving'}</span>
           </span>
@@ -158,7 +158,7 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
 
       {/* 5. Upcoming Step Preview */}
       <div className="space-y-2 text-xs border-t border-[var(--border-subtle)] pt-3">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] block">
+        <span className="text-[11px] font-bold text-[var(--text-muted)] block">
           {isAr ? 'الخطوات القادمة في الحجز' : 'Upcoming In Trip Booking'}
         </span>
         <div className="flex items-center justify-between text-[12px] text-[var(--text-secondary)]/60">
@@ -196,7 +196,7 @@ export const BookingDivingSummarySidebar: React.FC<BookingDivingSummarySidebarPr
           id="continue-to-safari-btn"
           disabled={!selectedDiving}
           onClick={onContinue}
-          className={`w-full py-3.5 px-6 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
+          className={`w-full py-3.5 px-6 rounded-full font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer ${
             selectedDiving
               ? 'bg-[var(--accent-primary)] hover:bg-[var(--btn-book-hover)] text-[var(--accent-primary-ink)] active:scale-98'
               : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed'

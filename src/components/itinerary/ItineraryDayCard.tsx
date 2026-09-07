@@ -99,25 +99,25 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
     <div 
       id={`itinerary-day-${day.dayNumber}`}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-all mb-8 text-[var(--text-primary)]"
+      className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] mb-8 text-[var(--text-primary)]"
     >
       {/* Day Card Header */}
       <div className="p-6 sm:p-7 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-2xl bg-[var(--accent-secondary)] text-[var(--surface-card)] flex flex-col items-center justify-center font-bold flex-shrink-0 shadow-xs">
-            <span className="text-[11px] uppercase tracking-widest leading-none text-[var(--surface-card)]/80 font-black">
+            <span className="text-[11px] leading-none text-[var(--surface-card)]/80 font-black">
               {isAr ? 'يوم' : 'DAY'}
             </span>
-            <span className="text-base font-serif font-black leading-none mt-0.5">{day.dayNumber}</span>
+            <span className="text-base chart-heading font-black leading-none mt-0.5">{day.dayNumber}</span>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+              <h3 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
                 {day.title}
               </h3>
               {day.badge && (
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/25">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/25">
                   {day.badge}
                 </span>
               )}
@@ -148,7 +148,7 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
               >
                 {/* Timeline Dot Node */}
                 <div 
-                  className={`absolute ${isRTL ? '-right-6 sm:-right-8' : '-left-6 sm:-left-8'} top-1.5 w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
+                  className={`absolute ${isRTL ? '-right-6 sm:-right-8' : '-left-6 sm:-left-8'} top-1.5 w-4 h-4 rounded-full border-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center ${
                     item.isHighlight
                       ? 'bg-[var(--accent-secondary)] border-[var(--surface-card)] ring-2 ring-[var(--accent-secondary)] shadow-2xs'
                       : isFreeTime
@@ -161,7 +161,7 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
 
                 {/* Activity Box Container */}
                 <div 
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+                  className={`p-4 sm:p-5 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                     item.isHighlight
                       ? 'bg-gradient-to-r from-[var(--accent-secondary)]/10 via-[var(--surface-container)] to-[var(--surface-container)] border-[var(--accent-secondary)]/30 shadow-2xs'
                       : isFreeTime
@@ -187,7 +187,7 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
 
                         {/* Status Label: Suggested vs Free Time */}
                         <span 
-                          className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                             isFreeTime
                               ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                               : 'bg-[var(--btn-util-bg)] text-[var(--text-secondary)]/60 border border-[var(--border-subtle)]'
@@ -198,7 +198,7 @@ export const ItineraryDayCard: React.FC<ItineraryDayCardProps> = ({
 
                         {/* Highlight Badge */}
                         {item.isHighlight && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-2xs">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-2xs">
                             <Sparkles className="w-2.5 h-2.5 text-[var(--surface-card)]" />
                             <span>{isAr ? 'تجربة مميزة' : 'Highlight'}</span>
                           </span>

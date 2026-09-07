@@ -108,7 +108,7 @@ export const SupplierPortalView: React.FC = () => {
     <div
       id="supplier-portal-view"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] pb-24 font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] pb-24"
     >
       {/* 1. Supplier Header */}
       <header className="bg-[var(--surface-card)] border-b border-[var(--text-primary)]/10 px-4 sm:px-6 lg:px-8 pt-8 pb-6 shadow-xs">
@@ -126,7 +126,7 @@ export const SupplierPortalView: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+                  <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
                     {selectedSupplier?.businessName || 'Dahab Supplier & Partner OS'}
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
@@ -151,7 +151,7 @@ export const SupplierPortalView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/market-intelligence')}
-                className="px-4 py-2 rounded-full bg-[var(--surface-container)]/10 hover:bg-[var(--surface-container)]/15 text-[var(--surface-container)] text-xs font-bold transition-all border border-[var(--surface-container)]/20 flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[var(--surface-container)]/10 hover:bg-[var(--surface-container)]/15 text-[var(--surface-container)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border border-[var(--surface-container)]/20 flex items-center gap-1.5 cursor-pointer"
               >
                 <Globe className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                 <span>{t('supplier.marketDiscoveryIntel')}</span>
@@ -159,14 +159,14 @@ export const SupplierPortalView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/ops-console')}
-                className="px-4 py-2 rounded-full bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-container)] text-xs font-bold transition-all cursor-pointer"
+                className="px-4 py-2 rounded-full bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-container)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 {t('supplier.opsConsole')}
               </button>
               <button
                 type="button"
                 onClick={() => navigateTo('/my-trip')}
-                className="px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer"
+                className="px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 {t('supplier.travelerView')}
               </button>
@@ -185,7 +185,7 @@ export const SupplierPortalView: React.FC = () => {
                   key={p.id}
                   type="button"
                   onClick={() => setActiveSupplierId(p.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                     isSelected
                       ? 'bg-[var(--surface-container)] text-white shadow-xs'
                       : 'bg-stone-100 text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-stone-200'
@@ -225,7 +225,7 @@ export const SupplierPortalView: React.FC = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-[var(--surface-container)] text-[var(--text-primary)] shadow-xs'
                   : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-stone-100'
@@ -501,7 +501,7 @@ export const SupplierPortalView: React.FC = () => {
 
             {/* Audit History Timeline */}
             <div className="space-y-3 pt-2">
-              <h3 className="text-xs font-bold uppercase text-[var(--text-primary)]/50 tracking-wider">
+              <h3 className="text-xs font-bold text-[var(--text-primary)]/50">
                 Immutable Lifecycle Log ({selectedSupplier?.auditLog?.length || 0} Events)
               </h3>
               <div className="space-y-2">

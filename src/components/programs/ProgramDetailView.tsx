@@ -170,7 +170,7 @@ export const ProgramDetailView: React.FC = () => {
               type="button"
               id="back-to-home-link"
               onClick={() => navigateTo('/home')}
-              className={`inline-flex items-center gap-1.5 transition-colors hover:underline cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 transition-colors hover:underline cursor-pointer py-2 -my-2 ${
                 'hover:text-[var(--text-primary)]'
               }`}
             >
@@ -190,7 +190,7 @@ export const ProgramDetailView: React.FC = () => {
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }, 100);
               }}
-              className={`transition-colors hover:underline cursor-pointer ${
+              className={`transition-colors hover:underline cursor-pointer py-2 -my-2 ${
                 'hover:text-[var(--text-primary)]'
               }`}
             >
@@ -209,7 +209,7 @@ export const ProgramDetailView: React.FC = () => {
             type="button"
             id="back-to-discovery-top-btn"
             onClick={() => navigateTo('/home')}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
               isDark
                 ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                 : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/15 shadow-xs'
@@ -246,7 +246,7 @@ export const ProgramDetailView: React.FC = () => {
             
             {/* Badges & Trust Strip */}
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-[var(--accent-secondary)] text-[var(--surface-card)] shadow-md">
                 <Star className="w-3.5 h-3.5 fill-[var(--surface-card)] text-[var(--surface-card)]" />
                 <span>{language === 'ar' ? activeProgram.badgeAr : activeProgram.badge}</span>
               </span>
@@ -267,7 +267,7 @@ export const ProgramDetailView: React.FC = () => {
             {/* Program Title */}
             <h1
               id="program-title"
-              className="text-3xl sm:text-5xl md:text-6xl font-serif font-bold tracking-tight text-[var(--text-primary)] leading-[1.1]"
+              className="text-3xl sm:text-5xl md:text-6xl chart-heading font-bold tracking-tight text-[var(--text-primary)] leading-[1.1]"
             >
               {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
             </h1>
@@ -282,10 +282,10 @@ export const ProgramDetailView: React.FC = () => {
               
               {/* Pricing Box */}
               <div className="bg-black/50 backdrop-blur-md px-5 py-3 rounded-2xl border border-[var(--border-subtle)] inline-block self-start">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/80 block">
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/80 block">
                   {t('programPage.startingFrom')}
                 </span>
-                <div className="text-2xl sm:text-3xl font-bold font-serif text-[var(--accent-secondary)]">
+                <div className="text-2xl sm:text-3xl font-bold chart-heading text-[var(--accent-secondary)]">
                   {activeProgram.startingPriceEGP.toLocaleString()}{' '}
                   <span className="text-xs font-sans font-normal text-[var(--text-muted)]">
                     EGP / {t('programs.person')}
@@ -301,7 +301,7 @@ export const ProgramDetailView: React.FC = () => {
                   id="program-hero-start-trip-btn"
                   onClick={handleStartTrip}
                   disabled={isStartingTrip}
-                  className="px-8 py-4 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-all cursor-pointer group/btn"
+                  className="px-8 py-4 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] text-[var(--surface-card)] text-sm font-extrabold flex items-center justify-center gap-2.5 shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group/btn"
                 >
                   <span>{isStartingTrip ? (t('programs.starting')) : t('programPage.startThisTrip')}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rtl:rotate-180 text-[var(--surface-card)]" />
@@ -312,7 +312,7 @@ export const ProgramDetailView: React.FC = () => {
                   type="button"
                   id="program-hero-customize-btn"
                   onClick={handleCustomizeTrip}
-                  className="px-6 py-4 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] active:scale-[0.98] backdrop-blur-md text-[var(--text-primary)] text-sm font-bold border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  className="px-6 py-4 rounded-2xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] active:scale-[0.98] backdrop-blur-md text-[var(--text-primary)] text-sm font-bold border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                 >
                   <Sliders className="w-4 h-4 text-[var(--accent-primary)]" />
                   <span>{t('programPage.customizeThisTrip')}</span>
@@ -340,7 +340,7 @@ export const ProgramDetailView: React.FC = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)]" />
             <h2
               id="program-fit-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}
+              className={`text-xs font-extrabold text-[var(--accent-primary)]`}
             >
               {t('programPage.overviewTitle')}
             </h2>
@@ -353,10 +353,10 @@ export const ProgramDetailView: React.FC = () => {
               'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
               <div>
-                <span className={`text-[11px] font-bold uppercase tracking-wider block mb-2 ${'text-[var(--text-secondary)]'}`}>
+                <span className={`text-[11px] font-bold block mb-2 ${'text-[var(--text-secondary)]'}`}>
                   {t('programPage.whoIsThisFor')}
                 </span>
-                <h3 className={`text-xl font-serif font-bold leading-snug mb-3 text-[var(--text-primary)]`}>
+                <h3 className={`text-xl chart-heading font-bold leading-snug mb-3 text-[var(--text-primary)]`}>
                   {language === 'ar' ? activeProgram.idealForAr : activeProgram.idealFor}
                 </h3>
               </div>
@@ -370,7 +370,7 @@ export const ProgramDetailView: React.FC = () => {
             <div className={`p-6 sm:p-7 rounded-3xl border shadow-md space-y-5 ${
               'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
-              <span className={`text-[11px] font-bold uppercase tracking-wider block ${'text-[var(--text-secondary)]'}`}>
+              <span className={`text-[11px] font-bold block ${'text-[var(--text-secondary)]'}`}>
                 {t('programs.pacingIntensityBalance')}
               </span>
 
@@ -387,7 +387,7 @@ export const ProgramDetailView: React.FC = () => {
                 </div>
                 <div className="h-2 rounded-full bg-black/10 dark:bg-[var(--btn-util-bg)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[var(--brand-coral)] transition-all duration-500"
+                    className="h-full rounded-full bg-[var(--brand-coral)] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500"
                     style={{ width: `${(activeProgram.intensityScore / 5) * 100}%` }}
                   />
                 </div>
@@ -404,7 +404,7 @@ export const ProgramDetailView: React.FC = () => {
                 </div>
                 <div className="h-2 rounded-full bg-black/10 dark:bg-[var(--btn-util-bg)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[var(--accent-primary)] transition-all duration-500"
+                    className="h-full rounded-full bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500"
                     style={{ width: `${activeProgram.freeTimeScore}%` }}
                   />
                 </div>
@@ -418,7 +418,7 @@ export const ProgramDetailView: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2 mb-2 text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck className="w-5 h-5" />
-                  <span className="text-xs font-extrabold uppercase tracking-wider">
+                  <span className="text-xs font-extrabold">
                     {t('programs.sinaiLocalGuarantee')}
                   </span>
                 </div>
@@ -441,13 +441,13 @@ export const ProgramDetailView: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <Calendar className="w-4 h-4 text-[var(--accent-primary)]" />
-                <span className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
+                <span className={`text-xs font-extrabold text-[var(--accent-primary)]`}>
                   {t('programPage.daysScheduled')}
                 </span>
               </div>
               <h2
                 id="day-by-day-heading"
-                className={`text-2xl sm:text-4xl font-serif font-bold text-[var(--text-primary)]`}
+                className={`text-2xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)]`}
               >
                 {t('programPage.dayByDayTitle')}
               </h2>
@@ -468,7 +468,7 @@ export const ProgramDetailView: React.FC = () => {
                   type="button"
                   id={`program-day-tab-${day.day}`}
                   onClick={() => setSelectedDayIdx(idx)}
-                  className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2.5 shadow-sm ${
+                  className={`px-5 py-3 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap flex items-center gap-2.5 shadow-sm ${
                     isSelected
                       ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] ring-2 ring-[var(--accent-primary)]/30 scale-[1.02]'
                       : isDark
@@ -476,7 +476,7 @@ export const ProgramDetailView: React.FC = () => {
                       : 'bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] border border-[var(--text-primary)]/10'
                   }`}
                 >
-                  <span className="text-sm font-extrabold font-serif">
+                  <span className="text-sm font-extrabold chart-heading">
                     {t('programs.dayZero', { day: day.day })}
                   </span>
                   <span
@@ -498,17 +498,17 @@ export const ProgramDetailView: React.FC = () => {
           {/* Active Day Detail Editorial Showcase Card */}
           <div
             id={`program-active-day-card-${activeDay.day}`}
-            className={`p-6 sm:p-10 rounded-3xl border shadow-xl transition-all duration-300 ${
+            className={`p-6 sm:p-10 rounded-3xl border shadow-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 ${
               'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
             }`}
           >
             {/* Active Day Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-current/10 gap-4">
               <div>
-                <span className={`text-xs font-extrabold uppercase tracking-wider text-[var(--accent-primary)]`}>
+                <span className={`text-xs font-extrabold text-[var(--accent-primary)]`}>
                   {t('programs.dayFocusRhythm', { day: activeDay.day })}
                 </span>
-                <h3 className={`text-2xl sm:text-3xl font-serif font-bold mt-1 text-[var(--text-primary)]`}>
+                <h3 className={`text-2xl sm:text-3xl chart-heading font-bold mt-1 text-[var(--text-primary)]`}>
                   {activeDay.title}
                 </h3>
               </div>
@@ -530,7 +530,7 @@ export const ProgramDetailView: React.FC = () => {
 
             {/* Highlights Grid */}
             <div>
-              <h4 className={`text-xs font-extrabold uppercase tracking-wider mb-4 ${
+              <h4 className={`text-xs font-extrabold mb-4 ${
                 'text-[var(--text-secondary)]'
               }`}>
                 {t('programs.curatedDayHighlights')}
@@ -540,7 +540,7 @@ export const ProgramDetailView: React.FC = () => {
                 {activeDay.highlights.map((highlight, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-start gap-3 p-4 rounded-2xl border transition-all ${
+                    className={`flex items-start gap-3 p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       isDark
                         ? 'bg-[var(--surface-container)]/70 border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                         : 'bg-[var(--text-primary)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25'
@@ -564,7 +564,7 @@ export const ProgramDetailView: React.FC = () => {
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)]" />
             <h2
               id="inclusions-heading"
-              className={`text-xs font-extrabold uppercase tracking-widest ${'text-[var(--accent-secondary)]'}`}
+              className={`text-xs font-extrabold ${'text-[var(--accent-secondary)]'}`}
             >
               {t('programs.transparentInclusionsCustomization')}
             </h2>
@@ -581,7 +581,7 @@ export const ProgramDetailView: React.FC = () => {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-serif font-bold text-[var(--text-primary)]`}>
+                  <h3 className={`text-lg chart-heading font-bold text-[var(--text-primary)]`}>
                     {t('programPage.includedTitle')}
                   </h3>
                   <span className={`text-xs ${'text-[var(--text-secondary)]'}`}>
@@ -611,7 +611,7 @@ export const ProgramDetailView: React.FC = () => {
                   <Sliders className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-serif font-bold text-[var(--text-primary)]`}>
+                  <h3 className={`text-lg chart-heading font-bold text-[var(--text-primary)]`}>
                     {t('programPage.customizableTitle')}
                   </h3>
                   <span className={`text-xs ${'text-[var(--text-secondary)]'}`}>
@@ -641,12 +641,12 @@ export const ProgramDetailView: React.FC = () => {
         }`}>
           <div className="flex items-center justify-between gap-4 mb-8">
             <div>
-              <span className={`text-xs font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
+              <span className={`text-xs font-extrabold text-[var(--accent-primary)]`}>
                 {t('programPage.allFivePrograms')}
               </span>
               <h2
                 id="other-programs-heading"
-                className={`text-2xl sm:text-3xl font-serif font-bold mt-1 text-[var(--text-primary)]`}
+                className={`text-2xl sm:text-3xl chart-heading font-bold mt-1 text-[var(--text-primary)]`}
               >
                 {t('programPage.exploreOtherPrograms')}
               </h2>
@@ -662,7 +662,7 @@ export const ProgramDetailView: React.FC = () => {
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }, 100);
               }}
-              className={`hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              className={`hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 'bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
               }`}
             >
@@ -678,7 +678,7 @@ export const ProgramDetailView: React.FC = () => {
                 type="button"
                 id={`other-program-card-${prog.id}`}
                 onClick={() => navigateTo('/programs', { programSlug: prog.id })}
-                className={`group text-start rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl cursor-pointer ${
+                className={`group text-start rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 flex flex-col justify-between overflow-hidden shadow-md hover:shadow-2xl cursor-pointer ${
                   isDark
                     ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)] text-[var(--text-primary)]'
                     : 'bg-[var(--surface-card)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25 text-[var(--text-primary)]'
@@ -696,7 +696,7 @@ export const ProgramDetailView: React.FC = () => {
                     <span className="text-[11px] font-semibold text-[var(--accent-primary)]">
                       {prog.durationDays} {t('home.days-3')} · {language === 'ar' ? prog.paceAr : prog.pace}
                     </span>
-                    <h4 className="text-sm font-serif font-bold text-white leading-tight truncate mt-0.5">
+                    <h4 className="text-sm chart-heading font-bold text-white leading-tight truncate mt-0.5">
                       {language === 'ar' ? prog.titleAr : prog.title}
                     </h4>
                   </div>
@@ -709,10 +709,10 @@ export const ProgramDetailView: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-2 border-t border-current/10">
                     <div>
-                      <span className={`text-[10px] uppercase font-bold block ${'text-[var(--text-secondary)]'}`}>
+                      <span className={`text-[10px] font-bold block ${'text-[var(--text-secondary)]'}`}>
                         {t('programPage.startingFrom')}
                       </span>
-                      <span className={`text-xs font-bold font-serif text-[var(--accent-secondary)]`}>
+                      <span className={`text-xs font-bold chart-heading text-[var(--accent-secondary)]`}>
                         {prog.startingPriceEGP.toLocaleString()} EGP
                       </span>
                     </div>
@@ -740,15 +740,15 @@ export const ProgramDetailView: React.FC = () => {
           {/* Price & Summary Info */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:block">
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] block">
+              <span className="text-[11px] text-[var(--text-muted)] block">
                 {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
               </span>
-              <div className="text-lg font-bold font-serif text-[var(--accent-secondary)]">
+              <div className="text-lg font-bold chart-heading text-[var(--accent-secondary)]">
                 {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-xs font-normal text-[var(--text-muted)]">EGP / {t('programs.person-2')}</span>
               </div>
             </div>
             <div className="sm:hidden">
-              <div className="text-base font-bold font-serif text-[var(--accent-secondary)]">
+              <div className="text-base font-bold chart-heading text-[var(--accent-secondary)]">
                 {activeProgram.startingPriceEGP.toLocaleString()} <span className="text-[11px] font-normal text-[var(--text-muted)]">EGP</span>
               </div>
               <span className="text-[10px] text-[var(--text-muted)] block">
@@ -763,7 +763,7 @@ export const ProgramDetailView: React.FC = () => {
               type="button"
               id="sticky-customize-btn"
               onClick={handleCustomizeTrip}
-              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-bold transition-all cursor-pointer border border-[var(--border-subtle)]"
+              className="px-4 py-2.5 rounded-xl bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-white text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-[var(--border-subtle)]"
             >
               <span className="hidden sm:inline">{t('programPage.customizeThisTrip')}</span>
               <span className="sm:hidden">{t('readyTrip.customize')}</span>
@@ -774,7 +774,7 @@ export const ProgramDetailView: React.FC = () => {
               id="sticky-start-trip-btn"
               onClick={handleStartTrip}
               disabled={isStartingTrip}
-              className="px-6 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-all cursor-pointer active:scale-95"
+              className="px-6 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
             >
               <span>{isStartingTrip ? '...' : t('programPage.startThisTrip')}</span>
               <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />

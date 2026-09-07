@@ -396,7 +396,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
         <button
           type="button"
           onClick={() => refreshSummary()}
-          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           {t('cmd.overview.refresh')}
@@ -417,7 +417,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               key={i}
               type="button"
               onClick={card.onClick}
-              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all text-left cursor-pointer group"
+              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] text-left cursor-pointer group"
             >
               <div className="flex items-center justify-between mb-2">
                 <Icon className={`w-4 h-4 ${card.color}`} />
@@ -450,7 +450,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
               key={i}
               type="button"
               onClick={card.onClick}
-              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all text-left cursor-pointer"
+              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] text-left cursor-pointer"
             >
               <Icon className={`w-4 h-4 ${card.color} mb-2`} />
               <div className={`text-2xl font-bold font-mono ${card.value > 0 ? card.color : 'text-[var(--text-muted)]'}`}>
@@ -495,7 +495,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
                 return (
                   <div
                     key={action.id}
-                    className="p-4 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-all"
+                    className="p-4 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity]"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3 min-w-0">
@@ -520,7 +520,7 @@ export default function Overview({ onNavigate }: { onNavigate: (s: SectionId) =>
                         {action.entityId && (
                           <button
                             type="button"
-                            className="mt-1 px-2 py-1 rounded bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[11px] font-bold transition-all cursor-pointer"
+                            className="mt-1 px-2 py-1 rounded bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                             onClick={() => {
                               if (action.entityType === 'support') onNavigate('support');
                               else if (action.entityType === 'market') onNavigate('intelligence');

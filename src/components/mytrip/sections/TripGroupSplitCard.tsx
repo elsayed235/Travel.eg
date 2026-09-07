@@ -14,10 +14,10 @@ export const TripGroupSplitCard: React.FC<TripGroupSplitCardProps> = ({ traveler
 
   return (
     <div className={`p-6 sm:p-7 rounded-3xl border shadow-xl space-y-4 ${
-      isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[#122420]/10 text-[#122420]'
+      isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'
     }`}>
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-serif font-bold flex items-center gap-2">
+        <h3 className="text-base chart-heading font-bold flex items-center gap-2">
           <Users className="w-4 h-4 text-[var(--accent-primary)]" />
           <span>{t('myTrip.groupTravel')}</span>
         </h3>
@@ -26,14 +26,14 @@ export const TripGroupSplitCard: React.FC<TripGroupSplitCardProps> = ({ traveler
         </span>
       </div>
 
-      <p className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+      <p className={`text-xs leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
         {t('myTrip.shareAnInviteLink')}
       </p>
 
       <button
         type="button"
         onClick={onShare}
-        className="w-full py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[#E7A83B] text-[var(--surface-container)] text-xs font-extrabold flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all active:scale-98"
+        className="w-full py-3 rounded-2xl bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-extrabold flex items-center justify-center gap-2 shadow-md cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] active:scale-98"
       >
         <Users className="w-3.5 h-3.5 text-[var(--surface-container)]" />
         <span>{t('myTrip.inviteFriend')}</span>

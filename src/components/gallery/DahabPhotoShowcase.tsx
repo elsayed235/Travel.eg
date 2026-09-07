@@ -18,6 +18,9 @@ import {
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTrip } from '../../context/TripContext';
+import { useApiResource } from '../../hooks/useApiResource';
+import { api } from '../../services/api';
+import type { CmsHomepageSection } from '../../services/api';
 
 export interface DahabPhotoItem {
   id: string;
@@ -244,7 +247,7 @@ const DAHAB_PHOTOS: DahabPhotoItem[] = [
   }
 ];
 
-export const DahabPhotoShowcase: React.FC = () => {
+export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | null }> = ({ cmsSection }) => {
   const { language, isRTL } = useLanguage();
   const { isDark } = useTheme();
   const { navigateTo } = useTrip();
@@ -261,11 +264,33 @@ export const DahabPhotoShowcase: React.FC = () => {
     { id: 'hotel', label: 'Stays & Resorts', labelAr: 'الفنادق والإقامة', icon: Palmtree },
   ];
 
+  // CMS gallery — mapped to DahabPhotoItem shape, with compiled fallback
+  const fetchGallery = useCallback((signal: AbortSignal) => api.getCmsGallery(signal), []);
+  const remoteGallery = useApiResource(fetchGallery);
+  const cmsPhotos: DahabPhotoItem[] = useMemo(() => {
+    const pages = remoteGallery.data?.photos;
+    if (!Array.isArray(pages) || pages.length === 0) return [];
+    return pages.map((p: any) => ({
+      id: p.slug || p.id,
+      title: p.title_en || p.title || '',
+      titleAr: p.title_ar || '',
+      category: 'diving' as const,
+      location: p.subtitle_en || '',
+      locationAr: p.subtitle_ar || '',
+      image: p.hero_image_url || '',
+      tag: p.description_en?.split('\n')[0] || '',
+      tagAr: p.description_ar?.split('\n')[0] || '',
+      highlight: p.body_en || '',
+      highlightAr: p.body_ar || '',
+    }));
+  }, [remoteGallery.data]);
+  const photos = cmsPhotos.length > 0 ? cmsPhotos : DAHAB_PHOTOS;
+
   const filteredPhotos = useMemo(() => {
-    if (activeTab === 'all') return DAHAB_PHOTOS;
-    if (activeTab === 'hotel') return DAHAB_PHOTOS.filter(p => p.category === 'hotel' || p.category === 'beach');
-    return DAHAB_PHOTOS.filter(p => p.category === activeTab);
-  }, [activeTab]);
+    if (activeTab === 'all') return photos;
+    if (activeTab === 'hotel') return photos.filter(p => p.category === 'hotel' || p.category === 'beach');
+    return photos.filter(p => p.category === activeTab);
+  }, [activeTab, photos]);
 
   // Lightbox keyboard controls
   useEffect(() => {
@@ -301,6 +326,10 @@ export const DahabPhotoShowcase: React.FC = () => {
     setActivePhoto(filteredPhotos[prevIdx]);
   }, [activePhoto, filteredPhotos]);
 
+  // CMS visibility flag: hide the showcase from the dashboard (Homepage tab).
+  // Checked after all hooks so hook order never varies with data.
+  if (cmsSection && cmsSection.visible === 0) return null;
+
   return (
     <section
       id="dahab-gallery-showcase"
@@ -313,11 +342,11 @@ export const DahabPhotoShowcase: React.FC = () => {
         <div className="max-w-2xl">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] animate-pulse" />
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]">
+            <span className="text-[11px] font-extrabold text-[var(--accent-primary)]">
               {isAr ? 'عدسات حقيقية · من قلب دهب' : 'Authentic Imagery · The Soul of Dahab'}
             </span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight text-[var(--text-primary)]">
+          <h2 className="text-3xl sm:text-4xl chart-heading font-bold tracking-tight text-[var(--text-primary)]">
             {isAr ? 'روح دهب في صور حقيقية' : 'Experience Dahab as it Truly Is'}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
@@ -337,12 +366,12 @@ export const DahabPhotoShowcase: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md shadow-[var(--accent-primary)]/20 scale-105'
                     : isDark
                       ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
-                      : 'bg-white border border-[#122420]/10 text-[#122420]/80 hover:bg-[#F0ECE1]'
+                      : 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -359,10 +388,10 @@ export const DahabPhotoShowcase: React.FC = () => {
           <div
             key={photo.id}
             onClick={() => setActivePhoto(photo)}
-            className={`group relative rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl ${
+            className={`group relative rounded-3xl overflow-hidden cursor-pointer border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 hover:-translate-y-1.5 hover:shadow-2xl ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
-                : 'bg-white border-[#122420]/10 hover:border-[var(--accent-primary)]'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
             }`}
           >
             {/* Image Container with Zoom Effect */}
@@ -378,7 +407,7 @@ export const DahabPhotoShowcase: React.FC = () => {
 
               {/* Top Meta Badges */}
               <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none">
-                <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-black/40 backdrop-blur-md text-white border border-white/20">
+                <span className="px-3 py-1 rounded-full text-[10px] font-extrabold bg-black/40 backdrop-blur-md text-white border border-white/20">
                   {isAr ? photo.tagAr : photo.tag}
                 </span>
                 <span className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
@@ -392,7 +421,7 @@ export const DahabPhotoShowcase: React.FC = () => {
                   <MapPin className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                   <span>{isAr ? photo.locationAr : photo.location}</span>
                 </div>
-                <h3 className="font-serif font-bold text-lg sm:text-xl leading-snug drop-shadow-sm line-clamp-1">
+                <h3 className="chart-heading font-bold text-lg sm:text-xl leading-snug drop-shadow-sm line-clamp-1">
                   {isAr ? photo.titleAr : photo.title}
                 </h3>
               </div>
@@ -417,14 +446,14 @@ export const DahabPhotoShowcase: React.FC = () => {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-xl p-3 sm:p-6 transition-all"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 backdrop-blur-xl p-3 sm:p-6 transition-[background-color,border-color,color,box-shadow,transform,opacity]"
         >
           {/* Close Button */}
           <button
             type="button"
             onClick={() => setActivePhoto(null)}
             aria-label={isAr ? 'إغلاق' : 'Close'}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-all hover:scale-105 border border-white/20"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:scale-105 border border-white/20"
           >
             <X className="w-6 h-6" />
           </button>
@@ -434,7 +463,7 @@ export const DahabPhotoShowcase: React.FC = () => {
             type="button"
             onClick={handlePrevPhoto}
             aria-label={isAr ? 'الصورة السابقة' : 'Previous Photo'}
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 text-white border border-white/20 flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 text-white border border-white/20 flex items-center justify-center cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:scale-110"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -443,7 +472,7 @@ export const DahabPhotoShowcase: React.FC = () => {
             type="button"
             onClick={handleNextPhoto}
             aria-label={isAr ? 'الصورة التالية' : 'Next Photo'}
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 text-white border border-white/20 flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-black/40 hover:bg-black/70 text-white border border-white/20 flex items-center justify-center cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:scale-110"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -463,7 +492,7 @@ export const DahabPhotoShowcase: React.FC = () => {
             <div className="w-full mt-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-5 text-white border border-white/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1 max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[var(--accent-primary)] text-white text-[10px] font-extrabold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[var(--accent-primary)] text-white text-[10px] font-extrabold">
                     {isAr ? activePhoto.tagAr : activePhoto.tag}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-amber-300">
@@ -474,7 +503,7 @@ export const DahabPhotoShowcase: React.FC = () => {
                     <span className="text-xs text-white/60">· {isAr ? activePhoto.specsAr : activePhoto.specs}</span>
                   )}
                 </div>
-                <h4 className="font-serif font-bold text-lg sm:text-xl text-white">
+                <h4 className="chart-heading font-bold text-lg sm:text-xl text-white">
                   {isAr ? activePhoto.titleAr : activePhoto.title}
                 </h4>
                 <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
@@ -489,7 +518,7 @@ export const DahabPhotoShowcase: React.FC = () => {
                   setActivePhoto(null);
                   navigateTo('/trip-builder');
                 }}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#E7D3AE] to-[#20A89A] text-[#122420] font-bold text-xs flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#B97A1F] to-[#E8A33D] text-[#1A1206] font-bold text-xs flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap"
               >
                 <Compass className="w-4 h-4" />
                 <span>{isAr ? 'خطط لزيارة هذا المعلم' : 'Plan Trip to This Spot'}</span>

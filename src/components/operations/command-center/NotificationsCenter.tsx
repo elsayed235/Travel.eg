@@ -39,7 +39,7 @@ export default function NotificationsCenter() {
         <div className="flex items-center gap-2">
           {(['all', 'unread', 'urgent'] as const).map(f => (
             <button key={f} type="button" onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${filter === f ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
@@ -63,7 +63,7 @@ export default function NotificationsCenter() {
       ) : (
         <div className="space-y-2">
           {filtered.map(n => (
-            <div key={n.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-all ${n.read ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
+            <div key={n.id} className={`p-4 rounded-xl bg-[var(--surface-container)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${n.read ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${n.status === 'FAILED' ? 'bg-red-500/20 border border-red-500/30' : 'bg-[var(--btn-util-bg)] border border-[var(--border-subtle)]'}`}>

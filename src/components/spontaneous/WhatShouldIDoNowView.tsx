@@ -281,7 +281,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col font-['Outfit',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/30"
+      className="min-h-screen bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/30"
     >
       
       {/* 1. TRAVELER TOP NAVIGATION (My Trip is active) */}
@@ -353,7 +353,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
           {/* Title & Subtitle */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
               {travelerName ? t('spontaneous.whatShouldYouDoNamed', { travelerName }) : t('spontaneous.whatShouldYouDoGeneric')}
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-3xl font-medium leading-relaxed">
@@ -379,7 +379,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)]">
                     {t('spontaneous.nothingWorthRushingFor')}
                   </h2>
                   <p className="text-sm sm:text-base text-[var(--text-secondary)]/80 leading-relaxed">
@@ -389,7 +389,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
                 {/* 3 Low-friction easy options */}
                 <div className="space-y-3 pt-2">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('spontaneous.recommendedEasyMoves')}
                   </span>
 
@@ -458,10 +458,10 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         ✓
                       </div>
                       <div>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-emerald-300 block">
+                        <span className="text-[11px] font-black text-emerald-300 block">
                           {t('spontaneous.tripUpdated')}
                         </span>
-                        <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                        <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                           {t('spontaneous.addedToYourTrip')}
                         </h3>
                       </div>
@@ -484,7 +484,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     <button
                       type="button"
                       onClick={onBackToCompanion || onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold transition-all shadow-md cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer"
                     >
                       {t('spontaneous.viewInDailyCompanion')}
                     </button>
@@ -503,10 +503,10 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               <section id="three-recommendations-section" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                    <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                       {t('spontaneous.contextualDecisionSupport')}
                     </span>
-                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)]">
                       {t('spontaneous.3ChoicesForRight')}
                     </h2>
                   </div>
@@ -529,7 +529,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         key={option.id}
                         id={`recommendation-card-${option.id}`}
                         onClick={() => handleSelectOption(option)}
-                        className={`bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border transition-all cursor-pointer relative overflow-hidden ${
+                        className={`bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer relative overflow-hidden ${
                           isSelected
                             ? 'border-2 border-[var(--accent-secondary)] shadow-[0_0_25px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30 bg-[var(--surface-container)]'
                             : 'border-[var(--border-subtle)] shadow-xl hover:border-white/20'
@@ -539,7 +539,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
                           <div className="flex items-center gap-2">
                             {/* Mood Tag */}
-                            <span className={`text-[11px] font-extrabold uppercase px-3 py-1 rounded-full ${
+                            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full ${
                               option.mood === 'chill'
                                 ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
                                 : option.mood === 'explore'
@@ -578,7 +578,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center justify-between">
-                              <h3 className="font-serif font-bold text-lg sm:text-xl text-[var(--text-primary)]">
+                              <h3 className="chart-heading font-bold text-lg sm:text-xl text-[var(--text-primary)]">
                                 {language === 'ar' ? option.titleAr : option.title}
                               </h3>
                               <span className="text-xs font-bold text-[var(--accent-secondary)]">
@@ -603,7 +603,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                           <button
                             type="button"
                             onClick={(e) => toggleWhyThis(option.id, e)}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent-secondary)] hover:text-[#E5B55D] cursor-pointer"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--accent-secondary)] hover:brightness-125 cursor-pointer"
                           >
                             <Info className="w-3.5 h-3.5" />
                             <span>{t('spontaneous.whyThis')}</span>
@@ -671,9 +671,9 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                                   handleSelectOption(option);
                                   handleTriggerAddToTrip(option);
                                 }}
-                                className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                                className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
                                   isSelected
-                                    ? 'bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)]'
+                                    ? 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206]'
                                     : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30'
                                 }`}
                               >
@@ -697,10 +697,10 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
               >
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                    <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                       {t('spontaneous.activityDetails')}
                     </span>
-                    <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+                    <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                       {language === 'ar' ? selectedOption.titleAr : selectedOption.title}
                     </h3>
                   </div>
@@ -719,27 +719,27 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 {/* 5 Key Attribute Metrics */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-center text-xs">
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('arrival.duration')}</span>
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('arrival.duration')}</span>
                     <span className="font-bold text-sm text-[var(--text-primary)]">{selectedOption.durationMinutes} min</span>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('food.distance')}</span>
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('food.distance')}</span>
                     <span className="font-bold text-sm text-[var(--text-primary)]">{selectedOption.distanceKm}</span>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.estCost')}</span>
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.estCost')}</span>
                     <span className="font-bold text-xs text-[var(--accent-secondary)]">{language === 'ar' ? selectedOption.priceEstimateAr : selectedOption.priceEstimate}</span>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1">
-                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.bestTime')}</span>
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.bestTime')}</span>
                     <span className="font-bold text-sm text-emerald-300">{t('spontaneous.now')}</span>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-white/5 space-y-1 col-span-2 sm:col-span-1">
-                    <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.pace')}</span>
+                    <span className="text-[11px] font-bold text-[var(--text-secondary)]/50 block">{t('spontaneous.pace')}</span>
                     <span className="font-bold text-sm text-[var(--accent-secondary)]">{language === 'ar' ? selectedOption.paceAr : selectedOption.pace}</span>
                   </div>
                 </div>
@@ -757,7 +757,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
                 {/* Proposed Schedule Preview */}
                 <div className="space-y-2 text-xs">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('spontaneous.updatedScheduleFlow')}
                   </span>
                   
@@ -802,7 +802,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     type="button"
                     id="add-to-my-trip-main-btn"
                     onClick={() => handleTriggerAddToTrip(selectedOption)}
-                    className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] text-xs font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-98"
+                    className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2 cursor-pointer active:scale-98"
                   >
                     <Plus className="w-4 h-4" />
                     <span>{t('spontaneous.addToMyTrip')}</span>
@@ -823,7 +823,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                       {t('spontaneous.rightNow')}
                     </h3>
                   </div>
@@ -881,7 +881,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                   <div className="flex items-center gap-2">
                     <Utensils className="w-4 h-4 text-emerald-400" />
-                    <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                    <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                       {t('spontaneous.nextScheduledActivity')}
                     </h3>
                   </div>
@@ -925,7 +925,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-[var(--accent-secondary)]" />
-                    <h4 className="font-serif font-bold text-sm text-[var(--text-primary)]">
+                    <h4 className="chart-heading font-bold text-sm text-[var(--text-primary)]">
                       {t('spontaneous.nearYouOrientation')}
                     </h4>
                   </div>
@@ -938,7 +938,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 <div className="h-44 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] relative overflow-hidden flex flex-col justify-between p-3">
                   {/* Sea background representation */}
                   <div className="absolute right-0 top-0 bottom-0 w-2/5 bg-[var(--surface-container)]/80 border-l border-teal-500/20 flex items-center justify-center">
-                    <span className="text-[11px] uppercase tracking-wider font-extrabold text-teal-300/60 rotate-90">
+                    <span className="text-[11px] font-extrabold text-teal-300/60 rotate-90">
                       {t('spontaneous.redSeaBay')}
                     </span>
                   </div>
@@ -990,7 +990,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2 text-amber-400">
                 <AlertCircle className="w-5 h-5" />
-                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {t('spontaneous.thisFitsButItll')}
                 </h3>
               </div>
@@ -1032,7 +1032,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 type="button"
                 id="add-anyway-btn"
                 onClick={() => commitAddToTrip(tightFitModalOption)}
-                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] font-bold text-xs shadow-md transition-colors cursor-pointer"
+                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-xs shadow-md transition-colors cursor-pointer"
               >
                 {t('spontaneous.addAnyway')}
               </button>

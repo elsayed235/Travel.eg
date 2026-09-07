@@ -68,13 +68,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
       {/* Sub-header with Title and Smart Action Utilities */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-ping" />
-            <span className={`text-[12px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]`}>
-              {t('home.fieldTestedSinaiCurations')}
-            </span>
-          </div>
-          <h2 className={`text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[var(--text-primary)]`}>
+          <h2 className={`text-2xl sm:text-3xl chart-heading font-bold tracking-tight text-[var(--text-primary)]`}>
             {t('home.5HandcraftedDahabItineraries')}
           </h2>
           <p className={`text-sm mt-1 max-w-xl text-[var(--text-secondary)]`}>
@@ -89,10 +83,10 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
             type="button"
             id="ready-trips-smart-match-btn"
             onClick={onOpenQuiz}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95 ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform] cursor-pointer shadow-sm active:scale-95 ${
               isDark
                 ? 'bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--accent-secondary)] border-[var(--border-subtle)]'
-                : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--surface-card)] border-[var(--text-primary)]/10 shadow-xs'
+                : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/10 shadow-xs'
             }`}
           >
             <Sparkles className="w-4 h-4 text-[var(--accent-secondary)]" />
@@ -104,7 +98,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
             type="button"
             id="ready-trips-compare-btn"
             onClick={onOpenCompare}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95 ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform] cursor-pointer shadow-sm active:scale-95 ${
               isDark
                 ? 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
                 : 'bg-[var(--surface-card)] hover:bg-stone-100 text-[var(--text-primary)] border-[var(--text-primary)]/10 shadow-xs'
@@ -126,7 +120,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow] cursor-pointer ${
                 isActive
                   ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] shadow-sm'
                   : isDark
@@ -152,7 +146,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               id={`ready-trip-card-${program.id}`}
               onClick={() => handleSelect(program)}
               aria-label={`${t('home.viewProgram')}: ${language === 'ar' ? program.titleAr || program.title : program.title}`}
-              className={`group w-full text-start rounded-3xl border transition-all duration-300 flex flex-col justify-between cursor-pointer overflow-hidden relative shadow-md hover:shadow-2xl hover:-translate-y-1.5 ${
+              className={`group w-full text-start rounded-3xl border transition-[border-color,box-shadow] duration-300 flex flex-col justify-between cursor-pointer overflow-hidden relative shadow-md hover:shadow-2xl ${
                 isDark
                   ? isFeatured
                     ? 'bg-[var(--surface-card)] border-[var(--accent-secondary)]/60 ring-1 ring-[var(--accent-secondary)]/25'
@@ -176,7 +170,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
 
                 {/* Floating Top Category Badge */}
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider bg-black/60 backdrop-blur-md text-[var(--text-primary)] px-2.5 py-1 rounded-full border border-[var(--border-subtle)] shadow-sm">
+                  <span className="text-[11px] font-extrabold bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-full border border-[var(--border-subtle)] shadow-sm">
                     {language === 'ar' ? program.badgeAr : program.badge}
                   </span>
                 </div>
@@ -188,7 +182,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
                     <span>•</span>
                     <span>{language === 'ar' ? program.paceAr : program.pace}</span>
                   </div>
-                  <h3 className="text-base font-serif font-bold text-[var(--text-primary)] leading-tight line-clamp-1 group-hover:text-[var(--accent-secondary)] transition-colors">
+                  <h3 className="text-base chart-heading font-bold text-white leading-tight line-clamp-1 group-hover:text-[var(--accent-secondary)] transition-colors">
                     {language === 'ar' ? program.titleAr : program.title}
                   </h3>
                 </div>
@@ -198,7 +192,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
               <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                 {/* 1. Who is it for? */}
                 <div>
-                  <span className={`text-[10px] uppercase font-bold tracking-wider block mb-1 ${'text-[var(--text-secondary)]'}`}>
+                  <span className={`text-[10px] font-bold block mb-1 ${'text-[var(--text-secondary)]'}`}>
                     {t('home.idealFor')}
                   </span>
                   <p className={`text-xs font-medium line-clamp-2 leading-relaxed text-[var(--text-secondary)]`}>
@@ -209,19 +203,19 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
                 {/* 2. Starting Price & Single Compact CTA */}
                 <div className={`pt-3 border-t flex items-center justify-between border-[var(--border-subtle)]`}>
                   <div>
-                    <span className={`text-[10px] uppercase tracking-wider block font-bold ${'text-[var(--text-secondary)]'}`}>
+                    <span className={`text-[10px] block font-bold ${'text-[var(--text-secondary)]'}`}>
                       {t('readyTrip.startingFrom')}
                     </span>
-                    <div className={`text-sm font-extrabold font-serif text-[var(--accent-secondary)]`}>
+                    <div                     className={`text-sm font-extrabold chart-heading tabular-nums text-[var(--accent-secondary)]`}>
                       {program.startingPriceEGP.toLocaleString()} <span className={`text-[11px] font-sans font-normal text-[var(--text-secondary)]`}>EGP</span>
                     </div>
                   </div>
 
                   <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-[background-color,color] shadow-xs ${
                       isDark
-                        ? 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--surface-card)] text-[var(--text-primary)]'
-                        : 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--surface-card)] text-[var(--text-primary)]'
+                        ? 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-primary-ink)] text-[var(--text-primary)]'
+                        : 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-primary-ink)] text-[var(--text-primary)]'
                     }`}
                   >
                     <span>{t('experiences.view')}</span>

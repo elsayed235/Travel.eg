@@ -189,13 +189,24 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const categoryLabel = language === 'ar' ? item.categoryLabelAr : item.categoryLabelEn;
   const rtl = language === 'ar';
 
+  // Category coding in three ink families (live teal excluded): water/action
+  // on accent-primary, warmth/commerce on accent-secondary, land/calm on brass.
   const typeColor: Record<ListingType, string> = {
     event: 'var(--accent-primary)',
     'basic-services': 'var(--accent-secondary)',
-    'health-wellness': '#5b8c6f',
-    activities: '#2f7dd1',
-    'food-drink': '#c97b3c',
-    'real-estate': '#7a6a4a',
+    'health-wellness': '#C9A24B',
+    activities: 'var(--accent-primary)',
+    'food-drink': '#C9A24B',
+    'real-estate': 'var(--accent-secondary)',
+  };
+  // Lighter ink variants for small colored text on dark surfaces (AA contrast).
+  const typeTextColor: Record<ListingType, string> = {
+    event: 'var(--accent-primary)',
+    'basic-services': 'var(--accent-secondary)',
+    'health-wellness': isDark ? '#E3C57C' : '#8F5F14',
+    activities: 'var(--accent-primary)',
+    'food-drink': isDark ? '#E3C57C' : '#8F5F14',
+    'real-estate': 'var(--accent-secondary)',
   };
 
   if (horizontal) {
@@ -204,10 +215,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
         href={`/${item.slug}`}
         onClick={(e) => { e.preventDefault(); onViewDetails?.(item); }}
         dir={rtl ? 'rtl' : 'ltr'}
-        className={`group relative flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+        className={`group relative flex items-center gap-4 p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
           isDark
             ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 text-[var(--text-primary)]'
-            : 'bg-[var(--surface-card)] border-[#122420]/10 hover:border-[var(--accent-primary)] text-[#122420]'
+            : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
         }`}
       >
         <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-[var(--surface-container)]">
@@ -232,7 +243,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-serif font-bold text-base truncate">{title}</h3>
+            <h3 className="chart-heading font-bold text-base truncate">{title}</h3>
             {item.rating && (
               <div className="flex items-center gap-1 text-xs font-bold flex-shrink-0">
                 <Star className="w-3.5 h-3.5 fill-[var(--accent-secondary)] text-[var(--accent-secondary)]" />
@@ -243,7 +254,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           <div className="flex items-center gap-2 text-xs mt-1.5">
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ backgroundColor: `${typeColor[item.type]}18`, color: typeColor[item.type] }}>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold" style={{ backgroundColor: `${typeColor[item.type]}18`, color: typeTextColor[item.type] }}>
               {categoryLabel || item.type}
             </span>
             {item.dates && (
@@ -269,7 +280,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav?.(item.id); }}
-          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
             isFav ? 'bg-rose-500 text-white' : 'bg-black/40 text-white hover:bg-black/70'
           }`}
           aria-pressed={isFav}
@@ -284,10 +295,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div
       dir={rtl ? 'rtl' : 'ltr'}
-      className={`group relative rounded-xl border overflow-hidden transition-all cursor-pointer ${
+      className={`group relative rounded-xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
-          : 'bg-white border-[#122420]/10 hover:border-[var(--accent-primary)]'
+          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       <a
@@ -305,7 +316,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Featured badge */}
           {isFeatured && (
-            <span className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/90 text-[var(--surface-container)] text-[10px] font-bold uppercase tracking-wider">
+            <span className="absolute top-2.5 end-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/90 text-[var(--surface-container)] text-[10px] font-bold">
               <Zap className="w-3 h-3" />
               Featured
             </span>
@@ -313,8 +324,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Type color corner */}
           <div
-            className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white flex items-center gap-1"
-            style={{ backgroundColor: typeColor[item.type] }}
+            className="absolute top-2.5 start-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold text-white flex items-center gap-1"
+            style={{ backgroundColor: `color-mix(in srgb, ${typeColor[item.type]} 70%, #000)` }}
           >
             {item.type === 'event' && <Calendar className="w-3 h-3" />}
             {item.type === 'basic-services' && <ShoppingBag className="w-3 h-3" />}
@@ -329,7 +340,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav?.(item.id); }}
-            className={`absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${
+            className={`absolute bottom-2.5 end-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isFav ? 'bg-rose-500 text-white' : 'bg-black/50 text-white hover:bg-black/80'
             }`}
             aria-pressed={isFav}
@@ -341,7 +352,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         {/* Body */}
         <div className="p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-serif font-bold text-sm leading-snug line-clamp-2">{title}</h3>
+            <h3 className="chart-heading font-bold text-sm leading-snug line-clamp-2">{title}</h3>
             {item.rating && (
               <div className="flex items-center gap-1 text-xs font-bold text-[var(--accent-secondary)] flex-shrink-0 mt-0.5">
                 <Star className="w-3.5 h-3.5 fill-current" />
@@ -352,8 +363,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {categoryLabel && (
-            <span className="inline-block mt-2 px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider"
-              style={{ color: typeColor[item.type], backgroundColor: `${typeColor[item.type]}15` }}>
+            <span className="inline-block mt-2 px-2 py-0.5 rounded text-[11px] font-bold"
+              style={{ color: typeTextColor[item.type], backgroundColor: `${typeColor[item.type]}15` }}>
               {categoryLabel}
             </span>
           )}
@@ -378,7 +389,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Action row */}
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-[10px] text-[var(--text-secondary)]/50 uppercase tracking-wider">
+            <span className="text-[10px] text-[var(--text-secondary)]/50">
               {t('attractions.viewDetails')}
             </span>
             <span className="text-[10px] font-bold text-[var(--accent-primary)] group-hover:underline">
@@ -587,18 +598,18 @@ export const ListingsView: React.FC = () => {
 
   return (
     <div dir={language === 'ar' ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}>
 
       {/* Header */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold">
+            <h1 className="text-2xl sm:text-3xl chart-heading font-bold">
               {t('explore.dahabListings')}
             </h1>
-            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
               {t('explore.eventsServicesWellnessActivities')}
             </p>
           </div>
@@ -609,12 +620,12 @@ export const ListingsView: React.FC = () => {
                 onClick={() => setView(m)}
                 aria-label={`${m} view`}
                 aria-pressed={viewMode === m}
-                className={`p-2 rounded-lg transition-all ${
+                className={`p-2 rounded-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   viewMode === m
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)]'
                     : isDark
                     ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[#1a4038]'
-                    : 'text-[#4A635D] hover:text-[#122420] hover:bg-[#EAE6DD]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)]'
                 }`}>
                 {m === 'grid' && <Grid3X3 className="w-4 h-4" />}
                 {m === 'list' && <List className="w-4 h-4" />}
@@ -628,7 +639,7 @@ export const ListingsView: React.FC = () => {
       {/* Stats bar */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-3">
         <div className={`flex flex-wrap items-center gap-3 px-4 py-2.5 rounded-xl border text-xs ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'
+          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
         }`}>
           <span>{filteredListings.length} {t('attractions.results')}</span>
           <span className="text-[var(--border-subtle)]">|</span>
@@ -645,7 +656,7 @@ export const ListingsView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-4 space-y-3">
         {/* Search */}
         <div className="relative max-w-md">
-          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[#4A635D]/40'}`} />
+          <Search className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
           <input
             type="search"
             value={searchQuery}
@@ -654,7 +665,7 @@ export const ListingsView: React.FC = () => {
             className={`w-full py-2.5 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
-                : 'bg-white border-[#122420]/10 text-[#122420] placeholder:text-[#4A635D]/50 focus:border-[var(--accent-primary)]'
+                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
             } focus:outline-none`}
           />
         </div>
@@ -663,12 +674,12 @@ export const ListingsView: React.FC = () => {
         <div className="flex flex-wrap items-center gap-1.5">
           <button type="button"
             onClick={() => setTypeFilter(new Set(TYPES.map(t => t.id)))}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border ${
               showAllActive
                 ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                 : isDark
                 ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)] hover:bg-[#1a4038]'
-                : 'bg-white text-[#4A635D] border-[#122420]/10 hover:bg-[#EAE6DD] hover:text-[#122420]'
+                : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)] hover:text-[var(--text-primary)]'
             }`}>
             {t('explore.showAll')}
           </button>
@@ -682,12 +693,12 @@ export const ListingsView: React.FC = () => {
                   else next.add(t.id);
                   setTypeFilter(next);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border ${
                   active
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                     : isDark
                     ? 'bg-[var(--surface-card)] text-[var(--text-secondary)]/70 border-[var(--border-subtle)] opacity-60 hover:opacity-100'
-                    : 'bg-white text-[#4A635D]/70 border-[#122420]/10 opacity-60 hover:opacity-100'
+                    : 'bg-[var(--surface-card)] text-[var(--text-secondary)]/70 border-[var(--border-subtle)] opacity-60 hover:opacity-100'
                 }`}>
                 {language === 'ar' ? t.labelAr : t.label}
               </button>
@@ -701,12 +712,12 @@ export const ListingsView: React.FC = () => {
             {(['default', 'random', 'rating', 'popular'] as const).map(m => (
               <button key={m} type="button"
                 onClick={() => setSort(m)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                   sortingMode === m
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)]'
                     : isDark
                     ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[#1a4038]'
-                    : 'text-[#4A635D] hover:text-[#122420] hover:bg-[#EAE6DD]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)]'
                 }`}>
                 {m === 'default' && (t('explore.default'))}
                 {m === 'random' && (t('explore.random'))}
@@ -730,10 +741,10 @@ export const ListingsView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 flex-1">
         {displayList.length === 0 ? (
           <div className={`py-16 text-center rounded-2xl border ${
-            isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'
+            isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'
           }`}>
-            <Sparkles className={`w-8 h-8 mx-auto mb-3 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[#4A635D]/40'}`} />
-            <p className={`text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+            <Sparkles className={`w-8 h-8 mx-auto mb-3 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
+            <p className={`text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
               {t('explore.noListingsMatchThat')}
             </p>
           </div>
@@ -772,7 +783,7 @@ export const ListingsView: React.FC = () => {
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12">
           <button type="button"
             onClick={loadMore}
-            className="px-6 py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]">
+            className="px-6 py-3 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-container)] text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center gap-2 cursor-pointer active:scale-[0.98]">
             {t('explore.loadMore')}
             <span className="text-xs opacity-70">
               ({loadedCount} → {Math.min(loadedCount + pageSize, filteredListings.length)})

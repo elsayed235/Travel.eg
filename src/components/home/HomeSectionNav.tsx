@@ -37,10 +37,40 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
   const listRef = useRef<HTMLDivElement>(null);
 
   // Which of the candidate sections actually rendered.
+  //
+  // This used to scan exactly once after mount, which silently dropped every
+  // section that mounts later — the lazy essence bento, the research-gated
+  // landmark atlas, anything above the fold's IntersectionObserver window. The
+  // scan now retries on a short interval until every candidate is either found
+  // or given up on (10s), so late-mounted sections appear instead of the rail
+  // lying about the page for its whole life.
   useEffect(() => {
-    const found = sections.filter(section => document.getElementById(section.id));
-    setPresent(found);
-    setActiveId(found[0]?.id ?? null);
+    let cancelled = false;
+    let attempts = 0;
+
+    const scan = () => {
+      if (cancelled) return;
+      const found = sections.filter(section => document.getElementById(section.id));
+      if (found.length > 0) {
+        setPresent(prev => {
+          const same = prev.length === found.length && prev.every((s, i) => s.id === found[i].id);
+          return same ? prev : found;
+        });
+        setActiveId(prev => prev ?? found[0]?.id ?? null);
+      }
+      attempts += 1;
+      if (found.length < sections.length && attempts < 40) {
+        timer = setTimeout(scan, 250);
+      }
+    };
+
+    let timer: ReturnType<typeof setTimeout>;
+    scan();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [sections]);
 
   // Track the section occupying the reading area, and show the rail only once
@@ -150,7 +180,7 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
         style={{ scrollbarWidth: 'none' }}
       >
         <span
-          className="text-[12px] font-bold uppercase tracking-wider shrink-0 hidden sm:inline pe-2"
+          className="text-[12px] font-bold shrink-0 hidden sm:inline pe-2"
           style={{ color: 'var(--text-secondary)' }}
         >
           {t('home.youAreIn')}

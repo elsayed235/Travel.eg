@@ -7,7 +7,7 @@ import {
   Compass,
   Clock,
   Sparkles,
-  ArrowRight,
+  Fish,
   MapPin,
   CheckCircle2,
   AlertTriangle,
@@ -28,6 +28,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { InternalPageHeader } from '../common/InternalPageHeader';
 import { api } from '../../services/api';
+import { IMG_P1507525428034b723cf961d3e_HERO, IMG_P15103123056538ed496efae75_HERO, IMG_P154455176346a013bb70d5_HERO, IMG_P16826872200634742bd7fd538_HERO } from '../../shared/placeholderImagery';
 
 interface LiveCameraFeed {
   id: string;
@@ -96,7 +97,7 @@ export const DahabLiveView: React.FC = () => {
       shortName: 'Lighthouse',
       shortNameAr: 'اللايتهاوس',
       orientation: 'South-East (Gulf of Aqaba)',
-      imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: IMG_P154455176346a013bb70d5_HERO,
       highlights: 'Crystal reef shallows with gentle mountain sunset backlight',
       conditions: null
     },
@@ -108,7 +109,7 @@ export const DahabLiveView: React.FC = () => {
       shortName: 'Blue Hole',
       shortNameAr: 'البلو هول',
       orientation: 'East (Deep blue submarine sinkhole)',
-      imageUrl: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: IMG_P16826872200634742bd7fd538_HERO,
       highlights: 'The legendary sinkhole rim and the Saddle crossing',
       conditions: null
     },
@@ -120,7 +121,7 @@ export const DahabLiveView: React.FC = () => {
       shortName: 'Lagoon',
       shortNameAr: 'اللاجونا',
       orientation: 'North-West flatwater basin',
-      imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: IMG_P1507525428034b723cf961d3e_HERO,
       highlights: 'Turquoise shallow sandbar with vibrant foil & kite glides',
       conditions: null
     },
@@ -132,7 +133,7 @@ export const DahabLiveView: React.FC = () => {
       shortName: 'Canyon',
       shortNameAr: 'الكانيون',
       orientation: 'North Reef Shelf',
-      imageUrl: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1200&auto=format&fit=crop',
+      imageUrl: IMG_P15103123056538ed496efae75_HERO,
       highlights: 'Dramatic Sinai granite cliffs meeting deep azure drop-offs',
       conditions: null
     }
@@ -297,7 +298,7 @@ export const DahabLiveView: React.FC = () => {
     : spotsConditionList.filter(s => s.id === activeSpotTab);
 
   return (
-    <div className="w-full bg-[var(--text-primary)] text-[var(--text-primary)] pb-28 md:pb-20 font-['Plus_Jakarta_Sans',sans-serif]" dir={isRtl ? 'rtl' : 'ltr'}>
+    <div className="w-full bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-28 md:pb-20" dir={isRtl ? 'rtl' : 'ltr'}>
       
       {/* 1. Internal Page Header */}
       <InternalPageHeader
@@ -318,10 +319,9 @@ export const DahabLiveView: React.FC = () => {
           <button
             type="button"
             onClick={() => navigateTo('/my-trip')}
-            className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--text-primary)] font-bold text-xs transition-all shadow-xs cursor-pointer flex items-center gap-2"
+            className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:opacity-90 text-[var(--accent-secondary-ink)] font-bold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer flex items-center gap-2"
           >
             <span>{t('live.syncWithMyItinerary')}</span>
-            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           </button>
         }
       >
@@ -340,25 +340,25 @@ export const DahabLiveView: React.FC = () => {
           rather than guessed.
         */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
-          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+          <div className="chart-card p-3.5 rounded-2xl space-y-1">
             <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
-              <Sun className="w-4 h-4" />
+              <Sun className="w-4 h-4" aria-hidden="true" />
               <span>{t('live.airTemp')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+            <div className="dg-num tabular-nums text-2xl font-bold text-[var(--text-primary)]">
               {reading ? `${reading.airTempC}°C` : '—'}
             </div>
-            <div className="text-[12px] text-[var(--surface-container)]/80">
+            <div className="text-[12px] text-[var(--text-secondary)]">
               {conditionLabel || (t('live.readingUnavailable'))}
             </div>
           </div>
 
-          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+          <div className="chart-card p-3.5 rounded-2xl space-y-1">
             <div className="flex items-center gap-1.5 text-xs text-[var(--accent-primary)]">
-              <Thermometer className="w-4 h-4" />
+              <Thermometer className="w-4 h-4" aria-hidden="true" />
               <span>{t('live.waterTemp')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+            <div className="dg-num tabular-nums text-2xl font-bold text-[var(--text-primary)]">
               {reading?.waterTempC != null ? `${reading.waterTempC}°C` : '—'}
             </div>
             <div className="text-[12px] text-[var(--accent-primary)]">
@@ -368,25 +368,25 @@ export const DahabLiveView: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+          <div className="chart-card p-3.5 rounded-2xl space-y-1">
             <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
-              <Wind className="w-4 h-4" />
+              <Wind className="w-4 h-4" aria-hidden="true" />
               <span>{t('live.wind')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+            <div className="dg-num tabular-nums text-2xl font-bold text-[var(--text-primary)]">
               {reading ? `${reading.windKnots} kn` : '—'}
             </div>
-            <div className="text-[12px] text-[var(--surface-container)]/80">
+            <div className="text-[12px] text-[var(--text-secondary)]">
               {reading ? reading.windDirection : '—'}
             </div>
           </div>
 
-          <div className="bg-[var(--text-primary)]/60 backdrop-blur-md p-3.5 rounded-2xl border border-[var(--border-subtle)] space-y-1">
+          <div className="chart-card p-3.5 rounded-2xl space-y-1">
             <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)]">
-              <Clock className="w-4 h-4" />
+              <Clock className="w-4 h-4" aria-hidden="true" />
               <span>{t('live.sunset')}</span>
             </div>
-            <div className="text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+            <div className="dg-num tabular-nums text-2xl font-bold text-[var(--text-primary)]">
               {sunsetLabel || '—'}
             </div>
             <div className="text-[12px] text-[var(--accent-secondary)]">
@@ -402,22 +402,22 @@ export const DahabLiveView: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* 🎥 LIVE STREAMING BEACH CAMERAS PLAYER (100% PRODUCTION HARNESS) */}
-        <section aria-label="Live Dahab Beach Cameras" className="rounded-3xl bg-[var(--text-primary)] text-[var(--text-primary)] border border-cyan-500/20 shadow-2xl overflow-hidden">
+        <section aria-label="Live Dahab Beach Cameras" className="rounded-3xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-[#1B9A8B]/30 shadow-2xl overflow-hidden">
           <div className="p-6 sm:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
               <div className="space-y-1">
                 {/* Was a pulsing red dot, "LIVE BEACHFRONT CAMERAS" and a
                     "1080p 60fps" badge, over four stock photographs. */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)] font-['Outfit',sans-serif] flex items-center gap-1.5">
-                    <Radio className="w-3.5 h-3.5" />
+                  <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
+                    <Radio className="w-3.5 h-3.5" aria-hidden="true" />
                     {t('live.dAHABSPOTSCURRENTCONDITIONS')}
                   </span>
                 </div>
-                <p className="text-2xl font-bold text-white font-['Outfit',sans-serif]">
+                <p className="chart-heading text-2xl font-bold text-[var(--text-primary)]">
                   {language === 'ar' ? selectedCam.nameAr : selectedCam.name}
                 </p>
-                <p className="text-xs text-[var(--surface-container)]/80">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {selectedCam.highlights}
                 </p>
               </div>
@@ -431,10 +431,10 @@ export const DahabLiveView: React.FC = () => {
                       key={cam.id}
                       type="button"
                       onClick={() => setSelectedCameraId(cam.id)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 ${
                         isCurrent
-                          ? 'bg-[var(--accent-primary)] text-white shadow-md border border-[var(--accent-primary)]/50'
-                          : 'text-[var(--surface-container)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
+                          ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md border border-[var(--accent-primary)]/50'
+                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
                       }`}
                     >
                       <Video className="w-3 h-3" />
@@ -464,13 +464,13 @@ export const DahabLiveView: React.FC = () => {
                     count — 42, 68, 55, 31 — that was written into the file and
                     never moved. Nothing here streams; this is a photograph. */}
                 <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-[var(--border-subtle)] text-xs text-white">
-                  <span className="font-bold uppercase tracking-wider text-[12px] text-[var(--surface-container)]">
+                  <span className="font-bold text-[12px] text-white/85">
                     {t('live.sPOTPHOTO')}
                   </span>
                   {observedAtLabel && (
                     <>
-                      <span className="text-[var(--text-muted)]">|</span>
-                      <span className="font-mono text-xs text-[var(--surface-container)]">
+                      <span className="text-white/40">|</span>
+                      <span className="dg-num font-mono text-xs text-white/70">
                         {t('live.reading', { observedAtLabel })}
                       </span>
                     </>
@@ -481,7 +481,7 @@ export const DahabLiveView: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleRefreshFeed}
-                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-all cursor-pointer"
+                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                     title="Refresh stream buffer"
                     aria-label={t('live.refreshStreamBuffer')}
                   >
@@ -490,7 +490,7 @@ export const DahabLiveView: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleTakeSnapshot}
-                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-all cursor-pointer"
+                    className="p-2 rounded-full bg-black/60 backdrop-blur-md hover:bg-black/80 text-white border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
                     title="Capture HD snapshot"
                     aria-label={t('live.captureHDSnapshot')}
                   >
@@ -511,7 +511,7 @@ export const DahabLiveView: React.FC = () => {
                     aria-pressed={isPlaying}
                     /* Was squeezed to 21px wide by the flex row, and carried no
                        accessible name at all — an icon-only stream control. */
-                    className="w-9 h-9 flex-shrink-0 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-white flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                    className="w-9 h-9 flex-shrink-0 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-white flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-sm"
                   >
                     {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                   </button>
@@ -551,63 +551,61 @@ export const DahabLiveView: React.FC = () => {
         {/* Recommended Action Cards for Right Now */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Best Time to Dive Canyon */}
-          <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--text-primary)]/10 shadow-xs space-y-4 relative overflow-hidden">
+          <div className="chart-card p-6 rounded-3xl space-y-4 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20 font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20">
                   {t('live.bestTimeCanyon')}
                 </span>
-                <h2 className="text-xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                <h2 className="chart-heading text-xl font-bold text-[var(--text-primary)]">
                   {t('live.canyonTime')}
                 </h2>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)]/5 text-[var(--accent-primary)] flex items-center justify-center font-bold">
-                🤿
+                <Fish className="w-5 h-5" aria-hidden="true" />
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-[var(--text-primary)]/75">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
               {t('live.canyonReason')}
             </p>
-            <div className="pt-3 border-t border-[var(--text-primary)]/8 flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
               <span>{t('live.locationTheCanyonDahab')}</span>
               <button
                 type="button"
                 onClick={() => navigateTo('/my-trip', { dayId: 2 })}
-                className="text-[var(--accent-primary)] hover:text-[var(--surface-container)] font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[var(--accent-primary)] hover:text-[var(--text-primary)] font-bold flex items-center gap-1 cursor-pointer py-2 -my-2"
               >
                 <span>{t('live.bookDive')}</span>
-                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
             </div>
           </div>
 
           {/* Best Kite Window Lagoon */}
-          <div className="p-6 rounded-3xl bg-[var(--surface-card)] border border-[var(--text-primary)]/10 shadow-xs space-y-4 relative overflow-hidden">
+          <div className="chart-card p-6 rounded-3xl space-y-4 relative overflow-hidden">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20 font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)]/5 px-3 py-1 rounded-full border border-[var(--accent-primary)]/20">
                   {t('live.bestTimeKite')}
                 </span>
-                <h2 className="text-xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                <h2 className="chart-heading text-xl font-bold text-[var(--text-primary)]">
                   {t('live.kiteTime')}
                 </h2>
               </div>
               <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)]/5 text-[var(--accent-primary)] flex items-center justify-center font-bold">
-                🏄
+                <Wind className="w-5 h-5" aria-hidden="true" />
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-[var(--text-primary)]/75">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
               {t('live.kiteReason')}
             </p>
-            <div className="pt-3 border-t border-[var(--text-primary)]/8 flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold text-[var(--text-primary)]">
               <span>{t('live.locationDahabLaguna')}</span>
               <button
                 type="button"
                 onClick={() => navigateTo('/explore')}
-                className="text-[var(--accent-primary)] hover:text-[var(--surface-container)] font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[var(--accent-primary)] hover:text-[var(--text-primary)] font-bold flex items-center gap-1 cursor-pointer py-2 -my-2"
               >
                 <span>{t('live.viewOnMap')}</span>
-                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </button>
             </div>
           </div>
@@ -616,11 +614,11 @@ export const DahabLiveView: React.FC = () => {
         {/* 3. Spot-by-Spot Live Status */}
         <section
           aria-label={t('live.liveConditionsBySpot')}
-          className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--text-primary)]/10 shadow-xs space-y-6"
+          className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xs space-y-6"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--text-primary)]/8 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+              <h2 className="chart-heading text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
                 {t('live.liveConditionsByDahab')}
               </h2>
               <p className="text-xs sm:text-sm text-[var(--text-primary)]/60 font-normal">
@@ -628,14 +626,14 @@ export const DahabLiveView: React.FC = () => {
               </p>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 bg-[var(--surface-container)]/5 p-1 rounded-2xl">
+            {/* Filter Tabs — wrap on narrow screens so the row never overflows */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-[var(--surface-container)]/5 p-1 rounded-2xl">
               {(['all', 'canyon', 'bluehole', 'lagoon', 'lighthouse'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveSpotTab(tab)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer font-['Outfit',sans-serif] ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     activeSpotTab === tab ? 'bg-[var(--surface-container)] text-[var(--text-primary)] shadow-xs' : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -657,11 +655,11 @@ export const DahabLiveView: React.FC = () => {
             {filteredSpots.map((spot) => (
               <div
                 key={spot.id}
-                className="p-5 rounded-2xl bg-[var(--text-primary)]/40 border border-[var(--text-primary)]/10 hover:border-[var(--accent-primary)]/40 transition-all space-y-3"
+                className="chart-card p-5 rounded-2xl space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                    <h3 className="text-base font-bold text-[var(--text-primary)]">
                       {spot.name}
                     </h3>
                     <p className="text-xs text-[var(--text-primary)]/60 font-medium">
@@ -722,17 +720,17 @@ export const DahabLiveView: React.FC = () => {
         </section>
 
         {/* 4. WhatsApp Companion Morning Briefing Preview */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-[var(--text-primary)] text-[var(--text-primary)] border border-cyan-500/20 shadow-xl space-y-4">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-cyan-500/20 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 flex items-center justify-center font-bold">
                 <Smartphone className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)]">
                   {t('live.aUTOMATEDWHATSAPPMORNINGSYNC')}
                 </span>
-                <h2 className="text-lg sm:text-xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+                <h2 className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">
                   {t('whatsapp.title')}
                 </h2>
               </div>
@@ -741,7 +739,7 @@ export const DahabLiveView: React.FC = () => {
             <button
               type="button"
               onClick={() => showToast(t('live.whatsAppMorningBriefingEnabled'))}
-              className="px-4 py-2 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--text-primary)] font-bold text-xs transition-colors cursor-pointer self-start sm:self-center"
+              className="px-4 py-2 rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] font-bold text-xs transition-colors cursor-pointer self-start sm:self-center"
             >
               {t('live.enable0730AMSync')}
             </button>
@@ -756,7 +754,7 @@ export const DahabLiveView: React.FC = () => {
             Mahmoud arrives at 08:30 AM" — a name, a temperature, a dive and a
             driver, none of them the reader's, shown to everyone.
           */}
-          <div className="p-4 rounded-2xl bg-black/40 border border-[var(--border-subtle)] font-mono text-xs text-[var(--surface-container)]/90 whitespace-pre-line leading-relaxed">
+          <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] font-mono text-xs text-[var(--text-primary)] whitespace-pre-line leading-relaxed">
             {morningPreview}
           </div>
         </div>

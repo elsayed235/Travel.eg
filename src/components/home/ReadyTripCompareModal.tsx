@@ -46,10 +46,10 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
         {/* Modal Header */}
         <div className="p-5 sm:p-6 bg-[#FDFBF7] border-b border-[#1A1A1A]/8 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#5A5A40]">
+            <span className="text-[11px] font-bold text-[#5A5A40]">
               {t('home.compareAll5Programs')}
             </span>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#1A1A1A]">
+            <h2 className="text-xl sm:text-2xl chart-heading font-bold text-[#1A1A1A]">
               {t('home.whichDahabTripFits')}
             </h2>
           </div>
@@ -58,7 +58,7 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
             id="close-compare-modal-btn"
             onClick={onClose}
             aria-label={t('readyTrip.close')}
-            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -93,10 +93,10 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
             {programmes.map((prog) => (
               <div
                 key={prog.id}
-                className="col-span-1 bg-[#FDFBF7] rounded-2xl p-3.5 border border-[#1A1A1A]/8 hover:border-[#5A5A40] transition-all flex flex-col justify-between"
+                className="col-span-1 bg-[#FDFBF7] rounded-2xl p-3.5 border border-[#1A1A1A]/8 hover:border-[#5A5A40] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col justify-between"
               >
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#5A5A40] bg-[#5A5A40]/10 px-2 py-0.5 rounded-full inline-block mb-1">
+                  <span className="text-[11px] font-bold text-[#5A5A40] bg-[#5A5A40]/10 px-2 py-0.5 rounded-full inline-block mb-1">
                     {language === 'ar' ? prog.badgeAr : prog.badge}
                   </span>
                   <h3 className="text-sm font-bold text-[#1A1A1A] line-clamp-1 mb-3">
@@ -135,7 +135,7 @@ export const ReadyTripCompareModal: React.FC<ReadyTripCompareModalProps> = ({
 
                 <button
                   onClick={() => handleSelect(prog)}
-                  className="mt-4 w-full py-2 bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center"
+                  className="mt-4 w-full py-2 bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-center"
                 >
                   {t('home.viewProgram-2')}
                 </button>

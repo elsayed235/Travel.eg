@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTrip } from '../../context/TripContext';
 import { StepDuration } from './StepDuration';
 import { StepTravelers, TripDynamicType } from './StepTravelers';
@@ -18,9 +18,62 @@ import { MyTripView } from '../mytrip/MyTripView';
 import { CURATED_HOTELS, CURATED_TRANSFERS, CURATED_DIVING_OPTIONS, CURATED_SAFARI_OPTIONS } from '../booking/bookingData';
 import { Compass, Sparkles, X, MapPin, ShieldCheck, Check, Users, Clock, Wallet, HeartHandshake, Gauge } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { IMG_P1507525428034b723cf961d3e_HERO, IMG_P15103123056538ed496efae75_HERO, IMG_P1539635278303d4002c07eae3_HERO, IMG_P154455176346a013bb70d5_HERO } from '../../shared/placeholderImagery';
 
 interface TripPlannerProps {
   onExitToHome: () => void;
+  /**
+   * 'wizard' (the /trip-builder route) always starts fresh at step 1.
+   * 'preview' (the /trip-preview route) is reached after PlanForMeView or
+   * ProgramDetailView already collected answers into TravelerProfile and
+   * called updateProfile() — it must render the generated itinerary
+   * directly from that profile instead of silently resetting to a blank
+   * step-1 wizard, which previously discarded everything the traveler had
+   * just answered.
+   */
+  startMode?: 'wizard' | 'preview';
+}
+
+/** TravelerProfile.budget ('Budget'|'Moderate'|'Premium') -> this wizard's
+ *  own lowercase BudgetTier. */
+function budgetFromProfile(budget: string): BudgetTier {
+  const map: Record<string, BudgetTier> = { Budget: 'budget', Moderate: 'moderate', Premium: 'premium' };
+  return map[budget] || 'moderate';
+}
+
+/** TravelerProfile.pace ('Relaxed'|'Balanced'|'Active') -> this wizard's own
+ *  differently-named PaceType. */
+function paceFromProfile(pace: string): PaceType {
+  const map: Record<string, PaceType> = { Relaxed: 'slow', Balanced: 'balanced', Active: 'packed' };
+  return map[pace] || 'balanced';
+}
+
+/** PlanForMeView/ProgramDetailView write Title-Case interest labels
+ *  ('Diving', 'Local Life', ...) into TravelerProfile; this wizard's own
+ *  StepInterests uses a distinct kebab-case id set. Unmapped interests are
+ *  dropped rather than guessed. */
+function interestsFromProfile(interests: string[]): InterestId[] {
+  const map: Record<string, InterestId> = {
+    Diving: 'diving',
+    Adventure: 'adventure',
+    Beach: 'water',
+    Food: 'food',
+    'Local Life': 'local-life',
+    Wellness: 'relax'
+  };
+  const mapped = interests.map(i => map[i]).filter((i): i is InterestId => Boolean(i));
+  return mapped.length > 0 ? mapped : ['diving', 'adventure', 'food'];
+}
+
+/** TravelerProfile only carries a headcount, not the "who's traveling"
+ *  descriptor — inferred the same way PlanForMeView's own party-size step
+ *  presents it (1 solo, 2 couple, 3 friends, 4 family, 5+ group). */
+function tripDynamicFromCount(count: number): TripDynamicType {
+  if (count <= 1) return 'Solo';
+  if (count === 2) return 'Couple';
+  if (count === 3) return 'Friends';
+  if (count === 4) return 'Family';
+  return 'Group';
 }
 
 interface StepMeta {
@@ -38,9 +91,9 @@ const PLANNING_STEPS: StepMeta[] = [
   { number: 5, labelKey: 'planner.step5.short', defaultLabel: 'Pace', defaultShortLabel: 'Pace' },
 ];
 
-export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
+export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome, startMode = 'wizard' }) => {
   const { t, isRTL, language } = useLanguage();
-  const { isSignedIn, setIntendedRoute, navigateTo, showToast } = useTrip();
+  const { isSignedIn, setIntendedRoute, navigateTo, showToast, profile } = useTrip();
   // Current active planning step (1 = Duration, 2 = Travelers, 3 = Budget, 4 = Interests, 5 = Pace Placeholder)
   const [currentStep, setCurrentStep] = useState<number>(1);
   const totalSteps = 5;
@@ -84,6 +137,28 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
   const [selectedBookingSafariId, setSelectedBookingSafariId] = useState<string>('desert-safari');
   const [bookingSafariDay, setBookingSafariDay] = useState<number>(3);
   const [bookingSafariTime, setBookingSafariTime] = useState<string>('02:00 PM');
+
+  // /trip-preview is reached after PlanForMeView or ProgramDetailView already
+  // wrote real answers into TravelerProfile via updateProfile() and
+  // navigated here expecting to see the resulting itinerary. Without this,
+  // this component (shared with /trip-builder) always reset to a blank step
+  // 1, silently discarding those answers. Runs once on mount only — this is
+  // an entry-mode decision, not something that should re-fire if the
+  // traveler edits their profile elsewhere while this stays mounted.
+  useEffect(() => {
+    if (startMode !== 'preview') return;
+    setSelectedDurationLabel(
+      t('planner.durationDays', { count: profile.lengthDays })
+    );
+    setAdultsCount(profile.travelersCount || 2);
+    setChildrenCount(0);
+    setTripDynamic(tripDynamicFromCount(profile.travelersCount || 2));
+    setSelectedBudget(budgetFromProfile(profile.budget));
+    setSelectedInterests(interestsFromProfile(profile.interests || []));
+    setSelectedPace(paceFromProfile(profile.pace));
+    setShowItinerary(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startMode]);
 
   const handleSelectDuration = (id: string, label: string) => {
     setSelectedDurationId(id);
@@ -134,7 +209,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
     switch (currentStep) {
       case 2:
         return {
-          image: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?q=85&w=1200&auto=format&fit=crop',
+          image: IMG_P1539635278303d4002c07eae3_HERO,
           alt: 'Friends enjoying a relaxing coastal journey and shared adventure along the Dahab seaside',
           badge: t('planner.visual.step2.badge', 'Dahab With Friends'),
           title: t('planner.visual.step2.title', 'Good trips start with knowing who\'s coming.'),
@@ -144,7 +219,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
         };
       case 3:
         return {
-          image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=85&w=1200&auto=format&fit=crop',
+          image: IMG_P15103123056538ed496efae75_HERO,
           alt: 'Atmospheric Bedouin coastal fire gathering under the Sinai night sky',
           badge: t('planner.visual.step3.badge', 'Dahab Atmosphere'),
           title: t('planner.visual.step3.title', 'Comfort, adventure, and local soul.'),
@@ -154,7 +229,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
         };
       case 4:
         return {
-          image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1200&auto=format&fit=crop',
+          image: IMG_P154455176346a013bb70d5_HERO,
           alt: 'Dahab coastline where pristine Red Sea coral reefs meet South Sinai desert mountains',
           badge: t('planner.visual.step4.badge', 'Sinai Experiences'),
           title: t('planner.visual.step4.title', 'Diving, desert safaris, and seaside pace.'),
@@ -164,7 +239,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
         };
       case 5:
         return {
-          image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=85&w=1200&auto=format&fit=crop',
+          image: IMG_P1507525428034b723cf961d3e_HERO,
           alt: 'Serene Dahab coastline where the Red Sea meets Sinai mountains at golden hour',
           badge: t('planner.visual.step5.badge', 'Daily Rhythm'),
           title: t('planner.visual.step5.title', 'A little adventure. A little time to breathe.'),
@@ -175,7 +250,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
       case 1:
       default:
         return {
-          image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1200&auto=format&fit=crop',
+          image: IMG_P154455176346a013bb70d5_HERO,
           alt: 'Scenic Dahab coastline where South Sinai desert mountains meet the turquoise Red Sea waters',
           badge: t('planner.visual.step1.badge', 'Dahab, South Sinai'),
           title: t('planner.visual.step1.title', 'Where the red mountains meet the pristine coral reefs.'),
@@ -435,12 +510,12 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
     <div
       id="trip-planner-screen"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col"
     >
       {/* 1. Planning Experience Top Header */}
       <header
         id="planner-header"
-        className="sticky top-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] transition-all"
+        className="sticky top-0 z-40 bg-[var(--surface-card)]/95 backdrop-blur-md border-b border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -450,7 +525,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                 type="button"
                 onClick={onExitToHome}
                 id="planner-logo-home-btn"
-                className="text-2xl font-black tracking-tighter text-[var(--text-primary)] hover:text-[var(--accent-secondary)] transition-colors font-['Outfit',sans-serif] cursor-pointer"
+                className="text-2xl font-black tracking-tighter text-[var(--text-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
                 title={t('planner.returnToHomepage')}
               >
                 DAHAB
@@ -461,7 +536,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
               {/* Progress Title & Step Trail Indicator */}
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)]">
+                  <span className="text-xs font-bold text-[var(--accent-primary)]">
                     {t('planner.header.title', 'Plan your Dahab trip')}
                   </span>
                   <span className="text-xs text-[var(--text-secondary)]/70 font-semibold">
@@ -520,7 +595,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
                 type="button"
                 id="planner-exit-btn"
                 onClick={onExitToHome}
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3.5 py-2 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer border border-transparent hover:border-[var(--border-subtle)]"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3.5 py-2 rounded-full hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-transparent hover:border-[var(--border-subtle)]"
               >
                 <span>{t('planner.header.exit', 'Exit')}</span>
                 <X className="w-3.5 h-3.5" />
@@ -533,7 +608,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
         <div className="w-full bg-[var(--btn-util-bg)] h-1">
           <div
             id="planner-progress-bar"
-            className="bg-[var(--accent-secondary)] h-1 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(244,195,108,0.5)]"
+            className="bg-[var(--accent-secondary)] h-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 ease-out shadow-[0_0_12px_rgba(244,195,108,0.5)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -603,7 +678,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
 
           {/* Right Column: Visual Representation of Dahab */}
           <div className="lg:col-span-5 relative">
-            <div className="sticky top-28 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden shadow-2xl transition-all duration-300">
+            <div className="sticky top-28 bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-3xl overflow-hidden shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300">
               
               {/* Authentic High-Quality Dahab Imagery */}
               <div className="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden bg-[var(--surface-card)]">
@@ -618,7 +693,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
 
                 {/* Location / Dynamic Badge */}
                 <div className="absolute top-4 left-4 rtl:left-auto rtl:right-4 z-10">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-card)]/80 backdrop-blur-md border border-[var(--border-subtle)] text-[var(--text-primary)] text-[12px] font-bold uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-card)]/80 backdrop-blur-md border border-[var(--border-subtle)] text-[var(--text-primary)] text-[12px] font-bold">
                     <MapPin className="w-3 h-3 text-[var(--accent-secondary)]" />
                     <span>{stepVisual.badge}</span>
                   </div>
@@ -626,10 +701,10 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome }) => {
 
                 {/* Bottom Overlay Info in Image */}
                 <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-secondary)] block mb-1">
+                    <span className="text-[11px] font-bold text-[var(--accent-secondary)] block mb-1">
                     {t('planner.common.authenticSinai', 'Authentic Sinai Travel')}
                   </span>
-                  <p className="text-sm sm:text-base font-serif italic text-[var(--text-primary)] leading-snug">
+                  <p className="text-sm sm:text-base chart-heading-accent text-[var(--text-primary)] leading-snug">
                     {stepVisual.title}
                   </p>
                 </div>

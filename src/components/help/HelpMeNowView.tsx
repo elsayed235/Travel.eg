@@ -28,7 +28,13 @@ import {
   Navigation,
   Mail,
   LocateFixed,
-  PhoneForwarded
+  PhoneForwarded,
+  Waves,
+  Bike,
+  BedDouble,
+  CalendarDays,
+  MessageCircle,
+  Sailboat
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
 import { useTrip } from '../../context/TripContext';
@@ -84,7 +90,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   // Every message in this panel used to address the traveler as "Ahmed" in
   // both languages. The name comes from the session now, and is simply omitted
   // when there is none.
-  const { profile, user, sessionUser, activeTrip } = useTrip();
+  const { profile, user, sessionUser, activeTrip, bookings } = useTrip();
   // Emergency resources fetched from backend
   const [emergencyHotlines, setEmergencyHotlines] = useState<Array<{ service: string; number: string }>>([
     { service: 'Hyperbaric Chamber Emergency', number: '+20 122 212 4840 / 137' },
@@ -118,7 +124,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   );
 
   const [selectedCategory, setSelectedCategory] = useState<HelpCategory | null>(initialCategory || null);
-  const [selectedBooking, setSelectedBooking] = useState<string>('Boat Trip');
+  const [selectedBooking, setSelectedBooking] = useState<string>('');
   const [selectedIssue, setSelectedIssue] = useState<string>(initialTopic || '');
   const [customText, setCustomText] = useState<string>('');
   const [hasPhotoAttached, setHasPhotoAttached] = useState<boolean>(false);
@@ -147,14 +153,31 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Active bookings in Ahmed's current Dahab trip
-  const activeBookings = [
-    { id: 'boat', name: 'Boat Trip', nameAr: 'رحلة اليخت والسنوركلينج', time: 'Tomorrow · 10:00 AM', timeAr: 'غداً · ١٠:٠٠ ص', status: 'Pending Provider Check', statusAr: 'جاري التحقق مع المورد', icon: '⛵' },
-    { id: 'diving', name: 'Blue Hole Scuba & Reef Diving', nameAr: 'غوص البلوهول والشعب المرجانية', time: 'Day 4 · 08:30 AM', timeAr: 'اليوم ٤ · ٠٨:٣٠ ص', status: 'Confirmed ✓', statusAr: 'مؤكد ✓', icon: '🤿' },
-    { id: 'safari', name: 'Desert Quad & Canyon Safari', nameAr: 'سفاري البيتش باجي في الصحراء', time: 'Day 3 · 03:30 PM', timeAr: 'اليوم ٣ · ٠٣:٣٠ م', status: 'Confirmed ✓', statusAr: 'مؤكد ✓', icon: '🏜️' },
-    { id: 'hotel', name: 'Dahab Bay Hotel (Deluxe Sea View)', nameAr: 'فندق خليج دهب (غرفة ديلوكس)', time: 'Check-out Oct 16', timeAr: 'المغادرة ١٦ أكتوبر', status: 'Confirmed ✓', statusAr: 'مؤكد ✓', icon: '🏨' },
-    { id: 'transfer', name: 'Private Transfer to SSH Airport', nameAr: 'توصيلة خاصة لمطار شرم الشيخ', time: 'Day 5 · 02:00 PM', timeAr: 'اليوم ٥ · ٠٢:٠٠ م', status: 'Confirmed ✓', statusAr: 'مؤكد ✓', icon: '🚗' },
-  ];
+  /**
+   * The traveler's own bookings, from the trip — never a demo list.
+   *
+   * This was five hardcoded entries from "Ahmed's current Dahab trip"
+   * ("Blue Hole Scuba & Reef Diving, Day 4, Confirmed ✓" and friends) shown
+   * to every traveler as their bookings, with the chosen name attached to a
+   * real support ticket. Icons come from the booking's own iconType so no
+   * emoji stand in for the icon system.
+   */
+  const BOOKING_ICONS = {
+    building: Building2,
+    car: Car,
+    waves: Waves,
+    compass: Compass,
+    sparkles: Sparkles,
+    utensils: Utensils,
+    bike: Bike,
+  } as const;
+  const activeBookings = bookings.map((b) => ({
+    id: b.id,
+    name: b.title,
+    time: b.datesOrTime || b.subtitle,
+    status: b.status.replace(' ✓', ''),
+    Icon: BOOKING_ICONS[b.iconType] ?? CalendarDays,
+  }));
 
   // Specific options mapped per category
   const categoryIssues: Record<HelpCategory, { title: string; titleAr: string; options: { en: string; ar: string }[] }> = {
@@ -382,7 +405,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/* Traveler Top Navigation */}
       <TravelerNav
@@ -410,7 +433,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             <button
               type="button"
               onClick={onBackToMyTrip}
-              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
+              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer py-2 -my-2"
             >
               {t('help.fullItinerary')}
             </button>
@@ -431,12 +454,12 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {/* 1. Header Banner */}
             <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xl space-y-2">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-[11px] font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-[11px] font-bold">
                   {t('help.sinaiExpertConcierge')}
                 </span>
                 <span className="text-xs text-[var(--text-secondary)]/50 font-mono">{t('help.realtimeResponse')}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
                 {travelerName ? t('help.needHelpNamed', { travelerName }) : t('help.needHelpGeneric')}
               </h1>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
@@ -467,31 +490,36 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {/* STEP 1: CATEGORIES SELECTOR */}
             {currentStep === 'categories' && (
               <div className="space-y-4">
-                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {t('help.whatIsYourIssue')}
                 </h2>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
-                    { id: 'booking' as HelpCategory, icon: '📅', title: 'A booking', titleAr: 'حجز نشاط' },
-                    { id: 'transport' as HelpCategory, icon: '🚗', title: 'Transport / Driver', titleAr: 'مواصلات وسائق' },
-                    { id: 'food' as HelpCategory, icon: '🍽️', title: 'Food & Dining', titleAr: 'أكل ومطاعم' },
-                    { id: 'hotel' as HelpCategory, icon: '🏨', title: 'Hotel / Stay', titleAr: 'فندق وإقامة' },
-                    { id: 'activity' as HelpCategory, icon: '⛵', title: 'Activity on trip', titleAr: 'تجارب وأنشطة' },
-                    { id: 'other' as HelpCategory, icon: '💬', title: 'Something else', titleAr: 'حاجة تانية' },
-                  ].map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => handleSelectCategory(cat.id)}
-                      className="p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all text-start rtl:text-right space-y-2 cursor-pointer group"
-                    >
-                      <span className="text-2xl block">{cat.icon}</span>
-                      <span className="font-bold text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
-                        {language === 'ar' ? cat.titleAr : cat.title}
-                      </span>
-                    </button>
-                  ))}
+                    { id: 'booking' as HelpCategory, Icon: CalendarDays, title: 'A booking', titleAr: 'حجز نشاط' },
+                    { id: 'transport' as HelpCategory, Icon: Car, title: 'Transport / Driver', titleAr: 'مواصلات وسائق' },
+                    { id: 'food' as HelpCategory, Icon: Utensils, title: 'Food & Dining', titleAr: 'أكل ومطاعم' },
+                    { id: 'hotel' as HelpCategory, Icon: BedDouble, title: 'Hotel / Stay', titleAr: 'فندق وإقامة' },
+                    { id: 'activity' as HelpCategory, Icon: Sailboat, title: 'Activity on trip', titleAr: 'تجارب وأنشطة' },
+                    { id: 'other' as HelpCategory, Icon: MessageCircle, title: 'Something else', titleAr: 'حاجة تانية' },
+                  ].map((cat) => {
+                    const CatIcon = cat.Icon;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleSelectCategory(cat.id)}
+                        className="p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] text-start rtl:text-end space-y-2 cursor-pointer group"
+                      >
+                        <span className="w-9 h-9 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center">
+                          <CatIcon className="w-4 h-4" aria-hidden="true" />
+                        </span>
+                        <span className="font-bold text-xs sm:text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)] block">
+                          {language === 'ar' ? cat.titleAr : cat.title}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -500,7 +528,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {currentStep === 'select_booking' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                     {t('help.whichBookingIsThis')}
                   </h2>
                   <button
@@ -513,29 +541,49 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                 </div>
 
                 <div className="space-y-2.5">
-                  {activeBookings.map((b) => (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => handleSelectBooking(b.name)}
-                      className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{b.icon}</span>
-                        <div>
-                          <h3 className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? b.nameAr : b.name}</h3>
-                          <span className="text-xs text-[var(--text-secondary)]/60">{language === 'ar' ? b.timeAr : b.time}</span>
-                        </div>
-                      </div>
-                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                        b.status.includes('Pending')
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                      }`}>
-                        {language === 'ar' ? b.statusAr : b.status}
-                      </span>
-                    </button>
-                  ))}
+                  {activeBookings.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] p-5 text-center space-y-3">
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed m-0">
+                        {t('help.noBookingsOnTrip')}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectBooking('')}
+                        className="px-4 py-2 rounded-full text-xs font-bold cursor-pointer border border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color] cursor-pointer"
+                      >
+                        {t('help.continueWithoutBooking')}
+                      </button>
+                    </div>
+                  ) : (
+                    activeBookings.map((b) => {
+                      const ItemIcon = b.Icon;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => handleSelectBooking(b.name)}
+                          className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-between text-start rtl:text-end cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="w-9 h-9 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0">
+                              <ItemIcon className="w-4 h-4" aria-hidden="true" />
+                            </span>
+                            <div className="min-w-0">
+                              <h3 className="font-bold text-sm text-[var(--text-primary)] truncate">{b.name}</h3>
+                              <span className="text-xs text-[var(--text-secondary)]/60">{b.time}</span>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
+                            b.status.includes('Pending')
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                            {b.status}
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -544,7 +592,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {currentStep === 'specific_issue' && selectedCategory && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                  <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                     {language === 'ar' ? categoryIssues[selectedCategory].titleAr : categoryIssues[selectedCategory].title}
                   </h2>
                   <button
@@ -562,7 +610,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                       key={idx}
                       type="button"
                       onClick={() => handleSelectIssue(opt.en)}
-                      className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-all flex items-center justify-between text-start rtl:text-right cursor-pointer"
+                      className="w-full p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-between text-start rtl:text-end cursor-pointer"
                     >
                       <span className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? opt.ar : opt.en}</span>
                       <ChevronRight className="w-4 h-4 text-[var(--accent-secondary)] rtl:rotate-180" />
@@ -575,7 +623,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {/* STEP 4: CUSTOM TEXT INPUT */}
             {currentStep === 'custom_input' && (
               <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
-                <h2 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {t('help.describeTheIssueIn')}
                 </h2>
                 <textarea
@@ -590,7 +638,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setHasPhotoAttached(!hasPhotoAttached)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       hasPhotoAttached
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                         : 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)]'
@@ -603,7 +651,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   <button
                     type="button"
                     onClick={handleSubmitCustomText}
-                    className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer"
                   >
                     {t('help.checkSolutions')}
                   </button>
@@ -618,7 +666,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                   <RefreshCw className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                     {t('help.diagnosingAndVerifyingLive')}
                   </h2>
                   <p className="text-xs text-[var(--text-secondary)]/70">
@@ -645,14 +693,14 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     What is real is the two routes out: the Change & Recovery
                     flow, and support. The panel offers those.
                   */}
-                  <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-xl">
-                    →
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] border border-[var(--border-subtle)] flex items-center justify-center">
+                    <ArrowRight className="w-5 h-5 rtl:rotate-180" aria-hidden="true" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       {t('help.whatYouCanDo')}
                     </span>
-                    <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                    <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                       {t('help.twoWaysToSort')}
                     </h2>
                   </div>
@@ -673,7 +721,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     onClick={() => {
                       if (onNavigateToChangeRecovery) onNavigateToChangeRecovery();
                     }}
-                    className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>{t('help.openChangeRecovery')}</span>
                     <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
@@ -698,10 +746,10 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     👤
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                       {t('help.escalatingToSinaiExpert')}
                     </span>
-                    <h2 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+                    <h2 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                       {/* Was "Kareem from Dahab Support is taking over" —
                           stated as an accomplished fact while nothing had been
                           sent anywhere. It now describes what the traveler can
@@ -718,7 +766,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setCurrentStep('expert_chat')}
-                  className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-xs shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>{t('help.openSupportChat')}</span>
@@ -795,7 +843,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     onClick={handleSendMessage}
                     disabled={isSendingSupport || !newChatInput.trim()}
                     aria-label={t('help.sendMessageToSupport')}
-                    className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--surface-card)] font-bold cursor-pointer transition-all"
+                    className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--surface-card)] font-bold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity]"
                   >
                     <Send className="w-4 h-4 rtl:rotate-180" />
                   </button>
@@ -812,7 +860,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4">
               <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
                 <PhoneCall className="w-5 h-5 text-[var(--accent-secondary)]" />
-                <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                <h2 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                   {t('help.emergencyDriverHotline')}
                 </h2>
               </div>
@@ -830,7 +878,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     className="p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between transition-colors block cursor-pointer group"
                   >
                     <div>
-                      <span className="text-[11px] text-[var(--text-secondary)]/60 uppercase font-bold block">{hotline.service}</span>
+                      <span className="text-[11px] text-[var(--text-secondary)]/60 font-bold block">{hotline.service}</span>
                       <span className="font-mono text-sm font-bold text-[var(--accent-secondary)] group-hover:text-amber-300 transition-colors">{hotline.number}</span>
                     </div>
                     <div className="w-9 h-9 rounded-xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] flex items-center justify-center">
@@ -865,7 +913,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             <div className="bg-[var(--surface-container)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                   {t('help.travelerProtectionGuarantee')}
                 </h3>
               </div>

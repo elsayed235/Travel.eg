@@ -111,11 +111,11 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-[12px] font-black uppercase tracking-wider text-amber-300 font-['Outfit',sans-serif]">
+              <span className="text-[12px] font-black text-amber-300">
                 {t('tripos.tRIPOSBRIEFENGINE')}
               </span>
             </div>
-            <h2 id="trip-brief-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold font-['Outfit',sans-serif]">
+            <h2 id="trip-brief-modal-dialog-1-title" className="text-xl sm:text-2xl font-extrabold">
               {t('tripos.refineTripConstraintsGoals')}
             </h2>
           </div>
@@ -192,7 +192,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                     key={p}
                     type="button"
                     onClick={() => setPace(p)}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                    className={`py-2 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       pace === p
                         ? 'bg-[var(--surface-card)] text-amber-300 border-[var(--surface-card)]'
                         : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -217,7 +217,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                       setBudgetTier(b);
                       setEstimatedBudgetEGP(b === 'Budget' ? 9500 : b === 'Moderate' ? 16800 : 26000);
                     }}
-                    className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                    className={`py-2 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       budgetTier === b
                         ? 'bg-[var(--brand-sand)] text-white border-[var(--brand-sand)]'
                         : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -292,7 +292,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
 
           {/* Section 4: Current Active Lists with Delete Controls */}
           <div className="space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
+            <h4 className="text-xs font-black text-slate-400">
               {t('tripos.currentActiveConstraints')}
             </h4>
 
@@ -392,7 +392,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           <button
             type="button"
             onClick={handleSaveAndApply}
-            className="px-6 py-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-black text-amber-300 font-extrabold text-xs shadow-lg cursor-pointer transition-all flex items-center gap-2"
+            className="px-6 py-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-black text-amber-300 font-extrabold text-xs shadow-lg cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2"
           >
             <Save className="w-4 h-4 text-amber-400" />
             <span>{t('tripos.saveReAlignTripOS')}</span>

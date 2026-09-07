@@ -56,7 +56,7 @@ export default function OpportunitiesSection() {
           {opportunities.map(opp => {
             const isDecided = opp.status === 'ACCEPTED' || opp.status === 'REJECTED' || opp.status === 'DEFERRED';
             return (
-              <div key={opp.id} className={`p-5 rounded-2xl bg-[var(--surface-container)] border transition-all ${isDecided ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
+              <div key={opp.id} className={`p-5 rounded-2xl bg-[var(--surface-container)] border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${isDecided ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -75,15 +75,15 @@ export default function OpportunitiesSection() {
                   {!isDecided && (
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <button type="button" onClick={() => handleAction(opp.id, 'accept')} disabled={acting === opp.id}
-                        className="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50">
+                        className="px-2.5 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50">
                         Accept
                       </button>
                       <button type="button" onClick={() => handleAction(opp.id, 'defer')} disabled={acting === opp.id}
-                        className="px-2.5 py-1 rounded bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50">
+                        className="px-2.5 py-1 rounded bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50">
                         Defer
                       </button>
                       <button type="button" onClick={() => handleAction(opp.id, 'reject')} disabled={acting === opp.id}
-                        className="px-2.5 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-300 text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50">
+                        className="px-2.5 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-300 text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50">
                         Reject
                       </button>
                     </div>

@@ -81,24 +81,24 @@ export const RentalsView: React.FC = () => {
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${
-        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[#FBF9F5] text-[#122420]'
+      className={`min-h-screen flex flex-col ${
+        isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}
     >
       {/* Hero */}
       <div className="border-b bg-gradient-to-br from-[var(--accent-primary)]/5 to-[var(--accent-secondary)]/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider">
-              <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isDark ? 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+            <div className="flex items-center gap-2 text-[11px] font-bold">
+              <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isDark ? 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
                 <Bike className="w-3 h-3" />
                 {t('rentals.title')}
               </span>
             </div>
-            <h1 className="text-3xl font-serif font-bold">
+            <h1 className="text-3xl chart-heading font-bold">
               {t('rentals.title')}
             </h1>
-            <p className={`text-sm max-w-xl ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[#4A635D]'}`}>
+            <p className={`text-sm max-w-xl ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
               {t('rentals.subtitle', { count: stats?.total ?? rentals.length })}
             </p>
           </div>
@@ -106,11 +106,11 @@ export const RentalsView: React.FC = () => {
           {/* Stats */}
           {stats && (
             <div className="flex flex-wrap gap-3 mt-5">
-              <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+              <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
                 <span className="font-black">{stats.total}</span> {t('rentals.statsRentals')}
               </div>
               {stats.averageRating > 0 && (
-                <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-white border-[#122420]/10 text-[#4A635D]'}`}>
+                <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
                   <span className="font-black">{stats.averageRating.toFixed(1)}★</span> {t('rentals.statsAvgRating')}
                 </div>
               )}
@@ -119,14 +119,14 @@ export const RentalsView: React.FC = () => {
 
           {/* Search */}
           <div className="mt-6 max-w-md">
-            <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[#122420]/10'}`}>
-              <Search className={`w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`} />
+            <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
+              <Search className={`w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`} />
               <input
                 type="search"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={t('rentals.searchPlaceholder')}
-                className={`w-full bg-transparent text-sm outline-none ${isDark ? 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60' : 'text-[#122420] placeholder:text-[#4A635D]/60'}`}
+                className={`w-full bg-transparent text-sm outline-none ${isDark ? 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60' : 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60'}`}
               />
             </div>
           </div>
@@ -137,7 +137,7 @@ export const RentalsView: React.FC = () => {
         {/* Filters */}
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+            <span className={`text-[11px] font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
               {t('rentals.categories')}:
             </span>
             {CATEGORY_ORDER.map(cat => {
@@ -147,12 +147,12 @@ export const RentalsView: React.FC = () => {
                   key={cat}
                   type="button"
                   onClick={() => toggleCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     active
-                      ? 'bg-[var(--accent-primary)] text-white border-transparent'
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-transparent'
                       : isDark
                         ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]/40'
-                        : 'bg-white border-[#122420]/10 text-[#4A635D] hover:border-[var(--accent-primary)]'
+                        : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]'
                   }`}
                 >
                   {isAr ? CATEGORY_LABEL[cat].ar : CATEGORY_LABEL[cat].en}
@@ -163,7 +163,7 @@ export const RentalsView: React.FC = () => {
 
           {zones.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+              <span className={`flex items-center gap-1 text-[11px] font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
                 <MapPin className="w-3 h-3" />
                 {t('rentals.zones')}:
               </span>
@@ -174,12 +174,12 @@ export const RentalsView: React.FC = () => {
                     key={zone.id}
                     type="button"
                     onClick={() => toggleZone(zone.id)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                       active
                         ? 'bg-[var(--accent-secondary)] text-white border-transparent'
                         : isDark
                           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-secondary)]/40'
-                          : 'bg-white border-[#122420]/10 text-[#4A635D] hover:border-[var(--accent-secondary)]'
+                          : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--accent-secondary)]'
                     }`}
                   >
                     {isAr ? zone.nameAr : zone.name}
@@ -190,13 +190,13 @@ export const RentalsView: React.FC = () => {
           )}
 
           <div className="flex items-center justify-between gap-3">
-            <span className={`text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+            <span className={`text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
               {filtered.length} {t('rentals.results')}
             </span>
             <select
               value={sort}
               onChange={e => setSort(e.target.value as (typeof SORT_OPTIONS)[number])}
-              className={`text-xs font-bold rounded-lg border px-2.5 py-1.5 outline-none cursor-pointer ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-white border-[#122420]/10 text-[#122420]'}`}
+              className={`text-xs font-bold rounded-lg border px-2.5 py-1.5 outline-none cursor-pointer ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)]'}`}
             >
               <option value="featured">{isAr ? 'مميز أولاً' : 'Featured first'}</option>
               <option value="price_asc">{isAr ? 'السعر: الأقل أولاً' : 'Price: low to high'}</option>
@@ -219,7 +219,7 @@ export const RentalsView: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className={`text-center py-16 text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[#4A635D]'}`}>
+          <div className={`text-center py-16 text-sm ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
             {t('rentals.noMatches')}
           </div>
         )}

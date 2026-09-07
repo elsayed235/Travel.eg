@@ -53,14 +53,14 @@ export const StepBudget: React.FC<StepBudgetProps> = ({
     <div id="step-budget-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold mb-4">
           <Wallet className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step3.badge')}</span>
         </div>
 
         <h1
           id="budget-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl chart-heading text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step3.title')}
         </h1>
@@ -90,7 +90,7 @@ export const StepBudget: React.FC<StepBudgetProps> = ({
               onClick={() => onSelectBudget(option.id)}
               aria-checked={isSelected}
               role="radio"
-              className={`w-full text-left p-5 sm:p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 relative ${
+              className={`w-full text-start p-5 sm:p-6 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer flex items-center justify-between gap-4 relative ${
                 isSelected
                   ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-lg ring-2 ring-[var(--accent-secondary)]/30'
                   : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
@@ -117,7 +117,7 @@ export const StepBudget: React.FC<StepBudgetProps> = ({
 
                     {/* Tag badge */}
                     <span
-                      className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                         isSelected
                           ? 'bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40'
                           : 'bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]'
@@ -144,7 +144,7 @@ export const StepBudget: React.FC<StepBudgetProps> = ({
           type="button"
           id="planner-budget-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -155,7 +155,7 @@ export const StepBudget: React.FC<StepBudgetProps> = ({
           type="button"
           id="planner-budget-continue-btn"
           onClick={onContinue}
-          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-all shadow-lg hover:shadow-xl cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] active:scale-[0.98] transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg hover:shadow-xl cursor-pointer group"
         >
           <span>{t('planner.step3.continueBtn')}</span>
           {isRTL ? (

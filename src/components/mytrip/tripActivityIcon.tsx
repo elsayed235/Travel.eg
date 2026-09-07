@@ -14,7 +14,7 @@ export const getActivityIcon = (type: TimelineActivity['type'] | string, title: 
     return <Compass className="w-4 h-4 text-[#EA8E75]" />;
   }
   if (type === 'Transfer' || type === 'Arrival' || tLower.includes('transfer') || tLower.includes('توصيل') || tLower.includes('تاكسي')) {
-    return <Car className="w-4 h-4 text-[#0F6F78]" />;
+    return <Car className="w-4 h-4 text-[var(--accent-primary)]" />;
   }
   if (type === 'Accommodation' || tLower.includes('hotel') || tLower.includes('فندق') || tLower.includes('منتجع')) {
     return <Building className="w-4 h-4 text-[var(--accent-primary)]" />;

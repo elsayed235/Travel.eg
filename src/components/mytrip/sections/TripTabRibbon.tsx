@@ -23,7 +23,7 @@ export const TripTabRibbon: React.FC<TripTabRibbonProps> = ({
 
   return (
     <div className="flex items-center justify-between gap-4 border-b pb-4 flex-wrap border-current/10">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         {[
           { id: 'timeline' as const, label: t('myTrip.tabTimeline'), icon: Calendar },
           { id: 'bookings' as const, label: t('myTrip.tabBookings'), icon: CreditCard },
@@ -37,12 +37,12 @@ export const TripTabRibbon: React.FC<TripTabRibbonProps> = ({
               type="button"
               id={`dashboard-tab-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
-              className={`px-5 py-3 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
+              className={`px-5 py-3 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-colors cursor-pointer shadow-xs whitespace-nowrap ${
                 isActive
-                  ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] scale-105 shadow-md'
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md'
                   : isDark
                   ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)] border border-white/5'
-                  : 'bg-[var(--surface-card)] text-[#122420] hover:bg-stone-100 border border-[#122420]/10'
+                  : 'bg-[var(--surface-card)] text-[var(--text-primary)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)]'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -59,8 +59,8 @@ export const TripTabRibbon: React.FC<TripTabRibbonProps> = ({
             type="button"
             id="timeline-expand-all-btn"
             onClick={onExpandAll}
-            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-              isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] text-[#122420] border-[#122420]/10 hover:bg-stone-50'
+            className={`px-3 py-1.5 rounded-xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+              isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]'
             }`}
           >
             {t('myTrip.expandAll')}
@@ -69,8 +69,8 @@ export const TripTabRibbon: React.FC<TripTabRibbonProps> = ({
             type="button"
             id="timeline-collapse-all-btn"
             onClick={onCollapseAll}
-            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-              isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] text-[#122420] border-[#122420]/10 hover:bg-stone-50'
+            className={`px-3 py-1.5 rounded-xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+              isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]'
             }`}
           >
             {t('myTrip.collapseAll')}

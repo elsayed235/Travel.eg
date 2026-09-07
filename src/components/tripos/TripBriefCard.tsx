@@ -33,11 +33,11 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-secondary)]" />
-            <span className="text-[12px] font-black uppercase tracking-wider text-[var(--accent-secondary)] font-['Outfit',sans-serif]">
+            <span className="text-[12px] font-black text-[var(--accent-secondary)]">
               {t('tripos.aUTHORITATIVETRIPBRIEF')}
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--text-primary)]">
             {/* Falls back to the traveler's own name, then to a neutral title.
                 The default used to be the literal 'Sarah & Karim'. */}
             {(() => {
@@ -55,7 +55,7 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
           id="btn-edit-trip-brief"
           type="button"
           onClick={onOpenEditModal}
-          className="px-4 py-2.5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)]/80 text-[var(--text-primary)] font-bold text-xs border border-[var(--border-subtle)] transition-all cursor-pointer flex items-center gap-2 shrink-0 self-start sm:self-center"
+          className="px-4 py-2.5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)]/80 text-[var(--text-primary)] font-bold text-xs border border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-2 shrink-0 self-start sm:self-center"
         >
           <Edit3 className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
           <span>{t('tripos.editBriefGoals')}</span>
@@ -114,7 +114,7 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-emerald-300 font-['Outfit',sans-serif]">
+              <h3 className="text-xs font-black text-emerald-300">
                 {t('tripos.mUSTHAVES')}
               </h3>
             </div>
@@ -143,7 +143,7 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 text-[var(--accent-secondary)]" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-[var(--accent-secondary)] font-['Outfit',sans-serif]">
+              <h3 className="text-xs font-black text-[var(--accent-secondary)]">
                 {t('tripos.pREFERENCES')}
               </h3>
             </div>
@@ -171,7 +171,7 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Ban className="w-4 h-4 text-rose-400" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-rose-300 font-['Outfit',sans-serif]">
+              <h3 className="text-xs font-black text-rose-300">
                 {t('tripos.aVOIDANCES')}
               </h3>
             </div>

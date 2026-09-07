@@ -224,6 +224,20 @@ describe('CMS Content Service', () => {
       expect(updated.title_en).toBe('Updated');
     });
 
+    it('returns config as a parsed object from upsert (create + update)', () => {
+      // Regression: upsert used to return config as a raw JSON string while
+      // findAll hydrated it — after any dashboard save the editor received a
+      // string and its labeled fields stopped working.
+      const cfg = { items: [{ id: 'x', value: '1', label_en: 'X' }] };
+      const created = cmsHomepage.upsert({ section_key: 'stats-cfg', config: cfg });
+      expect(created.config).toEqual(cfg);
+      const updated = cmsHomepage.upsert({ section_key: 'stats-cfg', config: { items: [{ id: 'y', value: '2' }] } });
+      expect(updated.config).toEqual({ items: [{ id: 'y', value: '2' }] });
+      // And it round-trips through the store consistently with findAll.
+      const found = cmsHomepage.findByKey('stats-cfg');
+      expect(found!.config).toEqual({ items: [{ id: 'y', value: '2' }] });
+    });
+
     it('finds all sections', () => {
       cmsHomepage.upsert({ section_key: 'hero', sort_order: 0 });
       cmsHomepage.upsert({ section_key: 'featured', sort_order: 1 });
@@ -415,10 +429,20 @@ describe('CMS Content Service', () => {
       const createRevision = revisions.find(r => r.action === 'create');
       expect(createRevision).toBeDefined();
 
-      // Rollback — the revision payload only has { slug }, so title won't change
-      // but it demonstrates the mechanism works
-      const rolledBack = cmsPages.rollback(page.id, createRevision!.id);
-      expect(rolledBack).not.toBeNull();
+      // Each revision records a snapshot of the changed field VALUES. The update
+      // revision stores the NEW values ('Changed'), so restoring it is a no-op.
+      const revisions2 = cmsRevisions.findAll('page', page.id);
+      const updateRevision = revisions2.find(r => r.action === 'update');
+      expect(updateRevision).toBeDefined();
+      const rolledBackToUpdate = cmsPages.rollback(page.id, updateRevision!.id);
+      expect(rolledBackToUpdate).not.toBeNull();
+      expect(rolledBackToUpdate!.title_en).toBe('Changed');
+
+      // The create revision stores the as-created values, so rolling back to it
+      // restores the ORIGINAL title.
+      const rolledBackToCreate = cmsPages.rollback(page.id, createRevision!.id);
+      expect(rolledBackToCreate).not.toBeNull();
+      expect(rolledBackToCreate!.title_en).toBe('Original');
     });
 
     it('returns null for non-existent revision', () => {

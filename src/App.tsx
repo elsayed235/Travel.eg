@@ -148,6 +148,17 @@ function MainAppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentRoute, specialStageOverride]);
 
+  // '/ai-director' is a legacy alias canonical to '/daygi' (same concierge).
+  // Normalize with replaceState (not a push) so Back never lands on the alias
+  // and analytics/SEO see one route. pushRoute inside navigateTo skips the
+  // push when the URL already matches, so this leaves no extra entry.
+  useEffect(() => {
+    if (currentRoute === '/ai-director' && typeof window !== 'undefined' && window.location.pathname === '/ai-director') {
+      window.history.replaceState({ route: '/daygi' }, '', '/daygi');
+      navigateTo('/daygi');
+    }
+  }, [currentRoute, navigateTo]);
+
   // Keyboard shortcut for Cmd/Ctrl+K spotlight search.
   // Skip when the Command Center is active — it owns its own palette.
   useEffect(() => {
@@ -309,6 +320,7 @@ function MainAppContent() {
       case '/trip-preview':
         return (
           <TripPlanner
+            startMode={currentRoute === '/trip-preview' ? 'preview' : 'wizard'}
             onExitToHome={() => {
               setSpecialStageOverride(null);
               navigateTo('/home');

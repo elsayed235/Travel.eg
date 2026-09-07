@@ -92,12 +92,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
         <div className="flex items-center gap-3 pt-2">
           <button type="button" onClick={onCancel}
-            className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer">
+            className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border-subtle)] text-[var(--text-muted)] text-xs font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer">
             Cancel
           </button>
           <button type="button" onClick={() => onConfirm(reasonRequired ? reason : undefined)}
             disabled={reasonRequired && !reason.trim()}
-            className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50 ${colors[confirmColor]}`}>
+            className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50 ${colors[confirmColor]}`}>
             {confirmLabel}
           </button>
         </div>

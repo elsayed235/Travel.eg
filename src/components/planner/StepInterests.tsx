@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Check, ArrowRight, ArrowLeft, Compass, Info } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { IMG_P1469854523086cc02fe5d8800_800, IMG_P1507525428034b723cf961d3e_CARD, IMG_P1509316975850ff9c5deb0cd9_CARD, IMG_P15103123056538ed496efae75_CARD, IMG_P1526778548025fa2f459cd5c1_800, IMG_P154455176346a013bb70d5_CARD, IMG_P1555396273367ea4eb4db5_800, IMG_P16826872200634742bd7fd538_CARD } from '../../shared/placeholderImagery';
 
 export type InterestId =
   | 'diving'
@@ -29,7 +30,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'غطس وسكوبا',
     description: 'Explore Dahab underwater.',
     descriptionAr: 'اكتشف عالم تحت المية والشعب المرجانية الأسطورية في دهب.',
-    image: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P16826872200634742bd7fd538_CARD,
     alt: 'Scuba diver exploring vibrant coral reefs in the Red Sea',
   },
   {
@@ -38,7 +39,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'مغامرة وكانيونز',
     description: 'Desert, mountains, and exciting experiences.',
     descriptionAr: 'كانيونز، وادي قني، وتجارب مشي وتسلق في جبال سيناء.',
-    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1469854523086cc02fe5d8800_800,
     alt: 'Mountain trekking and canyon exploration in Sinai',
   },
   {
@@ -47,7 +48,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'بحر وراحة بال',
     description: 'Slow mornings, swimming, and time by the sea.',
     descriptionAr: 'صباحيات رايقة ع البحر، عوم، وقعدة شلتات تفصل بيها عن الدنيا.',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1507525428034b723cf961d3e_CARD,
     alt: 'Serene beach and turquoise clear Red Sea shoreline',
   },
   {
@@ -56,7 +57,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'أكل ومطاعم',
     description: 'Local food, cafés, and places worth discovering.',
     descriptionAr: 'سمك طازة، مخابز مميزة، وكافيهات اللايتهاوس والممشى.',
-    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1555396273367ea4eb4db5_800,
     alt: 'Fresh coastal dining and local Sinai cafe experience',
   },
   {
@@ -65,7 +66,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'سفاري وصحراء',
     description: 'Explore the desert beyond the coast.',
     descriptionAr: 'سفاري بالبيتش باجي، عشاء بدوي تحت النجوم، وقعدات نار حطب.',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1509316975850ff9c5deb0cd9_CARD,
     alt: 'Expansive golden Sinai desert safari and mountain valleys',
   },
   {
@@ -74,7 +75,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'حياة دهب وأهلها',
     description: 'Discover Dahab through its people and everyday places.',
     descriptionAr: 'عيش روح دهب الأصيلة، قعدة الشاي بالحبق، وحكاوي الناس الطيبة.',
-    image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P1526778548025fa2f459cd5c1_800,
     alt: 'Lively Dahab promenade and authentic local village life',
   },
   {
@@ -83,7 +84,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'أنشطة بحرية',
     description: 'Snorkeling, boat trips, and more.',
     descriptionAr: 'سنوركلينج، رحلات مركب للبلو لاجون، وركوب كايت سيرف.',
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P154455176346a013bb70d5_CARD,
     alt: 'Snorkeling and coastal boat excursions along Dahab waters',
   },
   {
@@ -92,7 +93,7 @@ export const INTERESTS_DATA: InterestItem[] = [
     nameAr: 'سهرات وقعدات ليلية',
     description: 'Evenings, music, cafés, and social spots.',
     descriptionAr: 'موسيقى لايف ع البحر، قعدات مزيكا رايقة، وسهرات خفيفة.',
-    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=800&auto=format&fit=crop',
+    image: IMG_P15103123056538ed496efae75_CARD,
     alt: 'Atmospheric Dahab seaside lounge lit with warm lanterns and music',
   },
 ];
@@ -124,14 +125,14 @@ export const StepInterests: React.FC<StepInterestsProps> = ({
     <div id="step-interests-container" className="w-full">
       {/* Question Header */}
       <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)] text-xs font-bold mb-4">
           <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           <span>{t('planner.step4.badge')}</span>
         </div>
 
         <h1
           id="interests-question-title"
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[var(--text-primary)] tracking-tight leading-[1.12]"
+          className="text-3xl sm:text-4xl md:text-5xl chart-heading text-[var(--text-primary)] tracking-tight leading-[1.12]"
         >
           {t('planner.step4.title')}
         </h1>
@@ -161,7 +162,7 @@ export const StepInterests: React.FC<StepInterestsProps> = ({
               id={`interest-card-${item.id}`}
               onClick={() => onToggleInterest(item.id)}
               aria-pressed={isSelected}
-              className={`group relative text-left rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col justify-between ${
+              className={`group relative text-start rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer overflow-hidden flex flex-col justify-between ${
                 isSelected
                   ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)] shadow-lg ring-2 ring-[var(--accent-secondary)]/30'
                   : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
@@ -180,7 +181,7 @@ export const StepInterests: React.FC<StepInterestsProps> = ({
                 {/* Selection Indicator Check Pill */}
                 <div className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} z-10`}>
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       isSelected
                         ? 'bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold shadow-sm ring-2 ring-white/30'
                         : 'bg-black/40 backdrop-blur-md text-[var(--text-muted)] border border-[var(--border-subtle)]'
@@ -240,7 +241,7 @@ export const StepInterests: React.FC<StepInterestsProps> = ({
           type="button"
           id="planner-interests-back-btn"
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-3 rounded-full hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
         >
           {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{t('planner.common.back')}</span>
@@ -252,7 +253,7 @@ export const StepInterests: React.FC<StepInterestsProps> = ({
           id="planner-interests-continue-btn"
           onClick={onContinue}
           disabled={selectedInterests.length === 0}
-          className={`inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight transition-all shadow-md cursor-pointer group ${
+          className={`inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold tracking-tight transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer group ${
             selectedInterests.length === 0
               ? 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-not-allowed shadow-none'
               : 'bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] active:scale-[0.98] shadow-lg hover:shadow-xl'

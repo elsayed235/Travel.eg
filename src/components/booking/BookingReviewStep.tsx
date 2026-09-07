@@ -31,6 +31,7 @@ import {
 } from './bookingData';
 import { BookingReviewTermsModal } from './BookingReviewTermsModal';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { IMG_P154455176346a013bb70d5_HERO } from '../../shared/placeholderImagery';
 
 interface BookingReviewStepProps {
   selectedHotel: HotelOption | null;
@@ -112,7 +113,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
   const safariTitle = isAr && selectedSafari?.titleAr ? selectedSafari.titleAr : (selectedSafari?.title || (isAr ? 'سفاري وادي جني والصحراء' : 'Desert Safari'));
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] font-['Plus_Jakarta_Sans',sans-serif] pb-28 lg:pb-16">
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-28 lg:pb-16">
       {/* 1. TOP DAHAB BRANDING & PROGRESS BAR */}
       <header className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] sticky top-0 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -122,7 +123,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               {isAr ? 'د' : 'D'}
             </div>
             <div>
-              <span className="text-xs font-black tracking-widest uppercase text-[var(--text-secondary)] block">
+              <span className="text-xs font-black text-[var(--text-secondary)] block">
                 {isAr ? 'دهب' : 'DAHAB'}
               </span>
               <h1 className="text-sm font-bold text-[var(--text-primary)]">
@@ -216,8 +217,8 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
         {/* Page Heading & Status */}
         <div className="mb-8 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-300 shadow-2xs">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] text-xs font-bold border border-[var(--accent-primary)]/30 shadow-2xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
               <span>{isAr ? 'جاهز للحجز' : 'Ready to book'}</span>
             </span>
             <span className="text-xs text-[var(--text-primary)]/60 font-semibold">
@@ -225,7 +226,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+          <h2 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
             {isAr ? 'هل كل شيء جاهز وعلى ما يرام؟' : 'Everything looks good?'}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-primary)]/70 max-w-3xl leading-relaxed">
@@ -239,17 +240,17 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
         {isPreparedForPayment && (
           <div
             id="prepared-for-payment-banner"
-            className="mb-8 p-6 sm:p-7 rounded-3xl bg-emerald-50 border-2 border-emerald-600/40 text-emerald-950 shadow-sm space-y-4 animate-in fade-in zoom-in-95 duration-200"
+            className="mb-8 p-6 sm:p-7 rounded-3xl bg-[var(--surface-card)] border-2 border-[var(--accent-primary)]/40 text-[var(--text-primary)] shadow-sm space-y-4 animate-in fade-in zoom-in-95 duration-200"
           >
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                 <Check className="w-5 h-5 stroke-[2.5]" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-lg sm:text-xl font-serif font-bold text-emerald-950">
+                <h3 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
                   {isAr ? 'تم التحقق من التوافر وتجهيز الحجوزات' : 'Availability Checked & Bookings Prepared'}
                 </h3>
-                <p className="text-xs sm:text-sm text-emerald-900/90 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                   {isAr
                     ? 'تم تنسيق إقامتك الفندقية وانتقالات المطار ورحلة الغطس وسفاري الصحراء معاً. نحن مستعدون للانتقال لخطوة الدفع وتأكيد الحجز النهائي.'
                     : 'Your hotel stay, airport transfer, guided diving session, and desert safari have been coordinated. We are ready to proceed to the final Payment & Booking Confirmation stage.'}
@@ -257,7 +258,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[var(--btn-util-bg)] border border-emerald-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-0.5">
                 <span className="font-bold text-[var(--text-primary)] block">
                   {isAr ? 'المرحلة التالية: الدفع الآمن واستلام وثيقة الرحلة' : 'Next stage: Secure Payment & Itinerary Handover'}
@@ -290,7 +291,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
             >
               <div className="relative h-56 sm:h-64 w-full bg-[var(--surface-container)]/10">
                 <img
-                  src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1200&auto=format&fit=crop"
+                  src={IMG_P154455176346a013bb70d5_HERO}
                   alt="Dahab coastal mountains and Red Sea turquoise waters"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover"
@@ -299,7 +300,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
 
                 {/* Top Location & Traveler Badge */}
                 <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} flex flex-wrap items-center gap-2`}>
-                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-black tracking-wide uppercase shadow-2xs">
+                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-black tracking-wide shadow-2xs">
                     {isAr ? 'دهب' : 'Dahab'}
                   </span>
                   <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs">
@@ -311,7 +312,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Bottom Content & Tags */}
                 <div className={`absolute bottom-4 ${isRTL ? 'right-4 left-4' : 'left-4 right-4'} text-white space-y-2`}>
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight">
+                    <h3 className="text-2xl sm:text-3xl chart-heading font-bold tracking-tight">
                       {isAr ? 'دهب، جنوب سيناء' : 'Dahab, South Sinai'}
                     </h3>
                     <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-0.5 font-medium">
@@ -348,7 +349,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               <div className="flex items-center justify-between border-b border-[var(--text-primary)]/8 pb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-[var(--text-secondary)]" />
-                  <h3 className="text-base sm:text-lg font-serif font-bold text-[var(--text-primary)]">
+                  <h3 className="text-base sm:text-lg chart-heading font-bold text-[var(--text-primary)]">
                     {isAr ? 'الجدول الزمني للرحلة' : 'Trip Timeline Overview'}
                   </h3>
                 </div>
@@ -361,7 +362,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Day 1 */}
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-wider">
+                    <span className="text-xs font-black text-[var(--text-secondary)]">
                       {isAr ? 'اليوم ١' : 'Day 1'}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-[var(--surface-container)]/40" />
@@ -376,7 +377,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Day 2 */}
                 <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-300/80 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-emerald-900 uppercase tracking-wider">
+                    <span className="text-xs font-black text-emerald-900">
                       {isAr ? 'اليوم ٢' : 'Day 2'}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-emerald-600" />
@@ -394,7 +395,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Day 3 */}
                 <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-300/80 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-900 uppercase tracking-wider">
+                    <span className="text-xs font-black text-amber-900">
                       {isAr ? 'اليوم ٣' : 'Day 3'}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-amber-600" />
@@ -412,7 +413,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Day 4 */}
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-wider">
+                    <span className="text-xs font-black text-[var(--text-secondary)]">
                       {isAr ? 'اليوم ٤' : 'Day 4'}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-[var(--surface-container)]/40" />
@@ -427,7 +428,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 {/* Day 5 */}
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[var(--text-secondary)] uppercase tracking-wider">
+                    <span className="text-xs font-black text-[var(--text-secondary)]">
                       {isAr ? 'اليوم ٥' : 'Day 5'}
                     </span>
                     <span className="w-2 h-2 rounded-full bg-[var(--surface-container)]/40" />
@@ -446,7 +447,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
             {/* 3. FOUR MAJOR BOOKING COMPONENTS */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
                   {isAr ? 'خدمات الرحلة المختارة' : 'Your Selected Trip Services'}
                 </h3>
                 <span className="text-xs text-emerald-800 bg-emerald-100 font-bold px-2.5 py-0.5 rounded-full">
@@ -457,7 +458,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               {/* 01 — HOTEL */}
               <div
                 id="review-card-hotel"
-                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-all space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -465,10 +466,10 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                       <Building className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[12px] font-black uppercase tracking-wider text-[var(--text-secondary)] block">
+                      <span className="text-[12px] font-black text-[var(--text-secondary)] block">
                         {isAr ? '٠١ — الفندق' : '01 — Hotel'}
                       </span>
-                      <h4 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+                      <h4 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
                         {hotelName}
                       </h4>
                     </div>
@@ -513,7 +514,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                     </div>
                   </div>
 
-                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-left text-right flex flex-col sm:items-start' : 'sm:text-right text-left flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
+                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-start text-end flex flex-col sm:items-start' : 'sm:text-end text-start flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
                     <span className="text-xs text-[var(--text-primary)]/50">{isAr ? 'إجمالي سعر الإقامة' : 'Total Stay Price'}</span>
                     <span className="text-xl font-black text-[var(--text-primary)]">
                       {isAr ? `${hotelPrice.toLocaleString()} ج.م` : `EGP ${hotelPrice.toLocaleString()}`}
@@ -526,7 +527,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               {/* 02 — TRANSFER */}
               <div
                 id="review-card-transfer"
-                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-all space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -534,10 +535,10 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                       <Car className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[12px] font-black uppercase tracking-wider text-[var(--text-secondary)] block">
+                      <span className="text-[12px] font-black text-[var(--text-secondary)] block">
                         {isAr ? '٠٢ — الانتقالات' : '02 — Transfer'}
                       </span>
-                      <h4 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+                      <h4 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
                         {transferTitle}
                       </h4>
                     </div>
@@ -582,7 +583,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                     </div>
                   </div>
 
-                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-left text-right flex flex-col sm:items-start' : 'sm:text-right text-left flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
+                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-start text-end flex flex-col sm:items-start' : 'sm:text-end text-start flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
                     <span className="text-xs text-[var(--text-primary)]/50">{isAr ? 'سعر الانتقال' : 'Transfer Price'}</span>
                     <span className="text-xl font-black text-[var(--text-primary)]">
                       {isAr ? `${transferPrice.toLocaleString()} ج.م` : `EGP ${transferPrice.toLocaleString()}`}
@@ -595,7 +596,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               {/* 03 — DIVING */}
               <div
                 id="review-card-diving"
-                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-all space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -603,10 +604,10 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                       <Waves className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[12px] font-black uppercase tracking-wider text-emerald-900 block">
+                      <span className="text-[12px] font-black text-emerald-900 block">
                         {isAr ? '٠٣ — الغطس' : '03 — Diving'}
                       </span>
-                      <h4 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+                      <h4 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
                         {divingTitle}
                       </h4>
                     </div>
@@ -651,7 +652,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                     </div>
                   </div>
 
-                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-left text-right flex flex-col sm:items-start' : 'sm:text-right text-left flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
+                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-start text-end flex flex-col sm:items-start' : 'sm:text-end text-start flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
                     <span className="text-xs text-[var(--text-primary)]/50">{isAr ? 'سعر الغطس التقديري' : 'Estimated Diving Price'}</span>
                     <span className="text-xl font-black text-[var(--text-primary)]">
                       {isAr ? `${divingPrice.toLocaleString()} ج.م` : `EGP ${divingPrice.toLocaleString()}`}
@@ -664,7 +665,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               {/* 04 — SAFARI */}
               <div
                 id="review-card-safari"
-                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-all space-y-4"
+                className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -672,10 +673,10 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                       <Compass className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[12px] font-black uppercase tracking-wider text-amber-900 block">
+                      <span className="text-[12px] font-black text-amber-900 block">
                         {isAr ? '٠٤ — السفاري' : '04 — Safari'}
                       </span>
-                      <h4 className="text-lg sm:text-xl font-serif font-bold text-[var(--text-primary)]">
+                      <h4 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)]">
                         {safariTitle}
                       </h4>
                     </div>
@@ -720,7 +721,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                     </div>
                   </div>
 
-                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-left text-right flex flex-col sm:items-start' : 'sm:text-right text-left flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
+                  <div className={`sm:col-span-4 ${isRTL ? 'sm:text-start text-end flex flex-col sm:items-start' : 'sm:text-end text-start flex flex-col sm:items-end'} justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-[var(--text-primary)]/6`}>
                     <span className="text-xs text-[var(--text-primary)]/50">{isAr ? 'سعر السفاري التقديري' : 'Estimated Safari Price'}</span>
                     <span className="text-xl font-black text-[var(--text-primary)]">
                       {isAr ? `${safariPrice.toLocaleString()} ج.م` : `EGP ${safariPrice.toLocaleString()}`}
@@ -754,7 +755,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
               id="confirmation-checklist"
               className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xs space-y-3"
             >
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              <h4 className="text-xs font-bold text-[var(--text-secondary)]">
                 {isAr ? 'قبل التأكيد، يرجى التأكد من الآتي:' : 'Before confirming, make sure:'}
               </h4>
 
@@ -832,10 +833,10 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
             >
               {/* Header */}
               <div className="border-b border-[var(--text-primary)]/8 pb-4">
-                <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
+                <span className="text-[12px] font-bold text-[var(--text-secondary)] block">
                   {isAr ? 'تفاصيل السعر' : 'Price Breakdown'}
                 </span>
-                <h3 className="text-xl font-serif font-bold text-[var(--text-primary)] mt-1">
+                <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)] mt-1">
                   {isAr ? 'ملخص تكلفة الرحلة' : 'Trip Summary'}
                 </h3>
                 <p className="text-xs text-[var(--text-primary)]/60 mt-0.5">
@@ -918,7 +919,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                   id="confirm-and-continue-btn"
                   disabled={!agreedToTerms || isProcessing}
                   onClick={handleConfirmAndContinue}
-                  className={`w-full py-4 px-6 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
+                  className={`w-full py-4 px-6 rounded-full font-bold text-sm flex items-center justify-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer ${
                     agreedToTerms && !isProcessing
                       ? 'bg-emerald-700 hover:bg-emerald-800 text-white active:scale-98'
                       : 'bg-[var(--surface-container)]/10 text-[var(--text-primary)]/40 cursor-not-allowed'
@@ -960,7 +961,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
       {/* 3. MOBILE FIXED BOTTOM ACTION BAR */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--btn-util-bg)] backdrop-blur-md border-t border-[var(--border-subtle)] p-4 shadow-lg flex items-center justify-between gap-4">
         <div>
-          <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+          <div className="text-[11px] font-bold text-emerald-800">
             {isAr ? 'جاهز للحجز' : 'Ready to book'}
           </div>
           <div className="text-base font-black text-[var(--text-primary)]">
@@ -976,7 +977,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
           id="mobile-confirm-and-continue-btn"
           disabled={!agreedToTerms || isProcessing}
           onClick={handleConfirmAndContinue}
-          className={`px-5 py-3 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+          className={`px-5 py-3 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
             agreedToTerms && !isProcessing
               ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
               : 'bg-[var(--surface-container)]/10 text-[var(--text-primary)]/40 cursor-not-allowed'
@@ -1013,7 +1014,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h3 id="booking-review-step-dialog-1-title" className="text-xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 id="booking-review-step-dialog-1-title" className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                 {isAr ? 'جارٍ تأكيد وتجهيز رحلتك...' : 'Confirming your trip...'}
               </h3>
               <p className="text-xs sm:text-sm text-[var(--text-primary)]/70 leading-relaxed">

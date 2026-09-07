@@ -101,10 +101,10 @@ export const FirstTwoHoursPlanModal: React.FC<FirstTwoHoursPlanModalProps> = ({
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                 {t('arrival.suggestedMiniPlan')}
               </span>
-              <h3 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 className="text-xl font-bold text-[var(--text-primary)]">
                 {t('arrival.yourFirst2Hours')}
               </h3>
             </div>
@@ -152,7 +152,7 @@ export const FirstTwoHoursPlanModal: React.FC<FirstTwoHoursPlanModalProps> = ({
                     <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
                       {step.time}
                     </span>
-                    <h4 className="text-sm font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                    <h4 className="text-sm font-bold text-[var(--text-primary)]">
                       {step.title}
                     </h4>
                   </div>
@@ -192,7 +192,7 @@ export const FirstTwoHoursPlanModal: React.FC<FirstTwoHoursPlanModalProps> = ({
               onAcceptPlan();
               onClose();
             }}
-            className="py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-xs font-bold text-[var(--surface-card)] shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-['Outfit',sans-serif]"
+            className="py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-xs font-bold text-[var(--surface-card)] shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Check className="w-3.5 h-3.5 text-[var(--surface-card)] stroke-[2.5]" />
             <span>{t('arrival.startMyFirst2')}</span>

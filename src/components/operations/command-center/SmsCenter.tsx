@@ -67,7 +67,7 @@ export default function SmsCenter() {
         <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
           placeholder="Message body…" rows={3} className="w-full px-3 py-2 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 resize-none focus:outline-none focus:border-[var(--accent-primary)]/50" />
         <button type="button" onClick={handleSend} disabled={!form.to || !form.recipientName || !form.message || sending}
-          className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
+          className="px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer disabled:opacity-50">
           <Send className="w-3.5 h-3.5" />{sending ? t('cmd.sms.sending') : t('cmd.sms.sendBtn')}
         </button>
         {sentResult && (
@@ -92,7 +92,7 @@ export default function SmsCenter() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[11px] font-mono">
-              <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-subtle)]">
+              <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <tr>
                   <th className="py-2.5 px-3">Time</th>
                   <th className="py-2.5 px-3">To</th>

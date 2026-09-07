@@ -81,7 +81,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
   };
 
   return (
-    <div className={`min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20 ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className={`min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20 ${isRTL ? 'rtl' : 'ltr'}`}>
       
       {/* Main Content Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-grow">
@@ -128,7 +128,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
               {travelerName
                 ? `${t('arrival.titleNamed', 'Welcome to Dahab,')} ${travelerName} 👋`
                 : t('arrival.title', 'Welcome to Dahab 👋')}
@@ -161,16 +161,16 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     <Building className="w-4 h-4 text-[var(--accent-secondary)]" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                       {t('arrival.hotelName', 'Dahab Bay Hotel')}
                     </span>
-                    <h2 className="text-xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)]">
                       {t('arrival.roomNotReady', "Your room isn't ready yet")}
                     </h2>
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--border-subtle)] font-['Outfit',sans-serif]">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)] text-[var(--accent-secondary)] text-xs font-bold border border-[var(--border-subtle)]">
                   <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                   <span>{t('arrival.waitingCheckIn', 'Waiting for check-in')}</span>
                 </span>
@@ -214,10 +214,10 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
               className="space-y-4"
             >
               <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   {t('arrival.choicesTag', 'Curated Early Arrival Choices')}
                 </span>
-                <h2 className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                   {t('arrival.choicesTitle', 'What would you like to do?')}
                 </h2>
                 <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 mt-0.5 font-medium">
@@ -231,7 +231,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 {/* OPTION 1 — LEAVE BAGS (Most practical option) */}
                 <div 
                   id="option-leave-bags-card"
-                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-lg hover:border-[var(--border-subtle)] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
+                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-lg hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-white flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
@@ -239,7 +239,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h3 className="text-base font-bold text-[var(--text-primary)]">
                           {t('arrival.optLeaveBags', 'Leave your bags')}
                         </h3>
                         <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
@@ -270,7 +270,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 {/* OPTION 2 — BREAKFAST */}
                 <div 
                   id="option-breakfast-card"
-                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
@@ -278,7 +278,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h3 className="text-base font-bold text-[var(--text-primary)]">
                           {t('arrival.optBreakfast', 'Breakfast')}
                         </h3>
                         <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
@@ -308,7 +308,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 {/* OPTION 3 — BEACH */}
                 <div 
                   id="option-beach-card"
-                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
@@ -316,7 +316,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h3 className="text-base font-bold text-[var(--text-primary)]">
                           {t('arrival.optBeach', 'Beach')}
                         </h3>
                         <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
@@ -346,7 +346,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 {/* OPTION 4 — WALK */}
                 <div 
                   id="option-walk-card"
-                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
@@ -354,7 +354,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h3 className="text-base font-bold text-[var(--text-primary)]">
                           {t('arrival.optWalk', 'Walk around')}
                         </h3>
                         <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
@@ -384,7 +384,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 {/* OPTION 5 — EARLY CHECK-IN */}
                 <div 
                   id="option-early-checkin-card"
-                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
@@ -392,7 +392,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                        <h3 className="text-base font-bold text-[var(--text-primary)]">
                           {t('arrival.optCheckIn', 'Early check-in')}
                         </h3>
                         <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] px-2 py-0.5 rounded-full border border-[var(--border-subtle)]">
@@ -434,7 +434,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   <span>{t('arrival.suggestionTag', 'Our suggestion')}</span>
                 </div>
 
-                <h2 className="text-2xl font-['Outfit',sans-serif] font-bold text-[var(--text-primary)] tracking-tight">
+                <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">
                   {t('arrival.suggestionTitle', 'Leave your bags, grab breakfast, and take a short walk by the sea.')}
                 </h2>
 
@@ -455,7 +455,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                       setIsPlanModalOpen(true);
                     }
                   }}
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+                  className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <Sparkles className="w-4 h-4 text-[var(--surface-card)]" />
                   <span>{t('arrival.build2Hours', 'Build my first 2 hours')}</span>
@@ -478,10 +478,10 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     {t('arrival.contextTag', 'Real-Time Context')}
                   </span>
-                  <h2 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">
                     {t('arrival.timeWindow', 'Available Time Window')}
                   </h2>
                 </div>
@@ -557,10 +557,10 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
             >
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                  <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                     {t('arrival.itinTag', 'Itinerary Integration')}
                   </span>
-                  <h2 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">
                     {t('arrival.comingUp', 'Coming up')}
                   </h2>
                 </div>
@@ -577,7 +577,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     <Building className="w-4 h-4" />
                   </div>
                   <div className="space-y-0.5">
-                    <span className="text-[11px] font-bold text-[var(--accent-primary)] uppercase tracking-wider font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-bold text-[var(--accent-primary)]">
                       {`${t('arrival.today', 'Today')} · ${checkInLabel}`}
                     </span>
                     <h3 className="font-bold text-sm text-[var(--text-primary)]">
@@ -595,7 +595,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                     <Waves className="w-4 h-4 text-[var(--accent-primary)]" />
                   </div>
                   <div className="space-y-0.5">
-                    <span className="text-[11px] font-bold text-[var(--accent-primary)] uppercase tracking-wider font-['Outfit',sans-serif]">
+                    <span className="text-[11px] font-bold text-[var(--accent-primary)]">
                       {t('arrival.milestone2Tag', 'Tomorrow · 09:00 AM')}
                     </span>
                     <h3 className="font-bold text-sm text-[var(--text-primary)]">
@@ -619,10 +619,10 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
               className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-lg space-y-3.5"
             >
               <div className="border-b border-[var(--border-subtle)] pb-2.5">
-                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                   {t('arrival.accomTag', 'Accommodation')}
                 </span>
-                <h2 className="text-base font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                <h2 className="text-base font-bold text-[var(--text-primary)]">
                   {t('arrival.hotelDetailsTitle', 'Dahab Bay Hotel Details')}
                 </h2>
               </div>
@@ -663,7 +663,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   <HelpCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+                  <h2 className="text-sm font-bold text-[var(--text-primary)]">
                     {t('arrival.needAssistance', 'Need immediate assistance?')}
                   </h2>
                   <p className="text-[12px] text-[var(--text-secondary)]/65">
@@ -676,7 +676,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                 type="button"
                 id="arrival-help-me-now-btn"
                 onClick={onOpenHelp}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-rose-300 border border-rose-500/30 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] text-xs font-bold text-rose-300 border border-rose-500/30 shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-rose-400" />
                 <span>{t('arrival.helpMeNowBtn', 'Help Me Now')}</span>
@@ -701,7 +701,7 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
               setIsPlanModalOpen(true);
             }
           }}
-          className="w-full py-3 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+          className="w-full py-3 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer"
         >
           <Sparkles className="w-4 h-4 text-[var(--surface-card)]" />
           <span>{t('arrival.build2Hours', 'Build my first 2 hours')}</span>

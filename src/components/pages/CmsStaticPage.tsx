@@ -174,6 +174,17 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
   const { language , t} = useLanguage();
   const { data, loading, fromCMS } = useContentPage(slug);
 
+  // Apply SEO meta tags from CMS data. Must run unconditionally, before any
+  // early return, or React throws "Rendered more hooks than during the
+  // previous render" (Rules of Hooks violation).
+  useSEO({
+    title: language === 'ar' ? data?.page?.title_ar || data?.page?.title_en : data?.page?.title_en,
+    description: language === 'ar' ? data?.page?.description_ar || data?.page?.description_en : data?.page?.description_en,
+    ogTitle: data?.page?.title_en,
+    ogDescription: data?.page?.description_en,
+    ogImage: data?.page?.hero_image_url || undefined,
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--surface-card)] flex items-center justify-center">
@@ -210,15 +221,6 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
   // the block renderers tolerate both, so normalize here.
   const blocks = (data.blocks || []) as CmsBlock[];
 
-  // Apply SEO meta tags from CMS data
-  useSEO({
-    title: language === 'ar' ? page.title_ar || page.title_en : page.title_en,
-    description: language === 'ar' ? page.description_ar || page.description_en : page.description_en,
-    ogTitle: page.title_en,
-    ogDescription: page.description_en,
-    ogImage: page.hero_image_url || undefined,
-  });
-
   return (
     <div className="min-h-screen bg-[var(--surface-card)]">
       {/* Hero */}
@@ -238,7 +240,7 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
         {onBack && (
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-colors cursor-pointer py-2 -my-2"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('back')}

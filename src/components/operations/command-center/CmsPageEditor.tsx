@@ -292,7 +292,7 @@ function MediaPickerModal({
                   key={asset.id}
                   type="button"
                   onClick={() => { onSelect(asset.original_url); onClose(); }}
-                  className="rounded-xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 transition-all cursor-pointer text-left"
+                  className="rounded-xl overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-left"
                 >
                   {asset.original_url ? (
                     <img src={asset.original_url} alt="" className="w-full h-24 object-cover" loading="lazy" />
@@ -343,7 +343,7 @@ function BlockCard({
   const Icon = blockType.icon;
 
   return (
-    <div className={`rounded-xl border transition-all ${block.visible ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]' : 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] opacity-60'}`}>
+    <div className={`rounded-xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${block.visible ? 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)]' : 'bg-[var(--btn-util-bg)] border-[var(--border-subtle)] opacity-60'}`}>
       {/* Header */}
       <div className="flex items-center gap-2 p-3">
         <GripVertical className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0" />
@@ -364,18 +364,18 @@ function BlockCard({
           <button
             type="button"
             onClick={() => onUpdate({ visible: block.visible ? 0 : 1 })}
-            className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer"
+            className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
             title={block.visible ? 'Hide' : 'Show'}
           >
             {block.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
           </button>
           {!isFirst && (
-            <button type="button" onClick={onMoveUp} aria-label="Move up" className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer">
+            <button type="button" onClick={onMoveUp} aria-label="Move up" className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer">
               <ChevronUp className="w-3 h-3" />
             </button>
           )}
           {!isLast && (
-            <button type="button" onClick={onMoveDown} aria-label="Move down" className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer">
+            <button type="button" onClick={onMoveDown} aria-label="Move down" className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer">
               <ChevronDown className="w-3 h-3" />
             </button>
           )}
@@ -383,7 +383,7 @@ function BlockCard({
             type="button"
             onClick={() => setExpanded(!expanded)}
             aria-label="Toggle section"
-            className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer"
+            className="p-1 rounded hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </button>
@@ -391,7 +391,7 @@ function BlockCard({
             type="button"
             onClick={onDelete}
             aria-label="Delete"
-            className="p-1 rounded hover:bg-red-500/20 text-[var(--text-muted)] hover:text-red-400 transition-all cursor-pointer"
+            className="p-1 rounded hover:bg-red-500/20 text-[var(--text-muted)] hover:text-red-400 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <Trash2 className="w-3 h-3" />
           </button>
@@ -489,6 +489,13 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
       setSaving(false);
     }
   }, [page, dirty]);
+
+  // Debounced auto-save: persist metadata 1.5s after the last keystroke
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = setTimeout(() => { savePage(); }, 1500);
+    return () => clearTimeout(timer);
+  }, [page, dirty, savePage]);
 
   // Publish / archive
   const handlePublish = async () => {
@@ -605,7 +612,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
             type="button"
             onClick={onBack}
             aria-label="Go back"
-            className="p-1.5 rounded-lg hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
@@ -633,7 +640,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
             <button
               type="button"
               onClick={handlePublish}
-              className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[11px] font-bold hover:bg-[var(--accent-primary)]/30 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
             >
               {t('cmd.publish')}
             </button>
@@ -642,7 +649,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
             <button
               type="button"
               onClick={handleArchive}
-              className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] font-bold hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] font-bold hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
             >
               {t('cmd.archive')}
             </button>
@@ -721,7 +728,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
           <button
             type="button"
             onClick={() => { setPage({ ...page, featured: page.featured ? 0 : 1 }); setDirty(true); }}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
               page.featured
                 ? 'bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border-[var(--accent-secondary)]/30'
                 : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)]'
@@ -737,7 +744,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
             type="button"
             onClick={savePage}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
           >
             {saving ? (t('cmd.saving')) : (t('cmd.saveChanges'))}
           </button>
@@ -783,7 +790,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
                 key={bt.value}
                 type="button"
                 onClick={() => handleAddBlock(bt.value)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text-muted)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
                 <Icon className="w-3 h-3" />
@@ -924,7 +931,7 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
                 }
               }}
               disabled={saving}
-              className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-all cursor-pointer disabled:opacity-50"
+              className="px-4 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--surface-card)] text-xs font-bold hover:bg-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-50"
             >
               {saving ? '...' : (t('cmd.saveSEO'))}
             </button>

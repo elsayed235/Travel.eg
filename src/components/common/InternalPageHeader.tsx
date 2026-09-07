@@ -44,7 +44,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
   children,
 }) => {
   const { navigateTo } = useTrip();
-  const { isRTL } = useLanguage();
+  const { isRTL, t } = useLanguage();
   const isRtl = isRTL;
 
   const handleBack = () => {
@@ -67,15 +67,15 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
         <div className="max-w-7xl mx-auto space-y-4 relative z-10">
           {/* Breadcrumbs & Back */}
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-[var(--surface-container)]/80 font-medium">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
               {showBack && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-secondary)] me-2 py-1 px-2 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors"
+                  className="inline-flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-secondary)] me-2 py-2 px-3 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors"
                 >
                   {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-                  <span>Back</span>
+                  <span>{t('common.back')}</span>
                 </button>
               )}
               {breadcrumbs.map((crumb, idx) => (
@@ -85,7 +85,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => { if (crumb.to) navigateTo(crumb.to); }}
-                      className="hover:text-[var(--text-primary)] hover:underline transition-colors"
+                      className="hover:text-[var(--text-primary)] hover:underline transition-colors py-2 -my-2"
                     >
                       {crumb.label}
                     </button>
@@ -101,7 +101,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                 {badges.map((b, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--text-primary)]/60 border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--surface-container)] border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)]"
                   >
                     {b.icon}
                     <span>{b.text}</span>
@@ -115,16 +115,16 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-1">
             <div className="space-y-2 max-w-3xl">
               {eyebrow && (
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--text-primary)]/60 border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)] text-xs font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)] text-xs font-bold">
                   {eyebrowIcon}
                   <span>{eyebrow}</span>
                 </div>
               )}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
                 {title}
               </h1>
               {subtitle && (
-                <div className="text-xs sm:text-sm text-[var(--surface-container)]/90 leading-relaxed font-['Plus_Jakarta_Sans',sans-serif]">
+                <div className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
                   {subtitle}
                 </div>
               )}
@@ -149,15 +149,15 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
         <div className="max-w-7xl mx-auto space-y-4 relative z-10">
           {/* Top meta row */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-[var(--surface-container)]/80 font-medium">
+            <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
               {showBack && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-secondary)] me-2 py-1 px-2 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors"
+                  className="inline-flex items-center gap-1 text-[var(--accent-secondary)] hover:text-[var(--accent-secondary)] me-2 py-2 px-3 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] transition-colors"
                 >
                   {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-                  <span>Back</span>
+                  <span>{t('common.back')}</span>
                 </button>
               )}
               {breadcrumbs.map((crumb, idx) => (
@@ -167,7 +167,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => { if (crumb.to) navigateTo(crumb.to); }}
-                      className="hover:text-[var(--text-primary)] hover:underline"
+                      className="hover:text-[var(--text-primary)] hover:underline py-2 -my-2"
                     >
                       {crumb.label}
                     </button>
@@ -183,7 +183,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                 {badges.map((b, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--text-primary)]/70 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[var(--surface-container)] border border-[var(--accent-primary)]/40 text-[var(--accent-primary)]"
                   >
                     {b.icon}
                     <span>{b.text}</span>
@@ -197,15 +197,15 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
               {eyebrow && (
-                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[var(--text-primary)]/60 border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)] text-xs font-bold uppercase tracking-wider font-['Outfit',sans-serif]">
+                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[var(--surface-container)] border border-[var(--accent-primary)]/30 text-[var(--accent-secondary)] text-xs font-bold">
                   {eyebrowIcon}
                   <span>{eyebrow}</span>
                 </div>
               )}
-              <h1 className="text-2xl sm:text-3xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
                 {title}
               </h1>
-              {subtitle && <div className="text-xs sm:text-sm text-[var(--surface-container)]/80">{subtitle}</div>}
+              {subtitle && <div className="text-xs sm:text-sm text-[var(--text-secondary)]">{subtitle}</div>}
             </div>
 
             {actions && <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div>}
@@ -228,10 +228,10 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex items-center gap-1 text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] me-2 py-1 px-2.5 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] font-bold transition-colors"
+                  className="inline-flex items-center gap-1 text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] me-2 py-2 px-3 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] font-bold transition-colors"
                 >
                   {isRtl ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-                  <span>Back</span>
+                  <span>{t('common.back')}</span>
                 </button>
               )}
               {breadcrumbs.map((crumb, idx) => (
@@ -241,7 +241,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
                     <button
                       type="button"
                       onClick={() => { if (crumb.to) navigateTo(crumb.to); }}
-                      className="hover:text-[var(--text-primary)] hover:underline"
+                      className="hover:text-[var(--text-primary)] hover:underline py-2 -my-2"
                     >
                       {crumb.label}
                     </button>
@@ -270,11 +270,11 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="space-y-1">
               {eyebrow && (
-                <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-['Outfit',sans-serif] block">
+                <span className="text-[12px] font-bold text-[var(--accent-primary)] block">
                   {eyebrow}
                 </span>
               )}
-              <h1 className="text-xl sm:text-2xl font-bold font-['Outfit',sans-serif] text-[var(--text-primary)]">
+              <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
                 {title}
               </h1>
               {subtitle && <div className="text-xs text-[var(--text-secondary)]/80">{subtitle}</div>}
@@ -291,13 +291,14 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
 
   // 4. OPERATIONS VARIANT (Operations Console, Supplier Portal)
   return (
-    <header className={`bg-[var(--text-primary)] text-[var(--text-primary)] border-b border-cyan-500/20 py-4 px-4 sm:px-6 lg:px-8 ${className}`}>
+      <header className={`bg-[var(--bg-canvas)] text-[var(--text-primary)] border-b border-cyan-500/20 py-4 px-4 sm:px-6 lg:px-8 ${className}`}>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           {showBack && (
             <button
               type="button"
               onClick={handleBack}
+              aria-label={t('common.back')}
               className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] transition-colors"
             >
               {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
@@ -306,7 +307,7 @@ export const InternalPageHeader: React.FC<InternalPageHeaderProps> = ({
           <div className="space-y-0.5">
             <div className="flex items-center gap-2">
               {eyebrow && (
-                <span className="text-[11px] font-bold font-mono uppercase tracking-widest text-[var(--accent-secondary)]">
+                <span className="text-[11px] font-bold font-mono text-[var(--accent-secondary)]">
                   {eyebrow}
                 </span>
               )}

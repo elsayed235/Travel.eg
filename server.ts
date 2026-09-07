@@ -1,6 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
 import fs from 'fs';
+import http from 'http';
 import {
   isQuotaExhausted,
   quotaStatus,
@@ -37,6 +38,7 @@ import { backgroundEventBus } from './server/services/backgroundEventBus';
 import { asyncJobService } from './server/services/asyncJobService';
 import { mapsContextService } from './server/services/mapsContextService';
 import { cmsPages } from './server/services/contentService';
+import { buildHeadTags, injectMeta, resolveMetaForPath } from './server/utils/metaInjection';
 import { geminiReasoningService } from './server/services/geminiReasoningService';
 import { daygiReasoningService } from './server/services/daygiReasoningService';
 import { daygiMemoryService } from './server/services/daygiMemoryService';
@@ -300,10 +302,24 @@ function getGenAI(): GoogleGenAI | null {
 app.get('/api/health', (req, res) => {
   const ledgerIntegrity = ledgerService.verifyLedgerIntegrity();
   const adapterName = db.getAdapter().constructor.name;
+  const totalActivities = bookability.bookable + bookability.downgraded;
   res.json({
     status: 'ok',
     service: 'Dahab AI Product & Commercial Platform',
     commercialReadiness: '80%+',
+    // The string above is a headline; this breakdown names the gap so QA can
+    // tell a catalogue shortfall from a payments/Firebase one at a glance.
+    commercialReadinessDetail: {
+      summary: `${bookability.bookable}/${totalActivities} catalogue activities instantly bookable; ` +
+        `${bookability.downgraded} on REQUEST_NOW (human confirm); ` +
+        `payments ${PaymentService.simulationAllowed() ? 'simulated' : 'live'}; ` +
+        `federated sign-in ${firebaseAdminService.credentialState() ? 'available' : 'unavailable'}`,
+      bookableActivities: bookability.bookable,
+      totalActivities,
+      requestNowActivityIds: bookability.downgradedIds,
+      federatedSignIn: firebaseAdminService.credentialState() ? 'available' : 'unavailable (credentials missing)',
+      payments: PaymentService.simulationAllowed() ? 'simulated' : 'live'
+    },
     database: {
       adapter: adapterName,
       // The Postgres adapter does not implement save(); calling it "PostgreSQL
@@ -1021,6 +1037,56 @@ app.patch('/api/trips/:tripId/status', (req: AuthenticatedRequest, res) => {
     to: status
   });
   res.json({ trip: updatedTrip });
+});
+
+/**
+ * DELETE /api/trips/:tripId
+ *
+ * Remove a trip. Playtesting found the dead end: a traveler could save an AI
+ * plan (one click, instant) but had no way to remove it — no endpoint and no
+ * UI — so a mistaken save stuck in My Trip forever. Deletion is blocked while
+ * any item is booked or confirmed (money already moves); those go through
+ * Dahab Booking Care instead. Items still in SUGGESTED/HELD are dropped with
+ * the trip.
+ */
+app.delete('/api/trips/:tripId', (req: AuthenticatedRequest, res) => {
+  try {
+    const { tripId } = req.params;
+    const { trip, items } = tripService.getTrip(tripId);
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+    if (!mayActOnTripsOf(req.user!, trip.userId)) {
+      // 404 like the sibling routes: existence leaks otherwise.
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+    const lockedItems = items.filter(i => i.status === 'BOOKED' || i.status === 'CONFIRMED');
+    if (lockedItems.length > 0) {
+      return res.status(409).json({
+        error: 'This trip has booked or confirmed items. Cancel them through Dahab Booking Care first.'
+      });
+    }
+
+    db.runInTransaction(() => {
+      for (const item of items) {
+        const idx = db.tripItems.findIndex(i => i.id === item.id);
+        if (idx !== -1) db.tripItems.splice(idx, 1);
+      }
+      const tripIdx = db.trips.findIndex(t => t.id === tripId);
+      if (tripIdx !== -1) db.trips.splice(tripIdx, 1);
+    });
+
+    db.logAudit(req.user!.userId, req.user!.role || 'Traveler', 'TRIP_DELETED', 'Trip', tripId, {
+      title: trip.title,
+      status: trip.status,
+      itemsRemoved: items.length
+    });
+    db.saveToDisk();
+
+    res.json({ deleted: true, itemsRemoved: items.length });
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
 });
 
 /**
@@ -3210,19 +3276,104 @@ async function setupViteOrStatic() {
   }
   app.use('/images', express.static(path.join(process.cwd(), 'public', 'images')));
 
+  // Shared with the Vite dev middleware for the HMR websocket upgrade.
+  const httpServer = http.createServer(app);
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      // middlewareMode merges vite.config.ts; pass hmr:false explicitly when
+      // disabled so no HMR WebSocket is opened even if the config file is not
+      // picked up, and concurrent servers never fight over port 24678.
+      //
+      // Otherwise the HMR websocket attaches to OUR http server. With the
+      // default config it opened its own socket on 24678 that the browser
+      // could never upgrade behind this origin — every page load logged
+      // "Unexpected response code: 400", HMR silently never worked, and its
+      // stale transforms once produced a duplicated TripContext module that
+      // crashed the homepage.
+      server: process.env.DISABLE_HMR === 'true'
+        // `ws: false` is the actual kill switch: in middleware mode
+        // `hmr: false` alone still lets Vite bind a standalone WebSocket
+        // server on 24678 (createWebSocketServer only early-returns on
+        // `server.ws === false`), so concurrent servers still collide.
+        ? { middlewareMode: true, hmr: false, ws: false }
+        // clientPort: PORT — vite.config.ts derives a standalone HMR port
+        // from PORT for attached-less topologies; merged with attached mode
+        // the client would still dial that dead port. Attached, the socket
+        // rides on the app's own port, so the client dials the same origin
+        // it loaded the page from.
+        : { middlewareMode: true, hmr: { server: httpServer, clientPort: PORT } },
       appType: 'spa'
     });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+
+    // §6d — server-side <meta> injection (the 80% of prerendering with 40
+    // lines and zero render risk; real SSR is deliberately deferred).
+    // Crawlers and link previews read the head, not the React tree: match the
+    // request path against CMS pages (about/faq/travel-guides) and hotel
+    // slugs (/hotels/:slug), and rewrite index.html's head before sending.
+    // The accepted-language choice is a heuristic at best for a crawler, so
+    // injection is per-locale only when the CMS page itself declares both.
+    const spaFallback = (_req: express.Request, res: express.Response) => {
+      const html = path.join(distPath, 'index.html');
+      const pathname = (_req.path || '/').replace(/\/+$/, '') || '/';
+      let locale = 'en';
+      const al = (_req.headers['accept-language'] || '') as string;
+      if (/\bar\b/i.test(al.split(',')[0] || '')) locale = 'ar';
+      const baseUrl = process.env.PUBLIC_BASE_URL || '';
+
+      const meta = resolveMetaForPath(
+        pathname,
+        {
+          cmsPageForPath: (p) => {
+            // The URL path and the CMS slug differ ('/about' renders the
+            // 'about-dahab' page), so the mapping is explicit rather than
+            // assumed — a wrong slug here silently degraded to the generic
+            // head in the smoke test.
+            const byPath: Record<string, string> = {
+              '/about': 'about-dahab',
+              '/faq': 'faq',
+              '/travel-guides': 'travel-guides',
+            };
+            const slug = byPath[p.replace(/\/+$/, '')];
+            if (!slug) return null;
+            return cmsPages.findBySlug(slug);
+          },
+          hotelForPath: (p) => {
+            const m = p.match(/^\/hotels\/([^/]+)$/);
+            if (!m) return null;
+            const accommodation = db.accommodations.find(
+              (a) => a.slug === decodeURIComponent(m[1]).toLowerCase().trim() && a.propertyType === 'hotel' && a.active
+            );
+            if (!accommodation) return null;
+            return { name: accommodation.name, nameAr: accommodation.nameAr, tagline: accommodation.tagline, taglineAr: accommodation.taglineAr };
+          },
+        },
+        locale,
+        baseUrl
+      );
+
+      if (!meta) {
+        res.sendFile(html);
+        return;
+      }
+      const tags = buildHeadTags(meta, locale);
+      const current = res.getHeader('Content-Type');
+      res.setHeader('Content-Type', current || 'text/html; charset=utf-8');
+      res.send(
+        injectMeta(
+          // readFileSync is deliberate: the file is small, requests here are
+          // rare (robots/previews), and a cached copy would go stale on deploy.
+          fs.readFileSync(html, 'utf8'),
+          tags
+        )
+      );
+    };
+    app.get('*', spaFallback);
   }
 
   // Error middleware must be registered last, after every route. This was
@@ -3266,7 +3417,7 @@ async function setupViteOrStatic() {
   checkScheduled();
   setInterval(checkScheduled, 60_000);
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Dahab Platform server running on http://0.0.0.0:${PORT}`);
   });
 }

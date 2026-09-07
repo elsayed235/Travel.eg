@@ -17,10 +17,12 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import type { Landmark, ResearchOverview } from '../../hooks/useResearchOverview';
 import { pick } from '../../hooks/useResearchOverview';
+import type { CmsHomepageSection } from '../../services/api';
 
 interface DahabLandmarksBentoProps {
   overview?: ResearchOverview | null;
   onExploreLandmark?: (landmark: Landmark) => void;
+  cmsSection?: CmsHomepageSection | null;
 }
 
 const LANDMARK_PHOTOS: Record<string, string> = {
@@ -41,13 +43,17 @@ const LANDMARK_TAGS: Record<string, { en: string; ar: string }> = {
 
 export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
   overview,
-  onExploreLandmark
+  onExploreLandmark,
+  cmsSection
 }) => {
   const { language, isRTL } = useLanguage();
   const { isDark } = useTheme();
   const isAr = language === 'ar';
 
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
+
+  // CMS visibility flag: hide this bento from the dashboard (Homepage tab).
+  if (cmsSection && cmsSection.visible === 0) return null;
 
   if (!overview || !overview.landmarks || overview.landmarks.length === 0) {
     return null;
@@ -80,13 +86,13 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/25 mb-3">
             <span className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse" />
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)] font-serif">
+            <span className="text-[11px] font-extrabold text-[var(--accent-primary)] chart-heading">
               {isAr ? 'أطلس سيناء الجغرافي · 2026' : 'Sinai Geographic Atlas · 2026'}
             </span>
           </div>
-          <h2 className="tidal-heading text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text-primary)]">
+          <h2 className="chart-heading text-3xl sm:text-4xl font-bold tracking-tight text-[var(--text-primary)]">
             {isAr ? 'عجائب دهب ومعالم سيناء الخالدة' : 'Iconic Sinai Landmarks'}
-            <span className="tidal-heading-accent"> {isAr ? 'في شبكة ذكية' : '· Bento Atlas'}</span>
+            <span className="chart-heading-accent"> {isAr ? 'في شبكة ذكية' : '· Bento Atlas'}</span>
           </h2>
           <p className="text-sm text-[var(--text-secondary)] mt-2 max-w-2xl leading-relaxed">
             {isAr
@@ -97,7 +103,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
 
         {/* Live Protection Chip */}
         <div className="flex items-center gap-3 self-start md:self-end">
-          <div className="tidal-glass px-4 py-2 rounded-2xl border border-[var(--border-subtle)] flex items-center gap-2 shadow-xs">
+          <div className="chart-glass px-4 py-2 rounded-2xl border border-[var(--border-subtle)] flex items-center gap-2 shadow-xs">
             <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
             <span className="text-xs font-semibold text-[var(--text-primary)]">
               {isAr ? 'محميات طبيعية معتمدة' : 'Verified Sanctuaries'}
@@ -116,7 +122,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {blueHole && (
           <div
             onClick={() => handleTileClick(blueHole)}
-            className="group relative md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-6 sm:p-8"
+            className="group relative md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-6 sm:p-8"
           >
             <img
               src={LANDMARK_PHOTOS[blueHole.id] || '/images/attractions/blue-hole.jpg'}
@@ -129,7 +135,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             {/* Top badges */}
             <div className="relative z-10 flex items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider bg-teal-500/30 text-teal-200 border border-teal-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
+                <span className="text-[11px] font-extrabold bg-teal-500/30 text-teal-200 border border-teal-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
                   {isAr ? LANDMARK_TAGS[blueHole.id]?.ar : LANDMARK_TAGS[blueHole.id]?.en}
                 </span>
                 <span className="text-[11px] font-bold text-white/90 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15">
@@ -144,7 +150,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             {/* Bottom info */}
             <div className="relative z-10 space-y-3">
               <div>
-                <h3 className="text-2xl sm:text-3xl font-serif font-bold text-white group-hover:text-teal-300 transition-colors">
+                <h3 className="text-2xl sm:text-3xl chart-heading font-bold text-white group-hover:text-teal-300 transition-colors">
                   {pick(blueHole.name, language)}
                 </h3>
                 <p className="text-xs sm:text-sm text-white/85 mt-1.5 line-clamp-2 leading-relaxed max-w-xl">
@@ -179,7 +185,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {abuGalum && (
           <div
             onClick={() => handleTileClick(abuGalum)}
-            className="group relative md:col-span-2 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-6"
+            className="group relative md:col-span-2 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-6"
           >
             <img
               src={LANDMARK_PHOTOS[abuGalum.id] || '/images/attractions/ras-abu-galum-spit.jpg'}
@@ -190,7 +196,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
 
             <div className="relative z-10 flex items-center justify-between gap-2">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider bg-amber-500/30 text-amber-200 border border-amber-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
+              <span className="text-[11px] font-extrabold bg-amber-500/30 text-amber-200 border border-amber-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
                 {isAr ? LANDMARK_TAGS[abuGalum.id]?.ar : LANDMARK_TAGS[abuGalum.id]?.en}
               </span>
               <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:rotate-45 transition-transform duration-300">
@@ -199,7 +205,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             </div>
 
             <div className="relative z-10">
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-amber-300 transition-colors">
+              <h3 className="text-xl sm:text-2xl chart-heading font-bold text-white group-hover:text-amber-300 transition-colors">
                 {pick(abuGalum.name, language)}
               </h3>
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-white/90">
@@ -222,7 +228,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {canyon && (
           <div
             onClick={() => handleTileClick(canyon)}
-            className="group relative md:col-span-1 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-5"
+            className="group relative md:col-span-1 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-5"
           >
             <img
               src={LANDMARK_PHOTOS[canyon.id] || '/images/attractions/underwater-elephant.jpg'}
@@ -233,14 +239,14 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/20" />
 
             <div className="relative z-10 flex items-center justify-between gap-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-sky-500/30 text-sky-200 border border-sky-400/40 backdrop-blur-md px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-extrabold bg-sky-500/30 text-sky-200 border border-sky-400/40 backdrop-blur-md px-2.5 py-0.5 rounded-full">
                 {isAr ? '٣٠–٥٢م عمق' : '30–52m Depth'}
               </span>
               <Waves className="w-4 h-4 text-sky-300" />
             </div>
 
             <div className="relative z-10">
-              <h3 className="text-lg font-serif font-bold text-white group-hover:text-sky-300 transition-colors">
+              <h3 className="text-lg chart-heading font-bold text-white group-hover:text-sky-300 transition-colors">
                 {pick(canyon.name, language)}
               </h3>
               <p className="text-[11px] text-white/80 mt-1 line-clamp-1">
@@ -256,7 +262,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {threePools && (
           <div
             onClick={() => handleTileClick(threePools)}
-            className="group relative md:col-span-1 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-5"
+            className="group relative md:col-span-1 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-5"
           >
             <img
               src={LANDMARK_PHOTOS[threePools.id] || '/images/attractions/three-pools.jpg'}
@@ -267,14 +273,14 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/20" />
 
             <div className="relative z-10 flex items-center justify-between gap-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 backdrop-blur-md px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-extrabold bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 backdrop-blur-md px-2.5 py-0.5 rounded-full">
                 {isAr ? 'جنوب دهب' : 'South Dahab'}
               </span>
               <Sparkles className="w-4 h-4 text-emerald-300" />
             </div>
 
             <div className="relative z-10">
-              <h3 className="text-lg font-serif font-bold text-white group-hover:text-emerald-300 transition-colors">
+              <h3 className="text-lg chart-heading font-bold text-white group-hover:text-emerald-300 transition-colors">
                 {pick(threePools.name, language)}
               </h3>
               <p className="text-[11px] text-white/80 mt-1 line-clamp-1">
@@ -290,7 +296,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {stCatherine && (
           <div
             onClick={() => handleTileClick(stCatherine)}
-            className="group relative md:col-span-3 lg:col-span-4 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between p-6"
+            className="group relative md:col-span-3 lg:col-span-4 md:row-span-1 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-6"
           >
             <img
               src={LANDMARK_PHOTOS[stCatherine.id] || '/images/attractions/sinai-desert-safari.jpg'}
@@ -302,7 +308,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
 
             <div className="relative z-10 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider bg-purple-500/30 text-purple-200 border border-purple-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
+                <span className="text-[11px] font-extrabold bg-purple-500/30 text-purple-200 border border-purple-400/40 backdrop-blur-md px-3 py-1 rounded-full shadow-xs">
                   {isAr ? LANDMARK_TAGS[stCatherine.id]?.ar : LANDMARK_TAGS[stCatherine.id]?.en}
                 </span>
                 <span className="hidden sm:inline-block text-xs text-white/80 font-medium">
@@ -316,7 +322,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
 
             <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <h3 className="text-xl sm:text-2xl font-serif font-bold text-white group-hover:text-purple-300 transition-colors">
+                <h3 className="text-xl sm:text-2xl chart-heading font-bold text-white group-hover:text-[#E8A33D] transition-colors">
                   {pick(stCatherine.name, language)}
                 </h3>
                 <p className="text-xs sm:text-sm text-white/85 mt-1 leading-relaxed line-clamp-2">
@@ -346,7 +352,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
           onClick={() => setSelectedLandmark(null)}
         >
           <div
-            className="relative w-full max-w-xl rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xl transition-all"
+            className="relative w-full max-w-xl rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Image Header */}
@@ -362,16 +368,16 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
                 type="button"
                 onClick={() => setSelectedLandmark(null)}
                 aria-label="Close"
-                className="absolute top-4 end-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-90 transition-all cursor-pointer"
+                className="absolute top-4 end-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:scale-110 active:scale-90 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
 
               <div className="absolute bottom-4 start-6 end-6">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 px-2.5 py-0.5 rounded-full">
                   {pick(selectedLandmark.tier, language)}
                 </span>
-                <h3 className="text-2xl font-serif font-bold text-[var(--text-primary)] mt-1.5">
+                <h3 className="text-2xl chart-heading font-bold text-[var(--text-primary)] mt-1.5">
                   {pick(selectedLandmark.name, language)}
                 </h3>
               </div>
@@ -385,7 +391,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
 
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)]">
                     <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     {isAr ? 'الوصول والطريق' : 'Access & Road'}
                   </div>
@@ -395,7 +401,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-secondary)]">
                     <Signal className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                     {isAr ? 'تغطية الشبكة' : 'Cell Coverage'}
                   </div>

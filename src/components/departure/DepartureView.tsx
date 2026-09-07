@@ -170,18 +170,18 @@ export const DepartureView: React.FC = () => {
     <div 
       id="departure-mode-view" 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 font-['Outfit',sans-serif] selection:bg-[var(--accent-secondary)]/30"
+      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] pb-24 selection:bg-[var(--accent-secondary)]/30"
     >
       {/* 1. Coordinated Departure Header */}
       <section className="bg-[var(--surface-card)] border-b border-[var(--border-subtle)] text-white pt-10 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-xs font-bold text-[var(--accent-secondary)]">
                 <Plane className="w-3.5 h-3.5" />
                 <span>{t('departure.departureDayOctober16')}</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
                 {t('departure.headingHome', { travelerName })}
               </h1>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 max-w-2xl font-medium leading-relaxed">
@@ -191,7 +191,7 @@ export const DepartureView: React.FC = () => {
 
             {/* Live Buffer Countdown */}
             <div className="p-5 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-center sm:text-start space-y-1 shadow-lg">
-              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+              <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                 {t('departure.timeUntilAirportPickup')}
               </span>
               {/* Was a frozen "02h : 18m" beside "Driver arriving at 02:30 PM",
@@ -218,10 +218,10 @@ export const DepartureView: React.FC = () => {
             <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl space-y-6">
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                 <div>
-                  <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-secondary)] block">
+                  <span className="text-[11px] font-black text-[var(--accent-secondary)] block">
                     {t('departure.coordinatedSchedule')}
                   </span>
-                  <h2 className="font-serif font-bold text-xl text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-xl text-[var(--text-primary)]">
                     {t('departure.todaysDepartureTimeline')}
                   </h2>
                 </div>
@@ -236,7 +236,7 @@ export const DepartureView: React.FC = () => {
                 {timelineSteps.map((step, idx) => (
                   <div
                     key={idx}
-                    className={`relative flex items-start gap-4 p-4 rounded-2xl transition-all ${
+                    className={`relative flex items-start gap-4 p-4 rounded-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                       step.isCurrent
                         ? 'bg-[var(--surface-container)] border-2 border-[var(--accent-secondary)] shadow-[0_0_20px_rgba(244,195,108,0.15)] ring-1 ring-[var(--accent-secondary)]/30'
                         : step.isDone
@@ -291,7 +291,7 @@ export const DepartureView: React.FC = () => {
               <div className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-3">
                 <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
                   <Plane className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('departure.departureFlight', { flightNumber })}
                   </h2>
                 </div>
@@ -319,7 +319,7 @@ export const DepartureView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowLuggageTicket(true)}
-                className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-xs"
+                className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-xs"
               >
                 <QrCode className="w-3.5 h-3.5" />
                 <span>{t('departure.viewPass')}</span>
@@ -335,7 +335,7 @@ export const DepartureView: React.FC = () => {
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <Car className="w-4 h-4 text-[var(--accent-secondary)]" />
-                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('departure.airportTransferDriver')}
                   </h2>
                 </div>
@@ -404,7 +404,7 @@ export const DepartureView: React.FC = () => {
               <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <h2 className="font-serif font-bold text-base text-[var(--text-primary)]">
+                  <h2 className="chart-heading font-bold text-base text-[var(--text-primary)]">
                     {t('departure.departureChecklist')}
                   </h2>
                 </div>
@@ -424,7 +424,7 @@ export const DepartureView: React.FC = () => {
                       className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[var(--surface-container)] text-start transition-colors cursor-pointer border border-[var(--border-subtle)]"
                     >
                       <div
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center transition-all ${
+                        className={`w-5 h-5 rounded-lg flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
                           item.done
                             ? 'bg-emerald-500 text-[var(--surface-card)]'
                             : 'border-2 border-[var(--border-subtle)] bg-transparent'
@@ -447,11 +447,11 @@ export const DepartureView: React.FC = () => {
 
             {/* 3. Completed Trip / Post-Trip Review Shortcut */}
             <div className="p-6 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-white shadow-xl space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)]">
+              <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-secondary)]">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{t('departure.tripConclusion')}</span>
               </div>
-              <h3 className="font-serif font-bold text-lg text-[var(--text-primary)]">
+              <h3 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
                 {t('departure.lookingBackAtYour')}
               </h3>
               <p className="text-xs text-[var(--text-secondary)]/80 leading-relaxed">
@@ -460,7 +460,7 @@ export const DepartureView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/post-trip')}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>{t('departure.viewCompletedTripHub')}</span>
                 <ArrowRight className={`w-3.5 h-3.5 ${isRTL ? 'rotate-180' : ''}`} />

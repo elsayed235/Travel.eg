@@ -55,10 +55,10 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
               <Building className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                 {t('arrival.dahabBayHotel')}
               </span>
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">
                 {t('arrival.earlyCheckinStatus')}
               </h3>
             </div>
@@ -93,7 +93,7 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
           <div className="space-y-4">
             {/* Reassuring Notification */}
             <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-amber-500/30 space-y-1.5">
-              <div className="flex items-center gap-2 text-amber-300 font-bold text-sm font-['Outfit',sans-serif]">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
                 <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
                 <span>{t('arrival.earlyCheckinIsntAvailable')}</span>
               </div>
@@ -105,7 +105,7 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
 
             {/* Alternatives - Do not leave user at a dead end */}
             <div className="space-y-2 pt-1">
-              <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)]/70 block font-['Outfit',sans-serif]">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)]/70 block">
                 {t('arrival.greatWaysToSpend')}
               </span>
 
@@ -116,7 +116,7 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('luggage');
                 }}
-                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-start flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">
@@ -141,7 +141,7 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('breakfast');
                 }}
-                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-start flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-secondary)] flex items-center justify-center border border-[var(--border-subtle)]">
@@ -166,7 +166,7 @@ export const EarlyCheckInModal: React.FC<EarlyCheckInModalProps> = ({
                   onClose();
                   onSelectOption('beach');
                 }}
-                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-left rtl:text-right flex items-center justify-between transition-colors cursor-pointer group"
+                className="w-full p-3 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-start flex items-center justify-between transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">

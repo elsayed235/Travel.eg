@@ -100,10 +100,10 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               <Sparkles className="w-4 h-4" />
             </span>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#5A5A40]">
+              <span className="text-[11px] font-bold text-[#5A5A40]">
                 {t('home.smartProgramMatcher')}
               </span>
-              <h2 className="text-lg sm:text-xl font-serif font-bold text-[#1A1A1A]">
+              <h2 className="text-lg sm:text-xl chart-heading font-bold text-[#1A1A1A]">
                 {t('home.whichDahabTripIs')}
               </h2>
             </div>
@@ -113,7 +113,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             id="close-quiz-modal-btn"
             onClick={onClose}
             aria-label={t('readyTrip.close')}
-            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-all cursor-pointer"
+            className="w-9 h-9 rounded-full bg-[var(--surface-card)] hover:bg-[#F4EFEA] border border-[#1A1A1A]/10 text-[#1A1A1A] flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -125,7 +125,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             <>
               {/* Question 1: Vibe */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-3">
+                <label className="block text-xs font-bold text-[#5A5A40] mb-3">
                   1. {t('home.whatVibeAreYou')}
                 </label>
                 <div className="space-y-2">
@@ -135,11 +135,11 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                       <button
                         key={v.id}
                         onClick={() => setSelectedVibe(v.id)}
-                        className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between text-xs sm:text-sm font-medium ${
+                        className={`w-full text-start p-3.5 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-between text-xs sm:text-sm font-medium ${
                           isSelected
                             ? 'bg-[#5A5A40] text-white border-[#5A5A40] shadow-sm'
                             : 'bg-[#FDFBF7] text-[#1A1A1A] border-[#1A1A1A]/8 hover:bg-[#F4EFEA]'
-                        } ${isRTL ? 'text-right' : 'text-left'}`}
+                        } ${isRTL ? 'text-end' : 'text-start'}`}
                       >
                         <span>{language === 'ar' ? v.titleAr : v.title}</span>
                         {isSelected && <CheckCircle2 className="w-4 h-4 text-white flex-shrink-0" />}
@@ -151,7 +151,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
 
               {/* Question 2: Length */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-2">
+                <label className="block text-xs font-bold text-[#5A5A40] mb-2">
                   2. {t('home.howManyDaysDo')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -159,7 +159,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                     <button
                       key={days}
                       onClick={() => setSelectedDays(days)}
-                      className={`p-3 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl text-center text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                         selectedDays === days
                           ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
                           : 'bg-[#FDFBF7] text-[#1A1A1A]/70 border-[#1A1A1A]/8 hover:bg-[#F4EFEA]'
@@ -173,7 +173,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
 
               {/* Question 3: Pace */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#5A5A40] mb-2">
+                <label className="block text-xs font-bold text-[#5A5A40] mb-2">
                   3. {t('home.whatPaceFeelsBest')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -181,7 +181,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
                     <button
                       key={p}
                       onClick={() => setSelectedPace(p)}
-                      className={`p-3 rounded-xl text-center text-xs font-bold border transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl text-center text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                         selectedPace === p
                           ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
                           : 'bg-[#FDFBF7] text-[#1A1A1A]/70 border-[#1A1A1A]/8 hover:bg-[#F4EFEA]'
@@ -197,10 +197,10 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
             /* Result View */
             <div className="space-y-6 animate-in fade-in duration-300">
               <div className="text-center">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#5A5A40] bg-[#5A5A40]/10 px-3 py-1 rounded-full border border-[#5A5A40]/20">
+                <span className="text-xs font-bold text-[#5A5A40] bg-[#5A5A40]/10 px-3 py-1 rounded-full border border-[#5A5A40]/20">
                   {t('home.your98Match')}
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-serif font-bold text-[#1A1A1A] mt-3">
+                <h3 className="text-2xl sm:text-3xl chart-heading font-bold text-[#1A1A1A] mt-3">
                   {language === 'ar' ? matchedProgram.titleAr : matchedProgram.title}
                 </h3>
                 <p className="text-xs sm:text-sm text-[#1A1A1A]/70 mt-2 max-w-md mx-auto">
@@ -260,7 +260,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               <button
                 id="calculate-match-btn"
                 onClick={handleCalculateMatch}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity]"
               >
                 <span>{t('home.revealBestMatch')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -279,7 +279,7 @@ export const SmartTripMatchQuizModal: React.FC<SmartTripMatchQuizModalProps> = (
               <button
                 id="apply-match-btn"
                 onClick={handleApplyMatch}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-[#2E2E2E] text-white text-xs font-bold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity]"
               >
                 <span>{t('home.previewStartTrip')}</span>
                 <ArrowRight className="w-3.5 h-3.5" />

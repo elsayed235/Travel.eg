@@ -172,7 +172,10 @@ export function apiAccessPolicy(req: AuthenticatedRequest, res: Response, next: 
       type: 'https://dahab.travel/errors/unauthorized',
       title: 'Authentication Required',
       status: 401,
-      detail: 'Sign in to access this resource.',
+      // Unknown /api paths intentionally return this same 401 (deny-by-
+      // default: the failure mode of a forgotten route is "sign in", not a
+      // breach). Say so, or QA chases a session bug when the path is wrong.
+      detail: 'Sign in to access this resource. Unknown /api paths return this same response by design — if you are signed in, verify the route path.',
       instance: req.originalUrl,
       correlationId: req.correlationId
     });

@@ -54,7 +54,7 @@ interface AccommodationCardProps {
 }
 
 export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodation, isDark, onOpen }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isAr = language === 'ar';
   const chipped = isAr ? (accommodation.typeChipsAr?.length ? accommodation.typeChipsAr : accommodation.typeChips) : accommodation.typeChips;
   const image = HOTEL_IMAGES[accommodation.slug] || FALLBACK_IMAGE;
@@ -63,10 +63,10 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className={`rounded-2xl border overflow-hidden transition-all duration-300 group shadow-sm hover:shadow-xl ${
+      className={`rounded-2xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50'
-          : 'bg-white border-[#122420]/10 hover:border-[var(--accent-primary)]'
+          : 'bg-white border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       <div className="relative h-48 w-full overflow-hidden bg-[var(--surface-container)] flex items-end p-4">
@@ -80,7 +80,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
 
         <div className="relative z-10 flex items-center justify-between w-full">
           <span
-            className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
+            className="text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
             style={{ color: '#ffffff', backgroundColor: `${BAND_ACCENT[accommodation.priceBand]}cc` }}
           >
             {isAr ? typeLabel.ar : typeLabel.en}
@@ -95,15 +95,15 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className={`font-serif font-bold text-base leading-snug line-clamp-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-[#122420]'}`}>
+          <h3 className={`chart-heading font-bold text-base leading-snug line-clamp-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
             {isAr ? accommodation.nameAr : accommodation.name}
           </h3>
         </div>
 
-        <div className={`mt-1.5 flex items-center gap-1.5 text-xs flex-wrap ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[#4A635D]'}`}>
+        <div className={`mt-1.5 flex items-center gap-1.5 text-xs flex-wrap ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
           <MapPin className="w-3.5 h-3.5" />
           {isAr ? accommodation.areaNameAr : accommodation.areaName}
-          <span className={`flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[#4A635D]/60'}`}>
+          <span className={`flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/60'}`}>
             <span className="mx-0.5">
               {accommodation.propertyType === 'hotel' || accommodation.propertyType === 'resort' || accommodation.propertyType === 'boutique-hotel'
                 ? <BedDouble className="w-3.5 h-3.5" />
@@ -116,7 +116,7 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
         </div>
 
         {accommodation.tagline && (
-          <p className={`text-xs mt-2 leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[#4A635D]'}`}>
+          <p className={`text-xs mt-2 leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'}`}>
             {isAr ? accommodation.taglineAr || accommodation.tagline : accommodation.tagline}
           </p>
         )}
@@ -133,10 +133,10 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
         </div>
 
         <div className="mt-3 flex items-baseline gap-1.5">
-          <span className={`font-black text-sm ${isDark ? 'text-[var(--accent-primary)]' : 'text-[#122420]'}`}>
+          <span className={`font-black text-sm ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
             {accommodation.perNightEGP.toLocaleString()} EGP
           </span>
-          <span className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[#4A635D]/70'}`}>
+          <span className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
             / night
             {accommodation.packageNights > 1 && (
               <> · {isAr ? `باقة ${accommodation.packageNights} ليالٍ` : `${accommodation.packageNights}-night package`} {accommodation.packageTotalEGP.toLocaleString()} EGP</>
@@ -147,9 +147,9 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
         <button
           type="button"
           onClick={() => onOpen(accommodation.slug)}
-          className="mt-4 w-full py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
+          className="mt-4 w-full py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
         >
-          {isAr ? 'عرض الإقامة' : 'View stay'}
+          {t('hotels.viewStay')}
           <ChevronRight className={`w-3 h-3 ${isAr ? 'rotate-180' : ''}`} />
         </button>
       </div>

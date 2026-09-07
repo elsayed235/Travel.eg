@@ -44,10 +44,10 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
               <Luggage className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--accent-primary)] block font-['Outfit',sans-serif]">
+              <span className="text-[11px] font-black text-[var(--accent-primary)] block">
                 {t('arrival.luggageStorage')}
               </span>
-              <h3 className="text-lg font-['Outfit',sans-serif] font-bold text-[var(--text-primary)]">
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">
                 {t('arrival.whereWouldYouLike')}
               </h3>
             </div>
@@ -65,7 +65,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
         {/* Recommended Option Card */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1.5 font-['Outfit',sans-serif]">
+            <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
               <span>{t('arrival.recommendedForYou')}</span>
             </span>
@@ -77,7 +77,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
           {/* Primary Recommended Option: Dahab Bay Hotel Concierge */}
           <div 
             onClick={() => setSelectedStorage('hotel')}
-            className={`p-5 rounded-2xl border-2 transition-all cursor-pointer space-y-3 ${
+            className={`p-5 rounded-2xl border-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer space-y-3 ${
               selectedStorage === 'hotel'
                 ? 'border-[var(--accent-secondary)] bg-[var(--surface-container)] shadow-md'
                 : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-white/20'
@@ -89,7 +89,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
                   <Building className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-['Outfit',sans-serif] font-bold text-base text-[var(--text-primary)]">
+                  <h4 className=" font-bold text-base text-[var(--text-primary)]">
                     {t('arrival.dahabBayHotelConcierge')}
                   </h4>
                   <p className="text-xs text-[var(--text-secondary)]/70 flex items-center gap-1 mt-0.5">
@@ -111,7 +111,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
             {/* Key Storage Metrics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs pt-1">
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-white/5 space-y-0.5">
-                <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/40 block font-['Outfit',sans-serif]">{t('arrival.opening')}</span>
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/40 block">{t('arrival.opening')}</span>
                 <span className="font-bold text-[var(--accent-primary)] flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]"></span>
                   <span>{t('arrival.openNow247')}</span>
@@ -119,19 +119,19 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
               </div>
 
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-white/5 space-y-0.5">
-                <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/40 block font-['Outfit',sans-serif]">{t('arrival.cost')}</span>
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/40 block">{t('arrival.cost')}</span>
                 <span className="font-bold text-[var(--text-primary)]">{t('arrival.freeIncluded')}</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-white/5 space-y-0.5 col-span-2 sm:col-span-1">
-                <span className="text-[11px] uppercase font-bold text-[var(--text-secondary)]/40 block font-['Outfit',sans-serif]">{t('arrival.duration')}</span>
+                <span className="text-[11px] font-bold text-[var(--text-secondary)]/40 block">{t('arrival.duration')}</span>
                 <span className="font-bold text-[var(--text-primary)]">{t('arrival.until300PMOr')}</span>
               </div>
             </div>
 
             {/* Directions & Security note */}
             <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]/80 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-[var(--accent-primary)] font-['Outfit',sans-serif]">
+              <div className="flex items-center gap-1.5 font-bold text-[var(--accent-primary)]">
                 <Navigation className="w-3.5 h-3.5" />
                 <span>{t('arrival.directionsFromYourDropoff')}</span>
               </div>
@@ -144,7 +144,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
           {/* Secondary Nearby Option */}
           <div 
             onClick={() => setSelectedStorage('locker')}
-            className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+            className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-between ${
               selectedStorage === 'locker'
                 ? 'border-[var(--accent-secondary)] bg-[var(--surface-container)]'
                 : 'border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-white/20'
@@ -155,7 +155,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
                 <Luggage className="w-4 h-4" />
               </div>
               <div>
-                <h5 className="font-bold text-xs text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                <h5 className="font-bold text-xs text-[var(--text-primary)]">
                   {t('arrival.lighthouseBeachLockerHub')}
                 </h5>
                 <p className="text-[12px] text-[var(--text-secondary)]/70">
@@ -186,7 +186,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
               onConfirmStorage(name);
               onClose();
             }}
-            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:bg-[#E5B55D] text-[var(--surface-container)] font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 font-['Outfit',sans-serif]"
+            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <Check className="w-4 h-4 text-[var(--surface-container)] stroke-[2.5]" />
             <span>{t('arrival.chooseThisPlace')}</span>

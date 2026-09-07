@@ -300,7 +300,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
                           item.category === 'Experience'
                             ? 'bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/20'
                             : item.category === 'Booking'
@@ -314,14 +314,14 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
                       >
                         {displayCategory}
                       </span>
-                      <span className="text-sm font-bold text-[var(--text-primary)] font-['Outfit',sans-serif]">
+                      <span className="text-sm font-bold text-[var(--text-primary)]">
                         {displayTitle}
                       </span>
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] line-clamp-1">{displaySubtitle}</p>
                   </div>
 
-                  <ArrowRight className={`w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-all flex-shrink-0 ${isRTL ? 'rotate-180 group-hover:-translate-x-0.5' : 'group-hover:translate-x-0.5'}`} />
+                  <ArrowRight className={`w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex-shrink-0 ${isRTL ? 'rotate-180 group-hover:-translate-x-0.5' : 'group-hover:translate-x-0.5'}`} />
                 </button>
               );
             })

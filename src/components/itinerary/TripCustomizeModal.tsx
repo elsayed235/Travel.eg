@@ -94,7 +94,7 @@ export const TripCustomizeModal: React.FC<TripCustomizeModalProps> = ({
               <SlidersHorizontal className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="customize-modal-title" className="text-xl font-serif font-bold text-[var(--text-primary)]">
+              <h3 id="customize-modal-title" className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                 {isAr ? 'تخصيص رحلتك في دهب' : 'Customize Your Trip'}
               </h3>
               <p className="text-xs text-[var(--text-secondary)]/70 font-normal">
@@ -118,7 +118,7 @@ export const TripCustomizeModal: React.FC<TripCustomizeModalProps> = ({
           {customizationOptions.map((opt) => (
             <div
               key={opt.id}
-              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 hover:bg-[var(--surface-container)]/90 transition-all cursor-pointer group flex items-start justify-between gap-4"
+              className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 hover:bg-[var(--surface-container)]/90 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group flex items-start justify-between gap-4"
               onClick={onApply}
             >
               <div className="flex items-start gap-3.5">
@@ -167,7 +167,7 @@ export const TripCustomizeModal: React.FC<TripCustomizeModalProps> = ({
               onApply();
               onClose();
             }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-container)] text-xs font-bold tracking-tight shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-amber-300 text-[var(--surface-container)] text-xs font-bold tracking-tight shadow-sm transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <span>{isAr ? 'تم التخصيص' : 'Done Customizing'}</span>
             <Check className="w-3.5 h-3.5" />

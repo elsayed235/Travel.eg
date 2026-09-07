@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, MapPin, Plus, Share2, ShieldCheck, SlidersHorizontal, Sun, Users } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { IMG_P154455176346a013bb70d5_HERO } from '../../../shared/placeholderImagery';
 
 interface TripHeroCardProps {
   travelerDisplayName: string;
@@ -62,7 +63,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
       {/* Background Photography with deep gradient */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1400&auto=format&fit=crop"
+          src={IMG_P154455176346a013bb70d5_HERO}
           alt=""
           className="w-full h-full object-cover opacity-60 filter saturate-110"
           referrerPolicy="no-referrer"
@@ -77,7 +78,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
         {/* Stage Pill & Weather ticker */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {statusLabel && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-[var(--accent-primary)] text-[var(--surface-container)] shadow-md">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{language === 'ar' ? statusLabel.ar : statusLabel.en}</span>
             </span>
@@ -100,10 +101,10 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
 
         {/* Greeting & Title */}
         <div>
-          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--accent-primary)] block mb-1">
+          <span className="text-sm sm:text-base font-semibold text-[var(--accent-primary)] block mb-1">
             {t('myTrip.welcomeBack', { travelerDisplayName })}
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[var(--text-primary)] leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl chart-heading font-bold text-[var(--text-primary)] leading-tight">
             {/*
               The trip's own title wins. The duration phrasing below is a
               fallback for a trip that has none — it used to be the only thing
@@ -138,7 +139,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
           </span>
           <span className="opacity-40">•</span>
           <span className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-[#EA8E75]" />
+            <MapPin className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
             <span>{t('myTrip.dahabSouthSinai')}</span>
           </span>
         </div>
@@ -149,7 +150,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             type="button"
             id="hero-share-trip-btn"
             onClick={onShare}
-            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <Share2 className="w-4 h-4 text-[var(--accent-primary)]" />
             <span>{t('myTrip.shareItinerary')}</span>
@@ -159,7 +160,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             type="button"
             id="hero-manage-trip-btn"
             onClick={onManageTrip}
-            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <SlidersHorizontal className="w-4 h-4 text-[var(--accent-secondary)]" />
             <span>{t('myTrip.manageTrip')}</span>
@@ -169,9 +170,9 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             type="button"
             id="hero-add-exp-btn"
             onClick={onAddActivity}
-            className="px-6 py-2.5 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[#E7A83B] text-[var(--surface-container)] text-xs font-extrabold flex items-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95"
+            className="px-6 py-2.5 rounded-2xl bg-[var(--accent-secondary)] hover:opacity-90 text-[var(--accent-secondary-ink)] text-xs font-extrabold flex items-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
           >
-            <Plus className="w-4 h-4 text-[var(--surface-container)]" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             <span>{t('myTrip.addActivity')}</span>
           </button>
         </div>

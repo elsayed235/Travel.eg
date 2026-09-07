@@ -106,12 +106,12 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
               <LifeBuoy className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] font-black uppercase tracking-widest text-rose-500">
+              <span className="text-[11px] font-black text-rose-500">
                 {t('common.247SINAIRAPIDRESPONSE')}
               </span>
               <h2
                 id="emergency-modal-title"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)] font-['Outfit',sans-serif]"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]"
               >
                 {t('emergency.title')}
               </h2>
@@ -162,7 +162,7 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ isOpen, onClose 
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black uppercase tracking-wider opacity-90">
+                      <span className="text-[11px] font-black opacity-90">
                         {item.tag}
                       </span>
                       <Icon className="w-4 h-4 opacity-80" />

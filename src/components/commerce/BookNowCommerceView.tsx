@@ -416,7 +416,7 @@ export const BookNowCommerceView: React.FC = () => {
   };
 
   const fieldClass =
-    'rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-medium text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--accent-primary)] transition-all';
+    'rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-medium text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] focus:border-[var(--accent-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity]';
 
   return (
     <div
@@ -444,7 +444,7 @@ export const BookNowCommerceView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/home')}
-                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer rounded py-2 -my-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 {t('commerce.home')}
               </button>
@@ -459,7 +459,7 @@ export const BookNowCommerceView: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('/bookings')}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <Receipt className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
               <span>{t('commerce.myBookings')}</span>
@@ -474,12 +474,12 @@ export const BookNowCommerceView: React.FC = () => {
           {/* Title + live conditions */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold uppercase tracking-widest">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold">
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{t('commerce.dahabLiveCommerce')}</span>
               </span>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-serif font-bold tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] chart-heading font-bold tracking-tight leading-tight">
                 {t('commerce.bookLocalDahabServices')}
               </h1>
 
@@ -491,7 +491,7 @@ export const BookNowCommerceView: React.FC = () => {
             {/* Live sea & wind */}
             <div className="shrink-0 lg:min-w-[19rem] rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-4 space-y-3">
               <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-[var(--border-subtle)]">
-                <span className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[var(--text-primary)]">
+                <span className="flex items-center gap-2 text-xs font-extrabold text-[var(--text-primary)]">
                   <span
                     aria-hidden="true"
                     className="w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse"
@@ -519,7 +519,7 @@ export const BookNowCommerceView: React.FC = () => {
                   }
                 ].map((stat) => (
                   <div key={stat.labelEn}>
-                    <dt className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                    <dt className="text-[11px] font-bold text-[var(--text-secondary)]">
                       {language === 'ar' ? stat.labelAr : stat.labelEn}
                     </dt>
                     <dd className="text-lg font-mono font-bold text-[var(--text-primary)] tabular-nums">
@@ -556,7 +556,7 @@ export const BookNowCommerceView: React.FC = () => {
                   type="button"
                   onClick={() => setSelectedCategory(cat.id)}
                   aria-pressed={isSelected}
-                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                     isSelected
                       ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md'
                       : 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
@@ -617,7 +617,7 @@ export const BookNowCommerceView: React.FC = () => {
           >
             <div className="flex items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-serif font-bold">
+                <h2 className="text-xl chart-heading font-bold">
                   {t('commerce.availableRightNow')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)]">
@@ -639,7 +639,7 @@ export const BookNowCommerceView: React.FC = () => {
             {filteredServices.length === 0 ? (
               <div className="p-10 sm:p-12 text-center bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] space-y-3">
                 <Compass className="w-10 h-10 text-[var(--accent-primary)] mx-auto opacity-60" aria-hidden="true" />
-                <h3 className="text-lg font-serif font-bold">
+                <h3 className="text-lg chart-heading font-bold">
                   {t('commerce.noMatchingServices')}
                 </h3>
                 <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto leading-relaxed">
@@ -652,7 +652,7 @@ export const BookNowCommerceView: React.FC = () => {
                     setSearchQuery('');
                     setSelectedAvailability('all');
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="px-5 py-2.5 rounded-xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] text-xs font-extrabold cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   {t('commerce.resetFilters')}
                 </button>
@@ -670,7 +670,7 @@ export const BookNowCommerceView: React.FC = () => {
                     <li key={svc.id}>
                       <article
                         id={`service-card-${svc.id}`}
-                        className={`bg-[var(--surface-card)] rounded-3xl border transition-all duration-200 overflow-hidden ${
+                        className={`bg-[var(--surface-card)] rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 overflow-hidden ${
                           isSelected
                             ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/25 shadow-xl'
                             : 'border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40 hover:shadow-lg'
@@ -680,7 +680,7 @@ export const BookNowCommerceView: React.FC = () => {
                           {/* Meta row */}
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-extrabold uppercase tracking-wider ${availabilityTone(
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-extrabold ${availabilityTone(
                                 svc.availabilityBadge
                               )}`}
                             >
@@ -708,7 +708,7 @@ export const BookNowCommerceView: React.FC = () => {
                             </span>
 
                             <div className="min-w-0 space-y-1.5">
-                              <h3 className="text-lg sm:text-xl font-serif font-bold leading-snug">
+                              <h3 className="text-lg sm:text-xl chart-heading font-bold leading-snug">
                                 {language === 'ar' ? svc.titleAr : svc.title}
                               </h3>
                               <p className="text-sm font-semibold text-[var(--accent-primary)]">
@@ -747,7 +747,7 @@ export const BookNowCommerceView: React.FC = () => {
                           {/* What to bring — omitted entirely when the product carries none */}
                           {bringList.length > 0 && (
                             <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-3 space-y-2">
-                              <span className="block text-[11px] font-extrabold uppercase tracking-wider text-[var(--text-secondary)]">
+                              <span className="block text-[11px] font-extrabold text-[var(--text-secondary)]">
                                 {t('commerce.whatToBring')}
                               </span>
                               <ul className="flex flex-wrap gap-1.5">
@@ -768,7 +768,7 @@ export const BookNowCommerceView: React.FC = () => {
                         {/* Price + CTA footer */}
                         <div className="px-5 sm:px-6 py-4 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
-                            <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                            <span className="block text-[11px] font-bold text-[var(--text-secondary)]">
                               {t('commerce.officialRatePerPerson')}
                             </span>
                             <span className="text-2xl font-mono font-bold tabular-nums">
@@ -781,7 +781,7 @@ export const BookNowCommerceView: React.FC = () => {
                             type="button"
                             onClick={() => handleSelectService(svc)}
                             aria-pressed={isSelected}
-                            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-container)] ${
+                            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-xs font-extrabold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-container)] ${
                               isSelected
                                 ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]'
                                 : 'bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] shadow-md'
@@ -825,7 +825,7 @@ export const BookNowCommerceView: React.FC = () => {
                   <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/40 text-[var(--accent-primary)] flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" aria-hidden="true" />
                   </div>
-                  <h2 className="text-lg font-serif font-bold">
+                  <h2 className="text-lg chart-heading font-bold">
                     {t('commerce.bookingConfirmed')}
                   </h2>
                   <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -872,7 +872,7 @@ export const BookNowCommerceView: React.FC = () => {
                     )}%20I%20have%20confirmed%20voucher%20${confirmedBooking.confirmationCode}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="w-full py-3 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <Phone className="w-4 h-4" aria-hidden="true" />
                     <span>{t('commerce.whatsAppTheProvider')}</span>
@@ -881,7 +881,7 @@ export const BookNowCommerceView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigateTo('/my-trip')}
-                    className="w-full py-2.5 px-4 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="w-full py-2.5 px-4 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[var(--text-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <Luggage className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
                     <span>{t('commerce.viewInMyItinerary')}</span>
@@ -893,7 +893,7 @@ export const BookNowCommerceView: React.FC = () => {
                       setConfirmedBooking(null);
                       setActiveService(null);
                     }}
-                    className="w-full py-2.5 px-4 rounded-2xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="w-full py-2.5 px-4 rounded-2xl text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     {t('commerce.bookAnotherService')}
                   </button>
@@ -904,10 +904,10 @@ export const BookNowCommerceView: React.FC = () => {
               <div className="bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col lg:max-h-[calc(100vh-13rem)]">
                 <div className="p-5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-3 shrink-0">
                   <div className="min-w-0">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--accent-primary)]">
+                    <span className="text-[11px] font-extrabold text-[var(--accent-primary)]">
                       {t('commerce.configureBook')}
                     </span>
-                    <h2 className="text-base font-serif font-bold mt-1 leading-snug">
+                    <h2 className="text-base chart-heading font-bold mt-1 leading-snug">
                       {language === 'ar' ? activeService.titleAr : activeService.title}
                     </h2>
                   </div>
@@ -915,7 +915,7 @@ export const BookNowCommerceView: React.FC = () => {
                     type="button"
                     onClick={() => setActiveService(null)}
                     aria-label={t('commerce.closeBookingPanel')}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -936,7 +936,7 @@ export const BookNowCommerceView: React.FC = () => {
                             type="button"
                             onClick={() => setGuestsCount(num)}
                             aria-pressed={on}
-                            className={`py-2.5 rounded-xl text-sm font-bold tabular-nums transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                            className={`py-2.5 rounded-xl text-sm font-bold tabular-nums transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                               on
                                 ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)] shadow-md'
                                 : 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
@@ -976,7 +976,7 @@ export const BookNowCommerceView: React.FC = () => {
                             type="button"
                             onClick={() => setSelectedTimeSlot(slot.id)}
                             aria-pressed={on}
-                            className={`p-3 rounded-xl text-start border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                            className={`p-3 rounded-xl text-start border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                               on
                                 ? 'bg-[var(--accent-primary)]/12 border-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30'
                                 : 'bg-[var(--surface-container)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
@@ -1081,7 +1081,7 @@ export const BookNowCommerceView: React.FC = () => {
                     type="button"
                     onClick={handleConfirmInstantBooking}
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
+                    className="w-full py-3.5 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
                   >
                     {isSubmitting ? (
                       <span className="animate-pulse">
@@ -1121,7 +1121,7 @@ export const BookNowCommerceView: React.FC = () => {
                 <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/12 text-[var(--accent-primary)] flex items-center justify-center mx-auto">
                   <Receipt className="w-6 h-6" aria-hidden="true" />
                 </div>
-                <h2 className="text-lg font-serif font-bold">
+                <h2 className="text-lg chart-heading font-bold">
                   {t('commerce.pickAServiceTo')}
                 </h2>
                 <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -1147,7 +1147,7 @@ export const BookNowCommerceView: React.FC = () => {
                 href="https://wa.me/201002348899?text=Hello%20Dahab%20Travel%20OS%20Dispatch,%20I%20need%20custom%20assistance"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-extrabold text-[var(--accent-primary)] hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="inline-flex items-center gap-1 text-xs font-extrabold text-[var(--accent-primary)] hover:underline rounded py-2 -my-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 <span>{t('commerce.chatWithADahab')}</span>
                 <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />

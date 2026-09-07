@@ -65,7 +65,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             <div className="absolute bottom-3.5 left-4 right-4 text-white">
               <div className="flex items-center gap-2 mb-1">
                 {activity.isHighlight && (
-                  <span className="px-2 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-[11px] font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-[11px] font-bold">
                     {isAr ? 'تجربة مميزة' : 'Highlight'}
                   </span>
                 )}
@@ -73,7 +73,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                   {isAr ? `اليوم ${activity.dayNumber} · ${activity.time}` : `Day ${activity.dayNumber} · ${activity.time}`}
                 </span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[var(--text-primary)] leading-tight">
+              <h3 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)] leading-tight">
                 {activity.name}
               </h3>
             </div>
@@ -85,10 +85,10 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           {!activity.image && (
             <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)] mb-4">
               <div>
-                <span className="text-xs font-bold text-[var(--accent-secondary)] uppercase tracking-wider block">
+                <span className="text-xs font-bold text-[var(--accent-secondary)] block">
                   {isAr ? `اليوم ${activity.dayNumber} · ${activity.time}` : `Day ${activity.dayNumber} · ${activity.time}`}
                 </span>
-                <h3 className="text-xl font-serif font-bold text-[var(--text-primary)]">
+                <h3 className="text-xl chart-heading font-bold text-[var(--text-primary)]">
                   {activity.name}
                 </h3>
               </div>
@@ -124,7 +124,7 @@ export const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           {/* What's Included */}
           {activity.included && activity.included.length > 0 && (
             <div className="mb-5 p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--accent-secondary)] mb-2.5 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-[var(--accent-secondary)] mb-2.5 flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                 <span>{isAr ? 'ما يشمله النشاط' : "What's Included"}</span>
               </h4>
