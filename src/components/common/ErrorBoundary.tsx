@@ -69,7 +69,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           alignItems: 'center',
           justifyContent: 'center',
           padding: '2rem',
-          background: '#081714',
+          background: '#141311',
           color: '#F7F3EA',
           fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif"
         }}
@@ -92,8 +92,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 padding: '0.7rem 1.4rem',
                 borderRadius: '0.9rem',
                 border: 'none',
-                background: '#E8A33D',
-                color: '#04171D',
+                background: 'var(--accent-primary)',
+                color: '#141311',
                 fontWeight: 800,
                 fontSize: '0.8rem',
                 cursor: 'pointer'

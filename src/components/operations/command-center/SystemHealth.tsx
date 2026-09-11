@@ -1,16 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { HeartPulse, CheckCircle2, AlertTriangle, RefreshCw, Database, Cpu, Cloud, Zap, Clock } from 'lucide-react';
+import { HeartPulse, RefreshCw, Cloud, Camera } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
-
-const STATUS_COLORS: Record<string, string> = {
-  healthy: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
-  degraded: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-  down: 'text-red-400 bg-red-500/20 border-red-500/30',
-  ok: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
-  error: 'text-red-400 bg-red-500/20 border-red-500/30',
-  unknown: 'text-[var(--text-muted)] bg-[var(--btn-util-bg)] border-[var(--border-subtle)]',
-};
+import { SectionHeader, StatusBadge, DashCard, EmptyState, Skeleton, MetricGrid } from './ui';
 
 export default function SystemHealth() {
   const { language, t } = useLanguage();
@@ -20,18 +12,13 @@ export default function SystemHealth() {
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [weather, setWeather] = useState<any>(null);
   const [cameras, setCameras] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'services' | 'integrations'>('services');
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
       const [h, m, j, integ, w, cam] = await Promise.allSettled([
-        api.getHealthData(),
-        api.getMarketStatus(),
-        api.getBackgroundJobsStatus(),
-        api.getOperationsIntegrations(),
-        api.getWeatherTelemetry(),
-        api.getCameraFeeds(),
+        api.getHealthData(), api.getMarketStatus(), api.getBackgroundJobsStatus(),
+        api.getOperationsIntegrations(), api.getWeatherTelemetry(), api.getCameraFeeds(),
       ]);
       if (h.status === 'fulfilled') setHealth(h.value);
       if (m.status === 'fulfilled') setMarketStatus(m.value);
@@ -45,157 +32,128 @@ export default function SystemHealth() {
   useEffect(() => { fetchData(); const i = setInterval(fetchData, 60_000); return () => clearInterval(i); }, [fetchData]);
 
   const services = [
-    {
-      name: 'API Gateway',
-      status: health?.status === 'ok' ? 'healthy' : 'down',
-      details: health?.service || 'Dahab Platform',
-    },
-    {
-      name: 'Database',
-      status: health?.database?.adapter ? 'healthy' : 'unknown',
-      details: health?.database?.adapter || 'Unknown adapter',
-      meta: health?.database ? `${health.database.users} users · ${health.database.trips} trips · ${health.database.bookings} bookings` : undefined,
-    },
-    {
-      name: 'Payments',
-      status: health?.paymentsSimulated ? 'degraded' : 'healthy',
-      details: health?.paymentsSimulated ? 'Simulation mode — no real gateway' : 'Real payment gateway',
-    },
-    {
-      name: 'Gemini AI',
-      status: health?.geminiConfigured ? (health?.geminiQuota?.status === 'EXHAUSTED' ? 'degraded' : 'healthy') : 'down',
-      details: health?.geminiConfigured ? `Model: ${health.geminiQuota?.model || 'unknown'}` : 'API key not configured',
-      meta: health?.geminiQuota ? `Status: ${health.geminiQuota.status} · Available: ${health.geminiQuota.available}` : undefined,
-    },
-    {
-      name: 'Firebase Auth',
-      status: health?.firebaseAdminConfigured === true ? 'healthy' : health?.firebaseAdminConfigured === false ? 'degraded' : 'unknown',
-      details: health?.firebaseAdminConfigured ? 'Federated sign-in available' : 'Admin credentials not configured',
-    },
-    {
-      name: 'Ledger Integrity',
-      status: health?.ledger?.valid ? 'healthy' : health?.ledger ? 'down' : 'unknown',
-      details: health?.ledger ? `${health.ledger.totalEntries} entries · ${health.ledger.valid ? 'Valid' : 'INVALID'}` : 'Unknown',
-      meta: health?.ledger?.chainIntact ? 'SHA-256 chain intact' : undefined,
-    },
-    {
-      name: 'Market Intelligence',
-      status: typeof marketStatus?.activeSourcesCount === 'number' ? 'healthy' : 'unknown',
-      details: typeof marketStatus?.activeSourcesCount === 'number'
-        ? `${marketStatus.activeSourcesCount} active sources · ${marketStatus.totalPriceObservations ?? 0} observations`
-        : 'Unknown state',
-    },
-    {
-      name: 'Background Jobs',
-      status: typeof jobs?.activeJobsCount === 'number' ? 'healthy' : 'unknown',
-      details: typeof jobs?.activeJobsCount === 'number'
-        ? `${jobs.activeJobsCount} active · ${jobs.jobs?.length ?? 0} queued`
-        : 'Unknown',
-    },
+    { name: t('cmd.health.apiGateway'), status: health?.status === 'ok' ? 'healthy' : 'down', details: health?.service || 'Dahab Platform' },
+    { name: t('cmd.health.database'), status: health?.database?.adapter ? 'healthy' : 'unknown', details: health?.database?.adapter || 'Unknown adapter', meta: health?.database ? `${health.database.users} users · ${health.database.trips} trips` : undefined },
+    { name: t('cmd.health.payments'), status: health?.paymentsSimulated ? 'degraded' : 'healthy', details: health?.paymentsSimulated ? t('cmd.health.simulatedMode') : t('cmd.health.realGateway') },
+    { name: t('cmd.health.geminiAi'), status: health?.geminiConfigured ? (health?.geminiQuota?.status === 'EXHAUSTED' ? 'degraded' : 'healthy') : 'down', details: health?.geminiConfigured ? `Model: ${health.geminiQuota?.model || '?'}` : t('cmd.health.loading') },
+    { name: t('cmd.health.firebaseAuth'), status: health?.firebaseAdminConfigured ? 'healthy' : 'degraded', details: health?.firebaseAdminConfigured ? 'Federated sign-in' : t('cmd.health.loading') },
+    { name: t('cmd.health.ledgerIntegrity'), status: health?.ledger?.valid ? 'healthy' : health?.ledger ? 'down' : 'unknown', details: health?.ledger ? `${health.ledger.totalEntries} entries · ${health.ledger.valid ? 'Valid' : 'INVALID'}` : 'Unknown' },
+    { name: t('cmd.health.marketIntelligence'), status: typeof marketStatus?.activeSourcesCount === 'number' ? 'healthy' : 'unknown', details: typeof marketStatus?.activeSourcesCount === 'number' ? `${marketStatus.activeSourcesCount} sources` : 'Unknown' },
+    { name: t('cmd.health.backgroundJobs'), status: typeof jobs?.activeJobsCount === 'number' ? 'healthy' : 'unknown', details: typeof jobs?.activeJobsCount === 'number' ? `${jobs.activeJobsCount} active` : 'Unknown' },
   ];
 
+  const healthyCount = services.filter(s => s.status === 'healthy').length;
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <HeartPulse className="w-4 h-4 text-emerald-400" />
-          {t('cmd.health.title')}
-        </h3>
-        <button type="button" onClick={() => fetchData()}
-          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer">
-          <RefreshCw className="w-3.5 h-3.5" />
-        </button>
-      </div>
+    <div className="space-y-5">
+      <SectionHeader
+        icon={HeartPulse}
+        iconColor="text-emerald-400"
+        title={t('cmd.health.title')}
+        subtitle={t('cmd.health.servicesHealthy').replace('${healthy}', String(healthyCount)).replace('${total}', String(services.length))}
+        actions={
+          <button type="button" onClick={fetchData} aria-label={t('cmd.overview.refresh')}
+            className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--surface-container)] text-[var(--text-muted)] cursor-pointer">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-[var(--text-muted)]">{t('cmd.health.loading')}</div>
+        <Skeleton variant="card" count={4} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {services.map((svc, i) => {
-            const isOk = svc.status === 'healthy' || svc.status === 'ok';
-            return (
-              <div key={i} className={`p-4 rounded-2xl border ${isOk ? 'bg-[var(--surface-container)] border-emerald-500/10' : 'bg-[var(--surface-container)] border-[var(--border-subtle)]'}`}>
-                <div className="flex items-center justify-between mb-2">
+        <>
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {services.map((svc, i) => (
+              <DashCard key={i} padding="sm" glow={svc.status === 'healthy' ? 'green' : svc.status === 'down' ? 'red' : 'none'}>
+                <div className="flex items-center justify-between mb-1.5">
                   <div className="text-xs font-bold text-[var(--text-primary)]">{svc.name}</div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_COLORS[svc.status]}`}>
-                    {svc.status.toUpperCase()}
-                  </span>
+                  <StatusBadge status={svc.status} dot />
                 </div>
                 <div className="text-[11px] text-[var(--text-muted)]">{svc.details}</div>
-                {svc.meta && <div className="text-[11px] text-[var(--text-muted)] font-mono mt-1">{svc.meta}</div>}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Integrations */}
-      {integrations.length > 0 && activeTab === 'services' && (
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-[var(--text-muted)]">Integrations</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {integrations.map((integ: any, i: number) => (
-              <div key={i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
-                <div>
-                  <div className="text-xs font-bold text-[var(--text-primary)]">{integ.name}</div>
-                  <div className="text-[11px] text-[var(--text-muted)]">{integ.purpose}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[var(--text-muted)] font-mono">{integ.freshness}</span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_COLORS[integ.status] || STATUS_COLORS.unknown}`}>\n                    {integ.status?.toUpperCase() || 'UNKNOWN'}\n                  </span>
-                </div>
-              </div>
+                {svc.meta && <div className="text-[10px] text-[var(--text-muted)] font-mono mt-1">{svc.meta}</div>}
+              </DashCard>
             ))}
           </div>
-        </div>
-      )}
 
-      {/* Weather Telemetry */}
-      {weather && (
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-[var(--text-muted)]">{t('cmd.health.weatherTelemetry')}</h4>
-          <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-            {weather.available === false ? (
-              <div className="text-xs text-[var(--text-muted)]">Live conditions unavailable: {weather.reason || 'unknown'}</div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.airTemperatureC ?? '—'}°C</div><div className="text-[11px] text-[var(--text-muted)]">Air</div></div>
-                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.waterTemperatureC ?? '—'}°C</div><div className="text-[11px] text-[var(--text-muted)]">Water</div></div>
-                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.wind?.speedKnots ?? '—'} kn</div><div className="text-[11px] text-[var(--text-muted)]">Wind {weather.wind?.direction || ''}</div></div>
-                <div><div className="text-lg font-bold text-sky-400 font-mono">{weather.condition ?? '—'}</div><div className="text-[11px] text-[var(--text-muted)]">Condition</div></div>
-                {weather.observedAt && <div className="col-span-4 text-[11px] text-[var(--text-muted)] font-mono">Observed {new Date(weather.observedAt).toLocaleString()} · {weather.source || 'weather service'}</div>}
+          {/* Integrations */}
+          {integrations.length > 0 && (
+            <div>
+              <h4 className="text-xs font-bold text-[var(--text-muted)] mb-3">{t('cmd.health.integrations')}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {integrations.map((integ: any, i: number) => (
+                  <DashCard key={i} padding="sm">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-[var(--text-primary)]">{integ.name}</div>
+                        <div className="text-[11px] text-[var(--text-muted)]">{integ.purpose}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-[var(--text-muted)] font-mono">{integ.freshness}</span>
+                        <StatusBadge status={integ.status || 'unknown'} />
+                      </div>
+                    </div>
+                  </DashCard>
+                ))}
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Camera Feeds */}
-      {cameras.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-[var(--text-muted)]">Dahab Spots ({cameras.length})</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {cameras.slice(0, 4).map((cam: any, i: number) => (
-              <div key={i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                <div className="text-xs font-bold text-[var(--text-primary)]">{cam.name || cam.shortName || `Spot ${i + 1}`}</div>
-                <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{cam.orientation || '—'}</div>
-                {cam.conditions && (
-                  <div className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5">
-                    {cam.conditions.waterTempC != null && `${cam.conditions.waterTempC}°C water`}
-                    {cam.conditions.airTempC != null && ` · ${cam.conditions.airTempC}°C air`}
-                    {cam.conditions.windKnots != null && ` · ${cam.conditions.windKnots} kn`}
-                  </div>
-                )}
+          {/* Weather */}
+          {weather && weather.available !== false && (
+            <DashCard>
+              <div className="flex items-center gap-2 mb-3">
+                <Cloud className="w-4 h-4 text-sky-400" />
+                <h4 className="text-xs font-bold text-[var(--text-primary)]">{t('cmd.health.weatherTelemetry')}</h4>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              <MetricGrid
+                metrics={[
+                  { label: t('cmd.health.air'), value: `${weather.airTemperatureC ?? '—'}°C`, color: 'text-sky-400' },
+                  { label: t('cmd.health.water'), value: `${weather.waterTemperatureC ?? '—'}°C`, color: 'text-sky-400' },
+                  { label: t('cmd.health.wind'), value: `${weather.wind?.speedKnots ?? '—'} kn`, color: 'text-sky-400' },
+                  { label: t('cmd.health.condition'), value: weather.condition ?? '—', color: 'text-sky-400' },
+                ]}
+                columns={4}
+              />
+              {weather.observedAt && (
+                <div className="text-[10px] text-[var(--text-muted)] font-mono mt-2">
+                  Observed {new Date(weather.observedAt).toLocaleString()} · {weather.source || t('cmd.health.weatherService')}
+                </div>
+              )}
+            </DashCard>
+          )}
 
-      {/* Timestamp */}
-      <div className="text-center text-[11px] text-[var(--text-muted)]">
-        Last checked: {new Date().toLocaleTimeString()} · Auto-refreshes every 60s
-      </div>
+          {/* Camera Feeds */}
+          {cameras.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Camera className="w-4 h-4 text-[var(--accent-primary)]" />
+                <h4 className="text-xs font-bold text-[var(--text-muted)]">{t('cmd.health.dahabSpots')} ({cameras.length})</h4>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {cameras.slice(0, 4).map((cam: any, i: number) => (
+                  <DashCard key={i} padding="sm">
+                    <div className="text-xs font-bold text-[var(--text-primary)]">{cam.name || cam.shortName || `${t('cmd.health.spot')} ${i + 1}`}</div>
+                    <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{cam.orientation || '—'}</div>
+                    {cam.conditions && (
+                      <div className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5">
+                        {cam.conditions.waterTempC != null && `${cam.conditions.waterTempC}°C water`}
+                        {cam.conditions.airTempC != null && ` · ${cam.conditions.airTempC}°C air`}
+                        {cam.conditions.windKnots != null && ` · ${cam.conditions.windKnots} kn`}
+                      </div>
+                    )}
+                  </DashCard>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="text-center text-[10px] text-[var(--text-muted)]">
+            {t('cmd.health.lastChecked')}: {new Date().toLocaleTimeString()} · {t('cmd.health.autoRefreshes')}
+          </div>
+        </>
+      )}
     </div>
   );
 }

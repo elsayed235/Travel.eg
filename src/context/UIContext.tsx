@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { AppRoute, JourneyStage } from '../types';
 import { DEFAULT_ROUTE, routeFromUrl, urlFromRoute, type RouteParams } from '../lib/routeUrl';
 
@@ -48,7 +49,13 @@ export interface UIContextType {
   isEasyMode: boolean;
   setIsEasyMode: (val: boolean) => void;
   toggleEasyMode: () => void;
-  toast: string | null;
+  /**
+   * Active toasts, newest last. Each toast keeps its own dismiss timer, so a
+   * second showToast during the first's window stacks rather than cutting the
+   * first short (a screen-reader user would otherwise lose the first message
+   * entirely).
+   */
+  toasts: UiToast[];
   showToast: (msg: string) => void;
   navigateTo: (route: AppRoute, params?: RouteParams) => void;
   /**
@@ -68,6 +75,12 @@ export interface UIContextType {
   openDayGiWithPrompt: (prompt: string) => void;
   activePersonaMode: 'PRE_TRIP' | 'IN_DAHAB';
   setActivePersonaMode: (mode: 'PRE_TRIP' | 'IN_DAHAB') => void;
+}
+
+/** One queued toast notification. */
+export interface UiToast {
+  id: number;
+  message: string;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -110,7 +123,10 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const [journeyStage, setJourneyStage] = useState<JourneyStage>('discover');
   const [activeDayGiPrompt, setActiveDayGiPrompt] = useState<string | null>(null);
   const [activePersonaMode, setActivePersonaMode] = useState<'PRE_TRIP' | 'IN_DAHAB'>('PRE_TRIP');
-  const [toast, setToast] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<UiToast[]>([]);
+  const nextToastIdRef = useRef(0);
+  // Per-toast dismiss timers: removing one toast must not touch the others.
+  const toastTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   const [isEasyMode, setIsEasyMode] = useState<boolean>(() => {
     try {
@@ -120,26 +136,20 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   });
 
-  // Hold the dismiss timer so a second toast cannot be cut short by the first
-  // toast's still-pending timeout, and so nothing fires after unmount.
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const showToast = useCallback((msg: string) => {
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
-    }
-    setToast(msg);
-    toastTimerRef.current = setTimeout(() => {
-      setToast(null);
-      toastTimerRef.current = null;
+    const id = ++nextToastIdRef.current;
+    setToasts(prev => [...prev, { id, message: msg }]);
+    const timer = setTimeout(() => {
+      toastTimersRef.current.delete(id);
+      setToasts(prev => prev.filter(t => t.id !== id));
     }, 3500);
+    toastTimersRef.current.set(id, timer);
   }, []);
 
   useEffect(() => {
     return () => {
-      if (toastTimerRef.current) {
-        clearTimeout(toastTimerRef.current);
-      }
+      toastTimersRef.current.forEach(timer => clearTimeout(timer));
+      toastTimersRef.current.clear();
     };
   }, []);
 
@@ -151,7 +161,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       } catch {
         // noop
       }
-      showToast(next ? '🌴 Easy & Sunlight High-Visibility Mode ON' : 'Standard Dahab Cockpit Mode ON');
+      showToast(next ? 'Easy & Sunlight High-Visibility Mode ON' : 'Standard Dahab Cockpit Mode ON');
       return next;
     });
   }, [showToast]);
@@ -175,31 +185,54 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       route: AppRoute,
       params?: RouteParams
     ) => {
-      setCurrentRoute(route);
-      if (params?.dayId !== undefined) setSelectedDayId(params.dayId);
-      if (params?.activityId !== undefined) setSelectedActivityId(params.activityId);
-      if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
-      if (params?.programSlug !== undefined) setSelectedProgramSlug(params.programSlug);
-      // /experiences without a slug (e.g. from the navbar) must never land on
-      // the "Experience Not Found" screen — default to the first curated one.
-      if (params?.experienceSlug === undefined && route === '/experiences') {
-        params = { ...params, experienceSlug: DEFAULT_EXPERIENCE_SLUG };
-      }
-      if (params?.experienceSlug !== undefined) setSelectedExperienceSlug(params.experienceSlug);
-      if (params?.hotelSlug !== undefined) setSelectedHotelSlug(params.hotelSlug);
-      if (params?.rentalSlug !== undefined) setSelectedRentalSlug(params.rentalSlug);
-      // Cleared when navigating without one, so a stale sku cannot make a later
-      // visit to Book Now open on a product the traveler did not choose.
-      setSelectedSkuId(params?.skuId ?? null);
-      // pushRoute skips a no-op navigation, so only count the ones that
-      // actually add an entry — otherwise re-tapping the current tab would
-      // arm a back button with nothing behind it.
-      const willPush =
+      // The whole transition in one function so View Transitions can capture
+      // it as a single DOM snapshot pair (Living Chart spec §3, §8: route
+      // change = 300ms crossfade; reduced-motion and non-supporting browsers
+      // fall back to the plain synchronous update).
+      const applyNavigation = () => {
+        setCurrentRoute(route);
+        if (params?.dayId !== undefined) setSelectedDayId(params.dayId);
+        if (params?.activityId !== undefined) setSelectedActivityId(params.activityId);
+        if (params?.bookingId !== undefined) setSelectedBookingId(params.bookingId);
+        if (params?.programSlug !== undefined) setSelectedProgramSlug(params.programSlug);
+        // /experiences without a slug (e.g. from the navbar) must never land on
+        // the "Experience Not Found" screen — default to the first curated one.
+        if (params?.experienceSlug === undefined && route === '/experiences') {
+          params = { ...params, experienceSlug: DEFAULT_EXPERIENCE_SLUG };
+        }
+        if (params?.experienceSlug !== undefined) setSelectedExperienceSlug(params.experienceSlug);
+        if (params?.hotelSlug !== undefined) setSelectedHotelSlug(params.hotelSlug);
+        if (params?.rentalSlug !== undefined) setSelectedRentalSlug(params.rentalSlug);
+        // Cleared when navigating without one, so a stale sku cannot make a later
+        // visit to Book Now open on a product the traveler did not choose.
+        setSelectedSkuId(params?.skuId ?? null);
+        // pushRoute skips a no-op navigation, so only count the ones that
+        // actually add an entry — otherwise re-tapping the current tab would
+        // arm a back button with nothing behind it.
+        const willPush =
+          typeof window !== 'undefined' &&
+          `${window.location.pathname}${window.location.search}` !== urlFromRoute(route, params);
+        pushRoute(route, params);
+        if (willPush) setCanGoBack(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      if (
+        typeof document !== 'undefined' &&
+        'startViewTransition' in document &&
+        typeof document.startViewTransition === 'function' &&
         typeof window !== 'undefined' &&
-        `${window.location.pathname}${window.location.search}` !== urlFromRoute(route, params);
-      pushRoute(route, params);
-      if (willPush) setCanGoBack(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        // React state updates are async, so flush them inside the transition
+        // callback — otherwise the snapshot is taken before the new route
+        // renders and the crossfade animates nothing.
+        document.startViewTransition(() => {
+          flushSync(applyNavigation);
+        });
+      } else {
+        applyNavigation();
+      }
     },
     [pushRoute]
   );
@@ -349,7 +382,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       isEasyMode,
       setIsEasyMode,
       toggleEasyMode,
-      toast,
+      toasts,
       showToast,
       navigateTo,
       goBack,
@@ -374,7 +407,7 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
       journeyStage,
       isEasyMode,
       toggleEasyMode,
-      toast,
+      toasts,
       showToast,
       navigateTo,
       goBack,

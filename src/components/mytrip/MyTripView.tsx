@@ -255,6 +255,7 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
               travelersCount={travelersCount}
               onShare={handleShareTrip}
               onSelectBooking={setSelectedBooking}
+              tripId={activeTrip?.id}
             />
           )}
 

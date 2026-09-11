@@ -25,6 +25,7 @@ import { LuggageStorageModal } from './LuggageStorageModal';
 import { FirstTwoHoursPlanModal } from './FirstTwoHoursPlanModal';
 import { ActivityOptionModal } from './ActivityOptionModal';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { CategoryIcon } from '../common/CategoryIcon';
 import { useTrip } from '../../context/TripContext';
 import { useArrivalClock } from '../../hooks/useArrivalClock';
 import { formatClock, formatDayAndMonth, formatDuration } from '../../utils/arrivalTime';
@@ -128,10 +129,10 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
               {travelerName
-                ? `${t('arrival.titleNamed', 'Welcome to Dahab,')} ${travelerName} 👋`
-                : t('arrival.title', 'Welcome to Dahab 👋')}
+                ? `${t('arrival.titleNamed', 'Welcome to Dahab,')} ${travelerName}`
+                : t('arrival.title', 'Welcome to Dahab')}
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
               {clock.checkInReached
@@ -234,8 +235,8 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-lg hover:border-[var(--border-subtle)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-white flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
-                      🧳
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-white flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                      <CategoryIcon kind="luggage" className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -273,8 +274,8 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
-                      ☕
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                      <CategoryIcon kind="coffee" className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -311,8 +312,8 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
-                      🏖
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                      <CategoryIcon kind="reef" className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -349,8 +350,8 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
-                      🚶
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                      <CategoryIcon kind="walk" className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -387,8 +388,8 @@ export const EarlyArrivalView: React.FC<EarlyArrivalViewProps> = ({
                   className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-xl flex-shrink-0 border border-[var(--border-subtle)]">
-                      🏨
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 border border-[var(--border-subtle)]">
+                      <CategoryIcon kind="stay" className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">

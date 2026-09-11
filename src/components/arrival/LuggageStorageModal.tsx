@@ -56,6 +56,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
           <button
             type="button"
             onClick={onClose}
+            aria-label={t('common.close')}
             className="w-8 h-8 rounded-full bg-[var(--surface-card)]/5 hover:bg-[var(--surface-card)]/10 flex items-center justify-center text-[var(--text-secondary)] cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -186,7 +187,7 @@ export const LuggageStorageModal: React.FC<LuggageStorageModalProps> = ({
               onConfirmStorage(name);
               onClose();
             }}
-            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+            className="w-full py-3.5 px-5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold text-sm shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <Check className="w-4 h-4 text-[var(--surface-container)] stroke-[2.5]" />
             <span>{t('arrival.chooseThisPlace')}</span>

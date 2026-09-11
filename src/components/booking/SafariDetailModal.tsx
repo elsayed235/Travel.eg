@@ -73,6 +73,7 @@ export const SafariDetailModal: React.FC<SafariDetailModalProps> = ({
             type="button"
             id="close-safari-detail-btn"
             onClick={onClose}
+            aria-label={isAr ? 'إغلاق' : 'Close'}
             className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-[var(--text-primary)] flex items-center justify-center backdrop-blur-md transition-colors cursor-pointer border border-[var(--border-subtle)]`}
           >
             <X className="w-5 h-5" />
@@ -243,8 +244,8 @@ export const SafariDetailModal: React.FC<SafariDetailModalProps> = ({
               }}
               className={`w-1/2 sm:w-auto px-7 py-3 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer flex items-center justify-center gap-2 ${
                 isSelected
-                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[#1A1206]'
-                  : 'bg-[var(--accent-primary)] hover:brightness-110 text-[#1A1206]'
+                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[var(--accent-primary-ink)]'
+                  : 'bg-[var(--accent-primary)] hover:brightness-110 text-[var(--accent-primary-ink)]'
               }`}
             >
               {isSelected ? (

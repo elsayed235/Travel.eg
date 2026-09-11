@@ -6,13 +6,156 @@ import type { TripEntity, TripItemEntity, TripItemWithSupplier } from '../shared
 import type { TransferResolveGeoResponse } from '../shared/types/transfers';
 import type { FitWindowResponse, PostActivityFoodResponse, RouteEstimate } from '../shared/types/context';
 import type { GroundedIntelligenceQueryResponse, ProductOpportunity } from '../types/intelligence';
-import type { Language } from '../i18n/translations';
+import type { Language } from '../i18n/resolve';
+
+// ---------------------------------------------------------------------------
+// P4 booking-trust shapes — alternatives on sold-out and the price explainer.
+// Mirrors server/services/commerceService.ts exactly.
+// ---------------------------------------------------------------------------
+
+export interface CommerceAlternative {
+  skuId: string;
+  title: string;
+  titleAr: string;
+  serviceType: string;
+  supplierId: string;
+  basePriceEGP: number;
+  currency: 'EGP';
+  timeSlot: string;
+  available: number;
+  status: 'AVAILABLE' | 'ALMOST_FULL' | 'SOLD_OUT';
+  reason: string;
+  reasonAr: string;
+}
+
+export interface PriceExplanation {
+  currency: 'EGP';
+  lines: Array<{
+    skuId: string;
+    title: string;
+    titleAr: string;
+    serviceType: string;
+    basis: 'per_person' | 'per_stay';
+    passengersCount: number;
+    nights: number | null;
+    unitPriceEGP: number;
+    amountEGP: number;
+    supplierId: string;
+    cancellationPolicyHours: number;
+  }>;
+  totalEGP: number;
+}
+
+export interface SupplierRevenueAnalytics {
+  supplierId: string;
+  windowDays: number;
+  currency: 'EGP';
+  totals: {
+    grossBookingsEGP: number;
+    payoutEGP: number;
+    escrowPendingEGP: number;
+    payoutScheduledEGP: number;
+    bookingsCount: number;
+    completedCount: number;
+    cancelledCount: number;
+    rejectedCount: number;
+    completionRate: number | null;
+    avgBookingEGP: number | null;
+  };
+  byServiceType: Array<{ serviceType: string; bookingsCount: number; grossEGP: number; payoutEGP: number }>;
+  daily: Array<{ date: string; bookingsCount: number; grossEGP: number; payoutEGP: number }>;
+  topBookings: Array<{ bookingRef: string; serviceType: string; amountEGP: number; payoutEGP: number; supplierState: string; scheduledDate: string }>;
+}
 
 // ---------------------------------------------------------------------------
 // CMS public content — wire shapes served by the /api/content endpoints.
 // The CMS hooks reshape these into view models; the shapes live here so api.ts
 // is the single source of truth and the hooks never declare them a second time.
 // ---------------------------------------------------------------------------
+
+/**
+ * The traveller-facing booking detail served by /api/bookings/:id (see
+ * server/services/bookingService.ts). The server is the source of truth for
+ * status; these shapes only describe what it returns so the client never
+ * re-implements lifecycle rules from locally-guessed state.
+ */
+export interface BookingDetail {
+  id: string;
+  bookingRef: string;
+  tripId: string;
+  serviceType: CommerceServiceType;
+  skuId: string;
+  supplierId: string;
+  amountEGP: number;
+  paymentState: string;
+  supplierState: string;
+  travelerName: string;
+  travelerPhone: string;
+  travelerEmail: string;
+  passengersCount: number;
+  pickupLocation?: string;
+  dropoffLocation?: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  confirmationCode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Verified-stay review shapes (blueprint row #14). The public list carries
+ * display names only — never emails or phones.
+ */
+export interface ReviewSummary {
+  id: string;
+  bookingRef?: string;
+  rating: number;
+  title?: string;
+  body: string;
+  bodyAr?: string;
+  supplierResponse?: string;
+  supplierResponseAt?: string;
+  createdAt: string;
+  authorName?: string;
+  verified?: boolean;
+}
+
+export interface BookingReviewState {
+  review: ReviewSummary | null;
+  /** True when the booking is complete and no review has been written yet. */
+  invitation: boolean;
+}
+
+export interface SupplierReviewsResponse {
+  reviews: ReviewSummary[];
+  average: number;
+  count: number;
+}
+
+export interface RichAvailabilityResponse {
+  available: boolean;
+  skus: Array<{
+    id: string;
+    supplierId: string;
+    serviceType: CommerceServiceType;
+    title: string;
+    titleAr?: string;
+    basePriceEGP: number;
+    currency: string;
+    maxCapacityPerSlot: number;
+    cancellationPolicyHours?: number;
+  }>;
+  slots: Array<{
+    id: string;
+    date: string;
+    timeSlot: string;
+    totalCapacity: number;
+    availableCapacity: number;
+    priceEGP: number;
+    status: string;
+  }>;
+  priceEGP: number;
+}
 
 export interface CmsContentPage {
   id: string;
@@ -87,6 +230,14 @@ export interface NavigationItemWire {
   group_label_en: string;
   group_label_ar: string;
 }
+
+export interface SiteInfoSlot {
+  value: string;
+  valueAr: string;
+  updatedAt: string;
+}
+
+export type SiteInfoBundle = Record<string, Record<string, SiteInfoSlot>>;
 
 export interface ExploreCategoryWire {
   id: string;
@@ -350,6 +501,13 @@ export const api = {
   // /api/dahab/* is public, already populated (17 places, 22 activities, the
   // dining venues) and was called by nothing: Explore and Food each shipped
   // their own hardcoded copy of a handful of venues instead.
+
+  async searchDahab(query: string, signal?: AbortSignal): Promise<{ matched?: boolean; results: Array<{ type: string; id: string; name: string; nameAr?: string; description?: string; area?: string; category?: string; score?: number; whyEn?: string; whyAr?: string; bookable?: boolean; priceEGP?: number }>; suggestions: string[] }> {
+    const params = new URLSearchParams({ q: query });
+    const res = await fetchWithTimeout(`/api/dahab/search?${params}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw await apiErrorFrom(res, 'Search failed.');
+    return await readJson(res, 'Search failed.');
+  },
 
   async getDahabPlaces(signal?: AbortSignal): Promise<{ places: DahabPlace[] }> {
     const res = await fetchWithTimeout('/api/dahab/places', { headers: defaultHeaders(), signal });
@@ -1239,7 +1397,53 @@ export const api = {
     });
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error || 'Failed to create inventory hold');
+      // Carry the server's structured details (status, skuId/supplierId/date,
+      // reason) on the thrown error — the blocked-date 409 renders its own
+      // honest state from these instead of regex-parsing the message.
+      const failure = new Error(err.error || 'Failed to create inventory hold') as Error & {
+        status?: number; details?: Record<string, unknown>;
+      };
+      if (res.status) failure.status = res.status;
+      if (err.details) failure.details = err.details;
+      throw failure;
+    }
+    return await res.json();
+  },
+
+  /** P4 trust: honest alternatives when a hold fails (409 sold out). */
+  async findAlternatives(params: {
+    tripId: string;
+    skuId: string;
+    date: string;
+    timeSlot?: string;
+    passengersCount: number;
+    limit?: number;
+  }): Promise<{ alternatives: CommerceAlternative[] }> {
+    const res = await fetchWithTimeout('/api/commerce/alternatives', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to find alternatives');
+    }
+    return await res.json();
+  },
+
+  /** P4 trust: backend-authoritative price explainer (basis + totals). */
+  async explainPrice(params: {
+    tripId: string;
+    items: Array<{ skuId: string; passengersCount?: number; nights?: number }>;
+  }): Promise<PriceExplanation> {
+    const res = await fetchWithTimeout('/api/commerce/explain-price', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to explain price');
     }
     return await res.json();
   },
@@ -1350,6 +1554,292 @@ export const api = {
     return await res.json();
   },
 
+  async checkAvailability(params: {
+    serviceType: string;
+    skuId?: string;
+    date?: string;
+    timeSlot?: string;
+    passengers?: number;
+  }) {
+    const res = await fetchWithTimeout('/api/commerce/availability', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Availability check failed');
+    }
+    return await res.json();
+  },
+
+  async cancelBooking(params: {
+    bookingId: string;
+    tripId: string;
+    reason: string;
+    cancellationKey: string;
+  }): Promise<{
+    success: boolean;
+    booking: BookingDetail;
+    refunded: boolean;
+    refundAmountEGP?: number;
+  }> {
+    const res = await fetchWithTimeout('/api/commerce/cancel', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Cancellation failed.');
+    return await readJson<{ success: boolean; booking: BookingDetail; refunded: boolean; refundAmountEGP?: number }>(
+      res,
+      'Cancellation failed.'
+    );
+  },
+
+  async getBookingDetails(bookingId: string): Promise<BookingDetail> {
+    const res = await fetchWithTimeout(`/api/bookings/${encodeURIComponent(bookingId)}`, { headers: defaultHeaders() });
+    if (!res.ok) throw await apiErrorFrom(res, 'Failed to load the booking.');
+    return await readJson<BookingDetail>(res, 'Failed to load the booking.');
+  },
+
+  async getTripBookingsDetailed(tripId: string): Promise<{ bookings: BookingDetail[] }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/bookings/detailed`, { headers: defaultHeaders() });
+    if (!res.ok) throw await apiErrorFrom(res, 'Failed to load the trip\'s bookings.');
+    return await readJson<{ bookings: BookingDetail[] }>(res, 'Failed to load the trip\'s bookings.');
+  },
+
+  async rescheduleBooking(bookingId: string, params: {
+    tripId: string;
+    newDate: string;
+    newTime: string;
+    idempotencyKey: string;
+  }): Promise<{ success: boolean; booking: BookingDetail }> {
+    const res = await fetchWithTimeout(`/api/bookings/${encodeURIComponent(bookingId)}/reschedule`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Rescheduling failed.');
+    return await readJson<{ success: boolean; booking: BookingDetail }>(res, 'Rescheduling failed.');
+  },
+
+  async checkRichAvailability(params: {
+    serviceType?: string;
+    skuId?: string;
+    date?: string;
+    timeSlot?: string;
+    passengers?: number;
+  }): Promise<RichAvailabilityResponse> {
+    const res = await fetchWithTimeout('/api/commerce/availability/rich', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Availability check failed.');
+    return await readJson<RichAvailabilityResponse>(res, 'Availability check failed.');
+  },
+
+  // ------------------------------------------------------------------------
+  // Verified-stay reviews (blueprint row #14)
+  // ------------------------------------------------------------------------
+
+  /** The session's review for a booking, plus whether the CTA should show. */
+  async getBookingReview(bookingRef: string): Promise<BookingReviewState> {
+    const res = await fetchWithTimeout(`/api/bookings/${encodeURIComponent(bookingRef)}/review`, { headers: defaultHeaders() });
+    if (!res.ok) throw await apiErrorFrom(res, 'Failed to load the review state.');
+    return await readJson<BookingReviewState>(res, 'Failed to load the review state.');
+  },
+
+  /** Submit (or replace) the verified review for a completed booking. */
+  async submitBookingReview(bookingRef: string, params: {
+    rating: number;
+    body: string;
+    title?: string;
+    bodyAr?: string;
+  }): Promise<ReviewSummary> {
+    const res = await fetchWithTimeout(`/api/bookings/${encodeURIComponent(bookingRef)}/review`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Submitting the review failed.');
+    return await readJson<ReviewSummary>(res, 'Submitting the review failed.');
+  },
+
+  /** Public approved reviews + aggregate for a supplier. */
+  async getSupplierReviews(supplierId: string): Promise<SupplierReviewsResponse> {
+    const res = await fetchWithTimeout(`/api/reviews/supplier/${encodeURIComponent(supplierId)}`, { headers: defaultHeaders() });
+    if (!res.ok) throw await apiErrorFrom(res, 'Failed to load reviews.');
+    return await readJson<SupplierReviewsResponse>(res, 'Failed to load reviews.');
+  },
+
+  /** Supplier reef-positive conservation score (0-100). */
+  async getSupplierReefScore(supplierId: string): Promise<number | null> {
+    try {
+      const res = await fetchWithTimeout(`/api/suppliers/${encodeURIComponent(supplierId)}/reef-score`, { headers: defaultHeaders() });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return typeof data.reefScore === 'number' ? data.reefScore : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * The signed-in traveler's own reef-action logs + total conservation points
+   * (GET /api/reef-actions/mine). Returns null when the record is unreachable
+   * so callers never render an invented zero.
+   */
+  async getMyReefLogs(): Promise<{
+    logs: Array<{
+      id: string;
+      bookingId: string;
+      tripId: string;
+      supplierId: string;
+      actionType: string;
+      description: string;
+      pointsAwarded: number;
+      loggedBy: string;
+      createdAt: string;
+    }>;
+    totalPoints: number;
+  } | null> {
+    try {
+      const res = await fetchWithTimeout('/api/reef-actions/mine', { headers: defaultHeaders() });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return {
+        logs: Array.isArray(data.logs) ? data.logs : [],
+        totalPoints: typeof data.totalPoints === 'number' ? data.totalPoints : 0,
+      };
+    } catch {
+      return null;
+    }
+  },
+
+  /** Trip members (group planning). */
+  async getTripMembers(tripId: string): Promise<Array<Record<string, unknown>>> {
+    try {
+      const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/members`, { headers: defaultHeaders() });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.members) ? data.members : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /** Split state for a trip (who owes what). */
+  async getTripSplits(tripId: string): Promise<Array<Record<string, unknown>>> {
+    try {
+      const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}/splits`, { headers: defaultHeaders() });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.splits) ? data.splits : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /** Long-stay (nomad) pricing for an accommodation at a given night count. */
+  async getLongStayPrice(accommodationId: string, nights: number): Promise<{
+    breakdown: { totalEGP: number; monthlyBlocks: number; weeklyBlocks: number; remainderNights: number; perNightEGP: number; parts: string[] } | null;
+    savings: { dailyTotalEGP: number; longStayTotalEGP: number; savingsEGP: number; savingsPercent: number } | null;
+    hasLongStayPricing: boolean;
+  } | null> {
+    try {
+      const res = await fetchWithTimeout(`/api/accommodations/${encodeURIComponent(accommodationId)}/long-stay-price?nights=${nights}`, { headers: defaultHeaders() });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  /** Accommodations offering long-stay pricing, optionally filtered by area. */
+  async getLongStayAccommodations(areaId?: string): Promise<Array<Record<string, unknown>>> {
+    try {
+      const qs = areaId ? `?areaId=${encodeURIComponent(areaId)}` : '';
+      const res = await fetchWithTimeout(`/api/accommodations/long-stay${qs}`, { headers: defaultHeaders() });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.accommodations) ? data.accommodations : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /** Public list of reef-positive suppliers, sorted by score descending. */
+  async getReefPositiveSuppliers(): Promise<Array<{ supplierId: string; businessName: string; reefScore: number }>> {
+    try {
+      const res = await fetchWithTimeout('/api/reef-positive-suppliers', { headers: defaultHeaders() });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch {
+      return [];
+    }
+  },
+
+  /** Supplier calendar: 30-day availability view (blocked dates + reasons). Public by design — planners render it without sign-in. */
+  async getSupplierAvailability(supplierId: string, month?: string): Promise<Record<string, { blocked: boolean; reason?: string }>> {
+    try {
+      const qs = month ? `?month=${encodeURIComponent(month)}` : '';
+      const res = await fetchWithTimeout(`/api/suppliers/${encodeURIComponent(supplierId)}/availability${qs}`, { headers: defaultHeaders() });
+      if (!res.ok) return {};
+      const data = await res.json();
+      return data?.availability ?? {};
+    } catch {
+      return {};
+    }
+  },
+
+  /** Supplier: own availability blocks (authenticated, own calendar only). */
+  async getSupplierBlocks(supplierId: string): Promise<Array<{ id: string; startDate: string; endDate: string; reason: string }>> {
+    try {
+      const res = await fetchWithTimeout(`/api/suppliers/${encodeURIComponent(supplierId)}/blocks`, { headers: defaultHeaders() });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data.blocks) ? data.blocks : [];
+    } catch {
+      return [];
+    }
+  },
+
+  /** Supplier: create an availability block on own calendar. */
+  async createSupplierBlock(supplierId: string, input: { startDate: string; endDate: string; reason: string }): Promise<{ id: string; startDate: string; endDate: string; reason: string } | null> {
+    try {
+      const res = await fetchWithTimeout(`/api/suppliers/${encodeURIComponent(supplierId)}/blocks`, {
+        method: 'POST',
+        headers: { ...defaultHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  /** Supplier reliability score — server-computed acceptance/response/cancellation aggregates. */
+  async getSupplierReliabilityScore(supplierId: string): Promise<{ overall: number; sampleSize: number; acceptanceRate: number; responseSpeed: number; cancellationRate: number } | null> {
+    try {
+      const res = await fetchWithTimeout(`/api/suppliers/${encodeURIComponent(supplierId)}/reliability`, { headers: defaultHeaders() });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const score = data?.score;
+      if (!score || typeof score.overall !== 'number') return null;
+      return {
+        overall: score.overall,
+        sampleSize: score.sampleSize ?? 0,
+        acceptanceRate: score.acceptanceRate ?? 0,
+        responseSpeed: score.responseSpeed ?? 0,
+        cancellationRate: score.cancellationRate ?? 0,
+      };
+    } catch {
+      return null;
+    }
+  },
+
   // 4. Suppliers & Operations
   async getSuppliers() {
     const res = await fetchWithTimeout('/api/suppliers', { headers: defaultHeaders() });
@@ -1359,6 +1849,13 @@ export const api = {
   async getSupplierDashboard(supplierId: string) {
     const res = await fetchWithTimeout(`/api/suppliers/${supplierId}/dashboard`, { headers: defaultHeaders() });
     if (!res.ok) throw new Error('Failed to fetch supplier dashboard');
+    return await res.json();
+  },
+
+  /** P6: server-computed revenue analytics for the supplier's Revenue tab. */
+  async getSupplierRevenueAnalytics(supplierId: string, days = 30): Promise<SupplierRevenueAnalytics> {
+    const res = await fetchWithTimeout(`/api/suppliers/${supplierId}/revenue-analytics?days=${days}`, { headers: defaultHeaders() });
+    if (!res.ok) throw new Error('Failed to fetch revenue analytics');
     return await res.json();
   },
 
@@ -1385,9 +1882,87 @@ export const api = {
     return await res.json();
   },
 
+  /** Log a reef-positive eco-action against a completed booking (traveler,
+   *  booking's supplier, or operator). Points credit the trip owner. */
+  async logReefAction(input: {
+    bookingId: string;
+    tripId: string;
+    supplierId: string;
+    actionType: 'reef_safe_sunscreen' | 'coral_planting' | 'beach_cleanup' | 'dive_against_debris' | 'marine_education' | 'plastic_free_day' | 'other';
+    description: string;
+    descriptionAr?: string;
+    photoUrl?: string;
+  }): Promise<{ log: { id: string; pointsAwarded: number; loggedBy: string } }> {
+    const res = await fetchWithTimeout('/api/reef-actions', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as any).error || 'Failed to log reef action');
+    }
+    return await res.json();
+  },
+
   async getOperationsOverview() {
     const res = await fetchWithTimeout('/api/operations/overview', { headers: defaultHeaders() });
     return await res.json();
+  },
+
+  // ─── Dahab Intelligence Core (admin control plane) ──────────────────────
+  async intelligenceCoreQuery(payload: {
+    text: string;
+    language?: Language;
+    context?: Record<string, unknown>;
+  }, signal?: AbortSignal) {
+    const res = await fetchWithTimeout('/api/intelligence-core/query', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(payload),
+      signal,
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => null) as { error?: string } | null)?.error || 'Intelligence Core query failed');
+    return await readJson<{
+      reply: string;
+      language: string;
+      toolCalls: { tool: string; ok: boolean; summary?: string; rowCount?: number; error?: string }[];
+      results: Record<string, unknown>;
+      generatedAt: string;
+    }>(res, 'Intelligence Core query failed');
+  },
+
+  async intelligenceCoreAttention(signal?: AbortSignal) {
+    const res = await fetchWithTimeout('/api/intelligence-core/attention', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Attention queue unavailable');
+    return await readJson<{ items: unknown[]; total: number; summary: string }>(res, 'Attention queue unavailable');
+  },
+
+  async intelligenceCoreAction(payload: { tool: string; params?: Record<string, unknown>; bulkIds?: string[] }) {
+    const res = await fetchWithTimeout('/api/intelligence-core/action', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const body = await res.json().catch(() => null) as { error?: string } | null;
+    if (!res.ok) throw Object.assign(new Error(body?.error || 'Action request failed'), { status: res.status });
+    return body as unknown as {
+      executed: boolean;
+      confirmation?: { token: string; tool: string; impact: string; affectedCount: number; risk: string; expiresAt: string };
+      result?: unknown;
+      impact?: string;
+    };
+  },
+
+  async intelligenceCoreConfirm(token: string) {
+    const res = await fetchWithTimeout('/api/intelligence-core/confirm', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ token }),
+    });
+    const body = await res.json().catch(() => null) as { error?: string } | null;
+    if (!res.ok) throw Object.assign(new Error(body?.error || 'Confirmation failed'), { status: res.status });
+    return body as unknown as { ok: boolean; tool: string; result?: unknown; bulk?: { ok: number; failed: number; failures: { id: string; error: string }[] } };
   },
 
   async getHealthData() {
@@ -1471,6 +2046,12 @@ export const api = {
     return await readJson<CmsPageWithBlocks>(res, 'CMS page');
   },
 
+  async getCmsPreview(token: string, signal?: AbortSignal): Promise<CmsPageWithBlocks> {
+    const res = await fetchWithTimeout(`/api/content/preview/${encodeURIComponent(token)}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error(res.status === 404 ? 'Preview expired' : 'CMS preview unavailable');
+    return await readJson<CmsPageWithBlocks>(res, 'CMS preview');
+  },
+
   async getCmsNavigation(menuKey: string, signal?: AbortSignal): Promise<{ items?: NavigationItemWire[] }> {
     const res = await fetchWithTimeout(`/api/content/navigation/${menuKey}`, { headers: defaultHeaders(), signal });
     if (!res.ok) throw new Error('CMS navigation unavailable');
@@ -1487,6 +2068,18 @@ export const api = {
     const res = await fetchWithTimeout('/api/content/pages/how-it-works?include_blocks=true', { headers: defaultHeaders(), signal });
     if (!res.ok) throw new Error('CMS how-it-works unavailable');
     return await readJson<{ blocks?: CmsPageBlockWire[] }>(res, 'CMS how-it-works');
+  },
+
+  async getSiteInfo(signal?: AbortSignal): Promise<{ info?: SiteInfoBundle }> {
+    const res = await fetchWithTimeout('/api/content/site-info', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Site info unavailable');
+    return await readJson<{ info?: SiteInfoBundle }>(res, 'Site info');
+  },
+
+  async getThemeBundle(signal?: AbortSignal): Promise<{ tokens?: Record<string, string> }> {
+    const res = await fetchWithTimeout('/api/content/theme', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Theme bundle unavailable');
+    return await readJson<{ tokens?: Record<string, string> }>(res, 'Theme bundle');
   },
 
   async getCmsTripPreview(signal?: AbortSignal): Promise<{ blocks?: CmsPageBlockWire[] }> {
@@ -1597,6 +2190,16 @@ export const api = {
     }
   },
 
+  async getMarineTelemetry(signal?: AbortSignal) {
+    try {
+      const res = await fetchWithTimeout('/api/telemetry/marine', { headers: defaultHeaders(), signal });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
   async generateAiTrip(params: {
     durationDays?: number;
     adultsCount?: number;
@@ -1631,7 +2234,12 @@ export const api = {
           activities: Array<{
             title: string;
             timeSlot?: string;
+            /** Enriched (availability-joined) real price — DB-authoritative. */
+            priceEGP?: number;
+            /** Legacy/raw AI estimate, kept for non-bookable items. */
             estimatedPriceEGP?: number;
+            /** Real SKU when the item is bookable — lets My Trip hold it. */
+            skuId?: string;
             category?: string;
             location?: string;
             description?: string;
@@ -2039,5 +2647,50 @@ export const api = {
     if (!res.ok) throw new Error('Failed to merge entities');
     return await res.json();
   },
+
+  // ─── Pricing & Inventory ─────────────────────────────────────────────────
+
+  async getAdminSkus(serviceType?: string, signal?: AbortSignal) {
+    const qs = serviceType ? `?serviceType=${encodeURIComponent(serviceType)}` : '';
+    const res = await fetchWithTimeout(`/api/admin/pricing/skus${qs}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load SKUs');
+    return await res.json();
+  },
+
+  async updateAdminSku(skuId: string, patch: Record<string, any>, signal?: AbortSignal) {
+    const res = await fetchWithTimeout(`/api/admin/pricing/sku/${encodeURIComponent(skuId)}`, {
+      method: 'PUT',
+      headers: defaultHeaders(),
+      body: JSON.stringify(patch),
+      signal,
+    });
+    if (!res.ok) throw new Error('Failed to update SKU');
+    return await res.json();
+  },
+
+  async getAdminInventory(skuId: string, startDate?: string, endDate?: string, signal?: AbortSignal) {
+    const params = new URLSearchParams({ skuId });
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const res = await fetchWithTimeout(`/api/admin/pricing/inventory?${params}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load inventory');
+    return await res.json();
+  },
+
+  async updateAdminInventorySlot(slotId: string, patch: Record<string, any>, signal?: AbortSignal) {
+    const res = await fetchWithTimeout(`/api/admin/pricing/inventory/${encodeURIComponent(slotId)}`, {
+      method: 'PUT',
+      headers: defaultHeaders(),
+      body: JSON.stringify(patch),
+      signal,
+    });
+    if (!res.ok) throw new Error('Failed to update inventory slot');
+    return await res.json();
+  },
+
+  // ─── Visual Content ───────────────────────────────────────────────────────
+  // Retired: the legacy hero/gallery editors wrote to site_settings, which no
+  // public surface ever read. Hero and gallery are edited live in CMS Content
+  // (Homepage tab + gallery pages); use getCmsHomepage / getCmsGallery.
 };
 

@@ -131,4 +131,43 @@ describe('public allowlist', () => {
     expect(isPublicApiPath('/inventory/SKU-1', 'GET')).toBe(true);
     expect(isPublicApiPath('/inventory/SKU-1/secrets', 'GET')).toBe(false);
   });
+
+  it('lets a visitor read the reef badge rubric without a session', () => {
+    // Found by the e2e smoke re-run: the handler was public in spirit but had
+    // no PUBLIC_RULES entry, so the badge rubric answered 401 anonymously.
+    expect(isPublicApiPath('/reef-action-types', 'GET')).toBe(true);
+    expect(run('/reef-action-types').status).toBeNull();
+  });
+
+  it('keeps bundle mutations away from visitors while the catalogue read and cart calculator are public', () => {
+    expect(isPublicApiPath('/bundles', 'GET')).toBe(true);
+    expect(isPublicApiPath('/bundles/compute-discount', 'POST')).toBe(true);
+    expect(run('/bundles', 'POST').status).toBe(401);
+    expect(run('/bundles', 'PATCH').status).toBe(401);
+    expect(run('/bundles/BNF-1', 'DELETE').status).toBe(401);
+    // Role rules apply once a session exists.
+    expect(run('/bundles', 'POST', 'Traveler').status).toBe(403);
+    expect(allow(run('/bundles', 'POST', 'Operations'))).toBe(true);
+  });
+
+  it('mount-relative role rules now match the support escalation surfaces they name', () => {
+    // Regression for the dead /^\/api\/support\/…/ rules: the paths arrive
+    // relative to the /api mount, so those patterns never matched and the
+    // escalation queue answered any authenticated role.
+    expect(requiredRolesFor('/support/escalation-queue')).toEqual(['Operations', 'Admin']);
+    expect(requiredRolesFor('/support/counts')).toEqual(['Operations', 'Admin']);
+    expect(requiredRolesFor('/support/messages/MSG-1/escalate')).toEqual(['Operations', 'Admin']);
+    expect(run('/support/escalation-queue', 'GET', 'Traveler').status).toBe(403);
+    expect(requiredRolesFor('/fraud/dashboard')).toEqual(['Admin', 'Operations']);
+    expect(requiredRolesFor('/payouts/pending')).toEqual(['Operations', 'Admin']);
+  });
+
+  it('keeps /bundles/:id reads on the authenticated default (not role-gated, not public)', () => {
+    expect(isPublicApiPath('/bundles/BNF-1', 'GET')).toBe(false);
+    // The middleware always passes the method; a GET is not covered by the
+    // mutation-only role rule, so bundle views stay on the default.
+    expect(requiredRolesFor('/bundles/BNF-1', 'GET')).toBeNull();
+    expect(requiredRolesFor('/bundles/BNF-1', 'DELETE')).toEqual(['Admin', 'Operations']);
+    expect(run('/bundles/BNF-1', 'GET', 'Traveler').nexted).toBe(true);
+  });
 });

@@ -423,24 +423,11 @@ export const EXPANDED_AREA_PROFILES: AreaProfileEntity[] = [
     transportFriction: 'Medium (Short Taxi)',
     stayProfile: 'Traditional Bedouin Mountain Camps',
     eveningProfile: 'Campfire music, stargazing, and panoramic night views of Dahab lights below'
-  },
-  {
-    id: 'ssh_corridor',
-    nameEn: 'Sharm El Sheikh - Dahab Transfer Corridor',
-    nameAr: 'طريق شرم الشيخ - دهب السريع',
-    coordinates: { lat: 28.2500, lng: 34.3500 },
-    radiusMeters: 45000,
-    atmosphere: 'Scenic high-speed asphalt mountain highway connecting SSH International Airport to Dahab checkpoints',
-    atmosphereAr: 'طريق دولي جبلي ممهد يربط مطار شرم الشيخ الدولي بدهب عبر كمائن التأمين',
-    personaAffinity: ['All Incoming Travelers', 'Flight Transit Passengers'],
-    activityAffinity: ['Airport Transfer', 'Mountain Vista Transit', 'Checkpoint Clearance'],
-    foodAffinity: ['Highway Bedouin Coffee Rest Stops'],
-    walkabilityScore: 1.0,
-    noiseProfile: 'Moderate',
-    transportFriction: 'Medium (Short Taxi)',
-    stayProfile: 'Transit Route Only',
-    eveningProfile: 'Illuminated highway route with 24/7 tourist transport operations'
   }
+  // Note: the former 'ssh_corridor' entry (Sharm El Sheikh - Dahab Transfer
+  // Corridor) was removed — it is a highway route, not a Dahab neighborhood,
+  // and Explore's "Dahab Areas" rendered it with a rating of 1/10. Transfers
+  // have their own data; the corridor does not belong in the areas atlas.
 ];
 
 // ---------------------------------------------------------------------------
@@ -710,7 +697,12 @@ export const EXPANDED_PLACES: PlaceEntity[] = [
     aliases: ['SSH Highway', 'Dahab Gate'],
     arabicNames: ['طريق شرم دهب', 'كمين مدخل دهب'],
     transliterations: ['Sharm Dahab Highway'],
-    areaId: 'ssh_corridor',
+    // Grouped under Masbat, not the retired ssh_corridor: the corridor was
+    // removed from the areas atlas (a highway route is not a neighborhood),
+    // and Masbat — the central strip, same rationale as the city-centre
+    // mapping in accommodationAreaMap — is the transfer's Dahab terminus.
+    // See repairCatalogIntegrity step 4 for the legacy-DB convergence.
+    areaId: 'masbat',
     category: 'Highway / Security Checkpoint',
     coordinates: { lat: 28.4500, lng: 34.4800 },
     googlePlaceId: 'ChIJssh-checkpoint-01',

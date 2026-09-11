@@ -56,7 +56,7 @@ export const DepartureView: React.FC = () => {
   const travelerName = profile.name || user?.displayName || (t('departure.traveler'));
 
   // Checklist items
-  const [checklist, setChecklist] = useState([
+  const [checklist, setChecklist] = useState(() => [
     { 
       id: 'c1', 
       label: 'Hotel room key returned to front desk', 
@@ -112,6 +112,13 @@ export const DepartureView: React.FC = () => {
     isCurrent?: boolean;
   }
 
+  const TIMELINE_ICONS: Record<string, React.ReactNode> = {
+    hotel: <Building className="w-5 h-5 text-[var(--accent-secondary)]" />,
+    car: <Car className="w-5 h-5 text-[var(--accent-secondary)]" />,
+    plane: <Plane className="w-5 h-5 text-[var(--accent-secondary)]" />,
+    luggage: <Luggage className="w-5 h-5 text-[var(--accent-secondary)]" />,
+  };
+
   const timelineSteps: DepartureStep[] = [];
 
   if (hotel) {
@@ -123,7 +130,7 @@ export const DepartureView: React.FC = () => {
       // Not reported as done: nothing here tracks a check-out.
       status: hotel.provider,
       statusAr: hotel.provider,
-      icon: '🏨',
+      icon: 'hotel',
       desc: `${hotel.subtitle} · ${hotel.confirmationCode}`,
       descAr: `${hotel.subtitle} · ${hotel.confirmationCode}`,
       isDone: false
@@ -138,7 +145,7 @@ export const DepartureView: React.FC = () => {
       titleAr: 'عربية المطار',
       status: departureTransfer.status,
       statusAr: departureTransfer.status,
-      icon: '🚗',
+      icon: 'car',
       desc: [departureTransfer.provider, departureTransfer.confirmationCode, departureTransfer.location]
         .filter(Boolean)
         .join(' · '),
@@ -159,7 +166,7 @@ export const DepartureView: React.FC = () => {
       // No status, gate or terminal — nothing here tracks a flight.
       status: '',
       statusAr: '',
-      icon: '✈️',
+      icon: 'plane',
       desc: '',
       descAr: '',
       isDone: false
@@ -181,7 +188,7 @@ export const DepartureView: React.FC = () => {
                 <Plane className="w-3.5 h-3.5" />
                 <span>{t('departure.departureDayOctober16')}</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
                 {t('departure.headingHome', { travelerName })}
               </h1>
               <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 max-w-2xl font-medium leading-relaxed">
@@ -244,8 +251,8 @@ export const DepartureView: React.FC = () => {
                         : 'bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] shadow-xs flex items-center justify-center text-lg flex-shrink-0 relative z-10">
-                      {step.icon}
+                    <div className="w-10 h-10 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] shadow-xs flex items-center justify-center flex-shrink-0 relative z-10">
+                      {TIMELINE_ICONS[step.icon] ?? null}
                     </div>
 
                     <div className="space-y-1 flex-1">
@@ -304,8 +311,8 @@ export const DepartureView: React.FC = () => {
             {/* Luggage Storage Pass Button */}
             <div className="p-5 rounded-3xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[var(--surface-card)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 flex items-center justify-center font-bold text-lg">
-                  🧳
+                <div className="w-10 h-10 rounded-2xl bg-[var(--surface-card)] text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 flex items-center justify-center font-bold">
+                  <Luggage className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-[var(--text-primary)]">
@@ -345,8 +352,8 @@ export const DepartureView: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[var(--surface-container)] flex items-center justify-center font-bold text-2xl text-[var(--accent-secondary)] border border-[var(--border-subtle)]">
-                  👨‍✈️
+                <div className="w-14 h-14 rounded-2xl bg-[var(--surface-container)] flex items-center justify-center text-[var(--accent-secondary)] border border-[var(--border-subtle)]">
+                  <Car className="w-7 h-7" />
                 </div>
                 {/*
                   Was "Captain Youssef", "Silver Toyota HiAce (A/C)" and plate
@@ -501,12 +508,12 @@ export const DepartureView: React.FC = () => {
               </div>
               <div>
                 <span className="text-[12px] text-[var(--text-secondary)]/60 block">{t('departure.claimCode')}</span>
-                <span className="text-lg font-mono font-bold text-[var(--accent-secondary)]">DHB-LUG-894-02</span>
+                <span className="text-lg font-mono font-bold text-[var(--accent-secondary)]">DHB-LUG-{activeTrip?.id?.slice(-3) || '—'}-02</span>
               </div>
             </div>
 
             <div className="text-xs text-[var(--text-secondary)]/80 space-y-1 text-start">
-              <p><strong className="text-[var(--text-primary)]">{t('departure.guest')}</strong> Ahmed Mansour</p>
+              <p><strong className="text-[var(--text-primary)]">{t('departure.guest')}</strong> {travelerName}</p>
               <p><strong className="text-[var(--text-primary)]">{t('departure.totalPieces')}</strong> 3 (2 Bags + 1 Dive Gear)</p>
               <p><strong className="text-[var(--text-primary)]">{t('departure.pickupTime')}</strong> 02:30 PM (Lobby)</p>
             </div>

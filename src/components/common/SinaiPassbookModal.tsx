@@ -34,7 +34,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
   const { language, isRTL , t} = useLanguage();
   const [copiedCode, setCopiedCode] = useState(false);
   const [savedOffline, setSavedOffline] = useState(false);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);

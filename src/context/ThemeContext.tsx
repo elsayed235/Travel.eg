@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 export type ThemeId = 'charcoal-minimal' | 'deep-reef' | 'sinai-midnight' | 'editorial-sand' | 'lagoon-breeze' | 'high-contrast-pro';
 export type ThemeMode = 'dark' | 'light';
@@ -194,6 +194,36 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     return 'charcoal-minimal';
   });
+
+  // CMS default theme for first-time visitors: only when this browser never
+  // chose (nothing saved), a published brand.homeTheme token wins over the
+  // compiled default above. Returning visitors keep their saved choice.
+  // NOTE: no raw fetch here — the api-contract test forbids /api calls
+  // outside src/services (the fetch lives in api.getThemeBundle).
+  useEffect(() => {
+    let cancelled = false;
+    try {
+      if (localStorage.getItem('dahab_travel_os_theme_id') || localStorage.getItem('dahab_travel_os_theme')) return;
+    } catch {
+      return;
+    }
+    import('../services/api').then(({ api }) =>
+      api.getThemeBundle().then(data => {
+        if (cancelled || !data) return;
+        const id = data.tokens?.['brand.homeTheme'];
+        if (typeof id === 'string' && THEME_OPTIONS.some(t => t.id === id)) {
+          setThemeIdState(id as ThemeId);
+        }
+      }).catch(() => {
+        // Offline: compiled default stands.
+      })
+    ).catch(() => {
+      // Unreachable in practice; compiled default stands.
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Accessibility States
   const [highContrastMode, setHighContrastModeState] = useState<boolean>(() => {
@@ -428,29 +458,35 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLargeText(!largeText);
   };
 
+  const providerValue = useMemo(() => ({
+    themeId,
+    theme,
+    isDark,
+    activeTheme,
+    availableThemes: THEME_OPTIONS,
+    setThemeId,
+    toggleTheme,
+    setTheme,
+    highContrastMode,
+    setHighContrastMode,
+    toggleHighContrastMode,
+    reducedMotion,
+    setReducedMotion,
+    toggleReducedMotion,
+    largeText,
+    setLargeText,
+    toggleLargeText,
+    announcement,
+    announce,
+  }), [
+    themeId, isDark, highContrastMode, reducedMotion, largeText, announcement,
+    setThemeId, toggleTheme, setTheme, setHighContrastMode, toggleHighContrastMode,
+    setReducedMotion, toggleReducedMotion, setLargeText, toggleLargeText, announce
+  ]);
+
   return (
     <ThemeContext.Provider
-      value={{
-        themeId,
-        theme,
-        isDark,
-        activeTheme,
-        availableThemes: THEME_OPTIONS,
-        setThemeId,
-        toggleTheme,
-        setTheme,
-        highContrastMode,
-        setHighContrastMode,
-        toggleHighContrastMode,
-        reducedMotion,
-        setReducedMotion,
-        toggleReducedMotion,
-        largeText,
-        setLargeText,
-        toggleLargeText,
-        announcement,
-        announce,
-      }}
+      value={providerValue}
     >
       {/* Hidden Live Region for Screen Readers */}
       <div

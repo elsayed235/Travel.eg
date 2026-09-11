@@ -44,6 +44,7 @@ export const BookingReviewTermsModal: React.FC<BookingReviewTermsModalProps> = (
             type="button"
             id="close-terms-modal-btn"
             onClick={onClose}
+            aria-label={isAr ? 'إغلاق' : 'Close'}
             className="w-8 h-8 rounded-full hover:bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -122,7 +123,7 @@ export const BookingReviewTermsModal: React.FC<BookingReviewTermsModalProps> = (
             type="button"
             id="close-terms-footer-btn"
             onClick={onClose}
-            className="px-6 py-2.5 rounded-full bg-gradient-to-br from-[#B97A1F] to-[#E8A33D] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer"
+            className="px-6 py-2.5 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer"
           >
             {isAr ? 'فهمت ذلك' : 'I Understand'}
           </button>

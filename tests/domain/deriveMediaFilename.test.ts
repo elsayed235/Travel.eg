@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { deriveMediaFilename } from '../../src/components/operations/command-center/CmsContentDashboard';
+import { deriveMediaFilename } from '../../src/components/operations/command-center/cms/api';
 
 describe('deriveMediaFilename', () => {
   it('strips query strings and hash fragments', () => {

@@ -86,7 +86,7 @@ const useCountUp = (target: number, start: boolean, duration = 1400) => {
   return n;
 };
 
-const SoundingCell: React.FC<{ item: SoundingItem; start: boolean; last: boolean }> = ({
+const SoundingCell: React.FC<{ item: SoundingItem; start: boolean; last: boolean }> = React.memo(({
   item, start, last,
 }) => {
   const { language, t } = useLanguage();
@@ -95,7 +95,7 @@ const SoundingCell: React.FC<{ item: SoundingItem; start: boolean; last: boolean
 
   return (
     <div
-      className="relative px-5 sm:px-8 py-7 sm:py-9 flex items-center gap-4 group hover:bg-[var(--surface-container)]/40 transition-colors duration-300"
+      className="relative px-5 sm:px-8 py-7 sm:py-9 flex items-center gap-4 group hover:bg-[var(--surface-container)]/40 transition-all duration-300 aurora-hover"
       style={{
         borderBottom: '1px solid var(--border-subtle)',
         borderInlineEnd: last ? undefined : '1px solid var(--border-subtle)',
@@ -121,7 +121,7 @@ const SoundingCell: React.FC<{ item: SoundingItem; start: boolean; last: boolean
       <span className="sr-only">{`${item.value}${item.suffix}`}</span>
     </div>
   );
-};
+});
 
 /**
  * "The coast in numbers" — depth soundings band.
@@ -180,14 +180,36 @@ export const HomeStatsBand: React.FC<{ cmsSection?: CmsHomepageSection | null }>
         dir={isRTL ? 'rtl' : 'ltr'}
         className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
       >
+        <div className="mb-5 sm:mb-6">
+          <span className="chart-badge chart-badge-live text-[11px] font-semibold">
+            {t('home.sounding.eyebrow')}
+          </span>
+          <h2 className="chart-heading text-2xl sm:text-3xl font-bold tracking-tight mt-2">
+            {t('home.sounding.label')}
+          </h2>
+          <p className="text-sm text-[var(--text-secondary)] mt-1 max-w-lg">
+            {t('home.sounding.subtitle')}
+          </p>
+        </div>
         <div
           ref={ref}
-          className="chart-card rounded-3xl overflow-hidden"
+          className="relative chart-card rounded-3xl overflow-hidden"
           role="group"
           aria-label={t('home.sounding.label')}
           lang={language}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Ambient Blue Hole backdrop */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <img
+              src="/images/hero/blue-hole-signature.jpg"
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover object-center scale-105 opacity-20 dark:opacity-15"
+            />
+            <div className="absolute inset-0 bg-[var(--bg-canvas)]/85 backdrop-blur-[1.5px]" />
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {items.map((item, i) => (
               <SoundingCell
                 key={item.id}

@@ -83,6 +83,23 @@ function todayLocal(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
+/**
+ * A rental window must start today or later, end on or after its start, and
+ * stay within the maximum rental length. Shared by availability, quoting and
+ * hold creation so no path can price or hold a past/inverted window.
+ */
+function assertBookingWindow(startDate: string, endDate: string): void {
+  if (daysInRange(startDate, endDate) > MAX_RENTAL_DAYS) {
+    throw domainError(`Rental windows must be between 1 and ${MAX_RENTAL_DAYS} days.`, 400);
+  }
+  if (endDate < startDate) {
+    throw domainError('The end date must be on or after the start date.', 400);
+  }
+  if (startDate < todayLocal()) {
+    throw domainError(`The start date must be today or later (today is ${todayLocal()}).`, 400);
+  }
+}
+
 function domainError(message: string, status = 400, details: Record<string, unknown> = {}) {
   const err = new Error(message) as Error & { status?: number; details?: Record<string, unknown> };
   err.status = status;
@@ -222,6 +239,7 @@ export class RentalService {
     quantity: number;
   }): RentalAvailabilityResult {
     this.releaseExpiredHolds();
+    assertBookingWindow(params.startDate, params.endDate);
     const listing = this.listingOrThrow(params.listingId);
     const days = eachDay(params.startDate, params.endDate);
 
@@ -284,6 +302,7 @@ export class RentalService {
       deliveryFeeEGP = zone.feeEGP;
     }
 
+    assertBookingWindow(params.startDate, params.endDate);
     const breakdown = this.computeBreakdown(listing, params.startDate, params.endDate, params.quantity);
     const extras = this.resolveExtras(listing.id, params.extraIds || [], params.startDate, params.endDate);
 
@@ -502,6 +521,7 @@ export class RentalService {
     if (days < 1 || days > MAX_RENTAL_DAYS) {
       throw domainError(`Rental windows must be between 1 and ${MAX_RENTAL_DAYS} days.`, 400);
     }
+    assertBookingWindow(params.startDate, params.endDate);
     if (params.quantity < 1 || params.quantity > MAX_RENTAL_QUANTITY) {
       throw domainError(`Quantity must be between 1 and ${MAX_RENTAL_QUANTITY}.`, 400);
     }
@@ -685,7 +705,11 @@ export class RentalService {
 
     db.runInTransaction(() => {
       rentalBooking.status = 'PENDING_CONFIRMATION';
-      rentalBooking.paymentState = 'CAPTURED';
+      // The payment state must mirror what the gateway (or absence of one)
+      // actually decided. CASH_ON_ARRIVAL never captured anything: the
+      // traveler pays the provider in person. Hardcoding CAPTURED here put
+      // unsettled cash bookings into the books as settled money.
+      rentalBooking.paymentState = paymentResult.payment.state;
       rentalBooking.bookingRef = bookingRef;
       rentalBooking.expiresAt = undefined;
       rentalBooking.updatedAt = now;
@@ -705,7 +729,7 @@ export class RentalService {
         skuId: rentalBooking.skuId,
         serviceType: 'rental',
         amountEGP: totalAmountEGP,
-        paymentState: 'CAPTURED',
+        paymentState: paymentResult.payment.state,
         // The supplier has not seen this yet — same convention as every vertical.
         supplierState: 'PENDING_CONFIRMATION',
         travelerName: params.travelerName,

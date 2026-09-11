@@ -30,6 +30,7 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
 }) => {
   const programmes = useReadyProgrammes();
   const { language, t, isRTL } = useLanguage();
+  const isAr = language === 'ar';
   const { isDark } = useTheme();
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
@@ -135,98 +136,115 @@ export const ReadyMadeTripsCarousel: React.FC<ReadyMadeTripsCarouselProps> = ({
         })}
       </div>
 
-      {/* Editorial Discovery Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-        {filteredPrograms.map((program) => {
-          const isFeatured = program.id === 'dahab-first-timer';
-          return (
+      {/* ONE dominant featured trip + the rest as a compact rail — five equal
+          cards all competing for attention was the exact "catalog, not
+          curation" problem this section needed to stop having. */}
+      {(() => {
+        if (filteredPrograms.length === 0) return null;
+        const featuredId = filteredPrograms.some(p => p.id === 'dahab-first-timer') ? 'dahab-first-timer' : filteredPrograms[0].id;
+        const featured = filteredPrograms.find(p => p.id === featuredId)!;
+        const secondary = filteredPrograms.filter(p => p.id !== featuredId);
+
+        return (
+          <div className="space-y-5">
+            {/* Featured trip — hero card */}
             <button
-              key={program.id}
               type="button"
-              id={`ready-trip-card-${program.id}`}
-              onClick={() => handleSelect(program)}
-              aria-label={`${t('home.viewProgram')}: ${language === 'ar' ? program.titleAr || program.title : program.title}`}
-              className={`group w-full text-start rounded-3xl border transition-[border-color,box-shadow] duration-300 flex flex-col justify-between cursor-pointer overflow-hidden relative shadow-md hover:shadow-2xl ${
-                isDark
-                  ? isFeatured
-                    ? 'bg-[var(--surface-card)] border-[var(--accent-secondary)]/60 ring-1 ring-[var(--accent-secondary)]/25'
-                    : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
-                  : isFeatured
-                  ? 'bg-[var(--surface-card)] border-[var(--accent-secondary)] ring-1 ring-[var(--accent-secondary)]/30'
-                  : 'bg-[var(--surface-card)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25'
-              }`}
+              id={`ready-trip-card-${featured.id}`}
+              onClick={() => handleSelect(featured)}
+              aria-label={`${t('home.viewProgram')}: ${language === 'ar' ? featured.titleAr || featured.title : featured.title}`}
+              className="group w-full text-start rounded-3xl overflow-hidden relative cursor-pointer shadow-xl hover:shadow-2xl transition-shadow duration-300 flex flex-col md:flex-row md:h-96"
             >
-              {/* Card Image Header */}
-              <div className="relative h-48 bg-stone-900 overflow-hidden w-full">
+              <div className="relative h-64 md:h-full md:w-3/5 bg-stone-900 overflow-hidden shrink-0">
                 <img
-                  src={program.heroImage}
-                  alt={program.title}
-                  className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 opacity-90"
+                  src={featured.heroImage}
+                  alt={featured.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
-                
-                {/* Clean vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
-
-                {/* Floating Top Category Badge */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="text-[11px] font-extrabold bg-black/60 backdrop-blur-md text-white px-2.5 py-1 rounded-full border border-[var(--border-subtle)] shadow-sm">
-                    {language === 'ar' ? program.badgeAr : program.badge}
-                  </span>
-                </div>
-
-                {/* Overlay Duration & Title */}
-                <div className="absolute bottom-3 left-3.5 right-3.5 text-white">
-                  <div className="flex items-center gap-2 text-[11px] text-[var(--accent-primary)] font-semibold mb-0.5">
-                    <span>{program.durationDays} {t('home.days-3')}</span>
-                    <span>•</span>
-                    <span>{language === 'ar' ? program.paceAr : program.pace}</span>
-                  </div>
-                  <h3 className="text-base chart-heading font-bold text-white leading-tight line-clamp-1 group-hover:text-[var(--accent-secondary)] transition-colors">
-                    {language === 'ar' ? program.titleAr : program.title}
-                  </h3>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-stone-950/85 via-stone-950/10 to-transparent" />
+                <span className="absolute top-4 start-4 text-[11px] font-extrabold bg-black/50 backdrop-blur-md text-white px-3 py-1.5 rounded-full border border-white/20">
+                  {isAr ? 'الرحلة المميزة' : 'Featured Trip'}
+                </span>
               </div>
 
-              {/* Card Body: Fit, Price, and Compact Action */}
-              <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                {/* 1. Who is it for? */}
+              <div className="relative flex-1 p-6 sm:p-8 flex flex-col justify-between bg-[var(--surface-card)] border border-t-0 md:border-t md:border-s-0 border-[var(--border-subtle)] rounded-b-3xl md:rounded-b-none md:rounded-e-3xl">
                 <div>
-                  <span className={`text-[10px] font-bold block mb-1 ${'text-[var(--text-secondary)]'}`}>
-                    {t('home.idealFor')}
+                  <span className="text-[11px] font-extrabold text-[var(--accent-secondary)]">
+                    {language === 'ar' ? featured.badgeAr : featured.badge}
                   </span>
-                  <p className={`text-xs font-medium line-clamp-2 leading-relaxed text-[var(--text-secondary)]`}>
-                    {language === 'ar' ? program.idealForAr : program.idealFor}
+                  <h3 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)] leading-tight mt-1.5 group-hover:text-[var(--accent-secondary)] transition-colors">
+                    {language === 'ar' ? featured.titleAr : featured.title}
+                  </h3>
+                  <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed line-clamp-2">
+                    {language === 'ar' ? featured.taglineAr : featured.tagline}
                   </p>
+                  <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-semibold mt-4">
+                    <span>{featured.durationDays} {t('home.days-3')}</span>
+                    <span>•</span>
+                    <span>{language === 'ar' ? featured.paceAr : featured.pace}</span>
+                  </div>
                 </div>
 
-                {/* 2. Starting Price & Single Compact CTA */}
-                <div className={`pt-3 border-t flex items-center justify-between border-[var(--border-subtle)]`}>
+                <div className="pt-5 mt-5 border-t border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
-                    <span className={`text-[10px] block font-bold ${'text-[var(--text-secondary)]'}`}>
+                    <span className="text-[10px] block font-bold text-[var(--text-secondary)]">
                       {t('readyTrip.startingFrom')}
                     </span>
-                    <div                     className={`text-sm font-extrabold chart-heading tabular-nums text-[var(--accent-secondary)]`}>
-                      {program.startingPriceEGP.toLocaleString()} <span className={`text-[11px] font-sans font-normal text-[var(--text-secondary)]`}>EGP</span>
+                    <div className="text-lg font-extrabold chart-heading tabular-nums text-[var(--accent-secondary)]">
+                      {featured.startingPriceEGP.toLocaleString()} <span className="text-xs font-sans font-normal text-[var(--text-secondary)]">EGP</span>
                     </div>
                   </div>
-
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-[background-color,color] shadow-xs ${
-                      isDark
-                        ? 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-primary-ink)] text-[var(--text-primary)]'
-                        : 'bg-[var(--surface-container)] group-hover:bg-[var(--accent-primary)] group-hover:text-[var(--accent-primary-ink)] text-[var(--text-primary)]'
-                    }`}
-                  >
-                    <span>{t('experiences.view')}</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] group-hover:brightness-110 transition-[filter] shadow-md">
+                    <span>{isAr ? 'اكتشف الرحلة' : 'Discover the Trip'}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
                   </span>
                 </div>
               </div>
             </button>
-          );
-        })}
-      </div>
+
+            {/* Secondary trips — compact rail */}
+            {secondary.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {secondary.map((program) => (
+                  <button
+                    key={program.id}
+                    type="button"
+                    id={`ready-trip-card-${program.id}`}
+                    onClick={() => handleSelect(program)}
+                    aria-label={`${t('home.viewProgram')}: ${language === 'ar' ? program.titleAr || program.title : program.title}`}
+                    className="group text-start rounded-2xl overflow-hidden cursor-pointer border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-[var(--accent-primary)]/40 transition-all duration-300 shadow-sm hover:shadow-lg aurora-hover"
+                  >
+                    <div className="relative h-32 w-full overflow-hidden bg-stone-900">
+                      <img
+                        src={program.heroImage}
+                        alt={program.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 to-transparent" />
+                      <div className="absolute bottom-2 start-3 end-3 text-white text-xs font-semibold">
+                        {program.durationDays} {t('home.days-3')}
+                      </div>
+                    </div>
+                    <div className="p-3.5">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)] leading-snug line-clamp-1">
+                        {language === 'ar' ? program.titleAr : program.title}
+                      </h4>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs font-bold text-[var(--accent-secondary)] tabular-nums">
+                          {program.startingPriceEGP.toLocaleString()} <span className="text-[10px] font-normal text-[var(--text-secondary)]">EGP</span>
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[var(--text-secondary)] group-hover:text-[var(--accent-primary)] group-hover:translate-x-0.5 transition-[color,transform] rtl:rotate-180" />
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </section>
   );
 };

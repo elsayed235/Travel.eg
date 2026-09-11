@@ -183,7 +183,7 @@ export const BookingHotelStep: React.FC<BookingHotelStepProps> = ({
                   {isAr ? '٥ أيام · فردين · ميزانية متوازنة' : '5 days · 2 adults · Moderate budget'}
                 </span>
               </div>
-              <h1 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
                 {isAr ? 'اختر مكان إقامتك في دهب' : 'Choose your stay in Dahab'}
               </h1>
               <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">

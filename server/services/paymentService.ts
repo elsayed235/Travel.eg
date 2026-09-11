@@ -39,12 +39,15 @@ export class PaymentService {
     payerEmail?: string;
     payerPhone?: string;
   }): { payment: PaymentEntity; requires3DS?: boolean; redirectUrl?: string } {
-    // This method does not contact a payment gateway. It marks the payment
-    // CAPTURED and writes ledger entries, so a "successful" checkout collects no
-    // money while issuing a real voucher and dispatching a real SMS to a driver.
+    // This method does not contact a payment gateway. Card/wallet providers
+    // are marked CAPTURED and written to the ledger as simulated settlements —
+    // a "successful" checkout collects no money while issuing a real voucher.
+    // CASH_ON_ARRIVAL is the honest exception: no money moved, so the payment
+    // is recorded as PENDING and the ledger carries an escrow hold, not a
+    // captured payment.
     //
-    // Until a gateway is integrated it must not run anywhere money is expected.
-    // Set ALLOW_SIMULATED_PAYMENTS=true to use it in dev/demo.
+    // Until a gateway is integrated the card path must not run anywhere money
+    // is expected. Set ALLOW_SIMULATED_PAYMENTS=true to use it in dev/demo.
     if (!PaymentService.simulationAllowed()) {
       const err = new Error(
         'Payment processing is not configured. Card settlement is unavailable: ' +
@@ -73,6 +76,12 @@ export class PaymentService {
     const signatureHash = `sha256:${crypto.createHash('sha256').update(signatureSource).digest('hex')}`;
     const authCode = `AUTH-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
+    const provider = params.provider || 'PAYMOB';
+    // Cash-on-arrival is a real commitment with no platform money movement:
+    // the traveler pays the provider in person. Recording it CAPTURED would
+    // put unsettled money into the books.
+    const isCashOnArrival = provider === 'CASH_ON_ARRIVAL';
+
     const payment: PaymentEntity = {
       id: `PAY-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`,
       transactionId,
@@ -82,9 +91,9 @@ export class PaymentService {
       bookingId: params.bookingId,
       amountEGP: params.amountEGP,
       currency: params.currency || 'EGP',
-      provider: params.provider || 'PAYMOB',
-      paymentMethodType: params.paymentMethodType || 'CARD',
-      state: 'CAPTURED',
+      provider,
+      paymentMethodType: isCashOnArrival ? 'CASH' : (params.paymentMethodType || 'CARD'),
+      state: isCashOnArrival ? 'PENDING' : 'CAPTURED',
       authCode,
       signatureHash,
       cardLast4,
@@ -111,27 +120,31 @@ export class PaymentService {
     db.runInTransaction(() => {
       db.payments.push(payment);
 
-      // Ledger: Credit Escrow, Debit Traveler
+      // Ledger: Credit Escrow, Debit Traveler. Cash-on-arrival is a pending
+      // escrow hold — the money settles only when the traveler pays on site.
       ledgerService.recordDoubleEntry({
         transactionId,
         idempotencyKey: `LEDGER-${params.idempotencyKey}`,
         bookingRef: params.bookingId || `TRIP-${params.tripId}`,
         tripId: params.tripId,
-        type: 'PAYMENT_CAPTURED',
+        type: isCashOnArrival ? 'HOLD_ESCROW' : 'PAYMENT_CAPTURED',
         amountEGP: params.amountEGP,
-        debitAccount: `TRAVELER_GATEWAY_${cardLast4}`,
+        debitAccount: isCashOnArrival ? 'TRAVELER_CASH_ON_ARRIVAL' : `TRAVELER_GATEWAY_${cardLast4}`,
         creditAccount: 'PLATFORM_ESCROW_MAIN',
         metadata: {
           provider: payment.provider,
           authCode: payment.authCode,
           cardBrand: payment.cardBrand,
-          payerEmail: payment.payerEmail
+          payerEmail: payment.payerEmail,
+          ...(isCashOnArrival ? { reason: 'Pay upon arrival. No platform money movement.' } : {})
         }
       });
 
       // Platform Commission Entry (15%)
+      // Commission is recognized on settlement. A pending cash hold has not
+      // settled, so booking one must not book revenue.
       const commissionAmount = Math.round(params.amountEGP * PaymentService.COMMISSION_RATE);
-      if (commissionAmount > 0) {
+      if (!isCashOnArrival && commissionAmount > 0) {
         ledgerService.recordDoubleEntry({
           transactionId: `${transactionId}-COMM`,
           idempotencyKey: `LEDGER-COMM-${params.idempotencyKey}`,

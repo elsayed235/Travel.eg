@@ -24,7 +24,9 @@ import {
   Car,
   BedDouble,
   Mountain,
-  Bike
+  Bike,
+  MapPin,
+  Navigation
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTrip } from '../../context/TripContext';
@@ -32,6 +34,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '../../hooks/useCMSContent';
 import { AppRoute } from '../../types';
+import { routePrefetchMap } from '../../App';
 import { ThemeSelector } from './ThemeSelector';
 
 interface V2NavbarProps {
@@ -91,10 +94,11 @@ const NAV_GROUPS: NavGroupDef[] = [
   {
     id: 'getting-around',
     labelKey: 'nav.groupGettingAround',
-    landing: '/transfers',
+    landing: '/transfers/local',
     icon: Car,
     children: [
-      { route: '/transfers', icon: Car, labelEn: 'Transfers', labelAr: 'النقل' },
+      { route: '/transfers/local', icon: MapPin, labelEn: 'Rides in Dahab', labelAr: 'مشاوير جوه دهب' },
+      { route: '/transfers/intercity', icon: Navigation, labelEn: 'Airport & Intercity', labelAr: 'المطار وبين المدن' },
       { route: '/rentals', icon: Bike, labelEn: 'Bike Rentals', labelAr: 'تأجير العجلات' },
       { route: '/help', icon: HelpCircle, labelEn: 'Help & SOS', labelAr: 'محتاج مساعدة؟' },
     ],
@@ -158,7 +162,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
   const { t, language, toggleLanguage, isRTL } = useLanguage();
   const { theme, isDark, toggleTheme, themeId, setThemeId, availableThemes } = useTheme();
 
-  const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Site-map panel: a group id spotlights that column, 'all' shows the map even.
   const [openPanel, setOpenPanel] = useState<string | null>(null);
@@ -166,7 +170,13 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (headerRef.current) {
+        const scrolled = window.scrollY > 20;
+        headerRef.current.classList.toggle('pt-2', scrolled);
+        headerRef.current.classList.toggle('sm:pt-2.5', scrolled);
+        headerRef.current.classList.toggle('pt-2.5', !scrolled);
+        headerRef.current.classList.toggle('sm:pt-3.5', !scrolled);
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -204,7 +214,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
     { route: '/hotels', labelEn: 'Hotels', labelAr: 'فنادق', icon: 'BedDouble' },
     { route: '/attractions', labelEn: 'Things to Do', labelAr: 'أنشطة وفعاليات', icon: 'Mountain' },
     { route: '/explore', labelEn: 'Explore', labelAr: 'استكشف دهب', icon: 'Map' },
-    { route: '/transfers', labelEn: 'Transfers', labelAr: 'النقل', icon: 'Car' },
+    { route: '/transfers/local', labelEn: 'Transfers', labelAr: 'النقل', icon: 'Car' },
     { route: '/rentals', labelEn: 'Bike Rentals', labelAr: 'تأجير العجلات', icon: 'Bike' },
     { route: '/food', labelEn: 'Food & Dining', labelAr: 'الأكل والمطاعم', icon: 'UtensilsCrossed' },
     { route: '/restaurants', labelEn: 'Restaurants', labelAr: 'المطاعم', icon: 'UtensilsCrossed' },
@@ -330,11 +340,10 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
       {/* MAIN HEADER — 3-ZONE GLASSMORPHIC PILL                                   */}
       {/* ========================================================================= */}
       <header
+        ref={headerRef}
         role="banner"
         dir={isRTL ? 'rtl' : 'ltr'}
-        className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 pointer-events-none ${
-          isScrolled ? 'pt-2 sm:pt-2.5' : 'pt-2.5 sm:pt-3.5'
-        }`}
+        className="fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 pointer-events-none pt-2.5 sm:pt-3.5"
       >
         <div
           ref={headerInnerRef}
@@ -360,14 +369,14 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 id="brand-logo-btn"
                 onClick={() => navigateTo('/home')}
                 aria-label="DAHAB TRAVEL OS"
-                className="flex items-center gap-2.5 group cursor-pointer text-start focus:outline-none select-none"
+                className="flex items-center gap-2.5 group cursor-pointer text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] rounded-full select-none"
               >
                 {/* Animated chart gradient icon */}
                 <div className="relative w-8 h-8 rounded-full flex items-center justify-center overflow-hidden shadow-md group-hover:shadow-lg transition-shadow duration-300">
                   <div
-                    className="absolute inset-0 animate-[tidalShift_8s_ease-in-out_infinite]"
+                    className="absolute inset-0 animate-[chartShift_8s_ease-in-out_infinite]"
                     style={{
-                      background: 'linear-gradient(135deg, #0A1128 0%, #1B2452 50%, #B97A1F 100%)',
+                      background: 'linear-gradient(135deg, #1C1917 0%, #2A2622 50%, var(--accent-secondary) 100%)',
                       backgroundSize: '200% 200%'
                     }}
                   />
@@ -547,24 +556,20 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                         transition={{ duration: 0.15 }}
                         role="menu"
                         aria-label={t('nav.accountMenu')}
-                        className="absolute end-0 mt-2 w-64 rounded-2xl border shadow-2xl overflow-hidden z-50"
-                        style={{
-                          background: 'var(--surface-card)',
-                          borderColor: 'var(--border-subtle)'
-                        }}
+                        className="absolute end-0 mt-2 w-64 rounded-2xl border shadow-2xl overflow-hidden z-50 bg-[var(--surface-card)] border-[var(--border-subtle)]"
                       >
                         {/* Profile header */}
-                        <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-sm font-bold text-white shadow-md">
                               {signedInInitial || <User className="w-5 h-5" />}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <span className="block text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>
+                              <span className="block text-sm font-bold truncate text-[var(--text-primary)]">
                                 {signedInName || (t('nav.account'))}
                               </span>
                               {sessionUser?.email && (
-                                <span className="block text-[11px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                                <span className="block text-[11px] truncate text-[var(--text-secondary)]">
                                   {sessionUser.email}
                                 </span>
                               )}
@@ -585,7 +590,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                               navigateTo('/my-trip');
                             }}
                             className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
-                            style={{ color: 'var(--text-primary)' }}
+                           
                           >
                             <Luggage className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
                             <span>{t('nav.myTrip')}</span>
@@ -599,7 +604,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                               navigateTo('/profile');
                             }}
                             className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
-                            style={{ color: 'var(--text-primary)' }}
+                           
                           >
                             <User className="w-4 h-4" aria-hidden="true" />
                             <span>{t('nav.profileShort')}</span>
@@ -613,14 +618,14 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                               navigateTo('/help');
                             }}
                             className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
-                            style={{ color: 'var(--text-primary)' }}
+                           
                           >
                             <HelpCircle className="w-4 h-4" aria-hidden="true" />
                             <span>{t('nav.helpSupport')}</span>
                           </button>
 
                           {showBackOfficeLinks && (
-                            <div className="border-t my-1" style={{ borderColor: 'var(--border-subtle)' }}>
+                            <div className="border-t my-1 border-[var(--border-subtle)]">
                               {canSeeOps && (
                                 <button
                                   type="button"
@@ -630,7 +635,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                                     navigateTo('/ops-console');
                                   }}
                                   className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
-                                  style={{ color: 'var(--text-primary)' }}
+                                 
                                 >
                                   <Activity className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
                                   <span>{t('nav.opsConsole')}</span>
@@ -645,7 +650,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                                     navigateTo('/supplier-portal');
                                   }}
                                   className="w-full text-start px-4 min-h-[44px] text-xs font-semibold hover:bg-black/5 dark:hover:bg-[var(--btn-util-bg)] transition-colors cursor-pointer flex items-center gap-2.5"
-                                  style={{ color: 'var(--text-primary)' }}
+                                 
                                 >
                                   <Map className="w-4 h-4 text-[var(--accent-secondary)]" aria-hidden="true" />
                                   <span>{t('nav.suppliers')}</span>
@@ -656,7 +661,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                         </div>
 
                         {/* Sign out */}
-                        <div className="border-t px-4 py-2" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <div className="border-t px-4 py-2 border-[var(--border-subtle)]">
                           <button
                             type="button"
                             role="menuitem"
@@ -665,8 +670,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                               setIsAccountMenuOpen(false);
                               void signOut();
                             }}
-                            className="w-full min-h-[40px] text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-[var(--accent-danger, #C0553C)]/10"
-                            style={{ color: 'var(--accent-danger, #C0553C)' }}
+                            className="w-full min-h-[40px] text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-[var(--accent-danger, #C0553C)]/10 text-[var(--accent-danger,#C0553C)]"
                           >
                             <LogOut className="w-4 h-4" aria-hidden="true" />
                             <span>{t('nav.signOut')}</span>
@@ -706,7 +710,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 id="header-mobile-menu-btn"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-expanded={isMobileMenuOpen}
-                aria-label="Toggle mobile menu"
+                aria-label={t(isMobileMenuOpen ? 'a11y.closeMobileMenu' : 'a11y.openMobileMenu')}
                 className="lg:hidden w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer border bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] text-[var(--btn-util-text)] border-[var(--border-subtle)]"
               >
                 <motion.div
@@ -778,6 +782,8 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                                   setOpenPanel(null);
                                   navigateTo(child.route);
                                 }}
+                                onMouseEnter={() => routePrefetchMap[child.route]?.()}
+                                onFocus={() => routePrefetchMap[child.route]?.()}
                                 aria-current={childActive ? 'page' : undefined}
                                 className={`w-full flex items-center gap-2.5 px-3 min-h-[40px] rounded-xl text-xs font-semibold transition-colors cursor-pointer text-start ${
                                   childActive
@@ -891,6 +897,8 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                                   navigateTo(item.route);
                                   setIsMobileMenuOpen(false);
                                 }}
+                                onMouseEnter={() => routePrefetchMap[item.route]?.()}
+                                onFocus={() => routePrefetchMap[item.route]?.()}
                                 aria-current={active ? 'page' : undefined}
                                 className={`w-full p-3.5 rounded-2xl text-sm font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-between cursor-pointer ${
                                   active
@@ -919,7 +927,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 </div>
 
                 {/* Quick actions row */}
-                <div className="flex gap-2 mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                <div className="flex gap-2 mt-3 pt-3 border-t border-[var(--border-subtle)]">
                   <button
                     type="button"
                     onClick={() => {
@@ -942,7 +950,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                 </div>
 
                 {/* Theme selector */}
-                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between text-[12px] font-bold px-1 mb-2 text-[var(--text-secondary)]">
                     <span className="flex items-center gap-1.5">
                       <Palette className="w-3.5 h-3.5" />
@@ -980,7 +988,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
 
                 {/* Back-office links */}
                 {showBackOfficeLinks && (
-                  <div className="mt-3 pt-3 border-t flex flex-wrap gap-1.5" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <div className="mt-3 pt-3 border-t flex flex-wrap gap-1.5 border-[var(--border-subtle)]">
                     {canSeeOps && (
                       <button
                         type="button"
@@ -1087,16 +1095,8 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
           );
         })}
 
-        {/* Search button in dock */}
-        <button
-          type="button"
-          onClick={onOpenSearch}
-          aria-label={t('nav.searchShort')}
-          className="flex flex-col items-center justify-center gap-0.5 px-3 min-h-[48px] rounded-xl transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        >
-          <Search className="w-5 h-5 opacity-60" />
-          <span className="text-[10px] font-bold leading-none">{t('nav.searchShort')}</span>
-        </button>
+        {/* Search intentionally lives in the header (always visible on mobile),
+            keeping the dock at the 5-item comfort limit (P5 gate). */}
       </nav>
     </>
   );

@@ -1,7 +1,8 @@
 import React from 'react';
-import { ChevronRight, MapPin, BedDouble, Users } from 'lucide-react';
+import { ChevronRight, MapPin, BedDouble, Users, Heart } from 'lucide-react';
 import type { AccommodationEntity, PropertyType } from '../../shared/types/commerce';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useTrip } from '../../context/TripContext';
 
 const CATEGORY_LABEL: Record<AccommodationEntity['category'], { en: string; ar: string }> = {
   'budget': { en: 'Budget', ar: 'ميزانية' },
@@ -51,25 +52,31 @@ interface AccommodationCardProps {
   accommodation: AccommodationEntity;
   isDark: boolean;
   onOpen: (slug: string) => void;
+  /** Larger image, bigger title, room for a longer tagline — used for the
+   *  single top-pick slot above the regular grid (see AccommodationsView). */
+  featured?: boolean;
 }
 
-export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodation, isDark, onOpen }) => {
+export const AccommodationCard: React.FC<AccommodationCardProps> = React.memo(({ accommodation, isDark, onOpen, featured = false }) => {
   const { language, t } = useLanguage();
+  const { savedItems, toggleSaveItem } = useTrip();
   const isAr = language === 'ar';
   const chipped = isAr ? (accommodation.typeChipsAr?.length ? accommodation.typeChipsAr : accommodation.typeChips) : accommodation.typeChips;
   const image = HOTEL_IMAGES[accommodation.slug] || FALLBACK_IMAGE;
   const typeLabel = PROPERTY_TYPE_LABEL[accommodation.propertyType];
+  const isSaved = savedItems.includes(accommodation.id);
+  const isStayLike = accommodation.propertyType === 'hotel' || accommodation.propertyType === 'resort' || accommodation.propertyType === 'boutique-hotel';
 
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
-      className={`rounded-2xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl ${
+      className={`rounded-3xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl aurora-hover ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50'
           : 'bg-white border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
-      }`}
+      } ${featured ? 'sm:flex sm:flex-row' : ''}`}
     >
-      <div className="relative h-48 w-full overflow-hidden bg-[var(--surface-container)] flex items-end p-4">
+      <div className={`relative overflow-hidden bg-[var(--surface-container)] flex items-end p-4 ${featured ? 'h-64 sm:h-auto sm:w-[46%] shrink-0' : 'h-60 w-full'}`}>
         <img
           src={image}
           alt={isAr ? accommodation.nameAr : accommodation.name}
@@ -79,23 +86,43 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
 
         <div className="relative z-10 flex items-center justify-between w-full">
-          <span
-            className="text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
-            style={{ color: '#ffffff', backgroundColor: `${BAND_ACCENT[accommodation.priceBand]}cc` }}
-          >
-            {isAr ? typeLabel.ar : typeLabel.en}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {featured && (
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-xs">
+                {isAr ? 'الأعلى تقييمًا' : 'Top pick'}
+              </span>
+            )}
+            <span
+              className="text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
+              style={{ color: '#ffffff', backgroundColor: `${BAND_ACCENT[accommodation.priceBand]}cc` }}
+            >
+              {isAr ? typeLabel.ar : typeLabel.en}
+            </span>
+          </div>
           <span className="flex items-center gap-1 text-xs font-bold text-amber-300 bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10 shadow-xs">
             <span className="text-amber-300">★</span>
             {accommodation.rating.toFixed(1)}
             <span className="text-white/70">({accommodation.reviewCount})</span>
           </span>
         </div>
+
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleSaveItem(accommodation.id); }}
+          aria-label={isSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ الإقامة' : 'Save stay')}
+          className={`absolute z-10 top-3.5 ${isAr ? 'left-3.5' : 'right-3.5'} p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-90 ${
+            isSaved
+              ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] shadow-md'
+              : 'bg-black/45 text-white hover:bg-black/60 backdrop-blur-md'
+          }`}
+        >
+          <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+        </button>
       </div>
 
-      <div className="p-4">
+      <div className={`p-4 ${featured ? 'sm:p-6 sm:flex sm:flex-col sm:justify-center' : ''}`}>
         <div className="flex items-start justify-between gap-2">
-          <h3 className={`chart-heading font-bold text-base leading-snug line-clamp-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+          <h3 className={`font-display font-semibold leading-snug line-clamp-2 ${featured ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
             {isAr ? accommodation.nameAr : accommodation.name}
           </h3>
         </div>
@@ -105,24 +132,20 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
           {isAr ? accommodation.areaNameAr : accommodation.areaName}
           <span className={`flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/60'}`}>
             <span className="mx-0.5">
-              {accommodation.propertyType === 'hotel' || accommodation.propertyType === 'resort' || accommodation.propertyType === 'boutique-hotel'
-                ? <BedDouble className="w-3.5 h-3.5" />
-                : <Users className="w-3.5 h-3.5" />}
+              {isStayLike ? <BedDouble className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
             </span>
-            {accommodation.propertyType === 'hotel' || accommodation.propertyType === 'resort' || accommodation.propertyType === 'boutique-hotel'
-              ? accommodation.rooms
-              : `${accommodation.maxGuests} ${isAr ? 'ضيوف' : 'guests'}`}
+            {isStayLike ? accommodation.rooms : `${accommodation.maxGuests} ${isAr ? 'ضيوف' : 'guests'}`}
           </span>
         </div>
 
         {accommodation.tagline && (
-          <p className={`text-xs mt-2 leading-relaxed ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'}`}>
+          <p className={`text-xs mt-2 leading-relaxed ${featured ? 'sm:text-sm sm:line-clamp-3' : 'line-clamp-2'} ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'}`}>
             {isAr ? accommodation.taglineAr || accommodation.tagline : accommodation.tagline}
           </p>
         )}
 
         <div className="flex flex-wrap gap-1.5 mt-3">
-          {chipped.slice(0, 4).map((c, i) => (
+          {chipped.slice(0, featured ? 5 : 3).map((c, i) => (
             <span
               key={i}
               className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]"
@@ -132,22 +155,26 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
           ))}
         </div>
 
-        <div className="mt-3 flex items-baseline gap-1.5">
-          <span className={`font-black text-sm ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
-            {accommodation.perNightEGP.toLocaleString()} EGP
-          </span>
-          <span className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
-            / night
-            {accommodation.packageNights > 1 && (
-              <> · {isAr ? `باقة ${accommodation.packageNights} ليالٍ` : `${accommodation.packageNights}-night package`} {accommodation.packageTotalEGP.toLocaleString()} EGP</>
-            )}
-          </span>
+        <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-baseline gap-1.5">
+            <span className={`font-black ${featured ? 'text-base' : 'text-sm'} ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
+              {accommodation.perNightEGP.toLocaleString()} EGP
+            </span>
+            <span className={`text-[11px] ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/70'}`}>
+              / {isAr ? 'الليلة' : 'night'}
+            </span>
+          </div>
+          {accommodation.packageNights > 1 && (
+            <span className={`text-[10.5px] ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/60'}`}>
+              {isAr ? `باقة ${accommodation.packageNights} ليالٍ` : `${accommodation.packageNights}-night pkg`} · {accommodation.packageTotalEGP.toLocaleString()} EGP
+            </span>
+          )}
         </div>
 
         <button
           type="button"
           onClick={() => onOpen(accommodation.slug)}
-          className="mt-4 w-full py-2 rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
+          className="mt-4 w-full py-2.5 min-h-[44px] rounded-xl text-xs font-bold border transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 cursor-pointer bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/20"
         >
           {t('hotels.viewStay')}
           <ChevronRight className={`w-3 h-3 ${isAr ? 'rotate-180' : ''}`} />
@@ -155,4 +182,4 @@ export const AccommodationCard: React.FC<AccommodationCardProps> = ({ accommodat
       </div>
     </div>
   );
-};
+});

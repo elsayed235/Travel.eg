@@ -38,6 +38,13 @@ export interface RouteParams {
    * checkout linkable and survivable across a refresh.
    */
   skuId?: string;
+  /**
+   * The CMS draft preview token — opaque, single-purpose, never a selection
+   * id. Like hotel/rental slugs it travels as a path segment
+   * (`/preview/:token`) so preview links survive refresh and sharing; the
+   * preview view parses it from the pathname (see CmsPreviewPage).
+   */
+  previewToken?: string;
 }
 
 /**
@@ -69,6 +76,8 @@ export const ROUTES = [
   '/book-now',
   '/food',
   '/transfers',
+  '/transfers/local',
+  '/transfers/intercity',
   '/help',
   '/change-recovery',
   '/departure',
@@ -93,7 +102,9 @@ export const ROUTES = [
   '/restaurants',
   '/hotels',
   '/rentals',
-  '/attractions'
+  '/attractions',
+  '/preview',
+  '/404'
 ] as const satisfies readonly AppRoute[];
 
 /** Empty when ROUTES covers the union. Anything else is a compile error below. */
@@ -106,6 +117,28 @@ export const DEFAULT_ROUTE: AppRoute = '/home';
 const ROUTE_SET = new Set<string>(ROUTES);
 
 export const isAppRoute = (value: string): value is AppRoute => ROUTE_SET.has(value);
+
+/**
+ * Path prefixes that carry a selection segment (canonical detail URLs).
+ * Used by isKnownClientPath so the server's SPA fallback can tell a
+ * shareable deep link from a typo without duplicating the parser.
+ */
+const SLUG_PREFIXES = [
+  '/programs/', '/program/',
+  '/experiences/', '/experience/', '/places/', '/place/',
+  '/hotels/', '/rentals/', '/preview/',
+];
+
+/**
+ * True for every pathname the client can render: exact routes plus canonical
+ * detail URLs. The production SPA fallback serves 404 + noindex for anything
+ * else instead of silently rendering the homepage.
+ */
+export function isKnownClientPath(pathname: string): boolean {
+  const normalized = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  if (isAppRoute(normalized)) return true;
+  return SLUG_PREFIXES.some(prefix => normalized.startsWith(prefix) && normalized.length > prefix.length);
+}
 
 /**
  * Selection ids travel as query parameters rather than path segments.
@@ -130,6 +163,9 @@ export function urlFromRoute(route: AppRoute, params?: RouteParams): string {
   if (route === '/rentals' && params?.rentalSlug) {
     return `/rentals/${encodeURIComponent(params.rentalSlug)}`;
   }
+  if (route === '/preview' && params?.previewToken) {
+    return `/preview/${encodeURIComponent(params.previewToken)}`;
+  }
 
   const query = new URLSearchParams();
 
@@ -149,9 +185,10 @@ export function urlFromRoute(route: AppRoute, params?: RouteParams): string {
 /**
  * Reads a route and its selection back out of a URL.
  *
- * An unrecognised pathname resolves to DEFAULT_ROUTE rather than throwing: the
- * address bar is user-editable and reachable from stale links, and a typo there
- * should land on the homepage, not a blank screen.
+ * An unrecognised pathname resolves to '/404' rather than throwing or
+ * dropping the traveler on the homepage: the address bar is user-editable
+ * and reachable from stale links, and a typo should explain itself instead
+ * of silently rendering unrelated content (which also poisons SEO).
  */
 export function routeFromUrl(pathname: string, search = ''): { route: AppRoute; params: RouteParams } {
   // Trailing slashes are equivalent to their bare form ('/explore/' is
@@ -197,7 +234,17 @@ export function routeFromUrl(pathname: string, search = ''): { route: AppRoute; 
     }
   }
 
-  const route = isAppRoute(normalized) ? normalized : DEFAULT_ROUTE;
+  // CMS draft preview links: /preview/:token. The token round-trips through
+  // params so the canonical-URL effect preserves it instead of stripping it
+  // to bare /preview (which rendered every shared link expired).
+  if (normalized.startsWith('/preview/')) {
+    const token = normalized.replace(/^\/preview\//, '').split('/')[0].trim();
+    if (token) {
+      return { route: '/preview', params: { previewToken: decodeURIComponent(token) } };
+    }
+  }
+
+  const route = isAppRoute(normalized) ? normalized : ('/404' as AppRoute);
 
   const query = new URLSearchParams(search);
   const params: RouteParams = {};

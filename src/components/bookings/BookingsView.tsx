@@ -32,9 +32,11 @@ import type { CommerceServiceType } from '../../shared/types/commerce';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
 import { offlineStorage } from '../../utils/offlineStorage';
+import { BookingManageModal } from './BookingManageModal';
+import { ReviewInvitations } from './ReviewInvitations';
 
 export const BookingsView: React.FC = () => {
-  const { profile, user, bookings, activeTrip, isTripLoading, tripLoadError, reloadTrip, selectedBookingId, setSelectedBookingId, navigateTo, showToast, recordLedgerEntry } = useTrip();
+  const { profile, user, bookings, activeTrip, isTripLoading, tripLoadError, reloadTrip, selectedBookingId, setSelectedBookingId, navigateTo, showToast } = useTrip();
   const { language, isRTL, t } = useLanguage();
   
   const travelerName = profile.name || user?.displayName;
@@ -49,10 +51,10 @@ export const BookingsView: React.FC = () => {
     }
     return null;
   });
+  /** When true the real manage modal (cancel / reschedule / live status) is open. */
+  const [manageModalOpen, setManageModalOpen] = useState(false);
 
-  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [rollbackStatus, setRollbackStatus] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -78,11 +80,6 @@ export const BookingsView: React.FC = () => {
   });
 
   const totalSpentEGP = bookings.reduce((sum, b) => sum + b.priceEGP, 0);
-  
-  // Tax calculations: 14% VAT + 1% South Sinai Marine & Environmental fee included
-  const subtotalEGP = Math.round((totalSpentEGP / 1.15) * 100) / 100;
-  const vat14EGP = Math.round((subtotalEGP * 0.14) * 100) / 100;
-  const envFee1EGP = Math.round((subtotalEGP * 0.01) * 100) / 100;
 
   const getBookingIcon = (iconType: ConfirmedBookingItem['iconType']) => {
     switch (iconType) {
@@ -105,40 +102,14 @@ export const BookingsView: React.FC = () => {
 
   const handleOpenVoucher = (booking: ConfirmedBookingItem) => {
     setSelectedBooking(booking);
+    setManageModalOpen(false);
     setSelectedBookingId(booking.id);
   };
 
-  const handleSimulateRollback = async (booking: ConfirmedBookingItem) => {
-    setRollbackStatus(`Executing compensating refund for ${booking.subtitle}...`);
-    try {
-      // Written against a flat ledger shape that no longer exists (category,
-      // title, amountEgp, paidBy, dayNumber, notes) and a LedgerEntryType,
-      // 'EXPENSE_REVERSAL', that the enum has never contained. Every field was
-      // dropped, so the rollback recorded an empty entry. A compensating
-      // reversal debits escrow and credits the traveler.
-      await recordLedgerEntry({
-        transactionId: `TXN-ROLLBACK-${Date.now()}`,
-        idempotencyKey: `IDEMP-ROLLBACK-${booking.id}`,
-        bookingRef: booking.confirmationCode,
-        tripId: activeTrip?.id || '',
-        type: 'REFUND_ISSUED',
-        amountEGP: booking.priceEGP,
-        debitAccount: 'PLATFORM_ESCROW_MAIN',
-        creditAccount: 'TRAVELER_CARD_REFUND',
-        currency: 'EGP',
-        status: 'SETTLED',
-        metadata: {
-          serviceType: booking.serviceType,
-          reason: `Compensating escrow reversal for reference ${booking.confirmationCode}`,
-          titleAr: `استرداد ضمان بنكي تعويضي: ${booking.subtitle}`
-        }
-      });
-      showToast(`Escrow compensation of EGP ${booking.priceEGP.toLocaleString()} refunded to balance.`);
-      setRollbackStatus(null);
-    } catch {
-      showToast('Rollback simulated successfully in local ledger.');
-      setRollbackStatus(null);
-    }
+  const handleOpenManage = (booking: ConfirmedBookingItem) => {
+    setSelectedBooking(booking);
+    setSelectedBookingId(booking.id);
+    setManageModalOpen(true);
   };
 
   return (
@@ -149,12 +120,12 @@ export const BookingsView: React.FC = () => {
         
         <div className="max-w-7xl mx-auto space-y-5 relative z-10">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-2 max-w-2xl">
               <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-primary)] text-xs font-bold">
-                  <Briefcase className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+                  <Briefcase className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" aria-hidden="true" />
                   <span>Connected Trip Bookings</span>
-                </div>
+                </p>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
                   isOnline ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30' : 'bg-amber-950/80 text-amber-300 border border-amber-500/30'
                 }`}>
@@ -162,10 +133,10 @@ export const BookingsView: React.FC = () => {
                   <span>{isOnline ? (t('bookings.cloudSyncActive')) : (t('bookings.offlineMode'))}</span>
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)]">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight text-balance text-[var(--text-primary)]">
                 {travelerTitle}
               </h1>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium">
+              <p className="text-sm text-[var(--text-secondary)] font-normal leading-relaxed">
                 {t('bookings.everythingConfirmedUnderOne')}{' '}
                 <strong className="font-mono text-[var(--accent-secondary)] bg-[var(--surface-container)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
                   {/* This used to read 'DHB-2026-OCT-894' — a reference that
@@ -178,25 +149,16 @@ export const BookingsView: React.FC = () => {
               </p>
             </div>
 
-            {/* Total Budget & Status Summary */}
+            {/* Total booked */}
             <div className="flex items-center gap-3">
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-end">
                 <span className="text-[11px] font-bold text-[var(--text-secondary)]/70 block">
-                  Total in Escrow Trust
+                  Total Booked
                 </span>
                 <span className="text-xl font-mono font-bold text-[var(--accent-secondary)]">
                   EGP {totalSpentEGP.toLocaleString()}
                 </span>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setIsInvoiceModalOpen(true)}
-                className="px-4 py-3 rounded-2xl bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] text-xs font-extrabold flex items-center gap-2 shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-95"
-              >
-                <FileText className="w-4 h-4" aria-hidden="true" />
-                <span>Full Tax Invoice</span>
-              </button>
             </div>
           </div>
 
@@ -274,6 +236,13 @@ export const BookingsView: React.FC = () => {
           </div>
         )}
 
+        {/* Verified-stay review invitations (blueprint row #14): completed
+            bookings the traveler has not reviewed yet. Renders nothing when
+            there is nothing to review. */}
+        {!isTripLoading && !tripLoadError && (
+          <ReviewInvitations tripId={activeTrip?.id ?? null} />
+        )}
+
         {/* Bookings List */}
         {filteredBookings.length === 0 ? (
           <div className="py-8">
@@ -318,12 +287,14 @@ export const BookingsView: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-1">
-                    <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--surface-container)] px-3 py-1 rounded-full border border-[var(--border-subtle)]">
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                      b.status === 'Confirmed ✓'
+                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/40'
+                        : b.status === 'Pending'
+                          ? 'bg-amber-500/10 text-amber-300 border-amber-500/40'
+                          : 'bg-red-500/10 text-red-300 border-red-500/40'
+                    }`}>
                       {b.status}
-                    </span>
-                    <span className="text-[11px] text-emerald-400 font-mono flex items-center gap-1">
-                      <Lock className="w-2.5 h-2.5" />
-                      <span>Escrow Secured</span>
                     </span>
                   </div>
                 </div>
@@ -361,10 +332,10 @@ export const BookingsView: React.FC = () => {
                   <div className="text-base font-mono font-bold text-[var(--accent-secondary)]">
                     EGP {b.priceEGP.toLocaleString()}
                   </div>
-                  <span className="text-[11px] text-[var(--text-secondary)]/60">Incl. 14% VAT + 1% Reserve Tax</span>
+                  <span className="text-xs text-[var(--text-secondary)]/60">Total incl. taxes &amp; fees</span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => handleOpenVoucher(b)}
@@ -373,6 +344,16 @@ export const BookingsView: React.FC = () => {
                     <span>View Voucher</span>
                     <QrCode className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                   </button>
+                  {b.serviceType !== 'rental' && activeTrip && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenManage(b)}
+                      className="px-4 py-2 rounded-full bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] border border-[var(--accent-primary)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-sm cursor-pointer flex items-center gap-1.5"
+                    >
+                      <span>Cancel / Reschedule</span>
+                      <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -388,25 +369,29 @@ export const BookingsView: React.FC = () => {
               <span>Unified Trip &amp; Escrow Protection</span>
             </div>
             <h2 className="font-bold text-base sm:text-lg text-[var(--text-primary)]">
-              Need to reschedule or test transaction rollback?
+              Need to change a booking?
             </h2>
             <p className="text-xs text-[var(--text-secondary)] max-w-2xl">
-              All bookings automatically synchronize with your live Dahab trip timeline. In case of unexpected weather or cancellations, escrow funds are instantly rolled back with zero penalty.
+              Every booking below is managed live against the server — check real availability, reschedule to a new slot, or cancel, and the change is confirmed before it appears.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={() => navigateTo('/change-recovery')}
-            className="px-5 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex-shrink-0 z-10"
+            disabled={bookings.length === 0}
+            onClick={() => {
+              const target = bookings.find(x => x.serviceType !== 'rental') || bookings[0];
+              if (target) handleOpenManage(target);
+            }}
+            className="px-5 py-3 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Manage Changes →
+            Cancel or Reschedule →
           </button>
         </div>
       </main>
 
       {/* 3. VOUCHER & QR CODE MODAL */}
-      {selectedBooking && (
+      {selectedBooking && !manageModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
@@ -429,7 +414,8 @@ export const BookingsView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedBooking(null)}
-                className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] cursor-pointer"
+                aria-label={t('common.close')}
+                className="p-1 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -470,7 +456,7 @@ export const BookingsView: React.FC = () => {
               </span>
             </div>
 
-            {/* Schedule & Price details with Tax breakdown */}
+            {/* Schedule & Price details */}
             <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
                 <span className="text-[var(--text-secondary)]/60">Schedule:</span>
@@ -481,32 +467,30 @@ export const BookingsView: React.FC = () => {
                 <span className="font-bold text-[var(--text-primary)]">{selectedBooking.location}</span>
               </div>
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                <span className="text-[var(--text-secondary)]/60">Amount Paid (Escrow):</span>
+                <span className="text-[var(--text-secondary)]/60">Amount:</span>
                 <span className="font-mono font-bold text-[var(--accent-primary)]">
-                  EGP {selectedBooking.priceEGP.toLocaleString()} (Fully Paid ✓)
+                  EGP {selectedBooking.priceEGP.toLocaleString()}
                 </span>
               </div>
             </div>
 
-            {/* Policy & Rollback Action */}
-            <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-2">
+            {/* Live management — real backend cancel / reschedule */}
+            <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-3">
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
                 <span>
-                  Free cancellation or modification up to 12 hours before scheduled time with full escrow credit.
+                  Live status, cancellation and rescheduling are handled against the booking itself — nothing changes until the server confirms it.
                 </span>
               </div>
-              <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
-                <span className="text-[11px] text-[var(--text-muted)]">Emergency or Disruption?</span>
-                <button
-                  type="button"
-                  onClick={() => handleSimulateRollback(selectedBooking)}
-                  className="inline-flex items-center gap-1 text-[12px] text-amber-400 hover:text-amber-300 font-bold transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Simulate Escrow Rollback</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                disabled={!activeTrip}
+                onClick={() => handleOpenManage(selectedBooking)}
+                className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)] text-xs font-extrabold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Calendar className="w-4 h-4" aria-hidden="true" />
+                <span>Manage booking · Cancel / Reschedule</span>
+              </button>
             </div>
 
             {/* Modal Actions */}
@@ -538,111 +522,18 @@ export const BookingsView: React.FC = () => {
         </div>
       )}
 
-      {/* 4. FULL TRIP INVOICE MODAL WITH TAX BREAKDOWN */}
-      {isInvoiceModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="bookings-view-dialog-2-title"
-    >
-          <div className="bg-[var(--surface-card)] text-[var(--text-primary)] rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-[var(--border-subtle)] animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] pb-4">
-              <div>
-                <span className="text-[11px] font-black text-[var(--accent-primary)] block">
-                  Official Travel Platform Tax Invoice
-                </span>
-                <h3 id="bookings-view-dialog-2-title" className="chart-heading font-bold text-2xl text-[var(--text-primary)]">
-                  Dahab Trip Official Tax Invoice
-                </h3>
-                <p className="text-xs text-[var(--text-secondary)]/70">
-                  Tax Invoice #INV-2026-DHB-9981 · ETA Reg: 593-847-210 · Issued to {profile.name || (t('bookings.theTraveler'))}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsInvoiceModalOpen(false)}
-                className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Line items table */}
-            <div className="space-y-3">
-              <div className="border border-[var(--border-subtle)] rounded-2xl overflow-hidden text-xs">
-                <div className="bg-[var(--surface-container)] p-3 font-bold text-[var(--text-primary)] grid grid-cols-12 gap-2">
-                  <div className="col-span-6">Item / Service</div>
-                  <div className="col-span-3">Provider</div>
-                  <div className="col-span-3 text-end">Amount (EGP)</div>
-                </div>
-
-                {bookings.map((b) => (
-                  <div key={b.id} className="p-3 border-t border-[var(--border-subtle)] grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-6">
-                      <div className="font-bold text-[var(--text-primary)]">{b.subtitle}</div>
-                      <div className="text-[12px] text-[var(--text-secondary)]/70">{b.details}</div>
-                    </div>
-                    <div className="col-span-3 text-[var(--text-secondary)]">{b.provider}</div>
-                    <div className="col-span-3 text-end font-mono font-bold text-[var(--accent-secondary)]">
-                      {b.priceEGP.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Tax Breakdown Subtotal */}
-                <div className="bg-[var(--surface-container)]/60 p-3 border-t border-[var(--border-subtle)] space-y-1.5">
-                  <div className="flex justify-between text-xs text-[var(--text-secondary)]">
-                    <span>Net Subtotal (Pre-Tax):</span>
-                    <span className="font-mono">EGP {subtotalEGP.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-[var(--text-secondary)]">
-                    <span>Egyptian Value Added Tax (14% VAT):</span>
-                    <span className="font-mono">EGP {vat14EGP.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-[var(--text-secondary)]">
-                    <span>South Sinai Environmental &amp; Marine Reserve Fee (1%):</span>
-                    <span className="font-mono">EGP {envFee1EGP.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="bg-[var(--surface-container)] p-3 border-t border-[var(--border-subtle)] grid grid-cols-12 gap-2 font-bold text-sm">
-                  <div className="col-span-9 text-[var(--text-primary)]">Total Settlement (Gross EGP)</div>
-                  <div className="col-span-3 text-end font-mono text-[var(--accent-secondary)]">
-                    EGP {totalSpentEGP.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-1">
-              <p>Payment Method: Visa ending in 4242 · Status: Escrow Settlement Verified</p>
-              <p>Includes official CDWS marine sanctuary permits, environmental conservation levies &amp; logistics clearance.</p>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  showToast('Official Tax Invoice PDF downloaded');
-                  setIsInvoiceModalOpen(false);
-                }}
-                className="px-5 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md"
-              >
-                <Download className="w-3.5 h-3.5 text-[var(--surface-card)]" />
-                <span>Download Tax Invoice</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsInvoiceModalOpen(false)}
-                className="px-4 py-2.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Live manage modal — real booking detail / cancel / reschedule */}
+      {manageModalOpen && selectedBooking && (
+        <BookingManageModal
+          booking={selectedBooking}
+          hasTrip={Boolean(activeTrip)}
+          onClose={() => {
+            setManageModalOpen(false);
+            setSelectedBooking(null);
+            setSelectedBookingId(null);
+          }}
+          onBookingChanged={reloadTrip}
+        />
       )}
     </div>
   );

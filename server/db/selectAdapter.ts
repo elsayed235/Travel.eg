@@ -23,8 +23,9 @@ export function selectAdapter(env: NodeJS.ProcessEnv = process.env): IPersistenc
   }
 
   if (requested === 'postgres') {
-    // Unchanged: this adapter still does not implement save(). It refuses
-    // unless the operator has explicitly acknowledged that.
+    // Real persistence since the save() port: diffed shadow-write flushes to
+    // the spec-generated schema. Refuses to boot when no connection is
+    // configured (see assertUsable).
     PostgresPersistenceAdapter.assertUsable();
     return new PostgresPersistenceAdapter();
   }

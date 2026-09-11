@@ -151,7 +151,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
 
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
-              Tomorrow in Dahab 🌊
+              Tomorrow in Dahab
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
               Your trip starts tomorrow. Here's everything you need before you go.
@@ -653,7 +653,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Sun className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
                     <span>Temperature</span>
                   </span>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">🌤 Warm (28°C)</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm">Warm (28°C)</p>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
@@ -661,7 +661,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Wind className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>Wind</span>
                   </span>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">🌬 Moderate breeze</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm">Moderate breeze</p>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
@@ -669,7 +669,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Waves className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>Sea conditions</span>
                   </span>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">🌊 Calm sea</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm">Calm sea</p>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
@@ -677,7 +677,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
                     <Eye className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>Visibility</span>
                   </span>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">👀 Good visibility</p>
+                  <p className="font-bold text-[var(--text-primary)] text-sm">Good visibility</p>
                 </div>
               </div>
 
@@ -1178,7 +1178,7 @@ export const PreArrivalBriefing: React.FC<PreArrivalBriefingProps> = ({
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                 <span className="font-bold text-[var(--text-primary)] block">24/7 Dahab Concierge Line</span>
                 <p className="text-[var(--text-secondary)]/70">WhatsApp / Phone: +20 100 894 2000</p>
-                <p className="text-[var(--text-secondary)]/70">Support Reference: DHB-8942-AHMED</p>
+                <p className="text-[var(--text-secondary)]/70">Support Reference: —</p>
               </div>
             </div>
 

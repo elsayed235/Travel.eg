@@ -11,7 +11,7 @@ interface SafariOptionCardProps {
   onViewDetails: (safari: SafariOption) => void;
 }
 
-export const SafariOptionCard: React.FC<SafariOptionCardProps> = ({
+export const SafariOptionCard: React.FC<SafariOptionCardProps> = React.memo(({
   safari,
   isSelected,
   onSelect,
@@ -185,8 +185,8 @@ export const SafariOptionCard: React.FC<SafariOptionCardProps> = ({
               }}
               className={`inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                 isSelected
-                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[#1A1206] font-bold shadow-md'
-                  : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold hover:shadow-xs'
+                  ? 'bg-[var(--accent-primary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold shadow-md'
+                  : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold hover:shadow-xs'
               }`}
             >
               {isSelected ? (
@@ -203,4 +203,4 @@ export const SafariOptionCard: React.FC<SafariOptionCardProps> = ({
       </div>
     </ClickableCard>
   );
-};
+});

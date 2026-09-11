@@ -6,6 +6,9 @@ import {
   SessionEntity,
   TripEntity,
   TripItemEntity,
+  TripMemberEntity,
+  TripItemVoteEntity,
+  TripSplitEntity,
   SupplierEntity,
   ProductSkuEntity,
   HotelEntity,
@@ -18,6 +21,13 @@ import {
   LedgerEntryEntity,
   TransferTelemetryEntity,
   NotificationEntity,
+  AmbientNudgeEntity,
+  PushSubscriptionEntity,
+  SupplierMetricEntity,
+  SupplierAvailabilityBlockEntity,
+  PayoutScheduleEntity,
+  ReviewEntity,
+  AnalyticsEventEntity,
   AuditEventEntity,
   PlaceDiscoveryEntity,
   EntityResolutionCandidateEntity,
@@ -54,7 +64,15 @@ import {
   RentalListingEntity,
   RentalExtraEntity,
   RentalBookingEntity,
-  RentalMaintenanceBlockEntity
+  RentalMaintenanceBlockEntity,
+  SiteSettingsEntity,
+  ReefPositiveLogEntity,
+  BundleEntity,
+  TripJournalEntryEntity,
+  TripPlaceVisitedEntity,
+  FraudSignalEntity,
+  FraudRuleEntity,
+  FraudUserStatsEntity
 } from './schema';
 import { ProductOpportunity } from '../../src/types/intelligence';
 import { IPersistenceAdapter } from './adapters/IPersistenceAdapter';
@@ -66,6 +84,9 @@ export interface DatabaseState {
   sessions: SessionEntity[];
   trips: TripEntity[];
   tripItems: TripItemEntity[];
+  tripMembers: TripMemberEntity[];
+  tripItemVotes: TripItemVoteEntity[];
+  tripSplits: TripSplitEntity[];
   suppliers: SupplierEntity[];
   productSkus: ProductSkuEntity[];
   hotels: HotelEntity[];
@@ -78,6 +99,18 @@ export interface DatabaseState {
   ledgerEntries: LedgerEntryEntity[];
   transferTelemetry: TransferTelemetryEntity[];
   notifications: NotificationEntity[];
+  ambientNudges: AmbientNudgeEntity[];
+  /** Web Push subscriptions, one row per browser endpoint (see schema.ts). */
+  pushSubscriptions: PushSubscriptionEntity[];
+  /** Supplier reliability metric events (see reliabilityService.ts). */
+  supplierMetrics: SupplierMetricEntity[];
+  /** Verified-stay reviews (see reviewService.ts). */
+  reviews: ReviewEntity[];
+  /** Supplier availability blocks (see supplierCalendarService.ts). */
+  supplierAvailabilityBlocks: SupplierAvailabilityBlockEntity[];
+  /** Pending 24h payout schedule (see payoutService.ts). */
+  payoutSchedule: PayoutScheduleEntity[];
+  analyticsEvents?: AnalyticsEventEntity[];
   supportMessages: SupportMessageEntity[];
   auditEvents: AuditEventEntity[];
   opportunities: ProductOpportunity[];
@@ -101,6 +134,8 @@ export interface DatabaseState {
   sourceHealthRecords?: SourceHealthEntity[];
   refreshSchedulePolicies?: RefreshSchedulePolicyEntity[];
   marketAlerts?: MarketAlertEntity[];
+  // Site Settings
+  siteSettings?: SiteSettingsEntity[];
   // Rentals (bikes MVP; category-agnostic domain)
   rentalListings?: RentalListingEntity[];
   rentalExtras?: RentalExtraEntity[];
@@ -120,6 +155,20 @@ export interface DatabaseState {
   knowledgeSnapshots: KnowledgeSnapshotEntity[];
   placeDiscoveries: PlaceDiscoveryEntity[];
   resolutionCandidates: EntityResolutionCandidateEntity[];
+  /** Reef-positive conservation logs (see reefPositiveService.ts). */
+  reefPositiveLogs: ReefPositiveLogEntity[];
+  /** Dynamic bundle definitions (see bundleService.ts). */
+  bundles: BundleEntity[];
+  /** Trip journal entries (see tripJournalService.ts). */
+  tripJournalEntries: TripJournalEntryEntity[];
+  /** Trip places visited (see tripJournalService.ts). */
+  tripPlacesVisited: TripPlaceVisitedEntity[];
+  /** Fraud detection signals (see fraudDetectionService.ts). */
+  fraudSignals: FraudSignalEntity[];
+  /** Fraud detection rules configuration. */
+  fraudRules: FraudRuleEntity[];
+  /** Per-user fraud stats aggregation. */
+  fraudUserStats: FraudUserStatsEntity[];
   lastCheckpoint: string;
 }
 
@@ -176,6 +225,18 @@ export class Database {
   public get sessions() { return this.state.sessions; }
   public get trips() { return this.state.trips; }
   public get tripItems() { return this.state.tripItems; }
+  public get tripMembers() {
+    if (!this.state.tripMembers) this.state.tripMembers = [];
+    return this.state.tripMembers;
+  }
+  public get tripItemVotes() {
+    if (!this.state.tripItemVotes) this.state.tripItemVotes = [];
+    return this.state.tripItemVotes;
+  }
+  public get tripSplits() {
+    if (!this.state.tripSplits) this.state.tripSplits = [];
+    return this.state.tripSplits;
+  }
   public get suppliers() { return this.state.suppliers; }
   public get productSkus() { return this.state.productSkus; }
   public get hotels() { return this.state.hotels || (this.state.hotels = []); }
@@ -188,6 +249,33 @@ export class Database {
   public get ledgerEntries() { return this.state.ledgerEntries; }
   public get transferTelemetry() { return this.state.transferTelemetry; }
   public get notifications() { return this.state.notifications; }
+  public get ambientNudges() {
+    if (!this.state.ambientNudges) this.state.ambientNudges = [];
+    return this.state.ambientNudges;
+  }
+  public get pushSubscriptions() {
+    // Defaulted here as well as in the adapters, so a store written before this
+    // collection existed loads without crashing on an undefined array.
+    if (!this.state.pushSubscriptions) this.state.pushSubscriptions = [];
+    return this.state.pushSubscriptions;
+  }
+  public get supplierMetrics() {
+    if (!this.state.supplierMetrics) this.state.supplierMetrics = [];
+    return this.state.supplierMetrics;
+  }
+  public get reviews() {
+    if (!this.state.reviews) this.state.reviews = [];
+    return this.state.reviews;
+  }
+  public get supplierAvailabilityBlocks() {
+    if (!this.state.supplierAvailabilityBlocks) this.state.supplierAvailabilityBlocks = [];
+    return this.state.supplierAvailabilityBlocks;
+  }
+  public get payoutSchedule() {
+    if (!this.state.payoutSchedule) this.state.payoutSchedule = [];
+    return this.state.payoutSchedule;
+  }
+  public get analyticsEvents() { return this.state.analyticsEvents || (this.state.analyticsEvents = []); }
   public get supportMessages() {
     // Defaulted here as well as in the adapters, so a store written before this
     // collection existed loads without crashing on an undefined array.
@@ -225,10 +313,39 @@ export class Database {
   public get knowledgeSnapshots() { return this.state.knowledgeSnapshots || (this.state.knowledgeSnapshots = []); }
   public get placeDiscoveries() { return this.state.placeDiscoveries || (this.state.placeDiscoveries = []); }
   public get resolutionCandidates() { return this.state.resolutionCandidates || (this.state.resolutionCandidates = []); }
+  public get siteSettings() { return this.state.siteSettings || (this.state.siteSettings = []); }
   public get rentalListings() { return this.state.rentalListings || (this.state.rentalListings = []); }
   public get rentalExtras() { return this.state.rentalExtras || (this.state.rentalExtras = []); }
   public get rentalBookings() { return this.state.rentalBookings || (this.state.rentalBookings = []); }
   public get rentalMaintenanceBlocks() { return this.state.rentalMaintenanceBlocks || (this.state.rentalMaintenanceBlocks = []); }
+  public get reefPositiveLogs() {
+    if (!this.state.reefPositiveLogs) this.state.reefPositiveLogs = [];
+    return this.state.reefPositiveLogs;
+  }
+  public get bundles() {
+    if (!this.state.bundles) this.state.bundles = [];
+    return this.state.bundles;
+  }
+  public get tripJournalEntries() {
+    if (!this.state.tripJournalEntries) this.state.tripJournalEntries = [];
+    return this.state.tripJournalEntries;
+  }
+  public get tripPlacesVisited() {
+    if (!this.state.tripPlacesVisited) this.state.tripPlacesVisited = [];
+    return this.state.tripPlacesVisited;
+  }
+  public get fraudSignals() {
+    if (!this.state.fraudSignals) this.state.fraudSignals = [];
+    return this.state.fraudSignals;
+  }
+  public get fraudRules() {
+    if (!this.state.fraudRules) this.state.fraudRules = [];
+    return this.state.fraudRules;
+  }
+  public get fraudUserStats() {
+    if (!this.state.fraudUserStats) this.state.fraudUserStats = [];
+    return this.state.fraudUserStats;
+  }
   public get locks() { return this.state.locks || (this.state.locks = []); }
   public get lastCheckpoint() { return this.state.lastCheckpoint; }
 

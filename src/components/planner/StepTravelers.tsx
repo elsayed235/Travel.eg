@@ -92,18 +92,16 @@ export const StepTravelers: React.FC<StepTravelersProps> = ({
   const handleChildrenIncrement = () => {
     if (childrenCount < 10) {
       onChildrenChange(childrenCount + 1);
-      if (tripDynamic !== 'Family') {
+      // Suggest Family when adding children, but don't override explicit user choice
+      if (tripDynamic === null || tripDynamic === 'Friends' || tripDynamic === 'Couple' || tripDynamic === 'Solo') {
         onTripDynamicChange('Family');
       }
     }
   };
 
   const toggleDynamic = (dynamicId: TripDynamicType) => {
-    if (tripDynamic === dynamicId) {
-      onTripDynamicChange(null);
-    } else {
-      onTripDynamicChange(dynamicId);
-    }
+    // Always set (never toggle to null) — the user explicitly chose this option
+    onTripDynamicChange(dynamicId);
   };
 
   return (

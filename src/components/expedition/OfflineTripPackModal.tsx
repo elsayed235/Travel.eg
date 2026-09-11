@@ -404,7 +404,7 @@ export const OfflineTripPackModal: React.FC<OfflineTripPackModalProps> = ({ isOp
 
             <button
               onClick={handleDownloadJson}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] shadow-md transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] shadow-md transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
               {t('downloadOfflinePack')}

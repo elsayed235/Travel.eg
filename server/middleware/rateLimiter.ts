@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './correlationMiddleware';
+import { sharedAcquire, sharedCollectGarbage } from './rateLimitStore';
 
 interface RateLimitRecord {
   count: number;
@@ -21,12 +22,43 @@ export function createRateLimiter(options: {
         store.delete(key);
       }
     }
+    // Opportunistic GC for the shared store (no-op unless configured).
+    sharedCollectGarbage();
   }, 60000).unref();
 
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const identifier = req.user?.userId || req.ip || req.socket.remoteAddress || 'anonymous';
-    const key = `${req.baseUrl || req.path}:${identifier}`;
+    // Bucket per route per actor. req.baseUrl alone is the '/api' mount point
+    // for every API route — keying on it collapsed the whole API into ONE
+    // shared 300/min bucket per user, so a busy admin console ate 429s on
+    // unrelated routes (and the app renders those as "signed out").
+    const route = `${req.baseUrl || ''}${req.path || ''}` || req.originalUrl.split('?')[0];
+    const key = `${route}:${identifier}`;
     const now = Date.now();
+
+    // Shared buckets first (multi-process truth when RATE_LIMIT_STORE=sqlite).
+    // Falls back to the in-memory map below when unconfigured or on error —
+    // a limiter must never 500 legitimate traffic because its store hiccuped.
+    const shared = sharedAcquire(key, options.windowMs, options.maxRequests);
+    if (shared) {
+      res.setHeader('X-RateLimit-Limit', options.maxRequests);
+      res.setHeader('X-RateLimit-Remaining', shared.remaining);
+      res.setHeader('X-RateLimit-Reset', shared.resetSec);
+      if (!shared.allowed) {
+        const retryAfterSec = Math.max(0, shared.resetSec - Math.ceil(now / 1000));
+        res.setHeader('Retry-After', retryAfterSec);
+        return res.status(429).json({
+          type: 'https://dahab.travel/errors/rate-limit-exceeded',
+          title: 'Too Many Requests',
+          status: 429,
+          detail: options.message || `Rate limit exceeded. Please retry in ${retryAfterSec} seconds.`,
+          instance: req.originalUrl,
+          correlationId: req.correlationId,
+          retryAfter: retryAfterSec
+        });
+      }
+      return next();
+    }
 
     let record = store.get(key);
     if (!record || now > record.resetTime) {

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAHAB — Your Dahab trip, built around you</title>
     <meta name="description" content="A premium digital travel platform for Dahab, Egypt. Personalized planning, local experiences, and authentic adventures." />
-    <meta name="theme-color" content="#081714" />
+    <meta name="theme-color" content="#141311" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph / social. Canonical + og:url are stamped per-route by the
@@ -34,7 +34,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300..700&family=Chakra+Petch:wght@500;600;700&family=El+Messiri:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300..800&display=swap" rel="stylesheet" />
+    <!-- Luxury Re-Skin: Cormorant (Latin display serif) + Montserrat (body)
+         replace Outfit/Chakra Petch. Arabic never touches them: Alexandria
+         carries RTL body/headings, El Messiri the display serif, JetBrains
+         Mono the live readings. -->
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300..700&family=Cormorant:ital,wght@0,400..700;1,400..700&family=El+Messiri:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:wght@300..800&display=swap" rel="stylesheet" />
 
     <script>
       /*
@@ -70,16 +74,15 @@
       })();
     </script>
   </head>
-  <body class="bg-[#070D1F] text-[#F7F3EA] antialiased selection:bg-[#E8A33D]/30 selection:text-[#F7F3EA] min-h-screen">
-    <!-- impeccable:direction key=2cdaa49a
-      THESIS: The Sinai night sky as trip instrument, not a shoreline postcard; the homepage plots the journey as constellations a traveler reads and steers.
-      OWN-WORLD: indigo night paper (#0A1128) with bone star ink (#F2EDDF) and pinprick starfields; brass ticks (#C9A24B) for waypoints; amber firelight (#E8A33D) reserved for the single action per viewport; lagoon teal kept as live-data ink only; Chakra Petch display with El Messiri italic accent.
-      STORY: A first-time visitor knows this is a Dahab companion that reads the sky tonight, shows real conditions and real prices, and offers one clear next step for their journey phase.
-      FIRST VIEWPORT: cinematic scene framed as a chart plate under night scrims; instrument headline in chart display; one amber Plan CTA; scenes as a plotted constellation stack; live sea/air/sunset readings along the base.
-      FORM: grounded candidate 6 of 7, seed 2cdaa49a; challengers (neon promenade, instrument bay, souq shelf) weighed on audience identification and product clarity and held as alternates.
-      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md.
+  <body class="bg-[#141311] text-[#F5F2EC] antialiased selection:bg-[#C8933D]/30 selection:text-[#F5F2EC] min-h-screen">
+    <!-- impeccable:direction key=reskin-2026-09
+      THESIS: Luxury Re-Skin over the Sinai instrument world — warm stone and gold on paper, glass surfaces, one gold fire per viewport.
+      OWN-WORLD: warm stone night (#141311/#1C1917) with bone star ink (#F2EDDF) and pinprick starfields; brass ticks (#C9A24B) for waypoints; gold firelight (#C8933D) reserved for the single action per viewport; lagoon teal kept as live-data ink only; Cormorant display serif with Montserrat body, El Messiri italic accent, Alexandria for Arabic.
+      STORY: A first-time visitor sees a Dahab companion that reads the sky tonight, shows real conditions and real prices, and offers one clear next step for their journey phase.
+      FIRST VIEWPORT: cinematic scene framed as a chart plate under stone scrims; serif display headline; one gold Plan CTA; scenes as a plotted constellation stack; live sea/air/sunset readings along the base.
+      FORM: full re-skin per approved plan (ui-ux-pro-max): skill palette #1C1917/#A16207/#FAFAF9 + Cormorant/Montserrat, adapted for bilingual + 6-theme engine; supersedes Star Chart palette, chart-* API survives by redefinition.
     -->
-    <div id="root" class="min-h-screen bg-[#070D1F] text-[#F7F3EA]"></div>
+    <div id="root" class="min-h-screen bg-[#141311] text-[#F5F2EC]"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

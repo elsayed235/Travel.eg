@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTrip } from '../../context/TripContext';
+import { CategoryIcon, type CategoryKind } from '../common/CategoryIcon';
 import { 
   Wind, 
   Waves, 
@@ -26,7 +27,10 @@ import {
   SlidersHorizontal,
   Flame,
   Plus,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle,
+  Sailboat,
+  Zap
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
 import { BookNowCommerceModal } from '../commerce/BookNowCommerceModal';
@@ -48,7 +52,7 @@ interface TimelineActivityItem {
   title: string;
   subtitle?: string;
   status: 'Confirmed' | 'Suggested' | 'Open' | 'Added';
-  icon: string;
+  icon: CategoryKind;
   category: 'activity' | 'food' | 'free' | 'chill';
   details?: string;
 }
@@ -61,7 +65,7 @@ interface SmartSuggestion {
   duration: string;
   priceRange: string;
   distance: string;
-  icon: string;
+  icon: CategoryKind;
   timeSlot: string;
   weatherSafe: boolean;
 }
@@ -90,7 +94,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       title: 'Diving Experience',
       subtitle: 'Canyon & Lighthouse Reefs · Certified Dive Master briefing',
       status: 'Confirmed',
-      icon: '🤿',
+      icon: 'dive',
       category: 'activity',
       details: 'Meeting at Dahab Divers Hub. Full equipment check at 08:45 AM. Transport to Canyon included.',
     },
@@ -100,7 +104,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       title: 'Lunch by the Bay',
       subtitle: 'Fresh catch & Bedouin salads · Ali Baba or Shams',
       status: 'Suggested',
-      icon: '🍽️',
+      icon: 'food',
       category: 'food',
       details: 'Casual seaside terrace dining overlooking the bay. No reservation needed.',
     },
@@ -110,7 +114,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       title: 'Free Time',
       subtitle: 'Open afternoon window (~2 hours available)',
       status: 'Open',
-      icon: '✨',
+      icon: 'sparkles',
       category: 'free',
       details: 'Choose from personalized suggestions below to match your afternoon mood.',
     },
@@ -120,7 +124,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       title: 'Dinner Under the Stars',
       subtitle: 'Relaxed waterfront dinner along Lighthouse promenade',
       status: 'Suggested',
-      icon: '🌙',
+      icon: 'evening',
       category: 'food',
       details: 'Fresh seafood, mezze plates, and sea-breeze seating.',
     },
@@ -155,7 +159,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '45 min',
       priceRange: '50–120 EGP ($1–$3)',
       distance: '150m',
-      icon: '☕',
+      icon: 'coffee',
       timeSlot: '03:00 PM',
       weatherSafe: true,
     },
@@ -167,7 +171,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '1 hr',
       priceRange: 'Free',
       distance: '200m',
-      icon: '🚶',
+      icon: 'walk',
       timeSlot: '03:00 PM',
       weatherSafe: true,
     },
@@ -179,7 +183,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '1.5 hr',
       priceRange: '150–250 EGP ($3–$5)',
       distance: '300m',
-      icon: '🤿',
+      icon: 'dive',
       timeSlot: '03:00 PM',
       weatherSafe: false, // will swap if sea condition turns rough
     },
@@ -194,7 +198,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '45 min',
       priceRange: '50–120 EGP ($1–$3)',
       distance: '150m',
-      icon: '☕',
+      icon: 'coffee',
       timeSlot: '03:00 PM',
       weatherSafe: true,
     },
@@ -206,7 +210,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '1 hr',
       priceRange: 'Free',
       distance: '200m',
-      icon: '🚶',
+      icon: 'walk',
       timeSlot: '03:00 PM',
       weatherSafe: true,
     },
@@ -218,7 +222,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
       duration: '1 hr 15 min',
       priceRange: '80–150 EGP ($2–$3)',
       distance: '400m',
-      icon: '🌿',
+      icon: 'nature',
       timeSlot: '03:00 PM',
       weatherSafe: true,
     },
@@ -262,7 +266,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
         title: 'Diving Experience',
         subtitle: 'Canyon & Lighthouse Reefs · Certified Dive Master briefing',
         status: 'Confirmed',
-        icon: '🤿',
+        icon: 'dive',
         category: 'activity',
         details: 'Meeting at Dahab Divers Hub. Full equipment check at 08:45 AM. Transport to Canyon included.',
       },
@@ -272,7 +276,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
         title: 'Lunch by the Bay',
         subtitle: 'Fresh catch & Bedouin salads · Ali Baba or Shams',
         status: 'Suggested',
-        icon: '🍽️',
+        icon: 'food',
         category: 'food',
         details: 'Casual seaside terrace dining overlooking the bay. No reservation needed.',
       },
@@ -282,7 +286,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
         title: 'Free Time',
         subtitle: 'Open afternoon window (~2 hours available)',
         status: 'Open',
-        icon: '✨',
+        icon: 'sparkles',
         category: 'free',
         details: 'Choose from personalized suggestions below to match your afternoon mood.',
       },
@@ -292,7 +296,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
         title: 'Dinner Under the Stars',
         subtitle: 'Relaxed waterfront dinner along Lighthouse promenade',
         status: 'Suggested',
-        icon: '🌙',
+        icon: 'evening',
         category: 'food',
         details: 'Fresh seafood, mezze plates, and sea-breeze seating.',
       },
@@ -402,7 +406,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
-              Good morning, Ahmed 👋
+              Good morning, Ahmed
             </h1>
             <div className="flex items-center gap-2 text-xl sm:text-2xl font-semibold text-[var(--accent-primary)]">
               <span>Dahab Today</span>
@@ -430,8 +434,8 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3.5">
-                    <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-xl flex-shrink-0 border border-amber-500/30">
-                      ⚠️
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center flex-shrink-0 border border-amber-500/30">
+                      <AlertTriangle className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -521,7 +525,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               }`}>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-base">🤿</span>
+                    <CategoryIcon kind="dive" className="w-4 h-4" />
                     <h3 className="font-bold text-sm text-[var(--text-primary)]">
                       {seaCondition === 'calm' ? 'Good day for diving.' : 'Moderate conditions for sheltered dive sites.'}
                     </h3>
@@ -536,11 +540,11 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                 {/* Additional activity readiness */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-[var(--border-subtle)] text-xs">
                   <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-white/5">
-                    <span className="font-semibold text-[var(--text-secondary)]/80">🏄‍♂️ Kitesurfing</span>
+                    <span className="font-semibold text-[var(--text-secondary)]/80 flex items-center gap-1.5"><Wind className="w-3.5 h-3.5" /> Kitesurfing</span>
                     <span className="font-bold text-[var(--accent-primary)]">Good after 12 PM</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-white/5">
-                    <span className="font-semibold text-[var(--text-secondary)]/80">⛵ Boat trips</span>
+                    <span className="font-semibold text-[var(--text-secondary)]/80 flex items-center gap-1.5"><Sailboat className="w-3.5 h-3.5" /> Boat trips</span>
                     <span className="font-bold text-[var(--text-secondary)]/60">Limited</span>
                   </div>
                 </div>
@@ -580,7 +584,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl sm:text-3xl">🤿</span>
+                    <CategoryIcon kind="dive" className="w-7 h-7 sm:w-8 sm:h-8" />
                     <div>
                       <span className="text-xs font-mono font-bold text-[var(--accent-secondary)]">
                         09:00 AM
@@ -611,7 +615,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     type="button"
                     id="view-diving-details-btn"
                     onClick={() => setIsDivingDetailOpen(true)}
-                    className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>View details</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -678,7 +682,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                               ? 'bg-[var(--surface-container)] text-[var(--accent-secondary)]'
                               : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
                       }`}>
-                        <span>{item.icon}</span>
+                        <CategoryIcon kind={item.icon} className="w-4 h-4" />
                       </div>
 
                       {/* Content */}
@@ -775,7 +779,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                       </div>
 
                       <div className="flex items-start gap-3">
-                        <span className="text-2xl">{sugg.icon}</span>
+                        <CategoryIcon kind={sugg.icon} className="w-6 h-6" />
                         <div className="space-y-0.5 flex-1">
                           <h4 className=" font-bold text-base text-[var(--text-primary)]">
                             {sugg.title}
@@ -799,7 +803,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                           className={`px-4 py-2 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
                             isAlreadyAdded
                               ? 'bg-[var(--surface-card)] text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 cursor-default'
-                              : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] shadow-xs'
+                              : 'bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] shadow-xs'
                           }`}
                         >
                           {isAlreadyAdded ? (
@@ -921,8 +925,8 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
 
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center text-lg border border-[var(--border-subtle)]">
-                    🤿
+                  <div className="w-10 h-10 rounded-xl bg-[var(--surface-card)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">
+                    <CategoryIcon kind="dive" className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-[var(--text-primary)]">
@@ -977,7 +981,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                     setIsWhatShouldIDoOpen(true);
                   }
                 }}
-                className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-xs shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                className="w-full py-3 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold text-xs shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-2 cursor-pointer active:scale-98"
               >
                 <Compass className="w-4 h-4 text-[var(--surface-container)]" />
                 <span>What Should I Do Now?</span>
@@ -991,8 +995,8 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[var(--accent-secondary)] text-[var(--surface-container)] flex items-center justify-center font-black text-sm">
-                    ⚡
+                  <div className="w-8 h-8 rounded-xl bg-[var(--accent-secondary)] text-[var(--surface-container)] flex items-center justify-center">
+                    <Zap className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className=" font-bold text-base text-[var(--text-primary)]">
@@ -1104,8 +1108,8 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
           >
             <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center text-lg border border-[var(--border-subtle)]">
-                  🤿
+                <div className="w-9 h-9 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center border border-[var(--border-subtle)]">
+                  <CategoryIcon kind="dive" className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[var(--text-primary)]">
@@ -1204,7 +1208,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   }}
                   className="w-full text-start p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
                 >
-                  <span className="font-bold">☕ Chill at Shams Bay</span>
+                  <span className="font-bold inline-flex items-center gap-1.5"><CategoryIcon kind="coffee" className="w-4 h-4" /> Chill at Shams Bay</span>
                   <span className="text-[12px] text-[var(--accent-primary)] font-semibold">150m</span>
                 </button>
                 <button
@@ -1219,7 +1223,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   }}
                   className="w-full text-start p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] flex items-center justify-between cursor-pointer text-[var(--text-primary)]"
                 >
-                  <span className="font-bold">🍽️ Grab a coastal snack</span>
+                  <span className="font-bold inline-flex items-center gap-1.5"><CategoryIcon kind="food" className="w-4 h-4" /> Grab a coastal snack</span>
                   <span className="text-[12px] text-[var(--accent-primary)] font-semibold">5 min</span>
                 </button>
               </div>
@@ -1340,7 +1344,7 @@ export const DailyCompanionDay2View: React.FC<DailyCompanionDay2ViewProps> = ({
                   setIsConflictModalOpen(null);
                   handleAddActivity({ ...target, timeSlot: '03:00 PM' });
                 }}
-                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-colors cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold transition-colors cursor-pointer"
               >
                 Choose another time (03:00 PM Free Slot)
               </button>

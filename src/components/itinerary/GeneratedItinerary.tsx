@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, 
   Sparkles, 
@@ -28,7 +28,7 @@ import { AlternativesModal, AlternativeItem } from './AlternativesModal';
 import { TripCustomizeModal } from './TripCustomizeModal';
 import { TripDynamicType } from '../planner/StepTravelers';
 import { BudgetTier } from '../planner/StepBudget';
-import { InterestId } from '../planner/StepInterests';
+import { InterestId, INTERESTS_DATA } from '../planner/StepInterests';
 import { PaceType } from '../planner/StepPace';
 import { TripBriefCard } from '../tripos/TripBriefCard';
 import { TripBriefModal } from '../tripos/TripBriefModal';
@@ -38,8 +38,42 @@ import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { IMG_P1509316975850ff9c5deb0cd9_CARD, IMG_P154455176346a013bb70d5_CARD, IMG_P154455176346a013bb70d5_HERO, IMG_P16826872200634742bd7fd538_CARD } from '../../shared/placeholderImagery';
 
+/**
+ * The shape POST /api/trip/generate returns for one trip (already
+ * availability-enriched server-side: real DB prices, bookability flags).
+ */
+export interface AiGeneratedPlan {
+  tripTitle?: string;
+  tripTitleAr?: string;
+  summary?: string;
+  summaryAr?: string;
+  totalEstimatedEGP?: number;
+  fitScore?: number;
+  days?: Array<{
+    dayNumber?: number;
+    title?: string;
+    titleAr?: string;
+    theme?: string;
+    activities?: Array<{
+      id?: string;
+      title?: string;
+      titleAr?: string;
+      timeSlot?: string;
+      location?: string;
+      category?: string;
+      estimatedPriceEGP?: number;
+      description?: string;
+      descriptionAr?: string;
+    }>;
+  }>;
+}
+
 interface GeneratedItineraryProps {
   durationLabel: string;
+  /** The traveler's chosen duration option id ('2-3' | '4-5' | '6-7' | '8+' | 'custom'), or null when derived from dates. */
+  durationOptionId?: string | null;
+  /** A resolved AI plan (from the building screen's generation call). When present it IS the itinerary shown for approval; otherwise the compiled editorial plan is shaped to the duration choice. */
+  aiPlan?: AiGeneratedPlan | null;
   adultsCount: number;
   childrenCount: number;
   tripDynamic: TripDynamicType | null;
@@ -351,6 +385,8 @@ export const INITIAL_5_DAY_ITINERARY: DayItinerary[] = [
 
 export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
   durationLabel,
+  durationOptionId = null,
+  aiPlan = null,
   adultsCount,
   childrenCount,
   tripDynamic,
@@ -375,7 +411,65 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
   const [activeAlternativeId, setActiveAlternativeId] = useState<string>('canyon-4x4');
 
   // Active Itinerary state
-  const [itineraryDays, setItineraryDays] = useState<DayItinerary[]>(INITIAL_5_DAY_ITINERARY);
+  //
+  // The plan the traveler is asked to approve must match the duration they
+  // chose in Step 1. This used to render INITIAL_5_DAY_ITINERARY verbatim, so
+  // picking "2–3 days" produced a DAY 1–5 plan — and the brief panel claimed
+  // "5 Days / 4 Nights". The compiled days are real editorial content, so the
+  // fix keeps them but shapes them to the choice: the option's upper bound
+  // sets the day count, trailing days are dropped, and if anything was cut the
+  // departure day (compiled Day 5: final swim → checkout → transfer) is
+  // appended so the plan still ends with a proper goodbye.
+  const chosenDays = (() => {
+    if (durationOptionId === '2-3') return 3;
+    if (durationOptionId === '4-5') return 5;
+    if (durationOptionId === '6-7') return 7;
+    if (durationOptionId === '8+') return 8;
+    if (durationOptionId === 'custom') return 5;
+    // No option id (dates entry or profile-driven preview): keep the previous
+    // behaviour of showing the full compiled week.
+    return INITIAL_5_DAY_ITINERARY.length;
+  })();
+  const shapedItinerary = (() => {
+    if (chosenDays >= INITIAL_5_DAY_ITINERARY.length) return INITIAL_5_DAY_ITINERARY;
+    const kept = INITIAL_5_DAY_ITINERARY.slice(0, chosenDays - 1);
+    const departureDay = { ...INITIAL_5_DAY_ITINERARY[INITIAL_5_DAY_ITINERARY.length - 1] };
+    // Renumber the departure day so the plan reads DAY 1..N without a gap.
+    return [...kept, { ...departureDay, dayNumber: chosenDays }];
+  })();
+
+  /**
+   * The AI plan from /api/trip/generate mapped onto the itinerary-day shape.
+   * Used verbatim when the generation call resolved (the traveler then
+   * approves what the AI actually produced); empty otherwise.
+   */
+  const aiItinerary: DayItinerary[] = aiPlan?.days?.length
+    ? aiPlan.days.map((day, dayIdx) => ({
+        dayNumber: day.dayNumber ?? dayIdx + 1,
+        title: language === 'ar' && day.titleAr ? day.titleAr : day.title || `Day ${dayIdx + 1}`,
+        theme: day.theme || '',
+        badge: undefined,
+        summary: language === 'ar' && aiPlan.summaryAr ? aiPlan.summaryAr : aiPlan.summary || '',
+        items: (day.activities || []).map((act, actIdx) => ({
+          id: act.id || `ai-d${dayIdx + 1}-${actIdx + 1}`,
+          time: act.timeSlot || '',
+          name: language === 'ar' && act.titleAr ? act.titleAr : act.title || 'Activity',
+          description: language === 'ar' && act.descriptionAr ? act.descriptionAr : act.description,
+          location: act.location,
+          category: act.category || 'Activity',
+          status: 'suggested' as const,
+        })),
+      }))
+    : [];
+
+  // Re-sync when the AI plan resolves after mount (the building screen plays
+  // ~3s while the request is in flight) or when the duration choice changes.
+  const aiKey = aiItinerary.length > 0 ? 'ai' : `compiled-${chosenDays}`;
+  const [itineraryDays, setItineraryDays] = useState<DayItinerary[]>(aiItinerary.length ? aiItinerary : shapedItinerary);
+  useEffect(() => {
+    setItineraryDays(aiItinerary.length ? aiItinerary : shapedItinerary);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiKey]);
 
   // Trip OS Context & Modal State
   const { tripHealth, activeTrip, profile } = useTrip();
@@ -402,33 +496,51 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
 
   const handleSelectAlternative = (alt: AlternativeItem) => {
     setActiveAlternativeId(alt.id);
-    // Update Day 3 safari name dynamically
+    // Swap the item the alternatives modal was opened for — matched by its own
+    // id, not a hardcoded Day 3 slot, so the swap works wherever the modal was
+    // opened from (and on AI-generated plans whose ids differ).
     setItineraryDays((prev) =>
-      prev.map((day) => {
-        if (day.dayNumber === 3) {
-          return {
-            ...day,
-            items: day.items.map((item) => {
-              if (item.id === 'd3-3') {
-                return {
-                  ...item,
-                  name: alt.title,
-                  description: alt.description,
-                  alternativeName: alt.id,
-                };
+      prev.map((day) => ({
+        ...day,
+        items: day.items.map((item) =>
+          item.id === activeAlternativeId
+            ? {
+                ...item,
+                name: alt.title,
+                description: alt.description,
+                alternativeName: alt.id,
               }
-              return item;
-            }),
-          };
-        }
-        return day;
-      })
+            : item
+        ),
+      }))
     );
   };
 
   const travelersSummary = `${adultsCount} ${adultsCount > 1 ? t('itinerary.adultPlural') : t('itinerary.adultSingle')}${
     tripDynamic ? ` · ${tripDynamic}` : ''
   }`;
+
+  // ---- Honest label helpers ----
+  // Budget/Pace labels that reflect the traveler's own selections instead of
+  // hardcoded "Moderate" / "Balanced".
+  const budgetLabel = (() => {
+    const tier = String(selectedBudget).toLowerCase();
+    if (tier === 'budget') return language === 'ar' ? 'اقتصادية' : 'Budget';
+    if (tier === 'premium') return language === 'ar' ? 'فاخرة' : 'Premium';
+    return language === 'ar' ? 'متوازنة' : 'Moderate';
+  })();
+  const paceLabel = (() => {
+    if (selectedPace === 'slow') return language === 'ar' ? 'رايق' : 'Relaxed';
+    if (selectedPace === 'packed') return language === 'ar' ? 'مليان' : 'Full';
+    return language === 'ar' ? 'متوازن' : 'Balanced';
+  })();
+  const interestLabels = (selectedInterests.length ? selectedInterests : chosenInterests)
+    .map((id) => {
+      const item = INTERESTS_DATA.find((i) => i.id === id);
+      if (item) return language === 'ar' ? (item.nameAr || item.name) : item.name;
+      // If the id is a raw label string (e.g. from profile), use it directly.
+      return id;
+    });
 
   return (
     <div
@@ -518,7 +630,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
             id="itinerary-supporting-subtitle"
             className="mt-3 text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed font-normal max-w-3xl"
           >
-            {t('itinerary.subTitle', 'A balanced 5-day experience with diving, adventure, local food, and enough time to slow down.')}
+            {t('itinerary.subTitle', 'A balanced experience with diving, adventure, local food, and enough time to slow down.')}
           </p>
         </div>
 
@@ -625,11 +737,13 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
         <div className="space-y-6 mb-8">
           <TripBriefCard
             onOpenEditModal={() => setIsTripBriefModalOpen(true)}
+            durationDaysOverride={chosenDays}
+            travelersCountOverride={adultsCount + childrenCount}
           />
         </div>
 
         {/* 3. Hero Editorial Card Header with Tags & Metrics */}
-        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] overflow-hidden shadow-xs mb-8">
+        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] overflow-hidden shadow-xs mb-8 aurora-glass">
           {/* Hero Banner Image */}
           <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden bg-black/30">
             <img
@@ -659,7 +773,9 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                     {t('itinerary.southSinaiEgypt')}
                   </span>
                   <span className="text-xs font-semibold text-[var(--text-muted)]">
-                    {t('itinerary.5DaysTravelers', { adultsCount })}
+                    {durationLabel
+                      ? t('itinerary.durationTravelers', { durationLabel, adultsCount })
+                      : t('itinerary.5DaysTravelers', { adultsCount })}
                   </span>
                 </div>
 
@@ -667,19 +783,18 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                   {t('itinerary.dahab')}
                 </h2>
 
-                {/* Preference Tags */}
+                {/* Preference Tags — reflects the traveler's own selections */}
                 <div className="flex flex-wrap items-center gap-2 mt-3.5">
-                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
-                    {t('itinerary.diving')}
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
-                    {t('itinerary.adventure')}
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]">
-                    {t('itinerary.food')}
-                  </span>
+                  {interestLabels.slice(0, 4).map((label) => (
+                    <span
+                      key={label}
+                      className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-semibold border border-[var(--border-subtle)]"
+                    >
+                      {label}
+                    </span>
+                  ))}
                   <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold">
-                    {t('itinerary.balanced')}
+                    {paceLabel}
                   </span>
                 </div>
               </div>
@@ -687,7 +802,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
               {/* Quick Summary Pill on Desktop */}
               <div className="hidden md:flex items-center gap-3 bg-black/50 backdrop-blur-md p-3 rounded-2xl border border-[var(--border-subtle)] text-xs text-[var(--text-muted)]">
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('itinerary.5Days')}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{durationLabel || t('itinerary.5Days')}</span>
                   <span className="text-[11px] text-[var(--text-muted)]">{t('attractions.duration')}</span>
                 </div>
                 <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
@@ -697,12 +812,12 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 </div>
                 <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('itinerary.moderate')}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{budgetLabel}</span>
                   <span className="text-[11px] text-[var(--text-muted)]">{t('itinerary.budget')}</span>
                 </div>
                 <div className="w-px h-6 bg-[var(--btn-util-bg)]" />
                 <div className="text-center px-2">
-                  <span className="block font-bold text-sm text-[var(--text-primary)]">{t('home.balanced')}</span>
+                  <span className="block font-bold text-sm text-[var(--text-primary)]">{paceLabel}</span>
                   <span className="text-[11px] text-[var(--text-muted)]">{t('itinerary.pace')}</span>
                 </div>
               </div>
@@ -719,7 +834,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {t('itinerary.tripDuration')}
                 </span>
-                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.5Days')}</span>
+                <span className="font-bold text-[var(--text-primary)]">{durationLabel || t('itinerary.5Days')}</span>
               </div>
             </div>
 
@@ -743,7 +858,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {t('itinerary.budgetLevel')}
                 </span>
-                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.moderateBudget')}</span>
+                <span className="font-bold text-[var(--text-primary)]">{budgetLabel}</span>
               </div>
             </div>
 
@@ -755,7 +870,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 <span className="text-[11px] font-bold text-[var(--text-secondary)]/60 block">
                   {t('itinerary.dailyRhythm')}
                 </span>
-                <span className="font-bold text-[var(--text-primary)]">{t('itinerary.balancedPace')}</span>
+                <span className="font-bold text-[var(--text-primary)]">{paceLabel}</span>
               </div>
             </div>
           </div>
@@ -850,7 +965,7 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                       type="button"
                       id="bottom-approve-trip-btn"
                       onClick={handleApproveTrip}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-amber-300 active:scale-[0.98] transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-bold text-[var(--surface-card)] bg-[var(--accent-secondary)] hover:bg-amber-300 active:scale-[0.98] transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer aurora-warm-glow"
                     >
                       <span>{t('itinerary.btn.approveTrip', 'Approve Trip')}</span>
                       <Check className="w-4 h-4" />
@@ -911,15 +1026,15 @@ export const GeneratedItinerary: React.FC<GeneratedItineraryProps> = ({
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
                   <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.budget', 'Budget')}</span>
-                  <span className="font-bold text-[var(--text-primary)]">{chosenBudget}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{budgetLabel}</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)]">
                   <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.pace', 'Pace')}</span>
-                  <span className="font-bold text-[var(--text-primary)]">{chosenPace}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{paceLabel}</span>
                 </div>
                 <div className="flex items-start justify-between py-2">
                   <span className="text-[var(--text-secondary)]/60">{t('itinerary.sidebar.interests', 'Selected Interests')}</span>
-                  <span className="font-bold text-[var(--text-primary)] text-end">{chosenInterests.join(t('itinerary._item_')) || '—'}</span>
+                  <span className="font-bold text-[var(--text-primary)] text-end">{interestLabels.join(t('itinerary._item_')) || '—'}</span>
                 </div>
               </div>
 

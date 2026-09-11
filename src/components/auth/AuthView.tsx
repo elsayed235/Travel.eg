@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { humanizeAuthError } from '../../lib/authErrorMessages';
@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Loader2,
   KeyRound,
-  Building2
+  Building2,
+  AlertTriangle
 } from 'lucide-react';
 import { AppRoute } from '../../types';
 
@@ -62,6 +63,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Move focus to the error on failed submit so keyboard and screen-reader
+  // users are told what went wrong instead of silence.
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (errorMessage) errorRef.current?.focus();
+  }, [errorMessage]);
 
   const hasActiveTripDraft = tripDays && tripDays.length > 0;
 
@@ -113,6 +121,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
           : await signInWithPassword(email, password);
         if (ok) {
           handlePostAuthRedirect(role);
+        } else {
+          setErrorMessage(t('auth.invalidCredentials'));
         }
       } else if (mode === 'sign-up') {
         if (!name || !email || !password) {
@@ -125,6 +135,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
           : await registerWithPassword(name, email, phone, password);
         if (ok) {
           handlePostAuthRedirect(role);
+        } else {
+          setErrorMessage(t('auth.invalidCredentials'));
         }
       } else if (mode === 'forgot-password') {
         if (!email) {
@@ -147,7 +159,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
   return (
     <div className="min-h-[88vh] bg-[var(--surface-container)] text-[var(--text-primary)] flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden" dir={siteLanguage === 'ar' ? 'rtl' : 'ltr'}>
       {/* Subtle Sinai Topographic Glow Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top_right,#E8A33D_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,#1B2452_0%,transparent_50%)]" />
+      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top_right,var(--accent-primary)_0%,transparent_50%),radial-gradient(ellipse_at_bottom_left,#2A2622_0%,transparent_50%)]" />
       
       <div className="w-full max-w-md relative z-10">
         
@@ -186,7 +198,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
               <Compass className="w-6 h-6 animate-pulse" />
             </div>
             
-            <h1 className="text-2xl font-bold tracking-tight text-white mb-1">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-white mb-1.5 text-balance">
               {mode === 'sign-in' && (t('auth.welcomeBackToDahab'))}
               {mode === 'sign-up' && (t('auth.joinTheDahabCommunity'))}
               {mode === 'forgot-password' && (t('auth.resetPassword'))}
@@ -216,8 +228,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
 
           {/* Error & Success Messages */}
           {errorMessage && (
-            <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-start gap-2">
-              <span className="font-bold">⚠️</span>
+            <div ref={errorRef} tabIndex={-1} role="alert" className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-start gap-2 focus:outline-none">
+              <AlertTriangle className="w-4 h-4 font-bold" />
               <span>{errorMessage}</span>
             </div>
           )}
@@ -294,6 +306,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                     <input
                       type="text"
                       required
+                      aria-label={t('auth.fullName')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder={t('auth.egAhmedMostafa')}
@@ -320,12 +333,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                 {t('auth.emailAddress')}
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 rtl:left-auto rtl:right-3 pointer-events-none" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 rtl:left-auto rtl:right-3 pointer-events-none" />                  <input
+                    type="email"
+                    required
+                    aria-label={t('auth.emailAddress')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   placeholder={siteLanguage === 'ar' ? 'name@example.com' : 'name@example.com'}
                   className="w-full bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] focus:border-[var(--accent-secondary)] focus:ring-1 focus:ring-[var(--accent-secondary)] text-white rounded-xl py-2.5 px-3 ltr:pl-10 rtl:pr-10 text-sm outline-none transition-[background-color,border-color,color,box-shadow,transform,opacity] placeholder:text-slate-500"
                 />
@@ -354,6 +367,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
                   <input
                     type="password"
                     required
+                    aria-label={t('auth.password')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"

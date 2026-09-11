@@ -2,6 +2,7 @@ import React from 'react';
 import { useContentPage } from '../../hooks/useCMSContent';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useSEO } from '../../hooks/useSEO';
+import { EditableText, CmsEditBanner } from '../cms/InlineEdit';
 import { ArrowLeft, FileText, Image, Quote, HelpCircle, Link as LinkIcon, BarChart3 } from 'lucide-react';
 
 /**
@@ -10,7 +11,7 @@ import { ArrowLeft, FileText, Image, Quote, HelpCircle, Link as LinkIcon, BarCha
  * and shows a "not found" state when the page doesn't exist.
  */
 
-interface CmsBlock {
+export interface CmsBlock {
   id: string;
   type: string;
   sort_order: number;
@@ -22,6 +23,20 @@ interface CmsBlock {
   config: Record<string, any>;
 }
 
+/** Minimal page shape the preview renders — the editor feeds unsaved form state. */
+export interface CmsPagePreviewData {
+  id: string;
+  title_en: string;
+  title_ar: string;
+  subtitle_en: string;
+  subtitle_ar: string;
+  description_en: string;
+  description_ar: string;
+  body_en: string;
+  body_ar: string;
+  hero_image_url: string;
+}
+
 interface CmsStaticPageProps {
   slug: string;
   onBack?: () => void;
@@ -31,13 +46,17 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
   rich_text: ({ block, language }) => (
     <div className="space-y-3">
       {block.title_en && (
-        <h3 className="text-lg font-bold text-[var(--text-primary)]">
-          {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
-        </h3>
+        <EditableText
+          kind="block" id={block.id} field="title"
+          valueEn={block.title_en} valueAr={block.title_ar}
+          as="h3" className="text-lg font-bold text-[var(--text-primary)]"
+        />
       )}
-      <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
-        {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
-      </div>
+      <EditableText
+        kind="block" id={block.id} field="body"
+        valueEn={block.body_en} valueAr={block.body_ar}
+        multiline className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap"
+      />
     </div>
   ),
 
@@ -54,13 +73,17 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
         )}
         <div className="flex-1 space-y-3">
           {block.title_en && (
-            <h3 className="text-lg font-bold text-[var(--text-primary)]">
-              {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
-            </h3>
+            <EditableText
+              kind="block" id={block.id} field="title"
+              valueEn={block.title_en} valueAr={block.title_ar}
+              as="h3" className="text-lg font-bold text-[var(--text-primary)]"
+            />
           )}
-          <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
-            {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
-          </div>
+          <EditableText
+            kind="block" id={block.id} field="body"
+            valueEn={block.body_en} valueAr={block.body_ar}
+            multiline className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap"
+          />
         </div>
       </div>
     );
@@ -71,14 +94,18 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
     return (
       <div className="text-center py-8 px-6 rounded-2xl bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 space-y-4">
         {block.title_en && (
-          <h3 className="text-xl font-bold text-[var(--text-primary)]">
-            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
-          </h3>
+          <EditableText
+            kind="block" id={block.id} field="title"
+            valueEn={block.title_en} valueAr={block.title_ar}
+            as="h3" className="text-xl font-bold text-[var(--text-primary)]"
+          />
         )}
         {block.body_en && (
-          <p className="text-sm text-[var(--surface-container)]/70 max-w-lg mx-auto">
-            {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
-          </p>
+          <EditableText
+            kind="block" id={block.id} field="body"
+            valueEn={block.body_en} valueAr={block.body_ar}
+            multiline className="text-sm text-[var(--surface-container)]/70 max-w-lg mx-auto"
+          />
         )}
         {config.cta_label && (
           <button
@@ -102,9 +129,11 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
     return (
       <div className="space-y-4">
         {block.title_en && (
-          <h3 className="text-lg font-bold text-[var(--text-primary)]">
-            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
-          </h3>
+          <EditableText
+            kind="block" id={block.id} field="title"
+            valueEn={block.title_en} valueAr={block.title_ar}
+            as="h3" className="text-lg font-bold text-[var(--text-primary)]"
+          />
         )}
         <div className="space-y-3">
           {items.map((item: any, idx: number) => (
@@ -128,9 +157,11 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
     return (
       <div className="space-y-4">
         {block.title_en && (
-          <h3 className="text-lg font-bold text-[var(--text-primary)] text-center">
-            {language === 'ar' ? block.title_ar || block.title_en : block.title_en}
-          </h3>
+          <EditableText
+            kind="block" id={block.id} field="title"
+            valueEn={block.title_en} valueAr={block.title_ar}
+            as="h3" className="text-lg font-bold text-[var(--text-primary)] text-center"
+          />
         )}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat: any, idx: number) => (
@@ -151,9 +182,11 @@ const BLOCK_RENDERERS: Record<string, React.FC<{ block: CmsBlock; language: stri
     return (
       <div className="text-center py-8 px-6 space-y-3">
         <Quote className="w-8 h-8 text-[var(--accent-primary)]/40 mx-auto" />
-        <blockquote className="text-lg italic text-[var(--text-primary)] max-w-2xl mx-auto">
-          {language === 'ar' ? block.body_ar || block.body_en : block.body_en}
-        </blockquote>
+        <EditableText
+          kind="block" id={block.id} field="body"
+          valueEn={block.body_en} valueAr={block.body_ar}
+          multiline as="blockquote" className="text-lg italic text-[var(--text-primary)] max-w-2xl mx-auto"
+        />
         {config.attribution && (
           <cite className="text-xs text-[var(--surface-container)]/50 not-italic">
             — {config.attribution}
@@ -197,7 +230,7 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
     return (
       <div className="min-h-screen bg-[var(--surface-card)] flex flex-col items-center justify-center text-center px-4">
         <FileText className="w-12 h-12 text-[var(--text-muted)] mb-4" />
-        <h1 className="text-xl font-bold text-white mb-2">
+        <h1 className="font-display text-3xl font-semibold text-[var(--text-primary)] mb-2">
           {t('pageNotFound')}
         </h1>
         <p className="text-sm text-[var(--text-muted)] mb-6">
@@ -221,6 +254,28 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
   // the block renderers tolerate both, so normalize here.
   const blocks = (data.blocks || []) as CmsBlock[];
 
+  return (
+    <>
+      <CmsEditBanner />
+      <CmsPagePreview
+        page={page}
+        blocks={blocks}
+        language={language}
+        onBack={onBack}
+        fromCMS={fromCMS}
+      />
+    </>
+  );
+};
+export const CmsPagePreview: React.FC<{
+  page: CmsPagePreviewData;
+  blocks: CmsBlock[];
+  language: string;
+  onBack?: () => void;
+  /** When false, shows the "default content" footnote (live page only). */
+  fromCMS?: boolean;
+}> = ({ page, blocks, language, onBack, fromCMS = true }) => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-[var(--surface-card)]">
       {/* Hero */}
@@ -249,26 +304,34 @@ export const CmsStaticPage: React.FC<CmsStaticPageProps> = ({ slug, onBack }) =>
 
         {/* Page header */}
         <div className="space-y-4">
-          <h1 className="text-3xl md:text-4xl font-black text-[var(--text-primary)]">
-            {language === 'ar' ? page.title_ar || page.title_en : page.title_en}
-          </h1>
+          <EditableText
+            kind="page" id={page.id} field="title"
+            valueEn={page.title_en} valueAr={page.title_ar}
+            as="h1" className="font-display text-4xl md:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance"
+          />
           {page.subtitle_en && (
-            <p className="text-lg text-[var(--surface-container)]/70">
-              {language === 'ar' ? page.subtitle_ar || page.subtitle_en : page.subtitle_en}
-            </p>
+            <EditableText
+              kind="page" id={page.id} field="subtitle"
+              valueEn={page.subtitle_en} valueAr={page.subtitle_ar}
+              as="p" className="text-base sm:text-lg text-[var(--text-secondary)] leading-relaxed"
+            />
           )}
           {page.description_en && (
-            <p className="text-sm text-[var(--surface-container)]/60 leading-relaxed max-w-2xl">
-              {language === 'ar' ? page.description_ar || page.description_en : page.description_en}
-            </p>
+            <EditableText
+              kind="page" id={page.id} field="description"
+              valueEn={page.description_en} valueAr={page.description_ar}
+              multiline as="p" className="text-sm text-[var(--surface-container)]/60 leading-relaxed max-w-2xl"
+            />
           )}
         </div>
 
         {/* Page body */}
         {page.body_en && (
-          <div className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap">
-            {language === 'ar' ? page.body_ar || page.body_en : page.body_en}
-          </div>
+          <EditableText
+            kind="page" id={page.id} field="body"
+            valueEn={page.body_en} valueAr={page.body_ar}
+            multiline className="text-sm text-[var(--surface-container)]/80 leading-relaxed whitespace-pre-wrap"
+          />
         )}
 
         {/* Content blocks */}

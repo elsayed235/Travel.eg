@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS cms_pages (
   published_at TEXT DEFAULT '',
   scheduled_at TEXT DEFAULT '',
   preview_token TEXT DEFAULT '',
+  preview_expires_at TEXT DEFAULT '',
   version INTEGER NOT NULL DEFAULT 1
 );
 CREATE INDEX IF NOT EXISTS idx_cms_pages_slug ON cms_pages(slug);
@@ -97,6 +98,9 @@ CREATE TABLE IF NOT EXISTS cms_media (
   category TEXT DEFAULT 'general',
   tags TEXT DEFAULT '',
   usage_count INTEGER NOT NULL DEFAULT 0,
+  focal_x INTEGER NOT NULL DEFAULT 50,
+  focal_y INTEGER NOT NULL DEFAULT 50,
+  variants TEXT DEFAULT '[]',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -175,6 +179,82 @@ CREATE TABLE IF NOT EXISTS cms_revisions (
 );
 CREATE INDEX IF NOT EXISTS idx_cms_revisions_entity ON cms_revisions(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_cms_revisions_created ON cms_revisions(created_at);
+
+-- ============================================================================
+-- CMS Catalog Content Bindings — marketing-copy + imagery overlays on catalog
+-- rows (accommodations, rentals, activities, places, areas, dining, suppliers,
+-- SKUs, offers). Bindings NEVER mutate the catalog tables: public reads merge
+-- published bindings over the row at serve time, so disabling or deleting a
+-- binding instantly restores catalog truth. Operational fields (price,
+-- capacity, availability, status, ledger) are intentionally NOT bindable —
+-- the FIELD_REGISTRY in catalogContentService.ts is the allow-list.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS cms_content_bindings (
+  id TEXT PRIMARY KEY NOT NULL,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  field TEXT NOT NULL,
+  value_text TEXT DEFAULT '',
+  media_id TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'draft',
+  scheduled_at TEXT DEFAULT '',
+  published_at TEXT DEFAULT '',
+  version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT DEFAULT '',
+  updated_by TEXT DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(entity_type, entity_id, field)
+);
+CREATE INDEX IF NOT EXISTS idx_cms_bindings_entity ON cms_content_bindings(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_cms_bindings_status ON cms_content_bindings(status);
+CREATE INDEX IF NOT EXISTS idx_cms_bindings_media ON cms_content_bindings(media_id);
+
+-- ============================================================================
+-- CMS Site Strings — dashboard-editable overrides for UI copy (src/i18n).
+-- Only OVERRIDES live here: the compiled TRANSLATIONS table in
+-- src/i18n/translations.ts owns the key set and the defaults, so a fresh
+-- checkout works with zero rows and newly added code keys appear
+-- automatically. The public bundle ships overrides only; the client merges
+-- them over the compiled defaults. Deleting a row resets that key to code.
+-- Keys are never created or deleted from the dashboard — code owns keys.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS cms_strings (
+  key TEXT PRIMARY KEY NOT NULL,
+  value_en TEXT DEFAULT '',
+  value_ar TEXT DEFAULT '',
+  updated_by TEXT DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_cms_strings_updated ON cms_strings(updated_at);
+
+-- ============================================================================
+-- CMS Site Info — contact / social / hours slots rendered in the footer.
+-- A closed key set (see SITE_INFO_KEYS in siteInfoService.ts): the footer
+-- renders known slots, so free-form keys would never display. Rows are
+-- created only by editors or the one-way legacy import — never seeded — so
+-- the footer contact block stays hidden until real values exist (no
+-- placeholder phone numbers on the live site).
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS cms_site_info (
+  key TEXT PRIMARY KEY NOT NULL,
+  value TEXT DEFAULT '',
+  value_ar TEXT DEFAULT '',
+  updated_at TEXT NOT NULL
+);
+
+-- ============================================================================
+-- CMS Theme Tokens — a closed set of brand/type overrides applied over the
+-- active compiled theme (see THEME_TOKENS in themeService.ts). Only validated
+-- values are stored (hex colors, allow-listed font stacks, known theme ids),
+-- so no arbitrary CSS can ever reach the page. Rows exist only for edited
+-- tokens; unset tokens render compiled theme values.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS cms_theme (
+  key TEXT PRIMARY KEY NOT NULL,
+  value TEXT DEFAULT '',
+  updated_at TEXT NOT NULL
+);
 `;
 
 /**
@@ -203,8 +283,41 @@ export function initializeCmsSchema(): void {
 
   try {
     conn.exec(CMS_TABLES);
+    migrateCmsColumns(conn);
     console.log('[CMS] Content management tables initialized successfully');
   } catch (err: any) {
     console.error('[CMS] Schema initialization failed:', err.message);
   }
+}
+
+/**
+ * Additive column migrations for tables that already exist.
+ *
+ * CREATE TABLE IF NOT EXISTS never touches an existing table, so every new
+ * CMS column needs a guarded ALTER here — otherwise fresh checkouts get the
+ * column from the DDL while long-lived databases silently miss it and the
+ * service reads undefined.
+ */
+export function migrateCmsColumns(conn?: SqliteDb): void {
+  const c = conn || getSqliteConnection();
+  if (!c) return;
+  try {
+    const addIfMissing = (table: string, name: string, ddl: string) => {
+      const cols = c.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+      if (!cols.some(col => col.name === name)) {
+        c.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+      }
+    };
+    addIfMissing('cms_media', 'focal_x', 'focal_x INTEGER NOT NULL DEFAULT 50');
+    addIfMissing('cms_media', 'focal_y', 'focal_y INTEGER NOT NULL DEFAULT 50');
+    addIfMissing('cms_media', 'variants', "variants TEXT DEFAULT '[]'");
+    addIfMissing('cms_pages', 'preview_expires_at', "preview_expires_at TEXT DEFAULT ''");
+  } catch (err: any) {
+    console.error('[CMS] Column migration failed:', err.message);
+  }
+}
+
+/** Kept for callers written against the media-only migration step. */
+export function migrateCmsMediaColumns(conn?: SqliteDb): void {
+  migrateCmsColumns(conn);
 }

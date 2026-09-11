@@ -264,16 +264,16 @@ export const ProgramDetailView: React.FC = () => {
               </span>
             </div>
 
-            {/* Program Title */}
+            {/* Program Title — pinned white: fixed dark photo plate */}
             <h1
               id="program-title"
-              className="text-3xl sm:text-5xl md:text-6xl chart-heading font-bold tracking-tight text-[var(--text-primary)] leading-[1.1]"
+              className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white leading-[1.05] text-balance"
             >
               {language === 'ar' ? activeProgram.titleAr : activeProgram.title}
             </h1>
 
             {/* Tagline / Subtitle */}
-            <p className="text-base sm:text-xl text-[var(--text-secondary)] font-normal leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-xl text-white/75 font-normal leading-relaxed max-w-2xl">
               {language === 'ar' ? activeProgram.taglineAr : activeProgram.tagline}
             </p>
 

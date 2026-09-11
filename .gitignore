@@ -39,3 +39,23 @@ coverage/
 # the state dir here (seeds + sqlite), never the real data/ dir.
 /tests/e2e/.data/
 /test-results/
+
+# Browser-QA screenshots — generated output, not source. Bloats the repo
+# and churns on every run. Keep the .mjs scripts, ignore their output.
+/tests/browser-qa/screenshots/
+/tests/e2e/snapshots/
+
+# Agent scratch & local tooling — never commit.
+.freebuff/
+.agents/
+.claude/
+.opencode/
+skills-lock.json
+buildout.txt
+*.tmp.mjs
+*.tmp.*
+C:Users*
+
+# Local design explorations / untracked asset drops — keep local until curated.
+assets/
+design-system/

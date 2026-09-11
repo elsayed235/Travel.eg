@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Search, Star, MapPin, Info, Users, List, Map as MapIcon, Sparkles, Loader2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Search, Star, MapPin, Info, Users, List, Map as MapIcon, Sparkles, Loader2, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { AccommodationCard, PROPERTY_TYPE_LABEL } from './AccommodationCard';
 import { AccommodationDetailView } from './AccommodationDetailView';
 import { AccommodationsMap } from './AccommodationsMap';
@@ -8,6 +8,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
+import { ConciergePageHeader } from '../concierge/ConciergePageHeader';
 import type { AccommodationCatalogueResponse, PropertyType } from '../../shared/types/commerce';
 
 type HotelCategory = 'budget' | 'mid-range' | 'boutique' | 'resort';
@@ -64,6 +65,23 @@ export const AccommodationsView: React.FC = () => {
   // Mobile toggle between list and map; desktop always shows both side by
   // side, so this only matters below the lg breakpoint.
   const [showMap, setShowMap] = useState(false);
+
+  // The five old filter rows (type / category / band / guests / area) are
+  // consolidated into one compact toolbar: property type stays visible (it's
+  // the filter people scan first), everything else lives behind this "More
+  // filters" popover. State and the `filtered` logic below are unchanged.
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const filterPanelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!showFilterPanel) return;
+    const onClick = (e: MouseEvent) => {
+      if (filterPanelRef.current && !filterPanelRef.current.contains(e.target as Node)) {
+        setShowFilterPanel(false);
+      }
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, [showFilterPanel]);
 
   // Natural-language search — parses to the SAME AccommodationSearchFilters
   // shape the chips below control, then visibly applies them as pre-selected,
@@ -126,6 +144,26 @@ export const AccommodationsView: React.FC = () => {
     });
   }, [accommodations, activePropertyTypes, activeCategories, activeBands, activeAreas, guests, searchQuery]);
 
+  // Count of filters tucked behind the "More filters" popover that are
+  // narrowed from their "everything selected" default — drives the badge on
+  // the toolbar button so the popover's contents are still scannable at a
+  // glance without opening it.
+  const secondaryFilterCount =
+    (activeCategories.size < CATEGORY_ORDER.length ? 1 : 0) +
+    (activeBands.size < BAND_ORDER.length ? 1 : 0) +
+    (guests > 0 ? 1 : 0) +
+    (activeAreas.size > 0 ? 1 : 0);
+
+  // One "top pick" — the highest-rated match — gets a wider, featured card
+  // above the regular grid, echoing the homepage's featured + rail pattern
+  // instead of treating every result as equal weight.
+  const [featuredHotel, restHotels] = useMemo(() => {
+    if (filtered.length === 0) return [null, []] as const;
+    const sorted = [...filtered].sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+    const top = sorted[0];
+    return [top, filtered.filter(a => a.id !== top.id)] as const;
+  }, [filtered]);
+
   if (selectedHotelSlug) {
     return (
       <AccommodationDetailView
@@ -184,56 +222,26 @@ export const AccommodationsView: React.FC = () => {
         isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}
     >
-      <div className="relative border-b overflow-hidden">
-        <img
-          src="/images/hotels/swiss-inn-resort.jpg"
-          alt="Dahab Stays"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className={`absolute inset-0 ${
-          isDark
-            ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
-            : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[2px]'
-        }`} />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[11px] font-bold">
-              <span className={`px-2 py-0.5 rounded-full ${isDark ? 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
-                {t('hotels.title')} · {t('hotels.ratingSource')}
+      <ConciergePageHeader
+        eyebrow={`${t('hotels.title')} · ${t('hotels.ratingSource')}`}
+        title={isAr ? 'أماكن الإقامة في دهب' : 'Places to stay in Dahab'}
+        subtitle={t('hotels.subtitle', { count: stats?.total ?? accommodations.length })}
+        image="/images/hotels/swiss-inn-resort.jpg"
+        imageAlt="Dahab Stays"
+        compact
+        meta={
+          stats ? (
+            <>
+              <span className="inline-flex items-center gap-1.5 font-semibold text-white/80">
+                {stats.averageRating.toFixed(1)}★ · {t('hotels.statsAvgRating')}
               </span>
-            </div>
-            <h1 className="text-3xl chart-heading font-bold">
-              {isAr ? 'أماكن الإقامة في دهب' : 'Places to stay in Dahab'}
-            </h1>
-            <p className={`text-sm max-w-xl ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
-              {t('hotels.subtitle', { count: stats?.total ?? accommodations.length })}
-            </p>
-          </div>
-
-          {stats && (
-            <div className="flex flex-wrap gap-3 mt-5">
-              {[
-                { label: isAr ? 'إقامة' : 'stays', value: stats.total },
-                { label: t('hotels.statsAvgRating'), value: `${stats.averageRating.toFixed(1)}★` },
-                { label: t('hotels.statsReviews'), value: stats.totalReviews.toLocaleString() },
-              ].map(stat => (
-                <div key={stat.label} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${
-                  isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
-                }`}>
-                  <span className="font-black">{stat.value}</span>{' '}{stat.label}
-                </div>
-              ))}
-              {stats.updatedLabel && (
-                <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${
-                  isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]/80' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--accent-primary)]'
-                }`}>
-                  {stats.updatedLabel}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+              <span className="inline-flex items-center gap-1.5 font-semibold text-white/80">
+                {stats.totalReviews.toLocaleString()} · {t('hotels.statsReviews')}
+              </span>
+            </>
+          ) : undefined
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
         {/* Natural-language search — parses to the same filters the chips below
@@ -275,26 +283,191 @@ export const AccommodationsView: React.FC = () => {
           )}
         </div>
 
-        <div className="relative max-w-md mb-6">
-          <Search className={`absolute ${isAr ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t('hotels.searchPlaceholder')}
-            className={`w-full py-3 ${isAr ? 'pl-4 pr-10' : 'pl-10 pr-4'} rounded-xl border text-sm ${
-              isDark
-                ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
-                : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
-            } focus:outline-none`}
-          />
+        {/* Consolidated filter toolbar — replaces the old five stacked chip
+            rows. Property type stays visible (the filter people scan first);
+            category, price band, guests and area now live in the "More
+            filters" popover. Every filter still drives the exact same state
+            setters and the unchanged `filtered` memo above. */}
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <div className="relative flex-1 max-w-md">
+            <Search className={`absolute ${isAr ? 'left-3.5' : 'right-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/40' : 'text-[var(--text-secondary)]/40'}`} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('hotels.searchPlaceholder')}
+              className={`w-full py-2.5 min-h-[44px] ${isAr ? 'pl-4 pr-10' : 'pl-10 pr-4'} rounded-xl border text-sm ${
+                isDark
+                  ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
+                  : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
+              } focus:outline-none`}
+            />
+          </div>
+
+          <div className="relative shrink-0" ref={filterPanelRef}>
+            <button
+              type="button"
+              onClick={() => setShowFilterPanel(v => !v)}
+              className={`h-full min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                showFilterPanel
+                  ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
+                  : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:bg-[var(--surface-container)]'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {isAr ? 'فلاتر' : 'Filters'}
+              {secondaryFilterCount > 0 && (
+                <span className={`text-[10px] font-black w-4.5 h-4.5 min-w-[18px] min-h-[18px] rounded-full flex items-center justify-center ${
+                  showFilterPanel ? 'bg-white/25' : 'bg-[var(--accent-primary)] text-white'
+                }`}>
+                  {secondaryFilterCount}
+                </span>
+              )}
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilterPanel ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showFilterPanel && (
+              <div
+                dir={isAr ? 'rtl' : 'ltr'}
+                className={`absolute z-40 mt-2 w-[min(90vw,380px)] ${isAr ? 'left-0' : 'right-0'} rounded-2xl border shadow-xl p-4 space-y-4 ${
+                  isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-white border-[var(--border-subtle)]'
+                }`}
+              >
+                <div>
+                  <div className={`text-xs font-bold mb-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+                    {t('hotels.categories')}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {CATEGORY_ORDER.map(cat => {
+                      const active = activeCategories.has(cat);
+                      const label = isAr
+                        ? { budget: 'ميزانية', 'mid-range': 'متوسط', boutique: 'بوتيك', resort: 'منتجع' }[cat]
+                        : cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => toggle(setActiveCategories, cat)}
+                          className={`px-3 py-1.5 min-h-[36px] rounded-full text-xs font-bold border cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                            active
+                              ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
+                              : isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className={`text-xs font-bold mb-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+                    {t('hotels.priceBands')}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {BAND_ORDER.map(band => {
+                      const active = activeBands.has(band);
+                      const label = isAr
+                        ? { budget: 'اقتصادي', moderate: 'متوسط', premium: 'فاخر' }[band]
+                        : band;
+                      return (
+                        <button
+                          key={band}
+                          type="button"
+                          onClick={() => toggle(setActiveBands, band)}
+                          className={`px-3 py-1.5 min-h-[36px] rounded-full text-xs font-bold border cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                            active ? 'text-white' : isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                          }`}
+                          style={active ? { backgroundColor: chipColor(band), borderColor: chipColor(band) } : undefined}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+                    <Users className="w-3.5 h-3.5" />
+                    {isAr ? 'الضيوف' : 'Guests'}
+                  </span>
+                  <div className={`flex items-center gap-2 px-2 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--bg-canvas)] border-[var(--border-subtle)]'}`}>
+                    <button
+                      type="button"
+                      onClick={() => setGuests(g => Math.max(0, g - 1))}
+                      className="w-8 h-8 rounded-md cursor-pointer hover:bg-black/5"
+                      aria-label="Fewer guests"
+                    >−</button>
+                    <span className="text-xs font-black w-6 text-center">{guests || (isAr ? 'أي' : 'Any')}</span>
+                    <button
+                      type="button"
+                      onClick={() => setGuests(g => Math.min(20, g + 1))}
+                      className="w-8 h-8 rounded-md cursor-pointer hover:bg-black/5"
+                      aria-label="More guests"
+                    >+</button>
+                  </div>
+                </div>
+
+                {areas.length > 0 && (
+                  <div>
+                    <div className={`text-xs font-bold mb-2 flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+                      <MapPin className="w-3.5 h-3.5" />
+                      {t('hotels.areas')}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setActiveAreas(new Set())}
+                        className={`px-3 py-1 min-h-[32px] rounded-full text-xs font-bold border cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                          activeAreas.size === 0
+                            ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
+                            : isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                        }`}
+                      >
+                        {t('hotels.all')}
+                      </button>
+                      {areas.map(a => (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => toggle(setActiveAreas, a.id)}
+                          className={`px-3 py-1 min-h-[32px] rounded-full text-xs font-bold border cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+                            activeAreas.has(a.id)
+                              ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
+                              : isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--bg-canvas)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                          }`}
+                        >
+                          {isAr ? a.nameAr : a.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {secondaryFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveCategories(new Set(CATEGORY_ORDER));
+                      setActiveBands(new Set(BAND_ORDER));
+                      setGuests(0);
+                      setActiveAreas(new Set());
+                    }}
+                    className={`w-full text-center text-xs font-bold py-2 rounded-lg cursor-pointer flex items-center justify-center gap-1 ${isDark ? 'text-[var(--text-secondary)] hover:bg-[var(--surface-container)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-canvas)]'}`}
+                  >
+                    <X className="w-3 h-3" />
+                    {isAr ? 'مسح الفلاتر' : 'Clear filters'}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Property type chips */}
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`text-xs font-bold me-1 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/60'}`}>
-            {isAr ? 'نوع الإقامة' : 'Type'}:
-          </span>
+        {/* Property type chips — the one filter row that stays visible */}
+        <div className="flex flex-wrap items-center gap-2 mb-6 -mx-1 px-1 overflow-x-auto">
           {PROPERTY_TYPE_ORDER.map(pt => {
             const active = activePropertyTypes.has(pt);
             const label = PROPERTY_TYPE_LABEL[pt];
@@ -303,7 +476,7 @@ export const AccommodationsView: React.FC = () => {
                 key={pt}
                 type="button"
                 onClick={() => toggle(setActivePropertyTypes, pt)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
+                className={`px-3.5 py-1.5 min-h-[36px] rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer shrink-0 ${
                   active
                     ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                     : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
@@ -314,119 +487,6 @@ export const AccommodationsView: React.FC = () => {
             );
           })}
         </div>
-
-        {/* Category chips */}
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`text-xs font-bold me-1 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/60'}`}>
-            {t('hotels.categories')}:
-          </span>
-          {CATEGORY_ORDER.map(cat => {
-            const active = activeCategories.has(cat);
-            const label = isAr
-              ? { budget: 'ميزانية', 'mid-range': 'متوسط', boutique: 'بوتيك', resort: 'منتجع' }[cat]
-              : cat;
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => toggle(setActiveCategories, cat)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
-                  active
-                    ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
-                    : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Price bands */}
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`text-xs font-bold me-1 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/60'}`}>
-            {t('hotels.priceBands')}:
-          </span>
-          {BAND_ORDER.map(band => {
-            const active = activeBands.has(band);
-            const label = isAr
-              ? { budget: 'اقتصادي', moderate: 'متوسط', premium: 'فاخر' }[band]
-              : band;
-            return (
-              <button
-                key={band}
-                type="button"
-                onClick={() => toggle(setActiveBands, band)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
-                  active
-                    ? 'text-white'
-                    : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
-                }`}
-                style={active ? { backgroundColor: chipColor(band), borderColor: chipColor(band) } : undefined}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Guests stepper */}
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`text-xs font-bold me-1 flex items-center gap-1 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/60'}`}>
-            <Users className="w-3.5 h-3.5" />
-            {isAr ? 'الضيوف' : 'Guests'}:
-          </span>
-          <div className={`flex items-center gap-2 px-2 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
-            <button
-              type="button"
-              onClick={() => setGuests(g => Math.max(0, g - 1))}
-              className={`w-8 h-8 rounded-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${isDark ? 'hover:bg-[var(--surface-container)]' : 'hover:bg-[var(--surface-container)]'}`}
-              aria-label="Fewer guests"
-            >−</button>
-            <span className="text-xs font-black w-6 text-center">{guests || (isAr ? 'أي' : 'Any')}</span>
-            <button
-              type="button"
-              onClick={() => setGuests(g => Math.min(20, g + 1))}
-              className={`w-8 h-8 rounded-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${isDark ? 'hover:bg-[var(--surface-container)]' : 'hover:bg-[var(--surface-container)]'}`}
-              aria-label="More guests"
-            >+</button>
-          </div>
-        </div>
-
-        {/* Area chips */}
-        {areas.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            <span className={`text-xs font-bold me-1 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]/60'}`}>
-              <MapPin className="w-3.5 h-3.5 inline me-0.5" />
-              {t('hotels.areas')}:
-            </span>
-            <button
-              type="button"
-              onClick={() => setActiveAreas(new Set())}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
-                activeAreas.size === 0
-                  ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
-                  : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
-              }`}
-            >
-              {t('hotels.all')}
-            </button>
-            {areas.map(a => (
-              <button
-                key={a.id}
-                type="button"
-                onClick={() => toggle(setActiveAreas, a.id)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] border cursor-pointer ${
-                  activeAreas.has(a.id)
-                    ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
-                    : isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
-                }`}
-              >
-                {isAr ? a.nameAr : a.name}
-              </button>
-            ))}
-          </div>
-        )}
 
         <section className="mb-10">
           <h2 className="chart-heading font-bold text-lg mb-3">
@@ -443,10 +503,21 @@ export const AccommodationsView: React.FC = () => {
                   {isAr ? 'لا توجد إقامات تلائم التصفية — جرّب توسيع النوع أو الفئة السعرية.' : 'No stays match that filter — try a wider type or price band.'}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
-                  {filtered.map(a => (
-                    <AccommodationCard key={a.id} accommodation={a} isDark={isDark} onOpen={(slug) => navigateTo('/hotels', { hotelSlug: slug })} />
-                  ))}
+                <div className="space-y-5">
+                  {featuredHotel && (
+                    <AccommodationCard
+                      key={featuredHotel.id}
+                      accommodation={featuredHotel}
+                      isDark={isDark}
+                      featured
+                      onOpen={(slug) => navigateTo('/hotels', { hotelSlug: slug })}
+                    />
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">
+                    {restHotels.map(a => (
+                      <AccommodationCard key={a.id} accommodation={a} isDark={isDark} onOpen={(slug) => navigateTo('/hotels', { hotelSlug: slug })} />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

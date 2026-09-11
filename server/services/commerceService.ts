@@ -6,6 +6,7 @@ import { HoldEntity, BookingEntity, InventorySlotEntity, ProductSkuEntity } from
 import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { distributedLockService } from './distributedLockService';
+import { supplierCalendarService } from './supplierCalendarService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -31,6 +32,25 @@ export class InsufficientCapacityError extends Error {
  * under a different service type. A 400 rather than a 409: nothing is sold out,
  * the request is simply wrong, and retrying it unchanged will not help.
  */
+/**
+ * Raised when the supplier has blocked the requested date on their calendar
+ * (blueprint row #12). A 409 like sold-out capacity: the request is well-formed
+ * and the supplier may well serve other dates — retrying unchanged will not
+ * help, but choosing another date will.
+ */
+export class SupplierDateBlockedError extends Error {
+  public readonly status = 409;
+  public readonly type = 'https://dahab.travel/errors/supplier-date-blocked';
+  public readonly title = 'Supplier Unavailable';
+  public readonly details: Record<string, unknown>;
+
+  constructor(message: string, details: Record<string, unknown> = {}) {
+    super(message);
+    this.name = 'SupplierDateBlockedError';
+    this.details = details;
+  }
+}
+
 export class UnknownSkuError extends Error {
   public readonly status = 400;
   public readonly type = 'https://dahab.travel/errors/unknown-sku';
@@ -207,6 +227,18 @@ export class CommerceService {
     const sku = db.productSkus.find(s => s.id === params.skuId);
     if (!sku) throw new Error(`SKU does not exist: ${params.skuId}`);
 
+    // Supplier calendar gate (blueprint row #12). A supplier who blocked a date
+    // refused to serve it — a hold must not succeed for inventory they will
+    // not deliver, regardless of what the slot math says.
+    if (supplierCalendarService.isDateBlocked(sku.supplierId, params.date)) {
+      const reason = supplierCalendarService.blocksForSupplier(sku.supplierId)
+        .find(b => b.startDate <= params.date && params.date <= b.endDate)?.reason;
+      throw new SupplierDateBlockedError(
+        `${sku.title || sku.supplierId} is not accepting bookings for ${params.date}${reason ? `: ${reason}` : '.'}`,
+        { skuId: params.skuId, supplierId: sku.supplierId, date: params.date, reason }
+      );
+    }
+
     const lockKey = `lock:slot:${params.skuId}:${params.date}:${params.timeSlot}`;
     const lease = distributedLockService.tryAcquire(lockKey, 5000);
 
@@ -379,6 +411,22 @@ export class CommerceService {
       return sku;
     });
 
+    // Supplier calendar gate — runs BEFORE processCheckout for the same reason
+    // the SKU resolution does: the payment step writes money rows outside the
+    // booking transaction, so any rejection discovered after it would leave the
+    // traveller charged for a booking the supplier has already refused.
+    for (const item of params.items) {
+      const sku = resolvedSkus.find(s => s.id === item.skuId);
+      if (sku && supplierCalendarService.isDateBlocked(sku.supplierId, item.scheduledDate)) {
+        const reason = supplierCalendarService.blocksForSupplier(sku.supplierId)
+          .find(b => b.startDate <= item.scheduledDate && item.scheduledDate <= b.endDate)?.reason;
+        throw new SupplierDateBlockedError(
+          `${sku.title || sku.supplierId} is not accepting bookings for ${item.scheduledDate}${reason ? `: ${reason}` : '.'}`,
+          { skuId: sku.id, supplierId: sku.supplierId, date: item.scheduledDate, reason }
+        );
+      }
+    }
+
     const totalAmountEGP = params.items.reduce((acc, item) => acc + item.amountEGP, 0);
 
     // 1. Process payment settlement with idempotency
@@ -426,10 +474,14 @@ export class CommerceService {
         const bookingRef = `DHB-${prefix}-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
         const confirmationCode = `DHB-${prefix}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
-        // If a hold was used, mark it converted
+        // If a hold was used, mark it converted. Only an ACTIVE hold reserves
+        // anything: an EXPIRED or RELEASED hold already gave its capacity back
+        // (releaseExpiredHolds / releaseHold), and converting it anyway would
+        // move held capacity to reserved for a seat the traveler never held —
+        // inventory that the supplier cannot actually deliver.
         if (item.holdToken) {
           const hold = db.holds.find(h => h.holdToken === item.holdToken);
-          if (hold) {
+          if (hold && hold.status === 'ACTIVE') {
             hold.status = 'CONVERTED';
             const slot = db.inventorySlots.find(s => s.id === hold.slotId);
             if (slot) {
@@ -450,7 +502,10 @@ export class CommerceService {
           skuId: sku?.id || item.skuId,
           serviceType: item.serviceType,
           amountEGP: item.amountEGP,
-          paymentState: 'CAPTURED',
+          // The booking's payment state must mirror the payment that settled
+          // it. Cash-on-arrival never captured anything — it is PENDING until
+          // the traveler pays on site.
+          paymentState: paymentResult.payment.state,
           // The supplier has not seen this yet, so it cannot be CONFIRMED.
           //
           // Writing CONFIRMED at the moment of purchase did two things: it told
@@ -569,16 +624,158 @@ export class CommerceService {
         bookingsCount: confirmedBookings.length,
         transactionId: paymentResult.payment.transactionId
       });
-    });
-
-    return {
+    });      return {
       success: true,
       tripId: params.tripId,
       bookings: confirmedBookings,
       totalAmountEGP,
-      paymentState: 'CAPTURED',
+      paymentState: paymentResult.payment.state,
       transactionId: paymentResult.payment.transactionId
     };
+  }
+
+  /**
+   * P4 booking-trust: when a hold fails with InsufficientCapacityError, the
+   * traveler needs honest alternatives NOW, not an apology. This scans the
+   * catalogue for SKUs of the same service type with real capacity for the
+   * party on the requested date — same truth the hold endpoint enforces, so
+   * an alternative shown here can actually be held.
+   *
+   * Runs releaseExpiredHolds() first so expired holds give capacity back and
+   * a "sold out" verdict is never stale. Availability math mirrors createHold
+   * exactly: totalCapacity - (reservedCapacity + heldCapacity).
+   */
+  public findAlternatives(params: {
+    skuId: string;
+    date: string;
+    timeSlot?: string;
+    passengersCount: number;
+    /** Max candidates to return (default 3). */
+    limit?: number;
+  }): Array<{
+    skuId: string;
+    title: string;
+    titleAr: string;
+    serviceType: string;
+    supplierId: string;
+    basePriceEGP: number;
+    currency: 'EGP';
+    timeSlot: string;
+    available: number;
+    status: InventorySlotEntity['status'];
+    reason: string;
+    reasonAr: string;
+  }> {
+    this.releaseExpiredHolds();
+
+    const originSku = db.productSkus.find(s => s.id === params.skuId);
+    if (!originSku) {
+      // Unknown origin SKU: no alternatives can be honest.
+      return [];
+    }
+
+    const limit = Math.max(1, Math.min(params.limit ?? 3, 8));
+    const out: ReturnType<CommerceService['findAlternatives']> = [];
+
+    // Candidates: same serviceType, active, different id. Ranked by (a) price
+    // distance from the origin SKU, then (b) most remaining seats, then (c) id
+    // for deterministic ordering.
+    const candidates = db.productSkus
+      .filter(s => s.active && s.serviceType === originSku.serviceType && s.id !== originSku.id)
+      // A supplier who has blocked the requested date cannot serve the
+      // traveler either — the candidate list stays honest even when the origin
+      // SKU's own supplier is blocked (the hold would then fail on the
+      // calendar, not on capacity, and the panel must show real options).
+      .filter(s => !supplierCalendarService.isDateBlocked(s.supplierId, params.date))
+      .map(s => {
+        const slot = db.inventorySlots.find(
+          sl => sl.skuId === s.id && sl.date === params.date && (!params.timeSlot || sl.timeSlot === params.timeSlot)
+        );
+        const totalCapacity = s.maxCapacityPerSlot || 10;
+        const reserved = slot?.reservedCapacity ?? 0;
+        const held = slot?.heldCapacity ?? 0;
+        const available = totalCapacity - (reserved + held);
+        return { sku: s, slot, available, priceDistance: Math.abs(s.basePriceEGP - originSku.basePriceEGP) };
+      })
+      .filter(c => c.available >= params.passengersCount)
+      .sort((a, b) => a.priceDistance - b.priceDistance || b.available - a.available || a.sku.id.localeCompare(b.sku.id))
+      .slice(0, limit);
+
+    for (const c of candidates) {
+      // When the caller named a timeSlot and no slot row exists yet for this
+      // candidate, the capacity is the SKU's full maxCapacityPerSlot — same
+      // as createHold's lazy slot creation. The slot's own timeSlot is what
+      // the traveler would actually book.
+      const timeSlot = c.slot?.timeSlot ?? params.timeSlot ?? '10:30 AM';
+      out.push({
+        skuId: c.sku.id,
+        title: c.sku.title,
+        titleAr: c.sku.titleAr,
+        serviceType: c.sku.serviceType,
+        supplierId: c.sku.supplierId,
+        basePriceEGP: c.sku.basePriceEGP,
+        currency: 'EGP',
+        timeSlot,
+        available: c.available,
+        status: c.slot?.status ?? 'AVAILABLE',
+        reason: c.sku.basePriceEGP < originSku.basePriceEGP
+          ? 'Cheaper and has space'
+          : c.sku.basePriceEGP > originSku.basePriceEGP
+            ? 'Pricier but has space'
+            : 'Same price and has space',
+        reasonAr: c.sku.basePriceEGP < originSku.basePriceEGP
+          ? 'أرخص وفيه أماكن'
+          : c.sku.basePriceEGP > originSku.basePriceEGP
+            ? 'أغلى لكن فيه أماكن'
+            : 'بنفس السعر وفيه أماكن',
+      });
+    }
+    return out;
+  }
+
+  /**
+   * P4 booking-trust: the price explainer. Returns the same numbers checkout
+   * will charge — SKU-catalogue truth, not the client's arithmetic — with a
+   * per-unit basis so the traveler sees WHY the total is the total.
+   * Hotel SKUs are priced per stay (basePriceEGP covers the whole block);
+   * every other service type is per person.
+
+   * Holds, checkout and this endpoint read the same rows, so an explainer
+   * total that checkout would later reject is impossible by construction.
+   */
+  public explainPrice(params: {
+    items: Array<{ skuId: string; passengersCount?: number; nights?: number }>;
+  }): {
+    currency: 'EGP';
+    lines: Array<{ skuId: string; title: string; titleAr: string; serviceType: string; basis: 'per_person' | 'per_stay'; passengersCount: number; nights: number | null; unitPriceEGP: number; amountEGP: number; supplierId: string; cancellationPolicyHours: number }>;
+    totalEGP: number;
+  } {
+    const lines = params.items.map(item => {
+      const sku = db.productSkus.find(s => s.id === item.skuId);
+      if (!sku) throw new UnknownSkuError(item.skuId);
+      const passengers = Math.max(1, Math.floor(item.passengersCount ?? 1));
+      const nights = item.nights === undefined ? null : Math.max(1, Math.floor(item.nights));
+      // Hotels are per-stay: basePriceEGP is the block price. Everything else
+      // is per person. No fees are invented here — the explainer shows exactly
+      // what checkout charges.
+      const basis: 'per_person' | 'per_stay' = sku.serviceType === 'hotel' ? 'per_stay' : 'per_person';
+      const amountEGP = basis === 'per_stay' ? sku.basePriceEGP : sku.basePriceEGP * passengers;
+      return {
+        skuId: sku.id,
+        title: sku.title,
+        titleAr: sku.titleAr,
+        serviceType: sku.serviceType,
+        basis,
+        passengersCount: passengers,
+        nights,
+        unitPriceEGP: sku.basePriceEGP,
+        amountEGP,
+        supplierId: sku.supplierId,
+        cancellationPolicyHours: sku.cancellationPolicyHours,
+      };
+    });
+    const totalEGP = lines.reduce((sum, l) => sum + l.amountEGP, 0);
+    return { currency: 'EGP', lines, totalEGP };
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   Search, Star, Clock, MapPin, ChevronRight, Heart,
-  Filter, Bot, Info
+  Bot, Info, X
 } from 'lucide-react';
 import { WhatsAppIcon } from '../common/icons/WhatsAppIcon';
 import { useTrip } from '../../context/TripContext';
@@ -9,6 +9,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
+import { ConciergePageHeader } from '../concierge/ConciergePageHeader';
 import { toCuisineList } from '../../shared/diningVenue';
 
 // ---------------------------------------------------------------------------
@@ -43,6 +44,8 @@ interface Restaurant {
   description?: string;
   descriptionAr?: string;
   coordinates?: { lat: number; lng: number };
+  /** CMS catalog-binding cover override (dining_venue), when published. */
+  coverImageUrl?: string;
 }
 
 interface RestaurantCardProps {
@@ -76,7 +79,10 @@ const RESTAURANT_FALLBACK_IMAGES = [
   '/images/hero/gulf-sunset.jpg',
 ];
 
-function getRestaurantImage(r: { id: string; name?: string }): string {
+function getRestaurantImage(r: { id: string; name?: string; coverImageUrl?: string }): string {
+  // A published CMS cover override always wins; the heuristics below are the
+  // compiled fallback (unchanged behavior until an editor publishes).
+  if (r.coverImageUrl) return r.coverImageUrl;
   const key = (r.id || '').toLowerCase();
   const name = (r.name || '').toLowerCase();
   if (key.includes('ali') || name.includes('ali')) return '/images/restaurants/ali-baba-restaurant.jpg';
@@ -108,14 +114,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   return (
     <div
       dir={rtl ? 'rtl' : 'ltr'}
-      className={`rounded-2xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl ${
+      className={`rounded-3xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group shadow-sm hover:shadow-xl aurora-hover ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50'
           : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       {/* Header with authentic restaurant photo */}
-      <div className="relative h-48 w-full bg-[var(--surface-container)] flex items-end p-4 overflow-hidden">
+      <div className="relative h-60 w-full bg-[var(--surface-container)] flex items-end p-4 overflow-hidden">
         <img
           src={imgUrl}
           alt={language === 'ar' ? restaurant.nameAr : restaurant.name}
@@ -127,7 +133,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xs"
             style={{
               color: '#ffffff',
-              backgroundColor: restaurant.priceBand === 'Budget ($)' ? '#7a8c5ccc' : restaurant.priceBand === 'Moderate ($$)' ? '#c97b3ccc' : '#7a6a4acc',
+              backgroundColor: restaurant.priceBand === 'Budget ($)' ? 'color-mix(in srgb, var(--accent-secondary) 80%, transparent)' : restaurant.priceBand === 'Moderate ($$)' ? 'color-mix(in srgb, var(--accent-primary) 80%, transparent)' : 'color-mix(in srgb, var(--text-secondary) 80%, transparent)',
             }}>
             {priceTierLabel(restaurant.priceBand, language)}
           </span>
@@ -135,7 +141,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             <span className="flex items-center gap-1 text-xs font-bold text-amber-300 bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10 shadow-xs">
               <Star className="w-3.5 h-3.5 fill-current" />
               {restaurant.rating.toFixed(1)}
-              {restaurant.reviewCount && <span className="text-white/70">({restaurant.reviewCount})</span>}
+              {restaurant.reviewCount != null && restaurant.reviewCount > 0 && <span className="text-white/70">({restaurant.reviewCount})</span>}
             </span>
           )}
         </div>
@@ -144,7 +150,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       {/* Body */}
       <div className={`p-4 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="chart-heading font-bold text-base leading-snug line-clamp-2">
+          <h3 className="font-display font-semibold text-xl leading-snug line-clamp-2">
             {language === 'ar' ? restaurant.nameAr : restaurant.name}
           </h3>
           <button
@@ -152,7 +158,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             onClick={() => onToggleFav(restaurant.id)}
             aria-label={isFav ? t('explore.removeFromFavourites') : t('explore.addToFavourites')}
             aria-pressed={isFav}
-            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
+            className={`w-8 h-8 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center flex-shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isFav ? 'bg-rose-500 text-white' : 'bg-black/30 text-white hover:bg-black/60'
             }`}
           >
@@ -274,7 +280,7 @@ const RestaurantDetailModal: React.FC<{
               <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold mb-1.5 backdrop-blur-md shadow-xs"
                 style={{
                   color: '#ffffff',
-                  backgroundColor: restaurant.priceBand === 'Budget ($)' ? '#7a8c5ccc' : restaurant.priceBand === 'Moderate ($$)' ? '#c97b3ccc' : '#7a6a4acc',
+              backgroundColor: restaurant.priceBand === 'Budget ($)' ? 'color-mix(in srgb, var(--accent-secondary) 80%, transparent)' : restaurant.priceBand === 'Moderate ($$)' ? 'color-mix(in srgb, var(--accent-primary) 80%, transparent)' : 'color-mix(in srgb, var(--text-secondary) 80%, transparent)',
                 }}>
                 {priceTierLabel(restaurant.priceBand, language)}
               </span>
@@ -285,10 +291,10 @@ const RestaurantDetailModal: React.FC<{
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-md border border-white/20 text-white hover:bg-black/70 flex-shrink-0 cursor-pointer"
+              className="min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-black/50 backdrop-blur-md border border-white/20 text-white hover:bg-black/70 flex-shrink-0 cursor-pointer"
               aria-label={t('attractions.close')}
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -300,7 +306,7 @@ const RestaurantDetailModal: React.FC<{
               <span className="flex items-center gap-1 font-bold">
                 <Star className="w-4 h-4 fill-[var(--accent-secondary)] text-[var(--accent-secondary)]" />
                 {restaurant.rating.toFixed(1)}
-                {restaurant.reviewCount && <span className={`${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>({restaurant.reviewCount})</span>}
+                {restaurant.reviewCount != null && restaurant.reviewCount > 0 && <span className={`${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>({restaurant.reviewCount})</span>}
               </span>
             )}
             {restaurant.averageMealPriceEGP > 0 && (
@@ -402,69 +408,6 @@ const RestaurantDetailModal: React.FC<{
 };
 
 // ---------------------------------------------------------------------------
-// Price guide section
-// ---------------------------------------------------------------------------
-
-const PriceGuideSection: React.FC<{ language: 'en' | 'ar'; isDark: boolean }> = ({ language, isDark }) => {
-  const { t } = useLanguage();
-  /**
-   * The tier label and the example were both rendered as
-   * `language === 'ar' ? row.tier : row.tier` — identical branches, because
-   * no Arabic field existed to put on the left-hand side. An Arabic reader was
-   * shown "Budget ($)" and "Street ta'ameya, baladi bread, tea".
-   */
-  const rows = [
-    {
-      tier: 'Budget ($)',
-      tierAr: 'اقتصادي ($)',
-      en: '$1–$5',
-      ar: '٥–٢٠ جنيه',
-      example: "Street ta'ameya, baladi bread, tea",
-      exampleAr: 'طعمية من عربية الشارع، عيش بلدي، شاي',
-    },
-    {
-      tier: 'Moderate ($$)',
-      tierAr: 'متوسط ($$)',
-      en: '$5–$15',
-      ar: '٢٠–٧٠ جنيه',
-      example: 'Seafront seafood, Bedouin grill, shawarma',
-      exampleAr: 'أسماك على البحر، مشاوي بدوية، شاورما',
-    },
-    {
-      tier: 'Premium ($$$)',
-      tierAr: 'مميز ($$$)',
-      en: '$15–$40+',
-      ar: '٧٠–٢٠٠+ جنيه',
-      example: 'Full table-service dinner, sunset terrace',
-      exampleAr: 'عشاء كامل بخدمة طاولات، تراس على الغروب',
-    },
-  ];
-
-  return (
-    <section className={`rounded-2xl border p-5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
-      <h3 className={`chart-heading font-bold text-base mb-3 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
-        {t('quickPriceGuide')}
-      </h3>
-      <div className="space-y-2">
-        {rows.map(row => (
-          <div key={row.tier} className={`flex items-center gap-3 text-xs py-1.5 px-2 rounded-lg ${
-            isDark ? 'bg-[var(--surface-container)] text-[var(--text-secondary)]' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
-          }`}>
-            <span className="font-bold w-24 flex-shrink-0">
-              {language === 'ar' ? row.tierAr : row.tier}
-            </span>
-            <span className="font-bold w-24 flex-shrink-0">
-              {language === 'ar' ? row.ar : row.en}
-            </span>
-            <span className="truncate">{language === 'ar' ? row.exampleAr : row.example}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-// ---------------------------------------------------------------------------
 // Best-for chips
 // ---------------------------------------------------------------------------
 
@@ -513,117 +456,6 @@ const BestForSection: React.FC<{ language: 'en' | 'ar'; onFilter: (cuisines: str
           </button>
         ))}
       </div>
-    </section>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Comparison table
-// ---------------------------------------------------------------------------
-
-const ComparisonTable: React.FC<{
-  restaurants: Restaurant[];
-  language: 'en' | 'ar';
-  isDark: boolean;
-}> = ({ restaurants, language, isDark }) => {
-  const { t } = useLanguage();
-  if (restaurants.length === 0) return null;
-
-  return (
-    <section className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Filter className="w-4 h-4 text-[var(--accent-primary)]" />
-        <h3 className="chart-heading font-bold text-sm">
-          {t('quickComparison')}
-        </h3>
-      </div>
-      <div className={`rounded-2xl border overflow-x-auto ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
-        <table className="w-full text-start text-xs">
-          <thead>
-            <tr className={isDark ? 'bg-[var(--surface-container)]' : 'bg-[var(--surface-container)]'}>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
-                {t('restaurant')}
-              </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
-                {t('type')}
-              </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
-                {t('explore.rating')}
-              </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
-                {t('hours')}
-              </th>
-              <th className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
-                {t('attractions.price')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {restaurants.slice(0, 12).map(r => (
-              <tr key={r.id} className={`border-t ${isDark ? 'border-[var(--border-subtle)]' : 'border-[var(--border-subtle)]'}`}>
-                <td className={`px-3 py-2.5 font-medium ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
-                  <div className="flex items-center gap-2">
-                    {r.rating && (
-                      <span className="flex items-center gap-0.5 text-amber-400 flex-shrink-0">
-                        <Star className="w-3 h-3 fill-current" />
-                        {r.rating.toFixed(1)}
-                      </span>
-                    )}
-                    <span className="truncate">{language === 'ar' ? r.nameAr : r.name}</span>
-                  </div>
-                </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
-                  {(r.cuisine || []).slice(0, 2).join(', ')}
-                </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
-                  {r.rating ? `${r.rating.toFixed(1)} (${r.reviewCount || 0})` : '—'}
-                </td>
-                <td className={`px-3 py-2.5 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
-                  {r.openingHours || '—'}
-                </td>
-                <td className={`px-3 py-2.5 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`}>
-                  {r.averageMealPriceEGP ? `${Math.round(r.averageMealPriceEGP)} EGP` : '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Get 3 picks WhatsApp CTA
-// ---------------------------------------------------------------------------
-
-const Get3PicksCta: React.FC<{ language: 'en' | 'ar' }> = ({ language }) => {
-  const { t } = useLanguage();
-  return (
-    <section className="rounded-2xl border p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gradient-to-br from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/5">
-      <div className="w-12 h-12 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center flex-shrink-0">
-        <Bot className="w-6 h-6 text-[var(--accent-primary)]" />
-      </div>
-      <div className="flex-1 space-y-1">
-        <p className="chart-heading font-bold text-base">
-          {t('threePicksThatActually')}
-        </p>
-        <p className="text-xs text-[var(--text-secondary)]/70">
-          {t('tellUsYourTime')}
-        </p>
-      </div>
-      <a
-        href={language === 'ar'
-          ? 'https://wa.me/201222124840?text=%D8%B9%D8%A7%D9%8A%D8%B2%203%20%D8%A7%D9%82%D8%AA%D8%B1%D8%A7%D8%AD%D8%A7%D8%AA%20%D9%85%D8%B7%D8%A7%D8%B9%D9%85%20%D9%81%D9%8A%20%D8%AF%D9%87%D8%A8'
-          : 'https://wa.me/201222124840?text=Hi!%20I%27d%20like%203%20restaurant%20picks%20in%20Dahab'}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-sm font-bold flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs cursor-pointer active:scale-[0.98]"
-      >
-        <WhatsAppIcon className="w-4 h-4" />
-        {t('get3Picks')}
-        <ChevronRight className="w-3 h-3" />
-      </a>
     </section>
   );
 };
@@ -764,6 +596,7 @@ export const RestaurantsView: React.FC = () => {
         description: v.description,
         descriptionAr: v.descriptionAr,
         coordinates: v.coordinates,
+        coverImageUrl: v.coverImageUrl,
       });
     }
 
@@ -900,80 +733,47 @@ export const RestaurantsView: React.FC = () => {
         isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}>
 
-      {/* Hero with authentic Dahab cafe backdrop */}
-      <div className="relative border-b overflow-hidden">
-        <img
-          src="/images/restaurants/boho-beach-cafe.jpg"
-          alt="Dahab Dining & Cafes"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className={`absolute inset-0 ${
-          isDark
-            ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
-            : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[2px]'
-        }`} />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl chart-heading font-bold">
-                {t('restaurantsInDahab')}
-              </h1>
-              <p className={`text-sm max-w-lg ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
-                {t('restaurants.heroCountMap', { count: restaurants.length })}
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <button type="button"
-                onClick={() => setShowAll(true)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
-                  showAll
-                    ? 'bg-[var(--accent-primary)] text-[var(--surface-container)]'
-                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
-                }`}>
-                {t('all')}
-              </button>
-              <button type="button"
-                onClick={() => setShowAll(false)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
-                  !showAll
-                    ? 'bg-rose-500 text-white'
-                    : isDark ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)]'
-                }`}>
-                {t('favourites')} ({favList.length})
-              </button>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="flex flex-wrap gap-3 mt-5">
-            {[
-              { label: t('restaurants'), value: restaurants.length },
-              { label: t('priceTiers'), value: priceTierCount },
-              { label: t('cuisines'), value: new Set(restaurants.flatMap(r => r.cuisine || [])).size },
-              {
-                /**
-                 * Was `Avg rating`, averaged over `r.rating` — a field the
-                 * /api/dahab/food payload has never carried. Every venue failed
-                 * the `filter(r => r.rating)` guard, so the tile rendered a
-                 * confident `0` next to "Avg rating" on every load. The corpus
-                 * does carry averageMealPriceEGP, which is the honest stat.
-                 */
-                label: t('avgMeal-2'),
-                value: avgMealPriceLabel,
-              },
-            ].map(stat => (
-              <div key={stat.label} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${
-                isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+      {/* Concierge photographic band — one product voice across discovery */}
+      <ConciergePageHeader
+        eyebrow={t('restaurants')}
+        title={t('restaurantsInDahab')}
+        subtitle={t('restaurants.heroCountMap', { count: restaurants.length })}
+        image="/images/restaurants/boho-beach-cafe.jpg"
+        imageAlt="Dahab Dining & Cafes"
+        compact
+        actions={
+          <div className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/35 p-1 backdrop-blur-sm">
+            <button type="button"
+              onClick={() => setShowAll(true)}
+              aria-pressed={showAll}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                showAll
+                  ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)]'
+                  : 'text-white/75 hover:text-white'
               }`}>
-                <span className="font-black">{stat.value}</span>
-                {' '}
-                {stat.label}
-              </div>
-            ))}
+              {t('all')}
+            </button>
+            <button type="button"
+              onClick={() => setShowAll(false)}
+              aria-pressed={!showAll}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                !showAll
+                  ? 'bg-white text-black'
+                  : 'text-white/75 hover:text-white'
+              }`}>
+              {t('favourites')} ({favList.length})
+            </button>
           </div>
-        </div>
-      </div>
-
+        }
+        meta={
+          <>
+            <span className="font-semibold text-white/70">{restaurants.length} · {t('restaurants')}</span>
+            <span className="font-semibold text-white/70">{priceTierCount} · {t('priceTiers')}</span>
+            <span className="font-semibold text-white/70">{new Set(restaurants.flatMap(r => r.cuisine || [])).size} · {t('cuisines')}</span>
+            <span className="font-semibold text-white/70">{avgMealPriceLabel} · {t('avgMeal-2')}</span>
+          </>
+        }
+      />
       {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
 
@@ -985,7 +785,7 @@ export const RestaurantsView: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('searchRestaurantsSeafoodBrunch')}
-            className={`w-full py-3 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
+            className={`w-full py-3 ${language === 'ar' ? 'pl-4 pr-10' : 'pl-10 pr-4'} rounded-xl border text-sm focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
                 : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
@@ -1020,10 +820,17 @@ export const RestaurantsView: React.FC = () => {
           })}
         </div>
 
+        {/* Cuisine filter — moved up from the page's tail so it reads as part
+            of the search/filter toolbar instead of an afterthought below the
+            comparison table. */}
+        <div className="mb-6">
+          <BestForSection language={language as 'en' | 'ar'} onFilter={handleCuisineFilter} />
+        </div>
+
         {/* Featured / top picks */}
         {!showAll && (
           <section className="mb-8">
-            <h2 className="chart-heading font-bold text-lg mb-3 flex items-center gap-2">
+          <h2 className="font-display font-semibold text-2xl sm:text-3xl mb-4 flex items-center gap-2.5 text-balance">
               <Heart className="w-5 h-5 text-rose-400" />
               {t('yourFavourites')}
             </h2>
@@ -1034,7 +841,7 @@ export const RestaurantsView: React.FC = () => {
                 {t('noFavouritesYetTap')}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
                 {favList.map(r => (
                   <RestaurantCard
                     key={r.id}
@@ -1053,7 +860,7 @@ export const RestaurantsView: React.FC = () => {
 
         {/* Results grid */}
         <section className="mb-10">
-          <h2 className="chart-heading font-bold text-lg mb-3 flex items-center gap-2">
+          <h2 className="font-display font-semibold text-2xl sm:text-3xl mb-4 flex items-center gap-2.5 text-balance">
             {t('allRestaurants')}
             <span className={`text-xs font-normal ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>
               ({visible.length})
@@ -1066,7 +873,7 @@ export const RestaurantsView: React.FC = () => {
               {t('noRestaurantsMatchThat')}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
               {visible.map(r => (
                 <RestaurantCard
                   key={r.id}
@@ -1082,29 +889,11 @@ export const RestaurantsView: React.FC = () => {
           )}
         </section>
 
-        {/* Comparison table */}
-        <ComparisonTable
-          restaurants={filtered.slice(0, 12)}
-          language={language as 'en' | 'ar'}
-          isDark={isDark}
-        />
-
-        {/* Price guide */}
-        <div className="mt-8">
-          <PriceGuideSection language={language as 'en' | 'ar'} isDark={isDark} />
-        </div>
-
-        {/* Best for */}
-        <div className="mt-8">
-          <BestForSection language={language as 'en' | 'ar'} onFilter={handleCuisineFilter} />
-        </div>
-
-        {/* Get 3 picks */}
-        <div className="mt-8 mb-8">
-          <Get3PicksCta language={language as 'en' | 'ar'} />
-        </div>
-
-        {/* Before you arrive */}
+        {/* Before you arrive — kept as the one closing informational note.
+            The raw comparison table, the separate price-guide legend (already
+            covered by the price chips above), and the WhatsApp push card were
+            cut: they repeated data the cards already show and turned this
+            into a five-section scroll after the actual results. */}
         <div className="mb-12">
           <BeforeYouArriveGuide language={language as 'en' | 'ar'} isDark={isDark} />
         </div>

@@ -10,12 +10,24 @@ export interface SmsMessageRecord {
   message: string;
   channel: 'TWILIO_SMS' | 'WHATSAPP_BUSINESS';
   status: 'DELIVERED' | 'SENT' | 'QUEUED' | 'SIMULATED';
+  /**
+   * True when no provider accepted the message. A SIMULATED record never left
+   * this server: without Twilio credentials there is no gateway, only this
+   * log. Ops surfaces must render these as "not sent", never as delivered.
+   */
+  simulated: boolean;
+  /** Provider error when a configured Twilio call failed (undefined otherwise). */
+  providerError?: string;
   referenceBookingId?: string;
   providerMessageSid?: string;
   timestamp: string;
 }
 
-// In-memory persistent SMS dispatch log
+// In-memory persistent SMS dispatch log.
+//
+// The two seed rows below are DEMONSTRATION data for a fresh boot, not proof
+// of delivery. They carry status SIMULATED + simulated:true so no dashboard
+// can mistake them for dispatches that reached a phone.
 export const smsDispatchLogs: SmsMessageRecord[] = [
   {
     id: 'SMS-INIT-001',
@@ -24,9 +36,10 @@ export const smsDispatchLogs: SmsMessageRecord[] = [
     recipientName: 'Mahmoud Salem (Driver)',
     message: 'Dahab Ride: New Transfer! Flight MS-028 (SSH T1). Traveler: Ahmed Mansour (2 pax). Pickup today 10:30 AM.',
     channel: 'TWILIO_SMS',
-    status: 'DELIVERED',
+    status: 'SIMULATED',
+    simulated: true,
     referenceBookingId: 'DHB-TRF-001',
-    providerMessageSid: 'SM_tw_init_8942_dahab',
+    providerMessageSid: 'SIMULATED',
     timestamp: new Date(Date.now() - 3600000).toISOString()
   },
   {
@@ -36,17 +49,24 @@ export const smsDispatchLogs: SmsMessageRecord[] = [
     recipientName: 'Omar Soliman (PADI MSDT)',
     message: 'Dahab Dive Alert: Canyon & LightHouse guided dive booked for tomorrow 08:30 AM (2 divers). VCH-DIV-894',
     channel: 'TWILIO_SMS',
-    status: 'DELIVERED',
+    status: 'SIMULATED',
+    simulated: true,
     referenceBookingId: 'DHB-DIV-001',
-    providerMessageSid: 'SM_tw_init_8943_dive',
+    providerMessageSid: 'SIMULATED',
     timestamp: new Date(Date.now() - 1800000).toISOString()
   }
 ];
 
 export class SmsGatewayService {
   /**
-   * Dispatches an SMS alert via Twilio REST API if credentials exist,
-   * otherwise uses the local high-fidelity Sinai SMS Gateway simulator.
+   * Dispatches an SMS alert via Twilio REST API if credentials exist.
+   *
+   * Honesty contract (the whole point of this service's status field):
+   * - Twilio accepts (2xx + sid) → SENT, simulated:false. "Accepted by the
+   *   provider" is all a synchronous call can claim; delivery is unknown.
+   * - Anything else → SIMULATED, simulated:true. The message never left this
+   *   server, including the no-credentials path (there is no local gateway,
+   *   only this log) and the Twilio-failure path (a failed POST is not a send).
    */
   public async sendSms(params: {
     to: string;
@@ -66,8 +86,10 @@ export class SmsGatewayService {
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const fromPhone = process.env.TWILIO_PHONE_NUMBER || '+12055550199';
 
-    let status: SmsMessageRecord['status'] = 'SENT';
-    let providerMessageSid = `SM_SIM_${crypto.randomBytes(6).toString('hex')}`;
+    let status: SmsMessageRecord['status'] = 'SIMULATED';
+    let simulated = true;
+    let providerError: string | undefined;
+    let providerMessageSid = 'SIMULATED';
 
     if (accountSid && authToken && fromPhone) {
       try {
@@ -90,20 +112,20 @@ export class SmsGatewayService {
 
         if (response.ok) {
           const data: any = await response.json();
-          providerMessageSid = data.sid || providerMessageSid;
-          status = 'DELIVERED';
+          providerMessageSid = data.sid || `SM_UNPARSED_${crypto.randomBytes(6).toString('hex')}`;
+          status = 'SENT';
+          simulated = false;
           console.log(`[Twilio SMS Sent Successfully] SID: ${providerMessageSid} to ${params.to}`);
         } else {
-          console.warn(`[Twilio API returned ${response.status}] Falling back to verified local gateway dispatch`);
-          status = 'SENT';
+          providerError = `Twilio API returned ${response.status}`;
+          console.warn(`[${providerError}] Message ${id} recorded as SIMULATED, not sent`);
         }
-      } catch (err) {
-        console.warn('[Twilio Network Exception - fallback to local gateway]:', err);
-        status = 'SENT';
+      } catch (err: any) {
+        providerError = `Twilio network exception: ${err?.message || err}`;
+        console.warn(`[${providerError}] Message ${id} recorded as SIMULATED, not sent`);
       }
     } else {
-      status = 'DELIVERED';
-      console.log(`[Sinai SMS Gateway Broadcast] To: ${params.to} (${params.recipientRole}) -> "${params.message}"`);
+      console.log(`[SMS simulated — no Twilio credentials] To: ${params.to} (${params.recipientRole}) -> "${params.message}"`);
     }
 
     const record: SmsMessageRecord = {
@@ -114,6 +136,8 @@ export class SmsGatewayService {
       message: params.message,
       channel: params.channel || 'TWILIO_SMS',
       status,
+      simulated,
+      ...(providerError ? { providerError } : {}),
       referenceBookingId: params.bookingRef,
       providerMessageSid,
       timestamp: new Date().toISOString()
@@ -129,7 +153,7 @@ export class SmsGatewayService {
       title: `SMS Broadcast (${params.recipientRole})`,
       message: params.message,
       channel: 'SMS',
-      metadata: { smsId: record.id, to: params.to, sid: providerMessageSid }
+      metadata: { smsId: record.id, to: params.to, sid: providerMessageSid, simulated }
     });
 
     db.logAudit(params.recipientName, 'Supplier', 'SMS_ALERT_DISPATCHED', 'SmsGateway', record.id, {

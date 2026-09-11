@@ -4,6 +4,8 @@ import { HoldEntity, BookingEntity, TransferTelemetryEntity, InventorySlotEntity
 import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { transferRouteService } from './transferRouteService';
+import { distributedLockService } from './distributedLockService';
+import { InsufficientCapacityError } from './commerceService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -152,70 +154,84 @@ export class TransferService {
     const sku = db.productSkus.find(s => s.id === params.skuId);
     if (!sku) throw new Error('Transfer SKU does not exist');
 
-    let slot = db.inventorySlots.find(s => s.skuId === params.skuId && s.date === params.date && s.timeSlot === params.timeSlot);
-    if (!slot) {
-      slot = {
-        id: `SLOT-${params.skuId}-${params.date}-${Date.now()}`,
-        skuId: params.skuId,
-        date: params.date,
-        timeSlot: params.timeSlot,
-        totalCapacity: sku.maxCapacityPerSlot || 6,
-        reservedCapacity: 0,
-        heldCapacity: 0,
-        priceEGP: sku.basePriceEGP,
-        status: 'AVAILABLE'
-      };
-      db.inventorySlots.push(slot);
-    }
+    const lockKey = `lock:slot:${params.skuId}:${params.date}:${params.timeSlot}`;
+    const lease = distributedLockService.tryAcquire(lockKey, 5000);
 
-    if (!slot.totalCapacity || slot.totalCapacity <= 0) {
-      slot.totalCapacity = sku.maxCapacityPerSlot || 6;
-    }
-    slot.reservedCapacity = slot.reservedCapacity || 0;
-    slot.heldCapacity = slot.heldCapacity || 0;
+    try {
+      let holdResult!: HoldEntity;
 
-    let availableCapacity = slot.totalCapacity - (slot.reservedCapacity + slot.heldCapacity);
-    if (availableCapacity < params.passengersCount) {
-      // Dynamic slot replenishment for on-demand transfer requests
-      slot.totalCapacity += (params.passengersCount * 4);
-      slot.status = 'AVAILABLE';
-      availableCapacity = slot.totalCapacity - (slot.reservedCapacity + slot.heldCapacity);
-    }
+      db.runInTransaction(() => {
+        let slot = db.inventorySlots.find(s => s.skuId === params.skuId && s.date === params.date && s.timeSlot === params.timeSlot);
+        if (!slot) {
+          slot = {
+            id: `SLOT-${params.skuId}-${params.date}-${Date.now()}`,
+            skuId: params.skuId,
+            date: params.date,
+            timeSlot: params.timeSlot,
+            totalCapacity: sku.maxCapacityPerSlot || 6,
+            reservedCapacity: 0,
+            heldCapacity: 0,
+            priceEGP: sku.basePriceEGP,
+            status: 'AVAILABLE'
+          };
+          db.inventorySlots.push(slot);
+        }
 
-    const expires = new Date();
-    expires.setMinutes(expires.getMinutes() + HOLD_TTL_MINUTES);
+        if (!slot.totalCapacity || slot.totalCapacity <= 0) {
+          slot.totalCapacity = sku.maxCapacityPerSlot || 6;
+        }
+        slot.reservedCapacity = slot.reservedCapacity || 0;
+        slot.heldCapacity = slot.heldCapacity || 0;
 
-    const holdToken = `HLD-TRF-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
-    const hold: HoldEntity = {
-      id: `HOLD-${Date.now()}`,
-      holdToken,
-      skuId: params.skuId,
-      slotId: slot.id,
-      tripId: params.tripId,
-      travelerId: params.travelerId,
-      serviceType: 'transfer',
-      passengersCount: params.passengersCount,
-      amountEGP: sku.basePriceEGP,
-      expiresAt: expires.toISOString(),
-      status: 'ACTIVE',
-      idempotencyKey: params.idempotencyKey,
-      createdAt: new Date().toISOString()
-    };
+        const availableCapacity = slot.totalCapacity - (slot.reservedCapacity + slot.heldCapacity);
+        if (availableCapacity < params.passengersCount) {
+          throw new InsufficientCapacityError(
+            `Only ${Math.max(0, availableCapacity)} place(s) remain for transfer ${sku.title || params.skuId} ` +
+            `on ${params.date} at ${params.timeSlot}; ${params.passengersCount} were requested.`,
+            { skuId: params.skuId, date: params.date, timeSlot: params.timeSlot, requested: params.passengersCount, available: Math.max(0, availableCapacity) }
+          );
+        }
 
-    db.runInTransaction(() => {
-      slot!.heldCapacity += params.passengersCount;
-      if (slot!.reservedCapacity + slot!.heldCapacity >= slot!.totalCapacity) {
-        slot!.status = 'SOLD_OUT';
-      }
-      db.holds.push(hold);
-      db.logAudit(params.travelerId, 'Traveler', 'HOLD_CREATED', 'Hold', hold.id, {
-        holdToken,
-        expiresAt: hold.expiresAt,
-        amountEGP: hold.amountEGP
+        const expires = new Date();
+        expires.setMinutes(expires.getMinutes() + HOLD_TTL_MINUTES);
+
+        const holdToken = `HLD-TRF-${Date.now()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+        const hold: HoldEntity = {
+          id: `HOLD-${Date.now()}`,
+          holdToken,
+          skuId: params.skuId,
+          slotId: slot.id,
+          tripId: params.tripId,
+          travelerId: params.travelerId,
+          serviceType: 'transfer',
+          passengersCount: params.passengersCount,
+          amountEGP: sku.basePriceEGP,
+          expiresAt: expires.toISOString(),
+          status: 'ACTIVE',
+          idempotencyKey: params.idempotencyKey,
+          createdAt: new Date().toISOString()
+        };
+
+        slot.heldCapacity += params.passengersCount;
+        if (slot.reservedCapacity + slot.heldCapacity >= slot.totalCapacity) {
+          slot.status = 'SOLD_OUT';
+        }
+        db.holds.push(hold);
+        db.logAudit(params.travelerId, 'Traveler', 'HOLD_CREATED', 'Hold', hold.id, {
+          holdToken,
+          expiresAt: hold.expiresAt,
+          amountEGP: hold.amountEGP
+        });
+        db.saveToDisk();
+        holdResult = hold;
       });
-    });
 
-    return hold;
+      return holdResult;
+    } finally {
+      if (lease) {
+        distributedLockService.release(lease);
+      }
+    }
   }
 
   public completeBooking(params: {
@@ -241,6 +257,26 @@ export class TransferService {
   }): { booking: BookingEntity; telemetry: TransferTelemetryEntity } {
     this.releaseExpiredHolds();
 
+    // Idempotency: if this payment key was already settled, return the
+    // existing booking instead of creating a duplicate.
+    const existingPayment = db.payments.find(p => p.idempotencyKey === params.paymentParams.idempotencyKey);
+    if (existingPayment) {
+      // CASH_ON_ARRIVAL payments remain PENDING (no money captured), so
+      // filtering on CAPTURED silently skips them and creates duplicates on
+      // retry. The booking created by the first attempt is any non-terminal
+      // booking filed against this trip with this hold's SKU.
+      const existingBooking = db.bookings.find(
+        b => b.tripId === params.tripId && !['CANCELLED', 'REJECTED', 'EXPIRED', 'FAILED'].includes(b.supplierState)
+      );
+      const existingTelemetry = existingBooking
+        ? db.transferTelemetry.find(t => t.bookingId === existingBooking.id)
+        : undefined;
+      if (existingBooking && existingTelemetry) {
+        return { booking: existingBooking, telemetry: existingTelemetry };
+      }
+    }
+
+    // Validate everything BEFORE touching payment or inventory
     const hold = db.holds.find(h => h.holdToken === params.holdToken);
     if (!hold || hold.status !== 'ACTIVE') {
       throw new Error('Hold token has expired or is invalid. Please select your slot again.');
@@ -249,25 +285,27 @@ export class TransferService {
     const sku = db.productSkus.find(s => s.id === hold.skuId);
     if (!sku) throw new Error('Product SKU not found');
 
-    const bookingRef = `DHB-TRF-2026-${String(db.bookings.length + 43).padStart(3, '0')}`;
-    const confirmationCode = `DHB-SSH-${crypto.randomBytes(2).toString('hex').toUpperCase()}-OK`;
+    const bookingRef = `DHB-TRF-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+    const confirmationCode = `DHB-SSH-${crypto.randomBytes(4).toString('hex').toUpperCase()}-OK`;
+    const now = new Date().toISOString();
+
+    // 1. Process payment BEFORE the booking transaction — if payment fails,
+    // no booking is created and no inventory is consumed.
+    const paymentResult = paymentService.processCheckout({
+      idempotencyKey: params.paymentParams.idempotencyKey,
+      tripId: params.tripId,
+      holdToken: params.holdToken,
+      bookingId: bookingRef,
+      amountEGP: hold.amountEGP,
+      provider: params.paymentParams.provider || 'PAYMOB',
+      cardLast4: params.paymentParams.cardLast4,
+      cardBrand: params.paymentParams.cardBrand,
+      cardHolderName: params.paymentParams.cardHolderName,
+      payerEmail: params.travelerEmail,
+      payerPhone: params.travelerPhone
+    });
 
     return db.runInTransaction(() => {
-      // 1. Process payment
-      const paymentResult = paymentService.processCheckout({
-        idempotencyKey: params.paymentParams.idempotencyKey,
-        tripId: params.tripId,
-        holdToken: params.holdToken,
-        bookingId: bookingRef,
-        amountEGP: hold.amountEGP,
-        provider: params.paymentParams.provider || 'PAYMOB',
-        cardLast4: params.paymentParams.cardLast4,
-        cardBrand: params.paymentParams.cardBrand,
-        cardHolderName: params.paymentParams.cardHolderName,
-        payerEmail: params.travelerEmail,
-        payerPhone: params.travelerPhone
-      });
-
       // 2. Mark hold as converted & update slot capacity
       hold.status = 'CONVERTED';
       const slot = db.inventorySlots.find(s => s.id === hold.slotId);
@@ -279,7 +317,8 @@ export class TransferService {
         }
       }
 
-      // 3. Create Booking Entity
+      // 3. Create Booking Entity — no hardcoded supplier assignment;
+      // the supplier accepts or rejects via updateBookingState.
       const booking: BookingEntity = {
         id: bookingRef,
         bookingRef,
@@ -289,7 +328,7 @@ export class TransferService {
         serviceType: 'transfer',
         amountEGP: hold.amountEGP,
         paymentState: paymentResult.payment.state,
-        supplierState: 'ASSIGNED',
+        supplierState: 'PENDING_CONFIRMATION',
         travelerName: params.travelerName,
         travelerPhone: params.travelerPhone,
         travelerEmail: params.travelerEmail,
@@ -301,15 +340,9 @@ export class TransferService {
         flightNumber: params.flightNumber,
         specialRequests: params.specialRequests,
         confirmationCode,
-        assignedResource: {
-          driverName: 'Mahmoud Salem',
-          driverNameAr: 'محمود سالم',
-          driverPhone: '+20 100 876 5432',
-          vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
-          vehiclePlate: 'ط ج د 4821'
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        assignedResource: undefined,
+        createdAt: now,
+        updatedAt: now
       };
 
       db.bookings.push(booking);
@@ -333,32 +366,32 @@ export class TransferService {
           dropoffLocation: params.dropoffLocation,
           flightNumber: params.flightNumber
         },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: now,
+        updatedAt: now
       });
 
       if (trip) {
         trip.totalPaidEGP += hold.amountEGP;
-        trip.updatedAt = new Date().toISOString();
+        trip.updatedAt = now;
       }
 
-      // 5. Create Live Telemetry Entity
+      // 5. Create Live Telemetry Entity — unassigned until supplier accepts
       const telemetry: TransferTelemetryEntity = {
         bookingId: booking.id,
         referenceCode: booking.bookingRef,
-        driverName: 'Mahmoud Salem',
-        driverNameAr: 'محمود سالم',
-        driverPhone: '+20 100 876 5432',
-        vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
-        vehiclePlate: 'ط ج د 4821',
+        driverName: undefined as any,
+        driverNameAr: undefined as any,
+        driverPhone: undefined as any,
+        vehicleModel: undefined as any,
+        vehiclePlate: undefined as any,
         pickupLocation: params.pickupLocation,
         dropoffLocation: params.dropoffLocation,
         scheduledTime: params.scheduledTime,
-        flightNumber: params.flightNumber || 'MS-028',
+        flightNumber: params.flightNumber || '',
         flightStatus: 'ON_TIME',
-        status: 'DISPATCHED',
-        lastGpsUpdate: 'Just now (Terminal meet & greet dispatched)',
-        updatedAt: new Date().toISOString()
+        status: 'ASSIGNED',
+        lastGpsUpdate: 'Awaiting supplier assignment',
+        updatedAt: now
       };
 
       db.transferTelemetry.push(telemetry);
@@ -368,7 +401,7 @@ export class TransferService {
         userId: params.travelerEmail,
         type: 'BOOKING_CREATED',
         title: 'Sharm ↔ Dahab Transfer Confirmed!',
-        message: `Your driver Mahmoud Salem is assigned with Toyota HiAce (${telemetry.vehiclePlate}). Meet at ${params.pickupLocation}.`,
+        message: `Your transfer ${bookingRef} is confirmed. A driver will be assigned shortly. Meet at ${params.pickupLocation}.`,
         channel: 'WHATSAPP'
       });
 

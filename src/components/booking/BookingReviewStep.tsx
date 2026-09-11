@@ -240,7 +240,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
         {isPreparedForPayment && (
           <div
             id="prepared-for-payment-banner"
-            className="mb-8 p-6 sm:p-7 rounded-3xl bg-[var(--surface-card)] border-2 border-[var(--accent-primary)]/40 text-[var(--text-primary)] shadow-sm space-y-4 animate-in fade-in zoom-in-95 duration-200"
+            className="mb-8 p-6 sm:p-7 rounded-3xl bg-[var(--surface-card)] border-2 border-[var(--accent-primary)]/40 text-[var(--text-primary)] shadow-sm space-y-4 animate-in fade-in zoom-in-95 duration-200 aurora-glow"
           >
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-full bg-[var(--accent-primary)] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
@@ -299,7 +299,7 @@ export const BookingReviewStep: React.FC<BookingReviewStepProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10" />
 
                 {/* Top Location & Traveler Badge */}
-                <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} flex flex-wrap items-center gap-2`}>
+                <div className="absolute top-4 start-4 flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-[var(--btn-util-bg)] backdrop-blur-md text-[var(--text-primary)] text-xs font-black tracking-wide shadow-2xs">
                     {isAr ? 'دهب' : 'Dahab'}
                   </span>

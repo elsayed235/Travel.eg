@@ -14,6 +14,8 @@ import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { db } from './server/db/database';
 import { runMigrationsAndSeed } from './server/db/migrations';
+import { dataPath } from './server/db/paths';
+import { isKnownClientPath } from './src/lib/routeUrl';
 import { authService } from './server/services/authService';
 import { firebaseAdminService } from './server/services/firebaseAdminService';
 import { retentionService } from './server/services/retentionService';
@@ -24,7 +26,9 @@ import { transferService } from './server/services/transferService';
 import { transferRouteService } from './server/services/transferRouteService';
 import { locationIqService } from './server/services/locationIqService';
 import { commerceService } from './server/services/commerceService';
+import * as bookingService from './server/services/bookingService';
 import { weatherService } from './server/services/weatherService';
+import { marineService, assessActivity, isWaterActivity } from './server/services/marineService';
 import {
   RESEARCH_OVERVIEW,
   SEASONAL_MATRIX
@@ -32,11 +36,19 @@ import {
 import { recoveryService } from './server/services/recoveryService';
 import { supplierService } from './server/services/supplierService';
 import { notificationService } from './server/services/notificationService';
+import {
+  reviewService,
+  ReviewRejectedError,
+} from './server/services/reviewService';
 import { smsGatewayService } from './server/services/smsGatewayService';
+import { pushService, vapidConfigured } from './server/services/pushService';
 import { tripService } from './server/services/tripService';
 import { backgroundEventBus } from './server/services/backgroundEventBus';
+import { scheduledBackupPass, startBackupSchedule } from './server/services/backupService';
 import { asyncJobService } from './server/services/asyncJobService';
 import { mapsContextService } from './server/services/mapsContextService';
+import { recordAnalyticsBatch } from './server/services/analyticsService';
+import { log, withCorrelation } from './server/services/structuredLogger';
 import { cmsPages } from './server/services/contentService';
 import { buildHeadTags, injectMeta, resolveMetaForPath } from './server/utils/metaInjection';
 import { geminiReasoningService } from './server/services/geminiReasoningService';
@@ -82,10 +94,11 @@ import { AuthenticatedRequest } from './server/middleware/correlationMiddleware'
 import { errorHandler } from './server/middleware/errorHandler';
 import { apiRateLimiter, authRateLimiter } from './server/middleware/rateLimiter';
 import { dahabRouter } from './server/api/dahabRoutes';
-import { MAX_MEDIA_UPLOAD_BYTES, serveMediaHeaders } from './server/services/mediaUpload';
+import { maxMediaUploadBytes, serveMediaHeaders } from './server/services/mediaUpload';
 import { adminDahabRouter } from './server/api/adminDahabRoutes';
 import { contentRouter } from './server/api/contentRoutes';
 import { adminContentRouter } from './server/api/adminContentRoutes';
+import { adminSiteRouter } from './server/api/adminSiteRoutes';
 import { marketRouter } from './server/api/marketRoutes';
 import { hotelRouter } from './server/api/hotelRoutes';
 import { accommodationRouter } from './server/api/accommodationRoutes';
@@ -94,12 +107,27 @@ import { rentalRouter, rentalBookingRouter } from './server/api/rentalRoutes';
 import { initializeCmsSchema } from './server/db/sqlite/cmsSchema';
 import { seedCmsContent } from './server/db/sqlite/cmsSeed';
 import { migrateMediaAssets } from './server/db/sqlite/cmsMediaMigration';
+import { importLegacySiteSettings } from './server/services/siteInfoService';
+import { catalogBindings } from './server/services/catalogContentService';
 import { dahabKnowledgeOs } from './server/services/dahabKnowledgeOs';
 import { rentalService } from './server/services/rentalService';
 import { reconcileActivityBookability, resolveBookability } from './server/services/bookabilityReconciler';
 import { reconcileTripStatus, reconcileTripsForUser } from './server/services/tripStatusReconciler';
 import { marketFreshnessService } from './server/services/marketFreshnessService';
 import { autonomousDataOpsService } from './server/services/autonomousDataOpsService';
+import { enrichTripWithAvailability, resolveSkuPrice } from './server/services/availabilityJoinService';
+import { reliabilityService } from './server/services/reliabilityService';
+import { intelligenceCoreService } from './server/services/intelligenceCoreService';
+import { supplierCalendarService } from './server/services/supplierCalendarService';
+import { payoutService } from './server/services/payoutService';
+import { groupPlanningService } from './server/services/groupPlanningService';
+import { ambientNudgeService } from './server/services/ambientNudgeService';
+import * as longStayService from './server/services/longStayService';
+import * as reefPositiveService from './server/services/reefPositiveService';
+import * as supportEscalationService from './server/services/supportEscalationService';
+import * as bundleService from './server/services/bundleService';
+import * as tripJournalService from './server/services/tripJournalService';
+import * as fraudDetectionService from './server/services/fraudDetectionService';
 import {
   initialSources,
   initialCrawlJobs,
@@ -126,6 +154,7 @@ dahabKnowledgeOs.bootstrapValidatedCorpus();
 initializeCmsSchema();
 seedCmsContent();
 migrateMediaAssets();
+importLegacySiteSettings();
 
 // Both seeding passes are done, so every product SKU and every catalogue
 // activity is now loaded and they can finally be checked against each other.
@@ -133,10 +162,11 @@ migrateMediaAssets();
 // inventory at all, which is what kept Explore and Book Now feeling like two
 // different products.
 const bookability = reconcileActivityBookability();
-console.log(
-  `[Catalogue] ${bookability.bookable} activities bookable, ${bookability.downgraded} downgraded to REQUEST_NOW` +
-    (bookability.downgraded > 0 ? ` (${bookability.downgradedIds.join(', ')})` : '')
-);
+log.info('catalogue', 'bookability reconciled at boot', {
+  bookable: bookability.bookable,
+  requestNow: bookability.downgraded,
+  requestNowIds: bookability.downgradedIds
+});
 
 const app = express();
 // Cloud Run (and most PaaS hosts) inject the port to listen on via PORT.
@@ -163,8 +193,11 @@ app.use(correlationMiddleware);
 // id rather than a shared proxy IP — and the access policy.
 app.use(optionalAuth);
 
-// Rate Limiting
-app.use('/api/auth', authRateLimiter);
+// Rate Limiting. The strict auth limiter guards credential-submission
+// endpoints only (login/register/federated exchange): session reads like
+// GET /api/auth/me carry no brute-force value, and sharing the 30/min
+// budget made legitimate clients (and the E2E suite's shared seed identity)
+// eat 429s on session checks — which the app renders as "signed out".
 app.use('/api', apiRateLimiter);
 
 // Deny-by-default access control for /api. Public exceptions and role
@@ -178,14 +211,15 @@ app.use('/api/dahab', dahabRouter);
 // CMS Content Management routes
 
 // Dedicated body parser for the base64 upload endpoint only.
-// The general express.json() limit (100KB) would reject a 100KB image as body
+// The general express.json() limit would reject a multi-MB image as body
 // because base64 inflates it by ~33% and the maxBytes check lives *after*
-// decoding. We set the route-level limit to ceil(MAX * 4/3) + 64KB so a valid
-// 100KB image gets through, while the route handler still enforces
-// MAX_MEDIA_UPLOAD_BYTES on the decoded buffer. No other /api route sees this
+// decoding. We set the route-level limit to ceil(cap * 4/3) + 64KB so a valid
+// image at the cap gets through, while the route handler still enforces the
+// cap on the decoded buffer. The cap is MEDIA_MAX_UPLOAD_MB (default 5MB —
+// see maxMediaUploadBytes in mediaUpload.ts). No other /api route sees this
 // larger limit.
 {
-  const rawMaxBytes = MAX_MEDIA_UPLOAD_BYTES;
+  const rawMaxBytes = maxMediaUploadBytes();
   const inflatedLimitBytes = Math.ceil(rawMaxBytes * (4 / 3)) + 64 * 1024;
   const uploadPrefix = '/api/admin/content/media/upload';
   app.use(
@@ -195,6 +229,7 @@ app.use('/api/dahab', dahabRouter);
 }
 
 app.use('/api/admin/content', adminContentRouter);
+app.use('/api/admin', adminSiteRouter);
 app.use('/api/content', contentRouter);
 
 // Dahab hotels catalogue (public GET list + detail)
@@ -207,7 +242,9 @@ app.use('/api/admin/accommodations', adminAccommodationRouter);
 app.use('/api/rentals', rentalRouter);
 app.use('/api/rental-bookings', rentalBookingRouter);
 
-// CMS uploaded media — serve static files from data/cms-media/
+// CMS uploaded media — served from the state dir's cms-media/ (honors
+// DAHAB_DATA_DIR, like the upload endpoint, so isolated environments stay
+// isolated).
 //
 // This handler intentionally has its own per-route security headers rather than
 // relying on the global helmet configuration (which has CSP disabled because the
@@ -216,7 +253,7 @@ app.use('/api/rental-bookings', rentalBookingRouter);
 // file to execute script or load sub-resources — closing the stored-XSS path for
 // any legacy SVG/HTML file that may exist on disk.
 app.get('/api/media/:filename', (req, res) => {
-  const mediaDir = path.resolve(path.join(process.cwd(), 'data', 'cms-media'));
+  const mediaDir = path.resolve(dataPath('cms-media'));
   const filename = req.params.filename;
 
   // Reject path traversal attempts
@@ -322,10 +359,10 @@ app.get('/api/health', (req, res) => {
     },
     database: {
       adapter: adapterName,
-      // The Postgres adapter does not implement save(); calling it "PostgreSQL
-      // Relational" implied a durability guarantee it has never provided.
+      // The Postgres adapter persists through the spec-pattern save() port
+      // (shadow-diff flush to the generated schema).
       persistenceMode: adapterName.includes('Postgres')
-        ? 'In-memory only (PostgreSQL adapter does not persist)'
+        ? 'PostgreSQL (spec-schema, diffed save())'
         : adapterName.includes('Sqlite')
           ? 'SQLite (WAL, foreign keys enforced)'
           : adapterName.includes('InMemory')
@@ -349,14 +386,60 @@ app.get('/api/health', (req, res) => {
     // null until the boot-time credential check completes; false means
     // federated sign-in is unavailable and will return 503.
     firebaseAdminConfigured: firebaseAdminService.credentialState(),
-    paymentsSimulated: PaymentService.simulationAllowed()
+    paymentsSimulated: PaymentService.simulationAllowed(),
+    // Per-module honesty: every subsystem reports its own readiness so an
+    // operator can see at a glance which surfaces work and which degrade.
+    modules: {
+      catalogue: {
+        status: bookability.downgraded > 0 ? 'degraded' : 'ok',
+        detail: `${bookability.bookable}/${totalActivities} activities instantly bookable, ${bookability.downgraded} on REQUEST_NOW (human confirm)`
+      },
+      payments: {
+        status: PaymentService.simulationAllowed() ? 'simulated' : 'ok',
+        detail: PaymentService.simulationAllowed()
+          ? 'simulation mode — checkout records CAPTURED without contacting a gateway or moving money'
+          : 'live gateway'
+      },
+      'federated-signin': {
+        status: firebaseAdminService.credentialState() ? 'ok' : 'unavailable',
+        detail: firebaseAdminService.credentialState()
+          ? 'available'
+          : 'credentials missing — Google sign-in returns 503'
+      },
+      ai: {
+        status: quotaStatus().exhausted ? 'degraded' : 'ok',
+        detail: quotaStatus().exhausted
+          ? `gemini quota exhausted (${quotaStatus().reason})`
+          : 'gemini quota available'
+      },
+      analytics: {
+        status: 'ok',
+        detail: `server-side ingestion live (${db.analyticsEvents.length} events recorded)`
+      },
+      notifications: {
+        status: process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN ? 'ok' : 'degraded',
+        detail: process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
+          ? 'SMS + in-app channels available'
+          : 'in-app only — SMS/WhatsApp fall back to the local simulator'
+      },
+      database: {
+        status: ledgerIntegrity.balanced && ledgerIntegrity.chainIntact ? 'ok' : 'error',
+        detail: `${adapterName} (${ledgerIntegrity.totalEntries} ledger entries, ${ledgerIntegrity.integrityFailures.length} integrity failures)`
+      },
+      ledger: {
+        status: ledgerIntegrity.balanced && ledgerIntegrity.chainIntact ? 'ok' : 'error',
+        detail: ledgerIntegrity.integrityFailures.length
+          ? ledgerIntegrity.integrityFailures.join('; ')
+          : `balanced (${ledgerIntegrity.totalDebitsEGP.toFixed(2)} EGP debits = ${ledgerIntegrity.totalCreditsEGP.toFixed(2)} EGP credits)`
+      }
+    }
   });
 });
 
 // ---------------------------------------------------------------------------
 // 2. Authentication & Session Endpoints
 // ---------------------------------------------------------------------------
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', authRateLimiter, (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
     if (!email || !password || !name) {
@@ -380,7 +463,7 @@ app.post('/api/auth/register', (req, res) => {
   }
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', authRateLimiter, (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -438,7 +521,7 @@ app.post('/api/auth/logout-all', (req, res) => {
  * body is not trusted for either. Previously this endpoint accepted
  * { uid, email, role } directly, which let anyone mint an Admin session.
  */
-app.post('/api/auth/firebase-session', async (req, res) => {
+app.post('/api/auth/firebase-session', authRateLimiter, async (req, res) => {
   try {
     const headerToken = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
     const idToken = headerToken || (typeof req.body?.idToken === 'string' ? req.body.idToken : '');
@@ -480,6 +563,28 @@ app.post('/api/auth/firebase-session', async (req, res) => {
     console.error('[auth/firebase-session]', err);
     res.status(400).json({ error: 'Could not establish a session.' });
   }
+});
+
+// ---------------------------------------------------------------------------
+// 2.0. Product Analytics — public batch ingestion. Anonymous visitors are the
+// bulk of the funnel, so this is intentionally public; the service whitelists
+// event names and strips PII before anything touches storage.
+// ---------------------------------------------------------------------------
+app.post('/api/analytics/events', (req, res) => {
+  const authReq = req as AuthenticatedRequest;
+  return withCorrelation(authReq.correlationId, () => {
+    try {
+      const body = req.body && typeof req.body === 'object' ? req.body : {};
+      const sessionId = typeof body.sessionId === 'string' ? body.sessionId : undefined;
+      const events = Array.isArray(body.events) ? body.events : (Array.isArray(body) ? body : []);
+      const stored = recordAnalyticsBatch(events, { userId: authReq.user?.userId, sessionId });
+      log.info('analytics', 'batch ingested', { stored, sessionId: Boolean(sessionId), authenticated: Boolean(authReq.user) });
+      res.json({ success: true, stored });
+    } catch (err: any) {
+      log.error('analytics', 'ingestion failed', { error: err.message });
+      res.status(400).json({ error: err.message });
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -652,6 +757,13 @@ app.get('/api/daygi/proactive', (req: AuthenticatedRequest, res) => {
     if (!tripId) {
       return res.status(400).json({ error: 'tripId query parameter is required' });
     }
+    const { trip } = tripService.getTrip(tripId);
+    // Health and suggestions are trip-derived; a caller must own the trip it
+    // asks about (or be Operations/Admin). Without this, any signed-in user
+    // could read any other traveler's booking counts and alerts by id.
+    if (!trip || !mayActOnTripsOf(req.user!, trip.userId)) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
     const suggestions = daygiTripHealthService.getProactiveSuggestions(userId, tripId);
     const health = daygiTripHealthService.evaluateTripHealth(tripId);
     res.json({ suggestions, health, timestamp: new Date().toISOString() });
@@ -660,11 +772,16 @@ app.get('/api/daygi/proactive', (req: AuthenticatedRequest, res) => {
   }
 });
 
-app.get('/api/daygi/health/:tripId', (req, res) => {
+app.get('/api/daygi/health/:tripId', (req: AuthenticatedRequest, res) => {
   try {
     const tripId = req.params.tripId;
     if (!tripId) {
       return res.status(400).json({ error: 'tripId path parameter is required' });
+    }
+    const { trip } = tripService.getTrip(tripId);
+    if (!trip || !mayActOnTripsOf(req.user!, trip.userId)) {
+      // 404, not 403: confirming the id exists leaks that a trip is there.
+      return res.status(404).json({ error: 'Trip not found' });
     }
     const health = daygiTripHealthService.evaluateTripHealth(tripId);
     res.json(health);
@@ -909,6 +1026,402 @@ app.post('/api/daygi/beta/generate-weekly-report', (req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// ---------------------------------------------------------------------------
+// Ambient Nudges (blueprint row #15 — proactive companion nudges)
+// ---------------------------------------------------------------------------
+
+/** User: get all nudges (newest first). */
+app.get('/api/nudges', (req: AuthenticatedRequest, res) => {
+  const nudges = ambientNudgeService.nudgesForUser(req.user!.userId);
+  res.json({ nudges });
+});
+
+/** User: get queued (undelivered) nudges. */
+app.get('/api/nudges/queued', (req: AuthenticatedRequest, res) => {
+  const nudges = ambientNudgeService.queuedNudges(req.user!.userId);
+  res.json({ nudges });
+});
+
+/** User: evaluate nudges now (manual trigger, e.g. on page load). */
+app.post('/api/nudges/evaluate', (req: AuthenticatedRequest, res) => {
+  const tripId = requiredString(req.body?.tripId, 'tripId', 128);
+  // Verify the user owns this trip.
+  const trip = db.trips.find(t => t.id === tripId);
+  if (!trip || (!mayActOnTripsOf(req.user!, trip.userId))) {
+    return res.status(403).json({ error: 'You may not evaluate nudges for this trip.' });
+  }
+  ambientNudgeService.evaluateNudges(req.user!.userId, tripId).then(nudges => {
+    res.json({ nudges });
+  }).catch(err => {
+    res.status(500).json({ error: err.message });
+  });
+});
+
+/** User: dismiss a nudge. */
+app.post('/api/nudges/:nudgeId/dismiss', (req: AuthenticatedRequest, res) => {
+  const dismissed = ambientNudgeService.dismissNudge(req.params.nudgeId, req.user!.userId);
+  if (!dismissed) return res.status(404).json({ error: 'Nudge not found.' });
+  res.json({ dismissed: true });
+});
+
+/** User: mark a nudge as acted upon. */
+app.post('/api/nudges/:nudgeId/act', (req: AuthenticatedRequest, res) => {
+  const acted = ambientNudgeService.actOnNudge(req.params.nudgeId, req.user!.userId);
+  if (!acted) return res.status(404).json({ error: 'Nudge not found.' });
+  res.json({ acted: true });
+});
+
+// ---------------------------------------------------------------------------
+// Long-Stay / Nomad Pricing (P2)
+// ---------------------------------------------------------------------------
+
+/** Public: get long-stay pricing breakdown for an accommodation. */
+app.get('/api/accommodations/:id/long-stay-price', (req, res) => {
+  const accommodation = db.accommodations.find(a => a.id === req.params.id);
+  if (!accommodation) return res.status(404).json({ error: 'Accommodation not found.' });
+  const nights = parseInt(req.query.nights as string, 10);
+  if (isNaN(nights) || nights <= 0) return res.status(400).json({ error: 'nights must be a positive integer.' });
+  const breakdown = longStayService.computeDurationPrice(accommodation, nights);
+  const savings = longStayService.computeLongStaySavings(accommodation, nights);
+  res.json({ breakdown, savings, hasLongStayPricing: longStayService.hasLongStayPricing(accommodation) });
+});
+
+// NOTE: `GET /api/accommodations/long-stay` is served by accommodationRouter
+// (server/api/accommodationRoutes.ts) — it must be registered there, BEFORE the
+// router's `/:slug` route, or the slug handler swallows it (404
+// "Accommodation not found.", as `long-stay` is not an accommodation slug).
+
+// ---------------------------------------------------------------------------
+// Reef-Positive Conservation (P2)
+// ---------------------------------------------------------------------------
+
+/** Traveler: log an eco-action against a booking. */
+app.post('/api/reef-actions', (req: AuthenticatedRequest, res) => {
+  try {
+    const booking = db.bookings.find(b => b.id === req.body?.bookingId);
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found.' });
+    }
+    // Ownership/permission: the trip owner (or Ops/Admin over it), or the
+    // booking's own supplier. No cross-account action logging.
+    const trip = db.trips.find(tr => tr.id === booking.tripId);
+    const tripOwnerId = trip?.userId;
+    const isTripOwner = tripOwnerId != null && mayActOnTripsOf(req.user!, tripOwnerId);
+    const isOwnSupplier = req.user!.role === 'Supplier' && req.user!.supplierId === booking.supplierId;
+    if (!isTripOwner && !isOwnSupplier) {
+      return res.status(403).json({ error: 'You may only log reef actions for your own trips or services.' });
+    }
+    // The trip must match the booking (stops bookingId/tripId mismatches).
+    if (trip && req.body?.tripId !== booking.tripId) {
+      return res.status(400).json({ error: 'Booking does not belong to the given trip.' });
+    }
+    const loggedBy =
+      req.user!.role === 'Operations' || req.user!.role === 'Admin' ? 'operator' :
+      req.user!.role === 'Supplier' ? 'supplier' : 'traveler';
+    const log = reefPositiveService.logReefAction({
+      bookingId: requiredString(req.body?.bookingId, 'bookingId', 64),
+      tripId: requiredString(req.body?.tripId, 'tripId', 64),
+      supplierId: requiredString(req.body?.supplierId, 'supplierId', 64),
+      userId: req.user!.userId,
+      actionType: req.body?.actionType,
+      description: requiredString(req.body?.description, 'description', 1000),
+      descriptionAr: optionalString(req.body?.descriptionAr, 'descriptionAr', 1000),
+      photoUrl: optionalString(req.body?.photoUrl, 'photoUrl', 500),
+      loggedBy,
+    });
+    res.json({ log });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** User: get their own reef-action logs. */
+app.get('/api/reef-actions/mine', (req: AuthenticatedRequest, res) => {
+  const logs = reefPositiveService.getLogsForUser(req.user!.userId);
+  const points = reefPositiveService.getUserConservationPoints(req.user!.userId);
+  res.json({ logs, totalPoints: points });
+});
+
+/** User: get reef-action logs for a booking. */
+app.get('/api/reef-actions/booking/:bookingId', (req: AuthenticatedRequest, res) => {
+  const logs = reefPositiveService.getLogsForBooking(req.params.bookingId);
+  res.json({ logs });
+});
+
+/** Public: get a supplier's reef score. */
+app.get('/api/suppliers/:supplierId/reef-score', (req, res) => {
+  const score = reefPositiveService.getSupplierReefScore(req.params.supplierId);
+  res.json({ reefScore: score });
+});
+
+/** Public: list reef-positive suppliers. */
+app.get('/api/reef-positive-suppliers', (_req, res) => {
+  const suppliers = reefPositiveService.getReefPositiveSuppliers();
+  res.json({ suppliers });
+});
+
+/** Public: reef action type metadata. */
+app.get('/api/reef-action-types', (_req, res) => {
+  res.json({ actionTypes: reefPositiveService.REEF_ACTION_TYPES });
+});
+
+// ---------------------------------------------------------------------------
+// Support Escalation (P2)
+// ---------------------------------------------------------------------------
+
+/** Operations/Admin: escalate a support message. */
+app.post('/api/support/messages/:id/escalate', (req: AuthenticatedRequest, res) => {
+  try {
+    const message = supportEscalationService.escalateMessage(req.params.id, req.user!.userId);
+    res.json({ message });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Operations/Admin: assign a support message to an agent. */
+app.post('/api/support/messages/:id/assign', (req: AuthenticatedRequest, res) => {
+  try {
+    const message = supportEscalationService.assignMessage(req.params.id, req.user!.userId);
+    res.json({ message });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Operations/Admin: reply to a support message (resolves it). */
+app.post('/api/support/messages/:id/resolve', (req: AuthenticatedRequest, res) => {
+  try {
+    const message = supportEscalationService.resolveMessage(req.params.id, req.user!.userId, requiredString(req.body?.reply, 'reply', 2000));
+    res.json({ message });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Operations/Admin: close a support message. */
+app.post('/api/support/messages/:id/close', (req: AuthenticatedRequest, res) => {
+  try {
+    const message = supportEscalationService.closeMessage(req.params.id, req.user!.userId);
+    res.json({ message });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Operations/Admin: get the escalation queue. */
+app.get('/api/support/escalation-queue', (req: AuthenticatedRequest, res) => {
+  const queue = supportEscalationService.getEscalationQueue();
+  res.json({ queue });
+});
+
+/** Operations/Admin: get count summary. */
+app.get('/api/support/counts', (_req: AuthenticatedRequest, res) => {
+  const counts = supportEscalationService.getOpenCount();
+  res.json(counts);
+});
+
+// ---------------------------------------------------------------------------
+// Dynamic Bundles (P2)
+// ---------------------------------------------------------------------------
+
+/** Admin: create a bundle. */
+app.post('/api/bundles', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
+    return res.status(403).json({ error: 'Only Admin or Operations can create bundles.' });
+  }
+  try {
+    const bundle = bundleService.createBundle({
+      name: requiredString(req.body?.name, 'name', 200),
+      nameAr: requiredString(req.body?.nameAr, 'nameAr', 200),
+      description: requiredString(req.body?.description, 'description', 1000),
+      descriptionAr: requiredString(req.body?.descriptionAr, 'descriptionAr', 1000),
+      eligibleSkuIds: req.body?.eligibleSkuIds,
+      discountPercent: req.body?.discountPercent,
+      minItems: req.body?.minItems,
+      maxItems: req.body?.maxItems,
+      serviceTypes: req.body?.serviceTypes,
+    });
+    res.json({ bundle });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Admin: update a bundle. */
+app.patch('/api/bundles/:id', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
+    return res.status(403).json({ error: 'Only Admin or Operations can update bundles.' });
+  }
+  try {
+    const bundle = bundleService.updateBundle(req.params.id, req.body);
+    res.json({ bundle });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Admin: delete a bundle. */
+app.delete('/api/bundles/:id', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin') {
+    return res.status(403).json({ error: 'Only Admin can delete bundles.' });
+  }
+  const deleted = bundleService.deleteBundle(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Bundle not found.' });
+  res.json({ deleted: true });
+});
+
+/** Public: list active bundles. */
+app.get('/api/bundles', (_req, res) => {
+  const bundles = bundleService.getActiveBundles();
+  res.json({ bundles });
+});
+
+/** Public: get a bundle by ID. */
+app.get('/api/bundles/:id', (req, res) => {
+  const bundle = bundleService.getBundle(req.params.id);
+  if (!bundle) return res.status(404).json({ error: 'Bundle not found.' });
+  res.json({ bundle });
+});
+
+/** User: compute best bundle discount for cart items. */
+app.post('/api/bundles/compute-discount', (req: AuthenticatedRequest, res) => {
+  const items = req.body?.items as Array<{ skuId: string; quantity: number }> | undefined;
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'items array is required.' });
+  }
+  const result = bundleService.applyBundleDiscounts(items);
+  res.json(result);
+});
+
+// ---------------------------------------------------------------------------
+// Fraud Detection (P3)
+// ---------------------------------------------------------------------------
+
+/** Admin: get fraud dashboard summary. */
+app.get('/api/fraud/dashboard', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
+    return res.status(403).json({ error: 'Admin or Operations only.' });
+  }
+  const dashboard = fraudDetectionService.getFraudDashboard();
+  res.json(dashboard);
+});
+
+/** Admin: get all fraud signals with optional filters. */
+app.get('/api/fraud/signals', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
+    return res.status(403).json({ error: 'Admin or Operations only.' });
+  }
+  const signals = fraudDetectionService.getSignals({
+    userId: req.query.userId as string | undefined,
+    action: req.query.action as string | undefined,
+    limit: parseInt(req.query.limit as string, 10) || 100,
+  });
+  res.json({ signals });
+});
+
+/** Admin: get all fraud rules. */
+app.get('/api/fraud/rules', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin') {
+    return res.status(403).json({ error: 'Admin only.' });
+  }
+  const rules = fraudDetectionService.getAllRules();
+  res.json({ rules });
+});
+
+/** Admin: update a fraud rule. */
+app.patch('/api/fraud/rules/:ruleName', (req: AuthenticatedRequest, res) => {
+  if (req.user!.role !== 'Admin') {
+    return res.status(403).json({ error: 'Admin only.' });
+  }
+  try {
+    const rule = fraudDetectionService.updateRule(req.params.ruleName, req.body);
+    res.json({ rule });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Trip Journal & Memory (P2)
+// ---------------------------------------------------------------------------
+
+/** User: create a journal entry. */
+app.post('/api/trips/:tripId/journal', (req: AuthenticatedRequest, res) => {
+  try {
+    const entry = tripJournalService.createJournalEntry({
+      tripId: req.params.tripId,
+      userId: req.user!.userId,
+      title: optionalString(req.body?.title, 'title', 200),
+      body: requiredString(req.body?.body, 'body', 5000),
+      bodyAr: optionalString(req.body?.bodyAr, 'bodyAr', 5000),
+      photoUrl: optionalString(req.body?.photoUrl, 'photoUrl', 500),
+      locationName: optionalString(req.body?.locationName, 'locationName', 200),
+      locationNameAr: optionalString(req.body?.locationNameAr, 'locationNameAr', 200),
+      tags: req.body?.tags,
+    });
+    res.json({ entry });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** User: get journal entries for a trip. */
+app.get('/api/trips/:tripId/journal', (req: AuthenticatedRequest, res) => {
+  const entries = tripJournalService.getJournalEntries(req.params.tripId, req.user!.userId);
+  res.json({ entries });
+});
+
+/** User: update a journal entry. */
+app.patch('/api/journal/:entryId', (req: AuthenticatedRequest, res) => {
+  try {
+    const entry = tripJournalService.updateJournalEntry(req.params.entryId, req.user!.userId, req.body);
+    res.json({ entry });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** User: delete a journal entry. */
+app.delete('/api/journal/:entryId', (req: AuthenticatedRequest, res) => {
+  const deleted = tripJournalService.deleteJournalEntry(req.params.entryId, req.user!.userId);
+  if (!deleted) return res.status(404).json({ error: 'Journal entry not found.' });
+  res.json({ deleted: true });
+});
+
+/** User: get all journal entries across all trips. */
+app.get('/api/journal', (req: AuthenticatedRequest, res) => {
+  const entries = tripJournalService.getAllJournalEntries(req.user!.userId);
+  res.json({ entries });
+});
+
+/** User: get places visited for a trip. */
+app.get('/api/trips/:tripId/places-visited', (req: AuthenticatedRequest, res) => {
+  const places = tripJournalService.getPlacesVisited(req.params.tripId, req.user!.userId);
+  res.json({ places });
+});
+
+/** User: manually add a place visited. */
+app.post('/api/trips/:tripId/places-visited', (req: AuthenticatedRequest, res) => {
+  const place = tripJournalService.addPlaceVisited({
+    tripId: req.params.tripId,
+    userId: req.user!.userId,
+    placeName: requiredString(req.body?.placeName, 'placeName', 200),
+    placeNameAr: optionalString(req.body?.placeNameAr, 'placeNameAr', 200),
+    latitude: req.body?.latitude,
+    longitude: req.body?.longitude,
+    bookingId: optionalString(req.body?.bookingId, 'bookingId', 64),
+    visitedAt: optionalString(req.body?.visitedAt, 'visitedAt', 32),
+  });
+  res.json({ place });
+});
+
+/** User: get travel footprint (all places visited across all trips). */
+app.get('/api/travel-footprint', (req: AuthenticatedRequest, res) => {
+  const footprint = tripJournalService.getTravelFootprint(req.user!.userId);
+  res.json({ footprint });
 });
 
 // ---------------------------------------------------------------------------
@@ -1341,8 +1854,28 @@ app.post('/api/trip/apply-ai', (req: AuthenticatedRequest, res) => {
       for (const a of acts.slice(0, 15)) {
         const title = typeof a?.title === 'string' ? a.title.trim().slice(0, 200) : '';
         if (!title) continue;
-        const raw = Number(a?.estimatedPriceEGP ?? a?.priceEGP ?? 0);
-        const priceEGP = Number.isFinite(raw) && raw > 0 ? Math.min(Math.floor(raw), 2_000_000) : 0;
+        // Availability-joined prices: when the activity carries a real SKU (the
+        // enriched shape /api/trip/generate returns), the database price is
+        // authoritative — the client can never smuggle a number. Without a
+        // SKU the item is at best a non-bookable budget estimate, and a SKU
+        // that no longer resolves is trusted with nothing (0, not the body).
+        const skuId = typeof a?.skuId === 'string' ? a.skuId.trim().slice(0, 128) : '';
+        const resolved = skuId ? resolveSkuPrice(skuId) : null;
+        let priceEGP = 0;
+        let bookable = false;
+        let unbookableReason: string | undefined;
+        if (resolved) {
+          priceEGP = resolved.priceEGP;
+          bookable = true;
+        } else {
+          unbookableReason = skuId ? 'sku_unavailable' : 'no_active_sku';
+          if (!skuId) {
+            // Legacy/raw AI shapes send estimatedPriceEGP; keep it as a
+            // clearly-marked budget estimate, capped as before.
+            const raw = Number(a?.priceEGP ?? a?.estimatedPriceEGP ?? 0);
+            priceEGP = Number.isFinite(raw) && raw > 0 ? Math.min(Math.floor(raw), 2_000_000) : 0;
+          }
+        }
         const timeSlot = typeof a?.timeSlot === 'string' ? a.timeSlot.trim().slice(0, 64) : '';
         const location = typeof a?.location === 'string' ? a.location.trim().slice(0, 200) : undefined;
         const description = typeof a?.description === 'string' ? a.description.trim().slice(0, 400) : undefined;
@@ -1352,13 +1885,19 @@ app.post('/api/trip/apply-ai', (req: AuthenticatedRequest, res) => {
           id: `ITEM-AI-${stamp}-${seq}`,
           tripId: '',
           serviceType: AI_PLAN_SERVICE_TYPE[category] ?? 'activity',
-          skuId: '',
+          skuId: resolved ? skuId : '',
           title,
           dayNumber,
           timeSlot,
           priceEGP,
           status: 'SUGGESTED' as const,
-          metadata: { source: 'ai-plan', location, description },
+          metadata: {
+            source: 'ai-plan',
+            location,
+            description,
+            bookable,
+            ...(unbookableReason ? { unbookableReason } : {})
+          },
           createdAt: now,
           updatedAt: now
         });
@@ -1479,6 +2018,60 @@ app.post('/api/commerce/hold', (req: AuthenticatedRequest, res) => {
   }
 });
 
+/**
+ * P4 booking-trust: honest alternatives when a hold cannot be taken. Same
+ * availability math as /hold, so an alternative offered here can actually be
+ * held. Session ownership applies: the trip must belong to the caller.
+ */
+app.post('/api/commerce/alternatives', (req: AuthenticatedRequest, res) => {
+  try {
+    const tripId = requiredString(req.body?.tripId, 'tripId');
+    const trip = db.trips.find(t => t.id === tripId);
+    if (!trip) return res.status(404).json({ error: 'Trip not found.' });
+    if (!mayActOnTripsOf(req.user!, trip.userId)) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+    const alternatives = commerceService.findAlternatives({
+      skuId: requiredString(req.body?.skuId, 'skuId'),
+      date: requiredCalendarDate(req.body?.date, 'date'),
+      timeSlot: optionalString(req.body?.timeSlot, 'timeSlot', 64),
+      passengersCount: requiredCount(req.body?.passengersCount, 'passengersCount', 1, 50),
+      limit: optionalCount(req.body?.limit, 'limit', 1, 8),
+    });
+    res.json({ alternatives });
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message, details: err.details });
+  }
+});
+
+/**
+ * P4 booking-trust: the price explainer. SKU-catalogue truth about what
+ * checkout will charge — per-person vs per-stay basis, unit prices, totals.
+ * Owned like /hold: the trip must belong to the caller.
+ */
+app.post('/api/commerce/explain-price', (req: AuthenticatedRequest, res) => {
+  try {
+    const tripId = requiredString(req.body?.tripId, 'tripId');
+    const trip = db.trips.find(t => t.id === tripId);
+    if (!trip) return res.status(404).json({ error: 'Trip not found.' });
+    if (!mayActOnTripsOf(req.user!, trip.userId)) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+    const items = requiredArray(req.body?.items, 'items', 20).map((raw, index) => {
+      const item = requiredObject(raw, `items[${index}]`);
+      return {
+        skuId: requiredString(item.skuId, `items[${index}].skuId`),
+        passengersCount: optionalCount(item.passengersCount, `items[${index}].passengersCount`, 1, 50),
+        nights: optionalCount(item.nights, `items[${index}].nights`, 1, 365),
+      };
+    });
+    const result = commerceService.explainPrice({ items });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message, details: err.details });
+  }
+});
+
 app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
   try {
     // This handler used to pass req.body straight into a method that writes
@@ -1523,6 +2116,21 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
     if (!mayActOnTripsOf(req.user!, trip.userId)) {
       return res.status(404).json({ error: 'Trip not found.' });
     }
+
+    // Fraud detection: evaluate the checkout attempt before processing payment.
+    const fraudResult = fraudDetectionService.evaluateCheckout({
+      userId: req.user!.userId,
+      transactionId: requiredString(payment.idempotencyKey, 'paymentParams.idempotencyKey', 128),
+      amountEGP: total,
+    });
+    if (fraudResult.action === 'block') {
+      return res.status(403).json({
+        error: 'Transaction blocked by fraud detection.',
+        riskScore: fraudResult.compositeScore,
+        signals: fraudResult.signals.map(s => ({ type: s.signalType, description: s.description })),
+      });
+    }
+    // For 'review', attach a flag but proceed (ops console will see it).
 
     const result = commerceService.completeMultiServiceCheckout({
       tripId,
@@ -1599,6 +2207,195 @@ app.post('/api/commerce/refund', (req, res) => {
   }
 });
 
+app.post('/api/commerce/cancel', (req: AuthenticatedRequest, res) => {
+  try {
+    const result = bookingService.cancelBooking({
+      bookingId: requiredString(req.body?.bookingId, 'bookingId', 128),
+      tripId: requiredString(req.body?.tripId, 'tripId', 128),
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+      reason: requiredString(req.body?.reason, 'reason', 500),
+      cancellationKey: requiredString(req.body?.cancellationKey, 'cancellationKey', 128)
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message, details: err.details });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Booking details, reschedule, rich availability
+// ---------------------------------------------------------------------------
+
+app.get('/api/bookings/:bookingId', (req: AuthenticatedRequest, res) => {
+  try {
+    const summary = bookingService.getBooking({
+      bookingId: req.params.bookingId,
+      userId: req.user!.userId,
+      userRole: req.user!.role
+    });
+    res.json(summary);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
+});
+
+app.get('/api/trips/:tripId/bookings/detailed', (req: AuthenticatedRequest, res) => {
+  try {
+    const summaries = bookingService.getTripBookings({
+      tripId: req.params.tripId,
+      userId: req.user!.userId,
+      userRole: req.user!.role
+    });
+    res.json({ bookings: summaries });
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
+});
+
+app.post('/api/bookings/:bookingId/reschedule', (req: AuthenticatedRequest, res) => {
+  try {
+    const result = bookingService.rescheduleBooking({
+      bookingId: req.params.bookingId,
+      tripId: requiredString(req.body?.tripId, 'tripId', 128),
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+      newDate: requiredCalendarDate(req.body?.newDate, 'newDate'),
+      newTime: requiredString(req.body?.newTime, 'newTime', 64),
+      idempotencyKey: requiredString(req.body?.idempotencyKey, 'idempotencyKey', 128)
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
+});
+
+app.post('/api/commerce/availability/rich', (req, res) => {
+  try {
+    const result = bookingService.getRichAvailability({
+      serviceType: req.body?.serviceType || 'transfer',
+      skuId: req.body?.skuId,
+      date: req.body?.date,
+      timeSlot: req.body?.timeSlot,
+      passengers: req.body?.passengers
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Reviews (blueprint row #14 — verified-stay reviews with teeth)
+//
+// Identity always comes from the session. A review is only accepted for a
+// booking the session's user owns (via the booking's trip) and only once that
+// booking is COMPLETED or paid — reviewService.verifyStay is the gate.
+// ---------------------------------------------------------------------------
+
+/** Traveler: my review for a booking, if any (drives the bookings-surface CTA). */
+app.get('/api/bookings/:bookingRef/review', (req: AuthenticatedRequest, res) => {
+  try {
+    const review = reviewService.reviewForBooking(req.params.bookingRef, req.user!.userId);
+    const invitation = notificationService.hasOpenReviewInvitation(req.user!.userId, req.params.bookingRef);
+    res.json({ review: review ?? null, invitation });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Traveler: submit (or replace) the verified review for a completed booking. */
+app.post('/api/bookings/:bookingRef/review', (req: AuthenticatedRequest, res) => {
+  try {
+    const review = reviewService.submitReview({
+      bookingRef: requiredString(req.params.bookingRef, 'bookingRef', 128),
+      userId: req.user!.userId,
+      rating: requiredCount(req.body?.rating, 'rating', 1, 5),
+      title: optionalString(req.body?.title, 'title', 120),
+      body: requiredString(req.body?.body, 'body', 2000),
+      bodyAr: optionalString(req.body?.bodyAr, 'bodyAr', 2000),
+    });
+    res.status(201).json(review);
+    db.saveToDisk();
+  } catch (err: any) {
+    if (err instanceof ReviewRejectedError) {
+      return res.status(err.status).json({ error: err.message });
+    }
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Public: approved reviews for a supplier, with the aggregate. No PII beyond the display name. */
+app.get('/api/reviews/supplier/:supplierId', (req: AuthenticatedRequest, res) => {
+  try {
+    const reviews = reviewService.reviewsForSupplier(req.params.supplierId).map(r => {
+      const author = db.users.find(u => u.id === r.userId);
+      return {
+        id: r.id,
+        rating: r.rating,
+        title: r.title,
+        body: r.body,
+        bodyAr: r.bodyAr,
+        supplierResponse: r.supplierResponse,
+        supplierResponseAt: r.supplierResponseAt,
+        createdAt: r.createdAt,
+        // Display name only: full account identity (email/phone) never leaves.
+        authorName: author?.name || 'Traveler',
+        verified: true,
+      };
+      // Newest first for display.
+    }).reverse();
+    const aggregate = reviewService.averageRating(req.params.supplierId);
+    res.json({ reviews, average: aggregate.average, count: aggregate.count });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  };
+});
+
+/** Supplier: respond once to an approved review of their own business. */
+app.post('/api/reviews/:reviewId/respond', (req: AuthenticatedRequest, res) => {
+  try {
+    // A Supplier acts only for their own business; Operations/Admin may name one.
+    const supplierId = resolveActingSupplierId(req, req.body?.supplierId);
+    if (!supplierId) {
+      return res.status(403).json({ error: 'This account is not linked to a supplier.' });
+    }
+    const review = reviewService.supplierRespond(
+      req.params.reviewId,
+      supplierId,
+      requiredString(req.body?.response, 'response', 2000),
+    );
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found, not approved, or not yours to answer.' });
+    }
+    db.saveToDisk();
+    res.json(review);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Ops: moderation queue + actions. */
+app.get('/api/reviews/pending', (req: AuthenticatedRequest, res) => {
+  res.json({ reviews: reviewService.pendingReviews() });
+});
+
+app.post('/api/reviews/:reviewId/moderate', (req: AuthenticatedRequest, res) => {
+  try {
+    const status = requiredEnum(req.body?.status, ['approved', 'flagged', 'hidden'] as const, 'status');
+    const review = reviewService.moderateReview(
+      req.params.reviewId,
+      status,
+      optionalString(req.body?.note, 'note', 500),
+    );
+    if (!review) return res.status(404).json({ error: 'Review not found.' });
+    db.saveToDisk();
+    res.json(review);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
+});
+
 app.get('/api/suppliers/:supplierId/dashboard', (req: AuthenticatedRequest, res) => {
   const supplierId = resolveActingSupplierId(req, req.params.supplierId);
   if (!supplierId || supplierId !== req.params.supplierId) {
@@ -1606,6 +2403,252 @@ app.get('/api/suppliers/:supplierId/dashboard', (req: AuthenticatedRequest, res)
   }
   const data = supplierService.getSupplierDashboard(supplierId);
   res.json(data);
+});
+
+/**
+ * P6: supplier Revenue & Analytics — server-computed from the same bookings
+ * the dashboard reads (payout share, states, daily buckets, top bookings).
+ * Same ownership rule as the dashboard.
+ */
+app.get('/api/suppliers/:supplierId/revenue-analytics', (req: AuthenticatedRequest, res) => {
+  const supplierId = resolveActingSupplierId(req, req.params.supplierId);
+  if (!supplierId || supplierId !== req.params.supplierId) {
+    return res.status(403).json({ error: 'You may only view your own revenue analytics.' });
+  }
+  const days = Number(req.query.days);
+  const data = supplierService.getSupplierRevenueAnalytics(
+    supplierId,
+    Number.isFinite(days) && days > 0 ? Math.floor(days) : 30
+  );
+  res.json(data);
+});
+
+// ---------------------------------------------------------------------------
+// Supplier Calendar (blueprint row #12 — availability blocks)
+// ---------------------------------------------------------------------------
+
+/** Supplier: list own availability blocks. */
+app.get('/api/suppliers/:supplierId/blocks', (req: AuthenticatedRequest, res) => {
+  const supplierId = resolveActingSupplierId(req, req.params.supplierId);
+  if (!supplierId || supplierId !== req.params.supplierId) {
+    return res.status(403).json({ error: 'You may only view your own calendar.' });
+  }
+  res.json({ blocks: supplierCalendarService.blocksForSupplier(supplierId) });
+});
+
+/** Supplier: create an availability block. */
+app.post('/api/suppliers/:supplierId/blocks', (req: AuthenticatedRequest, res) => {
+  try {
+    const supplierId = resolveActingSupplierId(req, req.params.supplierId);
+    if (!supplierId || supplierId !== req.params.supplierId) {
+      return res.status(403).json({ error: 'You may only block dates for your own business.' });
+    }
+    const block = supplierCalendarService.createBlock({
+      supplierId,
+      startDate: requiredString(req.body?.startDate, 'startDate', 10),
+      endDate: requiredString(req.body?.endDate, 'endDate', 10),
+      reason: requiredString(req.body?.reason, 'reason', 200),
+      createdBy: req.user!.userId,
+    });
+    db.logAudit(req.user!.userId, req.user!.role, 'BLOCK_CREATED', 'SupplierAvailabilityBlock', block.id, { supplierId });
+    db.saveToDisk();
+    res.status(201).json(block);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Supplier: delete an availability block. */
+app.delete('/api/suppliers/:supplierId/blocks/:blockId', (req: AuthenticatedRequest, res) => {
+  const supplierId = resolveActingSupplierId(req, req.params.supplierId);
+  if (!supplierId || supplierId !== req.params.supplierId) {
+    return res.status(403).json({ error: 'You may only remove your own blocks.' });
+  }
+  const deleted = supplierCalendarService.deleteBlock(req.params.blockId, supplierId);
+  if (!deleted) return res.status(404).json({ error: 'Block not found.' });
+  db.logAudit(req.user!.userId, req.user!.role, 'BLOCK_DELETED', 'SupplierAvailabilityBlock', req.params.blockId, { supplierId });
+  db.saveToDisk();
+  res.json({ deleted: true });
+});
+
+/** Public: 30-day availability view for a supplier (calendar widget).
+ *
+ * Returns 404 for an unknown supplier. The calendar is a promise the supplier
+ * made ("I am closed these days") — it must never be answered for a supplier
+ * that does not exist, or an invented "free every day" calendar could be
+ * mistaken for real, verified availability.
+ */
+app.get('/api/suppliers/:supplierId/availability', (req: AuthenticatedRequest, res) => {
+  if (!supplierCalendarService.supplierExists(req.params.supplierId)) {
+    return res.status(404).json({ error: 'Supplier not found.' });
+  }
+  const monthStart = (req.query.month as string) || new Date().toISOString().slice(0, 10);
+  const availability = supplierCalendarService.monthlyAvailability(req.params.supplierId, monthStart);
+  res.json({ availability });
+});
+
+// ---------------------------------------------------------------------------
+// Supplier Payouts (blueprint row #12 — 24h hold before settlement)
+// ---------------------------------------------------------------------------
+
+/** Supplier: view own payout schedule. */
+app.get('/api/suppliers/:supplierId/payouts', (req: AuthenticatedRequest, res) => {
+  const supplierId = resolveActingSupplierId(req, req.params.supplierId);
+  if (!supplierId || supplierId !== req.params.supplierId) {
+    return res.status(403).json({ error: 'You may only view your own payouts.' });
+  }
+  res.json({ payouts: payoutService.payoutsForSupplier(supplierId) });
+});
+
+/** Ops/Admin: pending payouts awaiting settlement. */
+app.get('/api/payouts/pending', (req: AuthenticatedRequest, res) => {
+  res.json({ payouts: payoutService.eligiblePayouts() });
+});
+
+// ---------------------------------------------------------------------------
+// Group Planning + Split Pay (blueprint row #16)
+// ---------------------------------------------------------------------------
+
+/** Trip: list members. */
+app.get('/api/trips/:tripId/members', (req: AuthenticatedRequest, res) => {
+  if (!groupPlanningService.isMember(req.params.tripId, req.user!.userId) &&
+      !['Operations', 'Admin'].includes(req.user!.role)) {
+    return res.status(403).json({ error: 'You are not a member of this trip.' });
+  }
+  res.json({ members: groupPlanningService.membersForTrip(req.params.tripId) });
+});
+
+/** Trip owner: invite a member by userId. */
+app.post('/api/trips/:tripId/members', (req: AuthenticatedRequest, res) => {
+  try {
+    const member = groupPlanningService.addMember(
+      req.params.tripId,
+      requiredString(req.body?.userId, 'userId', 128),
+      req.user!.userId,
+    );
+    db.logAudit(req.user!.userId, req.user!.role, 'MEMBER_INVITED', 'TripMember', member.id, { tripId: req.params.tripId });
+    db.saveToDisk();
+    res.status(201).json(member);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Member: accept an invite. */
+app.post('/api/trips/:tripId/members/:memberId/accept', (req: AuthenticatedRequest, res) => {
+  const member = groupPlanningService.acceptInvite(req.params.memberId, req.user!.userId);
+  if (!member) return res.status(404).json({ error: 'Invite not found or already processed.' });
+  db.saveToDisk();
+  res.json(member);
+});
+
+/** Member: decline an invite. */
+app.post('/api/trips/:tripId/members/:memberId/decline', (req: AuthenticatedRequest, res) => {
+  const member = groupPlanningService.declineInvite(req.params.memberId, req.user!.userId);
+  if (!member) return res.status(404).json({ error: 'Invite not found or already processed.' });
+  db.saveToDisk();
+  res.json(member);
+});
+
+/** Trip owner or self: remove/leave a trip. */
+app.delete('/api/trips/:tripId/members/:userId', (req: AuthenticatedRequest, res) => {
+  try {
+    const removed = groupPlanningService.removeMember(req.params.tripId, req.params.userId, req.user!.userId);
+    if (!removed) return res.status(404).json({ error: 'Member not found.' });
+    db.logAudit(req.user!.userId, req.user!.role, 'MEMBER_REMOVED', 'TripMember', req.params.userId, { tripId: req.params.tripId });
+    db.saveToDisk();
+    res.json({ removed: true });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Member: vote on a trip item. */
+app.post('/api/trips/:tripId/items/:itemId/vote', (req: AuthenticatedRequest, res) => {
+  try {
+    const vote = groupPlanningService.submitVote({
+      tripId: req.params.tripId,
+      tripItemId: req.params.itemId,
+      userId: req.user!.userId,
+      vote: requiredEnum(req.body?.vote, ['approve', 'reject'] as const, 'vote'),
+      comment: optionalString(req.body?.comment, 'comment', 500),
+    });
+    db.saveToDisk();
+    res.json(vote);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Trip: vote tally for an item. */
+app.get('/api/trips/:tripId/items/:itemId/votes', (req: AuthenticatedRequest, res) => {
+  const tally = groupPlanningService.voteTally(req.params.itemId);
+  res.json(tally);
+});
+
+/** Owner: create equal split. */
+app.post('/api/trips/:tripId/splits/equal', (req: AuthenticatedRequest, res) => {
+  try {
+    if (!groupPlanningService.isOwner(req.params.tripId, req.user!.userId)) {
+      return res.status(403).json({ error: 'Only the trip owner can create splits.' });
+    }
+    const splits = groupPlanningService.createEqualSplit(
+      req.params.tripId,
+      requiredAmountEGP(req.body?.totalEGP, 'totalEGP'),
+    );
+    db.logAudit(req.user!.userId, req.user!.role, 'SPLIT_CREATED', 'TripSplit', req.params.tripId, { type: 'equal' });
+    db.saveToDisk();
+    res.json({ splits });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Owner: create custom split. */
+app.post('/api/trips/:tripId/splits/custom', (req: AuthenticatedRequest, res) => {
+  try {
+    if (!groupPlanningService.isOwner(req.params.tripId, req.user!.userId)) {
+      return res.status(403).json({ error: 'Only the trip owner can create splits.' });
+    }
+    const splits = groupPlanningService.createCustomSplit(
+      req.params.tripId,
+      req.body?.splits || [],
+      requiredAmountEGP(req.body?.totalEGP, 'totalEGP'),
+    );
+    db.logAudit(req.user!.userId, req.user!.role, 'SPLIT_CREATED', 'TripSplit', req.params.tripId, { type: 'custom' });
+    db.saveToDisk();
+    res.json({ splits });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Member: record a payment toward their split. */
+app.post('/api/trips/:tripId/splits/:userId/pay', (req: AuthenticatedRequest, res) => {
+  try {
+    // Only the member themselves or Ops/Admin can record payment.
+    if (req.params.userId !== req.user!.userId &&
+        !['Operations', 'Admin'].includes(req.user!.role)) {
+      return res.status(403).json({ error: 'You may only record your own payments.' });
+    }
+    const split = groupPlanningService.recordPayment(
+      req.params.tripId,
+      req.params.userId,
+      requiredAmountEGP(req.body?.amountEGP, 'amountEGP'),
+    );
+    if (!split) return res.status(404).json({ error: 'No split found for this member.' });
+    db.saveToDisk();
+    res.json(split);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** Trip: split status summary. */
+app.get('/api/trips/:tripId/splits', (req: AuthenticatedRequest, res) => {
+  const splits = groupPlanningService.splitsForTrip(req.params.tripId);
+  const status = groupPlanningService.splitStatus(req.params.tripId);
+  res.json({ splits, status });
 });
 
 app.post('/api/suppliers/bookings/:bookingId/respond', (req: AuthenticatedRequest, res) => {
@@ -1909,6 +2952,14 @@ app.get('/api/suppliers', (req: AuthenticatedRequest, res) => {
   res.json({ suppliers });
 });
 
+app.get('/api/suppliers/:supplierId/reliability', (req, res) => {
+  const { supplierId } = req.params;
+  const supplier = db.suppliers.find(s => s.id === supplierId);
+  if (!supplier) return res.status(404).json({ status: 'error', message: 'Supplier not found' });
+  const score = reliabilityService.computeReliability(supplierId);
+  res.json({ status: 'success', score });
+});
+
 app.get('/api/suppliers/:supplierId/bookings', (req: AuthenticatedRequest, res) => {
   const supplierId = resolveActingSupplierId(req, req.params.supplierId);
   if (!supplierId || supplierId !== req.params.supplierId) {
@@ -1933,9 +2984,16 @@ app.post('/api/suppliers/bookings/:bookingId/status', (req: AuthenticatedRequest
       return res.status(403).json({ error: 'You may only update your own bookings.' });
     }
 
-    const ALLOWED_SUPPLIER_STATES = ['PENDING_CONFIRMATION', 'CONFIRMED', 'ASSIGNED', 'DISPATCHED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'CANCELLED'];
-    if (!ALLOWED_SUPPLIER_STATES.includes(supplierState)) {
-      return res.status(400).json({ error: `Invalid supplierState '${supplierState}'.` });
+    // Validate the transition using the lifecycle state machine.
+    // Without this, a supplier could jump from PENDING_CONFIRMATION to
+    // COMPLETED, bypassing the ASSIGNED and DISPATCHED states.
+    const { canTransition } = require('./server/services/bookingLifecycle');
+    if (!canTransition(booking.supplierState, supplierState)) {
+      return res.status(409).json({
+        error: `Cannot transition from "${booking.supplierState}" to "${supplierState}".`,
+        currentState: booking.supplierState,
+        requestedState: supplierState
+      });
     }
 
     const updated = transferService.updateSupplierStatus(bookingId, supplierState, resource);
@@ -2095,6 +3153,86 @@ app.get('/api/operations/notifications', (req, res) => {
   res.json({ notifications, summary });
 });
 
+// ---------------------------------------------------------------------------
+// Dahab Intelligence Core — admin control plane.
+//
+// Deterministic tool router over existing services. Identity always comes
+// from the session; the model only proposes tool calls. Mutations require
+// an expiring confirmation token and are re-authorized at execution time.
+// ---------------------------------------------------------------------------
+
+app.post('/api/intelligence-core/query', async (req: AuthenticatedRequest, res) => {
+  try {
+    const text = requiredString(req.body?.text ?? req.body?.query, 'text', 2000);
+    const context = req.body?.context && typeof req.body.context === 'object' ? req.body.context : {};
+    const safeContext = {
+      route: typeof context.route === 'string' ? context.route.slice(0, 256) : undefined,
+      section: typeof context.section === 'string' ? context.section.slice(0, 64) : undefined,
+      filters: context.filters && typeof context.filters === 'object' ? context.filters : undefined,
+      selectedBookingId: typeof context.selectedBookingId === 'string' ? context.selectedBookingId.slice(0, 128) : undefined,
+      selectedSupplierId: typeof context.selectedSupplierId === 'string' ? context.selectedSupplierId.slice(0, 128) : undefined,
+      selectedProductId: typeof context.selectedProductId === 'string' ? context.selectedProductId.slice(0, 128) : undefined,
+      language: req.body?.language === 'ar' ? 'ar' : 'en',
+    };
+    const result = await intelligenceCoreService.query({
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+      text,
+      context: safeContext,
+      language: req.body?.language === 'ar' ? 'ar' : 'en',
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message || 'Intelligence Core query failed.' });
+  }
+});
+
+app.get('/api/intelligence-core/attention', async (req: AuthenticatedRequest, res) => {
+  try {
+    const result = await intelligenceCoreService.getAttention({
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message || 'Attention queue unavailable.' });
+  }
+});
+
+app.post('/api/intelligence-core/action', async (req: AuthenticatedRequest, res) => {
+  try {
+    const tool = requiredString(req.body?.tool, 'tool', 64);
+    const params = req.body?.params && typeof req.body.params === 'object' ? req.body.params : {};
+    const bulkIds = Array.isArray(req.body?.bulkIds)
+      ? req.body.bulkIds.filter((x: unknown) => typeof x === 'string').slice(0, 50)
+      : undefined;
+    const result = await intelligenceCoreService.requestAction({
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+      tool,
+      params,
+      bulkIds,
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message || 'Action request failed.' });
+  }
+});
+
+app.post('/api/intelligence-core/confirm', async (req: AuthenticatedRequest, res) => {
+  try {
+    const token = requiredString(req.body?.token, 'token', 128);
+    const result = await intelligenceCoreService.confirmAction({
+      userId: req.user!.userId,
+      userRole: req.user!.role,
+      token,
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message || 'Confirmation failed.' });
+  }
+});
+
 /** POST /api/operations/sms-dispatch — Send SMS with audit */
 app.post('/api/operations/sms-dispatch', async (req: AuthenticatedRequest, res) => {
   const { to, recipientName, recipientRole, message, bookingRef, channel } = req.body;
@@ -2182,6 +3320,71 @@ app.get('/api/sms/logs', (req, res) => {
   res.json({ count: logs.length, logs });
 });
 
+// ---------------------------------------------------------------------------
+// 8b. Web Push (VAPID tickles over in-app notifications)
+// ---------------------------------------------------------------------------
+
+// The app's public VAPID key, for PushManager.subscribe(). Public by design;
+// the route itself still requires a session (deny-by-default, no exception).
+app.get('/api/push/vapid-key', (_req, res) => {
+  if (!vapidConfigured()) {
+    return res.status(503).json({
+      status: 'error',
+      message: 'Push delivery is not configured (VAPID_*). In-app notifications still work.',
+    });
+  }
+  res.json({ status: 'success', publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
+app.post('/api/push/subscribe', (req: AuthenticatedRequest, res) => {
+  try {
+    // `keys` is a nested object, which pickAllowedKeys deliberately rejects —
+    // it travels raw and the service validates its shape (p256dh/auth).
+    const body = pickAllowedKeys(req.body || {}, ['endpoint', 'userAgent'], 'body');
+    const keys = ((req.body || {}) as { keys?: unknown }).keys as { p256dh?: unknown; auth?: unknown } | undefined;
+    const { subscription, created } = pushService.subscribePush(req.user!.userId, {
+      endpoint: requiredString(body.endpoint, 'endpoint', 2000),
+      keys: {
+        p256dh: requiredString(keys?.p256dh, 'keys.p256dh', 500),
+        auth: requiredString(keys?.auth, 'keys.auth', 500),
+      },
+      ...(body.userAgent !== undefined ? { userAgent: optionalString(body.userAgent, 'userAgent', 500) } : {}),
+    });
+    res.status(created ? 201 : 200).json({ status: 'success', subscription });
+  } catch (err: any) {
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+});
+
+app.delete('/api/push/subscribe', (req: AuthenticatedRequest, res) => {
+  try {
+    const endpoint = requiredString((req.body || {}).endpoint, 'endpoint', 2000);
+    const removed = pushService.unsubscribePush(endpoint, req.user!.userId);
+    if (!removed) return res.status(404).json({ status: 'error', message: 'Push subscription not found' });
+    res.json({ status: 'success', message: 'Push subscription removed' });
+  } catch (err: any) {
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+});
+
+// Ops broadcast: SOS-grade nudge to one traveler's browsers. The durable
+// in-app notification is always written; `push.delivered` says whether any
+// realtime nudge actually left the server.
+app.post('/api/admin/push/send', async (req: AuthenticatedRequest, res) => {
+  try {
+    const body = pickAllowedKeys(req.body || {}, ['userId', 'title', 'message', 'urgency'], 'body');
+    const summary = await pushService.notifyUser(requiredString(body.userId, 'userId', 128), {
+      type: 'DISPATCH_UPDATE',
+      title: requiredString(body.title, 'title', 200),
+      message: requiredString(body.message, 'message', 2000),
+      urgency: body.urgency === 'high' ? 'high' : 'normal',
+    });
+    res.json({ status: 'success', ...summary });
+  } catch (err: any) {
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+});
+
 app.post('/api/sms/send-dispatch', async (req, res) => {
   try {
     const { to, recipientName, recipientRole, message, bookingRef, channel } = req.body;
@@ -2196,7 +3399,10 @@ app.post('/api/sms/send-dispatch', async (req, res) => {
       bookingRef,
       channel: channel || 'TWILIO_SMS'
     });
-    res.json({ success: true, record });
+    // The record carries the honesty contract: `simulated:true` means no
+    // provider accepted the message and nothing reached a phone. Surfaced
+    // top-level so ops clients cannot miss it inside the record.
+    res.json({ success: true, delivered: !record.simulated, simulated: record.simulated, record });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -3009,6 +4215,68 @@ app.get('/api/telemetry/weather', async (_req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// 4.1a. Modeled sea state + water-activity suitability
+// ---------------------------------------------------------------------------
+app.get('/api/telemetry/marine', async (_req, res) => {
+  /**
+   * Sea state from the Open-Meteo marine MODEL — labeled as such everywhere
+   * it surfaces. See marineService.ts for why this endpoint exists in this
+   * exact shape: wave heights are displayed, never judged; verdicts come only
+   * from measured wind against written thresholds (corpus maxWindKnots, then
+   * the research bands). A model run nobody could read is a 503, not a calm sea.
+   */
+  const [marine, weather] = await Promise.all([
+    marineService.getCurrentReading(),
+    weatherService.getCurrentConditions(),
+  ]);
+
+  if (!marine) {
+    return res.status(503).json({
+      location: 'Dahab, South Sinai, Egypt',
+      coordinates: { lat: 28.48, lng: 34.51 },
+      available: false,
+      reason: 'Live sea state could not be read from the marine model.',
+    });
+  }
+
+  const suitability =
+    weather && typeof weather.windKnots === 'number'
+      ? db.activities
+          .filter(a => isWaterActivity(a.category))
+          .slice(0, 24)
+          .map(a => {
+            const assessment = assessActivity(a, weather.windKnots);
+            return {
+              activityId: a.id,
+              title: a.titleEn,
+              titleAr: a.titleAr,
+              verdict: assessment.verdict,
+              reasons: assessment.reasons,
+            };
+          })
+      : [];
+
+  res.json({
+    location: 'Dahab, South Sinai, Egypt',
+    coordinates: { lat: 28.48, lng: 34.51 },
+    available: true,
+    observedAt: marine.observedAt,
+    source: marine.source,
+    kind: marine.kind,
+    reading: {
+      waveHeightM: marine.waveHeightM,
+      windWaveM: marine.windWaveM,
+      swellWaveM: marine.swellWaveM,
+      swellDirectionDegrees: marine.swellDirectionDegrees,
+      swellPeriodSeconds: marine.swellPeriodSeconds,
+      waterTempC: marine.waterTempC,
+    },
+    windKnots: weather && typeof weather.windKnots === 'number' ? weather.windKnots : null,
+    suitability,
+  });
+});
+
+// ---------------------------------------------------------------------------
 // 4.1b. Research-grounded homepage handbook (season / experiences / landmarks / safety)
 // ---------------------------------------------------------------------------
 app.get('/api/research/dahab-overview', (_req, res) => {
@@ -3181,9 +4449,13 @@ Return ONLY valid JSON matching this schema:
       recordQuotaAvailable();
       const parsed = JSON.parse(response.text || '{}');
       if (parsed.days && parsed.days.length > 0) {
+        // Availability-join: replace every AI-hallucinated price with the real
+        // database price and attach bookability. The raw itinerary is preserved
+        // so the client can still show the full AI narrative.
+        const { enriched } = enrichTripWithAvailability(parsed);
         return res.json({
           generatedWith: GEMINI_MODEL,
-          trip: parsed
+          trip: enriched
         });
       }
     } catch (err) {
@@ -3192,76 +4464,77 @@ Return ONLY valid JSON matching this schema:
     }
   }
 
-  // Deterministic Fallback Itinerary
-  res.json({
-    generatedWith: 'dahab-deterministic-core',
-    trip: {
-      tripTitle: `${durationDays}-Day Authentic Dahab Experience`,
-      tripTitleAr: `رحلة دهب الأصيلة — ${durationDays} أيام`,
-      summary: 'A balanced blend of world-class Red Sea reef diving, breathtaking Sinai canyon safaris, and relaxing seaside Bedouin dinners.',
-      summaryAr: 'مزيج متوازن يجمع بين غوص الشعاب المرجانية، ومغامرات الكانيون الجبلية، وسهرات العشاء البدوي الهادئة على البحر.',
-      totalEstimatedEGP: 16800,
-      fitScore: 96,
-      days: [
-        {
-          dayNumber: 1,
-          title: 'Arrival, Oceanfront Check-in & Sunset Lighthouse Promenade',
-          titleAr: 'الوصول، تسجيل الإقامة، وجلسة غروب اللايتهاوس',
-          theme: 'Arrival & Acclimatization',
-          activities: [
-            {
-              id: 'act-1-1',
-              title: 'Private Airport Transfer from SSH Airport',
-              titleAr: 'انتقال خاص ومريح من مطار شرم الشيخ',
-              timeSlot: '10:30 AM',
-              location: 'SSH Airport → Dahab',
-              category: 'transfer',
-              estimatedPriceEGP: 1400,
-              description: 'Comfortable air-conditioned private vehicle with experienced local driver.'
-            },
-            {
-              id: 'act-1-2',
-              title: 'Lighthouse Sunset Snorkel & Habak Tea on Shore',
-              titleAr: 'سنوركلينج الغروب باللايتهاوس وشاي بالحبق',
-              timeSlot: '05:00 PM',
-              location: 'Lighthouse Promenade',
-              category: 'relax',
-              estimatedPriceEGP: 250,
-              description: 'Gentle shore entry with vibrant corals and panoramic views of the Saudi mountain silhouette.'
-            }
-          ]
-        },
-        {
-          dayNumber: 2,
-          title: 'The Canyon Slits & Blue Hole Natural Sanctuary',
-          titleAr: 'غطس الكانيون ومحمية البلو هول العالمية',
-          theme: 'World-Class Diving',
-          activities: [
-            {
-              id: 'act-2-1',
-              title: 'Guided Morning Dive at The Canyon & Bells',
-              titleAr: 'غطسة صباحية استرشادية بالكانيون والبيلز',
-              timeSlot: '09:00 AM',
-              location: 'The Canyon, Dahab',
-              category: 'diving',
-              estimatedPriceEGP: 1350,
-              description: 'Explore the natural light curtains inside the cavern under the guidance of certified PADI instructors.'
-            },
-            {
-              id: 'act-2-2',
-              title: 'Seaside Fresh Catch Lunch at Eel Garden Beach',
-              titleAr: 'غداء سمك طازج على شاطئ إيل جاردن',
-              timeSlot: '01:30 PM',
-              location: 'Eel Garden Promenade',
-              category: 'food',
-              estimatedPriceEGP: 450,
-              description: 'Grilled Red Sea fish with Bedouin tahini and fresh local salads.'
-            }
-          ]
-        }
-      ]
-    }
+  // Deterministic Fallback Itinerary.
+  // The hardcoded estimatedPriceEGP values below are budget estimates only;
+  // enrichment replaces them with real database prices and marks each item's
+  // bookability. The client never sees the raw estimates.
+  const { enriched } = enrichTripWithAvailability({
+    tripTitle: `${durationDays}-Day Authentic Dahab Experience`,
+    tripTitleAr: `رحلة دهب الأصيلة — ${durationDays} أيام`,
+    summary: 'A balanced blend of world-class Red Sea reef diving, breathtaking Sinai canyon safaris, and relaxing seaside Bedouin dinners.',
+    summaryAr: 'مزيج متوازن يجمع بين غوص الشعاب المرجانية، ومغامرات الكانيون الجبلية، وسهرات العشاء البدوي الهادئة على البحر.',
+    totalEstimatedEGP: 0,
+    fitScore: 96,
+    days: [
+      {
+        dayNumber: 1,
+        title: 'Arrival, Oceanfront Check-in & Sunset Lighthouse Promenade',
+        titleAr: 'الوصول، تسجيل الإقامة، وجلسة غروب اللايتهاوس',
+        theme: 'Arrival & Acclimatization',
+        activities: [
+          {
+            id: 'act-1-1',
+            title: 'Private Airport Transfer from SSH Airport',
+            titleAr: 'انتقال خاص ومريح من مطار شرم الشيخ',
+            timeSlot: '10:30 AM',
+            location: 'SSH Airport → Dahab',
+            category: 'transfer',
+            estimatedPriceEGP: 1400,
+            description: 'Comfortable air-conditioned private vehicle with experienced local driver.'
+          },
+          {
+            id: 'act-1-2',
+            title: 'Lighthouse Sunset Snorkel & Habak Tea on Shore',
+            titleAr: 'سنوركلينج الغروب باللايتهاوس وشاي بالحبق',
+            timeSlot: '05:00 PM',
+            location: 'Lighthouse Promenade',
+            category: 'relax',
+            estimatedPriceEGP: 250,
+            description: 'Gentle shore entry with vibrant corals and panoramic views of the Saudi mountain silhouette.'
+          }
+        ]
+      },
+      {
+        dayNumber: 2,
+        title: 'The Canyon Slits & Blue Hole Natural Sanctuary',
+        titleAr: 'غطس الكانيون ومحمية البلو هول العالمية',
+        theme: 'World-Class Diving',
+        activities: [
+          {
+            id: 'act-2-1',
+            title: 'Guided Morning Dive at The Canyon & Bells',
+            titleAr: 'غطسة صباحية استرشادية بالكانيون والبيلز',
+            timeSlot: '09:00 AM',
+            location: 'The Canyon, Dahab',
+            category: 'diving',
+            estimatedPriceEGP: 1350,
+            description: 'Explore the natural light curtains inside the cavern under the guidance of certified PADI instructors.'
+          },
+          {
+            id: 'act-2-2',
+            title: 'Seaside Fresh Catch Lunch at Eel Garden Beach',
+            titleAr: 'غداء سمك طازج على شاطئ إيل جاردن',
+            timeSlot: '01:30 PM',
+            location: 'Eel Garden Promenade',
+            category: 'food',
+            estimatedPriceEGP: 450,
+            description: 'Grilled Red Sea fish with Bedouin tahini and fresh local salads.'
+          }
+        ]
+      }
+    ]
   });
+  res.json({ generatedWith: 'dahab-deterministic-core', trip: enriched });
 });
 
 // ---------------------------------------------------------------------------
@@ -3309,7 +4582,16 @@ async function setupViteOrStatic() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+
+    // Static assets with immutable cache (Vite fingerprints filenames).
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+    }));
+    // Other static files (favicon, manifest, etc.) — short cache.
+    app.use(express.static(distPath, {
+      maxAge: '1h',
+    }));
 
     // §6d — server-side <meta> injection (the 80% of prerendering with 40
     // lines and zero render risk; real SSR is deliberately deferred).
@@ -3339,9 +4621,17 @@ async function setupViteOrStatic() {
               '/faq': 'faq',
               '/travel-guides': 'travel-guides',
             };
-            const slug = byPath[p.replace(/\/+$/, '')];
-            if (!slug) return null;
-            return cmsPages.findBySlug(slug);
+            const clean = p.replace(/\/+$/, '');
+            const direct = byPath[clean];
+            if (direct) return cmsPages.findBySlug(direct);
+            // Trip programmes are CMS pages addressed by slug
+            // (/programs/:slug): published rows get crawler-ready heads.
+            const progMatch = clean.match(/^\/programs\/([^/]+)$/);
+            if (progMatch) {
+              const page = cmsPages.findBySlug(decodeURIComponent(progMatch[1]).trim());
+              if (page && page.type === 'trip_program') return page;
+            }
+            return null;
           },
           hotelForPath: (p) => {
             const m = p.match(/^\/hotels\/([^/]+)$/);
@@ -3358,6 +4648,12 @@ async function setupViteOrStatic() {
       );
 
       if (!meta) {
+        // Unknown paths are real 404s (noindex is implied by the client's
+        // /404 view having no indexable content, but the status is what
+        // tells crawlers to drop the URL). Known client routes keep 200.
+        if (!isKnownClientPath(pathname)) {
+          res.status(404);
+        }
         res.sendFile(html);
         return;
       }
@@ -3384,7 +4680,9 @@ async function setupViteOrStatic() {
   // Resolve Firebase credentials once at boot so /api/health reports real
   // readiness rather than "an app object was constructed".
   firebaseAdminService.verifyConfiguration().then(ok => {
-    console.log(`[Boot] Firebase federated sign-in: ${ok ? 'available' : 'UNAVAILABLE (credentials missing)'}`);
+    log.info('boot', 'federated sign-in credential check', {
+      federatedSignIn: ok ? 'available' : 'unavailable'
+    });
   });
 
   // Expired sessions were previously removed only on explicit logout, so dead
@@ -3403,19 +4701,47 @@ async function setupViteOrStatic() {
   // boot and hourly, mirroring the retention sweep.
   rentalService.startScheduledSweep();
 
-  // CMS: Check for scheduled content publishing at boot and every 60 seconds
+  // Payouts: settle 24h-held supplier payouts every 60s (blueprint row #12).
+  payoutService.startPayoutSweep();
+
+  // Ambient nudges: proactive companion nudges every 5 min (blueprint row #15).
+  ambientNudgeService.startAmbientSweep();
+
+  // Backups: one verified pass at boot (post-migration baseline), then on
+  // BACKUP_INTERVAL_HOURS (default 6h), keeping BACKUP_KEEP_COUNT (default
+  // 7). The schedule is unref'd like every other interval here.
+  scheduledBackupPass();
+  startBackupSchedule();
+
+  // CMS: Check for scheduled content publishing at boot and every 60 seconds.
+  // Pages and catalog bindings whose scheduled_at has passed go live without
+  // an admin pressing "check". Both check functions only flip past-due rows,
+  // so overlapping ticks (or two instances racing) cannot double-publish;
+  // the worst case is a duplicate audit row.
   const checkScheduled = () => {
     try {
       const published = cmsPages.checkScheduled();
-      if (published.length > 0) {
-        console.log(`[CMS] Scheduled publishing: ${published.length} page(s) published`);
+      const bindings = catalogBindings.checkScheduled();
+      const n = published.length + bindings.length;
+      if (n > 0) {
+        console.log(`[CMS] Scheduled publishing: ${published.length} page(s), ${bindings.length} binding set(s) published`);
       }
     } catch (err: any) {
       console.error('[CMS] Scheduled publishing check failed:', err.message);
     }
   };
   checkScheduled();
-  setInterval(checkScheduled, 60_000);
+  setInterval(checkScheduled, 60_000).unref();
+
+  // Release expired inventory holds every 60 seconds so slots are freed
+  // even when nobody is actively booking. Without this sweep, expired holds
+  // keep their heldCapacity until the next createHold or checkAvailability
+  // call, which can leave a slot appearing sold-out indefinitely.
+  setInterval(() => {
+    try {
+      commerceService.releaseExpiredHolds();
+    } catch {}
+  }, 60_000).unref();
 
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Dahab Platform server running on http://0.0.0.0:${PORT}`);

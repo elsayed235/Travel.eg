@@ -42,7 +42,7 @@ import {
   FeatureRegisterItem
 } from '../types/intelligence';
 import type { TripEntity, TripItemWithSupplier } from '../shared/types/trip';
-import { User } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 import { AuthRole, SessionUser } from './AuthContext';
 import {
   buildSingleTravelerContext,
@@ -66,7 +66,7 @@ export {
 export const INITIAL_TRANSFER_TRACKING: TransferTrackingRecord = DEFAULT_ANONYMOUS_TRANSFER;
 
 // Sub-domain hook imports
-import { useUI } from './UIContext';
+import { useUI, type UiToast } from './UIContext';
 import { useAuth } from './AuthContext';
 import { useCommerce } from './CommerceContext';
 import { useIntelligence } from './IntelligenceContext';
@@ -106,7 +106,7 @@ export interface TripContextType {
   isEasyMode: boolean;
   setIsEasyMode: (val: boolean) => void;
   toggleEasyMode: () => void;
-  toast: string | null;
+  toasts: UiToast[];
   showToast: (msg: string) => void;
   navigateTo: (route: AppRoute, params?: RouteParams) => void;
   /** Returns to the previous page, or home on a cold entry. See UIContext. */
@@ -311,7 +311,15 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
     },
-    [itinerary.profile, ui.activePersonaMode, travelerContext]
+    [
+      itinerary.profile.travelersCount,
+      itinerary.profile.budget,
+      itinerary.profile.pace,
+      itinerary.profile.interests,
+      ui.activePersonaMode,
+      travelerContext.activeJourneyPhase,
+      travelerContext.currentLocation.name
+    ]
   );
 
   const loadDemoSimulation = useCallback(
@@ -339,9 +347,9 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deliveryAddress: 'Lighthouse Sea View Palapa #4, Dahab'
       });
       itinerary.setSavedItems(['rec-blue-hole', 'rec-ali-baba', 'near-ralphs']);
-      ui.showToast('Demo simulation activated for testing ✨');
+      ui.showToast('Demo simulation activated for testing');
     },
-    [itinerary, commerce, ui]
+    []
   );
 
   const resetToAnonymousState = useCallback(() => {
@@ -356,7 +364,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ui.setJourneyStage('discover');
     ui.setActivePersonaMode('PRE_TRIP');
     ui.showToast('تمت إعادة الضبط للوضع العام المجهول.');
-  }, [auth, itinerary, commerce, ui]);
+  }, []);
 
   /**
    * Derived once, here, from the traveler's real trip and bookings. The
@@ -411,7 +419,7 @@ export const TripProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isEasyMode: ui.isEasyMode,
       setIsEasyMode: ui.setIsEasyMode,
       toggleEasyMode: ui.toggleEasyMode,
-      toast: ui.toast,
+      toasts: ui.toasts,
       showToast: ui.showToast,
       navigateTo: ui.navigateTo,
       activeDayGiPrompt: ui.activeDayGiPrompt,

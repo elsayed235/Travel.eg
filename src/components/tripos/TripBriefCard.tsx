@@ -16,9 +16,17 @@ import { useTrip } from '../../context/TripContext';
 
 interface TripBriefCardProps {
   onOpenEditModal: () => void;
+  /**
+   * The traveler's chosen day count, when the plan on screen was shaped by
+   * the wizard's duration choice (no saved trip exists yet, so the context's
+   * tripBrief still carries the compiled default). Falls back to tripBrief.
+   */
+  durationDaysOverride?: number;
+  /** Traveler count from the wizard, for the same reason. */
+  travelersCountOverride?: number;
 }
 
-export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal }) => {
+export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal, durationDaysOverride, travelersCountOverride }) => {
   const { language, isRTL , t} = useLanguage();
   const { tripBrief, profile, user } = useTrip();
 
@@ -70,7 +78,7 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
             <span>{t('tripos.duration')}</span>
           </div>
           <div className="text-sm font-extrabold text-[var(--text-primary)]">
-            {t('tripos.days4Nights', { durationDays: tripBrief.durationDays })}
+            {t('tripos.days4Nights', { durationDays: durationDaysOverride ?? tripBrief.durationDays })}
           </div>
         </div>
 
@@ -80,7 +88,10 @@ export const TripBriefCard: React.FC<TripBriefCardProps> = ({ onOpenEditModal })
             <span>{t('tripos.travelers')}</span>
           </div>
           <div className="text-sm font-extrabold text-[var(--text-primary)]">
-            {t('tripos.travelersWithDynamic', { travelersCount: tripBrief.travelersCount, tripDynamic: tripBrief.tripDynamic })}
+            {t('tripos.travelersWithDynamic', {
+              travelersCount: travelersCountOverride ?? tripBrief.travelersCount,
+              tripDynamic: tripBrief.tripDynamic,
+            })}
           </div>
         </div>
 

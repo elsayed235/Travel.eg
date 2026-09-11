@@ -17,7 +17,7 @@ import {
 } from '../middleware/queryParams';
 import { dahabKnowledgeOs } from '../services/dahabKnowledgeOs';
 import { buildAttractionCatalogue, filterAttractions, AttractionSort } from '../services/attractionsCatalogue';
-import { unifiedSearchEngine } from '../services/unifiedSearchEngine';
+import { unifiedSearchEngine, toSearchResultItems } from '../services/unifiedSearchEngine';
 import { geointelligenceService } from '../services/geointelligenceService';
 import { rankingEngine } from '../services/rankingEngine';
 import { commerceIntelligenceService } from '../services/commerceIntelligenceService';
@@ -28,6 +28,15 @@ import { db } from '../db/database';
 import { resolveBookability } from '../services/bookabilityReconciler';
 
 import { MediaAssetService } from '../services/mediaAssetService';
+import {
+  getPublishedOverlays,
+  applyPlaceOverlay,
+  applyActivityOverlay,
+  applyAreaOverlay,
+  applyDiningOverlay,
+  applyAttractionOverlays,
+  type PublishedOverlay,
+} from '../services/catalogContentService';
 
 export const dahabRouter = Router();
 
@@ -58,13 +67,47 @@ const withBookability = <T extends { skuId?: string }>(activity: T) => ({
 });
 
 /**
+ * Published CMS copy/imagery overlays for DKOS reads. Each helper batches one
+ * indexed query per entity kind and returns views UNCHANGED when nothing is
+ * published, so responses are identical until an editor publishes.
+ */
+function overlayById<T extends { id: string }>(
+  kind: 'place' | 'activity' | 'area' | 'dining_venue',
+  views: T[],
+  apply: (view: T, overlay: PublishedOverlay | null) => T
+): T[] {
+  if (!views || views.length === 0) return views;
+  try {
+    const map = getPublishedOverlays(kind, views.map(v => v?.id).filter(Boolean));
+    let touched = false;
+    const next = views.map(v => {
+      const overlay = v?.id ? map[v.id] ?? null : null;
+      if (overlay) touched = true;
+      return overlay ? apply(v, overlay) : v;
+    });
+    return touched ? next : views;
+  } catch {
+    return views;
+  }
+}
+
+const withPlaceOverlays = <T extends { id: string }>(views: T[]): T[] =>
+  overlayById('place', views, applyPlaceOverlay);
+const withActivityOverlays = <T extends { id: string }>(views: T[]): T[] =>
+  overlayById('activity', views, applyActivityOverlay);
+const withAreaOverlays = <T extends { id: string }>(views: T[]): T[] =>
+  overlayById('area', views, applyAreaOverlay);
+const withDiningOverlays = <T extends { id: string }>(views: T[]): T[] =>
+  overlayById('dining_venue', views, applyDiningOverlay);
+
+/**
  * GET /api/dahab/context
  * Primary overview of Dahab conditions, areas, and top highlights
  */
 dahabRouter.get('/context', (req: AuthenticatedRequest, res: Response) => {
   const conditions = dahabKnowledgeOs.getLiveConditions();
-  const areas = dahabKnowledgeOs.getAllAreas();
-  const highlights = db.activities.slice(0, 4).map(withBookability);
+  const areas = withAreaOverlays(dahabKnowledgeOs.getAllAreas());
+  const highlights = withActivityOverlays(db.activities.slice(0, 4).map(withBookability));
 
   res.json({
     status: 'success',
@@ -91,6 +134,11 @@ dahabRouter.get('/search', (req: AuthenticatedRequest, res: Response) => {
     status: 'success',
     query,
     ...result,
+    // Flat wire items for the SearchDrawer (it reads `results`; the rich
+    // `recommendations` stay for detail consumers). Suggestions echo the
+    // parsed interests so follow-up searches stay in-vocabulary.
+    results: toSearchResultItems(result.recommendations),
+    suggestions: result.parsedIntent.interests,
     correlationId: req.correlationId
   });
 });
@@ -100,7 +148,7 @@ dahabRouter.get('/search', (req: AuthenticatedRequest, res: Response) => {
  * List all validated Dahab Area Profiles
  */
 dahabRouter.get('/areas', (req: AuthenticatedRequest, res: Response) => {
-  const areas = dahabKnowledgeOs.getAllAreas();
+  const areas = withAreaOverlays(dahabKnowledgeOs.getAllAreas());
   res.json({
     status: 'success',
     count: areas.length,
@@ -128,10 +176,10 @@ dahabRouter.get('/areas/:id', (req: AuthenticatedRequest, res: Response) => {
 
   res.json({
     status: 'success',
-    area,
-    places,
-    activities,
-    dining,
+    area: withAreaOverlays([area])[0],
+    places: withPlaceOverlays(places),
+    activities: withActivityOverlays(activities.map(withBookability)),
+    dining: withDiningOverlays(dining),
     correlationId: req.correlationId
   });
 });
@@ -149,7 +197,7 @@ dahabRouter.get('/places', (req: AuthenticatedRequest, res: Response) => {
   res.json({
     status: 'success',
     count: places.length,
-    places,
+    places: withPlaceOverlays(places),
     correlationId: req.correlationId
   });
 });
@@ -171,7 +219,7 @@ dahabRouter.get('/places/:id', (req: AuthenticatedRequest, res: Response) => {
 
   res.json({
     status: 'success',
-    place,
+    place: withPlaceOverlays([place])[0],
     facts,
     correlationId: req.correlationId
   });
@@ -195,7 +243,7 @@ dahabRouter.get('/activities', (req: AuthenticatedRequest, res: Response) => {
   res.json({
     status: 'success',
     count: activities.length,
-    activities: activities.map(withBookability),
+    activities: withActivityOverlays(activities.map(withBookability)),
     correlationId: req.correlationId
   });
 });
@@ -215,7 +263,7 @@ dahabRouter.get('/activities/:id', (req: AuthenticatedRequest, res: Response) =>
 
   res.json({
     status: 'success',
-    activity: withBookability(activity),
+    activity: withActivityOverlays([withBookability(activity)])[0],
     correlationId: req.correlationId
   });
 });
@@ -248,7 +296,7 @@ dahabRouter.get('/attractions', (req: AuthenticatedRequest, res: Response) => {
     galleryPhotos: GALLERY_PHOTOS
   });
 
-  const attractions = filterAttractions(catalogue.attractions, { category, q, area, sort, order });
+  const attractions = applyAttractionOverlays(filterAttractions(catalogue.attractions, { category, q, area, sort, order }));
 
   res.json({
     status: 'success',
@@ -330,7 +378,7 @@ dahabRouter.get('/food', (req: AuthenticatedRequest, res: Response) => {
   res.json({
     status: 'success',
     count: normalized.length,
-    venues: normalized,
+    venues: withDiningOverlays(normalized),
     filters: { area, cuisine, price, query, sort, order: order === 1 ? 'asc' : 'desc' },
     correlationId: req.correlationId
   });

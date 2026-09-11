@@ -57,7 +57,7 @@ export const HomeEssenceBento: React.FC<HomeEssenceBentoProps> = ({ onOpenQuickB
   };
 
   const tileBase =
-    'dahab-spotlight group relative rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-lg hover:shadow-2xl hover:-translate-y-1 active:scale-[0.99] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 text-start cursor-pointer flex flex-col justify-between';
+    'dahab-spotlight group relative rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-lg hover:shadow-2xl hover:-translate-y-1 active:scale-[0.99] transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 text-start cursor-pointer flex flex-col justify-between aurora-hover';
 
   return (
     <SectionReveal>
@@ -75,7 +75,7 @@ export const HomeEssenceBento: React.FC<HomeEssenceBentoProps> = ({ onOpenQuickB
           </h2>
           <div
             className="mt-4 h-[2px] w-full rounded-full"
-            style={{ background: 'linear-gradient(90deg, #1B2452, #E8A33D 45%, #1B9A8B)' }}
+            style={{ background: 'linear-gradient(90deg, #2A2622, var(--accent-primary) 45%, #1B9A8B)' }}
             aria-hidden="true"
           />
           <p className="mt-3 text-sm text-[var(--text-secondary)]">{pick('subtitle', 'home.essence.subtitle')}</p>

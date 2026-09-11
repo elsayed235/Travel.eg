@@ -9,6 +9,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
 import type { DahabAttraction, AttractionCategory } from '../../shared/types/knowledge';
+import { CategoryIcon, type CategoryKind } from '../common/CategoryIcon';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -21,18 +22,18 @@ const durationLabel = (minutes?: number): string => {
   return h === Math.floor(h) ? `${h} h` : `${Math.floor(h)}–${Math.ceil(h)} h`;
 };
 
-const BUCKET_EMOJI: Record<string, string> = {
-  'nature-wildlife': '🐠',
-  'diving-snorkeling': '🤿',
-  'beaches-lagoons': '🏖️',
-  'sights-landmarks': '🏛️',
-  'desert-mountains': '🏜️',
-  wellness: '🧘',
-  culture: '🪕'
+const BUCKET_KIND: Record<string, CategoryKind> = {
+  'nature-wildlife': 'nature',
+  'diving-snorkeling': 'dive',
+  'beaches-lagoons': 'reef',
+  'sights-landmarks': 'landmark',
+  'desert-mountains': 'desert',
+  wellness: 'wellness',
+  culture: 'culture'
 };
 
 // ---------------------------------------------------------------------------
-// AttractionCard — one ranked row in the Tripadvisor-style list
+// AttractionCard — image-led editorial card in a 2-up discovery grid
 // ---------------------------------------------------------------------------
 
 interface AttractionCardProps {
@@ -57,52 +58,50 @@ const AttractionCard: React.FC<AttractionCardProps> = ({ item, rank, onViewDetai
   return (
     <div
       dir={rtl ? 'rtl' : 'ltr'}
-      className={`group relative flex gap-4 sm:gap-5 rounded-2xl border p-3 sm:p-4 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+      className={`group relative flex flex-col rounded-3xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:shadow-xl cursor-pointer ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
           : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
-      {/* Rank */}
-      <div className="hidden sm:flex flex-col items-center justify-start pt-2 w-8 flex-shrink-0">
-        <span className="chart-heading font-bold text-2xl leading-none text-[var(--text-secondary)]/40">
-          {rank}
-        </span>
-      </div>
-
       {/* Image */}
       <button
         type="button"
         onClick={() => onViewDetails(item)}
         aria-label={name}
-        className="relative w-28 sm:w-40 h-28 sm:h-36 flex-shrink-0 rounded-xl overflow-hidden bg-[var(--surface-container)] cursor-pointer group/img"
+        className="relative h-52 w-full flex-shrink-0 overflow-hidden bg-[var(--surface-container)] cursor-pointer group/img"
       >
         {item.image ? (
           <img
             src={item.image}
-            alt=""
+            alt={name}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform group-hover/img:scale-[1.04]"
+            decoding="async"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/img:scale-105"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] flex items-center justify-center">
-            <span className="text-3xl opacity-50">{BUCKET_EMOJI[item.bucket] || '✨'}</span>
+            <CategoryIcon kind={BUCKET_KIND[item.bucket] ?? 'sparkles'} className="w-10 h-10 opacity-50 text-[var(--text-secondary)]" />
           </div>
         )}
-        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/40 to-transparent" />
-        <span className="absolute bottom-1.5 left-2 right-2 text-[10px] font-bold text-white truncate">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" aria-hidden="true" />
+        {/* Editorial rank index */}
+        <span aria-hidden="true" className="absolute top-3 start-3 font-display text-3xl font-semibold text-white/90 drop-shadow-md tabular-nums">
+          {String(rank).padStart(2, '0')}
+        </span>
+        <span className="absolute bottom-3 start-3 text-[10px] font-bold text-white bg-black/55 backdrop-blur-md px-2.5 py-1 rounded-full">
           {categoryLabel}
         </span>
       </button>
 
       {/* Body */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col p-5">
         <button
           type="button"
           onClick={() => onViewDetails(item)}
           className="text-start cursor-pointer min-h-[28px] flex items-start"
         >
-          <h3 className="chart-heading font-bold text-base sm:text-lg leading-snug line-clamp-2 group-hover:text-[var(--accent-primary)]">
+          <h3 className="font-display font-semibold text-xl leading-snug line-clamp-2 group-hover:text-[var(--accent-primary)] transition-colors">
             {name}
           </h3>
         </button>
@@ -243,10 +242,10 @@ const AttractionDetailModal: React.FC<AttractionDetailModalProps> = ({
         {/* Image banner */}
         <div className="relative h-52 sm:h-64 w-full">
           {item.image ? (
-            <img src={item.image} alt="" className="w-full h-full object-cover" />
+            <img src={item.image} alt={name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] flex items-center justify-center">
-              <span className="text-6xl opacity-40">{BUCKET_EMOJI[item.bucket] || '✨'}</span>
+              <CategoryIcon kind={BUCKET_KIND[item.bucket] ?? 'sparkles'} className="w-14 h-14 opacity-40 text-[var(--text-secondary)]" />
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
@@ -562,16 +561,16 @@ export const AttractionsView: React.FC = () => {
         isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}>
 
-      {/* Header */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-primary)]">
-          <Mountain className="w-4 h-4" />
+      {/* Header — concierge editorial voice */}
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-6">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+          <Mountain className="w-4 h-4" aria-hidden="true" />
           {t('attractions.dahab')} · {t('attractions.activities')}
-        </div>
-        <h1 className="mt-1 text-3xl sm:text-4xl chart-heading font-bold">
+        </p>
+        <h1 className="mt-2 font-display text-4xl sm:text-5xl font-semibold tracking-tight text-balance">
           {t('attractions.thingsToDoIn')}
         </h1>
-        <p className={`mt-1.5 text-sm max-w-2xl ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+        <p className={`mt-3 text-sm sm:text-base max-w-2xl leading-relaxed ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
           {t('attractions.sightsDiveSitesDesert')}
         </p>
 
@@ -613,7 +612,7 @@ export const AttractionsView: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('attractions.searchSightsActivitiesPlaces')}
-            className={`w-full py-2.5 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
+            className={`w-full py-2.5 ${language === 'ar' ? 'pl-4 pr-10' : 'pl-10 pr-4'} rounded-xl border text-sm focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
                 : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
@@ -660,7 +659,7 @@ export const AttractionsView: React.FC = () => {
                         ? 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                         : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:text-[var(--text-primary)]'
                   }`}>
-                  <span className="flex-shrink-0">{BUCKET_EMOJI[cat.id] || '✨'}</span>
+                  <CategoryIcon kind={BUCKET_KIND[cat.id] ?? 'sparkles'} className="flex-shrink-0 w-4 h-4" />
                   <span className="whitespace-nowrap lg:whitespace-normal">
                     {language === 'ar' ? cat.labelAr : cat.labelEn}
                   </span>
@@ -710,7 +709,7 @@ export const AttractionsView: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {attractions.map((item, idx) => (
                 <AttractionCard
                   key={item.id}

@@ -3,6 +3,19 @@ import path from 'path';
 import pg, { Pool, PoolClient } from 'pg';
 import { IPersistenceAdapter } from './IPersistenceAdapter';
 import { DatabaseState } from '../database';
+import { planFlush } from '../postgres/pgFlush';
+
+/** Structural surface save() needs from a pool — satisfied by pg.Pool and by test fakes. */
+export interface MinimalPool {
+  connect(): Promise<MinimalClient>;
+  end(): Promise<void>;
+  on(event: string, cb: (...args: any[]) => void): void;
+}
+
+export interface MinimalClient {
+  query(text: string, params?: unknown[]): Promise<{ rows: any[]; rowCount: number | null }>;
+  release(): void;
+}
 
 export interface PostgresConfig {
   connectionString?: string;
@@ -25,12 +38,33 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
   private isTransactionActive = false;
   private transactionDepth = 0;
 
-  constructor(config?: PostgresConfig, initialState?: DatabaseState) {
+  /**
+   * Last-written row state per table, keyed by id — the diff baseline for
+   * save(). Mirrors SqlitePersistenceAdapter.shadow so an unchanged row is
+   * never rewritten and a collection reorder costs one integer per row.
+   */
+  private shadow = new Map<string, Map<string, { data: string; seq: number }>>();
+
+  /** Lazy one-time spec-schema application, guarded for concurrent saves. */
+  private schemaReady = false;
+  private schemaApplying: Promise<void> | null = null;
+
+  /** Serializes fire-and-forget save() calls into one transaction at a time. */
+  private saveChain: Promise<void> = Promise.resolve();
+
+  /** Last flush failure, surfaced by /api/health rather than lost. */
+  public lastSaveError: string | null = null;
+
+  constructor(config?: PostgresConfig, initialState?: DatabaseState, poolOverride?: MinimalPool) {
     this.config = config || {
       connectionString: process.env.DATABASE_URL
     };
     this.state = initialState ? JSON.parse(JSON.stringify(initialState)) : this.createEmptyState();
-    this.initPool();
+    if (poolOverride) {
+      this.pool = poolOverride as unknown as Pool;
+    } else {
+      this.initPool();
+    }
   }
 
   private createEmptyState(): DatabaseState {
@@ -40,6 +74,9 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
       sessions: [],
       trips: [],
       tripItems: [],
+      tripMembers: [],
+      tripItemVotes: [],
+      tripSplits: [],
       suppliers: [],
       productSkus: [],
       hotels: [],
@@ -52,6 +89,12 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
       ledgerEntries: [],
       transferTelemetry: [],
       notifications: [],
+      ambientNudges: [],
+      pushSubscriptions: [],
+      supplierMetrics: [],
+      supplierAvailabilityBlocks: [],
+      payoutSchedule: [],
+      reviews: [],
       supportMessages: [],
       auditEvents: [],
       opportunities: [],
@@ -70,6 +113,13 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
       knowledgeSnapshots: [],
       placeDiscoveries: [],
       resolutionCandidates: [],
+      reefPositiveLogs: [],
+      bundles: [],
+      tripJournalEntries: [],
+      tripPlacesVisited: [],
+      fraudSignals: [],
+      fraudRules: [],
+      fraudUserStats: [],
       lastCheckpoint: new Date().toISOString()
     };
   }
@@ -154,49 +204,95 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
   }
 
   /**
-   * NOT IMPLEMENTED.
-   *
-   * This method has always been an empty stub. All state lived in the in-memory
-   * `this.state` mirror and nothing was ever written to PostgreSQL, so selecting
-   * this adapter silently discarded every user, booking, payment and ledger
-   * entry on restart — while /api/health reported "PostgreSQL Relational".
-   *
-   * It now records that fact rather than implying success. The adapter refuses
-   * to be selected at all (see assertUsable), so this should be unreachable in
-   * a normal boot; migrateFromJson and runInPostgresTransaction below do issue
-   * real SQL and remain usable for a one-off migration.
+   * Applies the spec-generated baseline once (checksum-guarded), so save() can
+   * run against a fresh database without a separate provisioning step.
    */
-  public async save(): Promise<void> {
-    this.state.lastCheckpoint = new Date().toISOString();
-    if (!PostgresPersistenceAdapter.hasWarnedAboutSave) {
-      PostgresPersistenceAdapter.hasWarnedAboutSave = true;
-      console.error(
-        '[PostgresPersistenceAdapter] save() is not implemented — no state is being persisted. ' +
-        'Data will be lost on restart. Use the JSON adapter until real persistence exists.'
-      );
-    }
-  }
-
-  private static hasWarnedAboutSave = false;
-
-  /**
-   * Throws unless the caller has explicitly acknowledged that this adapter does
-   * not persist. Better a refused boot than silent, total data loss.
-   */
-  public static assertUsable(): void {
-    if (process.env.ALLOW_NONPERSISTENT_POSTGRES_ADAPTER === 'true') {
-      console.warn(
-        '[PostgresPersistenceAdapter] Selected with ALLOW_NONPERSISTENT_POSTGRES_ADAPTER=true. ' +
-        'State is in-memory only and WILL be lost on restart.'
-      );
+  private async ensureSchemaOnce(): Promise<void> {
+    if (this.schemaReady) return;
+    if (this.schemaApplying) {
+      await this.schemaApplying;
       return;
     }
-    throw new Error(
-      'PERSISTENCE_ADAPTER=postgres was requested, but PostgresPersistenceAdapter.save() is not ' +
-      'implemented: no application state is written to PostgreSQL, so all data would be lost on ' +
-      'restart. Use PERSISTENCE_ADAPTER=json, or set ALLOW_NONPERSISTENT_POSTGRES_ADAPTER=true if ' +
-      'you genuinely want an ephemeral in-memory store.'
-    );
+    this.schemaApplying = this.initializeSchemaFromSpecs().then(() => {
+      this.schemaReady = true;
+      this.schemaApplying = null;
+    });
+    await this.schemaApplying;
+  }
+
+  /**
+   * One diffed flush: deletes child-first, upserts parent-first, meta last,
+   * inside a single transaction (see planFlush).
+   */
+  private async flushOnce(): Promise<void> {
+    // Same contract as the SQLite adapter: a save inside an open synchronous
+    // transaction is a no-op — the transaction's own commit() flushes.
+    if (this.transactionDepth > 0) return;
+    if (!this.pool) {
+      throw new Error('[PostgresPersistenceAdapter] save() called with no pool — nothing to persist to.');
+    }
+
+    await this.ensureSchemaOnce();
+
+    const checkpoint = new Date().toISOString();
+    const plan = planFlush(this.state as unknown as Record<string, any>, this.shadow, checkpoint);
+    if (plan.statements.length === 0) return;
+
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const stmt of plan.statements) {
+        await client.query(stmt.sql, stmt.params);
+      }
+      await client.query('COMMIT');
+    } catch (err) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // Connection-level failure; the original error is the one to surface.
+      }
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    this.shadow = plan.nextShadow;
+    this.state.lastCheckpoint = checkpoint;
+  }
+
+  /**
+   * Diffed persistence, same contract as the JSON/SQLite adapters.
+   *
+   * The synchronous IPersistenceAdapter contract means callers fire-and-forget
+   * at 54 sites, so save() serializes its async work: overlapping calls queue
+   * behind each other instead of interleaving transactions, and a failed flush
+   * is logged + recorded on lastSaveError (/api/health) rather than becoming a
+   * silent unhandled rejection.
+   */
+  public save(): Promise<void> {
+    const run = this.saveChain.then(() => this.flushOnce());
+    // Keep the chain alive and surface failures loudly; callers never await.
+    this.saveChain = run.catch((err: any) => {
+      this.lastSaveError = err instanceof Error ? err.message : String(err);
+      console.error('[PostgresPersistenceAdapter] save() failed:', this.lastSaveError);
+    });
+    return run;
+  }
+
+  /**
+   * Throws unless a PostgreSQL connection is configured. Unlike the old stub
+   * era this is about reachability, not honesty: save() now writes for real,
+   * and booting without a pool would make every write fail at first save.
+   */
+  public static assertUsable(): void {
+    const connStr = process.env.DATABASE_URL;
+    const host = process.env.PGHOST || process.env.PG_HOST;
+    if (!connStr && !host) {
+      throw new Error(
+        'PERSISTENCE_ADAPTER=postgres was requested, but no PostgreSQL connection is configured. ' +
+        'Set DATABASE_URL (or PGHOST/PGUSER/PGPASSWORD/PGDATABASE) so save() has somewhere to write.'
+      );
+    }
   }
 
   public async beginTransactionAsync(): Promise<PoolClient | null> {
@@ -384,6 +480,35 @@ export class PostgresPersistenceAdapter implements IPersistenceAdapter {
       await this.pool.end();
       this.pool = null;
       this.isConnected = false;
+    }
+  }
+
+  /**
+   * Spec-driven schema setup (Phase 0, Postgres-primary groundwork).
+   *
+   * initializeSchema() above applies the hand-written server/db/sql/schema.sql,
+   * which covers a fraction of the collections. This method instead applies
+   * the versioned baseline generated from TableSpec[] — the same source of
+   * truth as SQLite — through the migration runner, so every collection the
+   * app writes exists with identical constraints. Recorded in
+   * schema_migrations; re-runnable and checksum-guarded.
+   *
+   * Deliberately separate from initializeSchema(): nothing calls this yet in
+   * production boot. It becomes the primary path once save() is implemented
+   * and certified against a provisioned instance (see blueprint §N).
+   */
+  public async initializeSchemaFromSpecs(): Promise<{ applied: number[] }> {
+    if (!this.pool) {
+      throw new Error('Cannot initialize schema: PostgreSQL pool not connected.');
+    }
+    const { buildBaselineMigrations, applyPendingMigrations } = await import(
+      '../postgres/pgDdl'
+    );
+    const client = await this.pool.connect();
+    try {
+      return await applyPendingMigrations(client, buildBaselineMigrations());
+    } finally {
+      client.release();
     }
   }
 }

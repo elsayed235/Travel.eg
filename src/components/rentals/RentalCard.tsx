@@ -9,8 +9,19 @@ const CATEGORY_LABEL: Record<RentalListingView['category'], { en: string; ar: st
 };
 
 const CATEGORY_ACCENT: Record<RentalListingView['category'], string> = {
-  bike: '#C9A24B',
+  bike: 'var(--accent-secondary)',
   'e-bike': 'var(--accent-secondary)',
+};
+
+/**
+ * The rental catalogue carries no per-bike photographs (images: []), so the
+ * header would render as an empty black box. Category-context photography —
+ * the coast roads these bikes actually ride — stands in, with the category
+ * badge always visible so it never poses as the exact bike.
+ */
+const CATEGORY_IMAGE: Record<RentalListingView['category'], string> = {
+  bike: '/images/hero/golden-beach.jpg',
+  'e-bike': '/images/attractions/mountain-ridge-bay.jpg',
 };
 
 interface RentalCardProps {
@@ -28,29 +39,28 @@ export const RentalCard: React.FC<RentalCardProps> = ({ rental, isDark, onOpen }
     ? rental.supplier?.businessNameAr || rental.supplier?.businessName
     : rental.supplier?.businessName;
   const accent = CATEGORY_ACCENT[rental.category];
+  const image = rental.images?.[0] || CATEGORY_IMAGE[rental.category];
 
   return (
     <button
       type="button"
       onClick={() => onOpen(rental.slug)}
-      className={`text-start rounded-2xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] group w-full cursor-pointer ${
+      className={`text-start rounded-3xl border overflow-hidden transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 group w-full cursor-pointer hover:shadow-xl ${
         isDark
           ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
           : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
       }`}
     >
       {/* Header strip */}
-      <div className="relative h-40 w-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] flex items-end p-4">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,var(--accent-primary)/5_0%,transparent_50%)]" />
-        {rental.images?.[0] && (
-          <img
-            src={rental.images[0]}
-            alt={name}
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover opacity-70"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+      <div className="relative h-52 w-full bg-[var(--surface-container)] flex items-end p-4 overflow-hidden">
+        <img
+          src={image}
+          alt={rental.images?.[0] ? name : `${isAr ? CATEGORY_LABEL[rental.category].ar : CATEGORY_LABEL[rental.category].en} — Dahab coast road`}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
         <div className="relative z-10 flex items-center justify-between w-full">
           <span
             className="text-[11px] font-bold px-2 py-0.5 rounded-full"
@@ -71,7 +81,7 @@ export const RentalCard: React.FC<RentalCardProps> = ({ rental, isDark, onOpen }
       {/* Body */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className={`chart-heading font-bold text-base leading-snug line-clamp-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+          <h3 className={`font-display font-semibold text-xl leading-snug line-clamp-2 ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
             {name}
           </h3>
           <div className="text-end shrink-0">

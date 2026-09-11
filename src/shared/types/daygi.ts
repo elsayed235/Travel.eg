@@ -206,7 +206,7 @@ export type DayGiActionRisk =
   | 'FINANCIAL'
   | 'SAFETY_CRITICAL';
 
-export type DayGiTripHealthStatus = 'GOOD' | 'ATTENTION' | 'CONFLICT' | 'UNVERIFIED';
+export type DayGiTripHealthStatus = 'GOOD' | 'ATTENTION' | 'CONFLICT' | 'UNVERIFIED' | 'NO_TRIP';
 
 export interface DayGiTripHealthIssue {
   type:

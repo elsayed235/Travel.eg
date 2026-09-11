@@ -47,10 +47,10 @@ export const HotelCard: React.FC<HotelCardProps> = ({
       dir={isRTL ? 'rtl' : 'ltr'}
       className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 overflow-hidden bg-[var(--surface-card)] text-[var(--text-primary)] ${
         isSelected
-          ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 shadow-lg'
+          ? 'border-[var(--accent-primary)] ring-2 ring-[var(--accent-primary)]/30 shadow-lg aurora-glow'
           : hotel.isRecommended
-          ? 'border-[var(--accent-secondary)]/40 hover:border-[var(--accent-secondary)] shadow-md'
-          : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-md'
+          ? 'border-[var(--accent-secondary)]/40 hover:border-[var(--accent-secondary)] shadow-md aurora-hover'
+          : 'border-[var(--border-subtle)] hover:border-[var(--border-subtle)] shadow-md aurora-hover'
       }`}
     >
       {/* Recommended Header Bar */}

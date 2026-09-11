@@ -13,7 +13,9 @@ import { defineConfig, devices } from 'playwright/test';
  * globalSetup, so a stable dir would always be held open by the running
  * server while setup tries to wipe it — a unique dir avoids the race entirely.
  */
-const BASE_URL = 'http://localhost:3100';
+// 127.0.0.1, not localhost: Windows hosts files often resolve localhost to
+// ::1 only while the server binds IPv4 — see tests/e2e/helpers/config.ts.
+const BASE_URL = 'http://127.0.0.1:3100';
 const SEED_USER_PASSWORD = 'PlaywrightQA2026!Secure';
 
 // Unique per-run state dir, shared with globalSetup via the process env.
@@ -59,6 +61,19 @@ export default defineConfig({
       name: 'ar',
       use: { ...devices['Desktop Chrome'], locale: 'ar-EG' },
       testIgnore: [],
+    },
+    // Mobile-first gate (Phase 5): the same journeys on a 375px phone.
+    // Tests that are desktop-only assert skip via test.skip(() => ...)
+    // against viewport checks; everything else must survive a phone.
+    {
+      name: 'mobile-375',
+      use: {
+        ...devices['Pixel 7'],
+        viewport: { width: 375, height: 812 },
+        locale: 'en-US',
+        isMobile: true,
+        hasTouch: true,
+      },
     },
   ],
 });

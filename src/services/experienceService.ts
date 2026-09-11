@@ -85,10 +85,10 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'diving',
     categoryLabelEn: 'World Heritage Marine Sanctuary',
     categoryLabelAr: 'محمية بحرية عالمية',
-    heroImage: 'IMG_P16826872200634742bd7fd538_HERO',
+    heroImage: IMG_P16826872200634742bd7fd538_HERO,
     galleryImages: [
-      'IMG_P154455176346a013bb70d5_CARD',
-      'IMG_P1507525428034b723cf961d3e_CARD'
+      IMG_P154455176346a013bb70d5_CARD,
+      IMG_P1507525428034b723cf961d3e_CARD
     ],
     locationEn: 'North Dahab Coastal Protected Zone (15 min 4x4 from Lighthouse)',
     locationAr: 'شمال دهب (منطقة المحميات الساحلية · ١٥ دقيقة بالسيارة من اللايتهاوس)',
@@ -173,10 +173,10 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Promenade Shore Reef',
     categoryLabelAr: 'شاطئ وشعاب الممشى السياحي',
-    heroImage: 'IMG_P154455176346a013bb70d5_HERO',
+    heroImage: IMG_P154455176346a013bb70d5_HERO,
     galleryImages: [
-      'IMG_P1507525428034b723cf961d3e_CARD',
-      'IMG_P15541188111e0d58224f24_CARD'
+      IMG_P1507525428034b723cf961d3e_CARD,
+      IMG_P15541188111e0d58224f24_CARD
     ],
     locationEn: 'Lighthouse Bay Promenade, Central Dahab',
     locationAr: 'ممشى خليج اللايتهاوس، وسط دهب',
@@ -254,9 +254,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'coffee',
     categoryLabelEn: 'Artisan Bakery & Cafe',
     categoryLabelAr: 'مخبز يدوي وكافيه روقان',
-    heroImage: 'IMG_P15541188111e0d58224f24_HERO',
+    heroImage: IMG_P15541188111e0d58224f24_HERO,
     galleryImages: [
-      'IMG_P15172481354674c7edcad34c4_CARD'
+      IMG_P15172481354674c7edcad34c4_CARD
     ],
     locationEn: 'Lighthouse Area, 2 min walk from shore',
     locationAr: 'منطقة اللايتهاوس، دقيقتان مشي من الشاطئ',
@@ -332,9 +332,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'food',
     categoryLabelEn: 'Seafood & Bedouin Waterfront Grill',
     categoryLabelAr: 'سي فود ومشاوي ع البحر',
-    heroImage: 'IMG_P15172481354674c7edcad34c4_HERO',
+    heroImage: IMG_P15172481354674c7edcad34c4_HERO,
     galleryImages: [
-      'IMG_P15541188111e0d58224f24_CARD'
+      IMG_P15541188111e0d58224f24_CARD
     ],
     locationEn: 'Lighthouse Promenade, Beachfront',
     locationAr: 'ممشى اللايتهاوس السياحي، على البحر مباشرة',
@@ -412,9 +412,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'nightlife',
     categoryLabelEn: 'Acoustic Music & Sea Terrace',
     categoryLabelAr: 'تراس بحري وموسيقى لايف',
-    heroImage: 'IMG_P1511671782779c97d3d27a1d4_HERO',
+    heroImage: IMG_P1511671782779c97d3d27a1d4_HERO,
     galleryImages: [
-      'IMG_P15541188111e0d58224f24_CARD'
+      IMG_P15541188111e0d58224f24_CARD
     ],
     locationEn: 'Mashraba Promenade, South Dahab Shore',
     locationAr: 'ممشى المشربة، جنوب شاطئ دهب',
@@ -488,9 +488,9 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Natural Marine Reserve',
     categoryLabelAr: 'محمية بحرية طبيعية',
-    heroImage: 'IMG_P154455176346a013bb70d5_HERO',
+    heroImage: IMG_P154455176346a013bb70d5_HERO,
     galleryImages: [
-      'IMG_P16826872200634742bd7fd538_CARD'
+      IMG_P16826872200634742bd7fd538_CARD
     ],
     locationEn: 'Eel Garden Bay, North Central Dahab',
     locationAr: 'خليج إيل جاردن، شمال وسط دهب',
@@ -617,8 +617,8 @@ export function resolveExperience(
       category: (nearMe.category as any) || 'beach',
       categoryLabelEn: nearMe.tag || '',
       categoryLabelAr: nearMe.tagAr || '',
-      heroImage: nearMe.image || 'IMG_P154455176346a013bb70d5_HERO',
-      galleryImages: [nearMe.image || 'IMG_P154455176346a013bb70d5_CARD'],
+      heroImage: nearMe.image || IMG_P154455176346a013bb70d5_HERO,
+      galleryImages: [nearMe.image || IMG_P154455176346a013bb70d5_CARD],
       locationEn: nearMe.location || '',
       locationAr: nearMe.locationAr || '',
       durationEn: nearMe.openHours || '1 - 2 hours',
@@ -677,8 +677,8 @@ export function resolveExperience(
       category: (activity.category as any) || 'diving',
       categoryLabelEn: activity.category.toUpperCase().replace('_', ' '),
       categoryLabelAr: activity.category,
-      heroImage: 'IMG_P154455176346a013bb70d5_HERO',
-      galleryImages: ['IMG_P16826872200634742bd7fd538_CARD'],
+      heroImage: IMG_P154455176346a013bb70d5_HERO,
+      galleryImages: [IMG_P16826872200634742bd7fd538_CARD],
       locationEn: place?.nameEn || activity.areaId.replace(/_/g, ' '),
       locationAr: place?.nameAr || activity.areaId.replace(/_/g, ' '),
       durationEn: `${activity.durationMinutes} minutes`,
@@ -734,8 +734,8 @@ export function resolveExperience(
       category: 'beach',
       categoryLabelEn: placeMatch.category,
       categoryLabelAr: placeMatch.category,
-      heroImage: 'IMG_P1507525428034b723cf961d3e_HERO',
-      galleryImages: ['IMG_P154455176346a013bb70d5_CARD'],
+      heroImage: IMG_P1507525428034b723cf961d3e_HERO,
+      galleryImages: [IMG_P154455176346a013bb70d5_CARD],
       locationEn: placeMatch.areaId.replace(/_/g, ' '),
       locationAr: placeMatch.areaId.replace(/_/g, ' '),
       durationEn: '1 - 2 hours',

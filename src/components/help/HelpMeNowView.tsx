@@ -21,7 +21,8 @@ import {
   Building2, 
   Utensils, 
   Compass, 
-  ChevronRight, 
+  ChevronRight,
+  User, 
   FileText, 
   X, 
   UserCheck, 
@@ -452,17 +453,17 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
           <div className="lg:col-span-7 space-y-6">
 
             {/* 1. Header Banner */}
-            <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--border-subtle)] shadow-xl space-y-2">
+            <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl space-y-3">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-[var(--accent-secondary)]/15 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30 text-[11px] font-bold">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
                   {t('help.sinaiExpertConcierge')}
-                </span>
+                </p>
                 <span className="text-xs text-[var(--text-secondary)]/50 font-mono">{t('help.realtimeResponse')}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
                 {travelerName ? t('help.needHelpNamed', { travelerName }) : t('help.needHelpGeneric')}
               </h1>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed font-medium">
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-normal">
                 {t('help.tellUsWhatHappened')}
               </p>
             </div>
@@ -473,8 +474,8 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                 id="urgency-alert-banner"
                 className="p-4 sm:p-5 rounded-3xl bg-amber-950/70 border border-amber-500/50 flex items-start gap-3.5 animate-in fade-in duration-200 text-amber-200"
               >
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-lg flex-shrink-0 shadow-xs">
-                  ⚠️
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center flex-shrink-0 shadow-xs">
+                  <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div className="space-y-1 text-xs">
                   <h2 className="font-bold text-amber-200 text-sm">
@@ -742,8 +743,8 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             {currentStep === 'escalate_expert' && (
               <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-[var(--accent-secondary)]/40 shadow-xl space-y-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40 flex items-center justify-center text-xl">
-                    👤
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--accent-secondary)]/20 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/40 flex items-center justify-center">
+                    <User className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-[11px] font-black text-[var(--accent-secondary)] block">

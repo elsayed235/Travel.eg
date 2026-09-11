@@ -6,7 +6,9 @@ import { initialOpportunities } from '../../src/data/intelligenceData';
 import { importDahabLocalCommerce } from './seeds/importDahabLocalCommerce';
 import { importDahabHotels } from './seeds/importDahabHotels';
 import { importDahabAccommodations } from './seeds/importDahabAccommodations';
+import { EXPANDED_AREA_PROFILES } from '../data/dkosExpansionData';
 import { importDahabRentals } from './seeds/importDahabRentals';
+import { repairCatalogIntegrity } from './catalogIntegrity';
 import type { LedgerEntryEntity } from './schema';
 
 /** Genesis hash of the ledger chain — must match LedgerService's constant. */
@@ -167,7 +169,7 @@ export function runMigrationsAndSeed() {
       );
     }
     if (db.users.length === 0 && seedPassword) {
-      const createSeedUser = (id: string, email: string, name: string, phone: string, role: any) => {
+      const createSeedUser = (id: string, email: string, name: string, phone: string, role: any, supplierId?: string) => {
         const salt = crypto.randomBytes(16).toString('hex');
         const passwordHash = crypto.scryptSync(seedPassword, salt, 64).toString('hex');
         return {
@@ -179,6 +181,7 @@ export function runMigrationsAndSeed() {
           passwordSalt: salt,
           passwordAlgorithm: 'scrypt' as const,
           role,
+          ...(supplierId ? { supplierId } : {}),
           createdAt: '2026-08-20T10:00:00.000Z',
           updatedAt: '2026-08-20T10:00:00.000Z'
         };
@@ -186,7 +189,13 @@ export function runMigrationsAndSeed() {
 
       db.users.push(
         createSeedUser('USR-AHMED-01', 'ahmed.traveler@example.com', 'Ahmed Mansour', '+20 100 234 5678', 'Traveler'),
-        createSeedUser('USR-SUPPLIER-01', 'captain.mahmoud@sinai-shuttle.com', 'Mahmoud Salem', '+20 100 876 5432', 'Supplier'),
+        // Linked to SUP-SHUTTLE-01 (seeded below) so the demo Supplier account can
+        // actually act as a supplier: without this, every supplier-scoped route
+        // that checks req.user.supplierId — including /api/rentals/provider —
+        // rejected with "Your account is not linked to a supplier", and the
+        // rest of the Supplier Portal's "Sinai Shuttle Fleet" view was decorative
+        // only, never actually backed by this account.
+        createSeedUser('USR-SUPPLIER-01', 'captain.mahmoud@sinai-shuttle.com', 'Mahmoud Salem', '+20 100 876 5432', 'Supplier', 'SUP-SHUTTLE-01'),
         createSeedUser('USR-OPS-01', 'ops.director@dahab.travel', 'Sarah Khalil', '+20 102 998 1234', 'Operations'),
         createSeedUser('USR-ADMIN-01', 'admin@dahab.travel', 'System Administrator', '+20 100 000 0001', 'Admin')
       );
@@ -499,6 +508,28 @@ export function runMigrationsAndSeed() {
 
     // 5. Seed Initial Trip for Ahmed Mansour if empty
     if (db.trips.length === 0) {
+      // The demo graph (trip + items + holds + ledger) is rooted at the demo
+      // traveler, whose login credentials only exist with SEED_USER_PASSWORD.
+      // Without him the mandatory trips.user_id FK aborts every fresh sqlite
+      // boot, so ensure a NON-LOGINABLE placeholder owner: an empty
+      // passwordHash makes verifyPassword unconditionally reject (see
+      // authService), so this row can own demo data but never authenticate.
+      // Never put a real hash here — that would recreate the committed
+      // default-credential incident the SEED_USER_PASSWORD gate exists to
+      // prevent.
+      if (!db.users.some(u => u.id === 'USR-AHMED-01')) {
+        db.users.push({
+          id: 'USR-AHMED-01',
+          email: 'ahmed.traveler@example.com',
+          name: 'Ahmed Mansour',
+          phone: '+20 100 234 5678',
+          passwordHash: '',
+          role: 'Traveler',
+          createdAt: '2026-08-20T10:00:00.000Z',
+          updatedAt: '2026-08-20T10:00:00.000Z'
+        });
+        console.log('[Migrations] Seeded non-loginable demo traveler placeholder (USR-AHMED-01) for demo-graph FK integrity');
+      }
       const tripId = 'DHB-TRIP-894';
       db.trips.push({
         id: tripId,
@@ -705,7 +736,27 @@ export function runMigrationsAndSeed() {
     // SKUs and catalogue rows, idempotently — see importDahabHotels).
     importDahabHotels();
 
-    // 9b. Import the generalized Dahab Accommodations Catalogue (hotels plus
+    // 9b. Seed Area Profiles BEFORE the accommodations import below.
+    // Accommodations carry a mandatory area_id FK, and the DKOS bootstrap
+    // that owns these rows runs after this transaction flushes — without
+    // this step, every fresh database aborts the entire seed transaction
+    // with FOREIGN KEY constraint failed. Merged by id (same semantics as
+    // the DKOS seedInto), so the later bootstrap simply re-affirms them.
+    {
+      let added = 0;
+      for (const seed of EXPANDED_AREA_PROFILES as any[]) {
+        if (!seed || typeof seed.id !== 'string') continue;
+        const idx = db.areaProfiles.findIndex(a => a.id === seed.id);
+        if (idx >= 0) db.areaProfiles[idx] = { ...db.areaProfiles[idx], ...seed };
+        else {
+          db.areaProfiles.push(seed);
+          added++;
+        }
+      }
+      if (added > 0) console.log(`[Migrations] Seeded ${added} area profiles ahead of accommodations import`);
+    }
+
+    // 9c. Import the generalized Dahab Accommodations Catalogue (hotels plus
     // hostels/apartments/villas/camps/guesthouses) — the live surface behind
     // /api/accommodations. Runs after importDahabHotels, which is left in
     // place unmodified but now unread once hotelRoutes.ts is repointed to
@@ -715,6 +766,14 @@ export function runMigrationsAndSeed() {
     // 10. Import the Dahab Rentals Catalogue (bike/e-bike suppliers, 'rental'
     // SKUs, listings and extras, idempotently — see importDahabRentals).
     importDahabRentals();
+
+    // 11. Converge known catalogue data defects (missing durations, a boat
+    // safari pointing at the wrong place, a highway listed as a neighborhood).
+    // Idempotent; see server/db/catalogIntegrity.ts.
+    const repairs = repairCatalogIntegrity();
+    if (repairs.length > 0) {
+      console.log(`[DB] Catalogue integrity repair: ${repairs.join(', ')}`);
+    }
   });
 
   console.log('[DB] Migrations and authoritative seed data verified successfully.');

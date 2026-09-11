@@ -9,7 +9,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     // Swaps the Database singleton onto an in-memory adapter so the suite never
     // reads or writes data/dahab_db.json.
-    setupFiles: ['tests/setup.ts'],
+    setupFiles: ['tests/setup.ts', 'tests/i18nSeed.ts'],
     testTimeout: 30_000,
     hookTimeout: 60_000,
     // The suite touches the shared JSON database singleton, so files must not

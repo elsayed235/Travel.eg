@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { 
   Compass, 
   MapPin, 
@@ -31,6 +31,9 @@ import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { TravelerNav } from '../mytrip/TravelerNav';
+import { ConciergePageHeader } from '../concierge/ConciergePageHeader';
+import { CategoryIcon } from '../common/CategoryIcon';
+import { ConditionsBadge, ConditionsVerdict } from '../common/ConditionsBadge';
 import { EXPLORE_CATEGORIES } from '../../data/dahabContent';
 import { NearMeItem } from '../../types';
 import { sanitizeText } from '../../utils/sanitize';
@@ -200,6 +203,43 @@ export const ExploreView: React.FC = () => {
   const [itemToAdd, setItemToAdd] = useState<any | null>(null);
   const [isDaySelectorOpen, setIsDaySelectorOpen] = useState(false);
 
+  // Live marine conditions for the header strip + per-activity suitability
+  // verdicts for the discovery cards (conditions-on-cards, P2). The verdict
+  // is the server's: measured wind vs written thresholds, joined by activity
+  // id — a card with no verdict shows no badge, never an invented calm.
+  const [marine, setMarine] = useState<{
+    seaState?: string; waterTempC?: number; windKnots?: number; windDirection?: string;
+    suitability?: Array<{ activityId: string; verdict: ConditionsVerdict; reasons?: Array<{ en: string; ar: string }> }>;
+  } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    api.getMarineTelemetry().then(data => {
+      if (!cancelled && data) setMarine({
+        // The endpoint's shape: reading.{...} for the modeled sea state,
+        // windKnots beside it, suitability per water activity. The previous
+        // read of `data.spots?.[0]` never matched anything, so the live
+        // strip was dead even when the model answered.
+        seaState: undefined,
+        waterTempC: data.reading?.waterTempC ?? undefined,
+        windKnots: data.windKnots ?? undefined,
+        windDirection: undefined,
+        suitability: data.suitability,
+      });
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  // activityId → verdict lookup for card badges; language-aware reason text.
+  const conditionsByActivity = useMemo(() => {
+    const map = new Map<string, { verdict: ConditionsVerdict; reason?: string }>();
+    for (const s of marine?.suitability ?? []) {
+      if (!s || !s.activityId || !s.verdict) continue;
+      const reason = s.reasons?.[0] ? (language === 'ar' ? s.reasons[0].ar : s.reasons[0].en) : undefined;
+      map.set(s.activityId, { verdict: s.verdict, reason });
+    }
+    return map;
+  }, [marine, language]);
+
   const tabListRef = useRef<HTMLDivElement>(null);
 
   const showToast = (msg: string) => {
@@ -268,7 +308,7 @@ export const ExploreView: React.FC = () => {
    * when the request fails or the corpus is empty, so a bad connection
    * degrades the page instead of blanking it.
    */
-  const corpus = useApiResource(fetchDestinationCorpus);
+  const corpus = useApiResource(fetchDestinationCorpus, { cacheKey: 'corpus.explore', ttlMs: 60_000 });
 
   const exploreItems = useMemo(() => {
     if (!corpus.data || corpus.data.activities.length === 0) return NEAR_ME_DATA;
@@ -293,6 +333,24 @@ export const ExploreView: React.FC = () => {
     });
   }, [exploreItems, nearMeFilter, searchQuery]);
 
+  // Discovery moods — photographic navigation over the REAL category
+  // buckets the filter below matches on (item.category). Counts come from
+  // the same corpus, so a mood never promises spots it cannot show.
+  const moodCards = ([
+    { id: 'food', label: t('explore.foodSeafood'), image: '/images/restaurants/ali-baba-restaurant.jpg' },
+    { id: 'coffee', label: t('explore.artisanCoffee'), image: '/images/restaurants/breakfast-by-the-sea.jpg' },
+    { id: 'beach', label: t('explore.reefBeach'), image: '/images/attractions/coral-gardens.jpg' },
+    { id: 'nightlife', label: t('explore.eveningChill'), image: '/images/restaurants/the-roof-restaurant.jpg' },
+    { id: 'experience', label: t('explore.experiences'), image: '/images/attractions/blue-hole.jpg' },
+  ] as const).map((mood) => ({
+    ...mood,
+    count: exploreItems.filter((item) => item.category === mood.id).length,
+  }));
+  const activeMood = moodCards.find((m) => m.id === nearMeFilter) ?? null;
+  const showFeatured = nearMeFilter === 'all' && sanitizeText(searchQuery).trim() === '' && filteredNearMe.length > 1;
+  const [featuredPlace, ...restPlaces] = filteredNearMe;
+  const gridPlaces = showFeatured ? restPlaces : filteredNearMe;
+
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -310,122 +368,139 @@ export const ExploreView: React.FC = () => {
         }}
       />
 
-      {/* Main Hero Banner with authentic photography backdrop */}
-      <section className="relative border-b overflow-hidden">
-        <img
-          src="/images/hero/golden-beach.jpg"
-          alt="Dahab Live Discovery"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        <div className={`absolute inset-0 ${
-          isDark
-            ? 'bg-gradient-to-r from-[var(--surface-container)]/95 via-[var(--surface-container)]/90 to-[var(--surface-container)]/75 backdrop-blur-[2px]'
-            : 'bg-gradient-to-r from-[var(--bg-canvas)]/96 via-[var(--bg-canvas)]/92 to-[var(--bg-canvas)]/80 backdrop-blur-[2px]'
-        }`} />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 relative z-10 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold ${
-                isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--accent-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[#8F5F14]'
-              }`}>
-                <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
-                <span>{t('explore.dahabLiveDiscovery')}</span>
-              </div>
-              <h1 className={`text-2xl sm:text-3xl lg:text-4xl chart-heading font-bold tracking-tight ${
-                isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
-              }`}>
-                {t('explore.curatedSpotsAroundYou')}
-              </h1>
-              <p className={`text-xs sm:text-sm max-w-2xl font-medium ${
-                isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'
-              }`}>
-                {t('explore.handpickedCafesBeachEntries')}
-              </p>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => navigateTo('/food')}
-                className="px-4 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <Utensils className="w-3.5 h-3.5" />
-                <span>{t('explore.foodNow')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigateTo('/my-trip')}
-                className={`px-4 py-2.5 rounded-full border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
-                  isDark
-                    ? 'bg-[var(--surface-container)] hover:bg-[#1a4038] text-[var(--text-secondary)] border-[var(--border-subtle)]'
-                    : 'bg-[var(--surface-card)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] border-[var(--border-subtle)]'
-                }`}
-              >
-                <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-                <span>{t('explore.myTrip')}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="relative max-w-xl">
-            <Search className={`absolute ${isRTL ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]/50' : 'text-[var(--text-secondary)]/50'}`} />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label={t('explore.searchDahabPlaces')}
-              placeholder={t('explore.searchPlacesCafesSeafood')}
-              className={`w-full py-3 ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} rounded-2xl border text-xs sm:text-sm shadow-inner transition-colors ${
-                isDark
-                  ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-secondary)]'
-                  : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
-              } focus:outline-none`}
-            />
-          </div>
-        </div>
-      </section>
+      {/* Concierge photographic band — imagery-forward discovery hero */}
+      <ConciergePageHeader
+        eyebrow={t('explore.dahabLiveDiscovery')}
+        title={t('explore.curatedSpotsAroundYou')}
+        subtitle={t('explore.handpickedCafesBeachEntries')}
+        image="/images/hero/golden-beach.jpg"
+        imageAlt="Dahab Live Discovery"
+        bright
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => navigateTo('/food')}
+              className="inline-flex min-h-[48px] cursor-pointer items-center gap-1.5 rounded-full bg-[var(--accent-primary)] px-5 text-xs font-bold text-[var(--accent-primary-ink)] shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              <span>{t('explore.foodNow')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('/my-trip')}
+              className="inline-flex min-h-[48px] cursor-pointer items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-5 text-xs font-bold text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <span>{t('explore.myTrip')}</span>
+            </button>
+          </>
+        }
+      />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-8">
-        
-        {/* Filter Pills */}
-        <div className={`flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl border ${
-          isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] shadow-xs'
-        }`}>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {([
-              { id: 'all', label: t('explore.allPlaces') },
-              { id: 'food', label: t('explore.foodSeafood') },
-              { id: 'coffee', label: t('explore.artisanCoffee') },
-              { id: 'beach', label: t('explore.reefBeach') },
-              { id: 'nightlife', label: t('explore.eveningChill') },
-              { id: 'experience', label: t('explore.experiences') },
-            ] as const).map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setNearMeFilter(f.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
-                  nearMeFilter === f.id
-                    ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] shadow-xs'
-                    : isDark
-                    ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[#1a4038] border border-white/5'
-                    : 'bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-card)] border border-[var(--border-subtle)]'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full flex-grow space-y-10">
 
-          <span className={`text-xs px-2 ${isDark ? 'text-[var(--text-secondary)]/60' : 'text-[var(--text-secondary)]'}`}>
-            {filteredNearMe.length} {t('explore.spotsAvailable')}
-          </span>
+        {/* Search — overlapping card pulling the hero into the page */}
+        <div className="relative z-20 -mt-10 max-w-2xl">
+          <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-2 shadow-xl">
+            <div className="relative">
+              <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]`} aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label={t('explore.searchDahabPlaces')}
+                placeholder={t('explore.searchPlacesCafesSeafood')}
+                className={`w-full py-3.5 ${isRTL ? 'pr-11 pl-4' : 'pl-11 pr-4'} rounded-2xl bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]`}
+              />
+            </div>
+          </div>
         </div>
+
+        {/* Live Conditions Strip */}
+        {marine && (
+          <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-xl bg-[var(--surface-container)]/60 border border-[var(--border-subtle)] text-xs">
+            <span className="flex items-center gap-1.5 font-semibold text-[var(--text-primary)]">
+              <Waves className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
+              {marine.seaState || 'Calm'}
+            </span>
+            {marine.waterTempC != null && (
+              <span className="flex items-center gap-1.5 text-[var(--text-secondary)]">
+                <span className="font-mono font-bold text-[var(--accent-primary)]">{marine.waterTempC}°C</span>
+                {t('explore.water')}
+              </span>
+            )}
+            {marine.windKnots != null && (
+              <span className="flex items-center gap-1.5 text-[var(--text-secondary)]">
+                <span className="font-mono font-bold">{marine.windKnots} kn</span>
+                {marine.windDirection}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Discovery moods — photographic category navigation wired to the real filter */}
+        <section aria-label={t('explore.experiences')} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
+            {moodCards.map((mood) => {
+              const selected = nearMeFilter === mood.id;
+              return (
+                <button
+                  key={mood.id}
+                  type="button"
+                  onClick={() => setNearMeFilter(selected ? 'all' : mood.id)}
+                  aria-pressed={selected}
+                  className={`group relative h-36 cursor-pointer overflow-hidden rounded-3xl border text-start transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:h-44 ${
+                    selected
+                      ? 'border-[var(--accent-primary)] shadow-xl'
+                      : 'border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:shadow-lg'
+                  }`}
+                >
+                  <img
+                    src={mood.image}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
+                    className={`absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 ${selected ? 'scale-105' : ''}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" aria-hidden="true" />
+                  {selected && (
+                    <span className="absolute top-2.5 end-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent-primary)] text-[var(--accent-primary-ink)]" aria-hidden="true">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
+                  )}
+                  <span className="absolute inset-x-0 bottom-0 p-3">
+                    <span className="block text-sm font-bold text-white">{mood.label}</span>
+                    <span className="mt-0.5 block text-[11px] font-semibold text-white/65">
+                      {mood.count} {t('explore.spotsAvailable')}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold text-[var(--text-secondary)]">
+              {activeMood ? (
+                <button
+                  type="button"
+                  onClick={() => setNearMeFilter('all')}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-[var(--accent-primary)]/12 px-3 py-1 font-bold text-[var(--accent-primary)] transition-colors hover:bg-[var(--accent-primary)]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                >
+                  <X className="h-3 w-3" aria-hidden="true" />
+                  {activeMood.label}
+                </button>
+              ) : (
+                t('explore.allPlaces')
+              )}
+            </p>
+            <span className="text-xs font-semibold tabular-nums text-[var(--text-secondary)]">
+              {filteredNearMe.length} {t('explore.spotsAvailable')}
+            </span>
+          </div>
+        </section>
 
         {/* Places Grid.
             The place names inside are correctly h3 — they are the items — but
@@ -435,27 +510,113 @@ export const ExploreView: React.FC = () => {
         <h2 className="sr-only">
           {t('explore.availablePlaces')}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredNearMe.map((place) => {
+
+        {/* Featured discovery — the top match gets an editorial spread, so the
+            page opens with a place, not a grid of equals. */}
+        {showFeatured && featuredPlace && (() => {
+          const place = featuredPlace;
+          const isFav = savedItems.includes(place.id);
+          const placeName = language === 'ar' && place.nameAr ? place.nameAr : place.name;
+          return (
+            <article className="group grid grid-cols-1 overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-xl lg:grid-cols-2">
+              <div className="relative h-64 overflow-hidden sm:h-80 lg:h-full lg:min-h-[380px]">
+                {place.image ? (
+                  <img
+                    src={place.image}
+                    alt={placeName}
+                    loading="eager"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--surface-container)] via-[var(--surface-card)] to-[var(--surface-container)]" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" aria-hidden="true" />
+                <div className="absolute top-4 start-4 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[var(--accent-primary)] px-3 py-1 text-[11px] font-bold text-[var(--accent-primary-ink)]">
+                    {language === 'ar' ? 'مختاراتنا' : 'Featured pick'}
+                  </span>
+                  {place.distance && (
+                    <span className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md">
+                      {place.distance}{place.walkMinutes ? ` (${place.walkMinutes} ${t('explore.minWalk')})` : ''}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col justify-center gap-4 p-6 sm:p-10">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--accent-primary)]">
+                    {language === 'ar' && place.tagAr ? place.tagAr : place.tag}
+                  </p>
+                  <h3
+                    onClick={() => handleOpenExperienceDetail(place)}
+                    className="mt-2 cursor-pointer font-display text-3xl font-semibold leading-tight text-[var(--text-primary)] transition-colors hover:text-[var(--accent-primary)] sm:text-4xl text-balance"
+                  >
+                    {placeName}
+                  </h3>
+                  <p className="mt-3 max-w-lg text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
+                    {language === 'ar' && place.descriptionAr ? place.descriptionAr : place.description}
+                  </p>
+                  <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
+                    <MapPin className="h-3.5 w-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                    {language === 'ar' && place.locationAr ? place.locationAr : place.location}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenExperienceDetail(place)}
+                    className="inline-flex min-h-[52px] cursor-pointer items-center gap-2 rounded-full bg-[var(--accent-primary)] px-7 text-sm font-bold text-[var(--accent-primary-ink)] shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  >
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                    <span>{t('explore.details')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickAddClick(place)}
+                    className="inline-flex min-h-[52px] cursor-pointer items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)] px-7 text-sm font-bold text-[var(--text-primary)] transition-colors duration-200 hover:border-[var(--accent-primary)]/50 hover:text-[var(--accent-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  >
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    <span>{t('explore.addToTrip')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleFavorite(place.id, placeName)}
+                    aria-pressed={isFav}
+                    aria-label={`${isFav ? t('explore.removeFromFavourites') : t('explore.addToFavourites')}: ${placeName}`}
+                    className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${isFav ? 'bg-rose-500 text-white' : 'border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-rose-400'}`}
+                  >
+                    <Heart className={`h-4 w-4 ${isFav ? 'fill-current' : ''}`} aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })()}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {gridPlaces.map((place) => {
             const isFav = savedItems.includes(place.id);
             return (
               <div
                 key={place.id}
-                className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] overflow-hidden shadow-xl flex flex-col group ${
+                className={`rounded-3xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] overflow-hidden shadow-xl flex flex-col group aurora-hover ${
                   isDark
                     ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]'
                     : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-[var(--text-primary)]'
                 }`}
               >
                 {/* Image Header */}
-                <div className="relative h-48 w-full overflow-hidden bg-[var(--surface-card)]">
+                <div className="relative h-60 w-full overflow-hidden bg-[var(--surface-card)]">
                   {/* Records from the destination corpus carry no photograph.
                       A tinted panel is the honest stand-in; a stock image
                       would imply the platform has a picture of this place. */}
                   {place.image ? (
                     <img
                       src={place.image}
-                      alt=""
+                      alt={language === 'ar' && place.nameAr ? place.nameAr : place.name}
+                      loading="lazy"
+                      decoding="async"
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -484,8 +645,8 @@ export const ExploreView: React.FC = () => {
                       aria-label={`${isFav
                         ? (t('explore.removeFromFavourites'))
                         : (t('explore.addToFavourites'))}: ${language === 'ar' && place.nameAr ? place.nameAr : place.name}`}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
-                        isFav ? 'bg-rose-500 text-[var(--text-primary)]' : 'bg-black/50 text-[var(--text-primary)] hover:bg-black/80'
+                      className={`w-8 h-8 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+                        isFav ? 'bg-rose-500 text-white' : 'bg-black/50 text-white hover:bg-black/80'
                       }`}
                     >
                       <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -493,10 +654,20 @@ export const ExploreView: React.FC = () => {
                   </div>
 
                   {/* Bottom Image Tag */}
-                  <div className="absolute bottom-2.5 inset-x-3">
+                  <div className="absolute bottom-2.5 inset-x-3 flex items-center gap-2">
                     <span className="text-[11px] font-black text-[var(--accent-primary)] block drop-shadow-md">
                       {language === 'ar' && place.tagAr ? place.tagAr : place.tag}
                     </span>
+                    {/* Live suitability for water activities — only when the
+                        server's marine payload carries a verdict for this id. */}
+                    {(() => {
+                      const conditions = conditionsByActivity.get(place.id);
+                      return conditions ? (
+                        <span className="ml-auto drop-shadow-md">
+                          <ConditionsBadge verdict={conditions.verdict} reason={conditions.reason} />
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
 
@@ -504,7 +675,7 @@ export const ExploreView: React.FC = () => {
                 <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className={`chart-heading font-bold text-lg leading-snug cursor-pointer hover:text-[var(--accent-primary)] transition-colors ${
+                      <h3 className={`font-display font-semibold text-xl leading-snug cursor-pointer hover:text-[var(--accent-primary)] transition-colors ${
                         isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
                       }`}
                       onClick={() => handleOpenExperienceDetail(place)}
@@ -555,7 +726,7 @@ export const ExploreView: React.FC = () => {
                       type="button"
                       id={`explore-card-add-btn-${place.id}`}
                       onClick={() => handleQuickAddClick(place)}
-                      className="flex-1 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
+                      className="flex-1 py-2.5 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>{t('explore.addToTrip')}</span>
@@ -569,16 +740,16 @@ export const ExploreView: React.FC = () => {
 
         {/* Area Profiles Section */}
         {areaProfiles.length > 0 && (
-          <section className="space-y-4 pt-6 border-t border-[var(--border-subtle)]">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[var(--accent-primary)]" />
-              <h2 className={`text-lg chart-heading font-bold ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+          <section className="space-y-4 pt-10 border-t border-[var(--border-subtle)]">
+            <div className="max-w-2xl">
+              <h2 className={`flex items-center gap-2.5 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-balance ${isDark ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)]'}`}>
+                <MapPin className="w-6 h-6 shrink-0 text-[var(--accent-primary)]" aria-hidden="true" />
                 {t('explore.dahabAreas')}
               </h2>
+              <p className={`mt-2 text-sm leading-relaxed ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
+                {t('explore.exploreDahabNeighborhoodsBy')}
+              </p>
             </div>
-            <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
-              {t('explore.exploreDahabNeighborhoodsBy')}
-            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {areaProfiles.map((area) => (
                 <div
@@ -597,7 +768,7 @@ export const ExploreView: React.FC = () => {
                       {area.walkabilityScore}/10
                     </span>
                   </div>
-                  <p className={`text-[11px] leading-relaxed line-clamp-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
+                  <p className={`text-xs leading-relaxed line-clamp-2 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                     {language === 'ar' ? area.atmosphereAr : area.atmosphere}
                   </p>
                   <div className="flex items-center gap-2 mt-2 text-[10px]">
@@ -645,6 +816,7 @@ export const ExploreView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsDaySelectorOpen(false)}
+                aria-label={t('attractions.close')}
                 className={`w-7 h-7 rounded-full flex items-center justify-center ${
                   isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]/70 hover:bg-[var(--surface-card)]/10' : 'bg-[var(--surface-container)] text-[var(--text-primary)] hover:bg-[var(--surface-card)]'
                 }`}

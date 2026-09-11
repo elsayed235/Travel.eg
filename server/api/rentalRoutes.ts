@@ -9,6 +9,7 @@ import {
   requiredCalendarDate,
   optionalEnum
 } from '../middleware/bodyParams';
+import { applyRentalViewOverlays } from '../services/catalogContentService';
 
 /**
  * Who the caller may act for, matching server.ts's resolveActingSupplierId:
@@ -78,7 +79,7 @@ rentalRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
     });
 
     res.json({
-      rentals: sorted.map(l => rentalService.getListingView(l)),
+      rentals: applyRentalViewOverlays(sorted.map(l => rentalService.getListingView(l))),
       categories: ['bike', 'e-bike'],
       zones: RENTAL_ZONES,
       stats: {
@@ -128,7 +129,7 @@ rentalRouter.get('/:slug', (req: AuthenticatedRequest, res: Response) => {
     }
 
     res.json({
-      rental: rentalService.getListingView(listing),
+      rental: applyRentalViewOverlays([rentalService.getListingView(listing)])[0],
       zones: RENTAL_ZONES,
       availability
     });

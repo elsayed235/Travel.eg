@@ -1464,7 +1464,7 @@ export const MarketIntelligenceView: React.FC = () => {
                   <div className="flex flex-wrap items-center justify-between text-xs text-[var(--surface-container)]/70 font-mono pt-1">
                     <span>Normalized Entity Ref: {match.normalizedEntityId}</span>
                     <span className={match.requiresHumanReview ? 'text-amber-400 font-bold' : 'text-emerald-400'}>
-                      {match.requiresHumanReview ? '⚠ Requires Human Ops Review' : '✓ Automated Resolution Verified'}
+                      {match.requiresHumanReview ? 'Requires Human Ops Review' : '✓ Automated Resolution Verified'}
                     </span>
                   </div>
                 </div>

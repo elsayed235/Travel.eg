@@ -191,8 +191,8 @@ export const ProfileView: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-5 relative z-10">
           <div
             aria-hidden="true"
-            className="w-16 h-16 rounded-3xl flex items-center justify-center font-bold text-2xl text-[#F2EDDF] shadow-md ring-1 ring-[#C9A24B]/40"
-            style={{ background: 'linear-gradient(135deg, #0A1128 0%, #1B2452 55%, #B97A1F 130%)' }}
+            className="w-16 h-16 rounded-3xl flex items-center justify-center font-bold text-2xl text-[#F2EDDF] shadow-md ring-1 ring-[var(--accent-secondary)]/40"
+            style={{ background: 'linear-gradient(135deg, #1C1917 0%, #2A2622 55%, var(--accent-secondary) 130%)' }}
           >
             {/* Was a literal 'A' when there was no name — the demo
                 persona's initial, shown to every anonymous visitor. */}

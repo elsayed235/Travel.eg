@@ -69,6 +69,55 @@ export interface TripItemEntity {
 }
 
 /**
+ * Group trip membership (blueprint row #16).
+ * A trip owner can invite companions. Members can view the itinerary and
+ * vote on suggested activities. The owner retains full edit/delete rights.
+ */
+export interface TripMemberEntity {
+  id: string;
+  tripId: string;
+  userId: string;
+  role: 'owner' | 'member';
+  status: 'pending' | 'accepted' | 'declined';
+  invitedBy: string;     // userId of the inviter
+  invitedAt: string;
+  respondedAt?: string;
+  createdAt: string;
+}
+
+/**
+ * Vote on a trip itinerary item (blueprint row #16).
+ * Members vote to approve or reject SUGGESTED items. When the approval
+ * threshold is reached (majority of accepted members), the item auto-approves.
+ */
+export interface TripItemVoteEntity {
+  id: string;
+  tripId: string;
+  tripItemId: string;
+  userId: string;
+  vote: 'approve' | 'reject';
+  comment?: string;
+  createdAt: string;
+}
+
+/**
+ * Split payment allocation (blueprint row #16).
+ * Defines how the total trip cost is divided among group members.
+ * Each member has a share amount. The owner can set equal splits or
+ * custom amounts. Track who has paid their share.
+ */
+export interface TripSplitEntity {
+  id: string;
+  tripId: string;
+  userId: string;
+  shareEGP: number;       // How much this member owes
+  paidEGP: number;        // How much this member has paid
+  status: 'pending' | 'partial' | 'paid';
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
  * A message a traveler sent to support, and the reply if one has been written.
  *
  * The Help panel used to be a pure simulation: it opened with a seeded
@@ -91,7 +140,13 @@ export interface SupportMessageEntity {
   bookingRef?: string;
   message: string;
   urgent: boolean;
-  status: 'OPEN' | 'ANSWERED' | 'CLOSED';
+  status: 'OPEN' | 'ESCALATED' | 'IN_PROGRESS' | 'ANSWERED' | 'CLOSED';
+  /** Priority level — set by escalation logic or operator. */
+  priority?: 'low' | 'normal' | 'high' | 'urgent';
+  /** The operator userId this message is assigned to (null = unassigned). */
+  assignedTo?: string;
+  /** When the message was escalated from OPEN to an agent queue. */
+  escalatedAt?: string;
   /** Written by Operations. Absent until someone actually replies. */
   reply?: string;
   repliedBy?: string;
@@ -293,7 +348,61 @@ export interface SupplierEntity {
   approvedBy?: string;
   payoutAccountNumber?: string;
   fingerprint?: string;
+  /** Measured reliability 0–100 from actual booking events (see reliabilityService). */
+  reliabilityScore?: number;
+  /** Number of booking events the score is derived from. */
+  reliabilitySampleSize?: number;
+  /** Reef-positive conservation score — aggregated from verified eco-actions (see reefPositiveService). */
+  reefScore?: number;
   metadata?: Record<string, any>;
+}
+
+/**
+ * Per-booking supplier metric event (accept, reject, cancel, complete).
+ * Feed for the reliability score computation — one row per decision.
+ */
+export interface SupplierMetricEntity {
+  id: string;
+  supplierId: string;
+  bookingRef: string;
+  event: 'REQUESTED' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
+  /** Minutes from request to supplier decision (present on accept/reject). */
+  responseMinutes?: number;
+  createdAt: string;
+}
+
+/**
+ * Supplier availability block (blueprint row #12).
+ * Suppliers block date ranges when they cannot fulfill bookings. Any active
+ * block overlapping a requested date rejects the booking at checkout time.
+ */
+export interface SupplierAvailabilityBlockEntity {
+  id: string;
+  supplierId: string;
+  startDate: string;  // YYYY-MM-DD, inclusive
+  endDate: string;    // YYYY-MM-DD, inclusive
+  reason: string;     // e.g. "maintenance", "holiday", "weather"
+  createdBy: string;  // userId or 'System'
+  createdAt: string;
+}
+
+/**
+ * Pending payout schedule (blueprint row #12).
+ * When a booking reaches COMPLETED, a payout schedule entry is created with
+ * a 24-hour hold. After the hold expires, a sweep converts it into a real
+ * SUPPLIER_PAYOUT ledger entry. This gives the platform a buffer for disputes
+ * and refunds before funds leave escrow.
+ */
+export interface PayoutScheduleEntity {
+  id: string;
+  supplierId: string;
+  bookingRef: string;
+  amountEGP: number;
+  payoutState: 'PENDING' | 'SETTLED' | 'CANCELLED';
+  settleAfter: string;  // ISO timestamp — payout eligible after this time
+  settledAt?: string;
+  ledgerEntryId?: string;  // The SUPPLIER_PAYOUT entry created on settle
+  createdAt: string;
 }
 
 export interface RawSupplierSourceEntity {
@@ -438,6 +547,10 @@ export interface ProductSkuEntity {
   routeTo?: string;
   durationMinutes?: number;
   basePriceEGP: number;
+  /** Weekly rate override — when set and the booking covers ≥7 nights, this rate applies to each full 7-night block. */
+  weeklyRateEGP?: number;
+  /** Monthly rate override — when set and the booking covers ≥28 nights, this rate applies to each full 28-night block. */
+  monthlyRateEGP?: number;
   currency: 'EGP';
   maxCapacityPerSlot: number;
   active: boolean;
@@ -552,6 +665,10 @@ export interface AccommodationEntity {
   amenities: string[];
   amenitiesAr: string[];
   perNightEGP: number;
+  /** Weekly rate for long-stay / nomad bookings. When set, each full 7-night block uses this rate instead of perNightEGP×7. */
+  weeklyRateEGP?: number;
+  /** Monthly rate for long-stay / nomad bookings. When set, each full 28-night block uses this rate instead of perNightEGP×28. */
+  monthlyRateEGP?: number;
   packageNights: number;
   rooms: number;
   /** Max guests per booking unit — powers the guests filter and NL search. */
@@ -830,7 +947,7 @@ export interface BookingEntity {
   serviceType: CommerceServiceType;
   amountEGP: number;
   paymentState: PaymentState;
-  supplierState: 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'ASSIGNED' | 'DISPATCHED' | 'EN_ROUTE' | 'IN_PROGRESS' | 'ARRIVED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'READY_FOR_PICKUP' | 'ACTIVE' | 'RETURNED';
+  supplierState: 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'ASSIGNED' | 'DISPATCHED' | 'EN_ROUTE' | 'IN_PROGRESS' | 'ARRIVED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED' | 'FAILED' | 'READY_FOR_PICKUP' | 'ACTIVE' | 'RETURNED';
   /** The rental_bookings row this booking fulfils, when the booking is a rental. */
   rentalBookingId?: string;
   travelerName: string;
@@ -900,16 +1017,76 @@ export interface TransferTelemetryEntity {
   updatedAt: string;
 }
 
+export interface AnalyticsEventEntity {
+  id: string;
+  /** Session user when signed in; absent for anonymous visits. */
+  userId?: string;
+  /** Client-generated session id for grouping events across page views. */
+  sessionId?: string;
+  eventName: string;
+  timestamp: string;
+  /** Sanitized server-side: PII keys are stripped before storage. */
+  payload?: Record<string, any>;
+}
+
 export interface NotificationEntity {
   id: string;
   userId: string;
-  type: 'BOOKING_CREATED' | 'PAYMENT_SUCCESS' | 'SUPPLIER_CONFIRMED' | 'DISPATCH_UPDATE' | 'EXCEPTION_ALERT' | 'SYSTEM' | 'RENTAL_STATUS_CHANGED';
+  type: 'BOOKING_CREATED' | 'PAYMENT_SUCCESS' | 'SUPPLIER_CONFIRMED' | 'DISPATCH_UPDATE' | 'EXCEPTION_ALERT' | 'SYSTEM' | 'RENTAL_STATUS_CHANGED' | 'REVIEW_INVITATION';
   title: string;
   message: string;
-  channel: 'IN_APP' | 'WHATSAPP' | 'SMS' | 'EMAIL';
+  channel: 'IN_APP' | 'WHATSAPP' | 'SMS' | 'EMAIL' | 'PUSH';
   status: 'QUEUED' | 'SENT' | 'DELIVERED' | 'READ' | 'FAILED';
   metadata?: Record<string, any>;
   createdAt: string;
+}
+
+/**
+ * Ambient nudge (blueprint row #15).
+ *
+ * Proactive, context-aware suggestions pushed to travelers without them
+ * asking. The ambient engine evaluates weather, trip health, time windows,
+ * and location to generate timely nudges. Each nudge is delivered once and
+ * tracked for engagement (shown/dismissed/acted).
+ */
+export interface AmbientNudgeEntity {
+  id: string;
+  userId: string;
+  tripId: string;
+  nudgeType: 'WEATHER_SHIFT' | 'FREE_WINDOW' | 'PREPARATION' | 'SUPPLIER_ALERT' | 'BUDGET_TIP' | 'SAFETY' | 'DISCOVERY';
+  title: string;
+  titleAr: string;
+  body: string;
+  bodyAr: string;
+  priority: 'low' | 'medium' | 'high';
+  /** Context that triggered this nudge (weather data, time window, etc.). */
+  context: Record<string, any>;
+  status: 'QUEUED' | 'DELIVERED' | 'DISMISSED' | 'ACTED';
+  createdAt: string;
+  deliveredAt?: string;
+  dismissedAt?: string;
+}
+
+/**
+ * A browser's Web Push subscription for one user on one device.
+ *
+ * Stored so SOS-grade events (booking confirmed, driver arriving, wind-shift
+ * rebook) can reach travelers outside the app. The endpoint URL is the push
+ * service's mailbox; `keys` let a future payload-encrypting sender address it.
+ * Today sends are payload-free "tickles" — the client refetches in-app
+ * notifications on wake — so keys are carried, not yet used.
+ */
+export interface PushSubscriptionEntity {
+  id: string;
+  userId: string;
+  /** Push-service endpoint (unique: one row per browser, first owner wins). */
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  userAgent?: string;
+  createdAt: string;
+  lastUsedAt?: string;
+  /** Consecutive delivery failures; reset on any 201. */
+  failureCount: number;
 }
 
 export interface AuditEventEntity {
@@ -1460,4 +1637,327 @@ export interface MarketAlertEntity {
   metadata?: Record<string, any>;
 }
 
+// ---------------------------------------------------------------------------
+// Site Settings — single-document key/value store for site-wide config
+// ---------------------------------------------------------------------------
+
+export interface SiteSettingsContact {
+  phone: string;
+  email: string;
+  whatsapp: string;
+  address: string;
+  addressAr: string;
+}
+
+export interface SiteSettingsSocial {
+  instagram: string;
+  facebook: string;
+  tiktok: string;
+  youtube: string;
+  website: string;
+}
+
+export interface SiteSettingsFooterLink {
+  label: string;
+  labelAr: string;
+  href: string;
+}
+
+export interface SiteSettingsFooter {
+  tagline: string;
+  taglineAr: string;
+  copyrightText: string;
+  quickLinks: SiteSettingsFooterLink[];
+}
+
+export interface SiteSettingsHours {
+  timezone: string;
+  weekday: string;
+  weekend: string;
+  holidays: string;
+}
+
+export interface SiteSettingsSeo {
+  defaultTitle: string;
+  defaultTitleAr: string;
+  defaultDescription: string;
+  defaultDescriptionAr: string;
+  ogImageUrl: string;
+}
+
+export interface SiteSettingsHero {
+  imageUrl: string;
+  imageAltEn: string;
+  imageAltAr: string;
+  headlineEn: string;
+  headlineAr: string;
+  subheadlineEn: string;
+  subheadlineAr: string;
+  ctaTextEn: string;
+  ctaTextAr: string;
+  overlayOpacity: number;
+}
+
+export interface SiteSettingsGalleryPhoto {
+  id: string;
+  url: string;
+  altEn: string;
+  altAr: string;
+  captionEn: string;
+  captionAr: string;
+  category: string;
+  displayOrder: number;
+  featured: boolean;
+}
+
+export interface SiteSettingsEntity {
+  id: string;
+  contact: SiteSettingsContact;
+  social: SiteSettingsSocial;
+  footer: SiteSettingsFooter;
+  hours: SiteSettingsHours;
+  seo: SiteSettingsSeo;
+  hero: SiteSettingsHero;
+  gallery: SiteSettingsGalleryPhoto[];
+  updatedAt: string;
+}
+
+/**
+ * Verified-stay review (blueprint row #14).
+ *
+ * Only a traveler who completed a booking (paymentState=CAPTURED or
+ * supplierState=COMPLETED) may leave a review for the supplier they booked.
+ * The bookingRef is the proof: the review service verifies the booking
+ * exists, belongs to the reviewer, and is in a terminal state before
+ * accepting the review.
+ */
+export interface ReviewEntity {
+  id: string;
+  /** The verified booking that authorizes this review. */
+  bookingRef: string;
+  /** The traveler who wrote the review (must match the booking's userId). */
+  userId: string;
+  /** The supplier being reviewed. */
+  supplierId: string;
+  /** 1–5 star rating. */
+  rating: number;
+  /** Review title (optional). */
+  title?: string;
+  /** Review body. */
+  body: string;
+  /** Arabic translation of the body (optional but encouraged). */
+  bodyAr?: string;
+  /** Whether the review has been moderated (approved/flagged/hidden). */
+  moderationStatus: 'pending' | 'approved' | 'flagged' | 'hidden';
+  /** Moderation note (visible to ops only). */
+  moderationNote?: string;
+  /** Supplier response (optional). */
+  supplierResponse?: string;
+  supplierResponseAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// P2 — Long-Stay / Nomad Pricing
+// ---------------------------------------------------------------------------
+
+// (weeklyRateEGP / monthlyRateEGP are on AccommodationEntity above, after
+// perNightEGP. ProductSkuEntity carries them too.)
+
+// ---------------------------------------------------------------------------
+// P2 — Reef-Positive Conservation Tracking
+// ---------------------------------------------------------------------------
+
+/**
+ * A single conservation action logged against a completed booking.
+ * The traveler (or operator) can log eco-actions like reef-safe sunscreen
+ * usage, coral planting participation, beach cleanup, dive against debris,
+ * etc. Each log earns the supplier a reef score boost and gives the traveler
+ * a visible "reef-positive" badge on their trip.
+ */
+export interface ReefPositiveLogEntity {
+  id: string;
+  bookingId: string;
+  tripId: string;
+  supplierId: string;
+  userId: string;
+  /** The type of eco-action performed. */
+  actionType: 'reef_safe_sunscreen' | 'coral_planting' | 'beach_cleanup' | 'dive_against_debris' | 'marine_education' | 'plastic_free_day' | 'other';
+  /** Human-readable description of what was done. */
+  description: string;
+  descriptionAr?: string;
+  /** Photo evidence URL (optional). */
+  photoUrl?: string;
+  /** Points awarded for this action. */
+  pointsAwarded: number;
+  /** Who logged it: the traveler themselves, the supplier who delivered the service, or an operator verifying. */
+  loggedBy: 'traveler' | 'operator' | 'supplier';
+  /** Operator who verified the action (if loggedBy='operator'). */
+  verifiedByUserId?: string;
+  /** The account credited for the action (trip owner). Kept for audit even when the logger acted on the traveler's behalf. */
+  creditedUserId?: string;
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// P2 — Dynamic Bundles
+// ---------------------------------------------------------------------------
+
+/**
+ * A dynamic bundle groups multiple SKUs into a discounted package.
+ * The bundle defines which SKUs are included, the discount percentage,
+ * and optional min/max quantity constraints. Bundles are computed at
+ * checkout time — they never pre-exist as bookable SKUs.
+ */
+export interface BundleEntity {
+  id: string;
+  /** Human-readable bundle name. */
+  name: string;
+  nameAr: string;
+  description: string;
+  descriptionAr: string;
+  /** Which SKU IDs are eligible to be bundled. At least 2 required. */
+  eligibleSkuIds: string[];
+  /** Discount percentage applied to the sum of individual SKU prices. */
+  discountPercent: number;
+  /** Minimum number of eligible items that must be in the cart to activate. Default 2. */
+  minItems: number;
+  /** Maximum number of eligible items that can benefit from the bundle discount. Null = unlimited. */
+  maxItems?: number;
+  /** Optional: restrict to specific service types. Empty = any. */
+  serviceTypes?: CommerceServiceType[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// P2 — Trip Journal & Memory
+// ---------------------------------------------------------------------------
+
+/**
+ * A diary entry for a trip — the traveler (or DayGi auto-capture) logs
+ * a moment with text, optional photo, and optional location. Entries are
+ * ordered chronologically and shown in the post-trip memory hub.
+ */
+export interface TripJournalEntryEntity {
+  id: string;
+  tripId: string;
+  userId: string;
+  /** Entry title (optional). */
+  title?: string;
+  /** Diary body text. */
+  body: string;
+  bodyAr?: string;
+  /** Photo URL attached to this entry (optional). */
+  photoUrl?: string;
+  /** Location name where this entry was recorded (optional). */
+  locationName?: string;
+  locationNameAr?: string;
+  /** Tags for categorization: 'dive', 'food', 'sunset', 'adventure', etc. */
+  tags?: string[];
+  /** Auto-captured by the system (e.g. after a confirmed booking). */
+  autoCaptured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * A "places visited" record — one per trip-location pair. The system
+ * auto-creates these from confirmed bookings; the traveler can also
+ * add them manually.
+ */
+export interface TripPlaceVisitedEntity {
+  id: string;
+  tripId: string;
+  userId: string;
+  /** The place name (from the booking or manually entered). */
+  placeName: string;
+  placeNameAr?: string;
+  /** Lat/lng if known. */
+  latitude?: number;
+  longitude?: number;
+  /** The booking that generated this record (if auto-captured). */
+  bookingId?: string;
+  /** Visit date (ISO string). */
+  visitedAt: string;
+  createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// P3 — Fraud Detection
+// ---------------------------------------------------------------------------
+
+/**
+ * A fraud risk signal attached to a payment/checkout attempt.
+ * Multiple signals can fire per transaction; the composite risk score is
+ * the max of all signal scores. Transactions above the threshold are
+ * held for manual review or blocked outright.
+ */
+export interface FraudSignalEntity {
+  id: string;
+  transactionId: string;
+  bookingId?: string;
+  userId: string;
+  /** The type of fraud signal detected. */
+  signalType: 'velocity_hourly' | 'velocity_daily' | 'refund_rate' | 'amount_anomaly' | 'duplicate_payment' | 'device_fingerprint' | 'ip_geolocation' | 'card_testing';
+  /** Risk score 0–100 for this individual signal. */
+  riskScore: number;
+  /** Human-readable explanation of why this signal fired. */
+  description: string;
+  /** Contextual metadata (e.g. { recentBookings: 5, windowMinutes: 60 }). */
+  metadata?: Record<string, any>;
+  /** What action was taken: 'allow', 'review', 'block'. */
+  action: 'allow' | 'review' | 'block';
+  createdAt: string;
+}
+
+/**
+ * Fraud rule configuration — configurable thresholds for each signal type.
+ */
+export interface FraudRuleEntity {
+  id: string;
+  /** Unique rule name (e.g. 'velocity_hourly'). */
+  ruleName: string;
+  /** Whether this rule is active. */
+  enabled: boolean;
+  /** Risk score this rule assigns when triggered. */
+  riskScore: number;
+  /** Threshold value (e.g. max bookings per hour). */
+  threshold: number;
+  /** Action to take when this rule fires. */
+  action: 'allow' | 'review' | 'block';
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Aggregated fraud stats per user — updated after each checkout attempt.
+ */
+export interface FraudUserStatsEntity {
+  userId: string;
+  /** Total checkout attempts in the last hour. */
+  attemptsLastHour: number;
+  /** Total checkout attempts in the last 24 hours. */
+  attemptsLastDay: number;
+  /** Number of refunds in the last 30 days. */
+  refundsLast30Days: number;
+  /** Total captured payments in the last 30 days. */
+  capturesLast30Days: number;
+  /** Refund rate (refunds / captures) over 30 days. */
+  refundRate: number;
+  /** Highest single payment amount in the last 30 days. */
+  maxAmountLast30Days: number;
+  /** Rolling average payment amount over the last 10 payments. */
+  avgAmountRecent: number;
+  /** Cumulative fraud risk score (decays over time). */
+  cumulativeRiskScore: number;
+  /** Whether this user is currently blocked. */
+  blocked: boolean;
+  blockedReason?: string;
+  lastAttemptAt?: string;
+  updatedAt: string;
+}
 

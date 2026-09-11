@@ -8,13 +8,40 @@ import {
 
 class DayGiTripHealthService {
   /**
-   * Evaluates Trip Health against the 7 Authoritative Criteria
+   * Evaluates Trip Health against the 7 Authoritative Criteria.
+   *
+   * The trip id is the caller's own (route-validated); there is deliberately
+   * NO fallback to another trip. The previous default ('DHB-TRIP-894') and the
+   * `|| db.trips[0]` fallback meant a traveler with no trip of their own was
+   * silently scored against the seeded demo itinerary — and the booking/hold
+   * checks below read every booking in the store, so the score included other
+   * people's records. A missing trip returns an explicit NO_TRIP state instead
+   * of pretending to score somebody else's.
    */
-  public evaluateTripHealth(tripId: string = 'DHB-TRIP-894'): DayGiTripHealth {
-    const trip = db.trips.find(t => t.id === tripId) || db.trips[0];
-    const tripItems = db.tripItems.filter(item => !trip || item.tripId === trip.id);
-    const bookings = db.bookings;
-    const holds = db.holds;
+  public evaluateTripHealth(tripId?: string | null): DayGiTripHealth {
+    const trip = tripId ? db.trips.find(t => t.id === tripId) : undefined;
+    if (!trip) {
+      return {
+        status: 'NO_TRIP',
+        score: 0,
+        evaluatedAt: new Date().toISOString(),
+        summaryEn: 'You have no active trip yet. Plan one first — DayGI will audit it the moment it exists.',
+        summaryAr: 'لا توجد رحلة نشطة بعد. ابدأ بالتخطيط أولاً وسيراجع دايجي رحلتك فور إنشائها.',
+        issues: [],
+        metrics: {
+          confirmedBookings: 0,
+          pendingBookings: 0,
+          conflictsCount: 0,
+          budgetAdherencePercent: 0
+        }
+      };
+    }
+    const tripItems = db.tripItems.filter(item => item.tripId === trip.id);
+    // Scoped to THIS trip. The booking and hold checks used to read the whole
+    // store, so one traveler's health score counted every other traveler's
+    // pending bookings and holds.
+    const bookings = db.bookings.filter(b => b.tripId === trip.id);
+    const holds = db.holds.filter(h => h.tripId === trip.id);
 
     const issues: DayGiTripHealthIssue[] = [];
 
@@ -126,10 +153,14 @@ class DayGiTripHealthService {
       summaryAr,
       issues,
       metrics: {
-        confirmedBookings: bookings.filter(b => b.supplierState === 'CONFIRMED' || b.paymentState === 'CAPTURED' || b.paymentState === 'AUTHORIZED').length || 3,
+        confirmedBookings: bookings.filter(b => b.supplierState === 'CONFIRMED' || b.paymentState === 'CAPTURED' || b.paymentState === 'AUTHORIZED').length,
         pendingBookings: pendingSuppliers.length,
         conflictsCount: issues.filter(i => i.type === 'SCHEDULE_CONFLICT' || i.type === 'CONDITION_UNCERTAINTY').length,
-        budgetAdherencePercent: 94
+        // No more hardcoded 94: derived from the actual trip budget when a
+        // budget exists, otherwise unknown (0).
+        budgetAdherencePercent: trip.totalEstimatedEGP > 0 && trip.totalPaidEGP <= trip.totalEstimatedEGP
+          ? Math.min(100, Math.round((trip.totalPaidEGP / trip.totalEstimatedEGP) * 100))
+          : 0
       }
     };
   }
@@ -141,6 +172,10 @@ class DayGiTripHealthService {
   // that forgot to pass them silently received somebody else's suggestions
   // instead of failing. They are required now.
   public getProactiveSuggestions(userId: string, tripId: string): DayGiProactiveSuggestion[] {
+    // A traveler without a trip gets no trip suggestions — the previous
+    // implementation still produced a "Day 2 Morning Briefing" about the demo
+    // itinerary's schedule.
+    if (!tripId || !db.trips.some(t => t.id === tripId)) return [];
     const health = this.evaluateTripHealth(tripId);
     const suggestions: DayGiProactiveSuggestion[] = [];
 

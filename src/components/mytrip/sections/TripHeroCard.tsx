@@ -58,7 +58,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
   return (
     <section
       aria-label="Trip overview header"
-      className="relative rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-subtle)] bg-stone-950 text-[var(--text-primary)] min-h-[300px] flex flex-col justify-end p-6 sm:p-10"
+      className="relative rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-subtle)] bg-stone-950 text-[var(--text-primary)] min-h-[300px] flex flex-col justify-end p-6 sm:p-10 aurora-glass"
     >
       {/* Background Photography with deep gradient */}
       <div className="absolute inset-0 z-0">
@@ -92,7 +92,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             rather than reassuring.
           */}
           {conditionText && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-[var(--surface-card)]/15 backdrop-blur-md text-[var(--text-primary)] border border-white/20">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-white/15 backdrop-blur-md text-white border border-white/20">
               <Sun className="w-3.5 h-3.5 text-[var(--accent-secondary)]" />
               <span>{conditionText}</span>
             </span>
@@ -101,10 +101,10 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
 
         {/* Greeting & Title */}
         <div>
-          <span className="text-sm sm:text-base font-semibold text-[var(--accent-primary)] block mb-1">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-secondary)] mb-2">
             {t('myTrip.welcomeBack', { travelerDisplayName })}
-          </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl chart-heading font-bold text-[var(--text-primary)] leading-tight">
+          </p>
+          <h1 className="font-display text-4xl sm:text-5xl font-semibold text-white leading-[1.05] text-balance">
             {/*
               The trip's own title wins. The duration phrasing below is a
               fallback for a trip that has none — it used to be the only thing
@@ -117,8 +117,8 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
           </h1>
         </div>
 
-        {/* Metadata pills */}
-        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-[var(--text-secondary)] font-medium pt-1">
+        {/* Metadata pills — pinned white/70: fixed dark photo plate */}
+        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-white/70 font-medium pt-1">
           {/*
             No invented dates. This read `dateRange || '1 - 5 Sep 2026'`, so a
             trip with no start or end date was given a specific, plausible,
@@ -150,7 +150,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             type="button"
             id="hero-share-trip-btn"
             onClick={onShare}
-            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <Share2 className="w-4 h-4 text-[var(--accent-primary)]" />
             <span>{t('myTrip.shareItinerary')}</span>
@@ -160,7 +160,7 @@ export const TripHeroCard: React.FC<TripHeroCardProps> = ({
             type="button"
             id="hero-manage-trip-btn"
             onClick={onManageTrip}
-            className="px-5 py-2.5 rounded-2xl bg-[var(--surface-card)]/15 hover:bg-[var(--surface-card)]/25 active:scale-95 text-[var(--text-primary)] text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs font-bold backdrop-blur-md border border-white/20 flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
           >
             <SlidersHorizontal className="w-4 h-4 text-[var(--accent-secondary)]" />
             <span>{t('myTrip.manageTrip')}</span>

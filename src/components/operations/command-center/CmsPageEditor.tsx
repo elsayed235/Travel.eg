@@ -8,6 +8,7 @@ import {
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { readJson } from '../../../services/apiError';
 import { api } from '../../../services/api';
+import { CmsPagePreview } from '../../pages/CmsStaticPage';
 
 /**
  * CMS Page Editor — edit a page's metadata and content blocks.
@@ -40,6 +41,8 @@ interface CmsPage {
   sort_order: number;
   featured: number;
   version: number;
+  preview_token: string;
+  preview_expires_at: string;
   created_at: string;
   updated_at: string;
 }
@@ -443,6 +446,10 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
   const [error, setError] = useState<string | null>(null);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<'hero' | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewWidth, setPreviewWidth] = useState<'desktop' | 'mobile'>('desktop');
+  const [previewLang, setPreviewLang] = useState<'en' | 'ar'>('en');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Load page data
   useEffect(() => {
@@ -625,6 +632,52 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowPreview(v => !v)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
+              showPreview
+                ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/30'
+                : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-[var(--border-subtle)]'
+            }`}
+          >
+            {showPreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            {t('cmd.preview')}
+          </button>
+          <button
+            type="button"
+            title={
+              page.preview_expires_at && page.preview_expires_at > new Date().toISOString()
+                ? `Expires ${new Date(page.preview_expires_at).toLocaleString()}`
+                : 'Link expired or missing — a fresh one will be minted'
+            }
+            onClick={async () => {
+              try {
+                let token = page.preview_token;
+                const live =
+                  !!token && !!page.preview_expires_at && page.preview_expires_at > new Date().toISOString();
+                if (!live) {
+                  const data = await cmsFetch(`/pages/${page.id}/preview-refresh`, { method: 'POST' });
+                  token = data.preview_token;
+                  setPage({ ...page, preview_token: data.preview_token, preview_expires_at: data.preview_expires_at });
+                }
+                const url = `${window.location.origin}/preview/${token}`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                } catch {
+                  window.prompt('Copy preview link:', url);
+                  return;
+                }
+                setLinkCopied(true);
+                setTimeout(() => setLinkCopied(false), 2000);
+              } catch (err: any) {
+                alert(err.message);
+              }
+            }}
+            className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-white text-[11px] font-bold border border-[var(--border-subtle)] cursor-pointer"
+          >
+            {linkCopied ? '✓' : t('cmd.copyPreviewLink')}
+          </button>
           <span
             className="px-2 py-0.5 rounded-full text-[11px] font-bold border"
             style={{
@@ -656,6 +709,51 @@ export const CmsPageEditor: React.FC<CmsPageEditorProps> = ({ pageId, onBack }) 
           )}
         </div>
       </div>
+
+      {/* Live preview — renders unsaved form state exactly as publishing would */}
+      {showPreview && (
+        <div className="rounded-xl border border-[var(--accent-primary)]/30 overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 bg-[var(--btn-util-bg)] border-b border-[var(--border-subtle)]">
+            <span className="text-[11px] font-bold text-[var(--text-muted)]">{t('cmd.preview')}</span>
+            <div className="flex gap-1 ml-2">
+              {(['desktop', 'mobile'] as const).map(w => (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => setPreviewWidth(w)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer ${
+                    previewWidth === w ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  {w === 'desktop' ? '960px' : '390px'}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1">
+              {(['en', 'ar'] as const).map(l => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setPreviewLang(l)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer ${
+                    previewLang === l ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            {dirty && (
+              <span className="ml-auto text-[10px] text-amber-300">{t('cmd.unsavedChangesShown')}</span>
+            )}
+          </div>
+          <div className="bg-[var(--surface-card)] overflow-auto max-h-[70vh]">
+            <div className="mx-auto transition-all" style={{ maxWidth: previewWidth === 'desktop' ? 960 : 390 }}>
+              <CmsPagePreview page={page} blocks={blocks} language={previewLang} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error */}
       {error && (

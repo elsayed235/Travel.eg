@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
+  ShieldAlert,
   CreditCard,
   Banknote,
   Building,
@@ -44,6 +45,9 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { formatTripDateRange } from '../../utils/tripDates';
 import { api } from '../../services/api';
+import { analytics } from '../../services/analytics';
+import type { PriceExplanation } from '../../services/api';
+import { IMG_BLUE_HOLE_HERO } from '../../shared/placeholderImagery';
 
 interface BookingPaymentStepProps {
   selectedHotel: HotelOption | null;
@@ -78,8 +82,8 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'wallet' | 'instapay' | 'arrival' | 'cash'>('card');
   const [cardGateway, setCardGateway] = useState<'PAYMOB' | 'STRIPE'>('PAYMOB');
   const [walletProvider, setWalletProvider] = useState<'vodafone' | 'orange' | 'etisalat' | 'wepay'>('vodafone');
-  const [walletPhone, setWalletPhone] = useState<string>('01001234567');
-  const [instapayAddress, setInstapayAddress] = useState<string>('sherif.dahab@instapay');
+  const [walletPhone, setWalletPhone] = useState<string>('');
+  const [instapayAddress, setInstapayAddress] = useState<string>('');
 
   // Card form. Deliberately empty.
   //
@@ -92,9 +96,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
   // Companion)" for everyone, including a solo traveler.
   const travelers = activeTrip?.travelersCount ?? profile.travelersCount ?? 1;
   const travelersLabel =
-    language === 'ar'
-      ? `${travelers} ${travelers === 1 ? 'بالغ' : 'بالغين'}`
-      : `${travelers} ${travelers === 1 ? 'Adult' : 'Adults'}`;
+    `${travelers} ${travelers === 1 ? t('booking.adults') : t('booking.adultsPlural')}`;
 
   const [cardholderName, setCardholderName] = useState<string>('');
   const [cardNumber, setCardNumber] = useState<string>('');
@@ -131,6 +133,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
   const [showShareToast, setShowShareToast] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
+  // P4 trust: the backend-authoritative price explanation. Fetched lazily on
+  // first expand — catalogue truth (per-person vs per-stay basis, unit
+  // prices, cancellation windows), never client arithmetic.
+  const [priceExplanation, setPriceExplanation] = useState<PriceExplanation | null>(null);
+  const [showPriceExplainer, setShowPriceExplainer] = useState<boolean>(false);
+  const [priceExplanationError, setPriceExplanationError] = useState<boolean>(false);
+
   // Price calculations
   const hotelPrice = selectedHotel ? selectedHotel.priceTotalEGP : 7500;
   const transferPrice = selectedTransfer ? selectedTransfer.priceEGP : 1200;
@@ -153,6 +162,30 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
    */
   const tripId = activeTrip?.id || '';
   const bookingTripId = tripId;
+
+  /** P4 trust: explain the total from the SKU catalogue (backend truth). */
+  const togglePriceExplainer = () => {
+    const next = !showPriceExplainer;
+    setShowPriceExplainer(next);
+    if (next && !priceExplanation && !priceExplanationError && bookingTripId) {
+      analytics.track('price_explainer_opened', {});
+      const skuIds = [
+        selectedHotel ? 'SKU-HTL-001' : null,
+        selectedTransfer ? (selectedTransfer.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002') : null,
+        selectedDiving ? 'SKU-DIV-001' : null,
+        selectedSafari ? 'SKU-SAF-001' : null,
+      ].filter((s): s is string => Boolean(s));
+      api.explainPrice({
+        tripId: bookingTripId,
+        items: skuIds.map(skuId => ({
+          skuId,
+          passengersCount: travelers,
+        })),
+      })
+        .then(setPriceExplanation)
+        .catch(() => setPriceExplanationError(true));
+    }
+  };
 
   const handlePayAndConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,7 +326,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   DAHAB
                 </span>
                 <span className="text-xs font-bold text-[var(--text-primary)]">
-                  {language === 'ar' ? 'تأكيد حجز الرحلة' : 'Trip Confirmation'}
+                  {t('booking.tripConfirmation')}
                 </span>
               </div>
             </div>
@@ -301,7 +334,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-300">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                <span>{language === 'ar' ? 'رحلتك مؤكدة ✓' : 'Confirmed ✓'}</span>
+                <span>{t('booking.confirmed')}</span>
               </span>
             </div>
           </div>
@@ -318,13 +351,11 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
-                {language === 'ar' ? 'رحلتك لدهب اتأكدت خلاص! 🎉' : 'Your Dahab trip is confirmed! 🎉'}
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
+                {t('booking.tripConfirmedMsg')}
               </h1>
               <p className="text-sm sm:text-base text-[var(--text-primary)]/75 max-w-xl mx-auto leading-relaxed">
-                {language === 'ar'
-                  ? 'كل حاجة جاهزة، ورتبنالك كل الحجوزات في جدول رحلة واحد مريح.'
-                  : "Everything is ready. We've organized your bookings into one trip."}
+                {t('booking.tripConfirmedDesc')}
               </p>
             </div>
 
@@ -342,7 +373,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             )}
 
             <div className="inline-flex items-center gap-2 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-1.5 rounded-full text-xs text-[var(--text-primary)]/70 shadow-2xs font-mono">
-              <span>{language === 'ar' ? 'كود الرحلة:' : 'Trip ID:'}</span>
+              <span>{t('booking.tripId')}</span>
               <span className="font-bold text-[var(--text-primary)]">{tripId}</span>
             </div>
           </div>
@@ -355,14 +386,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {/* Visual Cover Header */}
             <div className="relative h-44 sm:h-52 w-full bg-[var(--surface-container)]/10">
               <img
-                src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=85&w=1200&auto=format&fit=crop"
+                src={IMG_BLUE_HOLE_HERO}
                 alt="Dahab turquoise sea and coastal mountains"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 end-4">
                 <button
                   type="button"
                   id="share-trip-header-btn"
@@ -370,21 +401,21 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   className="px-3 py-1.5 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--surface-card)] text-[var(--text-primary)] text-xs font-bold backdrop-blur-md shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
-                  <span>{language === 'ar' ? 'شارك الرحلة' : 'Share Trip'}</span>
+                  <span>{t('booking.shareTrip')}</span>
                 </button>
               </div>
 
               <div className="absolute bottom-4 left-4 right-4 text-white">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-                  <span>{language === 'ar' ? 'رحلتي' : 'My Trip'}</span>
+                  <span>{t('booking.myTrip')}</span>
                   <span>•</span>
-                  <span>{language === 'ar' ? 'دهب، جنوب سيناء' : 'Dahab, South Sinai'}</span>
+                  <span>{t('booking.dahabSouthSinai')}</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl chart-heading font-bold mt-0.5">
                   Dahab · 5 Days
                 </h2>
                 <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium mt-0.5">
-                  5 days · 2 travelers · 4 coordinated services
+                  {t('booking.tripSummaryLine').replace('${days}', '5').replace('${travelers}', String(travelers)).replace('${travelerWord}', travelers === 1 ? t('booking.traveler') : t('booking.travelersPlural'))}
                 </p>
               </div>
             </div>
@@ -393,7 +424,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             <div className="p-4 sm:p-5 bg-[var(--surface-card)] border-b border-[var(--text-primary)]/8 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-4">
                 <div>
-                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'الحالة' : 'Status'}</span>
+                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{t('booking.status')}</span>
                   <span className="font-bold text-emerald-800 flex items-center gap-1">
                     <Check className="w-3 h-3 stroke-[2.5]" />
                     <span>Confirmed ✓</span>
@@ -403,13 +434,13 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 <div className="h-6 w-px bg-[var(--surface-container)]/10" />
 
                 <div>
-                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'المسافرون' : 'Travelers'}</span>
+                  <span className="text-[var(--text-primary)]/50 block text-[12px]">{t('booking.travelers')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{travelersLabel}</span>
                 </div>
               </div>
 
               <div className="text-end">
-                <span className="text-[var(--text-primary)]/50 block text-[12px]">{language === 'ar' ? 'الإجمالي المؤكَّد' : 'Total Paid / Confirmed'}</span>
+                <span className="text-[var(--text-primary)]/50 block text-[12px]">{t('booking.totalPaidConfirmed')}</span>
                 <span className="text-sm font-black text-[var(--text-primary)]">
                   EGP {totalTripPrice.toLocaleString()}
                 </span>
@@ -420,10 +451,10 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             <div className="p-6 sm:p-8 space-y-4">
               <div className="flex items-center justify-between pb-1">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                  {language === 'ar' ? 'الخدمات المؤكَّدة (كلها في جدول واحد)' : 'Confirmed Services (All in One Itinerary)'}
+                  {t('booking.confirmedServices')}
                 </h3>
                 <span className="text-xs text-emerald-800 font-semibold">
-                  {language === 'ar' ? 'بتنسيق كونسيرج دهب' : 'Coordinated by Dahab Concierge'}
+                  {t('booking.coordinatedByDahab')}
                 </span>
               </div>
 
@@ -494,7 +525,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         </span>
                       </div>
                       <p className="text-xs text-[var(--text-primary)]/70">
-                        Day {divingDay} · {divingTime} · 2 Divers
+                        Day {divingDay} · {divingTime} · {travelers} {travelers === 1 ? 'Diver' : 'Divers'}
                       </p>
                     </div>
                   </div>
@@ -519,7 +550,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                         </span>
                       </div>
                       <p className="text-xs text-[var(--text-primary)]/70">
-                        Day {safariDay} · {safariTime} · 2 Guests
+                        Day {safariDay} · {safariTime} · {travelers} {travelers === 1 ? 'Guest' : 'Guests'}
                       </p>
                     </div>
                   </div>
@@ -546,35 +577,31 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                   <div className="mt-3 p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--text-primary)]/8 text-xs text-[var(--text-primary)]/80 space-y-2.5 animate-in fade-in duration-200">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'المسافر الأساسي' : 'Lead Traveler'}</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{t('booking.leadTraveler')}</span>
                         <span className="font-semibold text-[var(--text-primary)]">{billingName || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'البريد الإلكتروني' : 'Contact Email'}</span>
-                        <span className="font-semibold text-[var(--text-primary)]">sherif.ahmed@example.com</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{t('booking.contactEmail')}</span>
+                        <span className="font-semibold text-[var(--text-primary)]">{billingEmail || sessionUser?.email || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'طريقة الدفع' : 'Payment Method'}</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{t('booking.paymentMethod')}</span>
                         <span className="font-semibold text-[var(--text-primary)]">
-                          {/* Was hardcoded to '•••• 3456' — the digits of the
-                              fake card this form used to arrive pre-filled with. */}
                           {paymentMethod === 'card'
-                            ? `${language === 'ar' ? 'بطاقة' : 'Card'} ${cardNumber ? `•••• ${cardNumber.replace(/\D/g, '').slice(-4)}` : ''}`.trim()
+                            ? `${t('booking.card')} ${cardNumber ? `•••• ${cardNumber.replace(/\D/g, '').slice(-4)}` : ''}`.trim()
                             : paymentMethod === 'arrival'
-                              ? language === 'ar' ? 'الدفع عند الوصول' : 'Pay on arrival'
-                              : language === 'ar' ? 'كاش' : 'Cash'}
+                              ? t('booking.payOnArrival')
+                              : t('booking.cash')}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{language === 'ar' ? 'رقم الحجز الداخلي' : 'Internal Booking Token'}</span>
+                        <span className="text-[var(--text-primary)]/50 text-[12px] block">{t('booking.internalBookingToken')}</span>
                         {/* Was the literal 'DHB-VCH-8942-AUTH' on every booking. */}
                         <span className="font-mono text-[var(--text-secondary)] font-bold">{tripId || '—'}</span>
                       </div>
                     </div>
                     <div className="pt-2 border-t border-[var(--text-primary)]/8 text-[12px] text-[var(--text-primary)]/60">
-                      {language === 'ar'
-                        ? 'كل قسائم المزوّدين متجمّعة تحت حساب رحلتك. مش محتاج تطبع أي حاجة.'
-                        : 'All provider vouchers are unified under your Dahab Trip account. No paper printouts needed upon arrival.'}
+                      {t('booking.voucherNote')}
                     </div>
                   </div>
                 )}
@@ -586,11 +613,11 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[var(--text-secondary)]" />
                 <h4 className="text-base chart-heading font-bold text-[var(--text-primary)]">
-                  {language === 'ar' ? 'رحلتك بقت شغّالة.' : 'Your trip is now live.'}
+                  {t('booking.tripNowLiveMsg')}
                 </h4>
               </div>
               <p className="text-xs sm:text-sm text-[var(--text-primary)]/80 leading-relaxed">
-                We'll keep your bookings, schedule, updates, and important information together here.
+                {t('booking.tripNowLiveDesc')}
               </p>
 
               {/*
@@ -630,7 +657,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               }}
               className="w-full sm:w-auto min-w-[280px] px-8 py-4 rounded-full bg-[var(--surface-container)] hover:bg-[var(--surface-container)] text-[var(--text-primary)] font-bold text-sm sm:text-base transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2.5 cursor-pointer mx-auto"
             >
-              <span>{language === 'ar' ? 'افتح رحلتي' : 'View My Trip'}</span>
+              <span>{t('booking.viewMyTrip')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
@@ -649,7 +676,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
           {/* Share notification toast */}
           {showShareToast && (
-            <div className="fixed bottom-6 right-6 z-50 bg-[var(--surface-container)] text-[var(--text-primary)] text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-200">
+            <div className="fixed bottom-24 end-4 z-50 bg-[var(--surface-container)] text-[var(--text-primary)] text-xs px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-200">
               <Check className="w-4 h-4 text-emerald-400" />
               <span>Trip link copied to clipboard! Share it with your companion.</span>
             </div>
@@ -677,7 +704,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                 DAHAB
               </span>
               <h1 className="text-sm font-bold text-[var(--text-primary)]">
-                {language === 'ar' ? 'إتمام الحجز' : 'Complete your booking'}
+                {t('booking.completeBooking')}
               </h1>
             </div>
           </div>
@@ -686,7 +713,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
           <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto py-1 text-xs">
             <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex-shrink-0">
               <span className="text-[11px]">✓</span>
-              <span>{language === 'ar' ? 'الرحلة' : 'Trip'}</span>
+              <span>{t('booking.trip')}</span>
             </div>
 
             <span className="text-[var(--text-primary)]/30 text-xs flex-shrink-0">›</span>
@@ -732,7 +759,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer bg-[var(--surface-card)] px-3.5 py-1.5 rounded-full border border-[var(--border-subtle)] shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{language === 'ar' ? 'الرجوع لمراجعة الحجز' : 'Back to Booking Review'}</span>
+            <span>{t('booking.backToReview')}</span>
           </button>
         </div>
 
@@ -741,10 +768,10 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-container)]/10 text-[var(--text-secondary)] text-xs font-bold border border-[var(--text-secondary)]/20 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{language === 'ar' ? 'الخطوة الأخيرة' : 'Final step'}</span>
+              <span>{t('booking.finalStep')}</span>
             </span>
             <span className="text-xs text-[var(--text-primary)]/60 font-semibold">
-              {language === 'ar' ? 'فاضل خطوة واحدة على رحلتك في دهب' : 'You\'re one step away from your Dahab trip'}
+              {t('booking.oneStepAway')}
             </span>
           </div>
 
@@ -752,7 +779,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             {language === 'ar' ? 'إتمام الحجز' : 'Complete your booking'}
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-primary)]/70 max-w-3xl leading-relaxed">
-            {language === 'ar' ? 'أكّد بياناتك واختار طريقة الدفع اللي تناسبك.' : 'Confirm your details and choose how you\'d like to pay.'}
+            {t('booking.confirmDetailsPay')}
           </p>
         </div>
 
@@ -767,12 +794,29 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
             >
               <div className="border-b border-[var(--text-primary)]/8 pb-3">
                 <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
-                  {language === 'ar' ? 'طرق الدفع' : 'Payment Options'}
+                  {t('booking.paymentOptions')}
                 </span>
                 <h3 className="text-lg sm:text-xl chart-heading font-bold text-[var(--text-primary)] mt-0.5">
-                  How would you like to pay?
+                  {t('booking.howToPayQuestion')}
                 </h3>
               </div>
+
+              {/* Honesty banner: no payment gateway is integrated yet. The card
+                  form still accepts digits so a traveler can rehearse checkout,
+                  but it must never read as a working online payment. */}
+              {arePaymentsSimulated && (
+                <div
+                  role="status"
+                  className="p-3.5 rounded-2xl border border-amber-300/60 bg-amber-50/80 text-amber-900 text-xs leading-relaxed flex items-start gap-2.5"
+                >
+                  <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>
+                    {language === 'ar'
+                      ? 'الدفع الإلكتروني في وضع تجريبي حاليًا — بطاقتك لن تُخصم ولن يتواصل أي بوابة دفع. لو حابب تأكد حجزك فعلًا، اختار «الدفع عند الوصول».'
+                      : 'Online payment is in demo mode right now — no card is charged and no payment gateway is contacted. To secure your booking for real, choose “Pay on arrival”.'}
+                  </span>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {/* Option 1: Card (Paymob / Stripe Gateway) */}
@@ -989,7 +1033,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
+                    <label htmlFor="cardholder-name-input" className="block text-xs font-bold text-[var(--text-primary)] mb-1.5">
                       {language === 'ar' ? 'اسم حامل البطاقة' : 'Cardholder name'}
                     </label>
                     <input
@@ -1376,7 +1420,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               {/* Exact Line Items without invented fees */}
               <div className="space-y-3 text-xs text-[var(--text-primary)]/80">
                 <div className="flex items-center justify-between">
-                  <span>{language === 'ar' ? 'الفندق' : 'Hotel'}</span>
+              <span>{t('booking.hotel')}</span>
                   <span className="font-bold text-[var(--text-primary)]">
                     EGP {hotelPrice.toLocaleString()}
                   </span>
@@ -1421,6 +1465,67 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
                       ? `الإجمالي التقديري لـ${travelersLabel}`
                       : `Estimated total for ${travelersLabel.toLowerCase()}`}
                   </div>
+
+                  {/* P4 trust: why is the total the total — catalogue truth,
+                      not arithmetic. */}
+                  <button
+                    type="button"
+                    id="price-explainer-toggle"
+                    onClick={togglePriceExplainer}
+                    aria-expanded={showPriceExplainer}
+                    className="mt-2 flex items-center gap-1.5 text-[12px] font-bold text-[var(--accent-primary)] hover:underline underline-offset-4 cursor-pointer"
+                  >
+                    <Info className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>{language === 'ar' ? 'ليه الإجمالي كده؟' : 'Why this total?'}</span>
+                  </button>
+                  {showPriceExplainer && (
+                    <div className="mt-2 p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                      {priceExplanation ? (
+                        // Amounts shown are the storefront charge lines this
+                        // checkout will actually settle (hotelPrice,
+                        // transferPrice, …) — the same numbers in the
+                        // breakdown above. The backend contributes the
+                        // pricing BASIS (per-person vs per-stay) and the
+                        // supplier's cancellation window, so the why comes
+                        // from catalogue truth while the what-you-pay comes
+                        // from the charge itself.
+                        [
+                          { key: 'hotel', skuId: 'SKU-HTL-001', label: language === 'ar' ? 'الفندق' : 'Hotel', basis: 'per_stay', unit: null as number | null, amount: hotelPrice, policy: priceExplanation.lines.find(l => l.skuId === 'SKU-HTL-001')?.cancellationPolicyHours ?? 48 },
+                          { key: 'transfer', skuId: selectedTransfer?.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002', label: language === 'ar' ? 'الانتقالات' : 'Transfer', basis: 'per_person', unit: Math.round(transferPrice / travelers), amount: transferPrice, policy: priceExplanation.lines.find(l => l.skuId === (selectedTransfer?.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002'))?.cancellationPolicyHours ?? 24 },
+                          { key: 'diving', skuId: 'SKU-DIV-001', label: language === 'ar' ? 'الغطس' : 'Diving', basis: 'per_person', unit: Math.round(divingPrice / travelers), amount: divingPrice, policy: priceExplanation.lines.find(l => l.skuId === 'SKU-DIV-001')?.cancellationPolicyHours ?? 24 },
+                          { key: 'safari', skuId: 'SKU-SAF-001', label: language === 'ar' ? 'السفاري' : 'Safari', basis: 'per_person', unit: Math.round(safariPrice / travelers), amount: safariPrice, policy: priceExplanation.lines.find(l => l.skuId === 'SKU-SAF-001')?.cancellationPolicyHours ?? 24 },
+                        ].filter(item => item.amount > 0).map(item => (
+                          <div key={item.key} className="flex items-start justify-between gap-2 text-[12px]">
+                            <span className="min-w-0">
+                              <span className="block font-bold text-[var(--text-primary)]">{item.label}</span>
+                              <span className="block text-[var(--text-secondary)]">
+                                {language === 'ar'
+                                  ? item.basis === 'per_stay'
+                                    ? `سعر الإقامة كاملة · إلغاء قبل ${item.policy} ساعة`
+                                    : `${travelers} × ${item.unit?.toLocaleString()} ج.م للفرد · إلغاء قبل ${item.policy} ساعة`
+                                  : item.basis === 'per_stay'
+                                    ? `Whole-stay price · free cancellation ${item.policy}h before`
+                                    : `${travelers} × EGP ${item.unit?.toLocaleString()} per person · free cancellation ${item.policy}h before`}
+                              </span>
+                            </span>
+                            <span className="font-bold text-[var(--text-primary)] flex-shrink-0 tabular-nums">
+                              EGP {item.amount.toLocaleString()}
+                            </span>
+                          </div>
+                        ))
+                      ) : priceExplanationError ? (
+                        <p className="text-[12px] text-[var(--text-secondary)]">
+                          {language === 'ar'
+                            ? 'مش قادرين نجيب تفاصيل الأسعار دلوقتي — جرّب تاني.'
+                            : 'Could not load the price details right now — try again.'}
+                        </p>
+                      ) : (
+                        <p className="text-[12px] text-[var(--text-secondary)]">
+                          {language === 'ar' ? 'جاري الحساب…' : 'Calculating…'}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

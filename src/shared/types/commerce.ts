@@ -582,6 +582,11 @@ export interface AccommodationEntity {
   featured: boolean;
   packageTotalEGP: number;
   bookable: { skuId: string } | null;
+  /** CMS catalog-binding overlays (cover/gallery), present when published. */
+  coverImageUrl?: string;
+  coverImageFocal?: { x: number; y: number };
+  coverImageSrcSet?: string;
+  galleryImageUrls?: string[];
 }
 
 export interface AccommodationSearchFilters {

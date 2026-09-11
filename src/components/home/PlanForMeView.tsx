@@ -415,16 +415,16 @@ export const PlanForMeView: React.FC = () => {
 
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold">
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+                <Sparkles className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" aria-hidden="true" />
                 <span>{t('home.dahabTravelDirector')}</span>
-              </span>
+              </p>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold tracking-tight leading-tight">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05] text-balance">
                 {t('tripEntry.modeC.title')}
               </h1>
 
-              <p className="text-base text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
                 {t('home.fiveQuickQuestionsAnd')}
               </p>
             </div>

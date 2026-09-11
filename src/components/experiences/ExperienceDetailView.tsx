@@ -214,7 +214,7 @@ export const ExperienceDetailView: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl chart-heading font-bold">
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-balance">
               {t('experienceDetail.notFoundTitle')}
             </h1>
             <p className={`text-xs sm:text-sm leading-relaxed ${'text-[var(--text-secondary)]/70'}`}>
@@ -249,11 +249,7 @@ export const ExperienceDetailView: React.FC = () => {
       {/* 1. TOP BREADCRUMB & WAYFINDING NAVIGATION */}
       <nav
         aria-label="Breadcrumb navigation"
-        className={`border-b sticky top-16 sm:top-20 z-30 backdrop-blur-xl transition-colors ${
-          isDark
-            ? 'bg-[var(--surface-card)]/85 border-[var(--border-subtle)] text-[var(--text-secondary)]'
-            : 'bg-[var(--text-primary)]/90 border-[var(--text-primary)]/10 text-[var(--text-secondary)]'
-        }`}
+        className="border-b sticky top-16 sm:top-20 z-30 backdrop-blur-xl transition-colors bg-[var(--surface-card)]/85 border-[var(--border-subtle)] text-[var(--text-secondary)]"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 text-xs font-semibold">
           <div className="flex items-center gap-2 flex-wrap min-w-0">
@@ -375,23 +371,27 @@ export const ExperienceDetailView: React.FC = () => {
               </span>
             </div>
 
-            {/* Title */}
+            {/* Title — always white: this hero is a fixed dark photo plate
+                (bg-stone-950 + dark gradients) regardless of the site's active
+                theme, so text-[var(--text-primary)] would turn near-black and
+                vanish in light themes. Same bug class fixed on the homepage
+                hero earlier — pin the hero's own text to white instead. */}
             <h1
               id="experience-title"
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl chart-heading font-bold tracking-tight text-[var(--text-primary)] leading-[1.15]"
+              className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white leading-[1.05] text-balance"
             >
               {language === 'ar' ? activeExperience.titleAr : activeExperience.titleEn}
             </h1>
 
             {/* Tagline */}
-            <p className="text-base sm:text-lg md:text-xl text-[var(--text-secondary)] font-normal leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg md:text-xl text-white/75 font-normal leading-relaxed max-w-2xl">
               {language === 'ar' ? activeExperience.taglineAr : activeExperience.taglineEn}
             </p>
 
             {/* Location Pill */}
             <div className="flex items-center gap-2 text-xs sm:text-sm text-[var(--accent-primary)] font-medium pt-1">
               <MapPin className="w-4 h-4 flex-shrink-0 text-[var(--accent-primary)]" />
-              <span>{language === 'ar' ? activeExperience.locationAr : activeExperience.locationEn}</span>
+              <span className="text-white/90">{language === 'ar' ? activeExperience.locationAr : activeExperience.locationEn}</span>
             </div>
 
             {/* Price & Action Strip */}
@@ -459,60 +459,26 @@ export const ExperienceDetailView: React.FC = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            
-            {/* 1. Duration */}
-            <div className={`p-5 sm:p-6 rounded-3xl border shadow-sm ${
-              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
-            }`}>
-              <div className="flex items-center gap-2 text-[var(--accent-primary)] mb-2">
-                <Clock className="w-4 h-4" />
-                <span className="text-[11px] font-bold">{t('experienceDetail.duration')}</span>
+          {/* One unified strip with hairline dividers instead of four
+              separately-bordered cards saying the same "I am a fact" thing
+              four times in a row. */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)] overflow-hidden divide-y lg:divide-y-0 lg:divide-x divide-[var(--border-subtle)]">
+            {[
+              { icon: Clock, color: 'text-[var(--accent-primary)]', label: t('experienceDetail.duration'), value: language === 'ar' ? activeExperience.durationAr : activeExperience.durationEn },
+              { icon: Zap, color: 'text-[var(--brand-coral)]', label: t('experienceDetail.difficulty'), value: language === 'ar' ? activeExperience.difficultyAr : activeExperience.difficultyEn },
+              { icon: Navigation, color: 'text-[var(--accent-primary)]', label: t('experienceDetail.accessMethod'), value: language === 'ar' ? activeExperience.accessMethodAr : activeExperience.accessMethodEn },
+              { icon: Sparkles, color: 'text-[var(--accent-secondary)]', label: t('experienceDetail.optimalTime'), value: language === 'ar' ? activeExperience.openHoursAr : activeExperience.openHoursEn },
+            ].map((fact) => (
+              <div key={fact.label} className="flex items-center justify-between gap-3 p-5 sm:p-6">
+                <div className={`flex items-center gap-2 ${fact.color}`}>
+                  <fact.icon className="w-4 h-4 shrink-0" />
+                  <span className="text-[11px] font-bold text-[var(--text-secondary)]">{fact.label}</span>
+                </div>
+                <div className="text-base sm:text-lg font-bold text-[var(--text-primary)] truncate text-end">
+                  {fact.value}
+                </div>
               </div>
-              <div className={`text-base sm:text-lg font-bold ${'text-[var(--text-primary)]'}`}>
-                {language === 'ar' ? activeExperience.durationAr : activeExperience.durationEn}
-              </div>
-            </div>
-
-            {/* 2. Difficulty / Level */}
-            <div className={`p-5 sm:p-6 rounded-3xl border shadow-sm ${
-              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
-            }`}>
-              <div className="flex items-center gap-2 text-[var(--brand-coral)] mb-2">
-                <Zap className="w-4 h-4" />
-                <span className="text-[11px] font-bold">{t('experienceDetail.difficulty')}</span>
-              </div>
-              <div className={`text-base sm:text-lg font-bold ${'text-[var(--text-primary)]'}`}>
-                {language === 'ar' ? activeExperience.difficultyAr : activeExperience.difficultyEn}
-              </div>
-            </div>
-
-            {/* 3. Access Method */}
-            <div className={`p-5 sm:p-6 rounded-3xl border shadow-sm ${
-              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
-            }`}>
-              <div className="flex items-center gap-2 text-[var(--accent-primary)] mb-2">
-                <Navigation className="w-4 h-4" />
-                <span className="text-[11px] font-bold">{t('experienceDetail.accessMethod')}</span>
-              </div>
-              <div className={`text-base sm:text-lg font-bold truncate ${'text-[var(--text-primary)]'}`}>
-                {language === 'ar' ? activeExperience.accessMethodAr : activeExperience.accessMethodEn}
-              </div>
-            </div>
-
-            {/* 4. Best Timing */}
-            <div className={`p-5 sm:p-6 rounded-3xl border shadow-sm ${
-              'bg-[var(--surface-card)] border-[var(--border-subtle)]'
-            }`}>
-              <div className="flex items-center gap-2 text-[var(--accent-secondary)] mb-2">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-[11px] font-bold">{t('experienceDetail.optimalTime')}</span>
-              </div>
-              <div className={`text-base sm:text-lg font-bold truncate ${'text-[var(--text-primary)]'}`}>
-                {language === 'ar' ? activeExperience.openHoursAr : activeExperience.openHoursEn}
-              </div>
-            </div>
-
+            ))}
           </div>
         </section>
 
@@ -546,9 +512,7 @@ export const ExperienceDetailView: React.FC = () => {
                 {(language === 'ar' ? activeExperience.highlightsAr : activeExperience.highlightsEn).map((h, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm font-medium ${
-                      isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--text-primary)] border-[var(--text-primary)]/10 text-[var(--text-primary)]'
-                    }`}
+                    className="flex items-start gap-3 p-3.5 rounded-2xl border text-xs sm:text-sm font-medium bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
                   >
                     <div className="w-5 h-5 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <CheckCircle2 className="w-3.5 h-3.5" />
@@ -564,10 +528,12 @@ export const ExperienceDetailView: React.FC = () => {
           {/* Local Guide Advice & Live Conditions (1 col) */}
           <div className="space-y-6">
             
-            {/* Guide Note Card */}
-            <div className={`p-6 sm:p-7 rounded-3xl border shadow-md space-y-4 ${
-              isDark ? 'bg-[var(--surface-container)] border-[var(--accent-secondary)]/30 text-[var(--text-primary)]' : 'bg-[var(--text-primary)] border-[var(--accent-secondary)]/40 text-[var(--text-primary)]'
-            }`}>
+            {/* Guide Note Card — the light-theme branch used to paint the
+                background with var(--text-primary) (a near-black tone) while
+                the text used the same variable, making the note invisible
+                against its own background. Both themes now use the same
+                surface-container treatment as every other card on the page. */}
+            <div className="p-6 sm:p-7 rounded-3xl border shadow-md space-y-4 bg-[var(--surface-container)] border-[var(--accent-secondary)]/30 text-[var(--text-primary)]">
               <div className="flex items-center gap-2 text-[var(--accent-secondary)]">
                 <Sparkles className="w-5 h-5" />
                 <h3 className="text-xs font-extrabold">
@@ -680,9 +646,7 @@ export const ExperienceDetailView: React.FC = () => {
                     className={`p-3 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border text-center ${
                       selectedTimeSlot === slot.id
                         ? 'bg-[var(--accent-primary)] text-[var(--surface-card)] border-[var(--accent-primary)] shadow-sm'
-                        : isDark
-                        ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-container)]'
-                        : 'bg-[var(--text-primary)] text-[var(--text-primary)] border-[var(--text-primary)]/10 hover:bg-[var(--surface-container)]'
+                        : 'bg-[var(--surface-container)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--surface-card)]'
                     }`}
                   >
                     {slot.label}

@@ -209,7 +209,7 @@ export const BookingDivingStep: React.FC<BookingDivingStepProps> = ({
                 <span>{isAr ? 'موصى به لرحلتك' : 'Recommended for you'}</span>
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
               {isAr ? 'اجعل الغطس جزءاً أساسياً من رحلتك إلى دهب' : 'Make diving part of your Dahab trip.'}
             </h1>
             <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">

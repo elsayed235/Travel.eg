@@ -1,6 +1,14 @@
 import type { Database as SqliteDb } from 'better-sqlite3';
 import { SqlitePersistenceAdapter } from '../db/sqlite/SqlitePersistenceAdapter';
 import { db } from '../db/database';
+import { assertNoLiteralEscapes } from './textIntegrity';
+
+const CMS_TEXT_FIELDS = [
+  'title_en', 'title_ar', 'subtitle_en', 'subtitle_ar',
+  'description_en', 'description_ar', 'body_en', 'body_ar',
+  'hero_image_alt_en', 'hero_image_alt_ar',
+  'seo_title_en', 'seo_title_ar', 'seo_description_en', 'seo_description_ar',
+] as const;
 
 // ============================================================================
 // CMS Entity Types
@@ -36,6 +44,8 @@ export interface CmsPage {
   published_at: string;
   scheduled_at: string;
   preview_token: string;
+  /** ISO expiry for the draft preview link — findByPreviewToken honors it. */
+  preview_expires_at: string;
   version: number;
 }
 
@@ -52,6 +62,12 @@ export interface CmsBlock {
   config: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface MediaVariant {
+  width: number;
+  url: string;
+  bytes: number;
 }
 
 export interface CmsMedia {
@@ -72,8 +88,25 @@ export interface CmsMedia {
   category: string;
   tags: string;
   usage_count: number;
+  /** Focal point for smart crops, 0–100 on each axis (50/50 = center). */
+  focal_x: number;
+  focal_y: number;
+  /** Pre-rendered responsive siblings (see imageVariants.ts). Empty when the
+   *  source was too small to downscale, animated (GIF), or registered by URL. */
+  variants: MediaVariant[];
   created_at: string;
   updated_at: string;
+  /** Computed per-response by the admin media list — never stored. */
+  usedCount?: number;
+  usedIn?: MediaReference[];
+}
+
+export interface MediaReference {  kind: 'binding' | 'page';
+  entityType?: string;
+  entityId?: string;
+  label?: string;
+  field?: string;
+  status?: string;
 }
 
 export interface CmsHomepageSection {
@@ -153,6 +186,13 @@ function generateId(prefix: string): string {
   const ts = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 7);
   return `${prefix}-${ts}-${rand}`.toUpperCase();
+}
+
+/** Draft preview links live 7 days — long enough to share, short enough that a leaked token dies on its own. */
+export const PREVIEW_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+function previewExpiryFromNow(): string {
+  return new Date(Date.now() + PREVIEW_TOKEN_TTL_MS).toISOString();
 }
 
 function hydrate<T>(row: unknown): T {
@@ -239,6 +279,7 @@ export const cmsPages = {
   create(data: Partial<CmsPage>, actorId?: string, actorName?: string): CmsPage {
     const c = conn();
     if (!c) throw new Error('CMS database unavailable');
+    assertNoLiteralEscapes(data as Record<string, unknown>, CMS_TEXT_FIELDS);
     const id = generateId('CMS');
     const ts = now();
     const page: CmsPage = {
@@ -271,6 +312,7 @@ export const cmsPages = {
       published_at: '',
       scheduled_at: data.scheduled_at || '',
       preview_token: generateId('PREV'),
+      preview_expires_at: previewExpiryFromNow(),
       version: 1,
     };
 
@@ -280,8 +322,8 @@ export const cmsPages = {
         hero_image_alt_en, hero_image_alt_ar, status, seo_title_en, seo_title_ar,
         seo_description_en, seo_description_ar, og_image_url, sort_order, featured,
         created_by, updated_by, created_at, updated_at, published_at, scheduled_at,
-        preview_token, version)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        preview_token, preview_expires_at, version)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       page.id, page.slug, page.type, page.title_en, page.title_ar,
       page.subtitle_en, page.subtitle_ar, page.description_en, page.description_ar,
@@ -290,7 +332,7 @@ export const cmsPages = {
       page.seo_title_en, page.seo_title_ar, page.seo_description_en, page.seo_description_ar,
       page.og_image_url, page.sort_order, page.featured,
       page.created_by, page.updated_by, page.created_at, page.updated_at,
-      page.published_at, page.scheduled_at, page.preview_token, page.version
+      page.published_at, page.scheduled_at, page.preview_token, page.preview_expires_at, page.version
     );
 
     // Record the initial restorable state so rollback() can return the page to
@@ -311,6 +353,7 @@ export const cmsPages = {
     if (!c) return null;
     const existing = this.findById(id);
     if (!existing) return null;
+    assertNoLiteralEscapes(data as Record<string, unknown>, CMS_TEXT_FIELDS);
 
     const ts = now();
     const updated = { ...existing, ...data, updated_at: ts, version: existing.version + 1 };
@@ -399,13 +442,39 @@ export const cmsPages = {
   },
 
   /**
-   * Find a page by its preview token (for draft preview).
+   * Find a page by its preview token (for draft preview). Undated legacy
+   * tokens and past-dated tokens are dead — mint a fresh link via
+   * regeneratePreviewToken instead of honoring them forever.
    */
   findByPreviewToken(token: string): CmsPage | null {
     const c = conn();
-    if (!c) return null;
+    if (!c || !token) return null;
     const row = c.prepare('SELECT * FROM cms_pages WHERE preview_token = ?').get(token);
-    return row ? hydrate<CmsPage>(row) : null;
+    if (!row) return null;
+    const page = hydrate<CmsPage>(row);
+    if (!page.preview_expires_at || page.preview_expires_at <= now()) return null;
+    return page;
+  },
+
+  /**
+   * Mint a fresh preview token + expiry (the old link dies immediately).
+   * Any of the CMS roles may refresh — previewing a draft is not publishing.
+   */
+  regeneratePreviewToken(id: string, actorId?: string, actorName?: string): CmsPage | null {
+    const c = conn();
+    if (!c) return null;
+    const existing = this.findById(id);
+    if (!existing) return null;
+    const ts = now();
+    const token = generateId('PREV');
+    const expires = previewExpiryFromNow();
+    c.prepare(`
+      UPDATE cms_pages SET preview_token = ?, preview_expires_at = ?,
+        version = version + 1, updated_by = ?, updated_at = ?
+      WHERE id = ?
+    `).run(token, expires, actorId || '', ts, id);
+    logRevision('page', id, 'preview_refresh', actorId || '', actorName || '', { preview_expires_at: expires });
+    return this.findById(id);
   },
 
   /**
@@ -467,6 +536,7 @@ export const cmsBlocks = {
   create(data: Partial<CmsBlock>, actorId?: string, actorName?: string): CmsBlock {
     const c = conn();
     if (!c) throw new Error('CMS database unavailable');
+    assertNoLiteralEscapes(data as Record<string, unknown>, CMS_TEXT_FIELDS);
     const id = generateId('BLK');
     const ts = now();
     const block: CmsBlock = {
@@ -492,7 +562,11 @@ export const cmsBlocks = {
       block.title_en, block.title_ar, block.body_en, block.body_ar,
       block.config, block.created_at, block.updated_at);
 
-    logRevision('block', id, 'create', actorId || '', actorName || '', { page_id: block.page_id, type: block.type });
+    logRevision('block', id, 'create', actorId || '', actorName || '', {
+      page_id: block.page_id, type: block.type, sort_order: block.sort_order,
+      visible: block.visible, title_en: block.title_en, title_ar: block.title_ar,
+      body_en: block.body_en, body_ar: block.body_ar, config: block.config,
+    });
     return block;
   },
 
@@ -501,6 +575,7 @@ export const cmsBlocks = {
     if (!c) return null;
     const existing = this.findById(id);
     if (!existing) return null;
+    assertNoLiteralEscapes(data as Record<string, unknown>, CMS_TEXT_FIELDS);
 
     const ts = now();
     const updated = { ...existing, ...data, updated_at: ts };
@@ -514,7 +589,13 @@ export const cmsBlocks = {
       updated.title_en, updated.title_ar, updated.body_en, updated.body_ar,
       configStr, updated.updated_at, id);
 
-    logRevision('block', id, 'update', actorId || '', actorName || '', { fields: Object.keys(data) });
+    // Changed field VALUES (not names) — the audit trail must be restorable,
+    // like page revisions (see cmsPages.rollback).
+    const changedValues: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (k in existing) changedValues[k] = v;
+    }
+    logRevision('block', id, 'update', actorId || '', actorName || '', changedValues);
     return updated;
   },
 
@@ -530,23 +611,77 @@ export const cmsBlocks = {
 // Media CRUD
 // ============================================================================
 
+/** Clamp a focal axis to 0–100; non-numbers fall back to center (50). */
+export function clampFocalAxis(value: unknown): number {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return 50;
+  return Math.min(100, Math.max(0, Math.round(n)));
+}
+
+/** Normalize the variants JSON column (or upload payload) into MediaVariant[]. */
+export function parseVariants(raw: unknown): MediaVariant[] {
+  try {
+    const list = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter(v => v && typeof v === 'object'
+        && Number.isFinite((v as any).width) && (v as any).width > 0
+        && typeof (v as any).url === 'string' && (v as any).url)
+      .map(v => ({
+        width: Math.floor((v as any).width),
+        url: String((v as any).url),
+        bytes: Number.isFinite((v as any).bytes) ? Math.floor((v as any).bytes) : 0,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Sanitize a homepage section config before storage. Only known-safe
+ * constraints live here: hero overlay_opacity is coerced to an integer
+ * 0–100 (garbage restores full scrims). Unknown keys pass through —
+ * section configs are schemaless by design.
+ */
+export function sanitizeHomepageConfig(sectionKey: string, config: unknown): Record<string, any> | undefined {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) return undefined;
+  const cfg = { ...(config as Record<string, any>) };
+  if (sectionKey === 'hero' && cfg.overlay_opacity !== undefined) {
+    const n = Number(cfg.overlay_opacity);
+    cfg.overlay_opacity = Number.isFinite(n) ? Math.min(100, Math.max(0, Math.round(n))) : 100;
+  }
+  return cfg;
+}
+
 export const cmsMedia = {
   findAll(category?: string): CmsMedia[] {
     const c = conn();
     if (!c) return [];
-    if (category) {
-      return c.prepare('SELECT * FROM cms_media WHERE category = ? ORDER BY created_at DESC')
-        .all(category).map(hydrate<CmsMedia>);
-    }
-    return c.prepare('SELECT * FROM cms_media ORDER BY created_at DESC')
-      .all().map(hydrate<CmsMedia>);
+    const rows = category
+      ? c.prepare('SELECT * FROM cms_media WHERE category = ? ORDER BY created_at DESC').all(category)
+      : c.prepare('SELECT * FROM cms_media ORDER BY created_at DESC').all();
+    // Rows written before the focal columns existed come back without them —
+    // the migration normally backfills, but default here too so readers never
+    // see undefined.
+    return rows.map((row: any) => {
+      const media = hydrate<CmsMedia>(row);
+      if (media.focal_x === undefined || media.focal_x === null) media.focal_x = 50;
+      if (media.focal_y === undefined || media.focal_y === null) media.focal_y = 50;
+      media.variants = parseVariants((media as any).variants);
+      return media;
+    });
   },
 
   findById(id: string): CmsMedia | null {
     const c = conn();
     if (!c) return null;
     const row = c.prepare('SELECT * FROM cms_media WHERE id = ?').get(id);
-    return row ? hydrate<CmsMedia>(row) : null;
+    if (!row) return null;
+    const media = hydrate<CmsMedia>(row);
+    if (media.focal_x === undefined || media.focal_x === null) media.focal_x = 50;
+    if (media.focal_y === undefined || media.focal_y === null) media.focal_y = 50;
+    media.variants = parseVariants((media as any).variants);
+    return media;
   },
 
   create(data: Partial<CmsMedia>, actorId?: string, actorName?: string): CmsMedia {
@@ -572,6 +707,9 @@ export const cmsMedia = {
       category: data.category || 'general',
       tags: data.tags || '',
       usage_count: 0,
+      focal_x: data.focal_x === undefined ? 50 : clampFocalAxis(data.focal_x),
+      focal_y: data.focal_y === undefined ? 50 : clampFocalAxis(data.focal_y),
+      variants: parseVariants(data.variants),
       created_at: ts,
       updated_at: ts,
     };
@@ -579,15 +717,21 @@ export const cmsMedia = {
     c.prepare(`
       INSERT INTO cms_media (id, filename, original_url, storage_path, mime_type,
         file_size, width, height, aspect_ratio, alt_en, alt_ar, caption_en, caption_ar,
-        credit, category, tags, usage_count, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        credit, category, tags, usage_count, focal_x, focal_y, variants, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(media.id, media.filename, media.original_url, media.storage_path, media.mime_type,
       media.file_size, media.width, media.height, media.aspect_ratio,
       media.alt_en, media.alt_ar, media.caption_en, media.caption_ar,
       media.credit, media.category, media.tags, media.usage_count,
+      media.focal_x, media.focal_y, JSON.stringify(media.variants),
       media.created_at, media.updated_at);
 
-    logRevision('media', id, 'create', actorId || '', actorName || '');
+    logRevision('media', id, 'create', actorId || '', actorName || '', {
+      filename: media.filename, mime_type: media.mime_type, category: media.category,
+      alt_en: media.alt_en, alt_ar: media.alt_ar, caption_en: media.caption_en,
+      caption_ar: media.caption_ar, credit: media.credit, tags: media.tags,
+      focal_x: media.focal_x, focal_y: media.focal_y,
+    });
     return media;
   },
 
@@ -598,20 +742,32 @@ export const cmsMedia = {
     if (!existing) return null;
 
     const ts = now();
-    const updated = { ...existing, ...data, updated_at: ts };
+    const updated = {
+      ...existing,
+      ...data,
+      focal_x: data.focal_x === undefined ? existing.focal_x ?? 50 : clampFocalAxis(data.focal_x),
+      focal_y: data.focal_y === undefined ? existing.focal_y ?? 50 : clampFocalAxis(data.focal_y),
+      variants: parseVariants(data.variants !== undefined ? data.variants : existing.variants),
+      updated_at: ts,
+    };
 
     c.prepare(`
       UPDATE cms_media SET filename = ?, original_url = ?, storage_path = ?, mime_type = ?,
         file_size = ?, width = ?, height = ?, aspect_ratio = ?,
         alt_en = ?, alt_ar = ?, caption_en = ?, caption_ar = ?,
-        credit = ?, category = ?, tags = ?, updated_at = ?
+        credit = ?, category = ?, tags = ?, focal_x = ?, focal_y = ?, variants = ?, updated_at = ?
       WHERE id = ?
     `).run(updated.filename, updated.original_url, updated.storage_path, updated.mime_type,
       updated.file_size, updated.width, updated.height, updated.aspect_ratio,
       updated.alt_en, updated.alt_ar, updated.caption_en, updated.caption_ar,
-      updated.credit, updated.category, updated.tags, updated.updated_at, id);
+      updated.credit, updated.category, updated.tags,
+      updated.focal_x, updated.focal_y, JSON.stringify(updated.variants), updated.updated_at, id);
 
-    logRevision('media', id, 'update', actorId || '', actorName || '', { fields: Object.keys(data) });
+    const changedValues: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (k in existing) changedValues[k] = v;
+    }
+    logRevision('media', id, 'update', actorId || '', actorName || '', changedValues);
     return updated;
   },
 
@@ -645,6 +801,7 @@ export const cmsHomepage = {
   upsert(data: Partial<CmsHomepageSection>, actorId?: string, actorName?: string): CmsHomepageSection {
     const c = conn();
     if (!c) throw new Error('CMS database unavailable');
+    assertNoLiteralEscapes(data as Record<string, unknown>, ['title_en', 'title_ar']);
 
     const existing = this.findByKey(data.section_key || '');
     const ts = now();
@@ -666,7 +823,11 @@ export const cmsHomepage = {
         data.sort_order ?? existing.sort_order,
         configStr, ts, data.section_key
       );
-      logRevision('homepage_section', existing.id, 'update', actorId || '', actorName || '', { section_key: data.section_key });
+      logRevision('homepage_section', existing.id, 'update', actorId || '', actorName || '', {
+        section_key: data.section_key, title_en: data.title_en ?? existing.title_en,
+        title_ar: data.title_ar ?? existing.title_ar, visible: data.visible ?? existing.visible,
+        sort_order: data.sort_order ?? existing.sort_order, config: parsedConfig,
+      });
       return { ...existing, ...data, config: parsedConfig, updated_at: ts } as CmsHomepageSection;
     }
 
@@ -677,7 +838,10 @@ export const cmsHomepage = {
     `).run(id, data.section_key || '', data.title_en || '', data.title_ar || '',
       data.visible ?? 1, data.sort_order ?? 0, configStr, ts);
 
-    logRevision('homepage_section', id, 'create', actorId || '', actorName || '', { section_key: data.section_key });
+    logRevision('homepage_section', id, 'create', actorId || '', actorName || '', {
+      section_key: data.section_key, title_en: data.title_en || '', title_ar: data.title_ar || '',
+      visible: data.visible ?? 1, sort_order: data.sort_order ?? 0, config: parsedConfig,
+    });
     return {
       id, section_key: data.section_key || '', title_en: data.title_en || '', title_ar: data.title_ar || '',
       visible: data.visible ?? 1, sort_order: data.sort_order ?? 0, config: parsedConfig, updated_at: ts
@@ -733,7 +897,10 @@ export const cmsNavigation = {
       data.external_url || '', data.visible ?? 1, data.open_in_new ?? 0,
       data.icon || '', data.group_label_en || '', data.group_label_ar || '', ts, ts);
 
-    logRevision('navigation', id, 'create', actorId || '', actorName || '', { menu_key: data.menu_key });
+    logRevision('navigation', id, 'create', actorId || '', actorName || '', {
+      menu_key: data.menu_key || '', label_en: data.label_en || '', label_ar: data.label_ar || '',
+      route: data.route || '', external_url: data.external_url || '', visible: data.visible ?? 1,
+    });
     return { ...data, id, created_at: ts, updated_at: ts } as CmsNavigation;
   },
 
@@ -755,7 +922,11 @@ export const cmsNavigation = {
       updated.route, updated.external_url, updated.visible, updated.open_in_new,
       updated.icon, updated.group_label_en, updated.group_label_ar, updated.updated_at, id);
 
-    logRevision('navigation', id, 'update', actorId || '', actorName || '', { fields: Object.keys(data) });
+    const changedValues: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (k in existing) changedValues[k] = v;
+    }
+    logRevision('navigation', id, 'update', actorId || '', actorName || '', changedValues);
     return updated;
   },
 
@@ -801,7 +972,17 @@ export const cmsSeo = {
         data.noindex ?? existing.noindex, ts,
         data.page_type, data.page_id
       );
-      return { ...existing, ...data, updated_at: ts } as CmsSeo;
+      // SEO had no audit trail at all — log the merged values like every
+      // other CMS write so the history tab shows what changed.
+      const merged = { ...existing, ...data, updated_at: ts } as CmsSeo;
+      logRevision('seo', existing.id, 'update', actorId || '', actorName || '', {
+        page_type: merged.page_type, page_id: merged.page_id,
+        title_en: merged.title_en, title_ar: merged.title_ar,
+        description_en: merged.description_en, description_ar: merged.description_ar,
+        og_image_url: merged.og_image_url, canonical_url: merged.canonical_url,
+        noindex: merged.noindex,
+      });
+      return merged;
     }
 
     const id = generateId('SEO');
@@ -815,6 +996,10 @@ export const cmsSeo = {
       data.og_title_en || '', data.og_title_ar || '', data.og_description_en || '', data.og_description_ar || '',
       data.og_image_url || '', data.canonical_url || '', data.noindex ?? 0, ts);
 
+    logRevision('seo', id, 'create', actorId || '', actorName || '', {
+      page_type: data.page_type || '', page_id: data.page_id || '',
+      title_en: data.title_en || '', title_ar: data.title_ar || '',
+    });
     return { id, ...data, updated_at: ts } as CmsSeo;
   }
 };

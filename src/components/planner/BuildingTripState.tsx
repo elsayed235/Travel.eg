@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Compass, CheckCircle2, Waves, MapPin, ArrowLeft, Clock, Users, Wallet, Flame } from 'lucide-react';
+import { Sparkles, Compass, MapPin, ArrowLeft, Wallet, Flame } from 'lucide-react';
 import { TripDynamicType } from './StepTravelers';
 import { BudgetTier } from './StepBudget';
 import { InterestId, INTERESTS_DATA } from './StepInterests';
 import { PaceType } from './StepPace';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { api } from '../../services/api';
 
 interface BuildingTripStateProps {
   durationLabel: string;
+  /** Chosen day count — drives both the phase copy and (in TripPlanner) the AI generation request. */
+  durationDays: number;
   adultsCount: number;
-  childrenCount: number;
   tripDynamic: TripDynamicType | null;
   selectedBudget: BudgetTier;
   selectedInterests: InterestId[];
@@ -20,24 +20,10 @@ interface BuildingTripStateProps {
   onReturnHome: () => void;
 }
 
-const GENERATION_PHASES_EN = [
-  'Connecting with local Dahab hosts and dive spots...',
-  'Balancing morning reef sessions with afternoon canyon explorations...',
-  'Selecting authentic Lighthouse and Eel Garden seaside dining...',
-  'Finalizing your customized 5-day Sinai itinerary...',
-];
-
-const GENERATION_PHASES_AR = [
-  'بنتواصل مع كباتن الغطس وأهل البلد في دهب...',
-  'بنوفق بين نزلة البحر الصبح وقعدة الكانيون بعد الضهر...',
-  'بنختارلك أماكن أكل رايقة على ممشى اللايتهاوس وإيل جاردن...',
-  'بنقفل جدول الـ ٥ أيام ونظبط كل تفصيلة ع الرايق...',
-];
-
 export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
   durationLabel,
+  durationDays,
   adultsCount,
-  childrenCount,
   tripDynamic,
   selectedBudget,
   selectedInterests,
@@ -49,22 +35,19 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
   const { language, isRTL , t} = useLanguage();
   const [phaseIndex, setPhaseIndex] = useState(0);
 
-  const generationPhases = language === 'ar' ? GENERATION_PHASES_AR : GENERATION_PHASES_EN;
+  const generationPhases = [
+    t('planner.phase.1'),
+    t('planner.phase.2'),
+    t('planner.phase.3'),
+    t('planner.phase.4').replace('${days}', String(durationDays)),
+  ];
 
   useEffect(() => {
-    // Proactively call server-side Gemini AI Trip Generator in background
-    const daysNum = durationLabel.includes('3') ? 3 : durationLabel.includes('7') ? 7 : 5;
-    api.generateAiTrip({
-      durationDays: daysNum,
-      adultsCount,
-      childrenCount,
-      dynamic: tripDynamic || 'Friends',
-      budget: selectedBudget,
-      interests: selectedInterests,
-      pace: selectedPace,
-      language
-    }).catch((e) => console.log('AI Trip Generation background info:', e));
-
+    // The actual AI generation request is fired by TripPlanner when the
+    // traveler presses Build My Trip — its resolved plan feeds the itinerary
+    // screen. This screen is the progress theatre while that call is in
+    // flight. (It used to fire a *second*, discarded call here, doubling the
+    // Gemini cost on every build.)
     const interval = setInterval(() => {
       setPhaseIndex((prev) => {
         if (prev < generationPhases.length - 1) {
@@ -90,28 +73,16 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
     .map((i) => (language === 'ar' ? i.nameAr || i.name : i.name))
     .join(' · ');
 
-  const paceMapEn: Record<PaceType, string> = {
-    slow: 'Slow & Easy',
-    balanced: 'Balanced (Best of both)',
-    packed: 'See It All (Maximum exploration)',
+  const paceLabels: Record<PaceType, string> = {
+    slow: t('planner.pace.slow'),
+    balanced: t('planner.pace.balanced'),
+    packed: t('planner.pace.packed'),
   };
 
-  const paceMapAr: Record<PaceType, string> = {
-    slow: 'رايق وهادي ع الآخر',
-    balanced: 'متوازن (ميكس راحة ومغامرة)',
-    packed: 'مليان تجارب واكتشاف',
-  };
-
-  const budgetMapEn: Record<BudgetTier, string> = {
-    budget: 'Budget',
-    moderate: 'Moderate',
-    premium: 'Premium',
-  };
-
-  const budgetMapAr: Record<BudgetTier, string> = {
-    budget: 'اقتصادي وشبابي',
-    moderate: 'متوسط ومريح',
-    premium: 'فاخر ومميز',
+  const budgetLabels: Record<BudgetTier, string> = {
+    budget: t('planner.budget.budget'),
+    moderate: t('planner.budget.moderate'),
+    premium: t('planner.budget.premium'),
   };
 
   return (
@@ -206,7 +177,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
                 {t('planner.budgetTier')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">
-                {language === 'ar' ? budgetMapAr[selectedBudget] : `${budgetMapEn[selectedBudget]} · Balanced Comfort`}
+                {budgetLabels[selectedBudget]} {t('planner.budget.comfortNote')}
               </span>
             </div>
 
@@ -222,7 +193,7 @@ export const BuildingTripState: React.FC<BuildingTripStateProps> = ({
                 {t('planner.paceFlow')}
               </span>
               <span className="font-bold text-[var(--text-primary)]">
-                {language === 'ar' ? paceMapAr[selectedPace] : paceMapEn[selectedPace]}
+                {paceLabels[selectedPace]}
               </span>
             </div>
           </div>

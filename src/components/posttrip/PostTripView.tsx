@@ -19,6 +19,7 @@ import {
   Award
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
+import { CategoryIcon, type CategoryKind } from '../common/CategoryIcon';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
 
@@ -117,7 +118,7 @@ export const PostTripView: React.FC = () => {
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>{t('postTrip.tripStatusCompleted')}</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
                 {t('postTrip.welcomeBack', { travelerName })}
               </h1>
               <p className="text-sm sm:text-base text-[var(--text-secondary)] max-w-2xl font-medium leading-relaxed">
@@ -406,13 +407,13 @@ export const PostTripView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  { nameEn: 'Blue Hole Certified', nameAr: 'ختم البلو هول', icon: '🤿', date: 'Oct 13', code: 'BH-01' },
-                  { nameEn: 'Canyon Diver', nameAr: 'ختم الكانيون المرجاني', icon: '🪸', date: 'Oct 14', code: 'CY-02' },
-                  { nameEn: 'Sinai Bedouin Stargazer', nameAr: 'سهرة وادي قني', icon: '✨', date: 'Oct 14', code: 'WG-03' },
-                  { nameEn: 'Lighthouse Sunset Explorer', nameAr: 'لايتهاوس لاجون', icon: '🌅', date: 'Oct 15', code: 'LH-04' },
+                  { nameEn: 'Blue Hole Certified', nameAr: 'ختم البلو هول', icon: 'dive', date: 'Oct 13', code: 'BH-01' },
+                  { nameEn: 'Canyon Diver', nameAr: 'ختم الكانيون المرجاني', icon: 'reef', date: 'Oct 14', code: 'CY-02' },
+                  { nameEn: 'Sinai Bedouin Stargazer', nameAr: 'سهرة وادي قني', icon: 'star', date: 'Oct 14', code: 'WG-03' },
+                  { nameEn: 'Lighthouse Sunset Explorer', nameAr: 'لايتهاوس لاجون', icon: 'sunset', date: 'Oct 15', code: 'LH-04' },
                 ].map((stamp, idx) => (
                   <div key={idx} className="p-3 rounded-2xl bg-[var(--surface-container)] border-2 border-dashed border-[var(--accent-secondary)]/30 flex flex-col items-center text-center space-y-1 relative group hover:border-[var(--accent-secondary)] transition-colors">
-                    <span className="text-2xl">{stamp.icon}</span>
+                    <CategoryIcon kind={stamp.icon as CategoryKind} className="w-6 h-6" />
                     <span className="font-bold text-[12px] text-[var(--text-primary)] leading-tight">
                       {language === 'ar' ? stamp.nameAr : stamp.nameEn}
                     </span>

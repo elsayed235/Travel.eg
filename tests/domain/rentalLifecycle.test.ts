@@ -32,6 +32,11 @@ function checkout(bookingId: string) {
   });
 }
 
+const localDate = (offset: number) => {
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD in local time
+};
+
 describe('rental booking lifecycle', () => {
   beforeEach(() => {
     resetDb();
@@ -188,7 +193,7 @@ describe('rental booking lifecycle', () => {
   it('allows cancellation past the free window but does not refund', () => {
     const listing = seedRentalListing();
     // Start date is today, so now > startTs − 24h: outside the free window.
-    const booking = hold(listing.id, { startDate: '2026-09-06', endDate: '2026-09-08' });
+    const booking = hold(listing.id, { startDate: localDate(0), endDate: localDate(2) });
     checkout(booking.id);
 
     const cancelled = rentalService.cancelRentalBooking({ bookingId: booking.id, actor: travelActor });
@@ -254,9 +259,11 @@ describe('rental booking lifecycle', () => {
     expect(db.rentalBookings.find(b => b.id === booking.id)!.status).toBe('COMPLETED');
     expect(db.bookings.find(b => b.bookingRef === booking.bookingRef)!.supplierState).toBe('COMPLETED');
 
-    const payout = db.ledgerEntries.find(e => e.type === 'SUPPLIER_PAYOUT' && e.bookingRef === booking.bookingRef);
-    expect(payout).toBeDefined();
-    expect(payout!.amountEGP).toBe(Math.round(1620 * 0.85)); // 1377
+    // 24h payout hold: schedule entry created, not yet settled (blueprint row #12).
+    const payoutSchedule = db.payoutSchedule.find(p => p.bookingRef === booking.bookingRef);
+    expect(payoutSchedule).toBeDefined();
+    expect(payoutSchedule!.payoutState).toBe('PENDING');
+    expect(payoutSchedule!.amountEGP).toBe(Math.round(1620 * 0.85)); // 1377
   });
 
   it('mark-returned with damage deducts deposit and books a late fee adjustment', () => {
@@ -297,7 +304,7 @@ describe('rental booking lifecycle', () => {
 
   it('reconciles CONFIRMED → READY_FOR_PICKUP when the start date arrives', () => {
     const listing = seedRentalListing();
-    const booking = hold(listing.id, { startDate: '2026-09-06', endDate: '2026-09-08' });
+    const booking = hold(listing.id, { startDate: localDate(0), endDate: localDate(2) });
     checkout(booking.id);
     rentalService.acceptRentalBooking({ bookingId: booking.id, supplierId: listing.supplierId });
 

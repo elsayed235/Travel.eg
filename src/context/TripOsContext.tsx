@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   TripBrief,
   TripFitResult,
@@ -56,7 +56,6 @@ const TripOsContext = createContext<TripOsContextType | undefined>(undefined);
 export const TripOsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [tripBrief, setTripBrief] = useState<TripBrief>(INITIAL_TRIP_BRIEF);
   const [tripFit, setTripFit] = useState<TripFitResult>(INITIAL_TRIP_FIT);
   const [tradeOffOptions, setTradeOffOptions] = useState<TradeOffOption[]>(INITIAL_TRADE_OFF_OPTIONS);
   const [dayIntelligence, setDayIntelligence] = useState<DayIntelligence[]>(INITIAL_DAY_INTELLIGENCE);
@@ -76,54 +75,51 @@ export const TripOsProvider: React.FC<{
   const { showToast } = useUI();
   const { activeTrip, activeTripItems } = useCommerce();
 
-  /**
-   * Reads the trip's health from the service that actually computes it.
-   *
-   * daygiTripHealthService.evaluateTripHealth derives its issues from the
-   * trip's own items, bookings and holds; GET /api/daygi/health/:tripId serves
-   * it. This page had never called it.
-   */
+  const CATEGORY: Record<string, { en: string; ar: string; color: string }> = {
+    hotel: { en: 'Accommodation', ar: 'الإقامة', color: '#0E252C' },
+    diving: { en: 'Diving', ar: 'الغطس', color: '#C49756' },
+    safari: { en: 'Safari', ar: 'السفاري', color: '#E07A5F' },
+    transfer: { en: 'Transfers', ar: 'التنقلات', color: '#20A89A' },
+    wellness: { en: 'Wellness', ar: 'العناية', color: '#52C4B7' },
+    dining: { en: 'Dining', ar: 'المطاعم', color: '#F4C36C' }
+  };
+
   /**
    * The brief describes the traveler's own trip.
    *
    * INITIAL_TRIP_BRIEF still carried a fixed 5 days, 12–16 September 2026, 2
    * travellers, a Moderate budget of 16,800 EGP and four interests — rendered
    * on the screen that asks the traveler to approve "their" plan.
-   */
-  useEffect(() => {
-    if (!activeTrip) return;
-    setTripBrief(previous => ({
-      ...previous,
-      durationDays: activeTrip.lengthDays,
-      startDate: activeTrip.startDate || previous.startDate,
-      endDate: activeTrip.endDate || previous.endDate,
-      travelersCount: activeTrip.travelersCount,
-      budgetTier: activeTrip.budget,
-      pace: activeTrip.pace,
-      estimatedBudgetEGP: activeTrip.totalEstimatedEGP || previous.estimatedBudgetEGP,
-      interests: activeTrip.interests.length > 0 ? activeTrip.interests : previous.interests
-    }));
-  }, [activeTrip]);
-
-  /**
-   * The budget, computed from the trip's own items.
    *
-   * INITIAL_BUDGET_BREAKDOWN was a fixed 16,800 EGP split across four
-   * categories at fixed percentages — 43% accommodation, 28% activities — and
-   * shown as this trip's cost. Unlike the fit and readiness scores, this one is
-   * genuinely derivable: the items carry a service type and a price.
+   * Derived fields come from activeTrip; user-editable fields (budgetTier, pace,
+   * interests) are stored in state and merged during render to avoid the
+   * double-render caused by the previous useEffect approach.
    */
-  useEffect(() => {
-    if (!activeTrip || activeTripItems.length === 0) return;
+  const [tripBriefOverrides, setTripBriefOverrides] = useState<Partial<Pick<TripBrief, 'budgetTier' | 'pace' | 'interests'>>>({});
 
-    const CATEGORY: Record<string, { en: string; ar: string; color: string }> = {
-      hotel: { en: 'Accommodation', ar: 'الإقامة', color: '#0E252C' },
-      diving: { en: 'Diving', ar: 'الغطس', color: '#C49756' },
-      safari: { en: 'Safari', ar: 'السفاري', color: '#E07A5F' },
-      transfer: { en: 'Transfers', ar: 'التنقلات', color: '#20A89A' },
-      wellness: { en: 'Wellness', ar: 'العناية', color: '#52C4B7' },
-      dining: { en: 'Dining', ar: 'المطاعم', color: '#F4C36C' }
-    };
+  const tripBrief = useMemo<TripBrief>(() => ({
+    ...INITIAL_TRIP_BRIEF,
+    ...tripBriefOverrides,
+    durationDays: activeTrip?.lengthDays ?? INITIAL_TRIP_BRIEF.durationDays,
+    startDate: activeTrip?.startDate || INITIAL_TRIP_BRIEF.startDate,
+    endDate: activeTrip?.endDate || INITIAL_TRIP_BRIEF.endDate,
+    travelersCount: activeTrip?.travelersCount ?? INITIAL_TRIP_BRIEF.travelersCount,
+    budgetTier: tripBriefOverrides.budgetTier ?? activeTrip?.budget ?? INITIAL_TRIP_BRIEF.budgetTier,
+    pace: tripBriefOverrides.pace ?? activeTrip?.pace ?? INITIAL_TRIP_BRIEF.pace,
+    estimatedBudgetEGP: activeTrip?.totalEstimatedEGP || INITIAL_TRIP_BRIEF.estimatedBudgetEGP,
+    interests: tripBriefOverrides.interests ?? (activeTrip?.interests?.length ? activeTrip.interests : INITIAL_TRIP_BRIEF.interests),
+  }), [activeTrip, tripBriefOverrides]);
+
+  const prevTripIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    const tripId = activeTrip?.id ?? null;
+    if (tripId === prevTripIdRef.current) return;
+    prevTripIdRef.current = tripId;
+
+    if (!activeTrip || activeTripItems.length === 0) {
+      setBudgetBreakdown(INITIAL_BUDGET_BREAKDOWN);
+      return;
+    }
 
     const totals = new Map<string, number>();
     let bookedTotal = 0;
@@ -135,8 +131,8 @@ export const TripOsProvider: React.FC<{
     const estimatedTotal = [...totals.values()].reduce((sum, v) => sum + v, 0);
     if (estimatedTotal === 0) return;
 
-    setBudgetBreakdown(previous => ({
-      ...previous,
+    setBudgetBreakdown({
+      ...INITIAL_BUDGET_BREAKDOWN,
       estimatedTotalEGP: estimatedTotal,
       bookedTotalEGP: bookedTotal,
       plannedRemainingEGP: Math.max(0, estimatedTotal - bookedTotal),
@@ -150,11 +146,9 @@ export const TripOsProvider: React.FC<{
           percentage: Math.round((amountEGP / estimatedTotal) * 100),
           color: CATEGORY[serviceType]?.color ?? '#20A89A'
         })),
-      // The saving suggestions were written alongside the fixed numbers and
-      // have no engine behind them either.
       optimizations: []
-    }));
-  }, [activeTrip, activeTripItems]);
+    });
+  }, [activeTrip?.id, activeTripItems]);
 
   useEffect(() => {
     if (!activeTrip) {
@@ -180,7 +174,12 @@ export const TripOsProvider: React.FC<{
 
   const updateTripBrief = useCallback(
     (updates: Partial<TripBrief>) => {
-      setTripBrief(prev => ({ ...prev, ...updates }));
+      setTripBriefOverrides(prev => ({
+        ...prev,
+        ...(updates.budgetTier !== undefined && { budgetTier: updates.budgetTier }),
+        ...(updates.pace !== undefined && { pace: updates.pace }),
+        ...(updates.interests !== undefined && { interests: updates.interests }),
+      }));
       showToast('Trip Brief parameters updated ✓');
     },
     [showToast]
@@ -315,7 +314,7 @@ export const TripOsProvider: React.FC<{
       }));
 
       if (actionType === 'make_relaxed' || actionType === 'more_free_time') {
-        setTripBrief(prev => ({ ...prev, pace: 'Relaxed' }));
+        setTripBriefOverrides(prev => ({ ...prev, pace: 'Relaxed' }));
         setDayIntelligence(prev =>
           prev.map(day => ({
             ...day,
@@ -336,7 +335,7 @@ export const TripOsProvider: React.FC<{
           plannedRemainingEGP: prev.plannedRemainingEGP - 1800
         }));
       } else if (actionType === 'add_diving' || actionType === 'more_adventurous') {
-        setTripBrief(prev => ({ ...prev, pace: 'Active' }));
+        setTripBriefOverrides(prev => ({ ...prev, pace: 'Active' }));
         setDayIntelligence(prev =>
           prev.map(day =>
             day.dayNumber === 2
@@ -359,11 +358,15 @@ export const TripOsProvider: React.FC<{
     [showToast]
   );
 
+  // setTripBrief is kept for type compatibility but is a no-op;
+  // use updateTripBrief() or setTripBriefOverrides instead.
+  const setTripBriefNoop = useCallback(() => {}, []);
+
   // See the note in UIContext.
   const value = useMemo<TripOsContextType>(
     () => ({
       tripBrief,
-      setTripBrief,
+      setTripBrief: setTripBriefNoop,
       updateTripBrief,
       tripFit,
       setTripFit,

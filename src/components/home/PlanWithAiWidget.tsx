@@ -45,6 +45,13 @@ interface GenActivity {
   timeSlot?: string;
   location: string;
   category?: string;
+  /** Enriched (availability-joined) real DB price; 0/absent = not sellable. */
+  priceEGP?: number;
+  /** Real SKU attached by the server when this item is bookable. */
+  skuId?: string;
+  bookable?: boolean;
+  unbookableReason?: string;
+  /** Legacy/raw AI estimate — budget only, never a holdable price. */
   estimatedPriceEGP?: number;
   description?: string;
   descriptionAr?: string;
@@ -84,13 +91,23 @@ const CATEGORY_STYLE: Record<string, string> = {
 const THINKING_LINES = {
   en: [
     'Reading your dates and Dahab rhythms…',
+    'Matching your interests to the best experiences…',
     'Balancing reefs, desert and downtime…',
-    'Laying out your day-by-day plan…'
+    'Checking live availability and pricing…',
+    'Laying out your day-by-day plan…',
+    'Tuning drive times between stops…',
+    'Adding restaurant and rest stops…',
+    'Finalizing your itinerary…'
   ],
   ar: [
-    'بنقرأ مواعيدك وإيقاع دهب…',
+    'بنقرا موعيدك وإيقاع دهب…',
+    'بنطبق الاهتمامات مع أفضل التجاربات…',
     'بنوازن بين الشعاب والصحراء والراحة…',
-    'بنرتب خطتك يوم بيوم…'
+    'بتحقق من التأول والأسعار…',
+    'بنرتب خطتك يوم بيوم…',
+    'بعدل أوقات القطع بين المواقع…',
+    'بضافإ مطاعم وبرادة استراحة…',
+    'بتنهاء خطتك النهائية…'
   ]
 };
 
@@ -235,7 +252,9 @@ export const PlanWithAiWidget: React.FC = () => {
         activities: (day.activities || []).map((a) => ({
           title: a.title,
           timeSlot: a.timeSlot,
+          priceEGP: a.priceEGP ?? a.estimatedPriceEGP,
           estimatedPriceEGP: a.estimatedPriceEGP,
+          skuId: a.skuId,
           category: a.category,
           location: a.location,
           description: a.description
@@ -295,8 +314,8 @@ export const PlanWithAiWidget: React.FC = () => {
   const primaryBtn =
     'w-full py-3 rounded-xl text-sm font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] ' +
     (isDark
-      ? 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[#1A1206]'
-      : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[#1A1206]');
+      ? 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)]'
+      : 'bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-[var(--accent-primary-ink)]');
 
   const secondaryBtn =
     'px-5 py-2.5 rounded-xl border text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ' +
@@ -311,7 +330,7 @@ export const PlanWithAiWidget: React.FC = () => {
       className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 md:-mt-20"
     >
       <div
-        className={`overflow-hidden rounded-3xl border shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 ${
+        className={`overflow-hidden rounded-3xl border shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 aurora-glass ${
           isDark
             ? 'bg-[var(--surface-card)]/95 backdrop-blur-xl border-[var(--border-subtle)]'
             : 'bg-[var(--surface-card)]/95 backdrop-blur-xl border-[var(--border-subtle)]'
@@ -325,7 +344,7 @@ export const PlanWithAiWidget: React.FC = () => {
             aria-expanded={open}
             className="flex items-center gap-2.5 text-start cursor-pointer group"
           >
-            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[#1A1206] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-[var(--accent-primary-ink)] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <Sparkles className="w-4 h-4" aria-hidden="true" />
             </span>
             <span className="space-y-0.5">
@@ -542,6 +561,10 @@ export const PlanWithAiWidget: React.FC = () => {
                           <ul className={`divide-y ${isDark ? 'divide-[var(--border-subtle)]' : 'divide-[var(--border-subtle)]'}`}>
                             {(day.activities || []).map((act, i) => {
                               const color = CATEGORY_STYLE[act.category || ''] || 'var(--accent-primary)';
+                              // Availability-joined price: real DB price when the
+                              // server attached a SKU, else the AI's estimate.
+                              const price = act.priceEGP ?? act.estimatedPriceEGP;
+                              const priceIsReal = act.bookable === true;
                               return (
                                 <li key={`${act.id || day.dayNumber}-${i}`} className={`px-4 py-2.5 flex items-start gap-3 ${isDark ? 'bg-[var(--surface-container)]/40' : 'bg-[var(--surface-card)]'}`}>
                                   <span className="w-1.5 h-full self-stretch rounded-full mt-1 shrink-0" style={{ backgroundColor: color }} aria-hidden="true" />
@@ -569,9 +592,9 @@ export const PlanWithAiWidget: React.FC = () => {
                                           {act.location}
                                         </span>
                                       )}
-                                      {typeof act.estimatedPriceEGP === 'number' && act.estimatedPriceEGP > 0 && (
+                                      {typeof price === 'number' && price > 0 && (
                                         <span className="text-[11px] font-bold text-[var(--text-secondary)]/80">
-                                          ≈ {act.estimatedPriceEGP.toLocaleString()} EGP
+                                          {priceIsReal ? '' : '≈ '}{price.toLocaleString()} EGP
                                         </span>
                                       )}
                                     </div>

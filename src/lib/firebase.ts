@@ -16,7 +16,6 @@ import {
   doc,
   setDoc,
   getDoc,
-  getDocFromServer,
   collection,
   query,
   onSnapshot,
@@ -83,20 +82,6 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   return errInfo;
 }
 
-// Test initial connection as required by firebase skill
-export async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firestore is running in local cached/offline resilience mode.');
-    }
-  }
-}
-
-// Kick off silent background connection check
-testConnection();
-
 // =========================================================================
 // AUTH HELPER METHODS
 // =========================================================================
@@ -147,21 +132,21 @@ export async function registerTravelerWithEmail(
     const cleanName = sanitizeText(displayName || 'Dahab Explorer');
     const result = await createUserWithEmailAndPassword(auth, cleanEmail, password);
     if (result.user) {
-      if (cleanName) {
-        await updateProfile(result.user, { displayName: cleanName });
-      }
       const userRef = doc(db, 'users', result.user.uid);
-      await setDoc(
-        userRef,
-        {
-          userId: result.user.uid,
-          email: cleanEmail,
-          displayName: cleanName,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true }
-      );
+      await Promise.all([
+        ...(cleanName ? [updateProfile(result.user, { displayName: cleanName })] : []),
+        setDoc(
+          userRef,
+          {
+            userId: result.user.uid,
+            email: cleanEmail,
+            displayName: cleanName,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        )
+      ]);
     }
     return result.user;
   } catch (error) {

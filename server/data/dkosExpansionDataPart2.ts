@@ -303,8 +303,11 @@ export const EXPANDED_ACTIVITIES: ActivityDetailEntity[] = [
     titleEn: 'Ras Abu Galum Remote Marine Safari by Boat',
     titleAr: 'رحلة بحرية بالقارب لمحمية رأس أبو جالوم والبحيرة الزرقاء',
     category: 'safari',
-    placeId: 'place_blue_hole_sanctuary',
-    areaId: 'blue_hole',
+    // This safari sails to Ras Abu Galum; it used to point at the Blue Hole
+    // sanctuary place, so the Explore card showed the Blue Hole's description
+    // and neighborhood for a trip that goes elsewhere.
+    placeId: 'place_ras_abu_galum',
+    areaId: 'ras_abu_galum',
     durationMinutes: 360,
     accessMethod: 'BOAT',
     difficulty: 'All Levels',
@@ -452,7 +455,10 @@ export const EXPANDED_ACTIVITIES: ActivityDetailEntity[] = [
     titleAr: 'توصيلة خاصة مباشرة ومكيفة من مطار شرم الشيخ إلى دهب',
     category: 'culture',
     placeId: 'place_ssh_dahab_highway',
-    areaId: 'ssh_corridor',
+    // Same terminus grouping as the checkpoint place above: the retired
+    // ssh_corridor is not a valid areaId (mandatory FK). The reconciler
+    // repoints skuId at SKU-TRF-001 at boot; that mapping is untouched.
+    areaId: 'masbat',
     durationMinutes: 65,
     accessMethod: 'VEHICLE',
     difficulty: 'All Levels',

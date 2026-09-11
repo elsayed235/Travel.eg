@@ -6,14 +6,16 @@ import { useTrip } from '../../../context/TripContext';
 import type { ConfirmedBookingItem } from '../myTripData';
 import { TripBudgetCard } from './TripBudgetCard';
 import { TripGroupSplitCard } from './TripGroupSplitCard';
+import { TripConservationCard } from './TripConservationCard';
 
 interface TripBookingsTabProps {
   travelersCount: number;
   onShare: () => void;
   onSelectBooking: (booking: ConfirmedBookingItem) => void;
+  tripId?: string;
 }
 
-export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount, onShare, onSelectBooking }) => {
+export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount, onShare, onSelectBooking, tripId }) => {
   const { language, t } = useLanguage();
   const { isDark } = useTheme();
   const { bookings } = useTrip();
@@ -67,15 +69,17 @@ export const TripBookingsTab: React.FC<TripBookingsTabProps> = ({ travelersCount
                 </div>
               </div>
             ))}
-          </div>
+          </div>        </div>
 
-        </div>
+        {/* Traveler's reef-impact record + eco-action logging. */}
+        <TripConservationCard tripId={tripId} />
+
       </div>
 
       {/* Right Column: Budget & Group Split (5/12) */}
       <div className="lg:col-span-5 space-y-6">
         <TripBudgetCard />
-        <TripGroupSplitCard travelersCount={travelersCount} onShare={onShare} />
+        <TripGroupSplitCard travelersCount={travelersCount} onShare={onShare} tripId={tripId} />
       </div>
 
     </div>

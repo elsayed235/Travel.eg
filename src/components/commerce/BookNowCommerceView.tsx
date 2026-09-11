@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { api } from '../../services/api';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { api, RichAvailabilityResponse } from '../../services/api';
 import {
   Waves,
   Car,
@@ -19,8 +19,10 @@ import {
   Search,
   Check,
   Luggage,
+  Loader2,
   X
 } from 'lucide-react';
+import { availabilitySlotViews, AvailabilitySlotView, bookingActionError, BookingErrorInfo } from '../../services/bookingManage';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { ConfirmedBookingItem, TimelineActivity } from '../../types';
@@ -28,6 +30,29 @@ import { IN_DESTINATION_SERVICES, InDestinationServiceOption, BookNowCategory } 
 import { INITIAL_LIVE_DAHAB_CONDITIONS } from '../../data/dahabGeography';
 import { analytics } from '../../services/analytics';
 import type { ProductSkuEntity } from '../../shared/types/commerce';
+
+/** YYYY-MM-DD in the traveler's local timezone — how the UI labels dates. */
+function localToday(): string {
+  const d = new Date();
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Maps a thrown failure to its user-facing sentence — never the raw backend text. */
+function liveErrorText(err: unknown, t: (key: string) => string): string {
+  const info = bookingActionError(err);
+  switch (info.code) {
+    case 'unauthorized': return t('bookings.error.unauthorized');
+    case 'forbidden': return t('bookings.error.forbidden');
+    case 'notFound': return t('bookings.error.notFound');
+    case 'conflict': return t('bookings.error.conflict');
+    case 'invalidState': return t('bookings.error.invalidState');
+    case 'rateLimited': return t('bookings.error.rateLimited');
+    case 'server': return t('bookings.error.server');
+    case 'network': return t('bookings.error.network');
+    default: return t('bookings.error.unknown');
+  }
+}
 
 export const BookNowCommerceView: React.FC = () => {
   const {
@@ -48,6 +73,12 @@ export const BookNowCommerceView: React.FC = () => {
   const { language, isRTL , t} = useLanguage();
   /** Why the instant booking failed, if it did. Shown instead of a voucher. */
   const [instantBookingError, setInstantBookingError] = useState<string | null>(null);
+  const instantBookingErrorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (instantBookingError) {
+      instantBookingErrorRef.current?.focus();
+    }
+  }, [instantBookingError]);
 
   // Category filter
   const [selectedCategory, setSelectedCategory] = useState<BookNowCategory>('all');
@@ -72,6 +103,60 @@ export const BookNowCommerceView: React.FC = () => {
   // Completed voucher state
   const [confirmedBooking, setConfirmedBooking] = useState<ConfirmedBookingItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // ---------------------------------------------------------------------------
+  // Live availability for the selected product — server-reported only.
+  // The backend owns the numbers (including held seats folded into
+  // availableCapacity); this page only presents them and never decides
+  // capacity itself. The slot views are re-derived whenever the party size or
+  // product changes, and the CTA re-checks with the server at submit time so a
+  // slot that sold out mid-configuration is caught there.
+  // ---------------------------------------------------------------------------
+  const [liveAvailability, setLiveAvailability] = useState<{ views: AvailabilitySlotView[]; response: RichAvailabilityResponse } | null>(null);
+  const [liveState, setLiveState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [liveError, setLiveError] = useState<BookingErrorInfo | null>(null);
+  const [availabilityRetry, setAvailabilityRetry] = useState(0);
+  const [pickedLiveSlot, setPickedLiveSlot] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeService?.skuId || !activeService.serviceType) {
+      setLiveAvailability(null);
+      setLiveState('idle');
+      setPickedLiveSlot(null);
+      return;
+    }
+    let cancelled = false;
+    setLiveState('loading');
+    setLiveError(null);
+    void (async () => {
+      try {
+        const response = await api.checkRichAvailability({
+          serviceType: activeService.serviceType,
+          skuId: activeService.skuId,
+          date: localToday(),
+          passengers: guestsCount
+        });
+        if (cancelled) return;
+        setLiveAvailability({ views: availabilitySlotViews(response, guestsCount), response });
+        setLiveState('ready');
+        setPickedLiveSlot(null);
+      } catch (err) {
+        if (cancelled) return;
+        setLiveError(bookingActionError(err));
+        setLiveState('error');
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeService?.skuId, activeService?.serviceType, guestsCount, availabilityRetry]);
+
+  /** True when the server says today has slots but none fit this party. */
+  const liveNoFitToday =
+    liveState === 'ready' &&
+    liveAvailability !== null &&
+    liveAvailability.views.length > 0 &&
+    liveAvailability.views.every(v => v.kind === 'sold-out' || v.kind === 'fits-no-party');
 
   /**
    * Opens this page on the product the traveler actually chose.
@@ -105,17 +190,17 @@ export const BookNowCommerceView: React.FC = () => {
       // inventory are asked in turn. Small and cached by the browser; a
       // dedicated by-id endpoint would be better if this grows.
       const verticals = ['diving', 'safari', 'transfer', 'hotel', 'wellness', 'dining'];
-      for (const vertical of verticals) {
-        try {
-          const { skus } = await api.getInventory(vertical, controller.signal);
-          const match = skus.find(sku => sku.id === selectedSkuId);
+      const results = await Promise.allSettled(
+        verticals.map(v => api.getInventory(v, controller.signal))
+      );
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          const match = result.value.skus.find(sku => sku.id === selectedSkuId);
           if (match && !cancelled) {
             setRequestedSku(match);
             setSkuLookupFailed(false);
             return;
           }
-        } catch {
-          // Try the next vertical; the failure is reported once, below.
         }
       }
       if (!cancelled) {
@@ -284,6 +369,34 @@ export const BookNowCommerceView: React.FC = () => {
     // 'transport') and a massage and a restaurant table as safaris.
     const serviceType = activeService.serviceType ?? 'safari';
 
+    // Pre-check availability against the rich endpoint before attempting to
+    // book — if the slot sold out (or the party grew past it) while the user
+    // was configuring, it is caught here instead of at payment time, and the
+    // slot list refreshes so the traveler sees the new reality.
+    try {
+      const availability = await api.checkRichAvailability({
+        serviceType,
+        skuId: activeService.skuId,
+        date: localToday(),
+        passengers: guestsCount
+      });
+      const fits = availability.slots.some(
+        s => s.status !== 'SOLD_OUT' && s.availableCapacity >= guestsCount
+      );
+      if (!availability.available || !fits) {
+        setIsSubmitting(false);
+        setAvailabilityRetry(r => r + 1);
+        setInstantBookingError(
+          t('commerce.slotNoLongerAvailable')
+        );
+        return;
+      }
+    } catch {
+      // Availability check is advisory — proceed with the booking even
+      // if the check fails (network error, server down, etc.). The server
+      // still refuses a genuinely unavailable slot at checkout.
+    }
+
     let bookingId: string;
     let confirmationCode: string;
     try {
@@ -318,9 +431,9 @@ export const BookNowCommerceView: React.FC = () => {
       confirmationCode = booked?.confirmationCode || bookingId;
     } catch (err: any) {
       setIsSubmitting(false);
-      setInstantBookingError(
-        t('commerce.bookingNotCompleted', { message: err?.message || '' })
-      );
+      // The traveler is told what went wrong in their own language and never
+      // shown the backend's raw error sentence.
+      setInstantBookingError(liveErrorText(err, t));
       return;
     }
 
@@ -474,16 +587,16 @@ export const BookNowCommerceView: React.FC = () => {
           {/* Title + live conditions */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="max-w-2xl space-y-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--accent-primary)]/12 border border-[var(--accent-primary)]/30 text-[var(--accent-primary)] text-xs font-extrabold">
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+                <Sparkles className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" aria-hidden="true" />
                 <span>{t('commerce.dahabLiveCommerce')}</span>
-              </span>
+              </p>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] chart-heading font-bold tracking-tight leading-tight">
+              <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05] text-balance">
                 {t('commerce.bookLocalDahabServices')}
               </h1>
 
-              <p className="text-base text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">
                 {t('commerce.diveGearDelivered4x4')}
               </p>
             </div>
@@ -519,7 +632,7 @@ export const BookNowCommerceView: React.FC = () => {
                   }
                 ].map((stat) => (
                   <div key={stat.labelEn}>
-                    <dt className="text-[11px] font-bold text-[var(--text-secondary)]">
+                    <dt className="text-xs font-bold text-[var(--text-secondary)]">
                       {language === 'ar' ? stat.labelAr : stat.labelEn}
                     </dt>
                     <dd className="text-lg font-mono font-bold text-[var(--text-primary)] tabular-nums">
@@ -915,7 +1028,7 @@ export const BookNowCommerceView: React.FC = () => {
                     type="button"
                     onClick={() => setActiveService(null)}
                     aria-label={t('commerce.closeBookingPanel')}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="w-8 h-8 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                   </button>
@@ -994,6 +1107,94 @@ export const BookNowCommerceView: React.FC = () => {
                     </div>
                   </fieldset>
 
+                  {/* Live availability — real backend slots for today */}
+                  <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] p-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-[11px] font-extrabold text-[var(--text-secondary)]">
+                        <span
+                          aria-hidden="true"
+                          className={`w-2 h-2 rounded-full ${liveState === 'ready' ? 'bg-[var(--accent-primary)] animate-pulse' : 'bg-[var(--text-secondary)]/40'}`}
+                        />
+                        {t('commerce.liveAvailability')}
+                      </span>
+                      {liveState === 'error' && (
+                        <button
+                          type="button"
+                          onClick={() => setAvailabilityRetry(r => r + 1)}
+                          className="text-[11px] font-bold text-[var(--accent-primary)] hover:underline cursor-pointer"
+                        >
+                          {t('bookings.manage.retry')}
+                        </button>
+                      )}
+                    </div>
+
+                    {liveState === 'loading' && (
+                      <p role="status" className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                        {t('commerce.liveChecking')}
+                      </p>
+                    )}
+
+                    {liveState === 'error' && liveError && (
+                      <p role="alert" className="text-xs text-red-300 flex items-start gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
+                        <span>{liveErrorText(liveError, t)}</span>
+                      </p>
+                    )}
+
+                    {liveState === 'ready' && liveAvailability && liveAvailability.views.length === 0 && (
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        {t('commerce.liveEmptySchedule')}
+                      </p>
+                    )}
+
+                    {liveState === 'ready' && liveAvailability && liveAvailability.views.length > 0 && (
+                      <div className="space-y-2">
+                        <ul className="flex flex-wrap gap-1.5" aria-label={t('bookings.reschedule.slotHint')}>
+                          {liveAvailability.views.map(slot => {
+                            const fits = slot.kind === 'available' || slot.kind === 'limited';
+                            const selected = pickedLiveSlot === slot.id;
+                            return (
+                              <li key={slot.id}>
+                                <button
+                                  type="button"
+                                  disabled={!fits}
+                                  onClick={() => setPickedLiveSlot(slot.id)}
+                                  aria-pressed={selected}
+                                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-55 disabled:cursor-not-allowed ${
+                                    selected
+                                      ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]'
+                                      : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--accent-primary)]/50'
+                                  }`}
+                                >
+                                  <Clock className="w-3 h-3" aria-hidden="true" />
+                                  <span dir="ltr">{slot.timeSlot}</span>
+                                  {slot.kind === 'limited' ? (
+                                    <span className="text-amber-300 font-bold">{t('bookings.reschedule.slotLimited', { count: slot.capacityRemaining })}</span>
+                                  ) : slot.kind === 'sold-out' || slot.kind === 'fits-no-party' ? (
+                                    <span className="text-red-400 font-bold">{t('bookings.reschedule.slotSoldOut')}</span>
+                                  ) : (
+                                    <span className="text-emerald-400 font-bold">{t('bookings.reschedule.slotAvailable')}</span>
+                                  )}
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        {liveNoFitToday ? (
+                          <p role="alert" className="flex items-start gap-1.5 text-xs text-amber-300">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
+                            <span>{t('commerce.liveNoneFitToday', { count: guestsCount })}</span>
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-[var(--text-secondary)]/80 leading-relaxed">
+                            {t('commerce.liveFitHint')}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Pickup */}
                   <div>
                     <label htmlFor="pickup-location-input" className="block text-xs font-bold mb-2">
@@ -1069,6 +1270,8 @@ export const BookNowCommerceView: React.FC = () => {
                 <div className="p-5 pt-4 border-t border-[var(--border-subtle)] bg-[var(--surface-card)] space-y-3 shrink-0">
                   {instantBookingError && (
                     <p
+                      ref={instantBookingErrorRef}
+                      tabIndex={-1}
                       role="alert"
                       className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--brand-coral)]/12 border border-[var(--brand-coral)]/40 text-sm text-[var(--text-primary)] leading-relaxed"
                     >
@@ -1080,7 +1283,7 @@ export const BookNowCommerceView: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleConfirmInstantBooking}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || liveNoFitToday}
                     className="w-full py-3.5 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
                   >
                     {isSubmitting ? (

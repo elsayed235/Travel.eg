@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  DEFAULT_ROUTE,
   ROUTES,
   isAppRoute,
+  isKnownClientPath,
   routeFromUrl,
   urlFromRoute
 } from '../../src/lib/routeUrl';
@@ -54,12 +54,37 @@ describe('route <-> URL translation', () => {
     expect(routeFromUrl(pathname, search).params.bookingId).toBe('DHB TRIP&894');
   });
 
-  it('falls back to the homepage for a path nobody serves', () => {
-    // The address bar is user-editable and stale links exist; a typo should
-    // land on the homepage rather than a blank screen.
-    expect(routeFromUrl('/not-a-real-page').route).toBe(DEFAULT_ROUTE);
-    expect(routeFromUrl('/../etc/passwd').route).toBe(DEFAULT_ROUTE);
-    expect(routeFromUrl('').route).toBe(DEFAULT_ROUTE);
+  it('round-trips CMS preview tokens without stripping them', () => {
+    // Regression: the canonical-URL effect rebuilt '/preview/:token' via
+    // urlFromRoute without token support, silently downgrading every shared
+    // preview link to a bare /preview that renders "expired".
+    const url = urlFromRoute('/preview', { previewToken: 'PREV-abc-123' });
+    expect(url).toBe('/preview/PREV-abc-123');
+    const parsed = routeFromUrl('/preview/PREV-abc-123');
+    expect(parsed.route).toBe('/preview');
+    expect(parsed.params.previewToken).toBe('PREV-abc-123');
+  });
+
+  it('routes unknown paths to a real 404 instead of the homepage', () => {
+    // A typo or stale link used to silently render the homepage, hiding
+    // breakage and poisoning SEO. Unknown paths now explain themselves.
+    expect(routeFromUrl('/not-a-real-page').route).toBe('/404');
+    expect(routeFromUrl('/../etc/passwd').route).toBe('/404');
+    expect(routeFromUrl('').route).toBe('/404');
+    expect(urlFromRoute('/404')).toBe('/404');
+  });
+
+  it('distinguishes shareable deep links from typos', () => {
+    // Canonical detail URLs must survive; everything else 404s.
+    expect(isKnownClientPath('/')).toBe(true);
+    expect(isKnownClientPath('/explore')).toBe(true);
+    expect(isKnownClientPath('/programs/dahab-first-timer')).toBe(true);
+    expect(isKnownClientPath('/hotels/some-slug')).toBe(true);
+    expect(isKnownClientPath('/rentals/abc')).toBe(true);
+    expect(isKnownClientPath('/preview/PREV-1')).toBe(true);
+    expect(isKnownClientPath('/explor/xyz')).toBe(false);
+    expect(isKnownClientPath('/not-a-real-page')).toBe(false);
+    expect(isKnownClientPath('/admin')).toBe(false);
   });
 
   it('treats a trailing slash as the same page, but keeps root as root', () => {

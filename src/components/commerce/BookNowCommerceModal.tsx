@@ -379,7 +379,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
   contextTimeWindow = 'Next 2–4 Hours (This Afternoon)',
   onBookingSuccess,
 }) => {
-  const { setBookings, recordLedgerEntry, addActivityToDay, showToast, navigateTo, isSignedIn, sessionUser, setIntendedRoute, activeTrip } = useTrip();
+  const { setBookings, recordLedgerEntry, addActivityToDay, showToast, navigateTo, isSignedIn, sessionUser, setIntendedRoute, activeTrip, profile } = useTrip();
   // Was the literal 'DHB-TRIP-894' on the checkout and its ledger entry.
   const bookingTripId = activeTrip?.id || '';
   /** Why the booking failed, if it did. Shown instead of a success screen. */
@@ -471,9 +471,12 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
     try {
       const result = await api.completeMultiCheckout({
         tripId: bookingTripId,
-        travelerName: sessionUser?.name || 'Dahab Traveler',
-        travelerPhone: '+20 100 000 0000',
-        travelerEmail: sessionUser?.email || 'traveler@dahab.travel',
+        // These used to be 'Dahab Traveler', '+20 100 000 0000' and
+        // 'traveler@dahab.travel' — placeholders written into the booking
+        // record and handed to a supplier who has to meet this traveler.
+        travelerName: sessionUser?.name || profile.name,
+        travelerPhone: profile.phone || sessionUser?.phone || '',
+        travelerEmail: sessionUser?.email || profile.email,
         items: [{
           serviceType,
           skuId: selectedService.id,
@@ -485,7 +488,10 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
         }],
         paymentParams: {
           idempotencyKey: `IDEMP-NOW-${selectedService.id}-${Date.now()}`,
-          provider: 'PAYMOB'
+          // No gateway is integrated: the booking settles when the traveler
+          // pays the provider on arrival. Claiming PAYMOB made the ledger say
+          // a card was captured when nothing was charged.
+          provider: 'CASH_ON_ARRIVAL'
         }
       });
       code = result?.bookings?.[0]?.bookingRef || result?.transactionId || 'DHB-NOW';
@@ -499,24 +505,29 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
     }
 
     {
-      // 1. Record in-destination ledger entry
+      // 1. Record in-destination ledger entry. The booking is pay-on-arrival,
+      // so this is a pending escrow hold — never a captured payment. It used
+      // to be recorded as PAYMENT_CAPTURED / SETTLED against a made-up card
+      // token ('TRAVELER_CC_TOKEN_4910'), which is how the books said money
+      // moved when none did.
       const ledger = recordLedgerEntry({
         transactionId: `TXN-NOW-${Date.now()}`,
         idempotencyKey: `IDEMP-NOW-${code}-${Date.now()}`,
         bookingRef: code,
         tripId: bookingTripId,
-        type: 'PAYMENT_CAPTURED',
+        type: 'HOLD_ESCROW',
         amountEGP: sanitizeAmount(totalPriceEGP),
-        debitAccount: 'TRAVELER_CC_TOKEN_4910',
+        debitAccount: 'TRAVELER_CASH_ON_ARRIVAL',
         creditAccount: 'PLATFORM_ESCROW_MAIN',
         currency: 'EGP',
-        status: 'SETTLED',
+        status: 'PENDING',
         metadata: {
           serviceType: selectedService.category,
           supplierName: selectedService.supplierName,
           travelersCount,
           pickupLocation: cleanHotel,
-          serviceTitle: selectedService.title
+          serviceTitle: selectedService.title,
+          reason: 'Instant in-destination booking. Pay upon arrival.'
         }
       });
 
@@ -592,11 +603,11 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
       aria-modal="true"
       aria-labelledby="book-now-commerce-modal-dialog-1-title"
     >
-      <div className="relative w-full max-w-4xl bg-stone-900 text-stone-100 rounded-3xl border border-[#C9A24B]/30 shadow-2xl overflow-hidden my-auto">
+      <div className="relative w-full max-w-4xl bg-stone-900 text-stone-100 rounded-3xl border border-[var(--accent-secondary)]/30 shadow-2xl overflow-hidden my-auto">
         {/* Top Accent Header */}
-        <div className="bg-gradient-to-r from-[#0A1128] via-stone-900 to-[#1B2452] px-5 sm:px-8 py-4 border-b border-stone-800 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-stone-900 via-stone-900 to-stone-800 px-5 sm:px-8 py-4 border-b border-stone-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#B97A1F] to-[#E8A33D] text-[#1A1206] flex items-center justify-center font-black shadow-md">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] text-[var(--accent-primary-ink)] flex items-center justify-center font-black shadow-md">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -627,8 +638,10 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
 
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
+            aria-label={t('common.close')}
+            className="w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer border border-stone-700"
           >
             <X className="w-4 h-4" />
           </button>
@@ -667,18 +680,18 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
               <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {[
                   { id: 'all', label: 'All Services', labelAr: 'الكل' },
-                  { id: 'watersports', label: '🤿 Ocean & Gear', labelAr: '🤿 بحر ومعدات' },
-                  { id: 'transport', label: '🚙 4x4 & Transport', labelAr: '🚙 جيب ومواصلات' },
-                  { id: 'tonight', label: '🌅 Tonight\'s Campfire', labelAr: '🌅 سهرة الليلة' },
-                  { id: 'wellness', label: '🧘 Wellness & Recovery', labelAr: '🧘 ريكفري ومساج' },
-                  { id: 'dining', label: '🍽️ Fresh Catch Table', labelAr: '🍽️ حجز أسماك' },
+                  { id: 'watersports', label: 'Ocean & Gear', labelAr: 'بحر ومعدات' },
+                  { id: 'transport', label: '4x4 & Transport', labelAr: 'جيب ومواصلات' },
+                  { id: 'tonight', label: "Tonight's Campfire", labelAr: 'سهرة الليلة' },
+                  { id: 'wellness', label: 'Wellness & Recovery', labelAr: 'ريكفري ومساج' },
+                  { id: 'dining', label: 'Fresh Catch Table', labelAr: 'حجز أسماك' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveCategory(tab.id as BookNowCategory)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       activeCategory === tab.id
-                        ? 'bg-[#E8A33D] text-[#1A1206] border-[#E8A33D] shadow-md scale-102'
+                        ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)] shadow-md scale-102'
                         : 'bg-stone-800/80 text-stone-300 hover:text-[var(--text-primary)] border-stone-700 hover:bg-stone-750'
                     }`}
                   >
@@ -691,25 +704,26 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
             {/* 2-Column Split: Service Selector & Order Form */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Column: Service Cards List */}
-              <div className="lg:col-span-7 space-y-3 max-h-[420px] overflow-y-auto pr-1">
+              <div className="lg:col-span-7 space-y-3 max-h-[420px] overflow-y-auto pe-1">
                 {filteredServices.map((service) => {
                   const isSelected = service.id === selectedServiceId;
                   const Icon = service.icon;
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={service.id}
                       onClick={() => setSelectedServiceId(service.id)}
-                      className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-start ${
+                      className={`p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer text-start w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
                         isSelected
-                          ? 'bg-stone-800/90 border-[#C9A24B] shadow-lg ring-1 ring-[#C9A24B]/40'
+                          ? 'bg-stone-800/90 border-[var(--accent-secondary)] shadow-lg ring-1 ring-[var(--accent-secondary)]/40'
                           : 'bg-stone-950/60 border-stone-800 hover:border-stone-700 hover:bg-stone-850/60'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-[#E8A33D] text-[#1A1206]' : 'bg-stone-800 text-teal-400'
+                            isSelected ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)]' : 'bg-stone-800 text-teal-400'
                           }`}>
                             <Icon className="w-5 h-5" />
                           </div>
@@ -749,7 +763,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                           {language === 'ar' ? service.supplierNameAr : service.supplierName}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -792,9 +806,9 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                           <button
                             key={count}
                             onClick={() => setTravelersCount(count)}
-                            className={`flex-1 py-1.5 rounded-lg font-bold border transition-colors cursor-pointer ${
+                            className={`flex-1 py-1.5 min-h-[44px] rounded-lg font-bold border transition-colors cursor-pointer ${
                               travelersCount === count
-                                ? 'bg-[#E8A33D] text-[#1A1206] border-[#E8A33D]'
+                                ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] border-[var(--accent-primary)]'
                                 : 'bg-stone-850 text-stone-300 border-stone-700 hover:bg-stone-800'
                             }`}
                           >
@@ -858,9 +872,9 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                           key={curr}
                           type="button"
                           onClick={() => setCurrencyMode(curr)}
-                          className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors cursor-pointer ${
+                          className={`px-2 py-0.5 min-w-[44px] min-h-[44px] rounded text-[11px] font-bold transition-colors cursor-pointer ${
                             currencyMode === curr
-                              ? 'bg-[#E8A33D] text-[#1A1206] shadow-sm'
+                              ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-sm'
                               : 'text-stone-400 hover:text-stone-200'
                           }`}
                         >
@@ -901,7 +915,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   <button
                     disabled={isProcessing}
                     onClick={handleConfirmOrder}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B97A1F] via-[#E8A33D] to-[#E8A33D] text-[#1A1206] font-black text-sm hover:brightness-110 disabled:opacity-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[var(--accent-secondary)] via-[var(--accent-primary)] to-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-black text-sm hover:brightness-110 disabled:opacity-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {isProcessing ? (
                       <span>{t('commerce.securingEscrowHold')}</span>
@@ -913,7 +927,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                     )}
                   </button>
 
-                  <div className="flex items-center justify-center gap-3 text-[11px] text-stone-500">
+                  <div className="flex items-center justify-center gap-3 text-xs text-stone-300">
                     <span>✓ Sinai Escrow Protection</span>
                     <span>·</span>
                     <span>✓ Direct Supplier Line</span>
@@ -1009,7 +1023,7 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                   handleReset();
                   navigateTo('/my-trip');
                 }}
-                className="px-6 py-2.5 rounded-xl bg-[#E8A33D] hover:brightness-110 text-[#1A1206] font-bold text-xs transition-colors cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold text-xs transition-colors cursor-pointer"
               >
                 {t('commerce.viewInMyTrip')}
               </button>

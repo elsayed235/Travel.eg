@@ -2,15 +2,9 @@ import React from 'react';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
 import {
-  Sparkles,
   Heart,
   Plus,
-  ArrowRight,
-  Clock,
-  MapPin,
-  Star,
-  Compass,
-  Check
+  MapPin
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -206,7 +200,7 @@ export const CuratedStoriesRail: React.FC<{ cmsSection?: CmsHomepageSection | nu
       className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
       <div className="relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] chart-card shadow-2xl p-6 sm:p-8 space-y-6">
-        {/* Tidal shimmer wash across the panel top */}
+        {/* Chart shimmer wash across the panel top */}
         <div className="absolute inset-x-0 top-0 h-px chart-shimmer" aria-hidden="true" />
         <div className="relative z-10 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
@@ -221,88 +215,85 @@ export const CuratedStoriesRail: React.FC<{ cmsSection?: CmsHomepageSection | nu
             </span>
           </div>
 
-          {/* Grid of Editorial Visual Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stories.map((story) => {
-              const isSaved = savedItems.includes(story.id);
-              const cardTitle = isAr ? story.titleAr : story.title;
-              const cardCategory = isAr ? story.categoryAr : story.category;
-              const cardDesc = isAr ? story.descriptionAr : story.description;
-              const cardLocation = isAr ? story.locationAr : story.location;
-              const cardDuration = isAr ? story.durationAr : story.duration;
+          {/* Editorial layout: one featured story + a compact stack of the
+              rest — matches how the other rails below already read as
+              uniform grids, so this one earns a distinct "magazine" feel
+              instead of repeating the same [image+badge+title+CTA] card
+              four times in a row. */}
+          {(() => {
+            const [featured, ...secondary] = stories;
+            if (!featured) return null;
 
-              return (
-                <article
-                  key={story.id}
-                      className="chart-card rounded-3xl overflow-hidden flex flex-col justify-between group"
-                >
-                  {/* Card Image Container */}
-                  <div className="relative h-52 w-full overflow-hidden bg-[var(--bg-canvas)]">
+            const renderMeta = (story: StoryExperience) => {
+              const cardCategory = isAr ? story.categoryAr : story.category;
+              const cardDuration = isAr ? story.durationAr : story.duration;
+              return { cardCategory, cardDuration };
+            };
+
+            const isFeaturedSaved = savedItems.includes(featured.id);
+            const fTitle = isAr ? featured.titleAr : featured.title;
+            const fDesc = isAr ? featured.descriptionAr : featured.description;
+            const fLocation = isAr ? featured.locationAr : featured.location;
+            const { cardCategory: fCategory, cardDuration: fDuration } = renderMeta(featured);
+
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Featured story — takes the visual weight */}
+                <article className="lg:col-span-2 chart-card rounded-3xl overflow-hidden flex flex-col group aurora-hover">
+                  <div className="relative h-64 sm:h-80 w-full overflow-hidden bg-[var(--bg-canvas)]">
                     <img
-                      src={story.image}
-                      alt={cardTitle}
+                      src={featured.image}
+                      alt={fTitle}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-[var(--surface-card)]/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-card)] via-[var(--surface-card)]/35 to-transparent" />
 
-                    {/* Top Category Badge */}
-                    <div className="absolute top-3.5 start-3.5">
-                        <span className="chart-badge chart-badge-ember text-[11px] shadow-xs bg-[var(--bg-canvas)]/70">
-                        {cardCategory}
+                    <div className="absolute top-4 start-4 flex items-center gap-2">
+                      <span className="chart-badge chart-badge-ember text-[11px] shadow-xs bg-[var(--bg-canvas)]/70">
+                        {fCategory}
+                      </span>
+                      <span className="chart-badge text-[11px] bg-[var(--bg-canvas)]/70">
+                        {isAr ? 'الأبرز' : 'Featured'}
                       </span>
                     </div>
 
-                    {/* Bookmark Button */}
                     <button
                       type="button"
-                      onClick={() => toggleSaveItem(story.id)}
-                      aria-label={isSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ التجربة' : 'Save experience')}
-                      className={`absolute top-3.5 end-3.5 p-2 rounded-full transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-90 ${
-                        isSaved
+                      onClick={() => toggleSaveItem(featured.id)}
+                      aria-label={isFeaturedSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ التجربة' : 'Save experience')}
+                      className={`absolute top-4 end-4 w-11 h-11 rounded-full flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer active:scale-90 ${
+                        isFeaturedSaved
                           ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)] shadow-md'
                           : 'bg-[var(--bg-canvas)]/80 text-[var(--text-primary)] hover:bg-[var(--bg-canvas)]'
                       }`}
                     >
-                      <Heart className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+                      <Heart className={`w-3.5 h-3.5 ${isFeaturedSaved ? 'fill-current' : ''}`} />
                     </button>
 
-                    {/* Bottom Card Title & Rating */}
-                    <div className="absolute bottom-3.5 start-3.5 end-3.5 text-[var(--text-primary)]">
-                      <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)] font-bold mb-1">
-                        {/* The star and its number are gone: the rating was an
-                            invented 4.8–5.0. The duration beside it is real. */}
-                        {typeof story.rating === 'number' && (
-                          <>
-                            <Star className="w-3.5 h-3.5 fill-current" />
-                            <span>{story.rating}</span>
-                            <span className="text-[var(--text-secondary)] font-normal">·</span>
-                          </>
-                        )}
-                        <span className="text-[var(--text-secondary)] font-normal">{cardDuration}</span>
+                    <div className="absolute bottom-4 start-4 end-4 text-[var(--text-primary)]">
+                      <div className="flex items-center gap-1.5 text-xs text-[var(--accent-secondary)] font-bold mb-1.5">
+                        <span className="text-[var(--text-secondary)] font-normal">{fDuration}</span>
                       </div>
-                      <h3 className="text-base font-bold text-[var(--text-primary)] chart-heading leading-tight">
-                        {cardTitle}
+                      <h3 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] chart-heading leading-tight">
+                        {fTitle}
                       </h3>
                     </div>
                   </div>
 
-                  {/* Card Body & Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-normal">
-                      {cardDesc}
+                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                      {fDesc}
                     </p>
-
                     <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--accent-primary)]">
                         <MapPin className="w-3.5 h-3.5 text-current shrink-0" />
-                        <span className="truncate max-w-[120px]">{cardLocation}</span>
+                        <span className="truncate max-w-[200px]">{fLocation}</span>
                       </div>
-
                       <button
                         type="button"
-                        onClick={() => handleAddStory(story)}
-                        className="px-3.5 py-2 rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-secondary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 shadow-md flex-shrink-0 active:scale-95"
+                        onClick={() => handleAddStory(featured)}
+                        className="px-3.5 py-2 min-h-[44px] rounded-xl bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-secondary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center gap-1.5 shadow-md flex-shrink-0 active:scale-95"
                       >
                         <Plus className="w-3.5 h-3.5 text-current" />
                         <span>{isAr ? 'أضف لليوم ٢' : 'Add to Day 2'}</span>
@@ -310,9 +301,65 @@ export const CuratedStoriesRail: React.FC<{ cmsSection?: CmsHomepageSection | nu
                     </div>
                   </div>
                 </article>
-              );
-            })}
-          </div>
+
+                {/* Secondary stories — compact horizontal rows */}
+                <div className="flex flex-col gap-4">
+                  {secondary.map((story) => {
+                    const isSaved = savedItems.includes(story.id);
+                    const cardTitle = isAr ? story.titleAr : story.title;
+                    const { cardCategory, cardDuration } = renderMeta(story);
+
+                    return (
+                      <article
+                        key={story.id}
+                        className="chart-card rounded-2xl overflow-hidden flex items-stretch gap-3 p-2.5 group flex-1"
+                      >
+                        <div className="relative w-24 sm:w-28 shrink-0 rounded-xl overflow-hidden bg-[var(--bg-canvas)]">
+                          <img
+                            src={story.image}
+                            alt={cardTitle}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-between py-1 pe-1">
+                          <div>
+                            <span className="text-[10px] font-bold text-[var(--accent-secondary)] uppercase tracking-wide">
+                              {cardCategory}
+                            </span>
+                            <h3 className="text-sm font-bold text-[var(--text-primary)] leading-snug mt-0.5 line-clamp-2">
+                              {cardTitle}
+                            </h3>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 mt-1.5">
+                            <span className="text-[11px] text-[var(--text-secondary)] truncate">{cardDuration}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleAddStory(story)}
+                              aria-label={isAr ? 'أضف لليوم ٢' : 'Add to Day 2'}
+                              className="w-11 h-11 rounded-lg bg-[var(--surface-container)] hover:bg-[var(--accent-secondary)] hover:text-[var(--accent-secondary-ink)] text-[var(--text-primary)] transition-[background-color,color] cursor-pointer shrink-0 flex items-center justify-center"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleSaveItem(story.id)}
+                          aria-label={isSaved ? (isAr ? 'إزالة من المحفوظات' : 'Remove from saved') : (isAr ? 'حفظ التجربة' : 'Save experience')}
+                          className={`self-start w-11 h-11 rounded-full transition-colors cursor-pointer shrink-0 flex items-center justify-center ${
+                            isSaved ? 'text-[var(--accent-secondary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                          }`}
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </section>

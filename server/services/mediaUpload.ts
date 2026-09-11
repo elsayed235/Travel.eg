@@ -35,7 +35,31 @@ export const EXTENSION_BY_MIME: Record<UploadImageMime, string> = {
   'image/gif': 'gif',
 };
 
-export const MAX_MEDIA_UPLOAD_BYTES = 100 * 1024; // 100KB — enforced by dedicated body parser; see server.ts
+/**
+ * Default cap — prefer maxMediaUploadBytes(), which honors MEDIA_MAX_UPLOAD_MB.
+ * Kept as a named export for callers that need a static fallback.
+ */
+export const DEFAULT_MAX_MEDIA_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB
+
+export const MAX_MEDIA_UPLOAD_BYTES = DEFAULT_MAX_MEDIA_UPLOAD_BYTES;
+
+/**
+ * Effective upload cap in bytes. Reads MEDIA_MAX_UPLOAD_MB lazily (per call)
+ * because this module is imported before dotenv.config() runs — a const
+ * initialized at import time would never see .env values. Clamped to 1–50MB.
+ */
+export function maxMediaUploadBytes(): number {
+  const raw = Number(process.env.MEDIA_MAX_UPLOAD_MB);
+  if (Number.isFinite(raw) && raw >= 1 && raw <= 50) {
+    return Math.floor(raw * 1024 * 1024);
+  }
+  return DEFAULT_MAX_MEDIA_UPLOAD_BYTES;
+}
+
+/** Effective cap in whole MB, for UI copy and the body-parser comment. */
+export function maxMediaUploadMb(): number {
+  return Math.max(1, Math.round(maxMediaUploadBytes() / 1024 / 1024));
+}
 
 export class MediaUploadError extends Error {
   statusCode = 400;
@@ -139,7 +163,7 @@ export function sniffImageMime(buffer: Buffer): UploadImageMime | null {
  */
 export function validateImageUpload(
   dataUrl: unknown,
-  maxBytes: number = MAX_MEDIA_UPLOAD_BYTES,
+  maxBytes: number = maxMediaUploadBytes(),
 ): ParsedMediaUpload {
   if (typeof dataUrl !== 'string' || dataUrl.length === 0) {
     throw new MediaUploadError('dataUrl (base64) is required');

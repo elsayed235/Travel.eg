@@ -1,5 +1,6 @@
 import type { WindowFitOption } from '../shared/types/context';
 import type { SpontaneousOption } from '../shared/types/spontaneous';
+import type { CategoryKind } from '../components/common/CategoryIcon';
 import { addMinutes, formatClock, formatDuration } from '../utils/arrivalTime';
 
 /**
@@ -32,12 +33,12 @@ const PACE_BY_MOOD: Record<SpontaneousOption['mood'], Pick<SpontaneousOption, 'p
   adventure: { pace: 'Active', paceAr: 'نشاط وحركة' },
 };
 
-const ICON_BY_CATEGORY: Record<WindowFitOption['category'], string> = {
-  dive: '🤿',
-  food: '🍽️',
-  sunset: '🌅',
-  desert: '🏜️',
-  relaxation: '🏖',
+const ICON_BY_CATEGORY: Record<WindowFitOption['category'], CategoryKind> = {
+  dive: 'dive',
+  food: 'food',
+  sunset: 'sunset',
+  desert: 'desert',
+  relaxation: 'relaxation',
 };
 
 function toArabicNumber(value: number): string {

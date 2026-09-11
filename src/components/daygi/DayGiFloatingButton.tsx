@@ -30,11 +30,12 @@ export const DayGiFloatingButton: React.FC = () => {
       aria-label={label}
       dir={isRTL ? 'rtl' : 'ltr'}
       /*
-       * Clears the mobile tab bar and the sticky booking bar the same way the
-       * quick dock does, so the three of them sit on one line rather than
-       * overlapping on a phone.
+       * Clears the mobile tab bar (~64px) with a small safety margin. This
+       * used to sit at 148px to also clear StickyBookingBottomBar — that bar
+       * is gone now, and leaving the old offset meant this button floated
+       * mid-content, covering card text/CTAs as the page scrolled underneath.
        */
-      className={`group fixed bottom-[148px] md:bottom-6 start-4 sm:start-6 z-40 h-12 rounded-full
+      className={`group fixed bottom-[76px] md:bottom-6 start-4 sm:start-6 z-40 h-12 rounded-full
         flex items-center gap-2 ps-3.5 pe-3.5
         shadow-[0_6px_20px_-4px_rgba(8,23,20,0.45)]
         transition-[background-color,transform,box-shadow] duration-200

@@ -25,10 +25,13 @@ import {
   ExternalLink,
   Flame,
   CheckCircle2,
-  Calendar
+  Calendar,
+  Wallet,
+  Users
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
 import { useTrip } from '../../context/TripContext';
+import { CategoryIcon } from '../common/CategoryIcon';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
@@ -483,9 +486,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           </div>
         </div>
 
-        {/* 2. PAGE HEADER with Decision Pills */}
-        <div className="space-y-4 mb-8">
-          
+        {/* 2. PAGE HEADER — concierge editorial voice */}
+        <div className="space-y-5 mb-10 sm:mb-12">
+
           {/* Header Context Pills */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
@@ -506,13 +509,14 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           </div>
 
           {/* Title & Subtitle */}
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-3">
-              <span>
-                {travelerName ? t('food.hungryGreetingNamed', { travelerName }) : t('food.hungryGreetingGeneric')}
-              </span>
+          <div className="space-y-3 max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+              {t('food.nearYouNearDahab')}
+            </p>
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
+              {travelerName ? t('food.hungryGreetingNamed', { travelerName }) : t('food.hungryGreetingGeneric')}
             </h1>
-            <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-3xl font-normal leading-relaxed">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] max-w-3xl font-normal leading-relaxed">
               {t('food.weveFoundAFew')}
             </p>
           </div>
@@ -529,9 +533,9 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8 space-y-6">
               
-              <div className="bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border border-amber-500/30 shadow-xl space-y-6">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-2xl shadow-xs">
-                  🍽️
+              <div className="bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border border-amber-500/30 shadow-xl space-y-6 aurora-glass">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shadow-xs">
+                  <CategoryIcon kind="food" className="w-6 h-6" />
                 </div>
 
                 <div className="space-y-2 text-start">
@@ -569,7 +573,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     className="text-start p-5 rounded-2xl bg-[var(--surface-container)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-2 cursor-pointer group"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">☕</span>
+                      <CategoryIcon kind="coffee" className="w-6 h-6 text-[var(--text-secondary)]" />
                       <h3 className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {t('food.coffeeSnack')}
                       </h3>
@@ -670,6 +674,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setAddedEatHereMeal(null)}
+                      aria-label={t('common.close')}
                       className="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--btn-util-bg)] cursor-pointer"
                     >
                       <X className="w-4 h-4" />
@@ -684,7 +689,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs">
                     <div className="flex items-center justify-between text-[var(--text-primary)] font-bold">
                       <span className="font-mono text-[var(--accent-secondary)]">01:00 PM</span>
-                      <span>🍽️ {t('food.lunchLabelAt', { name: addedEatHereMeal.restaurantName })}</span>
+                      <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="food" className="w-3.5 h-3.5" /> {t('food.lunchLabelAt', { name: addedEatHereMeal.restaurantName })}</span>
                     </div>
                     <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span className="font-mono">02:00 PM</span>
@@ -692,7 +697,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                     </div>
                     <div className="flex items-center justify-between text-emerald-400 font-bold border-t border-[var(--border-subtle)] pt-1.5">
                       <span className="font-mono">03:00 PM</span>
-                      <span>⭐ {t('food.nextActivityProtected')}</span>
+                      <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5" />{t('food.nextActivityProtected')}</span>
                     </div>
                   </div>
 
@@ -773,116 +778,109 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               </section>
 
               {/* C. RECOMMENDED FOR YOU (Exactly 3 Curated Options) */}
-              <section id="recommended-for-you-section" className="space-y-4">
-                <div className="space-y-1">
-                  <h2 className="text-xl sm:text-2xl chart-heading font-bold text-[var(--text-primary)]">
+              <section id="recommended-for-you-section" className="space-y-5">
+                <div className="space-y-1.5 max-w-2xl">
+                  <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--text-primary)] text-balance">
                     {t('food.recommendedForYou')}
                   </h2>
-                  <p className="text-xs sm:text-sm text-[var(--text-secondary)]/70 font-medium">
+                  <p className="text-sm text-[var(--text-secondary)] font-normal leading-relaxed">
                     {t('food.theseOptionsFitYour')}
                   </p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {filteredOptions.map((option) => {
+                    // Category-context photography when the corpus carries no
+                    // photo — the mood, not a claim about the exact venue.
+                    const fallbackByCategory: Record<string, string> = {
+                      breakfast: '/images/restaurants/breakfast-by-the-sea.jpg',
+                      quick: '/images/restaurants/ali-baba-restaurant.jpg',
+                      local: '/images/restaurants/bedouin-crafts-market.jpg',
+                      datenight: '/images/restaurants/the-roof-restaurant.jpg',
+                      delivery: '/images/restaurants/boho-beach-cafe.jpg',
+                    };
+                    const photo = option.imageUrl || fallbackByCategory[option.category] || fallbackByCategory.quick;
                     return (
                       <div
                         key={option.id}
                         id={`food-card-${option.id}`}
-                        className="bg-[var(--surface-card)] rounded-3xl p-5 sm:p-6 border border-[var(--border-subtle)] shadow-xl hover:border-[var(--accent-secondary)]/40 hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] space-y-4"
+                        className="group bg-[var(--surface-card)] rounded-3xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col hover:border-[var(--accent-secondary)]/40 hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity]"
                       >
-                        {/* Top Meta Bar */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full ${
+                        {/* Photo header */}
+                        <div className="relative h-44 w-full overflow-hidden">
+                          <img
+                            src={photo}
+                            alt={language === 'ar' ? option.nameAr : option.name}
+                            loading="lazy"
+                            decoding="async"
+                            referrerPolicy="no-referrer"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" aria-hidden="true" />
+                          <div className="absolute top-3 start-3 flex flex-wrap items-center gap-1.5">
+                            <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full backdrop-blur-md border ${
                               option.badge === 'Best fit'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                ? 'bg-emerald-500/25 text-emerald-200 border-emerald-400/40'
                                 : option.badge === 'Quick'
-                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                                  ? 'bg-amber-500/25 text-amber-200 border-amber-400/40'
+                                  : 'bg-cyan-500/25 text-cyan-200 border-cyan-400/40'
                             }`}>
                               {language === 'ar' ? option.badgeAr : option.badge}
                             </span>
-                            <span className="text-xs font-bold text-[var(--text-primary)]">
-                              {language === 'ar' ? option.nameAr : option.name}
-                            </span>
-                            <span className="text-[11px] bg-[var(--surface-container)] text-[var(--accent-primary)] font-semibold px-2 py-0.5 rounded border border-[var(--border-subtle)]">
+                            {typeof option.rating === 'number' && (
+                              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-md text-[11px] font-bold text-white">
+                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" aria-hidden="true" />
+                                {option.rating}
+                                {typeof option.reviewCount === 'number' && (
+                                  <span className="text-white/60">({option.reviewCount})</span>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          <span className="absolute bottom-3 start-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-bold">
+                            {language === 'ar' ? option.distanceAr : option.distance}
+                          </span>
+                        </div>
+
+                        {/* Body */}
+                        <div className="p-5 flex flex-col gap-2.5 flex-1">
+                          <div className="flex items-center gap-2 text-[11px] font-bold">
+                            <span className="text-[var(--text-primary)]">{language === 'ar' ? option.nameAr : option.name}</span>
+                            <span className="bg-[var(--surface-container)] text-[var(--accent-primary)] font-semibold px-2 py-0.5 rounded border border-[var(--border-subtle)]">
                               {t('food.vERIFIED')}
                             </span>
                           </div>
-
-                          {typeof option.rating === 'number' && (
-                            <div className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]/80 font-medium">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                              <span className="font-bold text-[var(--text-primary)]">{option.rating}</span>
-                              {typeof option.reviewCount === 'number' && (
-                                <span className="text-[var(--text-secondary)]/50">({option.reviewCount})</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Card Content & Thumbnail */}
-                        <div className="flex flex-col sm:flex-row items-start gap-4">
-                          <div className="w-full sm:w-28 h-28 sm:h-24 rounded-2xl overflow-hidden bg-[var(--surface-container)] flex-shrink-0 relative border border-[var(--border-subtle)]">
-                            {/* Corpus venues carry no photograph; a stock
-                                image would imply one exists. */}
-                            {option.imageUrl ? (
-                              <img
-                                src={option.imageUrl}
-                                alt={option.name}
-                                className="w-full h-full object-cover"
-                                referrerPolicy="no-referrer"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)]" />
-                            )}
-                            <div className="absolute top-1.5 left-1.5 rtl:right-1.5 rtl:left-auto px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[11px] font-bold">
-                              {language === 'ar' ? option.distanceAr : option.distance}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5 flex-1">
-                            <h3 className="chart-heading font-bold text-lg text-[var(--text-primary)]">
-                              {language === 'ar' ? option.titleAr : option.title}
-                            </h3>
-                            <p className="text-xs sm:text-sm text-[var(--text-secondary)]/80 leading-relaxed">
-                              {language === 'ar' ? option.descriptionAr : option.description}
-                            </p>
-
-                            {/* 3 Metric Pills */}
-                            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
-                                📍 <strong>{language === 'ar' ? option.distanceAr : option.distance}</strong>
-                              </span>
-                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--accent-secondary)] font-bold">
-                                ⏱ <strong>{language === 'ar' ? option.estimatedTimeAr : option.estimatedTime}</strong>
-                              </span>
-                              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
-                                💰 <strong>{language === 'ar' ? option.priceEstimateAr : option.priceLevel}</strong>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action Bar */}
-                        <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
-                          <div className="text-xs text-emerald-300 font-semibold flex items-center gap-1.5">
-                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                            <span>
-                              {t('food.leaves45MinBefore')}
+                          <h3 className="font-display font-semibold text-xl leading-snug text-[var(--text-primary)] text-balance">
+                            {language === 'ar' ? option.titleAr : option.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed line-clamp-2">
+                            {language === 'ar' ? option.descriptionAr : option.description}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-xs font-semibold text-[var(--text-secondary)]">
+                            <span className="inline-flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-[var(--accent-secondary)]" aria-hidden="true" />
+                              {language === 'ar' ? option.estimatedTimeAr : option.estimatedTime}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5">
+                              <Wallet className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                              {language === 'ar' ? option.priceEstimateAr : option.priceLevel}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          {/* Action Bar */}
+                          <div className="mt-auto pt-3 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
+                            <span className="text-[11px] text-emerald-300 font-semibold flex items-center gap-1.5">
+                              <ShieldCheck className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                              {t('food.leaves45MinBefore')}
+                            </span>
                             <button
                               type="button"
                               id={`view-btn-${option.id}`}
                               onClick={() => handleOpenRestaurant(option)}
-                              className="px-5 py-2 rounded-full bg-[var(--accent-secondary)] hover:bg-[var(--accent-secondary)] text-[var(--surface-card)] text-xs font-bold shadow-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer active:scale-98"
+                              className="px-6 py-2.5 min-h-[44px] rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--surface-card)] text-xs font-bold shadow-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                             >
                               <span>{t('food.view')}</span>
-                              <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                              <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" aria-hidden="true" />
                             </button>
                           </div>
                         </div>
@@ -912,7 +910,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs text-[var(--text-secondary)]">
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                     <span className="font-bold text-[var(--accent-secondary)] block">
-                      📍 {t('food.locationAware')}
+                      <MapPin className="w-3.5 h-3.5" /> {t('food.locationAware')}
                     </span>
                     <p className="text-[12px] text-[var(--text-secondary)]/70">
                       {t('food.within0612KmOf')}
@@ -920,7 +918,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   </div>
                   <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                     <span className="font-bold text-[var(--accent-secondary)] block">
-                      💰 {t('food.budgetAligned')}
+                      <Wallet className="w-3.5 h-3.5" /> {t('food.budgetAligned')}
                     </span>
                     <p className="text-[12px] text-[var(--text-secondary)]/70">
                       {t('food.matchesYourModerateBudget')}
@@ -944,55 +942,48 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
             {/* ============================================================ */}
             <div className="lg:col-span-5 space-y-6">
 
-              {/* 1. CURRENT CONTEXT CARD */}
-              <div 
-                id="current-food-context-card"
-                className="bg-[var(--surface-card)] rounded-3xl p-6 border border-[var(--border-subtle)] shadow-xl space-y-4"
+              {/* 1. YOUR TABLE, RIGHT NOW — replaces the old "Current Context"
+                  card, which stacked five identical label/value rows for
+                  facts a traveler doesn't need spelled out one by one. Same
+                  data, a third of the height: a 2x2 icon grid plus one
+                  editable party-size stepper instead of read-only text. */}
+              <div
+                id="food-context-snapshot-card"
+                className="bg-[var(--surface-card)] rounded-3xl p-5 border border-[var(--border-subtle)] shadow-xl space-y-4"
               >
-                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <h3 className="chart-heading font-bold text-base text-[var(--text-primary)]">
-                      {t('food.currentContext')}
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <h3 className="chart-heading font-bold text-sm text-[var(--text-primary)]">
+                      {language === 'ar' ? 'دلوقتي · ٠١:٠٠ م' : 'Right now · 01:00 PM'}
                     </h3>
                   </div>
-                  <span className="text-xs font-mono font-bold text-[var(--accent-secondary)] bg-[var(--accent-secondary)]/10 px-2.5 py-0.5 rounded-full border border-[var(--accent-secondary)]/30">
-                    01:00 PM
+                  <span className="text-[11px] font-bold text-[var(--accent-secondary)]">
+                    {t('food.approx152Hours')} {t('food.availableTime')}
                   </span>
                 </div>
 
-                <div className="space-y-2.5 text-xs text-[var(--text-secondary)]">
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                    <span className="text-[var(--text-secondary)]/60">{t('food.traveler')}</span>
-                    <span className="font-bold text-[var(--text-primary)]">
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <MapPin className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
+                    <span className="text-xs font-bold text-[var(--text-primary)] truncate">{t('food.nearDahabLighthouse-2')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <Wallet className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
+                    <span className="text-xs font-bold text-[var(--text-primary)] truncate">{t('food.moderate')}</span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+                    <span className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)] truncate">
+                      <Users className="w-4 h-4 text-[var(--accent-primary)] shrink-0" />
                       {[travelerName, `${partySize} ${partySize === 1 ? t('food.partySizeAdult') : t('food.partySizeAdults')}`]
                         .filter(Boolean)
-                        .join(language === 'ar' ? ' · ' : ' · ')}
+                        .join(' · ')}
                     </span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                    <span className="text-[var(--text-secondary)]/60">{t('food.location')}</span>
-                    <span className="font-bold text-[var(--text-primary)]">{t('food.nearDahabLighthouse-2')}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                    <span className="text-[var(--text-secondary)]/60">{t('food.availableTime')}</span>
-                    <span className="font-bold text-[var(--accent-secondary)]">{t('food.approx152Hours')}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                    <span className="text-[var(--text-secondary)]/60">{t('food.budget')}</span>
-                    <span className="font-bold text-[var(--text-primary)]">{t('food.moderate')}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                    <span className="text-[var(--text-secondary)]/60">{t('food.interestsPace')}</span>
-                    <span className="font-bold text-[var(--text-primary)]">{t('food.foodAdventureBalanced')}</span>
+                    <span className="text-[11px] text-[var(--text-secondary)]/70 shrink-0">{t('food.foodAdventureBalanced')}</span>
                   </div>
                 </div>
 
-                <p className="text-[12px] text-[var(--text-secondary)]/60 leading-relaxed italic text-center pt-1">
+                <p className="text-[11px] text-[var(--text-secondary)]/60 leading-relaxed text-center">
                   {t('food.recommendationsFilterOutOvercrowded')}
                 </p>
               </div>
@@ -1026,7 +1017,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                       {t('food.meetingPointDahabSafari')}
                     </p>
                   </div>
-                  <span className="text-2xl">🏜️</span>
+                  <CategoryIcon kind="desert" className="w-6 h-6 text-[var(--text-secondary)]" />
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] space-y-1">
@@ -1111,6 +1102,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   setSelectedRestaurant(null);
                   setDeliveryWorkflow('none');
                 }}
+                aria-label={t('common.close')}
                 className="absolute top-4 right-4 rtl:left-4 rtl:right-auto w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-colors cursor-pointer border border-[var(--border-subtle)]"
               >
                 <X className="w-5 h-5" />
@@ -1256,7 +1248,8 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleUpdateQty(dish.id, -1)}
-                              className="w-7 h-7 rounded-full bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-xs font-bold text-[var(--text-primary)] cursor-pointer"
+                              aria-label={t('a11y.decreaseQuantity')}
+                              className="w-7 h-7 min-w-[44px] min-h-[44px] rounded-full bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-xs font-bold text-[var(--text-primary)] cursor-pointer"
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </button>
@@ -1264,7 +1257,8 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                             <button
                               type="button"
                               onClick={() => handleUpdateQty(dish.id, 1)}
-                              className="w-7 h-7 rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] hover:bg-[var(--accent-secondary)] flex items-center justify-center text-xs font-bold cursor-pointer"
+                              aria-label={t('a11y.increaseQuantity')}
+                              className="w-7 h-7 min-w-[44px] min-h-[44px] rounded-full bg-[var(--accent-secondary)] text-[var(--surface-card)] hover:bg-[var(--accent-secondary)] flex items-center justify-center text-xs font-bold cursor-pointer"
                             >
                               <Plus className="w-3.5 h-3.5" />
                             </button>
@@ -1300,7 +1294,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
-                        <span>🍽️</span>
+                        <CategoryIcon kind="food" className="w-4 h-4" />
                         <span>{t('food.eatHere')}</span>
                       </span>
                       {fulfillmentMode === 'eat-here' && (
@@ -1404,7 +1398,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
 
             {/* Modal Footer */}
             <div className="p-4 sm:p-5 bg-[var(--surface-card)] border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]/70">
-              <span>📍 {t('food.dahabLighthouseDistrict')}</span>
+              <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{t('food.dahabLighthouseDistrict')}</span>
               <button
                 type="button"
                 onClick={() => setSelectedRestaurant(null)}
@@ -1437,6 +1431,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <button
                 type="button"
                 onClick={() => setDeliveryWorkflow('none')}
+                aria-label={t('common.close')}
                 className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -1448,7 +1443,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <div className="p-3 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-1">
                 <span className="text-[11px] font-bold text-[var(--accent-secondary)] block">{t('food.restaurant')}</span>
                 <p className="font-bold text-sm text-[var(--text-primary)]">{language === 'ar' ? selectedRestaurant.nameAr : selectedRestaurant.name}</p>
-                <p className="text-[var(--text-secondary)]/70">📍 {t('food.deliveringToNearDahab')}</p>
+                <p className="text-[var(--text-secondary)]/70 flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{t('food.deliveringToNearDahab')}</p>
               </div>
 
               {/* Items Breakdown */}
@@ -1536,6 +1531,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <button
                 type="button"
                 onClick={() => setDeliveryWorkflow('none')}
+                aria-label={t('common.close')}
                 className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -1651,6 +1647,7 @@ export const FoodNowView: React.FC<FoodNowViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsFullMenuOpen(false)}
+                aria-label={t('common.close')}
                 className="w-8 h-8 rounded-full bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] flex items-center justify-center text-[var(--text-muted)] cursor-pointer"
               >
                 <X className="w-4 h-4" />

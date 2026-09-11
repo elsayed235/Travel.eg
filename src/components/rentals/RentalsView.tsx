@@ -7,6 +7,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
+import { ConciergePageHeader } from '../concierge/ConciergePageHeader';
 import type { RentalCategory, RentalCatalogueResponse, RentalListingView } from '../../shared/types/commerce';
 
 const CATEGORY_ORDER: RentalCategory[] = ['bike', 'e-bike'];
@@ -26,16 +27,6 @@ export const RentalsView: React.FC = () => {
   const [activeCategories, setActiveCategories] = useState<Set<RentalCategory>>(() => new Set(CATEGORY_ORDER));
   const [activeZones, setActiveZones] = useState<Set<string>>(() => new Set());
   const [sort, setSort] = useState<(typeof SORT_OPTIONS)[number]>('featured');
-
-  // Detail page wins when the URL carries a rental slug.
-  if (selectedRentalSlug) {
-    return (
-      <RentalDetailView
-        rentalSlug={selectedRentalSlug}
-        onBackToList={() => navigateTo('/rentals')}
-      />
-    );
-  }
 
   const rentals = corpus.data?.rentals ?? [];
   const zones = corpus.data?.zones ?? [];
@@ -78,6 +69,25 @@ export const RentalsView: React.FC = () => {
 
   const stats = corpus.data?.stats;
 
+  /**
+   * Detail page wins when the URL carries a rental slug.
+   *
+   * This must run after every hook above (useApiResource, the four useState
+   * calls, useMemo) — an early return before them made the hook count differ
+   * between the list and detail routes ("Rendered fewer hooks than expected"),
+   * which threw the whole view into its error boundary on every rental card
+   * click. React hooks must run unconditionally, in the same order, every
+   * render; only the JSX returned may branch.
+   */
+  if (selectedRentalSlug) {
+    return (
+      <RentalDetailView
+        rentalSlug={selectedRentalSlug}
+        onBackToList={() => navigateTo('/rentals')}
+      />
+    );
+  }
+
   return (
     <div
       dir={isAr ? 'rtl' : 'ltr'}
@@ -85,55 +95,41 @@ export const RentalsView: React.FC = () => {
         isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'
       }`}
     >
-      {/* Hero */}
-      <div className="border-b bg-gradient-to-br from-[var(--accent-primary)]/5 to-[var(--accent-secondary)]/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[11px] font-bold">
-              <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isDark ? 'bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
-                <Bike className="w-3 h-3" />
-                {t('rentals.title')}
-              </span>
-            </div>
-            <h1 className="text-3xl chart-heading font-bold">
-              {t('rentals.title')}
-            </h1>
-            <p className={`text-sm max-w-xl ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
-              {t('rentals.subtitle', { count: stats?.total ?? rentals.length })}
-            </p>
-          </div>
-
-          {/* Stats */}
-          {stats && (
-            <div className="flex flex-wrap gap-3 mt-5">
-              <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
-                <span className="font-black">{stats.total}</span> {t('rentals.statsRentals')}
-              </div>
+      {/* Concierge photographic band — one product voice across discovery */}
+      <ConciergePageHeader
+        eyebrow={t('rentals.title')}
+        title={t('rentals.title')}
+        subtitle={t('rentals.subtitle', { count: stats?.total ?? rentals.length })}
+        image="/images/hero/golden-beach.jpg"
+        imageAlt="Dahab bike rentals"
+        compact
+        meta={
+          stats ? (
+            <>
+              <span className="font-semibold text-white/70">{stats.total} · {t('rentals.statsRentals')}</span>
               {stats.averageRating > 0 && (
-                <div className={`px-3 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
-                  <span className="font-black">{stats.averageRating.toFixed(1)}★</span> {t('rentals.statsAvgRating')}
-                </div>
+                <span className="font-semibold text-white/70">{stats.averageRating.toFixed(1)}★ · {t('rentals.statsAvgRating')}</span>
               )}
-            </div>
-          )}
-
-          {/* Search */}
-          <div className="mt-6 max-w-md">
-            <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
-              <Search className={`w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`} />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder={t('rentals.searchPlaceholder')}
-                className={`w-full bg-transparent text-sm outline-none ${isDark ? 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60' : 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60'}`}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+            </>
+          ) : undefined
+        }
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        {/* Search */}
+        <div className="max-w-md mb-6">
+          <div className={`flex items-center gap-2 rounded-2xl border px-3 py-2.5 ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
+            <Search className={`w-4 h-4 ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder={t('rentals.searchPlaceholder')}
+              aria-label={t('rentals.searchPlaceholder')}
+              className={`w-full bg-transparent text-sm outline-none ${isDark ? 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60' : 'text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60'}`}
+            />
+          </div>
+        </div>
         {/* Filters */}
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-wrap items-center gap-2">

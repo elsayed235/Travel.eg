@@ -5,6 +5,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
+import { humanizeSpecKey } from '../../lib/humanizeSpecKey';
 import type {
   RentalAvailabilityResult,
   RentalBookingView,
@@ -187,7 +188,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
   if (detail.error || !rental) {
     return (
       <div dir={isRTL ? 'rtl' : 'ltr'} className={`min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'}`}>
-        <div className="text-4xl">🚲</div>
+        <div className="text-[var(--accent-secondary)]"><Bike className="w-12 h-12" /></div>
         <h1 className="text-xl chart-heading font-bold">{t('rentals.notFoundTitle')}</h1>
         <p className={`text-sm max-w-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>
           {t('rentals.notFoundBody')}
@@ -241,11 +242,15 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
         <div className="flex flex-col lg:flex-row lg:items-start gap-6 mb-8">
           {/* Hero header */}
-          <div className="relative w-full lg:w-2/5 h-64 lg:h-80 rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)]">
-            {rental.images?.[0] && (
-              <img src={rental.images[0]} alt={name} className="absolute inset-0 w-full h-full object-cover" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+          <div className="relative w-full lg:w-2/5 h-64 lg:h-80 rounded-3xl overflow-hidden bg-[var(--surface-container)]">
+            <img
+              src={rental.images?.[0] || (rental.category === 'e-bike' ? '/images/attractions/mountain-ridge-bay.jpg' : '/images/hero/golden-beach.jpg')}
+              alt={rental.images?.[0] ? name : `${name} — Dahab coast road`}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 z-10">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1 text-xs font-bold text-amber-300 bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-full">
@@ -263,7 +268,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
           </div>
 
           <div className="flex-1">
-            <h1 className="text-3xl chart-heading font-bold">{name}</h1>
+            <h1 className="font-display text-4xl font-semibold text-balance">{name}</h1>
             <p className={`mt-1 text-sm ${isDark ? 'text-[var(--text-secondary)]/80' : 'text-[var(--text-secondary)]'}`}>{tagline}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
               <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full border ${isDark ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)]'}`}>
@@ -309,7 +314,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                   {specRows.map(([k, v]) => (
                     <div key={k} className="flex justify-between gap-2 border-b border-dotted border-[var(--border-subtle)] pb-1">
-                      <dt className={`capitalize ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>{k.replace(/_/g, ' ')}</dt>
+                      <dt className={isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}>{humanizeSpecKey(k)}</dt>
                       <dd className="font-bold text-end">{String(v)}</dd>
                     </div>
                   ))}

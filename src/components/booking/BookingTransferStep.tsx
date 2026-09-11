@@ -13,15 +13,19 @@ import {
   Waves,
   Building,
   CheckCircle2,
-  Navigation
+  Navigation,
+  CalendarOff
 } from 'lucide-react';
 import { CURATED_TRANSFERS, TransferOption, HotelOption, CURATED_HOTELS } from './bookingData';
 import { TransferOptionCard } from './TransferOptionCard';
 import { TransferArrivalInfo } from './TransferArrivalInfo';
 import { BookingTransferSummarySidebar } from './BookingTransferSummarySidebar';
+import { HoldCountdown } from './HoldCountdown';
 import { useTrip } from '../../context/TripContext';
 import { api } from '../../services/api';
+import { analytics } from '../../services/analytics';
 import { useLanguage } from '../../i18n/LanguageContext';
+import type { CommerceAlternative } from '../../services/api';
 
 interface BookingTransferStepProps {
   selectedHotelId: string;
@@ -59,6 +63,19 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
   const [showNextStepModal, setShowNextStepModal] = useState<boolean>(false);
   /** Why the inventory hold failed, if it did. Shown instead of advancing. */
   const [holdError, setHoldError] = useState<string | null>(null);
+  /** P4 trust: the active hold's expiry, when a hold succeeded. */
+  const [holdExpiresAt, setHoldExpiresAt] = useState<string | null>(null);
+  /** P4 trust: honest alternatives when the hold came back 409 sold-out. */
+  const [alternatives, setAlternatives] = useState<CommerceAlternative[]>([]);
+  const [alternativesLoading, setAlternativesLoading] = useState(false);
+  /** True when the alternatives search succeeded but found nothing servable. */
+  const [alternativesEmpty, setAlternativesEmpty] = useState(false);
+  /**
+   * Supplier calendar gate: the supplier refused the requested date entirely
+   * (409 supplier-date-blocked). Not "sold out" — no amount of seat hunting
+   * helps — so it gets its own state carrying the block reason.
+   */
+  const [blockedInfo, setBlockedInfo] = useState<{ date: string; reason: string } | null>(null);
 
   // Retrieve selected hotel object
   const selectedHotel: HotelOption | null = useMemo(() => {
@@ -81,6 +98,9 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
     if (!selectedTransfer) return;
 
     setHoldError(null);
+    setAlternatives([]);
+    setAlternativesEmpty(false);
+    setBlockedInfo(null);
     try {
       // A real inventory hold on the backend. This previously ran without an
       // idempotencyKey (so a double submit produced two holds) and with a
@@ -97,8 +117,24 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
         idempotencyKey: `IDEMP-TRF-HOLD-${selectedTransfer.id}-${Date.now()}`
       });
       sessionStorage.setItem('current_transfer_hold', JSON.stringify(hold));
+      // P4 trust: surface the hold's real deadline — the countdown that was
+      // previously invisible to the traveler.
+      if (hold?.expiresAt) setHoldExpiresAt(hold.expiresAt);
     } catch (e: any) {
       const message = String(e?.message || '');
+      // Supplier calendar gate (409 supplier-date-blocked): the supplier is
+      // closed on the requested date. Show the reason and the path forward
+      // (another date) instead of framing it as sold out.
+      if (e?.status === 409 && /not accepting bookings/i.test(message)) {
+        const details = (e?.details ?? {}) as { date?: string; reason?: string };
+        setBlockedInfo({ date: String(details.date || ''), reason: String(details.reason || '') });
+        setHoldError(
+          isRTL
+            ? 'المزود مغلق في هذا التاريخ — جرّب تاريخًا آخر.'
+            : 'The supplier is closed on this date — try another one.'
+        );
+        return;
+      }
       setHoldError(
         /401|Sign in|Authentication/i.test(message)
           ? (isRTL
@@ -110,6 +146,27 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
                 ? `تعذّر حجز المقعد: ${message}`
                 : `Could not hold your seat: ${message}`)
       );
+      // P4 trust: on a sold-out hold (409), fetch honest alternatives from
+      // the same inventory truth — never a guessed list.
+      if (/409|Only \d+ place|remain|sold/i.test(message)) {
+        setAlternativesLoading(true);
+        api.findAlternatives({
+          tripId: bookingTripId,
+          skuId: selectedTransfer.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002',
+          date: new Date().toISOString().split('T')[0],
+          timeSlot: '10:30 AM',
+          passengersCount: 2,
+          limit: 3,
+        })
+          .then(res => {
+            setAlternatives(res.alternatives || []);
+            // A successful search with nothing servable is honest information:
+            // say so rather than silently showing no panel at all.
+            setAlternativesEmpty((res.alternatives || []).length === 0);
+          })
+          .catch(() => setAlternatives([]))
+          .finally(() => setAlternativesLoading(false));
+      }
       return;
     }
 
@@ -150,9 +207,103 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Brand & Context Label */}
           <div className="flex items-center gap-3">
-            {holdError && (
+            {holdError && !blockedInfo && (
               <div role="alert" className="mb-4 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-sm">
                 {holdError}
+              </div>
+            )}
+
+            {/* Supplier calendar gate: an honest "closed that day" state with
+                the supplier's own reason — distinct from sold-out. */}
+            {blockedInfo && (
+              <div role="alert" className="mb-4 p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-sm">
+                <p className="font-bold flex items-center gap-2">
+                  <CalendarOff className="w-4 h-4" aria-hidden="true" />
+                  {isRTL ? 'المزود مغلق في هذا التاريخ' : 'The supplier is closed on this date'}
+                </p>
+                <p className="mt-1 text-amber-200/90">
+                  {blockedInfo.date
+                    ? (isRTL
+                        ? `لا يقبل حجوزات ${blockedInfo.date}${blockedInfo.reason ? ` — ${blockedInfo.reason}` : '.'}`
+                        : `They are not accepting bookings for ${blockedInfo.date}${blockedInfo.reason ? ` — ${blockedInfo.reason}` : '.'}`)
+                    : (isRTL ? 'جرّب تاريخًا آخر.' : 'Try another date.')}
+                </p>
+                <p className="mt-1 text-xs text-amber-200/80">
+                  {isRTL
+                    ? 'هذا ليس نفاد أماكن — المزود أغلق التاريخ بنفسه.'
+                    : 'This is not sold out — the supplier closed the date themselves.'}
+                </p>
+              </div>
+            )}
+
+            {/* P4 trust: the seat hold's real deadline, from the backend. */}
+            {holdExpiresAt && !holdError && (
+              <div className="mb-4">
+                <HoldCountdown
+                  expiresAt={holdExpiresAt}
+                  isRTL={isRTL}
+                  onExpire={() => setHoldExpiresAt(null)}
+                />
+              </div>
+            )}
+
+            {/* P4 trust: honest alternatives when the hold came back sold out
+                — including the truthful "nothing servable that day" case. */}
+            {(alternativesLoading || alternatives.length > 0 || alternativesEmpty) && (
+              <div className="mb-4 p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                <p className="text-sm font-bold text-[var(--text-primary)] mb-3">
+                  {isRTL
+                    ? 'أماكن بديلة متاحة لنفس التاريخ:'
+                    : 'Available alternatives for the same date:'}
+                </p>
+                {alternativesLoading ? (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isRTL ? 'جاري البحث عن بدائل…' : 'Searching for alternatives…'}
+                  </p>
+                ) : alternatives.length === 0 ? (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {isRTL
+                      ? 'لا توجد بدائل يمكن تقديمها فعليًا في هذا التاريخ — لا نختلق أماكن.'
+                      : 'Nothing servable for this date — we will not invent seats.'}
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {alternatives.map(alt => (
+                      <button
+                        key={alt.skuId}
+                        type="button"
+                        onClick={() => {
+                          // Switching to an alternative re-targets the hold:
+                          // the selection state drives the next hold attempt.
+                          const match = CURATED_TRANSFERS.find(ct =>
+                            ct.id === (alt.skuId === 'SKU-TRF-002' ? 'shuttle' : alt.skuId === 'SKU-TRF-001' ? 'private-car' : '')
+                          );
+                          if (match) {
+                            setSelectedTransferId(match.id);
+                            setAlternatives([]);
+                            setHoldError(null);
+                            analytics.track('alternative_selected', {
+                              metadata: { skuId: alt.skuId, fromSku: selectedTransfer?.id || 'unknown' },
+                            });
+                          }
+                        }}
+                        className="w-full flex items-center justify-between gap-3 p-3 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] text-start transition-colors cursor-pointer"
+                      >
+                        <span className="min-w-0">
+                          <span className="block text-sm font-bold text-[var(--text-primary)] truncate">
+                            {isRTL ? alt.titleAr : alt.title}
+                          </span>
+                          <span className="block text-xs text-[var(--text-secondary)]">
+                            {isRTL ? alt.reasonAr : alt.reason} · {alt.timeSlot} · {alt.available} {isRTL ? 'مكان' : 'seats'}
+                          </span>
+                        </span>
+                        <span className="text-xs font-black text-[var(--text-primary)] flex-shrink-0">
+                          EGP {alt.basePriceEGP.toLocaleString()}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -251,7 +402,7 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
                 {isAr ? '٥ أيام · فردين بالغين · ميزانية متوازنة' : '5 days · 2 adults · Moderate budget'}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
               {isAr ? 'كيف تفضل الوصول إلى دهب؟' : 'How do you want to get to Dahab?'}
             </h1>
             <p className="text-sm sm:text-base text-[var(--text-secondary)]/70 mt-1.5 max-w-2xl font-normal">

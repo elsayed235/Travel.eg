@@ -15,6 +15,14 @@ import {
   listSources
 } from '../services/accommodationService';
 import { parseAccommodationSearchIntent } from '../services/geminiReasoningService';
+import * as longStayService from '../services/longStayService';
+import {
+  applyAccommodationOverlay,
+  applyAccommodationViewOverlays,
+  applySkuOverlay,
+  applySupplierOverlay,
+  getPublishedOverlays,
+} from '../services/catalogContentService';
 
 export const accommodationRouter = Router();
 
@@ -59,7 +67,7 @@ accommodationRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
     };
 
     res.json({
-      accommodations: results.map(toAccommodationView),
+      accommodations: applyAccommodationViewOverlays(results.map(toAccommodationView)),
       areas: getAreaGuide(db.accommodations.filter(a => a.active)),
       stats,
       disclaimer: meta.disclaimer,
@@ -89,6 +97,16 @@ accommodationRouter.post('/search-intent', async (req: AuthenticatedRequest, res
   }
 });
 
+/** Public: list accommodations offering long-stay (weekly/monthly) pricing.
+ *  Registered BEFORE /:slug — Express matches in registration order, so a
+ *  later registration would be swallowed by the slug handler (404, because
+ *  `long-stay` is not an accommodation slug). */
+accommodationRouter.get('/long-stay', (req: AuthenticatedRequest, res: Response) => {
+  const areaId = typeof req.query.areaId === 'string' ? req.query.areaId : undefined;
+  const results = longStayService.getLongStayAccommodations(areaId);
+  res.json({ accommodations: results });
+});
+
 /** A single property: full detail plus the availability contract and any
  *  admin-curated external reference links. */
 accommodationRouter.get('/:slug', (req: AuthenticatedRequest, res: Response) => {
@@ -102,13 +120,18 @@ accommodationRouter.get('/:slug', (req: AuthenticatedRequest, res: Response) => 
     const areaGuide = getAreaGuide([accommodation]).find(a => a.id === accommodation.areaId) || null;
     const meta = getAccommodationCatalogueMeta();
 
+    // Published CMS copy/imagery overrides (no-op when nothing is published).
+    const overlayMap = getPublishedOverlays('accommodation', [accommodation.id]);
+    const skuMap = getPublishedOverlays('sku', sku ? [sku.id] : []);
+    const supplierMap = getPublishedOverlays('supplier', supplier ? [supplier.id] : []);
+
     res.json({
-      accommodation: toAccommodationView(accommodation),
+      accommodation: applyAccommodationOverlay(toAccommodationView(accommodation), overlayMap[accommodation.id] ?? null),
       sku: sku
-        ? { id: sku.id, title: sku.title, titleAr: sku.titleAr, basePriceEGP: sku.basePriceEGP, maxCapacityPerSlot: sku.maxCapacityPerSlot, active: sku.active, serviceType: sku.serviceType }
+        ? applySkuOverlay({ id: sku.id, title: sku.title, titleAr: sku.titleAr, basePriceEGP: sku.basePriceEGP, maxCapacityPerSlot: sku.maxCapacityPerSlot, active: sku.active, serviceType: sku.serviceType }, skuMap[sku.id] ?? null)
         : null,
       supplier: supplier
-        ? { id: supplier.id, businessName: supplier.businessName, businessNameAr: supplier.businessNameAr, area: supplier.area, city: supplier.city, coordinates: supplier.coordinates, rating: supplier.rating, reviewCount: supplier.reviewCount }
+        ? applySupplierOverlay({ id: supplier.id, businessName: supplier.businessName, businessNameAr: supplier.businessNameAr, area: supplier.area, city: supplier.city, coordinates: supplier.coordinates, rating: supplier.rating, reviewCount: supplier.reviewCount }, supplierMap[supplier.id] ?? null)
         : null,
       areaGuide,
       sources: listSources(accommodation.id),

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
   X,
@@ -28,6 +28,11 @@ interface SearchResultItem {
   subtitleAr?: string;
   route: AppRoute;
   actionParams?: { dayId?: number; activityId?: string; bookingId?: string; experienceSlug?: string; programSlug?: string };
+  /** Server-ranked matches carry the engine's explanation + availability truth. */
+  why?: string;
+  whyAr?: string;
+  bookable?: boolean;
+  priceEGP?: number;
 }
 
 /**
@@ -142,10 +147,39 @@ const fetchSearchCorpus = (signal: AbortSignal) =>
   ]).then(([p, a, v]) => ({ places: p.places, activities: a.activities, venues: v.venues }));
 
 export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) => {
-  const corpus = useApiResource(fetchSearchCorpus);
+  const corpus = useApiResource(fetchSearchCorpus, { cacheKey: 'corpus.searchdrawer', ttlMs: 60_000 });
   const { navigateTo } = useTrip();
   const { language, isRTL, t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
+  const [serverResults, setServerResults] = useState<Array<{ type: string; id: string; name: string; nameAr?: string; description?: string; area?: string; category?: string; whyEn?: string; whyAr?: string; bookable?: boolean; priceEGP?: number }>>([]);
+  const [serverLoading, setServerLoading] = useState(false);
+  // Server-side honesty signal: false when the engine found neither intent nor
+  // lexical overlap — the query is unmatchable, so the drawer shows its
+  // recovery state even if the local catalog substring-matches something.
+  const [serverUnmatched, setServerUnmatched] = useState(false);
+
+  // Debounced unified search: fires after 300ms of inactivity, only for queries >= 3 chars
+  useEffect(() => {
+    if (!searchTerm || searchTerm.trim().length < 3) {
+      setServerResults([]);
+      setServerUnmatched(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      setServerLoading(true);
+      api.searchDahab(searchTerm.trim(), controller.signal)
+        .then(data => {
+          if (!controller.signal.aborted) {
+            setServerResults(data.results ?? []);
+            setServerUnmatched(data.matched === false);
+          }
+        })
+        .catch(() => { if (!controller.signal.aborted) { setServerResults([]); setServerUnmatched(false); } })
+        .finally(() => { if (!controller.signal.aborted) setServerLoading(false); });
+    }, 300);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [searchTerm]);
 
   // Close on Escape key
   useEffect(() => {
@@ -161,6 +195,35 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  // Focus trap + focus restoration: Tab cycles inside the dialog while it is
+  // open, and focus returns to the element that opened it on close.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const onTrapKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onTrapKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onTrapKeyDown);
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -209,7 +272,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
   ];
 
   const term = searchTerm.trim().toLowerCase();
-  const filtered = (
+  const localResults = (
     term
       ? catalog.filter(
           (item) =>
@@ -220,8 +283,36 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
             item.category.toLowerCase().includes(term) ||
             (item.categoryAr && item.categoryAr.includes(searchTerm.trim()))
         )
-      : NAVIGATION_CATALOG
-  ).slice(0, 30);
+      : []
+  );
+
+  // Merge server results: map to SearchResultItem format, deduplicate by title
+  const serverMapped: SearchResultItem[] = serverResults.map(r => ({
+    id: `server-${r.type}-${r.id}`,
+    title: r.name,
+    titleAr: r.nameAr,
+    category: (r.type === 'activity' ? 'Experience' : r.type === 'dining' ? 'Food & Cafe' : 'Experience') as SearchResultItem['category'],
+    categoryAr: r.type === 'activity' ? 'تجارب' : r.type === 'dining' ? 'أكل' : 'أماكن',
+    subtitle: r.description || r.area || '',
+    subtitleAr: r.description || r.area || '',
+    route: r.type === 'dining' ? '/food' : '/experiences',
+    actionParams: { experienceSlug: r.id },
+    why: r.whyEn,
+    whyAr: r.whyAr,
+    bookable: r.bookable,
+    priceEGP: r.priceEGP,
+  }));
+
+  // Deduplicate: local results take priority, server results fill gaps.
+  // When the server explicitly reports the query as unmatchable (no intent,
+  // no lexical overlap), server results are already empty and the recovery
+  // state below renders instead of pretending substring hits are answers.
+  const localTitles = new Set(localResults.map(r => r.title.toLowerCase()));
+  const uniqueServer = serverUnmatched ? [] : serverMapped.filter(r => !localTitles.has(r.title.toLowerCase()));
+
+  const filtered = term
+    ? (serverUnmatched ? [] : [...localResults, ...uniqueServer]).slice(0, 30)
+    : NAVIGATION_CATALOG.slice(0, 30);
 
   const handleSelect = (item: SearchResultItem) => {
     navigateTo(item.route, item.actionParams);
@@ -230,6 +321,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Global Dahab Search & Spotlight"
@@ -248,6 +340,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
             autoFocus
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label={t('common.searchDiveSitesBookings')}
             placeholder={
               t('common.searchDiveSitesBookings')
             }
@@ -257,7 +350,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+              aria-label={t('a11y.clearSearch')}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -265,8 +359,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close search"
-            className="p-1.5 rounded-full bg-[var(--surface-card)] hover:opacity-80 text-[var(--text-primary)] border border-[var(--border-subtle)] cursor-pointer transition-colors"
+            aria-label={t('a11y.closeSearch')}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-[var(--surface-card)] hover:opacity-80 text-[var(--text-primary)] border border-[var(--border-subtle)] cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -275,7 +369,7 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
         {/* Results List */}
         <div className="overflow-y-auto p-3 space-y-1.5 flex-1">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-[var(--text-secondary)] space-y-2">
+            <div className="py-12 text-center text-[var(--text-secondary)] space-y-3">
               <Compass className="w-8 h-8 mx-auto text-[var(--text-secondary)] opacity-60" />
               <p className="text-sm font-medium text-[var(--text-primary)]">
                 {t('common.noResultsFoundFor', { searchTerm })}
@@ -283,12 +377,27 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
               <p className="text-xs text-[var(--text-secondary)]">
                 {t('common.trySearchingForDiving')}
               </p>
+              {/* Zero-result recovery: intent chips from the parsed query give
+                  the traveler one-tap escape hatches instead of a dead end. */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                {['diving', 'snorkeling', 'safari', 'food'].map(intent => (
+                  <button
+                    key={intent}
+                    type="button"
+                    onClick={() => setSearchTerm(intent)}
+                    className="px-3 min-h-[44px] inline-flex items-center rounded-full text-xs font-bold bg-[var(--surface-container)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-primary)] transition-colors cursor-pointer capitalize"
+                  >
+                    {intent}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             filtered.map((item) => {
               const displayTitle = language === 'ar' ? item.titleAr || item.title : item.title;
               const displayCategory = language === 'ar' ? item.categoryAr || item.category : item.category;
               const displaySubtitle = language === 'ar' ? item.subtitleAr || item.subtitle : item.subtitle;
+              const displayWhy = language === 'ar' ? item.whyAr || item.why : item.why;
 
               return (
                 <button
@@ -297,8 +406,8 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
                   onClick={() => handleSelect(item)}
                   className="w-full text-start p-3.5 rounded-2xl hover:bg-[var(--surface-container)] transition-colors flex items-center justify-between gap-3 group cursor-pointer border border-transparent hover:border-[var(--border-subtle)]"
                 >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span
                         className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
                           item.category === 'Experience'
@@ -317,8 +426,25 @@ export const SearchDrawer: React.FC<SearchDrawerProps> = ({ isOpen, onClose }) =
                       <span className="text-sm font-bold text-[var(--text-primary)]">
                         {displayTitle}
                       </span>
+                      {/* Availability truth from the unified engine: bookable
+                          now (with live price) vs request-only. Local corpus
+                          items carry no signal and show nothing. */}
+                      {item.bookable === true && (
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
+                          {language === 'ar' ? 'متاح الآن' : 'Bookable now'}{item.priceEGP ? ` · ${item.priceEGP.toLocaleString()} EGP` : ''}
+                        </span>
+                      )}
+                      {item.bookable === false && item.why && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[var(--surface-container)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                          {language === 'ar' ? 'بالطلب' : 'On request'}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-[var(--text-secondary)] line-clamp-1">{displaySubtitle}</p>
+                    {/* Explanation line: why the engine ranked this match. */}
+                    {displayWhy && (
+                      <p className="text-[11px] text-[var(--accent-primary)] line-clamp-1">✦ {displayWhy}</p>
+                    )}
                   </div>
 
                   <ArrowRight className={`w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] flex-shrink-0 ${isRTL ? 'rotate-180 group-hover:-translate-x-0.5' : 'group-hover:translate-x-0.5'}`} />

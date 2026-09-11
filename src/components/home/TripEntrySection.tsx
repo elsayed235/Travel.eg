@@ -106,14 +106,22 @@ export const TripEntrySection: React.FC<TripEntrySectionProps & { cmsSection?: C
       aria-label="Trip Planning Entry Experience"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      {/* Ambient Sinai Glow */}
-      <div
-        className={`absolute top-0 inset-x-0 h-96 pointer-events-none ${
-          isDark
-            ? 'bg-gradient-to-b from-[var(--surface-card)]/40 via-transparent to-transparent'
-            : 'bg-gradient-to-b from-[var(--surface-container)]/70 via-transparent to-transparent'
-        }`}
-      />
+      {/* Ambient Sinai backdrop — a real desert/coast panorama behind the glow */}
+      <div className="absolute top-0 inset-x-0 h-96 overflow-hidden pointer-events-none">
+        <img
+          src="/images/hero/sinai-panorama.jpg"
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover object-center opacity-15 dark:opacity-10"
+        />
+        <div
+          className={`absolute inset-0 ${
+            isDark
+              ? 'bg-gradient-to-b from-[var(--bg-canvas)]/30 via-[var(--bg-canvas)]/80 to-[var(--bg-canvas)]'
+              : 'bg-gradient-to-b from-[var(--bg-canvas)]/40 via-[var(--bg-canvas)]/85 to-[var(--bg-canvas)]'
+          }`}
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -214,7 +222,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps & { cmsSection?: C
           {/* ========================================================= */}
           <div
             id="pathway-build-myself"
-            className="chart-card group rounded-3xl border hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 text-[var(--text-primary)]"
+            className="chart-card group rounded-3xl border hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 hover:-translate-y-1.5 text-[var(--text-primary)] aurora-hover"
           >
             {/* Photo Header */}
             <div className="relative h-40 w-full overflow-hidden">
@@ -282,7 +290,7 @@ export const TripEntrySection: React.FC<TripEntrySectionProps & { cmsSection?: C
           {/* ========================================================= */}
           <div
             id="pathway-ready-trips"
-            className="chart-card group rounded-3xl border-2 border-[var(--accent-secondary)] shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] ring-1 ring-[var(--accent-secondary)]/20"
+            className="chart-card group rounded-3xl border-2 border-[var(--accent-secondary)] shadow-2xl hover:-translate-y-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 flex flex-col justify-between relative overflow-hidden text-[var(--text-primary)] ring-1 ring-[var(--accent-secondary)]/20"
           >
             {/* Photo Header */}
             <div className="relative h-40 w-full overflow-hidden">

@@ -9,6 +9,8 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
+import { ReliabilityBadge } from '../common/ReliabilityBadge';
+import { ReefBadge } from '../common/ReefBadge';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,6 +46,8 @@ export interface ListingItem {
   location?: { address: string; lat: string; lng: string };
   price?: string;
   tags?: string[];
+  /** Supplier id when this listing represents a business — drives trust badges. */
+  supplierId?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -194,9 +198,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const typeColor: Record<ListingType, string> = {
     event: 'var(--accent-primary)',
     'basic-services': 'var(--accent-secondary)',
-    'health-wellness': '#C9A24B',
+    'health-wellness': 'var(--accent-secondary)',
     activities: 'var(--accent-primary)',
-    'food-drink': '#C9A24B',
+    'food-drink': 'var(--accent-secondary)',
     'real-estate': 'var(--accent-secondary)',
   };
   // Lighter ink variants for small colored text on dark surfaces (AA contrast).
@@ -225,9 +229,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {item.thumbnail ? (
             <img
               src={item.thumbnail}
-              alt=""
+              alt={title}
               className="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[var(--surface-container)] to-[var(--surface-card)] flex items-center justify-center">
@@ -248,7 +253,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               <div className="flex items-center gap-1 text-xs font-bold flex-shrink-0">
                 <Star className="w-3.5 h-3.5 fill-[var(--accent-secondary)] text-[var(--accent-secondary)]" />
                 <span>{item.rating}</span>
-                {item.reviewCount && <span className="text-[var(--text-secondary)]/60">({item.reviewCount})</span>}
+                {item.reviewCount != null && item.reviewCount > 0 && <span className="text-[var(--text-secondary)]/60">({item.reviewCount})</span>}
               </div>
             )}
           </div>
@@ -283,6 +288,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
             isFav ? 'bg-rose-500 text-white' : 'bg-black/40 text-white hover:bg-black/70'
           }`}
+          aria-label={t(isFav ? 'a11y.removeFavorite' : 'a11y.saveFavorite', { title })}
           aria-pressed={isFav}
         >
           <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -308,10 +314,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
       >
         {/* Cover image */}
         <div className="relative h-44 w-full overflow-hidden bg-[var(--surface-container)]">
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform group-hover:scale-[1.03]"
-            style={{ backgroundImage: item.cover ? `url('${item.cover}')` : item.thumbnail ? `url('${item.thumbnail}')` : undefined }}
-          />
+          {(item.cover || item.thumbnail) ? (
+            <img
+              src={item.cover || item.thumbnail}
+              alt={title}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-[1.03]"
+            />
+          ) : null}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           {/* Featured badge */}
@@ -343,6 +354,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             className={`absolute bottom-2.5 end-2.5 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
               isFav ? 'bg-rose-500 text-white' : 'bg-black/50 text-white hover:bg-black/80'
             }`}
+            aria-label={t(isFav ? 'a11y.removeFavorite' : 'a11y.saveFavorite', { title })}
             aria-pressed={isFav}
           >
             <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -357,7 +369,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               <div className="flex items-center gap-1 text-xs font-bold text-[var(--accent-secondary)] flex-shrink-0 mt-0.5">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span>{item.rating}</span>
-                {item.reviewCount && <span className="text-[var(--text-secondary)]/60">({item.reviewCount})</span>}
+                {item.reviewCount != null && item.reviewCount > 0 && <span className="text-[var(--text-secondary)]/60">({item.reviewCount})</span>}
               </div>
             )}
           </div>
@@ -367,6 +379,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
               style={{ color: typeTextColor[item.type], backgroundColor: `${typeColor[item.type]}15` }}>
               {categoryLabel}
             </span>
+          )}
+
+          {/* Trust badges — only for supplier-backed listings, only when real data exists */}
+          {item.supplierId && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <ReliabilityBadge supplierId={item.supplierId} />
+              <ReefBadge supplierId={item.supplierId} />
+            </div>
           )}
 
           {item.dates && (
@@ -389,7 +409,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Action row */}
           <div className="mt-3 flex items-center justify-between gap-2">
-            <span className="text-[10px] text-[var(--text-secondary)]/50">
+            <span className="text-xs text-[var(--text-secondary)]/50">
               {t('attractions.viewDetails')}
             </span>
             <span className="text-[10px] font-bold text-[var(--accent-primary)] group-hover:underline">
@@ -471,7 +491,7 @@ export const ListingsView: React.FC = () => {
   }, [searchParams]);
 
   // ---- Fetch ----
-  const corpus = useApiResource(fetchListingsCorpus);
+  const corpus = useApiResource(fetchListingsCorpus, { cacheKey: 'corpus.listings', ttlMs: 60_000 });
 
   const allListings = useMemo<ListingItem[]>(() => {
     if (!corpus.data) return DEMO_LISTINGS;
@@ -606,7 +626,7 @@ export const ListingsView: React.FC = () => {
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl chart-heading font-bold">
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-balance">
               {t('explore.dahabListings')}
             </h1>
             <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
@@ -662,7 +682,7 @@ export const ListingsView: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('explore.searchListings')}
-            className={`w-full py-2.5 pl-${language === 'ar' ? '4' : '10'} pr-${language === 'ar' ? '10' : '4'} rounded-xl border text-sm ${
+            className={`w-full py-2.5 ${language === 'ar' ? 'pl-4 pr-10' : 'pl-10 pr-4'} rounded-xl border text-sm focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/40 focus:border-[var(--accent-primary)]'
                 : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50 focus:border-[var(--accent-primary)]'
@@ -749,7 +769,7 @@ export const ListingsView: React.FC = () => {
             </p>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
             {displayList.map(item => (
               <ListingCard
                 key={item.id}
@@ -762,7 +782,7 @@ export const ListingsView: React.FC = () => {
             ))}
           </div>
         ) : viewMode === 'list' ? (
-          <div className="space-y-3">
+          <div className="space-y-3" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
             {displayList.map(item => (
               <ListingCard
                 key={item.id}
@@ -883,6 +903,7 @@ export function buildListingsFromCorpus(
       } : (s.area ? { address: s.area, lat: '', lng: '' } : undefined),
       price: s.priceRange || undefined,
       tags: s.serviceTypes,
+      supplierId: s.id,
     });
   }
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { LedgerEntry, TransferTrackingRecord, ConfirmedBookingItem } from '../types';
 // Fetched only when there is a Firebase user to sync for. See the note in
 // AuthContext: the SDK is 680 kB and unusable on a deployment without Firebase
@@ -251,10 +251,17 @@ export const CommerceProvider: React.FC<{
    * the stage — the homepage composition, the lifecycle snapshot, the persona
    * mode — followed them backwards. It is derived from the trip here because
    * this is where the trip lives.
+   *
+   * Only syncs when the trip ID changes to avoid re-rendering the entire
+   * context tree on reference instability.
    */
+  const prevJourneyTripIdRef = useRef<string | null>(null);
   useEffect(() => {
+    const tripId = activeTrip?.id ?? null;
+    if (tripId === prevJourneyTripIdRef.current) return;
+    prevJourneyTripIdRef.current = tripId;
     setJourneyStage(journeyStageFromTrip(activeTrip));
-  }, [activeTrip, setJourneyStage]);
+  }, [activeTrip?.id]);
 
   const reloadTrip = useCallback(() => setTripReloadToken(token => token + 1), []);
 
@@ -314,9 +321,10 @@ export const CommerceProvider: React.FC<{
           return;
         }
 
-        const [detail, bookingsResponse] = await Promise.all([
+        const [detail, bookingsResponse, rentals] = await Promise.all([
           api.getTrip(trip.id, signal),
-          api.getTripBookings(trip.id, signal)
+          api.getTripBookings(trip.id, signal),
+          api.getMyRentalBookings(signal).catch(() => null)
         ]);
         if (cancelled) return;
 
@@ -331,13 +339,9 @@ export const CommerceProvider: React.FC<{
         // merged. A failure to load them must not blank the trip's bookings —
         // rentals are additive, so the failure degrades to showing only the
         // commerce bookings.
-        let rentalBookings: ConfirmedBookingItem[] = [];
-        try {
-          const rentals = await api.getMyRentalBookings(signal);
-          if (!cancelled) rentalBookings = rentals.bookings.map(rentalBookingToConfirmedBookingItem);
-        } catch {
-          // Ignored: commerce bookings still render without the rental section.
-        }
+        const rentalBookings = rentals
+          ? rentals.bookings.map(rentalBookingToConfirmedBookingItem)
+          : [];
         if (cancelled) return;
         setBookings([...tripBookings, ...rentalBookings]);
       } catch (error: unknown) {

@@ -27,6 +27,7 @@ import {
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { InternalPageHeader } from '../common/InternalPageHeader';
+import { MarineConditions } from './MarineConditions';
 import { api } from '../../services/api';
 import { IMG_P1507525428034b723cf961d3e_HERO, IMG_P15103123056538ed496efae75_HERO, IMG_P154455176346a013bb70d5_HERO, IMG_P16826872200634742bd7fd538_HERO } from '../../shared/placeholderImagery';
 
@@ -216,12 +217,10 @@ export const DahabLiveView: React.FC = () => {
       : null,
     nextBooking
       ? language === 'ar'
-        ? `🤿 ${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
-        : `🤿 ${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
+        ? `${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
+        : `${nextBooking.subtitle} · ${nextBooking.datesOrTime}`
       : t('live.noConfirmedBookingsOn'),
-    activeTrip
-      ? language === 'ar' ? `🧭 ${activeTrip.title}` : `🧭 ${activeTrip.title}`
-      : null
+    activeTrip ? activeTrip.title : null
   ]
     .filter(Boolean)
     .join(String.fromCharCode(10));
@@ -401,7 +400,7 @@ export const DahabLiveView: React.FC = () => {
       {/* 2. Main Live Analysis Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        {/* 🎥 LIVE STREAMING BEACH CAMERAS PLAYER (100% PRODUCTION HARNESS) */}
+        {/* LIVE STREAMING BEACH CAMERAS PLAYER (100% PRODUCTION HARNESS) */}
         <section aria-label="Live Dahab Beach Cameras" className="rounded-3xl bg-[var(--surface-card)] text-[var(--text-primary)] border border-[#1B9A8B]/30 shadow-2xl overflow-hidden">
           <div className="p-6 sm:p-8 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
@@ -527,15 +526,15 @@ export const DahabLiveView: React.FC = () => {
                 {selectedCam.conditions ? (
                   <div className="flex items-center gap-3 text-xs text-[var(--text-primary)]">
                     <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-white font-mono">
-                      💨 {selectedCam.conditions.windKnots} kn {selectedCam.conditions.windDirection}
+                      <Wind className="w-3 h-3" /> {selectedCam.conditions.windKnots} kn {selectedCam.conditions.windDirection}
                     </span>
                     {selectedCam.conditions.waterTempC !== null && (
                       <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-[var(--accent-primary)] font-mono">
-                        🌊 {selectedCam.conditions.waterTempC}°C
+                        <Waves className="w-3 h-3" /> {selectedCam.conditions.waterTempC}°C
                       </span>
                     )}
                     <span className="px-2.5 py-1 rounded-md bg-[var(--btn-util-bg)] text-[var(--accent-secondary)] font-mono">
-                      ☀️ {selectedCam.conditions.airTempC}°C
+                      <Sun className="w-3 h-3" /> {selectedCam.conditions.airTempC}°C
                     </span>
                   </div>
                 ) : (
@@ -547,6 +546,10 @@ export const DahabLiveView: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Modeled sea state + water-activity suitability (self-contained;
+            renders an honest unavailable note when the model is unreachable). */}
+        <MarineConditions />
 
         {/* Recommended Action Cards for Right Now */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

@@ -1,5 +1,5 @@
 import { INTERESTS_DATA, type InterestId } from '../components/planner/StepInterests';
-import type { Language } from './translations';
+import type { Language } from './resolve';
 
 /**
  * Interest taxonomy localizer.

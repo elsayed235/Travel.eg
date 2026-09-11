@@ -63,7 +63,7 @@ export const DahabTimeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           subtextEn: 'The sea is glassy, calm & perfect for reef snorkeling.',
           subtextAr: 'البحر هادي وصافي ومثالي للسباحة والسنوركلنج.',
           accentColor: '#20A89A',
-          ambientColor: '#062C35',
+          ambientColor: '#1C1917',
           badgeClass: 'badge-dahab-lagoon',
         };
       case 'midday':
@@ -103,7 +103,7 @@ export const DahabTimeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           subtextEn: 'Acoustic melodies, Bedouin fires & peaceful waves.',
           subtextAr: 'جلسات بدوية هادية وأنغام بحرية تحت ضوء النجوم.',
           accentColor: '#52C4B7',
-          ambientColor: '#04171D',
+          ambientColor: '#141311',
           badgeClass: 'badge-dahab-dark-lagoon',
         };
     }

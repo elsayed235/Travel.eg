@@ -32,6 +32,10 @@ const PUBLIC_RULES: Rule[] = [
   // Session establishment and teardown.
   { pattern: /^\/auth\/(register|login|firebase-session|logout)$/, methods: ['POST'] },
   { pattern: /^\/health$/, methods: ['GET'] },
+
+  // Anonymous product analytics ingestion. The handler whitelists event names
+  // and strips PII, so the exposure is bounded by design.
+  { pattern: /^\/analytics\/events$/, methods: ['POST'] },
   { pattern: /^\/media\/sync$/, methods: ['GET'] },
 
   // Destination knowledge: the public marketing and discovery surface.
@@ -40,6 +44,9 @@ const PUBLIC_RULES: Rule[] = [
 
   // Ambient conditions shown on the public homepage.
   { pattern: /^\/telemetry\/(weather|cameras)$/, methods: ['GET'] },
+  // Modeled sea state — same ambient class as weather/cameras (no PII, read-only,
+  // 503 when the model run is missing). Powers the public discovery conditions strip.
+  { pattern: /^\/telemetry\/marine$/, methods: ['GET'] },
 
   // Research-grounded homepage handbook (season / experiences / landmarks / safety).
   { pattern: /^\/research\/dahab-overview$/, methods: ['GET'] },
@@ -77,7 +84,37 @@ const PUBLIC_RULES: Rule[] = [
   { pattern: /^\/trip\/generate$/, methods: ['POST'] },
 
   // CMS public content APIs — published content for the website.
-  { pattern: /^\/content\//, methods: ['GET'] }
+  { pattern: /^\/content\//, methods: ['GET'] },
+
+  // Verified-stay reviews for a supplier (blueprint row #14). Public read:
+  // the trust signal is worthless if only signed-in users can see it. The
+  // handler exposes display names and aggregates only — never emails/phones.
+  // Writing, responding and moderating stay on the authenticated default.
+  { pattern: /^\/reviews\/supplier\/[^/]+$/, methods: ['GET'] },
+
+  // Supplier trust aggregates (reliability score, reef-positive score, and the
+  // public reef-positive list). Same rationale as the reviews read: these are
+  // display aggregates — rates and point totals, never names/contacts — and a
+  // trust badge hidden behind sign-in is a badge nobody sees.
+  { pattern: /^\/suppliers\/[^/]+\/reliability$/, methods: ['GET'] },
+  { pattern: /^\/suppliers\/[^/]+\/reef-score$/, methods: ['GET'] },
+  { pattern: /^\/reef-positive-suppliers$/, methods: ['GET'] },
+  // The conservation scoring rubric behind the reef badges — public like the
+  // reef-positive list. No personal data, just action-type point values.
+  { pattern: /^\/reef-action-types$/, methods: ['GET'] },
+
+  // Bundle catalogue read + the cart discount calculator. Both are display
+  // aggregates / arithmetic over the already-public catalogue (names,
+  // discount percentages, price math) — the marketing surface is worthless if
+  // a visitor must sign in to see a promo. Mutations stay gated by the role
+  // rules below; note compute-discount must be excluded there explicitly.
+  { pattern: /^\/bundles$/, methods: ['GET'] },
+  { pattern: /^\/bundles\/compute-discount$/, methods: ['POST'] },
+
+  // Supplier availability calendar (blueprint row #12). The monthly view is
+  // public so travel planners can show blocked dates without sign-in.
+  // (Path is relative to the /api mount — a leading /api here never matched.)
+  { pattern: /^\/suppliers\/[^/]+\/availability$/, methods: ['GET'] }
 ];
 
 /**
@@ -97,6 +134,8 @@ const ROLE_RULES: RoleRule[] = [
   // rollback and schedule policy changes.
   { pattern: /^\/market\//, roles: ['Product', 'Operations', 'Admin'] },
   { pattern: /^\/intelligence\//, roles: ['Product', 'Operations', 'Admin'] },
+  // Dahab Intelligence Core — admin control plane (deterministic tool router).
+  { pattern: /^\/intelligence-core\//, roles: ['Operations', 'Admin'] },
 
   // Accommodations admin surface: create/edit/deactivate properties and
   // manage their external reference links.
@@ -122,9 +161,41 @@ const ROLE_RULES: RoleRule[] = [
   // and reading your own thread is not, and is left to the default (any
   // authenticated user), with the handler scoping the list to its owner.
   { pattern: /^\/support\/messages\/[^/]+\/reply$/, roles: ['Operations', 'Admin'] },
+  // Escalation, assignment, resolve, close — Operations/Admin only.
+  // (Patterns are mount-relative: an /api/… prefix here never matched and
+  // silently left these on the authenticated default.)
+  { pattern: /^\/support\/messages\/[^/]+\/(escalate|assign|resolve|close)$/, roles: ['Operations', 'Admin'] },
+  { pattern: /^\/support\/escalation-queue$/, roles: ['Operations', 'Admin'] },
+  { pattern: /^\/support\/counts$/, roles: ['Operations', 'Admin'] },
 
   // Outbound messaging to real drivers and dive centres.
   { pattern: /^\/sms\//, roles: ['Operations', 'Admin'] },
+
+  // Dynamic bundle management — mutations are Admin/Operations only. The
+  // public read (GET /bundles) and the cart calculator
+  // (POST /bundles/compute-discount) are allowlisted above, so compute-
+  // discount is excluded here; GET /bundles/:id deliberately falls through to
+  // the authenticated default (any signed-in user may view a bundle).
+  { pattern: /^\/bundles$/, methods: ['POST'], roles: ['Admin', 'Operations'] },
+  { pattern: /^\/bundles\/(?!compute-discount)[^/]+$/, methods: ['POST', 'PATCH', 'DELETE'], roles: ['Admin', 'Operations'] },
+
+  // Fraud detection — Admin/Operations read, Admin-only write.
+  { pattern: /^\/fraud\//, roles: ['Admin', 'Operations'] },
+
+  // Review moderation (blueprint row #14): the pending queue and approve/
+  // flag/hide actions are Operations acts. A supplier answers their own
+  // approved reviews through /reviews/:id/respond, which stays on the
+  // authenticated default and resolves the acting supplier from the session.
+  { pattern: /^\/reviews\/pending$/, roles: ['Operations', 'Admin'] },
+  { pattern: /^\/reviews\/[^/]+\/moderate$/, roles: ['Operations', 'Admin'] },
+
+  // Payout settlement (blueprint row #12): the pending queue is ops-only.
+  // Supplier payout reads use the authenticated default (own-supplier guard).
+  { pattern: /^\/payouts\/pending$/, roles: ['Operations', 'Admin'] },
+
+  // Ops-broadcast push sends (per-user subscribe/unsubscribe under /push/
+  // stays on the authenticated default: any signed-in user, own browsers).
+  { pattern: /^\/admin\/push\//, roles: ['Operations', 'Admin'] },
 
   // Background job control and the event bus.
   { pattern: /^\/jobs\//, roles: ['Operations', 'Admin'] },
@@ -150,8 +221,18 @@ export function isPublicApiPath(path: string, method: string): boolean {
   return PUBLIC_RULES.some(rule => matches(rule, path, method));
 }
 
-export function requiredRolesFor(path: string): Role[] | null {
-  const rule = ROLE_RULES.find(r => r.pattern.test(path));
+/**
+ * Role requirements for a path, applied after authentication. First match
+ * wins, so put the most specific patterns first. A rule that declares
+ * `methods` only applies to those methods — the method must be supplied for
+ * that check to happen (the middleware always supplies it; a methodless query
+ * matches method-declaring rules as a conservative read of written intent).
+ */
+export function requiredRolesFor(path: string, method?: string): Role[] | null {
+  const m = method?.toUpperCase();
+  const rule = ROLE_RULES.find(
+    r => r.pattern.test(path) && (!r.methods || !m || r.methods.includes(m as Method))
+  );
   return rule ? rule.roles : null;
 }
 
@@ -181,7 +262,7 @@ export function apiAccessPolicy(req: AuthenticatedRequest, res: Response, next: 
     });
   }
 
-  const roles = requiredRolesFor(path);
+  const roles = requiredRolesFor(path, method);
   if (roles && !roles.includes(req.user.role)) {
     return res.status(403).json({
       type: 'https://dahab.travel/errors/forbidden',

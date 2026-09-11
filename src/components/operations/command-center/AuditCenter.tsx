@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FileText, CheckCircle2, User, Clock, Shield, RefreshCw, Download, Filter } from 'lucide-react';
+import { FileText, Download, RefreshCw } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { Pagination, usePagination } from './Pagination';
+import { SectionHeader } from './ui/SectionHeader';
+import { EmptyState } from './ui/EmptyState';
+import { Skeleton } from './ui/Skeleton';
+import { DashCard } from './ui/DashCard';
 
 export default function AuditCenter() {
   const { language, t } = useLanguage();
@@ -31,19 +35,10 @@ export default function AuditCenter() {
 
   const { page, setPage, totalPages, paginatedItems, totalItems, pageSize } = usePagination(filtered, 50);
 
-  const uniqueActions = [...new Set(events.map(e => e.action).filter(Boolean))].slice(0, 20);
-  const uniqueEntities = [...new Set(events.map(e => e.entityType).filter(Boolean))].slice(0, 20);
-
   const exportCSV = () => {
-    const headers = ['Time', 'Actor', 'Actor Role', 'Action', 'Entity Type', 'Entity ID', 'Payload'];
+    const headers = [t('cmd.audit.time'), t('cmd.audit.actor'), 'Actor Role', t('cmd.audit.actionLabel'), t('cmd.audit.entityLabel'), 'Entity ID', t('cmd.audit.payload')];
     const rows = filtered.map(e => [
-      e.timestamp || '',
-      e.actor || '',
-      e.actorRole || '',
-      e.action || '',
-      e.entityType || '',
-      e.entityId || '',
-      JSON.stringify(e.payload || {}),
+      e.timestamp || '', e.actor || '', e.actorRole || '', e.action || '', e.entityType || '', e.entityId || '', JSON.stringify(e.payload || {}),
     ]);
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -55,57 +50,53 @@ export default function AuditCenter() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <FileText className="w-4 h-4 text-[var(--text-muted)]" />
-          {t('cmd.audit.title')}
-          <span className="text-[11px] text-[var(--text-muted)] font-mono">({filtered.length}/{events.length})</span>
-        </h3>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={exportCSV} className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 cursor-pointer">
-            <Download className="w-3.5 h-3.5" />Export
-          </button>
-          <button type="button" onClick={() => fetchEvents()} className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer">
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
+      <SectionHeader icon={FileText} title={t('cmd.audit.title')} subtitle={`${filtered.length}/${events.length}`} />
 
-      {/* Filters */}
       <div className="flex gap-2 flex-wrap">
         <input type="text" value={actionFilter} onChange={e => setActionFilter(e.target.value)}
-          aria-label="Filter by action"
-          placeholder="Filter action…" className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
+          aria-label={t('cmd.audit.filterAction')} placeholder={t('cmd.audit.filterAction')}
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
         <input type="text" value={entityFilter} onChange={e => setEntityFilter(e.target.value)}
-          aria-label="Filter by entity"
-          placeholder="Filter entity…" className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
+          aria-label={t('cmd.audit.filterEntity')} placeholder={t('cmd.audit.filterEntity')}
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
         <input type="text" value={actorFilter} onChange={e => setActorFilter(e.target.value)}
-          aria-label="Filter by actor"
-          placeholder="Filter actor…" className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
+          aria-label={t('cmd.audit.filterActor')} placeholder={t('cmd.audit.filterActor')}
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 w-40" />
         {(actionFilter || entityFilter || actorFilter) && (
           <button type="button" onClick={() => { setActionFilter(''); setEntityFilter(''); setActorFilter(''); }}
-            className="px-2 py-1 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] cursor-pointer">Clear</button>
+            className="px-2 py-1 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-[11px] cursor-pointer">{t('cmd.audit.clear')}</button>
         )}
       </div>
 
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={exportCSV}
+          className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] text-xs font-medium flex items-center gap-1.5 cursor-pointer">
+          <Download className="w-3.5 h-3.5" />{t('cmd.audit.export')}
+        </button>
+        <button type="button" onClick={() => fetchEvents()}
+          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer">
+          <RefreshCw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
       {loading ? (
-        <div className="py-12 text-center text-sm text-[var(--text-muted)]">{t('cmd.loading')}</div>
+        <Skeleton variant="table" />
       ) : filtered.length === 0 ? (
-        <div className="py-12 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-          <FileText className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
-          <div className="text-sm font-bold text-[var(--text-muted)]">{(actionFilter || entityFilter || actorFilter) ? t('cmd.audit.noEventsMatching') : t('cmd.audit.noEvents')}</div>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title={(actionFilter || entityFilter || actorFilter) ? t('cmd.audit.noEventsMatching') : t('cmd.audit.noEvents')}
+        />
       ) : (
-        <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] overflow-hidden">
+        <DashCard padding="none">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[11px] font-mono">
               <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <tr>
-                  <th className="py-2.5 px-3">Time</th>
-                  <th className="py-2.5 px-3">Actor</th>
-                  <th className="py-2.5 px-3">Action</th>
-                  <th className="py-2.5 px-3">Entity</th>
-                  <th className="py-2.5 px-3">Details</th>
+                  <th className="py-2.5 px-3">{t('cmd.audit.time')}</th>
+                  <th className="py-2.5 px-3">{t('cmd.audit.actor')}</th>
+                  <th className="py-2.5 px-3">{t('cmd.audit.actionLabel')}</th>
+                  <th className="py-2.5 px-3">{t('cmd.audit.entityLabel')}</th>
+                  <th className="py-2.5 px-3">{t('cmd.audit.details')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -127,9 +118,9 @@ export default function AuditCenter() {
                       <tr>
                         <td colSpan={5} className="px-3 pb-3">
                           <div className="p-3 rounded-xl bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[11px] space-y-1">
-                            <div><span className="text-[var(--text-muted)]">ID:</span> <span className="text-[var(--text-muted)]">{event.id}</span></div>
-                            <div><span className="text-[var(--text-muted)]">Signature:</span> <span className="text-[var(--text-muted)]">{event.signature || '—'}</span></div>
-                            {event.payload && <div><span className="text-[var(--text-muted)]">Payload:</span> <pre className="text-[var(--text-muted)] whitespace-pre-wrap mt-1">{JSON.stringify(event.payload, null, 2)}</pre></div>}
+                            <div><span className="text-[var(--text-muted)]">{t('cmd.audit.idLabel')}</span> <span className="text-[var(--text-muted)]">{event.id}</span></div>
+                            <div><span className="text-[var(--text-muted)]">{t('cmd.audit.signature')}</span> <span className="text-[var(--text-muted)]">{event.signature || '—'}</span></div>
+                            {event.payload && <div><span className="text-[var(--text-muted)]">{t('cmd.audit.payload')}</span> <pre className="text-[var(--text-muted)] whitespace-pre-wrap mt-1">{JSON.stringify(event.payload, null, 2)}</pre></div>}
                           </div>
                         </td>
                       </tr>
@@ -142,7 +133,7 @@ export default function AuditCenter() {
           <div className="px-3 py-2 border-t border-[var(--border-subtle)]">
             <Pagination page={page} totalPages={totalPages} totalItems={totalItems} pageSize={pageSize} onPageChange={setPage} />
           </div>
-        </div>
+        </DashCard>
       )}
     </div>
   );

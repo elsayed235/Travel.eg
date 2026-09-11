@@ -19,10 +19,12 @@ import {
   Sun, 
   Info,
   X,
-  MessageSquare
+  MessageSquare,
+  Sailboat
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
 import { useTrip } from '../../context/TripContext';
+import { CategoryIcon } from '../common/CategoryIcon';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
 
@@ -254,7 +256,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
           metadata: {
             serviceType: 'boat',
             supplierId: 'SUP-BOAT-01',
-            travelerName: 'Ahmed Mansour',
+            travelerName: profile.name || '—',
             reason: 'Weather Zero-Penalty Reschedule: Boat trip moved to Day 3 10:00 AM'
           }
         });
@@ -285,7 +287,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
           metadata: {
             serviceType: 'canyon',
             supplierId: 'SUP-BEDOUIN-02',
-            travelerName: 'Ahmed Mansour',
+            travelerName: profile.name || '—',
             reason: 'Weather Zero-Penalty Swap: Canyon Trek substituted for Boat Trip'
           }
         });
@@ -310,7 +312,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
           metadata: {
             serviceType: 'credit',
             supplierId: 'PLATFORM_DURABLE_ESCROW',
-            travelerName: 'Ahmed Mansour',
+            travelerName: profile.name || '—',
             reason: 'Weather Recovery: 1,200 EGP Escrow Credit returned to wallet'
           }
         });
@@ -475,7 +477,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                     </div>
                     <div className="flex items-center justify-between text-emerald-300 font-bold bg-emerald-950/40 p-2 rounded-xl border border-emerald-500/30">
                       <span>11:30 AM</span>
-                      <span>✨ {t('recovery.freeTimeBeachWalk')}</span>
+                      <span className="inline-flex items-center gap-1"><CategoryIcon kind="sparkles" className="w-3.5 h-3.5" /> {t('recovery.freeTimeBeachWalk')}</span>
                     </div>
                     <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>01:00 PM</span>
@@ -500,7 +502,7 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
                     </div>
                     <div className="flex items-center justify-between text-[var(--text-primary)] font-bold bg-[var(--surface-card)] p-2 rounded-xl border border-[var(--accent-secondary)]/40 text-[var(--accent-secondary)]">
                       <span>10:00 AM</span>
-                      <span>⛵ {t('recovery.boatTripRescheduled')}</span>
+                      <span className="flex items-center gap-1.5"><Sailboat className="w-3.5 h-3.5" />{t('recovery.boatTripRescheduled')}</span>
                     </div>
                     <div className="flex items-center justify-between text-[var(--text-secondary)]/70">
                       <span>01:30 PM</span>
@@ -542,8 +544,8 @@ export const ChangeAndRecoveryView: React.FC<ChangeAndRecoveryViewProps> = ({
               {/* 1. ALERT & REASSURANCE BANNER */}
               <section id="change-alert-card" className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-7 border border-amber-500/40 shadow-xl space-y-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center flex-shrink-0 text-2xl shadow-xs">
-                    ⚠️
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">

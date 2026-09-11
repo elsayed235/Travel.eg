@@ -81,13 +81,20 @@ export const DahabMicroExperiences: React.FC<DahabMicroExperiencesProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+          {/* Horizontal activity rail — distinct from the featured-story
+              layout above and the bento grid below, so three sections in a
+              row don't read as the same repeated card wall. Snaps per-card
+              so touch scrolling feels intentional, not accidental. */}
+          <div
+            className="flex gap-5 mt-6 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory no-scrollbar"
+            style={{ scrollbarWidth: 'none' }}
+          >
             {overview.experiences.map((exp) => {
               const photo = EXPERIENCE_PHOTOS[exp.id] || '/images/hero/golden-beach.jpg';
               return (
                 <div
                   key={exp.id}
-                  className="group relative rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-[var(--accent-primary)]/50 transition-[border-color,box-shadow] duration-300 shadow-md hover:shadow-xl flex flex-col justify-between"
+                  className="group relative shrink-0 snap-start w-[78%] xs:w-[65%] sm:w-[45%] lg:w-[26%] rounded-3xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-[var(--accent-primary)]/50 transition-[border-color,box-shadow] duration-300 shadow-md hover:shadow-xl flex flex-col justify-between"
                 >
                   {/* Photo header */}
                   <div className="relative h-44 w-full overflow-hidden bg-stone-900">

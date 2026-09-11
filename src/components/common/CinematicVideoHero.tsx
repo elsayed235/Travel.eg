@@ -1,27 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Play,
-  Pause,
   Compass,
   Sun,
   Waves,
   Sparkles,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Film,
   X,
-  Image as ImageIcon,
-  Moon,
-  Star
+  Pause,
+  Play
 } from 'lucide-react';
 import { TravelerProfile } from '../../types';
 import { CinematicVideo } from './CinematicVideo';
+import { LivingChartHeroCanvas } from './LivingChartHeroCanvas';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { useDahabTime } from '../../context/DahabTimeContext';
-import { api } from '../../services/api';
+import { clampScrimOpacity } from '../../utils/heroOverlay';
+import { useDahabTime } from '../../context/DahabTimeContext';import { api } from '../../services/api';
 
 export interface CinematicScene {
   id: string;
@@ -186,6 +180,13 @@ interface CinematicVideoHeroProps {
    * to show its thesis.
    */
   cmsHero?: { title_en: string; title_ar: string; config: Record<string, any> } | null;
+  /**
+   * Background scrim strength, 0–1 (default 1). The dashboard's Homepage tab
+   * edits it as `overlay_opacity` (0–100) on the hero section config;
+   * V2HomeCockpit converts via scrimOpacityFromConfig. Applied only to the
+   * two gradient scrims — never the starfield.
+   */
+  scrimOpacity?: number;
 }
 
 export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
@@ -195,16 +196,48 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
   onOpenFood,
   onOpenPlanner,
   cmsHero,
+  scrimOpacity = 1,
 }) => {
   const { language, isRTL , t} = useLanguage();
   const { theme, isDark } = useTheme();
-  const { timePhase, accentColor } = useDahabTime();
+  const { accentColor } = useDahabTime();
   const [activeSceneIndex, setActiveSceneIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [slideProgress, setSlideProgress] = useState(0);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Scroll scrub progress for the Living Chart layer (spec §5): how far the
+  // hero has left the viewport, 0..1. The shader's sea shifts up to 20% of
+  // the viewport as the traveler descends — the only pinned section.
+  const heroRef = useRef<HTMLElement | null>(null);
+  const [heroScroll, setHeroScroll] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const el = heroRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight;
+      if (total <= 0) return;
+      // 0 while the hero fills the viewport, 1 once it has fully scrolled past.
+      const progress = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / total));
+      setHeroScroll(progress);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const [liveConditions, setLiveConditions] = useState<{
     available?: boolean;
@@ -228,6 +261,10 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
 
   const currentScene = CINEMATIC_SCENES[activeSceneIndex];
 
+  // Defensive: the CMS value is clamped server-side and converted by
+  // scrimOpacityFromConfig, but a stray NaN must never blank the scrims.
+  const scrim = clampScrimOpacity(scrimOpacity);
+
   // CMS-authored heading wins when published; the compiled copy is the
   // fallback. Subtitle keys are 'subtitle_en'/'subtitle_ar' in the section
   // config when editors provide them, matching the dashboard's field names.
@@ -243,18 +280,15 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
     setSlideProgress(0);
   }, []);
 
-  const handlePrevSlide = useCallback(() => {
-    setActiveSceneIndex((prev) => (prev - 1 + CINEMATIC_SCENES.length) % CINEMATIC_SCENES.length);
-    setSlideProgress(0);
-  }, []);
-
-  const handleSelectScene = (index: number) => {
-    setActiveSceneIndex(index);
-    setSlideProgress(0);
-  };
-
   useEffect(() => {
     if (!isAutoPlaying) {
+      setSlideProgress(0);
+      return;
+    }
+
+    // No auto-advance for travelers who prefer reduced motion — the scenes
+    // remain manually navigable, they just never move on their own.
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setSlideProgress(0);
       return;
     }
@@ -289,14 +323,12 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
     return 'Good evening';
   };
 
-  // Tidal depth: LTR starts with sand on left fading to ocean on right; RTL flips
+  // Chart scrims: LTR starts with night ink on the left; RTL flips
   const shoreDirection = isRTL ? 'bg-gradient-to-l' : 'bg-gradient-to-r';
-
-  const phaseLabel = t(`home.hero.phase${timePhase.charAt(0).toUpperCase()}${timePhase.slice(1)}`);
-
   return (
     <section
       id="cinematic-hero-cockpit"
+      ref={heroRef}
       aria-label="Dahab Cinematic Travel Cockpit & Slider"
       className="relative w-full min-h-[92vh] sm:min-h-[95vh] flex flex-col justify-between overflow-hidden select-none transition-colors duration-300 bg-[var(--bg-canvas)] text-[var(--text-primary)]"
       dir={isRTL ? 'rtl' : 'ltr'}
@@ -307,9 +339,14 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
       {/*    reads over every scene, and the 2,285m summit night is the home truth.  */}
       {/* ========================================================================= */}
       <div className="absolute inset-0 z-0">
+        {/* Living Chart layer (spec §5): GLSL dune/sea when WebGL exists,
+            static gradient + starfield otherwise. The video stays mounted
+            beneath it as the low-end fallback — when the shader is active
+            the opaque canvas paints over the video (the Living Chart is the
+            hero); without WebGL the canvas renders nothing and the approved
+            cinematic hero shows instead. */}
         <CinematicVideo
           key={currentScene.id}
-          src={currentScene.videoUrl}
           poster={currentScene.posterUrl}
           alt={`Dahab scenery: ${language === 'ar' ? currentScene.labelAr : currentScene.label}`}
           isPlaying={isVideoPlaying}
@@ -325,100 +362,64 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           }
           showOverlay={false}
         />
+        <LivingChartHeroCanvas scrollProgress={heroScroll} className="absolute inset-0 w-full h-full opacity-[0.35]" />
 
-        {/* Chart-plate scrims — night ink for legibility, starfield pinned
-            to the top edge so the sky reads even over day scenes */}
-        <div className={`absolute inset-0 ${shoreDirection} from-[#060B1F]/95 via-[#060B1F]/55 to-[#060B1F]/25`} aria-hidden="true" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-transparent to-[#060B1F]/45" aria-hidden="true" />
-        <div className="absolute inset-0 chart-starfield opacity-70 pointer-events-none" aria-hidden="true" />
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 2. TOP BAR: location capsule + scene selector                             */}
-      {/* ========================================================================= */}
-      <div className="relative z-20 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-26 flex flex-col md:flex-row md:items-center gap-4">
-        {/* Location capsule (part of the first-viewport story) */}
-        <div className="chart-glass inline-flex items-center gap-3 px-4 py-2 rounded-full text-xs font-semibold text-[var(--text-primary)]">
-          <span className="inline-flex items-center gap-2 text-[var(--accent-secondary)]">
-            <Compass className="w-3.5 h-3.5" aria-hidden="true" />
-            {profile.name
-              ? language === 'ar' ? `${getGreeting()}, ${profile.name}` : `${getGreeting()}, ${profile.name}`
-              : t('common.welcomeToDahab')
-            }
-          </span>
-          <span className="w-px h-3 bg-[var(--border-subtle)]" aria-hidden="true" />
-          <span className="inline-flex items-center gap-1.5 text-[var(--text-primary)]">
-            <MapPin className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
-            {language === 'ar' ? currentScene.locationAr : currentScene.location}
-          </span>
-        </div>
-
-        {/* Time-phase chip — what the coast feels like right now */}
+        {/* Chart-plate scrims — tinted with the active theme's canvas color
+            (dark navy ink in dark themes, warm sand/lagoon tone in light
+            themes) so the overlaid text always keeps its intended contrast
+            instead of assuming a permanently dark backdrop. */}
         <div
-          className="chart-glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-[var(--text-primary)]"
-          title={t('common.coastNow')}
-        >
-          <span
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{ backgroundColor: accentColor }}
-            aria-hidden="true"
-          />
-          <span>{phaseLabel}</span>
-        </div>
-
-        {/* Scene selector chips */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-px-4 pe-6 sm:pe-0 py-1 md:ms-auto">
-          <div role="tablist" aria-label="Cinematic video scene views" className="flex items-center gap-1.5 backdrop-blur-xl p-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 shadow-lg">
-            {CINEMATIC_SCENES.map((scene, idx) => {
-              const isSelected = activeSceneIndex === idx;
-              return (
-                <button
-                  key={scene.id}
-                  role="tab"
-                  aria-selected={isSelected}
-                  onClick={() => handleSelectScene(idx)}
-                  className={`relative px-3.5 min-h-[44px] sm:min-h-0 py-1.5 rounded-full text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap overflow-hidden flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/50'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]/5'
-                  }`}
-                >
-                  <img src={scene.posterUrl} alt={scene.label} className="w-3.5 h-3.5 rounded-full object-cover border border-white/30" />
-                  <span className="relative z-10">{language === 'ar' ? scene.labelAr : scene.label}</span>
-                  {isSelected && isAutoPlaying && (
-                    <span
-                      className="absolute bottom-0 start-0 h-[2px] bg-current transition-[width] duration-75"
-                      style={{ width: `${slideProgress}%` }}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsAutoPlaying((prev) => !prev)}
-            aria-label={isAutoPlaying ? 'Pause automatic slider' : 'Start automatic slider'}
-            className="p-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 hover:bg-[var(--surface-container)] text-[var(--text-primary)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-md"
-          >
-            {isAutoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-          </button>
-        </div>
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(${isRTL ? 'to left' : 'to right'}, color-mix(in oklab, var(--bg-canvas) 42%, transparent), color-mix(in oklab, var(--bg-canvas) 20%, transparent), color-mix(in oklab, var(--bg-canvas) 8%, transparent))`,
+            opacity: scrim,
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'linear-gradient(to top, color-mix(in oklab, var(--bg-canvas) 42%, transparent), transparent, color-mix(in oklab, var(--bg-canvas) 18%, transparent))',
+            opacity: scrim,
+          }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 chart-starfield opacity-70 pointer-events-none" aria-hidden="true" />
+        {/* Aurora UI mesh gradient overlay */}
+        <div className="hero-aurora-overlay" aria-hidden="true" />
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. HERO CONTENT — the chart thesis                                          */}
+      {/* 2. HERO CONTENT — one focal point: eyebrow, headline, subtitle, CTA.       */}
+      {/*    The old top bar (greeting + time-phase chip + scene tabs) and the      */}
+      {/*    right-side destinations panel are gone — scenes still cycle as an     */}
+      {/*    ambient backdrop (handleNextSlide keeps firing on its timer), they    */}
+      {/*    just no longer compete with the headline for attention. The same     */}
+      {/*    destinations are one scroll away in the Landmarks section.           */}
       {/* ========================================================================= */}
-      <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 my-auto flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-10">
-        {/* Left content column */}
-        <div className="max-w-2xl w-full space-y-7">
-          <div className="space-y-4 animate-chart-rise">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-chart font-semibold tracking-tight leading-[1.05] text-[var(--text-primary)] text-balance">
+      {/* Contour strata behind the headline plate — the chart's dune
+          hairlines, drawn from the active theme (spec §2.1). */}
+      <div className="absolute inset-0 z-[5] pointer-events-none contour-strata" aria-hidden="true" />
+
+      <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-0 pb-44 sm:pb-0 my-auto flex flex-col items-start">
+        {/* Tier-5 cinema glass — the one cinematic moment per viewport
+            (spec §4.1, rarity budget). High Contrast Pro renders this as a
+            solid plate via --glass-mode: solid. */}
+        <div className="max-w-2xl w-full space-y-7 glass-cinema rounded-[28px] p-6 sm:p-8 -m-2 sm:-m-3">
+          <div className="space-y-5">
+            <div className="chart-rise-item inline-flex items-center gap-2 chart-glass px-3.5 py-1.5 rounded-full text-xs font-semibold text-[var(--text-primary)]">
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} aria-hidden="true" />
+              <span>
+                {profile.name
+                  ? `${getGreeting()}, ${profile.name}`
+                  : t('common.welcomeToDahab')}
+              </span>
+            </div>
+            <h1 className="chart-rise-item text-5xl sm:text-6xl lg:text-7xl font-chart font-semibold tracking-tight leading-[1.03] text-[var(--text-primary)] text-balance" style={{ animationDelay: '90ms' }}>
               {cmsTitle || t('common.whereTheDesertMeets')}{' '}
               <span className="chart-heading-accent">{cmsTitle ? '' : t('common.theSea')}</span>
             </h1>
-            <p className="text-base sm:text-lg font-normal leading-relaxed max-w-xl text-[var(--text-secondary)]">
+            <p className="chart-rise-item text-base sm:text-lg font-normal leading-relaxed max-w-xl text-[var(--text-secondary)]" style={{ animationDelay: '180ms' }}>
               {cmsSubtitle || (
                 <>
                   {t('common.discoverAndBookYour')}{' '}
@@ -430,24 +431,24 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
           </div>
 
           {/* CTAs */}
-          <div className="pt-1 flex flex-wrap items-center gap-4">
+          <div className="chart-rise-item pt-1 flex flex-wrap items-center gap-4" style={{ animationDelay: '260ms' }}>
             <button
               type="button"
               id="hero-start-trip-cta"
               onClick={onOpenPlanner}
-              aria-label="Plan Your Dahab Trip"
+                aria-label={t('common.planYourDahabTrip')}
               className="chart-cta-primary inline-flex items-center gap-3 text-sm active:scale-95 cursor-pointer group"
             >
               <Sparkles className="w-4 h-4 text-current" aria-hidden="true" />
               <span>{t('common.planYourDahabTrip')}</span>
-              <ArrowRight className="w-4 h-4 text-current group-hover:translate-x-1 transition-transform rtl:rotate-180" />
+              <ArrowRight className="w-4 h-4 text-current group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform rtl:rotate-180" />
             </button>
 
             <button
               type="button"
               id="hero-browse-experiences-cta"
               onClick={onOpenExplore}
-              aria-label="Browse Experiences"
+                aria-label={t('common.browseExperiences')}
               className="chart-cta-secondary inline-flex items-center gap-2 text-sm cursor-pointer group"
             >
               <Compass className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
@@ -455,7 +456,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-[var(--text-secondary)]">
+          <div className="chart-rise-item flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-xs text-[var(--text-secondary)]" style={{ animationDelay: '340ms' }}>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
               <span>{t('common.directVerifiedBookings')}</span>
@@ -464,144 +465,35 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-secondary)]" />
               <span>{t('common.flexibleCancellation')}</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-              <span>{t('common.localBedouinGuides')}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Right: scenes plotted as a constellation — the active waypoint
-            holds firelight, the rest recede as unplotted stars */}
-        <div className="w-full lg:max-w-sm flex flex-col gap-1.5 chart-glass p-4 rounded-3xl text-[var(--text-primary)]">
-          <div className="flex items-center justify-between px-2 pb-2.5 border-b border-[var(--border-subtle)] mb-1">
-            <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)]">
-              <span className="w-2 h-2 rounded-full bg-[#E8A33D] shadow-[0_0_8px_2px_rgba(232,163,61,0.6)]" aria-hidden="true" />
-              <MapPin className="w-4 h-4 text-[var(--accent-primary)]" />
-              <span className="">
-                {t('common.sinaiIconicDestinations')}
+            {liveConditions?.waterTemperatureC != null && (
+              <span className="flex items-center gap-1.5">
+                <Waves className="w-3.5 h-3.5 text-[var(--accent-primary)]" aria-hidden="true" />
+                <span>{Math.round(liveConditions.waterTemperatureC)}°C {t('common.waterTemp')}</span>
               </span>
-            </div>
-            <span className="text-[12px] font-bold tabular-nums text-[var(--accent-primary)]">
-              {String(activeSceneIndex + 1).padStart(2, '0')}<span className="text-[var(--text-secondary)]">/{String(CINEMATIC_SCENES.length).padStart(2, '0')}</span>
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            {CINEMATIC_SCENES.map((scene, idx) => {
-              const isSelected = activeSceneIndex === idx;
-              // Plotted depth: waypoints farther from the plotted star fade,
-              // reading as unplotted stars on the same chart rule.
-              const depth = Math.min(Math.abs(idx - activeSceneIndex), 2);
-              const depthOpacity = isSelected ? 1 : 1 - depth * 0.16;
-              return (
-                <button
-                  key={scene.id}
-                  type="button"
-                  onClick={() => handleSelectScene(idx)}
-                  aria-pressed={isSelected}
-                  aria-label={language === 'ar' ? scene.labelAr : scene.label}
-                  style={{ opacity: depthOpacity }}
-                  className={`group w-full text-start flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
-                    isSelected
-                      ? 'border border-[var(--accent-primary)]/40 shadow-md'
-                      : 'hover:bg-[var(--surface-container)]/50 border border-transparent'
-                  } ${isSelected ? 'chart-gradient-section' : ''}`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 bg-[var(--surface-container)]">
-                      <img
-                        src={scene.posterUrl}
-                        alt={scene.label}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      {isSelected && (
-                        <span className="absolute inset-0 ring-1 ring-inset ring-white/20" aria-hidden="true" />
-                      )}
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <span className={`text-xs font-bold truncate ${isSelected ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                        {language === 'ar' ? scene.labelAr : scene.label}
-                      </span>
-                      <span className="text-[12px] truncate text-[var(--text-secondary)] opacity-70">
-                        {language === 'ar' ? scene.locationAr : scene.location}
-                      </span>
-                    </div>
-                  </div>
-
-                  <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
-                    isSelected ? 'chart-badge-live' : 'text-[var(--text-secondary)]'
-                  }`}>
-                    {language === 'ar' ? scene.shortTagAr : scene.shortTag}
-                  </span>
-                </button>
-              );
-            })}
+            )}
+            {liveConditions?.astronomy?.sunset && (
+              <span className="flex items-center gap-1.5">
+                <Sun className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+                <span>
+                  {t('common.sunset')}{' '}
+                  {new Date(liveConditions.astronomy.sunset).toLocaleTimeString(language === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 4. BOTTOM CONDITIONS — instrument readings                                   */}
-      {/* ========================================================================= */}
-      <div className="relative z-20 border-t border-[var(--border-subtle)] py-3.5 px-4 sm:px-6 lg:px-8 backdrop-blur-2xl bg-[var(--surface-card)]/75 text-[var(--text-primary)]">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 backdrop-blur-sm">
-              <Sun className="w-4 h-4 text-amber-400" aria-hidden="true" />
-              <span className="font-semibold dg-num text-[var(--text-primary)]">
-                {liveConditions?.airTemperatureC != null ? `${Math.round(liveConditions.airTemperatureC)}°C` : (language === 'ar' ? '—' : '—')}
-              </span>
-              <span className="text-[var(--text-secondary)]">
-                {liveConditions?.conditionAr || liveConditions?.condition || (t('common.air'))}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-container)]/50 backdrop-blur-sm">
-              <Waves className="w-4 h-4 text-[var(--accent-primary)]" aria-hidden="true" />
-              <span className="font-semibold dg-num text-[var(--text-primary)]">
-                {liveConditions?.waterTemperatureC != null ? `${Math.round(liveConditions.waterTemperatureC)}°C` : (language === 'ar' ? '—' : '—')}
-              </span>
-              <span className="text-[var(--text-secondary)]">{t('common.waterTemp')}</span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-1.5 text-[var(--text-secondary)]">
-              <span>{t('common.sunset')}</span>
-              <span className="font-semibold dg-num text-[var(--accent-secondary)]">
-                {liveConditions?.astronomy?.sunset
-                  ? new Date(liveConditions.astronomy.sunset).toLocaleTimeString(language === 'ar' ? 'ar-EG' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
-                  : (t('common._item_'))}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex lg:hidden items-center gap-1">
-              <button
-                type="button"
-                onClick={isRTL ? handleNextSlide : handlePrevSlide}
-                aria-label="Previous"
-                className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 hover:bg-[var(--surface-container)] text-[var(--text-primary)]"
-              >
-                {isRTL ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-              </button>
-              <button
-                type="button"
-                onClick={isRTL ? handlePrevSlide : handleNextSlide}
-                aria-label="Next"
-                className="w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-md border border-[var(--border-subtle)] bg-[var(--surface-card)]/60 hover:bg-[var(--surface-container)] text-[var(--text-primary)]"
-              >
-                {isRTL ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-
-            <span className="chart-glass inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px]">
-              <span className={`w-1.5 h-1.5 rounded-full ${liveConditions ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`} aria-hidden="true" />
-              {t('common.liveSeaWeather')}
-            </span>
-          </div>
-        </div>
-      </div>
+      {/* Auto-slide pause/resume — the reduced-motion escape hatch made visible */}
+      <button
+        type="button"
+        onClick={() => setIsAutoPlaying((v) => !v)}
+        aria-label={t(isAutoPlaying ? 'a11y.pauseAutoplay' : 'a11y.resumeAutoplay')}
+        aria-pressed={!isAutoPlaying}
+        className="absolute bottom-5 end-5 z-20 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white hover:bg-black/70 flex items-center justify-center cursor-pointer transition-colors"
+      >
+        {isAutoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+      </button>
 
       {/* ========================================================================= */}
       {/* 5. HERO VIDEO MODAL PLAYER                                                */}
@@ -610,7 +502,7 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Hero Scene Video Player"
+          aria-label={t('a11y.heroVideoPlayer')}
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6"
           onClick={() => setIsVideoModalOpen(false)}
         >
@@ -634,8 +526,8 @@ export const CinematicVideoHero: React.FC<CinematicVideoHeroProps> = ({
               <button
                 type="button"
                 onClick={() => setIsVideoModalOpen(false)}
-                className="w-9 h-9 rounded-full bg-[var(--surface-card)]/10 hover:bg-[var(--surface-card)]/20 text-white flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-[var(--border-subtle)]"
-                aria-label="Close video player"
+                className="min-w-[44px] min-h-[44px] rounded-full bg-[var(--surface-card)]/10 hover:bg-[var(--surface-card)]/20 text-white flex items-center justify-center transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border border-[var(--border-subtle)]"
+                aria-label={t('common.close')}
               >
                 <X className="w-5 h-5" />
               </button>

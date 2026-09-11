@@ -75,9 +75,9 @@ inherits ink — never a contrasting color), `chart-glass` (over sky media only)
 `chart-badge` + `chart-badge-live` (teal) / `chart-badge-ember` (amber),
 `chart-parallax-*`.
 
-**Deprecated aliases:** `tidal-*` / `tide-*` / `animate-tidal-reveal` map onto
-the chart paint so non-homepage surfaces (profile, live view) follow the
-repaint without logic churn. New code uses `chart-*`.
+`chart-*` is the only API — the `tidal-*`/`tide-*` aliases were removed once
+zero usages remained, along with the dead shimmer keyframes; the navbar
+keyframe is `chartShift`, and the season strip is `ChartSeasonStrip`.
 
 Type is three voices: Chakra Petch (Latin display — chosen for its engraved
 instrument caps and chart-numeral character, the voice of a trip instrument;
@@ -162,3 +162,77 @@ symmetric/over-media absolute placements, timeline rails, map CSS.
 Detector: 20 pre-existing `gray-on-color` only, none from these waves.
 Production build passes with the direction contract intact in
 `dist/index.html`. Captures in `tests/browser-qa/screenshots/wave3/`.
+
+## Wave 4 rollout (2026-09-07)
+
+Remainder sweep. **Staff consoles deliberately untouched**: the ops
+command-center is a coherent dark instrument (amber/emerald/red status
+semantics), the supplier portal a self-consistent fixed-light surface —
+repainting either would harm function, so the Star Chart boundary ends at
+traveler routes. Genuine traveler-facing bugs fixed instead:
+(1) `IMG_*` token strings rendered raw as image URLs in 11 files
+(planner, live cams, review hero, my-trip hero, food, itinerary,
+alternatives, interests, pace, booking data, experience service) — rewired
+to the imported constants (77 swaps);
+(2) the token registry itself was systematically broken — dashless Unsplash
+IDs 404'd, so all 30 repairable URLs got their dashes back and 6 fabricated
+IDs were repointed to verified-live subject matches (all 23 registry photos
+curl-verified 200);
+(3) companion timeline rail to logical props.
+Verified: zero broken remote images on planner/live/my-trip/food, `tsc`
+clean, detector clean, production build passes. Captures in
+`tests/browser-qa/screenshots/wave4/`.
+
+## Wave 5 cleanup (2026-09-07)
+
+`chart-*` is the only API: all `tidal-*`/`tide-*` aliases removed, dead
+shimmer keyframes deleted, `tidalShift` → `chartShift`, `TidalSeasonStrip`
+→ `ChartSeasonStrip` (plus a dead identical-branch collapse and unused
+theme hook found along the way). Screenshots confirm pixel-identical paint.
+Staff voice pass declined on the merits: consoles carry no `font-serif`
+and their instrument/status aesthetics are functional — restraint beat
+coverage. (The concurrent commerce work noted here earlier has since landed:
+`tsc` is clean repo-wide, including `server.ts` and `transferService.ts`.)
+
+## Luxury Re-Skin (2026-09-09, ui-ux-pro-max full re-skin)
+
+> Direction: `reskin-2026-09` · approved plan: adopt the skill's Liquid Glass +
+> premium black/gold on warm paper wholesale, including staff surfaces.
+
+**What changed, and why the Star Chart world survives underneath:**
+
+- **Palette** moved from indigo night (`#0A1128`) to **warm stone**
+  (`#141311` canvas / `#1C1917` card / `#2A2622` container per theme) with
+  **gold fire** (`#C8933D` fills, ink text) and **bronze** (`#7A5E30` gold-as-
+  text on light grounds). Skill spec `#1C1917`/`#A16207`/`#FAFAF9` honored:
+  `#A16207` is the light-theme accent/CTA (white text, 4.53:1), `#FAF9F6` the
+  warm paper canvas. Lagoon teal stays **live-data ink only**; brass ticks,
+  bone starlight, and the constellation stack survive.
+- **Fonts**: Cormorant (Latin display serif) + Montserrat (body) replaced
+  Outfit/Chakra Petch. Arabic never touches them — Alexandria (body/headings)
+  and El Messiri (display serif, the italic accent turn) are enforced by the
+  `[dir=rtl]` rules and font fallback chains. JetBrains Mono stays for live
+  readings (`dg-num`). Google Fonts link + `@theme` tokens + pre-hydration
+  script + `server/services/themeService.ts` FONT_STACKS all updated.
+- **Mechanics**: re-skin flows through **token values + chart-* API
+  redefinition**, never component-class rewrites — the 6-theme engine and its
+  measured-contrast rescue blocks were re-tuned, not bypassed. Old-world hex
+  literals in components were swept to the new values; legacy rescue selectors
+  in `index.css` remain as dead-but-harmless safety.
+- **Pattern**: Scroll-Triggered Storytelling — scroll-progress rail (stone →
+  gold → teal) already existed and is remapped; `SectionReveal` gained
+  per-child `stagger` and an `onProgress` callback (reduced-motion safe).
+  Liquid Glass chrome (nav/dock/modals/headers) was already token-driven and
+  inherits the re-skin.
+- **Staff surfaces**: ops console / supplier portal / market intelligence are
+  token-driven instruments — the re-skin lands through the tokens (gold
+  chrome, stone grounds) while amber/emerald/red status semantics and the
+  mono label voice are untouched. The lone `text-cyan-400` left is a CMS
+  label-color picker option, not chrome.
+
+**Battery (2026-09-09)**: `tsc` clean · 1074 node + 23 UI unit tests ·
+`vite build` + server bundle OK · e2e **32/32** (en+ar, isolated :3100).
+Also fixed along the way: a time-of-day-sensitive ambient-nudge test (pinned
+clock — `currentHour < 14` gate failed every afternoon) and the E2E suite's
+`localhost` → `::1` IPv6 resolution failure on Windows hosts files (IPv4-
+explicit 127.0.0.1 in `playwright.config.ts` + `tests/e2e/helpers/`).

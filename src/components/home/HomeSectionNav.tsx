@@ -29,12 +29,12 @@ interface HomeSectionNavProps {
  * Deliberately labels rather than dots: the complaint is not "I cannot skip
  * ahead", it is "I do not know where I am", and a dot answers neither.
  */
-export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
+export const HomeSectionNav: React.FC<HomeSectionNavProps> = React.memo(({ sections }) => {
   const { language , t} = useLanguage();
   const [present, setPresent] = useState<HomeSection[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [pinned, setPinned] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
   // Which of the candidate sections actually rendered.
   //
@@ -93,7 +93,15 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
       if (el) observer.observe(el);
     });
 
-    const onScroll = () => setPinned(window.scrollY > window.innerHeight * 0.6);
+    const onScroll = () => {
+      if (navRef.current) {
+        const pinned = window.scrollY > window.innerHeight * 0.6;
+        navRef.current.classList.toggle('opacity-100', pinned);
+        navRef.current.classList.toggle('opacity-0', !pinned);
+        navRef.current.classList.toggle('pointer-events-none', !pinned);
+        navRef.current.classList.toggle('pointer-events-auto', pinned);
+      }
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -153,60 +161,60 @@ export const HomeSectionNav: React.FC<HomeSectionNavProps> = ({ sections }) => {
 
   return (
     <nav
+      ref={navRef}
       aria-label={t('home.pageSections')}
-      className={`sticky top-[72px] z-30 transition-opacity duration-300 ${
-        pinned ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      }`}
-      style={{
-        background: 'var(--header-bg)',
-        borderBottom: '1px solid var(--border-subtle)',
-        backdropFilter: 'blur(12px)'
-      }}
+      className="sticky top-[76px] z-30 hidden md:flex justify-center px-4 transition-opacity duration-300 opacity-0 pointer-events-none"
     >
-      {/* Reading progress across the sections, as a hairline. */}
-      <div className="h-[2px] w-full" style={{ background: 'var(--border-subtle)' }}>
-        <div
-          className="h-full transition-[width] duration-300"
-          style={{
-            width: `${((activeIndex + 1) / present.length) * 100}%`,
-            background: 'var(--accent-primary)'
-          }}
-        />
-      </div>
-
+      {/* Floating pill: same glass language as the header pill above it, so the
+          two read as one system instead of a slab docked under a pill. The
+          wrapper stays transparent and click-through; only the pill takes
+          pointer events. */}
       <div
-        ref={listRef}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-1.5 overflow-x-auto"
-        style={{ scrollbarWidth: 'none' }}
+        className="pointer-events-auto max-w-full rounded-full border border-[var(--border-subtle)] shadow-lg overflow-hidden"
+        style={{
+          background: 'var(--header-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)'
+        }}
       >
-        <span
-          className="text-[12px] font-bold shrink-0 hidden sm:inline pe-2"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          {t('home.youAreIn')}
-        </span>
+        {/* Reading progress across the sections, as a hairline. */}
+        <div className="h-[2px] w-full" style={{ background: 'var(--border-subtle)' }}>
+          <div
+            className="h-full transition-[width] duration-300"
+            style={{
+              width: `${((activeIndex + 1) / present.length) * 100}%`,
+              background: 'var(--accent-primary)'
+            }}
+          />
+        </div>
 
-        {present.map(section => {
-          const isActive = section.id === activeId;
-          return (
-            <button
-              key={section.id}
-              type="button"
-              data-section={section.id}
-              onClick={() => jumpTo(section.id)}
-              aria-current={isActive ? 'true' : undefined}
-              className="shrink-0 min-h-[36px] px-3 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors cursor-pointer"
-              style={{
-                background: isActive ? 'var(--accent-primary)' : 'transparent',
-                color: isActive ? 'var(--bg-canvas)' : 'var(--text-secondary)',
-                border: `1px solid ${isActive ? 'var(--accent-primary)' : 'var(--border-subtle)'}`
-              }}
-            >
-              {language === 'ar' ? section.labelAr : section.label}
-            </button>
-          );
-        })}
+        <div
+          ref={listRef}
+          className="flex items-center gap-1.5 overflow-x-auto px-2 py-1.5 max-w-[calc(100vw-2rem)]"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {present.map(section => {
+            const isActive = section.id === activeId;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                data-section={section.id}
+                onClick={() => jumpTo(section.id)}
+                aria-current={isActive ? 'true' : undefined}
+                className="shrink-0 min-h-[44px] px-4 rounded-full text-sm font-semibold whitespace-nowrap transition-colors cursor-pointer"
+                style={{
+                  background: isActive ? 'var(--accent-primary)' : 'transparent',
+                  color: isActive ? 'var(--bg-canvas)' : 'var(--text-secondary)',
+                  border: `1px solid ${isActive ? 'var(--accent-primary)' : 'var(--border-subtle)'}`
+                }}
+              >
+                {language === 'ar' ? section.labelAr : section.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
-};
+});

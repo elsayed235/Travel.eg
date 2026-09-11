@@ -1,11 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Brain, CheckCircle2, AlertTriangle, Database, GitMerge, Shield, RefreshCw, Clock, FileText, TrendingUp } from 'lucide-react';
+import { Brain, CheckCircle2, GitMerge, Clock, FileText } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { SectionHeader } from './ui/SectionHeader';
+import { TabBar } from './ui/TabBar';
+import { EmptyState } from './ui/EmptyState';
+import { Skeleton } from './ui/Skeleton';
+import { DashCard } from './ui/DashCard';
+import { StatusBadge } from './ui/StatusBadge';
+
+type Tab = 'health' | 'gaps' | 'conflicts' | 'review' | 'stale' | 'logs' | 'metrics' | 'entities';
 
 export default function KnowledgeOps() {
   const { language, t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'health' | 'gaps' | 'conflicts' | 'review' | 'stale' | 'logs' | 'metrics' | 'entities'>('health');
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'health', label: t('cmd.knowledge.health') },
+    { id: 'gaps', label: t('cmd.knowledge.gaps') },
+    { id: 'conflicts', label: t('cmd.knowledge.conflicts') },
+    { id: 'review', label: t('cmd.knowledge.review') },
+    { id: 'stale', label: t('cmd.knowledge.stale') },
+    { id: 'logs', label: t('cmd.knowledge.logs') },
+    { id: 'metrics', label: t('cmd.knowledge.metrics') },
+    { id: 'entities', label: t('cmd.knowledge.entities') },
+  ];
+  const [activeTab, setActiveTab] = useState<Tab>('health');
   const [health, setHealth] = useState<any>(null);
   const [gaps, setGaps] = useState<any[]>([]);
   const [conflicts, setConflicts] = useState<any[]>([]);
@@ -39,47 +57,34 @@ export default function KnowledgeOps() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleResolveConflict = async (conflictId: string) => {
-    const value = prompt('Resolved value:');
+    const value = prompt(t('cmd.knowledge.conflictResolved'));
     if (!value) return;
-    try { await api.resolveAdminConflict(conflictId, value); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
+    try { await api.resolveAdminConflict(conflictId, value); fetchData(); } catch (err: any) { alert(`${t('cmd.knowledge.resolveFailed')} ${err.message}`); }
   };
 
   const handleResolveReview = async (itemId: string, action: string) => {
-    try { await api.resolveAdminReviewQueue(itemId, action); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
+    try { await api.resolveAdminReviewQueue(itemId, action); fetchData(); } catch (err: any) { alert(`${t('cmd.knowledge.resolveFailed')} ${err.message}`); }
   };
 
-  const TABS = ['health', 'gaps', 'conflicts', 'review', 'stale', 'logs', 'metrics', 'entities'] as const;
-
   const handleMergeEntities = async (primary: string, secondary: string) => {
-    if (!confirm(`Merge ${secondary} into ${primary}?`)) return;
-    try { await api.mergeAdminEntities({ sourceId: secondary, targetId: primary }); fetchData(); } catch (err: any) { alert(`Failed: ${err.message}`); }
+    if (!confirm(t('cmd.knowledge.mergeConfirm').replace('${secondary}', secondary).replace('${primary}', primary))) return;
+    try { await api.mergeAdminEntities({ sourceId: secondary, targetId: primary }); fetchData(); } catch (err: any) { alert(`${t('cmd.knowledge.resolveFailed')} ${err.message}`); }
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Brain className="w-4 h-4 text-purple-400" />
-          {t('cmd.knowledge.title')}
-        </h3>
-        <div className="flex gap-1 flex-wrap">
-          {TABS.map(tab => (
-            <button key={tab} type="button" onClick={() => setActiveTab(tab)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${activeTab === tab ? 'bg-[var(--accent-primary)] text-[var(--text-primary)]' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)] hover:text-[var(--text-muted)]'}`}>
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+      <SectionHeader icon={Brain} title={t('cmd.knowledge.title')} />
+
+      <TabBar tabs={TABS} activeTab={activeTab} onChange={tab => setActiveTab(tab as Tab)} />
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-[var(--text-muted)]">{t('cmd.knowledge.loading')}</div>
+        <Skeleton variant="list" count={5} />
       ) : (
         <>
           {activeTab === 'health' && health && (
-            <div className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-4">
-              <h4 className="text-xs font-bold text-[var(--text-muted)]">DKOS Health</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <DashCard glow="accent">
+              <h4 className="text-xs font-bold text-[var(--text-muted)]">{t('cmd.knowledge.dkosHealth')}</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mt-3">
                 {Object.entries(health?.health || health || {}).slice(0, 12).map(([key, value]: [string, any]) => (
                   <div key={key}>
                     <div className="text-lg font-bold text-[var(--accent-primary)] font-mono">{typeof value === 'number' ? value : typeof value === 'boolean' ? (value ? '✓' : '✗') : '—'}</div>
@@ -87,102 +92,108 @@ export default function KnowledgeOps() {
                   </div>
                 ))}
               </div>
-            </div>
+            </DashCard>
           )}
 
           {activeTab === 'gaps' && (
-            <div className="space-y-2">
-              {gaps.length === 0 ? (
-                <div className="py-12 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.noGaps')}</div>
-                </div>
-              ) : gaps.map((gap: any, i: number) => (
-                <div key={gap.id || i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[var(--text-primary)]">{gap.category || gap.type || 'Gap'}</div>
-                    <div className="text-[11px] text-[var(--text-muted)]">{gap.description?.substring(0, 120)}</div>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${gap.severity === 'HIGH' ? 'bg-red-500/20 text-red-300' : gap.severity === 'MEDIUM' ? 'bg-amber-500/20 text-amber-300' : 'bg-[var(--btn-util-bg)] text-[var(--text-muted)]'}`}>{gap.severity || 'LOW'}</span>
-                </div>
-              ))}
-            </div>
+            gaps.length === 0 ? (
+              <EmptyState icon={CheckCircle2} title={t('cmd.knowledge.noGaps')} />
+            ) : (
+              <div className="space-y-2">
+                {gaps.map((gap: any, i: number) => (
+                  <DashCard key={gap.id || i}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-[var(--text-primary)]">{gap.category || gap.type || t('cmd.knowledge.gap')}</div>
+                        <div className="text-[11px] text-[var(--text-muted)]">{gap.description?.substring(0, 120)}</div>
+                      </div>
+                      <StatusBadge status={gap.severity || 'LOW'} size="sm" />
+                    </div>
+                  </DashCard>
+                ))}
+              </div>
+            )
           )}
 
-          {activeTab === 'conflicts' && (
-            <div className="space-y-2">
-              {conflicts.filter((c: any) => c.status === 'OPEN').length === 0 ? (
-                <div className="py-12 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.noConflicts')}</div>
-                </div>
-              ) : conflicts.filter((c: any) => c.status === 'OPEN').map((conflict: any) => (
-                <div key={conflict.id} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-bold text-[var(--text-primary)]">{conflict.entityId} · {conflict.property}</div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${conflict.classification === 'TRUE_CONFLICT' ? 'bg-red-500/20 text-red-300' : 'bg-amber-500/20 text-amber-300'}`}>{conflict.classification}</span>
-                      <button type="button" onClick={() => handleResolveConflict(conflict.id)} className="px-2 py-0.5 rounded bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[10px] font-bold cursor-pointer">Resolve</button>
+          {activeTab === 'conflicts' && (() => {
+            const openConflicts = conflicts.filter((c: any) => c.status === 'OPEN');
+            return openConflicts.length === 0 ? (
+              <EmptyState icon={CheckCircle2} title={t('cmd.knowledge.noConflicts')} />
+            ) : (
+              <div className="space-y-2">
+                {openConflicts.map((conflict: any) => (
+                  <DashCard key={conflict.id}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-[var(--text-primary)]">{conflict.entityId} · {conflict.property}</div>
+                        <div className="text-[11px] text-[var(--text-muted)] mt-1">{conflict.explanation}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={conflict.classification || 'OPEN'} size="sm" />
+                        <button type="button" onClick={() => handleResolveConflict(conflict.id)}
+                          className="px-2 py-0.5 rounded bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] text-[10px] font-bold cursor-pointer">{t('cmd.knowledge.resolve')}</button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-[11px] text-[var(--text-muted)] mt-1">{conflict.explanation}</div>
-                </div>
-              ))}
-            </div>
-          )}
+                  </DashCard>
+                ))}
+              </div>
+            );
+          })()}
 
           {activeTab === 'review' && (
-            <div className="space-y-2">
-              {reviewQueue.length === 0 ? (
-                <div className="py-12 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-400/50 mx-auto mb-3" />
-                  <div className="text-sm font-bold text-emerald-400/80">{t('cmd.knowledge.reviewEmpty')}</div>
-                </div>
-              ) : reviewQueue.map((item: any) => (
-                <div key={item.id} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[var(--text-primary)]">{item.title || item.type || item.id}</div>
-                    <div className="text-[11px] text-[var(--text-muted)]">{item.description?.substring(0, 120)}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-[var(--text-muted)] font-mono">{item.status}</span>
-                    {item.status === 'PENDING_REVIEW' && (
-                      <div className="flex gap-1">
-                        <button type="button" onClick={() => handleResolveReview(item.id, 'APPROVE')} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold cursor-pointer">{t('cmd.action.approve')}</button>
-                        <button type="button" onClick={() => handleResolveReview(item.id, 'REJECT')} className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold cursor-pointer">{t('cmd.action.reject')}</button>
+            reviewQueue.length === 0 ? (
+              <EmptyState icon={CheckCircle2} title={t('cmd.knowledge.reviewEmpty')} />
+            ) : (
+              <div className="space-y-2">
+                {reviewQueue.map((item: any) => (
+                  <DashCard key={item.id}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-[var(--text-primary)]">{item.title || item.type || item.id}</div>
+                        <div className="text-[11px] text-[var(--text-muted)]">{item.description?.substring(0, 120)}</div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={item.status || 'PENDING'} size="sm" />
+                        {item.status === 'PENDING_REVIEW' && (
+                          <div className="flex gap-1">
+                            <button type="button" onClick={() => handleResolveReview(item.id, 'APPROVE')}
+                              className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold cursor-pointer">{t('cmd.action.approve')}</button>
+                            <button type="button" onClick={() => handleResolveReview(item.id, 'REJECT')}
+                              className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px] font-bold cursor-pointer">{t('cmd.action.reject')}</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </DashCard>
+                ))}
+              </div>
+            )
           )}
 
           {activeTab === 'stale' && (
-            <div className="space-y-2">
-              {staleFacts.length === 0 ? (
-                <div className="py-12 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <Clock className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
-                  <div className="text-sm font-bold text-[var(--text-muted)]">{t('cmd.knowledge.noStaleFacts')}</div>
-                </div>
-              ) : staleFacts.map((fact: any, i: number) => (
-                <div key={fact.id || i} className="p-3 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                  <div className="text-xs font-bold text-[var(--text-primary)]">{fact.entityId || fact.entity} · {fact.property || fact.field}</div>
-                  <div className="text-[11px] text-[var(--text-muted)]">Value: {fact.value || '—'} · Last verified: {fact.lastVerifiedAt || fact.verifiedAt || 'Never'}</div>
-                </div>
-              ))}
-            </div>
+            staleFacts.length === 0 ? (
+              <EmptyState icon={Clock} title={t('cmd.knowledge.noStaleFacts')} />
+            ) : (
+              <div className="space-y-2">
+                {staleFacts.map((fact: any, i: number) => (
+                  <DashCard key={fact.id || i}>
+                    <div className="text-xs font-bold text-[var(--text-primary)]">{fact.entityId || fact.entity} · {fact.property || fact.field}</div>
+                    <div className="text-[11px] text-[var(--text-muted)]">{t('cmd.knowledge.valueLabel')} {fact.value || '—'} · {t('cmd.knowledge.lastVerified')} {fact.lastVerifiedAt || fact.verifiedAt || t('cmd.knowledge.never')}</div>
+                  </DashCard>
+                ))}
+              </div>
+            )
           )}
 
           {activeTab === 'logs' && (
-            <div className="rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] overflow-hidden">
-              {logs.length === 0 ? (
-                <div className="py-12 text-center"><FileText className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" /><div className="text-sm font-bold text-[var(--text-muted)]">{t('cmd.knowledge.noLogs')}</div></div>
-              ) : (
+            logs.length === 0 ? (
+              <EmptyState icon={FileText} title={t('cmd.knowledge.noLogs')} />
+            ) : (
+              <DashCard padding="none">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[11px] font-mono">
                     <thead className="bg-[var(--btn-util-bg)] text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
-                      <tr><th className="py-2.5 px-3">Time</th><th className="py-2.5 px-3">Query</th><th className="py-2.5 px-3">Results</th><th className="py-2.5 px-3">Latency</th></tr>
+                      <tr><th className="py-2.5 px-3">{t('cmd.knowledge.time')}</th><th className="py-2.5 px-3">{t('cmd.knowledge.query')}</th><th className="py-2.5 px-3">{t('cmd.knowledge.results')}</th><th className="py-2.5 px-3">{t('cmd.knowledge.latency')}</th></tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {logs.map((log: any, i: number) => (
@@ -196,13 +207,13 @@ export default function KnowledgeOps() {
                     </tbody>
                   </table>
                 </div>
-              )}
-            </div>
+              </DashCard>
+            )
           )}
 
           {activeTab === 'metrics' && metrics && (
-            <div className="p-5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-              <h4 className="text-xs font-bold text-[var(--text-muted)] mb-3">Expansion Metrics</h4>
+            <DashCard glow="amber">
+              <h4 className="text-xs font-bold text-[var(--text-muted)] mb-3">{t('cmd.knowledge.expansionMetrics')}</h4>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                 {Object.entries(metrics).slice(0, 12).map(([key, value]: [string, any]) => (
                   <div key={key}>
@@ -211,29 +222,31 @@ export default function KnowledgeOps() {
                   </div>
                 ))}
               </div>
-            </div>
+            </DashCard>
           )}
 
           {activeTab === 'entities' && (
             <div className="space-y-2">
-              <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
+              <DashCard>
                 <h4 className="text-xs font-bold text-[var(--text-muted)] mb-2">{t('cmd.knowledge.entityResolution')}</h4>
                 <p className="text-[11px] text-[var(--text-muted)]">{t('cmd.knowledge.entityResolutionDesc')}</p>
                 <div className="mt-3 flex gap-2">
-                  <input type="text" id="entity-primary" placeholder="Primary entity ID" className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 flex-1" />
-                  <input type="text" id="entity-secondary" placeholder="Secondary entity ID (to merge)" className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 flex-1" />
+                  <input type="text" id="entity-primary" placeholder={t('cmd.knowledge.primaryEntity')}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 flex-1" />
+                  <input type="text" id="entity-secondary" placeholder={t('cmd.knowledge.secondaryEntity')}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-xs text-[var(--text-primary)] placeholder-white/30 focus:outline-none focus:border-[var(--accent-primary)]/50 flex-1" />
                   <button type="button" onClick={() => {
                     const primary = (document.getElementById('entity-primary') as HTMLInputElement)?.value;
                     const secondary = (document.getElementById('entity-secondary') as HTMLInputElement)?.value;
                     if (primary && secondary) handleMergeEntities(primary, secondary);
                   }} className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)] text-[var(--text-primary)] text-xs font-bold cursor-pointer">{t('cmd.action.merge')}</button>
                 </div>
-              </div>
-              <div className="py-8 text-center rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
-                <GitMerge className="w-10 h-10 text-[var(--text-muted)] mx-auto mb-3" />
-                <div className="text-sm font-bold text-[var(--text-muted)]">Use the merge form above to resolve entity duplicates</div>
-                <div className="text-[11px] text-[var(--text-muted)] mt-1">Conflicts tab shows entities that need resolution</div>
-              </div>
+              </DashCard>
+              <EmptyState
+                icon={GitMerge}
+                title={t('cmd.knowledge.mergeForm')}
+                description={t('cmd.knowledge.entityResolutionDesc')}
+              />
             </div>
           )}
         </>

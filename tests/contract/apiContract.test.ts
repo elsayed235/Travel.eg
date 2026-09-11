@@ -26,6 +26,7 @@ const ROUTER_FILES = [
   'adminAccommodationRoutes',
   'adminContentRoutes',
   'adminDahabRoutes',
+  'adminSiteRoutes',
   'contentRoutes',
   'dahabRoutes',
   'hotelRoutes',

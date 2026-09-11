@@ -15,10 +15,14 @@ import {
   Utensils, 
   Info, 
   X,
-  Plus
+  Plus,
+  Wallet,
+  Target,
+  Scale
 } from 'lucide-react';
 import { TravelerNav } from '../mytrip/TravelerNav';
 import { useTrip } from '../../context/TripContext';
+import { CategoryIcon, type CategoryKind } from '../common/CategoryIcon';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
@@ -130,7 +134,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
       distanceKm: '0.8 km',
       pace: 'Relaxed',
       paceAr: 'روقان وهدوء',
-      icon: '☕',
+      icon: 'coffee',
       timeSlot: '12:00 PM – 01:15 PM',
       whyItFits: 'Perfect for your balanced pace.',
       whyItFitsAr: 'مناسب تماماً لنمط يومك الهادي بعد الغطس.',
@@ -161,7 +165,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
       distanceKm: '0.5 km',
       pace: 'Easy Stroll',
       paceAr: 'تمشية خفيفة',
-      icon: '🚶',
+      icon: 'walk',
       timeSlot: '12:00 PM – 01:15 PM',
       whyItFits: 'Easy to fit before lunch.',
       whyItFitsAr: 'مسار دائري ممتع يوصلك في النهاية لباب المطعم.',
@@ -192,7 +196,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
       distanceKm: '0.2 km',
       pace: 'Active',
       paceAr: 'نشاط وحركة',
-      icon: '🤿',
+      icon: 'dive',
       timeSlot: '12:00 PM – 01:15 PM',
       whyItFits: 'High energy, close to water.',
       whyItFitsAr: 'استغلال للرؤية الممتازة ونقاء البحر النهارده.',
@@ -353,7 +357,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
           {/* Title & Subtitle */}
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl chart-heading font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
               {travelerName ? t('spontaneous.whatShouldYouDoNamed', { travelerName }) : t('spontaneous.whatShouldYouDoGeneric')}
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-3xl font-medium leading-relaxed">
@@ -374,8 +378,8 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
             <div className="lg:col-span-8 space-y-6">
               
               <div className="bg-[var(--surface-card)] rounded-3xl p-7 sm:p-9 border border-[var(--border-subtle)] shadow-xl space-y-6">
-                <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-[var(--accent-secondary)] flex items-center justify-center text-2xl shadow-md">
-                  ☕
+                <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] border border-[var(--accent-secondary)]/30 text-[var(--accent-secondary)] flex items-center justify-center shadow-md">
+                  <CategoryIcon kind="coffee" className="w-6 h-6" />
                 </div>
 
                 <div className="space-y-2">
@@ -396,7 +400,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">☕</span>
+                        <CategoryIcon kind="coffee" className="w-5 h-5 text-[var(--text-secondary)]" />
                         <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.coffeeNearby')}</h4>
                       </div>
                       <p className="text-xs text-[var(--text-secondary)]/70">
@@ -406,7 +410,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
                     <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🌊</span>
+                        <CategoryIcon kind="reef" className="w-5 h-5 text-[var(--text-secondary)]" />
                         <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.relaxByTheSea')}</h4>
                       </div>
                       <p className="text-xs text-[var(--text-secondary)]/70">
@@ -416,7 +420,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
                     <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">🍽️</span>
+                        <CategoryIcon kind="food" className="w-5 h-5 text-[var(--text-secondary)]" />
                         <h4 className="font-bold text-sm text-[var(--text-primary)]">{t('spontaneous.headTowardLunch')}</h4>
                       </div>
                       <p className="text-xs text-[var(--text-secondary)]/70">
@@ -484,7 +488,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     <button
                       type="button"
                       onClick={onBackToCompanion || onBackToMyTrip}
-                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer"
+                      className="px-4 py-2 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-md cursor-pointer"
                     >
                       {t('spontaneous.viewInDailyCompanion')}
                     </button>
@@ -573,7 +577,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl shadow-md ${
                             isSelected ? 'bg-[var(--accent-secondary)] text-[var(--surface-container)]' : 'bg-[var(--surface-container)] text-[var(--text-primary)] border border-[var(--border-subtle)]'
                           }`}>
-                            <span>{option.icon}</span>
+                            <CategoryIcon kind={option.icon as CategoryKind} className="w-5 h-5" />
                           </div>
 
                           <div className="space-y-1 flex-1">
@@ -673,7 +677,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                                 }}
                                 className={`px-5 py-2.5 rounded-full text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-1.5 cursor-pointer ${
                                   isSelected
-                                    ? 'bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206]'
+                                    ? 'bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)]'
                                     : 'bg-[var(--surface-container)] hover:bg-[var(--surface-card)]/10 text-[var(--accent-secondary)] border border-[var(--accent-secondary)]/30'
                                 }`}
                               >
@@ -772,7 +776,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     <div className="flex items-center justify-between text-[var(--text-primary)] font-bold py-1 border-y border-[var(--border-subtle)]">
                       <span className="text-[var(--accent-secondary)]">12:00 PM</span>
                       <span className="text-[var(--accent-secondary)] flex items-center gap-1">
-                        <span>{selectedOption.icon}</span>
+                        <CategoryIcon kind={selectedOption.icon as CategoryKind} className="w-4 h-4" />
                         <span>{language === 'ar' ? selectedOption.titleAr : selectedOption.title} ({t('spontaneous.proposed')})</span>
                       </span>
                     </div>
@@ -780,7 +784,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     <div className="flex items-center justify-between text-[var(--text-secondary)]">
                       <span>01:30 PM</span>
                       <span className="font-semibold text-[var(--text-primary)]">
-                        🍽️ {t('spontaneous.lunchByTheBay')}
+                        <CategoryIcon kind="food" className="w-4 h-4" /> {t('spontaneous.lunchByTheBay')}
                       </span>
                     </div>
                   </div>
@@ -802,7 +806,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                     type="button"
                     id="add-to-my-trip-main-btn"
                     onClick={() => handleTriggerAddToTrip(selectedOption)}
-                    className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2 cursor-pointer active:scale-98"
+                    className="px-6 py-3 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] text-xs font-bold shadow-md transition-[background-color,border-color,color,box-shadow,transform,opacity] flex items-center gap-2 cursor-pointer active:scale-98"
                   >
                     <Plus className="w-4 h-4" />
                     <span>{t('spontaneous.addToMyTrip')}</span>
@@ -852,17 +856,17 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
-                    <span className="text-[var(--text-secondary)]/60">💰 {t('spontaneous.budget')}</span>
+                    <span className="text-[var(--text-secondary)]/60 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" />{t('spontaneous.budget')}</span>
                     <span className="font-bold text-[var(--text-primary)]">{t('spontaneous.moderate')}</span>
                   </div>
 
                   <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
-                    <span className="text-[var(--text-secondary)]/60">🎯 {t('spontaneous.interests')}</span>
+                    <span className="text-[var(--text-secondary)]/60 flex items-center gap-1.5"><Target className="w-3.5 h-3.5" />{t('spontaneous.interests')}</span>
                     <span className="font-bold text-[var(--text-primary)]">{t('spontaneous.divingAdventureFood')}</span>
                   </div>
 
                   <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-container)] border border-white/5">
-                    <span className="text-[var(--text-secondary)]/60">⚖️ {t('spontaneous.pace')}</span>
+                    <span className="text-[var(--text-secondary)]/60 flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" />{t('spontaneous.pace')}</span>
                     <span className="font-bold text-[var(--accent-secondary)]">{t('spontaneous.balancedPace')}</span>
                   </div>
                 </div>
@@ -903,7 +907,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                       {t('spontaneous.aliBabaSeafoodBedouin')}
                     </p>
                   </div>
-                  <span className="text-2xl">🍽️</span>
+                  <CategoryIcon kind="food" className="w-6 h-6 text-[var(--text-secondary)]" />
                 </div>
 
                 <div className="p-3 rounded-2xl bg-[var(--surface-container)]/60 border border-white/5 space-y-1 text-xs text-[var(--text-secondary)]/80">
@@ -952,11 +956,11 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                   {/* Landmarks representation */}
                   <div className="relative z-10 space-y-1 text-[11px]">
                     <div className="inline-flex items-center gap-1 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-md font-bold text-[var(--text-primary)] shadow-sm">
-                      <span>☕ {t('spontaneous.lighthouseCafe08km')}</span>
+                      <span className="inline-flex items-center gap-1"><CategoryIcon kind="coffee" className="w-3.5 h-3.5" /> {t('spontaneous.lighthouseCafe08km')}</span>
                     </div>
                     <br />
                     <div className="inline-flex items-center gap-1 bg-[var(--surface-card)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-md font-bold text-[var(--text-primary)] shadow-sm">
-                      <span>🍽️ {t('spontaneous.aliBabaLunch130')}</span>
+                      <span className="inline-flex items-center gap-1"><CategoryIcon kind="food" className="w-3.5 h-3.5" /> {t('spontaneous.aliBabaLunch130')}</span>
                     </div>
                   </div>
 
@@ -1010,11 +1014,11 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
 
               <div className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] space-y-2">
                 <div className="flex items-center justify-between font-bold text-[var(--text-primary)]">
-                  <span>🤿 {t('spontaneous.snorkeling')}</span>
+                  <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="dive" className="w-4 h-4" /> {t('spontaneous.snorkeling')}</span>
                   <span className="font-mono text-[var(--accent-secondary)]">12:00 PM – 01:15 PM</span>
                 </div>
                 <div className="flex items-center justify-between font-bold text-emerald-300 pt-1 border-t border-[var(--border-subtle)]">
-                  <span>🍽️ {t('spontaneous.lunchByTheBay-3')}</span>
+                  <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="food" className="w-4 h-4" /> {t('spontaneous.lunchByTheBay-3')}</span>
                   <span className="font-mono text-emerald-300">01:30 PM</span>
                 </div>
               </div>
@@ -1032,7 +1036,7 @@ export const WhatShouldIDoNowView: React.FC<WhatShouldIDoNowViewProps> = ({
                 type="button"
                 id="add-anyway-btn"
                 onClick={() => commitAddToTrip(tightFitModalOption)}
-                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[#1A1206] font-bold text-xs shadow-md transition-colors cursor-pointer"
+                className="w-full sm:flex-1 py-2.5 rounded-full bg-[var(--accent-secondary)] hover:brightness-110 text-[var(--accent-primary-ink)] font-bold text-xs shadow-md transition-colors cursor-pointer"
               >
                 {t('spontaneous.addAnyway')}
               </button>

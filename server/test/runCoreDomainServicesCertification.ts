@@ -304,8 +304,24 @@ export function runCoreDomainServicesCertification(): {
       const dash = supplierService.getSupplierDashboard(supplierId);
       if (!dash.supplier) throw new Error(`Supplier ${supplierId} not found`);
 
-      if (dash.stats.reliabilityScore <= 0 || dash.stats.slaResponseRate.length === 0) {
+      // reliabilityScore and slaResponseRate are deliberately nullable: the
+      // first is the supplier's rating (absent until ratings are collected) and
+      // nothing in this system measures response time yet. Asserting they were
+      // non-empty only passed because both used to be invented defaults
+      // (`|| 4.9` and the constant '99.4%'). What is genuinely computed are the
+      // counts, so those are what this certifies.
+      const counts = [
+        dash.stats.totalBookingsCount,
+        dash.stats.pendingActionCount,
+        dash.stats.confirmedCount,
+        dash.stats.totalEarningsEGP,
+        dash.stats.escrowPendingEGP
+      ];
+      if (counts.some(n => typeof n !== 'number' || Number.isNaN(n) || n < 0)) {
         throw new Error('Supplier stats calculation incomplete');
+      }
+      if (dash.stats.reliabilityScore !== null && dash.stats.reliabilityScore <= 0) {
+        throw new Error('Supplier reliabilityScore present but not a positive rating');
       }
 
       // Find or create an active booking for supplier

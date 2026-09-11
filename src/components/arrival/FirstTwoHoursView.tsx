@@ -25,9 +25,12 @@ import {
   ChevronRight,
   ChevronLeft,
   Sun,
-  Flame
+  Flame,
+  CupSoda,
+  ThumbsUp
 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { CategoryIcon, type CategoryKind } from '../common/CategoryIcon';
 import { useTrip } from '../../context/TripContext';
 import { useArrivalClock } from '../../hooks/useArrivalClock';
 import { addMinutes, formatClock, formatDuration, minutesBetween } from '../../utils/arrivalTime';
@@ -54,7 +57,7 @@ interface TimelineStep {
   desc: string;
   duration: string;
   category: string;
-  icon: string;
+  icon: CategoryKind;
   ctaText: string;
   ctaAction: 'luggage' | 'breakfast' | 'walk' | 'beach' | 'hotel';
   isCompleted: boolean;
@@ -144,7 +147,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.dropYourLuggageAt'),
       duration: t('arrival.15Min'),
       category: t('arrival.recommended'),
-      icon: '🧳',
+      icon: 'luggage',
       ctaText: t('arrival.viewOption'),
       ctaAction: 'luggage',
       isCompleted: completedStepIds.includes('step-1-luggage'),
@@ -157,7 +160,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.grabARelaxedBreakfast'),
       duration: t('arrival.40Min'),
       category: t('arrival.food'),
-      icon: '☕',
+      icon: 'coffee',
       ctaText: t('arrival.seeRecommendation'),
       ctaAction: 'breakfast',
       isCompleted: completedStepIds.includes('step-2-breakfast'),
@@ -170,7 +173,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.takeAShortWalk'),
       duration: t('arrival.45Min'),
       category: t('arrival.explore'),
-      icon: '🚶',
+      icon: 'walk',
       ctaText: t('arrival.explore-2'),
       ctaAction: 'walk',
       isCompleted: completedStepIds.includes('step-3-walk'),
@@ -183,7 +186,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.relaxByTheSea'),
       duration: t('arrival.30Min'),
       category: t('arrival.relax'),
-      icon: '🏖',
+      icon: 'reef',
       ctaText: t('arrival.viewSpot'),
       ctaAction: 'beach',
       isCompleted: completedStepIds.includes('step-4-beach'),
@@ -196,7 +199,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.leaveEnoughTimeTo'),
       duration: hotelTravelLabel || (t('arrival.3040Min')),
       category: t('arrival.recommended'),
-      icon: '🏨',
+      icon: 'stay',
       ctaText: t('arrival.hotelDetails'),
       ctaAction: 'hotel',
       isCompleted: completedStepIds.includes('step-5-hotel'),
@@ -212,7 +215,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.dropYourLuggageAt'),
       duration: t('arrival.15Min'),
       category: t('arrival.recommended'),
-      icon: '🧳',
+      icon: 'luggage',
       ctaText: t('arrival.viewOption'),
       ctaAction: 'luggage',
       isCompleted: completedStepIds.includes('step-1-luggage'),
@@ -225,7 +228,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.sipFreshBedouinSpiced'),
       duration: t('arrival.25Min'),
       category: t('arrival.food-2'),
-      icon: '☕',
+      icon: 'coffee',
       ctaText: t('arrival.seeSpot'),
       ctaAction: 'breakfast',
       isCompleted: completedStepIds.includes('step-2-coffee'),
@@ -238,7 +241,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.unwindOnCushionedSunbeds'),
       duration: t('arrival.55Min'),
       category: t('arrival.relax'),
-      icon: '🏖',
+      icon: 'reef',
       ctaText: t('arrival.viewSpot-2'),
       ctaAction: 'beach',
       isCompleted: completedStepIds.includes('step-3-beach-long'),
@@ -251,7 +254,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.browseLocalArtisanHandicraft'),
       duration: t('arrival.30Min'),
       category: t('arrival.explore'),
-      icon: '🚶',
+      icon: 'walk',
       ctaText: t('arrival.explore-2'),
       ctaAction: 'walk',
       isCompleted: completedStepIds.includes('step-4-walk-coastal'),
@@ -264,7 +267,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
       desc: t('arrival.leaveEnoughTimeTo'),
       duration: hotelTravelLabel || (t('arrival.3040Min')),
       category: t('arrival.recommended'),
-      icon: '🏨',
+      icon: 'stay',
       ctaText: t('arrival.hotelDetails'),
       ctaAction: 'hotel',
       isCompleted: completedStepIds.includes('step-5-hotel'),
@@ -396,7 +399,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight">
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
               {t('arrival.yourFirst2Hours-2')}
             </h1>
             <p className="text-base sm:text-lg text-[var(--text-secondary)]/80 max-w-2xl font-medium">
@@ -456,8 +459,8 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                 <div className="space-y-2.5">
                   <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center font-bold text-lg border border-[var(--accent-secondary)]/30">
-                        🏨
+                      <div className="w-10 h-10 rounded-xl bg-[var(--surface-container)] text-[var(--accent-secondary)] flex items-center justify-center border border-[var(--accent-secondary)]/30">
+                        <Building className="w-5 h-5" />
                       </div>
                       <div>
                         <h3 className="font-bold text-sm text-[var(--text-primary)]">
@@ -480,7 +483,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
 
                   <div className="p-3.5 rounded-2xl bg-[var(--surface-container)]/70 border border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
                     <span className="flex items-center gap-1.5">
-                      <span>🥤</span>
+                      <CupSoda className="w-4 h-4" />
                       <span>{t('arrival.optionalGrabAFresh')}</span>
                     </span>
                     <span className="font-semibold text-[var(--accent-secondary)]">{t('arrival.2MinStop')}</span>
@@ -496,8 +499,8 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
               aria-label={t('arrival.planCompleted')}
                 className="bg-[var(--surface-card)] rounded-3xl p-7 border-2 border-emerald-500/40 shadow-xl space-y-4 text-center animate-in zoom-in-95 duration-200"
               >
-                <div className="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl shadow-xs">
-                  👌
+                <div className="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto shadow-xs">
+                  <ThumbsUp className="w-7 h-7" />
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -564,7 +567,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                         onClick={() => handleLiveOptionAction(option)}
                         className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                       >
-                        <span className="text-lg block">{option.icon}</span>
+                        <CategoryIcon kind={option.icon as CategoryKind} className="w-5 h-5" />
                         <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                           {language === 'ar' ? option.titleAr : option.title}
                         </h5>
@@ -581,7 +584,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                       onClick={() => setActivityModalType('breakfast')}
                       className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
-                      <span className="text-lg block">☕</span>
+                      <CategoryIcon kind="coffee" className="w-5 h-5" />
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {t('arrival.coffee')}
                       </h5>
@@ -595,7 +598,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                       onClick={() => setActivityModalType('beach')}
                       className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
-                      <span className="text-lg block">🏖</span>
+                      <Sun className="w-5 h-5" />
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {t('arrival.beach-2')}
                       </h5>
@@ -609,7 +612,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                       onClick={() => setActivityModalType('walk')}
                       className="p-3.5 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/50 text-start space-y-1 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer group"
                     >
-                      <span className="text-lg block">🚶</span>
+                      <Footprints className="w-5 h-5" />
                       <h5 className="font-bold text-xs text-[var(--text-primary)] group-hover:text-[var(--accent-secondary)]">
                         {t('arrival.shortWalk')}
                       </h5>
@@ -755,7 +758,7 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
                         {step.isCompleted ? (
                           <Check className="w-5 h-5 stroke-[2.5]" />
                         ) : (
-                          <span>{step.icon}</span>
+                          <CategoryIcon kind={step.icon} className="w-5 h-5" />
                         )}
                       </button>
 
@@ -913,19 +916,19 @@ export const FirstTwoHoursView: React.FC<FirstTwoHoursViewProps> = ({
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] text-[var(--text-secondary)]">
-                  <span>🧳 {t('arrival.luggageDropSetup')}</span>
+                  <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="luggage" className="w-3.5 h-3.5" /> {t('arrival.luggageDropSetup')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{t('arrival.15Min')}</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] text-[var(--text-secondary)]">
-                  <span>☕ {t('arrival.breakfastCoastalCoffee')}</span>
+                  <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="coffee" className="w-3.5 h-3.5" /> {t('arrival.breakfastCoastalCoffee')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{t('arrival.40Min')}</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] text-[var(--text-secondary)]">
-                  <span>🏖 {t('arrival.shorelineWalkSeaLounge')}</span>
+                  <span className="inline-flex items-center gap-1.5"><CategoryIcon kind="reef" className="w-3.5 h-3.5" /> {t('arrival.shorelineWalkSeaLounge')}</span>
                   <span className="font-bold text-[var(--text-primary)]">{t('arrival.45Min')}</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/50 text-emerald-300 border border-emerald-500/30">
-                  <span className="font-bold">✨ {t('arrival.timeBufferBeforeCheckin')}</span>
+                  <span className="font-bold inline-flex items-center gap-1.5"><CategoryIcon kind="sparkles" className="w-3.5 h-3.5" /> {t('arrival.timeBufferBeforeCheckin')}</span>
                   <span className="font-bold">{t('arrival.40MinSafe')}</span>
                 </div>
               </div>

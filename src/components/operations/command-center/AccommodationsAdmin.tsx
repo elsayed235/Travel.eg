@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Building2, ExternalLink, Plus, Trash2, RefreshCw, Search } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { SectionHeader } from './ui/SectionHeader';
 import type { AccommodationEntity, PropertySourceEntity } from '../../../shared/types/commerce';
 
 const SOURCE_TYPES: PropertySourceEntity['sourceType'][] = ['WHATSAPP', 'INSTAGRAM', 'WEBSITE', 'BOOKING_COM', 'AIRBNB', 'OTHER'];
@@ -117,19 +118,16 @@ export default function AccommodationsAdmin() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-[var(--accent-secondary)]" />
-          {t('cmd.accommodations.title', 'Accommodations')}
-        </h3>
-        <button
-          type="button"
-          onClick={() => loadAccommodations()}
-          className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      <SectionHeader
+        icon={Building2}
+        title={t('cmd.accommodations.title', 'Accommodations')}
+        actions={
+          <button type="button" onClick={() => loadAccommodations()}
+            className="p-1.5 rounded-lg bg-[var(--btn-util-bg)] text-[var(--text-muted)] cursor-pointer">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        }
+      />
 
       {error && (
         <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 text-xs">{error}</div>

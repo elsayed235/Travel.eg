@@ -49,7 +49,8 @@ async function injectSessionCookieFrom(
     throw new Error(`E2E auth failed: no session cookie in response (${raw.split('=')[0]})`);
   }
   await context.addCookies([
-    { name: 'dahab_auth_token', value: m[1], domain: 'localhost', path: '/' },
+    // Domain must match BASE_URL's host (127.0.0.1) — see helpers/config.ts.
+    { name: 'dahab_auth_token', value: m[1], domain: '127.0.0.1', path: '/' },
   ]);
 }
 

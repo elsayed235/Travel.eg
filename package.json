@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "tsx server.ts",
     "dev:fresh": "node -e \"require('fs').rmSync('node_modules/.vite', { recursive: true, force: true })\" && tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --define:process.env.NODE_ENV=\"production\" --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "i18n:emit": "tsx scripts/i18n/emitDictionaries.ts --write && tsx scripts/i18n/emitDictionaries.ts",
     "test": "vitest run && vitest run --config vitest.ui.config.ts",
     "test:watch": "vitest",
     "test:ui": "vitest run --config vitest.ui.config.ts",
@@ -21,12 +22,14 @@
     "db:check": "tsx server/db/sqlite/checkIntegrity.ts",
     "db:backup": "tsx server/db/sqlite/backup.ts",
     "db:schema": "tsx server/db/sqlite/emitSchema.ts",
+    "db:schema:pg": "tsx server/db/postgres/emitPostgresSchema.ts",
     "db:research": "tsx server/db/research/importResearch.ts",
     "db:research:apply": "tsx server/db/research/importResearch.ts --apply",
     "db:add-nav-tabs": "tsx server/db/sqlite/addNavTabs.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@mediapipe/tasks-vision": "^1.0.1",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "better-sqlite3": "^12.11.1",
@@ -42,6 +45,8 @@
     "pg": "^8.23.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "recharts": "^3.10.1",
+    "sharp": "^0.35.4",
     "vite": "^6.2.3"
   },
   "devDependencies": {

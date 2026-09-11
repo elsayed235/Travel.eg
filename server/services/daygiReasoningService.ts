@@ -21,6 +21,7 @@ import {
   DayGiResponse,
   DayGiQueryContext,
   DayGiParsedIntent,
+  DayGiIntentType,
   DayGiActionType,
   DayGiActionRisk,
   DayGiActionData,
@@ -93,7 +94,22 @@ export class DayGiReasoningService {
     // context now, so a caller that forgets it fails to compile rather than
     // silently writing into the demo traveler's record.
     const userId = context.userId;
-    const tripId = 'DHB-TRIP-894';
+    // Resolve the trip the traveler actually owns.
+    //
+    // The client sends its active trip id, but that id is untrusted input: it
+    // must belong to the session user before it is used. A missing or foreign
+    // id falls back to the caller's most relevant own trip, and a traveler
+    // with no trip gets `null` — never the seeded demo itinerary. The previous
+    // hardcoded activeTripId made every traveler's conversation operate on
+    // Ahmed's trip: health scores, schedule shifts, budget plans and booking
+    // holds all landed on somebody else's record.
+    const requestedTripId = (context.tripId || '').trim();
+    const ownedTrips = tripService.getTripsForUser(userId);
+    const ownsRequested = ownedTrips.some(t => t.id === requestedTripId);
+    const tripId: string | null = ownsRequested
+      ? requestedTripId
+      : this.pickMostRelevantTrip(ownedTrips);
+    const hasTrip = tripId !== null;
 
     // 1. Structured State & Memory Retrieval (Filtered Context — No Full DB Dump)
     const userMemory = daygiMemoryService.getMemory(userId);
@@ -119,7 +135,9 @@ export class DayGiReasoningService {
       constraints,
       userMemory,
       tripHealth,
-      context
+      context,
+      tripId,
+      hasTrip
     );
 
     // 6. If Gemini is available and not skipped, use Gemini 3.7 Flash to refine phrasing while preserving deterministic structure
@@ -206,6 +224,17 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
     }
 
     return deterministicResponse;
+  }
+
+  /**
+   * The traveler's most relevant own trip: in-destination first, then
+   * confirmed, planned, draft. Cancelled/completed trips are never returned.
+   */
+  private pickMostRelevantTrip(trips: Array<{ id: string; status: string }>): string | null {
+    const rank: Record<string, number> = { IN_DESTINATION: 0, CONFIRMED: 1, PLANNED: 2, DRAFT: 3 };
+    const active = trips.filter(t => t.status !== 'CANCELLED' && t.status !== 'COMPLETED');
+    if (active.length === 0) return null;
+    return active.slice().sort((a, b) => (rank[a.status] ?? 9) - (rank[b.status] ?? 9))[0].id;
   }
 
   /**
@@ -447,19 +476,51 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
     constraints: DayGiConstraintModel,
     memory: any,
     tripHealth: DayGiTripHealth,
-    context: DayGiQueryContext
+    context: DayGiQueryContext,
+    tripId: string | null,
+    hasTrip: boolean
   ): DayGiResponse {
+    // Intents that audit, shift, price or book an itinerary cannot answer for
+    // a traveler who has no itinerary. Previously these still produced the
+    // seeded demo trip's schedule, prices and bookings. Without a trip they
+    // now send the traveler to the planner instead.
+    if (!hasTrip || !tripId) {
+      const tripDependent: DayGiIntentType[] = [
+        'MULTI_STEP_POST_ACTIVITY',
+        'TRIP_HEALTH_CHECK',
+        'PROPOSE_TRIP_CHANGE',
+        'BUDGET_OPTIMIZE',
+        'TRIP_RECOVERY',
+        'PREPARE_BOOKING'
+      ];
+      if (tripDependent.includes(parsedIntent.intent)) {
+        return this.buildNoTripGuidance(parsedIntent, lang);
+      }
+    }
+    // The early return above guarantees every trip-dependent branch below has
+    // a real trip; the branches themselves all live under that guard.
+    const activeTripId: string = tripId || '';
 
     // -------------------------------------------------------------------------
     // 1. MULTI-STEP TASK: "عايز حاجة هادية بعد الغطس" / "احجزلي حاجة بعد الغوص"
     // -------------------------------------------------------------------------
     if (parsedIntent.intent === 'MULTI_STEP_POST_ACTIVITY') {
+      // Ground the "after your dive" framing in THIS traveler's itinerary.
+      // The previous block always described the demo trip's 01:30 PM Canyon
+      // dive even when the traveler's own trip had different plans.
+      const tripDiveItems = db.tripItems.filter(
+        i => i.tripId === activeTripId && i.serviceType === 'diving'
+      );
+      const diveItem = tripDiveItems[0];
+      const diveTitleEn = diveItem ? diveItem.title : 'your scheduled dive';
+      const diveTitleAr = diveItem ? diveItem.title : 'غطستك المقررة';
+      const diveEnd = diveItem && diveItem.timeSlot ? diveItem.timeSlot : 'the planned time';
       const multiOptions: DayGiMultiOptionResult = {
         postActivityContext: {
-          originalActivity: 'Canyon Morning Guided Deep Dive',
-          originalActivityAr: 'غطسة الكانيون الصباحية الإرشادية',
-          endTime: '01:30 PM',
-          location: 'Canyon Protected Marine Area',
+          originalActivity: diveTitleEn,
+          originalActivityAr: diveTitleAr,
+          endTime: diveEnd,
+          location: 'your dive site',
           availableWindowMins: 180
         },
         options: [
@@ -522,7 +583,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
 
       const orchestratedTask = daygiTaskOrchestrator.createTask({
         userId: context.userId,
-        tripId: 'DHB-TRIP-894',
+        tripId: activeTripId,
         intent: 'BOOK_DIVE_THEN_NEARBY_FOOD',
         titleEn: 'Book Canyon Morning Dive & Reserve Nearby Seaside Lunch',
         titleAr: 'حجز غطسة الكانيون الصباحية وتنسيق غداء بحري قريب',
@@ -533,7 +594,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             nameAr: 'حجز وتأكيد غطسة الكانيون مع مرشد معتمد',
             systemComponent: 'COMMERCE_SERVICE',
             actionKey: 'CONFIRM_DIRECT_BOOKING',
-            payload: { skuId: 'SKU-DIV-001', tripId: 'DHB-TRIP-894', priceEGP: 2700, date: new Date().toISOString().split('T')[0], timeSlot: '08:30 AM' },
+            payload: { skuId: 'SKU-DIV-001', tripId: activeTripId, priceEGP: 2700, date: new Date().toISOString().split('T')[0], timeSlot: '08:30 AM' },
             riskLevel: 'COMMERCE'
           },
           {
@@ -548,8 +609,8 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
       });
 
       return {
-        replyText: 'Based on your 01:30 PM Canyon dive finish and preference for relaxing seafront spots, here are 3 verified candidates within a 15-minute radius with zero transfer hassle.',
-        replyTextAr: 'بناءً على انتهاء غطسة الكانيون الساعة ٠١:٣٠ م ورغبتك في مكان هادئ، جهزت لك ٣ خيارات ممتازة على بعد ١٥ دقيقة مشي بدون أي مواصلات مرهقة.',
+        replyText: `Based on your ${diveEnd} dive finish and preference for relaxing seafront spots, here are 3 verified candidates within a 15-minute radius with zero transfer hassle.`,
+        replyTextAr: `بناءً على انتهاء غطستك ${diveEnd} ورغبتك في مكان هادئ، جهزت لك ٣ خيارات ممتازة على بعد ١٥ دقيقة مشي بدون أي مواصلات مرهقة.`,
         whyThis: 'Evaluated dive exit location, 3-hour available window, and your saved preference for oceanfront cushion seating.',
         whyThisAr: 'تم حساب موقع الخروج من الغوص، والوقت الحر (٣ ساعات)، وتفضيلك المحفوظ للجلسات الشاطئية الهادئة.',
         actionType: 'MULTI_STEP_OPTIONS',
@@ -613,6 +674,12 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             { textEn: 'Did any prices drop?', textAr: 'هل في أسعار نزلت؟', query: 'هل في أسعار نزلت؟' }
           ]
         };
+      }
+
+      // "What changed in MY trip?" without a trip of the caller's own would
+      // otherwise fall through to the demo itinerary's weather card.
+      if (!hasTrip || !tripId) {
+        return this.buildNoTripGuidance(parsedIntent, lang);
       }
 
       const whatChanged: DayGiWhatChangedCard = {
@@ -751,7 +818,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
 
       const orchestratedTask = daygiTaskOrchestrator.createTask({
         userId: context.userId,
-        tripId: 'DHB-TRIP-894',
+        tripId: activeTripId,
         intent: 'OPTIMIZE_TRIP_BUDGET',
         titleEn: 'Execute Budget Optimization (Save EGP 3,600)',
         titleAr: 'تنفيذ خطة خفض الميزانية (توفير ٣,٦٠٠ جنيه)',
@@ -873,7 +940,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
 
       const orchestratedTask = daygiTaskOrchestrator.createTask({
         userId: context.userId,
-        tripId: 'DHB-TRIP-894',
+        tripId: activeTripId,
         intent: 'SHIFT_SCHEDULE_PACING',
         titleEn: 'Shift Day 3 Canyon Dive to Day 4 (10:00 AM)',
         titleAr: 'ترحيل غطسة الكانيون لليوم الرابع الساعة ١٠:٠٠ ص',
@@ -977,7 +1044,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
 
       const orchestratedTask = daygiTaskOrchestrator.createTask({
         userId: context.userId,
-        tripId: 'DHB-TRIP-894',
+        tripId: activeTripId,
         intent: 'AUTHORITATIVE_HOLD_AND_BOOK',
         titleEn: 'Hold & Confirm Canyon Morning Guided Dive (2 Pax)',
         titleAr: 'تثبيت وتأكيد حجز غطسة الكانيون (شخصان)',
@@ -988,7 +1055,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             nameAr: 'إنشاء حجز مقعد مؤقت آمن لمدة ١٥ دقيقة',
             systemComponent: 'COMMERCE_SERVICE',
             actionKey: 'CONFIRM_DIRECT_BOOKING',
-            payload: { skuId: 'SKU-DIV-001', tripId: 'DHB-TRIP-894', priceEGP: 2700, date: new Date().toISOString().split('T')[0], timeSlot: '10:00 AM' },
+            payload: { skuId: 'SKU-DIV-001', tripId: activeTripId, priceEGP: 2700, date: new Date().toISOString().split('T')[0], timeSlot: '10:00 AM' },
             riskLevel: 'COMMERCE'
           },
           {
@@ -996,7 +1063,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             nameAr: 'التحقق من القيد المالي وإصدار قسيمة النشاط المعتمدة',
             systemComponent: 'LEDGER',
             actionKey: 'CONFIRM_DIRECT_BOOKING',
-            payload: { skuId: 'SKU-DIV-001', tripId: 'DHB-TRIP-894' },
+            payload: { skuId: 'SKU-DIV-001', tripId: activeTripId },
             riskLevel: 'FINANCIAL'
           }
         ]
@@ -1179,7 +1246,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
 
       const orchestratedTask = daygiTaskOrchestrator.createTask({
         userId: context.userId,
-        tripId: 'DHB-TRIP-894',
+        tripId: activeTripId,
         intent: 'WEATHER_DISRUPTION_RECOVERY',
         titleEn: 'Substitute Wind-Disrupted Dive with Laguna Windsurfing',
         titleAr: 'استبدال غطسة الكانيون برياضات اللاجونا وتسوية الرصيد',
@@ -1190,7 +1257,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             nameAr: 'إلغاء حجز غطسة الكانيون وتحرير السعة',
             systemComponent: 'COMMERCE_SERVICE',
             actionKey: 'EXECUTE_TRIP_RECOVERY',
-            payload: { originalItemId: 'act-canyon-dive', tripId: 'DHB-TRIP-894' },
+            payload: { originalItemId: 'act-canyon-dive', tripId: activeTripId },
             riskLevel: 'COMMERCE'
           },
           {
@@ -1198,7 +1265,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             nameAr: 'تثبيت المقعد البديل في مركز رياضات اللاجونا',
             systemComponent: 'COMMERCE_SERVICE',
             actionKey: 'EXECUTE_TRIP_RECOVERY',
-            payload: { alternativeSkuId: 'SKU-SAF-002', tripId: 'DHB-TRIP-894' },
+            payload: { alternativeSkuId: 'SKU-SAF-002', tripId: activeTripId },
             riskLevel: 'COMMERCE'
           },
           {
@@ -1465,6 +1532,38 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
   }
 
   /**
+   * Honest answer for trip-dependent intents when the caller has no trip.
+   *
+   * These used to answer anyway with the seeded demo itinerary's schedule,
+   * prices and bookings — the single most misleading behaviour on the
+   * platform. Discovery and general conversation are unaffected; only the
+   * intents that need an itinerary to audit are routed here.
+   */
+  private buildNoTripGuidance(parsedIntent: DayGiParsedIntent, lang: 'en' | 'ar'): DayGiResponse {
+    return {
+      replyText: 'This needs your trip first. I can only check, change or price an itinerary that exists — and right now there is no trip on this account. Start with Plan My Trip (about a minute), and the moment you have a draft I will audit its health, weather risks and budget.',
+      replyTextAr: 'الميزة دي محتاجة رحلتك الأول. مش أقدر أراجع أو أعدّل أو أحسب سعر خطة لسه مش موجودة — وحالياً مفيش رحلة على الحساب ده. ابدأ بـ "خططها لي" (دقيقة واحدة)، وأول ما يكون عندك مسودة هافحص صحتها والطقس والميزانية فوراً.',
+      whyThis: 'Trip-dependent actions (health, schedule changes, budget, recovery, booking) require an itinerary owned by this account. No trip was found, so nothing was invented.',
+      whyThisAr: 'الإجراءات المعتمدة على الرحلة (الصحة، تعديل الجدول، الميزانية، الاستعادة، الحجز) تتطلب خطة مملوكة لهذا الحساب. لم يتم العثور على رحلة، لذلك لم يتم افتراض أي بيانات.',
+      actionType: 'PRACTICAL_TIP',
+      actionRisk: 'READ_ONLY',
+      actionTitle: 'Plan your trip first',
+      actionTitleAr: 'ابدأ بالتخطيط أولاً',
+      mode: 'DISCOVER',
+      parsedIntent,
+      sourceConfidence: {
+        source: 'CURATED_DAHAB_CONTEXT',
+        freshness: 'No trip on this account',
+        confidenceScore: 0.95
+      },
+      suggestedFollowUps: [
+        { textEn: 'Plan my trip', textAr: 'خططها لي', query: 'خططها لي' },
+        { textEn: 'What can I do in Dahab without a plan?', textAr: 'أعمل إيه في دهب من غير خطة؟', query: 'معايا ساعتين وأنا قريب من اللايتهاوس، أعمل إيه؟' }
+      ]
+    };
+  }
+
+  /**
    * Deterministic Action Execution Engine (Mode C: ACT)
    * Enforces permissions, writes to Cloud SQL with audit logs, and returns confirmation.
    */
@@ -1496,12 +1595,29 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
     let messageEn = 'Action executed successfully.';
     let messageAr = 'تم تنفيذ الإجراء بنجاح.';
 
+    // Trip-scoped actions may only target a trip the caller owns (or one an
+    // operator/admin is acting on). The previous defaults ('act-canyon-dive',
+    // 'DHB-TRIP-894', 'SKU-DIV-001') silently operated on the seeded demo
+    // trip when the payload omitted an id, so a traveler's "shift my dive"
+    // could move somebody else's itinerary around.
+    const tripOwnedByCaller = (tripId: string): boolean => {
+      if (userRole === 'Operations' || userRole === 'Admin') return true;
+      const trip = db.trips.find(t => t.id === tripId);
+      return Boolean(trip && trip.userId === userId);
+    };
+
     db.runInTransaction(() => {
       switch (actionKey) {
         case 'APPLY_TRIP_SHIFT': {
-          const { activityId = 'act-canyon-dive', fromDay = 3, toDay = 4, newTimeSlot = '10:00 AM' } = payload;
+          const { activityId, fromDay, toDay, newTimeSlot } = payload;
+          if (!activityId || !fromDay || !toDay || !newTimeSlot) {
+            throw new Error('APPLY_TRIP_SHIFT requires activityId, fromDay, toDay and newTimeSlot.');
+          }
           const tripItem = db.tripItems.find(i => i.id === activityId);
           if (tripItem) {
+            if (!tripOwnedByCaller(tripItem.tripId)) {
+              throw new Error('You may only modify your own trip.');
+            }
             tripItem.dayNumber = toDay;
             tripItem.timeSlot = newTimeSlot;
             tripItem.updatedAt = now;
@@ -1513,7 +1629,13 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
         }
 
         case 'CONFIRM_DIRECT_BOOKING': {
-          const { skuId = 'SKU-DIV-001', tripId = 'DHB-TRIP-894', priceEGP = 2700 } = payload;
+          const { skuId, tripId } = payload;
+          if (!skuId || !tripId) {
+            throw new Error('CONFIRM_DIRECT_BOOKING requires skuId and tripId.');
+          }
+          if (!tripOwnedByCaller(tripId)) {
+            throw new Error('You may only place holds on your own trip.');
+          }
           const hold = commerceService.createHold({
             skuId,
             tripId,
@@ -1521,7 +1643,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             date: new Date().toISOString().split('T')[0],
             timeSlot: '10:00 AM',
             passengersCount: 2,
-            idempotencyKey: `DAYGI-HOLD-${Date.now()}`
+            idempotencyKey: `DAYGI-HOLD-${Date.now()}-${userId}`
           });
           messageEn = `Booking hold confirmed (Ref: ${hold.holdToken}). Ready for checkout.`;
           messageAr = `تم حجز المقعد بنجاح (رقم الحجز: ${hold.holdToken}). جاهز للمتابعة.`;
@@ -1530,7 +1652,13 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
         }
 
         case 'EXECUTE_TRIP_RECOVERY': {
-          const { originalItemId = 'act-canyon-dive', tripId = 'DHB-TRIP-894', alternativeId } = payload;
+          const { originalItemId, tripId } = payload;
+          if (!originalItemId || !tripId) {
+            throw new Error('EXECUTE_TRIP_RECOVERY requires originalItemId and tripId.');
+          }
+          if (!tripOwnedByCaller(tripId)) {
+            throw new Error('You may only run recovery on your own trip.');
+          }
           const substitution = recoveryService.substituteItem({
             tripId,
             originalItemId,
@@ -1539,7 +1667,7 @@ Refine the replyText and replyTextAr while strictly keeping the actionData, acti
             newScheduledTime: '09:00 AM',
             newPriceEGP: 1800,
             reason: 'High northern coastal winds at Canyon',
-            idempotencyKey: `DAYGI-RECOV-${Date.now()}`
+            idempotencyKey: `DAYGI-RECOV-${Date.now()}-${userId}`
           });
           messageEn = `Trip recovery executed: Canyon Dive substituted with Laguna Windsurfing. Price variance reconciled in ledger.`;
           messageAr = `تم استعادة خطة الرحلة: تم استبدال غطسة الكانيون بويند سيرفنج اللاجونا مع تسوية الفرق المالي تلقائياً.`;

@@ -18,6 +18,8 @@ import { MyTripView } from '../mytrip/MyTripView';
 import { CURATED_HOTELS, CURATED_TRANSFERS, CURATED_DIVING_OPTIONS, CURATED_SAFARI_OPTIONS } from '../booking/bookingData';
 import { Compass, Sparkles, X, MapPin, ShieldCheck, Check, Users, Clock, Wallet, HeartHandshake, Gauge } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
+import type { AiGeneratedPlan } from '../itinerary/GeneratedItinerary';
 import { IMG_P1507525428034b723cf961d3e_HERO, IMG_P15103123056538ed496efae75_HERO, IMG_P1539635278303d4002c07eae3_HERO, IMG_P154455176346a013bb70d5_HERO } from '../../shared/placeholderImagery';
 
 interface TripPlannerProps {
@@ -124,6 +126,51 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome, startMod
 
   // Building trip state transition flag
   const [isBuildingTrip, setIsBuildingTrip] = useState<boolean>(false);
+
+  // The AI plan generated while the building screen plays — resolved from
+  // /api/trip/generate and handed to the itinerary screen so the traveler
+  // approves the *actual* generated plan, not a static template. null = the
+  // call failed or hasn't resolved; the itinerary falls back to the compiled
+  // editorial plan shaped by the duration choice.
+  const [aiPlan, setAiPlan] = useState<AiGeneratedPlan | null>(null);
+
+  // Chosen day count — upper bound of the duration option (2–3 → 3, 4–5 → 5,
+  // 6–7 → 7, 8+ → 8). Drives the AI request, the building-screen copy and
+  // the itinerary shaping. Dates entry derives it from the picked range.
+  const durationDays = (() => {
+    if (startDate && endDate) {
+      const diff = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000);
+      if (diff > 0) return Math.min(10, diff);
+    }
+    if (selectedDurationId === '2-3') return 3;
+    if (selectedDurationId === '4-5') return 5;
+    if (selectedDurationId === '6-7') return 7;
+    if (selectedDurationId === '8+') return 8;
+    return 5;
+  })();
+
+  /** Fire the AI generation once, when the building screen mounts. */
+  const handleBuildTrip = () => {
+    setIsBuildingTrip(true);
+    setAiPlan(null);
+    api
+      .generateAiTrip({
+        durationDays,
+        adultsCount,
+        childrenCount,
+        dynamic: tripDynamic || 'Friends',
+        budget: selectedBudget,
+        interests: selectedInterests,
+        pace: selectedPace,
+        language,
+      })
+      .then((result) => {
+        if (result?.trip?.days?.length) setAiPlan(result.trip);
+      })
+      .catch((e) => console.warn('AI trip generation unavailable, using compiled plan:', e));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Personalized Generated Itinerary screen view state
   const [showItinerary, setShowItinerary] = useState<boolean>(false);
   // Dedicated Booking Flow - Step 01: Hotel, Step 02: Transfer, Step 03: Diving, Step 04: Safari, Review, Payment, My Trip
@@ -448,6 +495,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome, startMod
     return (
       <GeneratedItinerary
         durationLabel={selectedDurationLabel}
+        durationOptionId={selectedDurationId}
+        aiPlan={aiPlan}
         adultsCount={adultsCount}
         childrenCount={childrenCount}
         tripDynamic={tripDynamic}
@@ -489,8 +538,8 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome, startMod
     return (
       <BuildingTripState
         durationLabel={selectedDurationLabel}
+        durationDays={durationDays}
         adultsCount={adultsCount}
-        childrenCount={childrenCount}
         tripDynamic={tripDynamic}
         selectedBudget={selectedBudget}
         selectedInterests={selectedInterests}
@@ -667,10 +716,7 @@ export const TripPlanner: React.FC<TripPlannerProps> = ({ onExitToHome, startMod
               <StepPace
                 selectedPace={selectedPace}
                 onSelectPace={setSelectedPace}
-                onBuildTrip={() => {
-                  setIsBuildingTrip(true);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onBuildTrip={handleBuildTrip}
                 onBack={goToPreviousStep}
               />
             )}

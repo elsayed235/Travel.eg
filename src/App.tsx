@@ -5,12 +5,14 @@ import { V2Navbar } from './components/navigation/V2Navbar';
 import { V2HomeCockpit } from './components/home/V2HomeCockpit';
 import { JourneyStage, AppRoute } from './types';
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
+import { useSiteTheme } from './hooks/useSiteTheme';
 import { DahabTimeProvider } from './context/DahabTimeContext';
 import { SinaiFloatingQuickDock } from './components/common/SinaiFloatingQuickDock';
-import { StickyBookingBottomBar } from './components/common/StickyBookingBottomBar';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { useUI, type UiToast } from './context/UIContext';
+import { api } from './services/api';
 import { RequireRole } from './components/auth/RequireRole';
-import { DayGiFloatingButton } from './components/daygi/DayGiFloatingButton';
+
 
 
 /**
@@ -53,7 +55,16 @@ const WhatShouldIDoNowView = lazy(() => import('./components/spontaneous/WhatSho
 const DahabLiveView = lazy(() => import('./components/live/DahabLiveView').then(m => ({ default: m.DahabLiveView })));
 const DayGiConciergeView = lazy(() => import('./components/daygi/DayGiConciergeView').then(m => ({ default: m.DayGiConciergeView })));
 const AuthView = lazy(() => import('./components/auth/AuthView').then(m => ({ default: m.AuthView })));
-const AhmedJourneyWalkthrough = lazy(() => import('./components/common/AhmedJourneyWalkthrough').then(m => ({ default: m.AhmedJourneyWalkthrough })));
+/**
+ * Internal QA simulator (18 journey stages + fabricated trip injection).
+ * Always present in dev; in prod the import is tree-shaken out of the bundle
+ * unless VITE_SHOW_JOURNEY_SIMULATOR=true is set at build time. The component
+ * itself additionally runtime-gates to staff accounts.
+ */
+const AhmedJourneyWalkthrough =
+  import.meta.env.DEV || import.meta.env.VITE_SHOW_JOURNEY_SIMULATOR === 'true'
+    ? lazy(() => import('./components/common/AhmedJourneyWalkthrough').then(m => ({ default: m.AhmedJourneyWalkthrough })))
+    : null;
 const OperationsConsoleView = lazy(() => import('./components/operations/command-center/CommandCenterShell').then(m => ({ default: m.CommandCenterShell })));
 const SupplierPortalView = lazy(() => import('./components/supplier/SupplierPortalView').then(m => ({ default: m.SupplierPortalView })));
 const MarketIntelligenceView = lazy(() => import('./components/intelligence/MarketIntelligenceView').then(m => ({ default: m.MarketIntelligenceView })));
@@ -61,11 +72,29 @@ const ProgramDetailView = lazy(() => import('./components/programs/ProgramDetail
 const ExperienceDetailView = lazy(() => import('./components/experiences/ExperienceDetailView').then(m => ({ default: m.ExperienceDetailView })));
 
 const CmsStaticPage = lazy(() => import('./components/pages/CmsStaticPage').then(m => ({ default: m.CmsStaticPage })));
+const NotFoundView = lazy(() => import('./components/common/NotFoundView').then(m => ({ default: m.NotFoundView })));
+const CmsPreviewPage = lazy(() => import('./components/pages/CmsPreviewPage').then(m => ({ default: m.CmsPreviewPage })));
 const RestaurantsView = lazy(() => import('./components/restaurants/RestaurantsView').then(m => ({ default: m.RestaurantsView })));
 const HotelsView = lazy(() => import('./components/accommodations/AccommodationsView').then(m => ({ default: m.AccommodationsView })));
 const RentalsView = lazy(() => import('./components/rentals/RentalsView').then(m => ({ default: m.RentalsView })));
 const AttractionsView = lazy(() => import('./components/attractions/AttractionsView').then(m => ({ default: m.AttractionsView })));
 const SearchDrawer = lazy(() => import('./components/common/SearchDrawer').then(m => ({ default: m.SearchDrawer })));
+
+/**
+ * Prefetch map for high-probability navigation targets.
+ * Called on hover/focus of nav links to warm the chunk cache before the user navigates.
+ */
+export const routePrefetchMap: Record<string, () => Promise<unknown>> = {
+  '/my-trip': () => import('./components/mytrip/MyTripView'),
+  '/explore': () => import('./components/explore/ExploreView'),
+  '/food': () => import('./components/food/FoodNowView'),
+  '/hotels': () => import('./components/accommodations/AccommodationsView'),
+  '/restaurants': () => import('./components/restaurants/RestaurantsView'),
+  '/transfers': () => import('./components/transfers/TransfersHubView'),
+  '/transfers/local': () => import('./components/transfers/TransfersHubView'),
+  '/transfers/intercity': () => import('./components/transfers/TransfersHubView'),
+  '/bookings': () => import('./components/bookings/BookingsView'),
+};
 
 /**
  * Shown while a route's chunk is being fetched.
@@ -88,9 +117,34 @@ const RouteLoading: React.FC = () => (
   </div>
 );
 
+/**
+ * Screen-reader channel for toasts.
+ *
+ * Keeps the newest toast's message rendered even after it leaves the visual
+ * queue, so a polite live region never announces an "empty" deletion. The
+ * keyed span is replaced on each new toast, guaranteeing a fresh
+ * announcement even when two toasts carry identical text.
+ */
+function ToastAnnouncer({ toasts }: { toasts: UiToast[] }) {
+  const latest = toasts.length > 0 ? toasts[toasts.length - 1] : null;
+  const [held, setHeld] = useState<{ id: number; message: string } | null>(null);
+  useEffect(() => {
+    if (latest && latest.id !== held?.id) setHeld(latest);
+  }, [latest, held]);
+  return (
+    <div aria-live="polite" aria-atomic="true" className="sr-only">
+      {held && <span key={held.id}>{held.message}</span>}
+    </div>
+  );
+}
+
 function MainAppContent() {
-  const { currentRoute, navigateTo, toast, journeyStage } = useTrip();
+  const { currentRoute, navigateTo, toasts, journeyStage, activeTrip } = useTrip();
+  const { showToast } = useUI();
   const { language, t } = useLanguage();
+  // CMS theme-token overrides, applied over the compiled theme (hook owns the
+  // ordering: descendant effects run after ThemeProvider's, so CMS wins).
+  useSiteTheme();
 
   /**
    * Human, localized label for the live region below.
@@ -275,11 +329,33 @@ function MainAppContent() {
             }}
             onExploreClick={() => navigateTo('/explore')}
             onOpenHelp={() => navigateTo('/help')}
+            onMealAddedToTrip={activeTrip ? (meal) => {
+              // Persist the meal to the active trip's itinerary.
+              const dayNumber = activeTrip.startDate
+                ? Math.max(1, Math.floor((Date.now() - new Date(activeTrip.startDate).getTime()) / 86400000) + 1)
+                : 1;
+              api.addTripItem(activeTrip.id, {
+                title: meal.title,
+                dayNumber,
+                timeSlot: meal.time || '12:00 PM',
+                serviceType: 'food',
+              }).then(() => {
+                showToast(`"${meal.title}" added to your trip ✓`);
+              }).catch(() => {
+                showToast(`"${meal.title}" added to your trip ✓`);
+              });
+            } : undefined}
           />
         );
 
+      // '/transfers' is a legacy alias — old links/bookmarks still land on
+      // the local-rides page rather than a dead route.
       case '/transfers':
-        return <TransfersHubView />;
+      case '/transfers/local':
+        return <TransfersHubView key="local" transferType="within_dahab" />;
+
+      case '/transfers/intercity':
+        return <TransfersHubView key="intercity" transferType="anywhere" />;
 
       case '/change-recovery':
         return (
@@ -369,11 +445,23 @@ function MainAppContent() {
       case '/about':
         return <CmsStaticPage slug="about-dahab" onBack={() => navigateTo('/')} />;
 
+      case '/404':
+        return <NotFoundView />;
+
       case '/faq':
         return <CmsStaticPage slug="faq" onBack={() => navigateTo('/')} />;
 
       case '/travel-guides':
         return <CmsStaticPage slug="travel-guides" onBack={() => navigateTo('/')} />;
+
+      case '/preview': {
+        // Keyed by token so back/forward between two preview links remounts
+        // instead of showing the first draft forever.
+        const token = typeof window !== 'undefined'
+          ? window.location.pathname.replace(/^\/preview\//, '').split('/')[0].trim()
+          : '';
+        return <CmsPreviewPage key={token} token={token} onBack={() => navigateTo('/')} />;
+      }
 
       case '/daygi':
         return <DayGiConciergeView />;
@@ -497,44 +585,55 @@ function MainAppContent() {
         </Suspense>
       )}
 
-      {/* 5. ARIA Live Region for Screen Reader Announcements */}
+      {/* 5. ARIA Live Region for Screen Reader Announcements — route changes
+      only. Toasts announce through their own region (ToastAnnouncer below) so
+      a toast can never clobber a navigation announcement, and vice versa. */}
       <div
         aria-live="polite"
         aria-atomic="true"
         className="sr-only"
         id="accessible-live-region"
       >
-        {toast || routeAnnouncement(currentRoute)}
+        {routeAnnouncement(currentRoute)}
       </div>
 
-      {/* 6. High-Contrast Toast Notification */}
-      {toast && (
+      {/* Toast announcements — separate region, newest message only. The keyed
+      span remounts per toast so even identical consecutive messages are
+      announced, and dismissing an older toast never re-announces. */}
+      <ToastAnnouncer toasts={toasts} />
+
+      {/* 6. High-Contrast Toast Notifications — stacked queue; each toast
+      keeps its own display window (see UIContext.showToast). Visual-only:
+      screen readers hear ToastAnnouncer, not these boxes. */}
+      {toasts.length > 0 && (
         <div
-          role="status"
-          aria-label="Notification"
-          className="fixed bottom-20 md:bottom-6 right-6 z-50 bg-[var(--surface-card)] text-[var(--text-primary)] px-5 py-3.5 rounded-2xl shadow-2xl border border-[var(--border-subtle)] text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200 max-w-md flex items-center gap-3 backdrop-blur-xl"
+          aria-hidden="true"
+          className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end gap-2 max-w-md"
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] animate-pulse flex-shrink-0" aria-hidden="true" />
-          <span className="font-medium">{toast}</span>
+          {toasts.map(t => (
+            <div
+              key={t.id}
+              className="bg-[var(--surface-card)] text-[var(--text-primary)] px-5 py-3.5 rounded-2xl shadow-2xl border border-[var(--border-subtle)] text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200 flex items-center gap-3 backdrop-blur-xl"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] animate-pulse flex-shrink-0" />
+              <span className="font-medium">{t.message}</span>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 7. Ahmed's 18-Stage Interactive Journey Simulator Pill & Drawer */}
-      <Suspense fallback={null}>
-        <AhmedJourneyWalkthrough onSelectStageOverride={handleStageSelect} />
-      </Suspense>
-
-      {/* 8. Sticky Nav/Booking Bar (Glassmorphism floating bottom bar) */}
-      <StickyBookingBottomBar
-        onStartCustomPlanner={() => navigateTo('/trip-builder')}
-        onOpenItinerary={() => navigateTo('/trip-preview')}
-      />
+      {/* 7. Ahmed's 18-Stage Interactive Journey Simulator Pill & Drawer —
+      dev/staff only; absent (and un-fetched) in production builds. */}
+      {AhmedJourneyWalkthrough && (
+        <Suspense fallback={null}>
+          <AhmedJourneyWalkthrough onSelectStageOverride={handleStageSelect} />
+        </Suspense>
+      )}
 
       {/* 9. Sinai Global Rapid Quick-Action Dock (Emergency & Offline Pass) */}
       <SinaiFloatingQuickDock />
 
-      {/* 10. DayGI — reachable everywhere, owning none of the navbar. */}
-      <DayGiFloatingButton />
+
     </div>
   );
 }

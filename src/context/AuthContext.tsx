@@ -38,6 +38,16 @@ export interface SessionUser {
   /** From the stored user record. Empty when the account has none. */
   phone: string;
   role: AuthRole;
+  /**
+   * For role 'Supplier': the SupplierEntity this account acts for, mirroring
+   * UserEntity.supplierId on the server.
+   *
+   * Carried through so supplier surfaces can scope themselves to the account
+   * that is actually signed in. Without it the Supplier Portal had no way to
+   * know who it was rendering for and fell back to a hardcoded 'SUP-SHUTTLE-01',
+   * showing every supplier the same fleet.
+   */
+  supplierId?: string;
   source: 'firebase' | 'password';
 }
 
@@ -117,6 +127,7 @@ export const AuthProvider: React.FC<{
           email: result.user.email,
           name: result.user.name,
           phone: result.user.phone || '',
+          supplierId: result.user.supplierId,
           role: (result.user.role as AuthRole) || 'Traveler',
           source: 'password'
         });
@@ -168,6 +179,7 @@ export const AuthProvider: React.FC<{
             email: result?.user?.email || currentUser.email || '',
             name: result?.user?.name || currentUser.displayName || '',
             phone: result?.user?.phone || '',
+            supplierId: result?.user?.supplierId,
             role,
             source: 'firebase'
           });
@@ -279,6 +291,7 @@ export const AuthProvider: React.FC<{
         email: result.user.email,
         name: result.user.name,
         phone: result.user.phone || '',
+        supplierId: result.user.supplierId,
         role,
         source: 'password'
       });
@@ -308,6 +321,7 @@ export const AuthProvider: React.FC<{
         email: result.user.email,
         name: result.user.name,
         phone: result.user.phone || '',
+        supplierId: result.user.supplierId,
         role,
         source: 'password'
       });

@@ -7,10 +7,15 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
+  /* Luxury Re-Skin type system. Cormorant is the Latin display serif
+     (skill direction), Montserrat the body face; Arabic glyphs always fall
+     through to Alexandria (body) / El Messiri (display serif) — Cormorant
+     and Montserrat have no Arabic coverage, and the [dir=rtl] rules below
+     force Alexandria/El Messiri on Arabic runs regardless. */
   --font-serif: 'El Messiri', Georgia, serif;
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Outfit', sans-serif;
-  --font-chart: 'Chakra Petch', 'Alexandria', sans-serif;
+  --font-sans: 'Montserrat', 'Alexandria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Cormorant', 'El Messiri', Georgia, serif;
+  --font-chart: 'Cormorant', 'Alexandria', serif;
   --font-arabic: 'Alexandria', -apple-system, sans-serif;
   --font-arabic-display: 'Alexandria', sans-serif;
   --font-arabic-body: 'Alexandria', sans-serif;
@@ -47,11 +52,12 @@
   --color-accent-primary: var(--accent-primary);
   --color-border-subtle: var(--border-subtle);
 
-  /* Deep Red Sea & Night Foundations */
-  --color-dahab-night: #04171D;
-  --color-dahab-deepsea: #062C35;
-  --color-dahab-deepsea-light: #0A3A46;
-  --color-dahab-deepsea-surface: #104957;
+  /* Deep Warm Stone & Night Foundations (Luxury Re-Skin: skill palette
+     #1C1917 stone ink / #A16207 gold / #FAFAF9 paper, adapted per theme) */
+  --color-dahab-night: #141311;
+  --color-dahab-deepsea: #1C1917;
+  --color-dahab-deepsea-light: #201D1A;
+  --color-dahab-deepsea-surface: #2A2622;
   
   /* Red Sea Water & Lagoon */
   --color-dahab-teal: #0F6F78;
@@ -62,10 +68,10 @@
   --color-dahab-lagoon-soft: #D5F3EF;
   --color-dahab-lagoon-dark: #15796E;
 
-  /* Sinai Sand & Desert Granites */
-  --color-dahab-offwhite: #F7F3EA;
-  --color-dahab-sand-canvas: #F8F5EE;
-  --color-dahab-sand-soft: #EFE8D8;
+  /* Sinai Sand & Warm Paper */
+  --color-dahab-offwhite: #FAF9F6;
+  --color-dahab-sand-canvas: #F6F3EC;
+  --color-dahab-sand-soft: #EFEBE2;
   --color-dahab-sand: #E7D3AE;
   --color-dahab-warmsand: #C7A56A;
   --color-dahab-sand-dark: #8F7242;
@@ -76,28 +82,30 @@
   --color-dahab-coral-light: #EA8E75;
   --color-dahab-coral-soft: #FCECE8;
 
-  /* Sinai Sun Gold & Premium Highlights */
-  --color-dahab-gold: #E7A83B;
-  --color-dahab-gold-dark: #A86F14;
-  --color-dahab-gold-light: #F4C36C;
-  --color-dahab-gold-soft: #FDF4E3;
+  /* Gold Fire & Premium Highlights (deeper than the old amber so fills
+     hold ink text at 4.5:1+ and text-on-paper resolves to bronze via the
+     light-theme rescues) */
+  --color-dahab-gold: #C8933D;
+  --color-dahab-gold-dark: #8F6413;
+  --color-dahab-gold-light: #E9C47F;
+  --color-dahab-gold-soft: #F6EDDA;
 
-  /* Typography Ink & Contrast Scales */
-  --color-dahab-ink: #142126;
-  --color-dahab-ink-secondary: #3D4E55;
-  --color-dahab-ink-muted: #6B7C83;
-  --color-dahab-ink-subtle: #9AA8AE;
-  --color-dahab-ink-light: #F7F3EA;
+  /* Typography Ink & Contrast Scales (stone, skill #1C1917 family) */
+  --color-dahab-ink: #1C1917;
+  --color-dahab-ink-secondary: #57534E;
+  --color-dahab-ink-muted: #78716C;
+  --color-dahab-ink-subtle: #A8A29E;
+  --color-dahab-ink-light: #F5F2EC;
 
   /* Semantic Direct Mapping */
-  --color-ocean-deep: #04171D;
-  --color-ocean-dark: #062C35;
-  --color-ocean-card: #0A3A46;
-  --color-ocean-surface: #104957;
+  --color-ocean-deep: #141311;
+  --color-ocean-dark: #1C1917;
+  --color-ocean-card: #201D1A;
+  --color-ocean-surface: #2A2622;
 
-  --color-sinai-sand: #F7F3EA;
-  --color-sinai-ivory: #FAF7F0;
-  --color-sinai-warm: #EFE8D8;
+  --color-sinai-sand: #FAF9F6;
+  --color-sinai-ivory: #FBFAF7;
+  --color-sinai-warm: #EFEBE2;
   
   --color-teal-primary: #0F6F78;
   --color-teal-deep: #0A535A;
@@ -111,44 +119,55 @@
 /* 0. NEW DARK STYLE: Charcoal Minimal #1F1F1F (2026) */
 :root[data-theme-id="charcoal-minimal"],
 [data-theme-id="charcoal-minimal"] {
-  --bg-canvas: #1F1F1F;
-  --surface-card: #292929;
-  --surface-container: #333333;
-  --text-primary: #FFFFFF;
-  --text-secondary: #D1D5DB;
-  --accent-primary: #38BDF8;
-  --accent-secondary: #F6C36E;
+  /* Stone Noir: warm stone-black + gold (Luxury Re-Skin) */
+  --bg-canvas: #141311;
+  --surface-card: #201D1A;
+  --surface-container: #2A2622;
+  --text-primary: #F5F2EC;
+  --text-secondary: #C9C2B8;
+  --accent-primary: #C8933D;
+  --accent-secondary: #C9A24B;
   /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #08110F;
-  --accent-secondary-ink: #08110F;
-  --focus-ring: #38BDF8;
-  --border-subtle: rgba(255, 255, 255, 0.12);
-  --header-bg: rgba(31, 31, 31, 0.88);
-  --header-border: rgba(255, 255, 255, 0.12);
-  --header-pill-bg: rgba(51, 51, 51, 0.80);
-  --header-pill-border: rgba(255, 255, 255, 0.14);
-  --header-pill-active: rgba(56, 189, 248, 0.25);
-  --header-pill-active-text: #38BDF8;
-  --btn-book-bg: #38BDF8;
-  --btn-book-hover: #0284C7;
-  --btn-book-text: #020606;
+  --accent-primary-ink: #1A1408;
+  --accent-secondary-ink: #1A1408;
+  --focus-ring: #C8933D;
+  --border-subtle: rgba(245, 242, 236, 0.14);
+  --header-bg: rgba(20, 19, 17, 0.88);
+  --header-border: rgba(201, 147, 61, 0.18);
+  --header-pill-bg: rgba(42, 38, 34, 0.82);
+  --header-pill-border: rgba(201, 147, 61, 0.24);
+  --header-pill-active: rgba(200, 147, 61, 0.28);
+  --header-pill-active-text: #E9C47F;
+  --btn-book-bg: #C8933D;
+  --btn-book-hover: #B97F2E;
+  --btn-book-text: #1A1408;
   --btn-util-bg: rgba(255, 255, 255, 0.08);
   --btn-util-hover: rgba(255, 255, 255, 0.15);
-  --btn-util-text: #FFFFFF;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.50);
+  --btn-util-text: #F5F2EC;
+  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  /* Aurora UI Extended Tokens */
+  --aurora-primary: #C8933D;
+  --aurora-secondary: #E9C47F;
+  --aurora-accent: #A16207;
+  --aurora-glow: rgba(200, 147, 61, 0.22);
+  --aurora-warm: rgba(200, 147, 61, 0.16);
+  --aurora-success: #10B981;
+  --aurora-warning: #F59E0B;
+  --aurora-error: #EF4444;
 
   /* Legacy Compat Tokens */
   --surface-canvas: var(--bg-canvas);
   --surface-elevated: var(--surface-container);
-  --surface-warm: #383838;
-  --surface-dark: #171717;
-  --brand-primary: #38BDF8;
-  --brand-secondary: #0284C7;
-  --brand-accent: #F6C36E;
+  --surface-warm: #38322C;
+  --surface-dark: #0E0D0C;
+  --brand-primary: #C8933D;
+  --brand-secondary: #B97F2E;
+  --brand-accent: #E9C47F;
   --brand-coral: #FB7185;
-  --brand-sand: #FDE68A;
-  --text-muted: #9CA3AF;
-  --text-inverse: #1F1F1F;
+  --brand-sand: #E7D3AE;
+  --text-muted: #A8A29E;
+  --text-inverse: #141311;
 }
 
 /* 1. DARK STYLE 1: OLED Cyber Emerald 2026 */
@@ -157,88 +176,89 @@
 :root[data-theme-id="deep-reef"],
 [data-theme-id="deep-reef"],
 .dark {
-  --bg-canvas: #050B0A;
-  --surface-card: #0A1513;
-  --surface-container: #11221F;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --accent-primary: #10B981;
-  --accent-secondary: #F59E0B;
+  /* Black Olive + gold (Luxury Re-Skin dark default) */
+  --bg-canvas: #14160F;
+  --surface-card: #1E2118;
+  --surface-container: #282C20;
+  --text-primary: #F5F4EE;
+  --text-secondary: #C4C7BB;
+  --accent-primary: #C8933D;
+  --accent-secondary: #C9A24B;
   /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #08110F;
-  --accent-secondary-ink: #08110F;
-  --focus-ring: #10B981;
-  --border-subtle: rgba(16, 185, 129, 0.14);
-  --header-bg: rgba(5, 11, 10, 0.85);
-  --header-border: rgba(16, 185, 129, 0.15);
-  --header-pill-bg: rgba(17, 34, 31, 0.80);
-  --header-pill-border: rgba(16, 185, 129, 0.18);
-  --header-pill-active: rgba(16, 185, 129, 0.25);
-  --header-pill-active-text: #34D399;
-  --btn-book-bg: #10B981;
-  --btn-book-hover: #059669;
-  --btn-book-text: #020606;
+  --accent-primary-ink: #1A1408;
+  --accent-secondary-ink: #1A1408;
+  --focus-ring: #C8933D;
+  --border-subtle: rgba(245, 244, 238, 0.14);
+  --header-bg: rgba(20, 22, 15, 0.88);
+  --header-border: rgba(201, 147, 61, 0.18);
+  --header-pill-bg: rgba(40, 44, 32, 0.82);
+  --header-pill-border: rgba(201, 147, 61, 0.24);
+  --header-pill-active: rgba(200, 147, 61, 0.28);
+  --header-pill-active-text: #E9C47F;
+  --btn-book-bg: #C8933D;
+  --btn-book-hover: #B97F2E;
+  --btn-book-text: #1A1408;
   --btn-util-bg: rgba(255, 255, 255, 0.08);
   --btn-util-hover: rgba(255, 255, 255, 0.14);
-  --btn-util-text: #F8FAFC;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.75);
+  --btn-util-text: #F5F4EE;
+  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.70);
 
   /* Legacy Compat Tokens */
   --surface-canvas: var(--bg-canvas);
   --surface-elevated: var(--surface-container);
-  --surface-warm: #132A26;
-  --surface-dark: #020605;
-  --brand-primary: #10B981;
-  --brand-secondary: #34D399;
-  --brand-accent: #F59E0B;
+  --surface-warm: #2B2F23;
+  --surface-dark: #0C0D09;
+  --brand-primary: #C8933D;
+  --brand-secondary: #E9C47F;
+  --brand-accent: #C9A24B;
   --brand-coral: #FB7185;
-  --brand-sand: #FDE68A;
-  --text-muted: #64748B;
-  --text-inverse: #020606;
+  --brand-sand: #E7D3AE;
+  --text-muted: #A9AD9F;
+  --text-inverse: #14160F;
 }
 
 /* 2. DARK STYLE 2: Sinai Cyber Cobalt 2026 */
 :root[data-theme-id="sinai-midnight"],
 [data-theme-id="sinai-midnight"] {
-  --bg-canvas: #040711;
-  --surface-card: #081022;
-  --surface-container: #0F1E3D;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --accent-primary: #06B6D4;
-  /* was #8B5CF6 — 4.48:1 on this theme's cards, just under AA */
-  --accent-secondary: #A78BFA;
+  /* Midnight Stone: cool-black + gold (Luxury Re-Skin) */
+  --bg-canvas: #131418;
+  --surface-card: #1D1F26;
+  --surface-container: #272A33;
+  --text-primary: #F4F5F7;
+  --text-secondary: #C2C6CF;
+  --accent-primary: #C8933D;
+  --accent-secondary: #C9A24B;
   /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #08110F;
-  --accent-secondary-ink: #08110F;
-  --focus-ring: #06B6D4;
-  --border-subtle: rgba(6, 182, 212, 0.15);
-  --header-bg: rgba(4, 7, 17, 0.85);
-  --header-border: rgba(6, 182, 212, 0.15);
-  --header-pill-bg: rgba(15, 30, 61, 0.80);
-  --header-pill-border: rgba(6, 182, 212, 0.18);
-  --header-pill-active: rgba(6, 182, 212, 0.25);
-  --header-pill-active-text: #38BDF8;
-  --btn-book-bg: #06B6D4;
-  --btn-book-hover: #0891B2;
-  --btn-book-text: #020606;
+  --accent-primary-ink: #1A1408;
+  --accent-secondary-ink: #1A1408;
+  --focus-ring: #C8933D;
+  --border-subtle: rgba(244, 245, 247, 0.14);
+  --header-bg: rgba(19, 20, 24, 0.88);
+  --header-border: rgba(201, 147, 61, 0.18);
+  --header-pill-bg: rgba(39, 42, 51, 0.82);
+  --header-pill-border: rgba(201, 147, 61, 0.24);
+  --header-pill-active: rgba(200, 147, 61, 0.28);
+  --header-pill-active-text: #E9C47F;
+  --btn-book-bg: #C8933D;
+  --btn-book-hover: #B97F2E;
+  --btn-book-text: #1A1408;
   --btn-util-bg: rgba(255, 255, 255, 0.08);
   --btn-util-hover: rgba(255, 255, 255, 0.14);
-  --btn-util-text: #F8FAFC;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.80);
+  --btn-util-text: #F4F5F7;
+  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.75);
 
   /* Legacy Compat Tokens */
   --surface-canvas: var(--bg-canvas);
   --surface-elevated: var(--surface-container);
-  --surface-warm: #142852;
-  --surface-dark: #020308;
-  --brand-primary: #06B6D4;
-  --brand-secondary: #38BDF8;
-  --brand-accent: #8B5CF6;
+  --surface-warm: #33353F;
+  --surface-dark: #0E0F13;
+  --brand-primary: #C8933D;
+  --brand-secondary: #E9C47F;
+  --brand-accent: #C9A24B;
   --brand-coral: #F43F5E;
-  --brand-sand: #E2E8F0;
-  --text-muted: #64748B;
-  --text-inverse: #020606;
+  --brand-sand: #E7D3AE;
+  --text-muted: #A8ADB8;
+  --text-inverse: #131418;
 }
 
 /* 3. LIGHT STYLE 1: Editorial Sand (Accessible AAA) */
@@ -246,88 +266,88 @@
 :root[data-theme-id="editorial-sand"],
 [data-theme-id="editorial-sand"],
 .light {
-  --bg-canvas: #FAF8F3;
+  /* Warm Paper + deep gold (Luxury Re-Skin light default; skill #A16207) */
+  --bg-canvas: #FAF9F6;
   --surface-card: #FFFFFF;
-  --surface-container: #EFEAE0;
-  --text-primary: #091815;
-  --text-secondary: #2E4943;
-  --accent-primary: #0A1A17;
-  /* was #0D9488 — 3.53:1 on this theme's own canvas, 3.74:1 on its cards */
-  --accent-secondary: #0F766E;
+  --surface-container: #F1EFE9;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --accent-primary: #A16207;
+  --accent-secondary: #8F6413;
   /* Foreground for anything sitting ON the accents above. */
   --accent-primary-ink: #FFFFFF;
   --accent-secondary-ink: #FFFFFF;
-  --focus-ring: #0A1A17;
-  --border-subtle: rgba(10, 26, 23, 0.12);
-  --header-bg: rgba(250, 248, 243, 0.88);
-  --header-border: rgba(10, 26, 23, 0.12);
-  --header-pill-bg: rgba(239, 234, 224, 0.95);
-  --header-pill-border: rgba(10, 26, 23, 0.12);
-  --header-pill-active: #0A1A17;
-  --header-pill-active-text: #FAF8F3;
-  --btn-book-bg: #0A1A17;
-  --btn-book-hover: #14312B;
-  --btn-book-text: #FAF8F3;
-  --btn-util-bg: rgba(10, 26, 23, 0.07);
-  --btn-util-hover: rgba(10, 26, 23, 0.14);
-  --btn-util-text: #091815;
-  --shadow-ambient: 0 12px 36px rgba(10, 26, 23, 0.08);
+  --focus-ring: #A16207;
+  --border-subtle: rgba(28, 25, 23, 0.14);
+  --header-bg: rgba(250, 249, 246, 0.90);
+  --header-border: rgba(28, 25, 23, 0.12);
+  --header-pill-bg: rgba(241, 239, 233, 0.95);
+  --header-pill-border: rgba(28, 25, 23, 0.12);
+  --header-pill-active: #A16207;
+  --header-pill-active-text: #FFFFFF;
+  --btn-book-bg: #A16207;
+  --btn-book-hover: #8A5206;
+  --btn-book-text: #FFFFFF;
+  --btn-util-bg: rgba(28, 25, 23, 0.07);
+  --btn-util-hover: rgba(28, 25, 23, 0.13);
+  --btn-util-text: #1C1917;
+  --shadow-ambient: 0 12px 36px rgba(28, 25, 23, 0.09);
 
   /* Legacy Compat Tokens */
   --surface-canvas: var(--bg-canvas);
   --surface-elevated: var(--surface-container);
-  --surface-warm: #EAE3D5;
+  --surface-warm: #ECE7DC;
   --surface-dark: #FFFFFF;
-  --brand-primary: #0F766E;
-  --brand-secondary: #0D9488;
-  --brand-accent: #0A1A17;
-  --brand-coral: #C2410C;
-  --brand-sand: #78350F;
-  --text-muted: #475569;
+  --brand-primary: #A16207;
+  --brand-secondary: #8F6413;
+  --brand-accent: #C8933D;
+  --brand-coral: #B45309;
+  --brand-sand: #8F6413;
+  --text-muted: #57534E;
   --text-inverse: #FFFFFF;
 }
 
 /* 4. LIGHT STYLE 2: Lagoon Breeze (Accessible AAA) */
 :root[data-theme-id="lagoon-breeze"],
 [data-theme-id="lagoon-breeze"] {
-  --bg-canvas: #F0F8F8;
+  /* Lagoon Paper: warm lagoon wash, gold actions, teal links kept (live ink) */
+  --bg-canvas: #F4FAF9;
   --surface-card: #FFFFFF;
-  --surface-container: #DCEEEE;
-  --text-primary: #06262A;
-  --text-secondary: #1C545C;
-  --accent-primary: #0F766E;
-  /* was #0284C7 — 3.80:1 on canvas, 4.10:1 on cards */
-  --accent-secondary: #0369A1;
+  --surface-container: #E3EFEE;
+  --text-primary: #0E2A2D;
+  --text-secondary: #2E5A60;
+  --accent-primary: #A16207;
+  --accent-secondary: #0F766E;
   /* Foreground for anything sitting ON the accents above. */
   --accent-primary-ink: #FFFFFF;
   --accent-secondary-ink: #FFFFFF;
-  --focus-ring: #0F766E;
-  --border-subtle: rgba(15, 118, 110, 0.15);
-  --header-bg: rgba(240, 248, 248, 0.88);
-  --header-border: rgba(15, 118, 110, 0.15);
-  --header-pill-bg: rgba(220, 238, 238, 0.95);
-  --header-pill-border: rgba(15, 118, 110, 0.15);
-  --header-pill-active: #0F766E;
+  --focus-ring: #A16207;
+  --border-subtle: rgba(15, 118, 110, 0.16);
+  --header-bg: rgba(244, 250, 249, 0.90);
+  --header-border: rgba(15, 118, 110, 0.16);
+  --header-pill-bg: rgba(227, 239, 238, 0.95);
+  --header-pill-border: rgba(15, 118, 110, 0.18);
+  --header-pill-active: #A16207;
   --header-pill-active-text: #FFFFFF;
-  --btn-book-bg: #0F766E;
-  --btn-book-hover: #0D6861;
+  --btn-book-bg: #A16207;
+  --btn-book-hover: #8A5206;
   --btn-book-text: #FFFFFF;
   --btn-util-bg: rgba(15, 118, 110, 0.08);
   --btn-util-hover: rgba(15, 118, 110, 0.16);
-  --btn-util-text: #06262A;
+  --btn-util-text: #0E2A2D;
   --shadow-ambient: 0 12px 36px rgba(15, 118, 110, 0.10);
 
   /* Legacy Compat Tokens */
   --surface-canvas: var(--bg-canvas);
   --surface-elevated: var(--surface-container);
-  --surface-warm: #CCECEC;
+  --surface-warm: #D7EAE8;
   --surface-dark: #FFFFFF;
-  --brand-primary: #0F766E;
-  --brand-secondary: #0284C7;
-  --brand-accent: #0F766E;
-  --brand-coral: #E11D48;
-  --brand-sand: #64748B;
-  --text-muted: #334155;
+  --brand-primary: #A16207;
+  --brand-secondary: #0F766E;
+  --brand-accent: #C8933D;
+  --brand-coral: #C2410C;
+  --brand-sand: #0F766E;
+  --text-muted: #47666B;
   --text-inverse: #FFFFFF;
 }
 
@@ -372,6 +392,165 @@
   --brand-sand: #FFFFFF;
   --text-muted: #E5E5E5;
   --text-inverse: #000000;
+}
+
+/* ==========================================================================
+   THE LIVING CHART — INSTRUMENT LAYER (Sinai 2027)
+
+   Design direction: the interface is a live field instrument for the Red Sea.
+   This layer adds the tokens the certified Luxury Re-Skin did not have:
+   contour lines, motion durations/easings, the five-tier environmental glass
+   material system, and the wind-angle ambient property. Everything derives
+   from the active theme's existing variables, so all six themes inherit it
+   with zero per-theme overrides.
+
+   Binding contracts (LIVING_CHART_DESIGN_SPEC.md):
+   - Rarity budget: max 1 vivid + 2 frosted glass surfaces per viewport.
+   - Conflict rule: usability > glass · performance > glass · accessibility > glass.
+   - Reduced motion collapses every effect to its final static state.
+   - High-contrast mode renders zero transparency (--glass-mode: solid).
+   ========================================================================== */
+
+:root {
+  /* 1. Motion tokens (spec §2.3). Existing chart-card/CTA transitions already
+     use the same cubic-bezier; these tokens make it the named standard. */
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 450ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 2. Wind-angle ambient property: registered so the angle animates on the
+     compositor. JS (marine telemetry poll) sets it; CSS reads it. Initial
+     value is a calm ENE breeze — replaced by real telemetry when available,
+     never faked: without data the angle simply does not change. */
+  --wind-angle: 65deg;
+
+  /* 3. Contour hairlines (spec §2.1): dune-strata lines drawn from the theme's
+     own text color so dark themes get bone lines and light themes stone. */
+  --contour-line: color-mix(in srgb, var(--text-primary) 12%, transparent);
+  --contour-line-soft: color-mix(in srgb, var(--text-primary) 8%, transparent);
+
+  /* 4. Five-tier environmental glass (spec §4.1). Each tier is a full recipe:
+     tint + blur + border + top highlight. `--glass-tint` derives from the
+     theme surface so dark themes smoke and light themes air out. */
+  --glass-mode: glass;                       /* high-contrast flips to 'solid' */
+  --glass-tint: color-mix(in srgb, var(--surface-card) 86%, var(--text-primary) 3%);
+
+  /* Tier 1 — solid: the default. No transparency anywhere. */
+  --glass-none-bg: var(--surface-card);
+  --glass-none-backdrop: none;
+  --glass-none-border: var(--border-subtle);
+
+  /* Tier 2 — soft translucent: section plates over imagery. */
+  --glass-soft-bg: color-mix(in srgb, var(--glass-tint) 88%, transparent);
+  --glass-soft-backdrop: blur(8px);
+  --glass-soft-border: color-mix(in srgb, var(--border-subtle) 90%, transparent);
+
+  /* Tier 3 — frosted: nav, search, instruments, modals. */
+  --glass-frost-bg: color-mix(in srgb, var(--glass-tint) 74%, transparent);
+  --glass-frost-backdrop: blur(14px) saturate(1.15);
+  --glass-frost-border: color-mix(in srgb, rgba(242, 237, 223, 0.14) 70%, var(--border-subtle));
+
+  /* Tier 4 — high-priority: floating actions, active instruments. */
+  --glass-vivid-bg: color-mix(in srgb, var(--glass-tint) 62%, transparent);
+  --glass-vivid-backdrop: blur(16px) saturate(1.25);
+  --glass-vivid-border: color-mix(in srgb, rgba(242, 237, 223, 0.22) 80%, var(--border-subtle));
+
+  /* Tier 5 — rare cinematic: the ONE hero plate. Tier 4 + controlled
+     reflection. Allowed exactly once per viewport (enforced by review). */
+  --glass-cinema-bg: color-mix(in srgb, var(--glass-tint) 58%, transparent);
+  --glass-cinema-backdrop: blur(18px) saturate(1.3);
+  --glass-cinema-border: color-mix(in srgb, rgba(242, 237, 223, 0.26) 85%, var(--border-subtle));
+}
+
+/* 5. Glass utility classes. Consumers opt in per surface; nothing changes
+   visually until a component adopts a tier — this is infrastructure. */
+.glass-plate {
+  background: var(--glass-none-bg);
+  border: 1px solid var(--glass-none-border);
+}
+.glass-soft {
+  background: var(--glass-soft-bg);
+  backdrop-filter: var(--glass-soft-backdrop);
+  -webkit-backdrop-filter: var(--glass-soft-backdrop);
+  border: 1px solid var(--glass-soft-border);
+}
+.glass-frost {
+  background: var(--glass-frost-bg);
+  backdrop-filter: var(--glass-frost-backdrop);
+  -webkit-backdrop-filter: var(--glass-frost-backdrop);
+  border: 1px solid var(--glass-frost-border);
+  box-shadow: 0 8px 32px -8px rgba(12, 11, 10, 0.35), inset 0 1px 0 rgba(242, 237, 223, 0.10);
+}
+.glass-vivid {
+  background: var(--glass-vivid-bg);
+  backdrop-filter: var(--glass-vivid-backdrop);
+  -webkit-backdrop-filter: var(--glass-vivid-backdrop);
+  border: 1px solid var(--glass-vivid-border);
+  box-shadow: 0 10px 40px -10px rgba(12, 11, 10, 0.45), inset 0 1px 0 rgba(242, 237, 223, 0.16);
+}
+.glass-cinema {
+  background: var(--glass-cinema-bg);
+  backdrop-filter: var(--glass-cinema-backdrop);
+  -webkit-backdrop-filter: var(--glass-cinema-backdrop);
+  border: 1px solid var(--glass-cinema-border);
+  box-shadow:
+    0 12px 48px -12px rgba(12, 11, 10, 0.5),
+    inset 0 1px 0 rgba(242, 237, 223, 0.2),
+    /* The one controlled reflection: a single top-edge specular band. */
+    linear-gradient(180deg, rgba(242, 237, 223, 0.06) 0%, transparent 18%);
+}
+
+/* 6. Accessibility fallbacks (spec §4.5).
+   High-contrast Pro: zero transparency — every tier collapses to solid. */
+.a11y-high-contrast {
+  --glass-mode: solid;
+}
+.a11y-high-contrast .glass-soft,
+.a11y-high-contrast .glass-frost,
+.a11y-high-contrast .glass-vivid,
+.a11y-high-contrast .glass-cinema {
+  background: var(--surface-card);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: var(--border-subtle);
+}
+
+/* Low-end browsers without backdrop-filter: tint-only surfaces, borders kept. */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-soft, .glass-frost, .glass-vivid, .glass-cinema {
+    background: var(--surface-card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* 7. Dune contour layer (spec §1): layered hairline strata, RTL-safe,
+   static (no animation → no reduced-motion debt). Paint as a background
+   image on any surface: `.contour-field`. */
+.contour-field {
+  background-image:
+    repeating-linear-gradient(
+      175deg,
+      transparent 0px,
+      transparent 26px,
+      var(--contour-line-soft) 26px,
+      var(--contour-line-soft) 27px
+    ),
+    repeating-linear-gradient(
+      178deg,
+      transparent 0px,
+      transparent 64px,
+      var(--contour-line) 64px,
+      var(--contour-line) 65px
+    );
+}
+
+/* 8. Instrument reading text: every live number renders in mono, tabular. */
+.dg-reading {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 /* ==========================================================================
@@ -455,6 +634,69 @@ body {
 [data-theme-id="charcoal-minimal"] .bg-slate-800,
 [data-theme-id="charcoal-minimal"] .bg-zinc-800,
 [data-theme-id="charcoal-minimal"] .bg-gray-800 {
+  background-color: var(--surface-container) !important;
+}
+
+/* --------------------------------------------------------------------------
+   1b. LUXURY RE-SKIN: NEW STONE HEXES USED AS LITERAL BACKGROUNDS
+
+   The re-skin moved the world to warm stone (#141311 canvas / #1C1917 card /
+   #2A2622 container and the per-theme olive/midnight variants). Components
+   that still spell these as literal classes get the same cross-theme rescue
+   the legacy darks above receive: charcoal folds them into its own tiers, and
+   light themes lift them off stone onto theme surfaces.
+   -------------------------------------------------------------------------- */
+[data-theme-id="charcoal-minimal"] .bg-\[\#141311\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#131418\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#14160F\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#0E0D0C\] {
+  background-color: var(--bg-canvas) !important;
+}
+
+[data-theme-id="charcoal-minimal"] .bg-\[\#1C1917\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#201D1A\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#1E2118\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#1D1F26\] {
+  background-color: var(--surface-card) !important;
+}
+
+[data-theme-id="charcoal-minimal"] .bg-\[\#2A2622\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#282C20\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#272A33\],
+[data-theme-id="charcoal-minimal"] .bg-\[\#33353F\] {
+  background-color: var(--surface-container) !important;
+}
+
+[data-theme="light"] .bg-\[\#141311\],
+[data-theme="light"] .bg-\[\#131418\],
+[data-theme="light"] .bg-\[\#14160F\],
+[data-theme="light"] .bg-\[\#0E0D0C\],
+.light .bg-\[\#141311\],
+.light .bg-\[\#131418\],
+.light .bg-\[\#14160F\],
+.light .bg-\[\#0E0D0C\] {
+  background-color: var(--bg-canvas) !important;
+}
+
+[data-theme="light"] .bg-\[\#1C1917\],
+[data-theme="light"] .bg-\[\#201D1A\],
+[data-theme="light"] .bg-\[\#1E2118\],
+[data-theme="light"] .bg-\[\#1D1F26\],
+.light .bg-\[\#1C1917\],
+.light .bg-\[\#201D1A\],
+.light .bg-\[\#1E2118\],
+.light .bg-\[\#1D1F26\] {
+  background-color: var(--surface-card) !important;
+}
+
+[data-theme="light"] .bg-\[\#2A2622\],
+[data-theme="light"] .bg-\[\#282C20\],
+[data-theme="light"] .bg-\[\#272A33\],
+[data-theme="light"] .bg-\[\#33353F\],
+.light .bg-\[\#2A2622\],
+.light .bg-\[\#282C20\],
+.light .bg-\[\#272A33\],
+.light .bg-\[\#33353F\] {
   background-color: var(--surface-container) !important;
 }
 
@@ -898,6 +1140,43 @@ body {
 
 
 /* --------------------------------------------------------------------------
+   3c. LUXURY RE-SKIN: NEW GOLD FAMILY USED AS TEXT
+
+   Gold is a FILL color in the re-skin (CTAs, badges, waypoints). Used as text
+   it collapses on a light ground: #C8933D on #FFFFFF is 2.4:1. On light
+   themes gold text resolves to bronze (#7A5E30, 4.9:1+ on every light ground
+   the app renders); on dark themes bronze text resolves to light gold
+   (#D9A94E, 7:1+ on every dark canvas). Same exclusion principle as 3b: an
+   element that declares its own gold background has chosen its foreground.
+   -------------------------------------------------------------------------- */
+[data-theme="light"] .text-\[\#C8933D\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+[data-theme="light"] .text-\[\#D9A94E\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+[data-theme="light"] .text-\[\#E3B25A\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+[data-theme="light"] .text-\[\#E9C47F\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+[data-theme="light"] .text-dahab-gold:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+[data-theme="light"] .text-dahab-gold-light:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-\[\#C8933D\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-\[\#D9A94E\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-\[\#E3B25A\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-\[\#E9C47F\]:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-dahab-gold:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]),
+.light .text-dahab-gold-light:not([class*="bg-black"], [class*="bg-\[\#C8933D\]"], [class*="bg-\[\#E3B25A\]"], [class*="bg-\[\#D9A94E\]"], [class*="bg-dahab-gold"]) {
+  color: #7A5E30 !important;
+}
+
+[data-theme="dark"] .text-\[\#8F6413\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+[data-theme="dark"] .text-\[\#7A5E30\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+[data-theme="dark"] .text-\[\#A16207\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+[data-theme="dark"] .text-dahab-gold-dark:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+.dark .text-\[\#8F6413\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+.dark .text-\[\#7A5E30\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+.dark .text-\[\#A16207\]:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400),
+.dark .text-dahab-gold-dark:not([class*="bg-white"], [class*="bg-\[\#A16207\]"], .bg-amber-300, .bg-amber-400) {
+  color: #D9A94E !important;
+}
+
+
+/* --------------------------------------------------------------------------
    6b. DARK THEMES: DARK ACCENT COLOURS USED AS TEXT
 
    The mirror of block 3b. #0F6F78 and its siblings are dark teals — correct as
@@ -1047,14 +1326,14 @@ body {
 
 /* Retired display faces map onto the two-voice system so older
    arbitrary classes (font-['Plus_Jakarta_Sans'], etc.) fall back to
-   Outfit instead of the browser default. */
+   Montserrat instead of the browser default. */
 [class*="Plus_Jakarta"],
 [class*="Playfair"],
 [class*="Space_Grotesk"],
 [class*="Readex"],
 [class*="Cairo"],
 [class*="Plex"] {
-  font-family: 'Outfit', 'Alexandria', sans-serif !important;
+  font-family: 'Montserrat', 'Alexandria', sans-serif !important;
 }
 
 .tabular-nums {
@@ -1624,24 +1903,23 @@ a {
 }
 
 /* ==========================================================================
-   SINAI STAR CHART — HOMEPAGE VISUAL WORLD (replaces Tidal Convergence)
-   Bedouin night-sky navigation chart: indigo night paper, bone star ink,
-   brass ticks, amber firelight for action, lagoon teal for live data only.
-   Direction: 2cdaa49a · THESIS: the night sky over Sinai as trip instrument
-   `chart-*` is canonical; `tidal-*`/`tide-*` are deprecated aliases kept so
-   every surface follows the repaint without logic churn.
+   DAHAB LUXURY CHART — HOMEPAGE VISUAL WORLD (re-skin of Sinai Star Chart)
+   Bedouin night-sky navigation chart: warm stone night paper, bone star ink,
+   brass ticks, gold firelight for action, lagoon teal for live data only.
+   Direction: reskin-2026-09 · THESIS: the night sky over Sinai as trip
+   instrument, cut in warm stone and gold per the ui-ux-pro-max re-skin.
    ========================================================================== */
-.chart-gradient-hero, .tidal-gradient-hero {
-  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 62%, #0A1128) 30%, color-mix(in oklab, var(--bg-canvas) 35%, #0A1128) 66%, color-mix(in oklab, var(--bg-canvas) 12%, #060B1F) 100%);
+.chart-gradient-hero {
+  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 62%, #1C1917) 30%, color-mix(in oklab, var(--bg-canvas) 35%, #1C1917) 66%, color-mix(in oklab, var(--bg-canvas) 12%, #141311) 100%);
 }
-.chart-gradient-section, .tidal-gradient-section {
-  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 90%, #1B2452) 100%);
+.chart-gradient-section {
+  background: linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 90%, #2A2622) 100%);
 }
-.chart-depth-1, .tidal-depth-1 { background: var(--bg-canvas); }
-.chart-depth-2, .tidal-depth-2 { background: color-mix(in oklab, var(--bg-canvas) 95%, #F2EDDF); }
-.chart-depth-3, .tidal-depth-3 { background: color-mix(in oklab, var(--bg-canvas) 85%, #1B2452); }
-.chart-depth-4, .tidal-depth-4 { background: color-mix(in oklab, var(--bg-canvas) 65%, #0A1128); }
-.chart-depth-5, .tidal-depth-5 { background: color-mix(in oklab, var(--bg-canvas) 40%, #060B1F); }
+.chart-depth-1 { background: var(--bg-canvas); }
+.chart-depth-2 { background: color-mix(in oklab, var(--bg-canvas) 95%, #F2EDDF); }
+.chart-depth-3 { background: color-mix(in oklab, var(--bg-canvas) 85%, #2A2622); }
+.chart-depth-4 { background: color-mix(in oklab, var(--bg-canvas) 65%, #1C1917); }
+.chart-depth-5 { background: color-mix(in oklab, var(--bg-canvas) 40%, #141311); }
 
 /* Pinprick starfield: pure CSS, symmetric for RTL, inert under
    reduced motion (static dots, no animation to disable). */
@@ -1651,7 +1929,7 @@ a {
     radial-gradient(1px 1px at 22% 68%, rgba(242,237,223,.6) 50%, transparent 51%),
     radial-gradient(1.6px 1.6px at 33% 30%, rgba(242,237,223,.9) 50%, transparent 51%),
     radial-gradient(1px 1px at 47% 12%, rgba(242,237,223,.55) 50%, transparent 51%),
-    radial-gradient(2px 2px at 58% 44%, rgba(232,163,61,.95) 50%, transparent 51%),
+    radial-gradient(2px 2px at 58% 44%, rgba(200,147,61,.95) 50%, transparent 51%),
     radial-gradient(1px 1px at 66% 74%, rgba(242,237,223,.6) 50%, transparent 51%),
     radial-gradient(1.4px 1.4px at 76% 26%, rgba(242,237,223,.8) 50%, transparent 51%),
     radial-gradient(1px 1px at 85% 58%, rgba(242,237,223,.55) 50%, transparent 51%),
@@ -1663,9 +1941,30 @@ a {
   0% { opacity: 0; transform: translateY(28px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-.animate-chart-rise, .animate-tidal-reveal { animation: chart-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.animate-chart-rise { animation: chart-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .animate-chart-rise, .animate-tidal-reveal { animation: none; }
+  .animate-chart-rise { animation: none; }
+}
+
+/* Staggerable entrance sibling of .animate-chart-rise: `both` fill mode so
+   an inline animation-delay holds the hidden first keyframe instead of
+   flashing the final state before the cascade starts. Usage:
+   className="chart-rise-item" style={{ animationDelay: '90ms' }} */
+.chart-rise-item { opacity: 0; animation: chart-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .chart-rise-item { opacity: 1; animation: none; }
+}
+
+/* Slow ambient Ken Burns drift for photographic backdrops (final CTA,
+   hero plates). Pure scale — symmetric, so RTL-safe — and fully static
+   under reduced motion. */
+@keyframes chart-kenburns {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1.15); }
+}
+.chart-kenburns { animation: chart-kenburns 26s ease-in-out infinite alternate; will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .chart-kenburns { animation: none; transform: scale(1.05); }
 }
 
 @keyframes wave-crest {
@@ -1676,87 +1975,83 @@ a {
 }
 .animate-wave-crest { animation: wave-crest 6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 
-@keyframes shoreline-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.chart-shimmer, .tidal-shimmer {
+.chart-shimmer {
   background: linear-gradient(90deg, transparent 0%, rgba(242,237,223,0.08) 50%, transparent 100%);
 }
 
-.chart-card, .tidal-card {
-  background: color-mix(in oklab, var(--surface-card) 86%, rgba(27,36,82,0.16));
+.chart-card {
+  background: color-mix(in oklab, var(--surface-card) 86%, rgba(28,25,23,0.18));
   border: 1px solid color-mix(in oklab, var(--border-subtle) 78%, rgba(201,162,75,0.22));
-  box-shadow: 0 1px 3px rgba(6,11,31,0.10), 0 10px 28px -10px rgba(6,11,31,0.25), inset 0 1px 0 rgba(242,237,223,0.07);
-  transition: all 400ms cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 1px 3px rgba(12,11,10,0.10), 0 10px 28px -10px rgba(12,11,10,0.25), inset 0 1px 0 rgba(242,237,223,0.07);
+  transition: all var(--dur-slow, 450ms) var(--ease-out, cubic-bezier(0.22,1,0.36,1));
 }
-.chart-card:hover, .tidal-card:hover {
-  border-color: color-mix(in oklab, var(--border-subtle) 45%, rgba(201,162,75,0.5));
-  box-shadow: 0 2px 6px rgba(6,11,31,0.12), 0 18px 44px -12px rgba(6,11,31,0.30), inset 0 1px 0 rgba(242,237,223,0.10);
+.chart-card:hover {
+  border-color: color-mix(in oklab, var(--border-subtle) 45%, rgba(200,147,61,0.5));
+  box-shadow: 0 2px 6px rgba(12,11,10,0.12), 0 18px 44px -12px rgba(12,11,10,0.30), inset 0 1px 0 rgba(242,237,223,0.10);
 }
 
-.chart-cta-primary, .tidal-cta-primary {
-  background: linear-gradient(135deg, #B97A1F 0%, #E8A33D 100%);
-  color: #1A1206;
+.chart-cta-primary {
+  background: linear-gradient(135deg, #B97F2E 0%, #E3B25A 100%);
+  color: #1A1408;
   font-weight: 700;
   padding: 1rem 2rem;
   border-radius: 1rem;
-  box-shadow: 0 6px 18px -6px rgba(232,163,61,0.55), 0 1px 2px rgba(26,18,6,0.25), inset 0 1px 1px rgba(255,255,255,0.35);
-  transition: all 300ms cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 6px 18px -6px rgba(200,147,61,0.55), 0 1px 2px rgba(26,18,6,0.25), inset 0 1px 1px rgba(255,255,255,0.35), 0 0 20px var(--aurora-warm);
+  transition: all var(--dur-base, 250ms) var(--ease-out, cubic-bezier(0.22,1,0.36,1));
   position: relative;
   overflow: hidden;
 }
-.chart-cta-primary::before, .tidal-cta-primary::before {
+.chart-cta-primary::before {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
   opacity: 0;
-  transition: opacity 300ms;
+  transition: opacity var(--dur-base, 250ms);
 }
-.chart-cta-primary:hover, .tidal-cta-primary:hover {
+.chart-cta-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px -6px rgba(232,163,61,0.6), 0 2px 4px rgba(26,18,6,0.25), inset 0 1px 2px rgba(255,255,255,0.4);
+  box-shadow: 0 10px 30px -6px rgba(200,147,61,0.6), 0 2px 4px rgba(26,18,6,0.25), inset 0 1px 2px rgba(255,255,255,0.4);
 }
-.chart-cta-primary:hover::before, .tidal-cta-primary:hover::before { opacity: 1; }
-.chart-cta-primary:active, .tidal-cta-primary:active { transform: translateY(0) scale(0.98); }
+.chart-cta-primary:hover::before { opacity: 1; }
+.chart-cta-primary:active { transform: translateY(0) scale(0.98); }
 
-.chart-cta-secondary, .tidal-cta-secondary {
+.chart-cta-secondary {
   background: transparent;
   color: var(--text-primary);
   font-weight: 600;
   padding: 1rem 2rem;
   border-radius: 1rem;
   border: 1.5px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(201,162,75,0.45));
-  transition: all 300ms cubic-bezier(0.22,1,0.36,1);
+  transition: all var(--dur-base, 250ms) var(--ease-out, cubic-bezier(0.22,1,0.36,1));
 }
-.chart-cta-secondary:hover, .tidal-cta-secondary:hover {
-  background: color-mix(in oklab, var(--surface-card) 80%, rgba(232,163,61,0.10));
+.chart-cta-secondary:hover {
+  background: color-mix(in oklab, var(--surface-card) 80%, rgba(200,147,61,0.10));
   border-color: rgba(201,162,75,0.65);
 }
 
-.chart-heading, .tidal-heading {
+.chart-heading {
   font-family: var(--font-chart);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.08;
 }
-.chart-heading-accent, .tidal-heading-accent {
+.chart-heading-accent {
   font-family: var(--font-serif);
   font-weight: 600;
   font-style: italic;
   color: inherit;
 }
 
-.chart-glass, .tidal-glass {
-  background: color-mix(in oklab, var(--surface-card) 72%, rgba(10,17,40,0.28));
+.chart-glass {
+  background: color-mix(in oklab, var(--surface-card) 72%, rgba(28,25,23,0.30));
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border: 1px solid color-mix(in oklab, var(--border-subtle) 60%, rgba(242,237,223,0.10));
-  box-shadow: 0 8px 32px -8px rgba(6,11,31,0.35), inset 0 1px 0 rgba(242,237,223,0.10);
+  box-shadow: 0 8px 32px -8px rgba(12,11,10,0.35), inset 0 1px 0 rgba(242,237,223,0.10);
 }
 
-.chart-badge, .tidal-badge {
+.chart-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -1767,25 +2062,28 @@ a {
   letter-spacing: 0;
   border: 1px solid;
 }
-.chart-badge-live, .tidal-badge-ocean {
+.chart-badge-live {
   background: color-mix(in oklab, var(--surface-card) 85%, rgba(27,154,139,0.14));
   color: var(--accent-primary);
   border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(27,154,139,0.35));
 }
-.chart-badge-ember, .tidal-badge-sunset {
-  background: color-mix(in oklab, var(--surface-card) 85%, rgba(232,163,61,0.14));
+.chart-badge-ember {
+  background: color-mix(in oklab, var(--surface-card) 85%, rgba(200,147,61,0.14));
   color: #B97A1F;
-  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(232,163,61,0.4));
+  border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(200,147,61,0.4));
+}
+[data-theme="dark"] .chart-badge-ember {
+  color: #E3B25A;
 }
 
-.chart-parallax-container, .tidal-parallax-container { perspective: 1000px; overflow: hidden; }
-.chart-parallax-layer, .tidal-parallax-layer { transform-style: preserve-3d; will-change: transform; }
+.chart-parallax-container { perspective: 1000px; overflow: hidden; }
+.chart-parallax-layer { transform-style: preserve-3d; will-change: transform; }
 
 /* Constellation thread — the one memorable element. Scenes set as plotted
    stars on a single chart rule, not identical cards. Hairlines carry the
    structure; only the plotted (active) waypoint holds firelight. */
-.chart-thread, .tide-ledger { border-top: 1px solid var(--border-subtle); }
-.chart-waypoint, .tide-row {
+.chart-thread { border-top: 1px solid var(--border-subtle); }
+.chart-waypoint {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -1796,14 +2094,14 @@ a {
   border-radius: 0.65rem;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
-.chart-waypoint:hover, .tide-row:hover { background: color-mix(in oklab, var(--surface-card) 70%, transparent); }
-.chart-waypoint-active, .tide-row-primary {
-  background: color-mix(in oklab, var(--surface-card) 80%, rgba(232,163,61,0.12));
+.chart-waypoint:hover { background: color-mix(in oklab, var(--surface-card) 70%, transparent); }
+.chart-waypoint-active {
+  background: color-mix(in oklab, var(--surface-card) 80%, rgba(200,147,61,0.16));
   border: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(201,162,75,0.5));
   border-bottom: 1px solid color-mix(in oklab, var(--border-subtle) 55%, rgba(201,162,75,0.5));
   padding-inline: 1rem;
 }
-.chart-node, .tide-mark {
+.chart-node {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 9999px;
@@ -1815,8 +2113,8 @@ a {
 }
 
 
-/* Navbar brand icon tidal gradient animation */
-@keyframes tidalShift {
+/* Navbar brand icon chart gradient animation */
+@keyframes chartShift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
@@ -1895,10 +2193,152 @@ a {
   .animate-wave-crest { animation: none; }
 }
 
+/* Aurora UI Design System Enhancements */
+/* Modern gradients, mesh backgrounds, and subtle animations */
+
+:root {
+  --aurora-primary: var(--accent-primary);
+  --aurora-secondary: #38BDF8;
+  --aurora-accent: var(--accent-secondary);
+  --aurora-glow: rgba(14, 165, 233, 0.15);
+  --aurora-warm: rgba(234, 88, 12, 0.12);
+}
+
+/* Aurora Mesh Gradient Background */
+.aurora-mesh {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(14, 165, 233, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 40% 80%, rgba(246, 195, 110, 0.1) 0%, transparent 45%),
+    linear-gradient(180deg, var(--bg-canvas) 0%, color-mix(in oklab, var(--bg-canvas) 95%, #0A1128) 100%);
+}
+
+/* Hero Aurora Overlay - Subtle flowing gradients */
+.hero-aurora-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(14, 165, 233, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(234, 88, 12, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 90%, rgba(56, 189, 248, 0.1) 0%, transparent 40%);
+  animation: aurora-shift 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes aurora-shift {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Card Glass Effect */
+.aurora-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Accent Gradient Text */
+.aurora-text-gradient {
+  background: linear-gradient(135deg, var(--aurora-primary) 0%, var(--aurora-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle Glow Effect */
+.aurora-glow {
+  box-shadow: 0 0 20px var(--aurora-glow), 0 0 40px rgba(14, 165, 233, 0.05);
+}
+
+/* Warm Glow for CTAs */
+.aurora-warm-glow {
+  box-shadow: 0 0 15px var(--aurora-warm), 0 0 30px rgba(246, 195, 110, 0.08);
+}
+
+/* Smooth hover transitions */
+.aurora-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.aurora-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Section Reveal Animation */
+.aurora-reveal {
+  animation: aurora-reveal 0.6s ease-out forwards;
+}
+
+@keyframes aurora-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Leaflet attribution: default link blue is 3.6:1 — darken for AA. */
 .leaflet-control-attribution a {
   color: #005c80 !important;
 }
 .leaflet-control-attribution {
   color: #444 !important;
+}
+
+/* ─── Living Chart: View Transitions (design spec §3, §8) ─────────────
+   Route changes run through document.startViewTransition (UIContext) when
+   the browser supports it and reduced-motion is off. The crossfade is the
+   spec's 300ms `--dur-slow` ease-out; the exiting plate rotates 8° like the
+   compass rose. Unsupported browsers / reduced-motion / high-contrast never
+   hit these rules — the fallback is the plain synchronous swap. */
+::view-transition-old(root) {
+  animation: dahab-vt-out 300ms var(--ease-out, cubic-bezier(.22, 1, .36, 1)) both;
+}
+::view-transition-new(root) {
+  animation: dahab-vt-in 300ms var(--ease-out, cubic-bezier(.22, 1, .36, 1)) both;
+}
+@keyframes dahab-vt-out {
+  to {
+    opacity: 0;
+    transform: rotate(0.75deg) scale(0.985);
+  }
+}
+@keyframes dahab-vt-in {
+  from {
+    opacity: 0.35;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Hero contour strata (spec §1): the chart plate behind the headline. Uses
+   the same dune-hairline recipe as .contour-field but softened so it reads
+   under the tier-5 glass plate instead of competing with it. Static (no
+   animation) and theme-driven via --contour-line. */
+.contour-strata {
+  background-image:
+    repeating-linear-gradient(
+      172deg,
+      transparent 0px,
+      transparent 42px,
+      var(--contour-line-soft) 42px,
+      var(--contour-line-soft) 43px
+    ),
+    repeating-linear-gradient(
+      176deg,
+      transparent 0px,
+      transparent 96px,
+      var(--contour-line) 96px,
+      var(--contour-line) 97px
+    );
+  opacity: 0.5;
 }

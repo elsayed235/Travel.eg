@@ -66,12 +66,12 @@ export const CURATED_HOTELS: HotelOption[] = [
       'Situated right along the peaceful Lighthouse stretch, Dahab Bay Hotel balances effortless shoreline proximity with relaxed comfort. Just a 2-minute stroll from key diving meeting points and open beachfront cafés, it features bright air-conditioned rooms, a fresh sea-breeze courtyard pool, and daily hearty breakfasts suited for active mornings.',
     detailedDescriptionAr:
       'يقع الفندق على ممشى اللايتهاوس الهادئ، ويجمع بين القرب المباشر من البحر والراحة التامة. دقيقتان فقط مشياً عن مراكز الغطس وكافيهات الشاطئ، ويتميز بغرف مكيفة ومشرقة وحمام سباحة في فناء داخلي مع إفطار صباحي مميز.',
-    image: 'IMG_P15660737712596a8506099945_HERO',
+    image: IMG_P15660737712596a8506099945_HERO,
     galleryImages: [
-      'IMG_P15660737712596a8506099945_HERO',
-      'IMG_P1582719508461905c673771fd_800',
-      'IMG_P1590490360182c33d57733427_800',
-      'IMG_P1520250497591112f2f40a3f4_CARD',
+      IMG_P15660737712596a8506099945_HERO,
+      IMG_P1582719508461905c673771fd_800,
+      IMG_P1590490360182c33d57733427_800,
+      IMG_P1520250497591112f2f40a3f4_CARD,
     ],
     amenities: ['Wi-Fi', 'Breakfast', 'Pool', 'AC', 'Dive Locker & Rinse Station', 'Sea View Terrace'],
     amenitiesAr: ['واي فاي', 'إفطار مجاني', 'حمام سباحة', 'تكييف', 'مكان مخصص لمعدات الغطس', 'تراس بإطلالة بحرية'],
@@ -130,12 +130,12 @@ export const CURATED_HOTELS: HotelOption[] = [
       'Nestled on the gentle shore of Eel Garden, this boutique coastal lodge combines handcrafted Sinai wood architecture with direct lagoon access. Ideal for travelers wanting private balcony sea views, calm evenings slightly north of the bustling strip, and fresh espresso bar breakfasts overlooking the reef.',
     detailedDescriptionAr:
       'يقع على شاطئ إيل جاردن الخلاب بتصميم خشبي سيناوي مميز مع مدخل مباشر للبحر. مثالي لمن يبحث عن شرفة خاصة بإطلالة بحرية وأمسيات هادئة وإفطار رائع أمام الشعاب المرجانية.',
-    image: 'IMG_P1520250497591112f2f40a3f4_HERO',
+    image: IMG_P1520250497591112f2f40a3f4_HERO,
     galleryImages: [
-      'IMG_P1520250497591112f2f40a3f4_HERO',
-      'IMG_P1578683010236d716f9a3f461_800',
-      'IMG_P15405557004784be289fbecef_800',
-      'IMG_P1582719508461905c673771fd_800',
+      IMG_P1520250497591112f2f40a3f4_HERO,
+      IMG_P1578683010236d716f9a3f461_800,
+      IMG_P15405557004784be289fbecef_800,
+      IMG_P1582719508461905c673771fd_800,
     ],
     amenities: ['Wi-Fi', 'Seafront Breakfast', 'Coral Reef Access', 'AC', 'Private Balcony', 'Eco-Certified'],
     amenitiesAr: ['واي فاي', 'إفطار أمام البحر', 'دخول مباشر للشعاب', 'تكييف', 'شرفة خاصة', 'صديق للبيئة'],
@@ -194,12 +194,12 @@ export const CURATED_HOTELS: HotelOption[] = [
       'Surrounded by swaying date palms and authentic Bedouin floor lounges, this laid-back retreat offers great value and warm Sinai hospitality. Features clean, airy twin rooms, a refreshing central swimming pool, and a communal courtyard lounge area popular with free divers and travelers.',
     detailedDescriptionAr:
       'محاط بالنخيل والجلسات البدوية الأرضية الأصيلة، ويوفر قيمة ممتازة وضيافة سيناوية دافئة. يضم غرفاً نظيفة ومريحة، وحمام سباحة منعشاً وجلسة فناء محبوبة لدى الغواصين والمسافرين.',
-    image: 'IMG_P158413296733410e028bd69f7_HERO',
+    image: IMG_P158413296733410e028bd69f7_HERO,
     galleryImages: [
-      'IMG_P158413296733410e028bd69f7_HERO',
-      'IMG_P1618773928121c32242e63f39_800',
-      'IMG_P157189634984233c89424de2d_800',
-      'IMG_P1590490360182c33d57733427_800',
+      IMG_P158413296733410e028bd69f7_HERO,
+      IMG_P1618773928121c32242e63f39_800,
+      IMG_P157189634984233c89424de2d_800,
+      IMG_P1590490360182c33d57733427_800,
     ],
     amenities: ['Wi-Fi', 'Fresh Breakfast', 'Garden Pool', 'AC', 'Bedouin Lounge', 'Communal Kitchen'],
     amenitiesAr: ['واي فاي', 'إفطار طازج', 'حمام سباحة في الحديقة', 'تكييف', 'جلسة بدوية', 'مطبخ مشترك'],
@@ -301,7 +301,7 @@ export const CURATED_TRANSFERS: TransferOption[] = [
     priceEGP: 1200,
     estimatedTime: 'Approximately 1 hour',
     estimatedTimeAr: 'حوالي ساعة واحدة',
-    image: 'IMG_P15493995427e3f8b79c341_800',
+    image: IMG_P15493995427e3f8b79c341_800,
   },
   {
     id: 'shared-transfer',
@@ -335,7 +335,7 @@ export const CURATED_TRANSFERS: TransferOption[] = [
     priceEGP: 450,
     estimatedTime: 'Approximately 1 hour 20 mins',
     estimatedTimeAr: 'حوالي ساعة و٢٠ دقيقة',
-    image: 'IMG_P1570125909232eb263c188f7e_800',
+    image: IMG_P1570125909232eb263c188f7e_800,
   },
   {
     id: 'premium-suv',
@@ -369,7 +369,7 @@ export const CURATED_TRANSFERS: TransferOption[] = [
     priceEGP: 1800,
     estimatedTime: 'Approximately 55 mins',
     estimatedTimeAr: 'حوالي ٥٥ دقيقة',
-    image: 'IMG_P15334733593310135ef1b58bf_800',
+    image: IMG_P15334733593310135ef1b58bf_800,
   },
 ];
 
@@ -453,7 +453,7 @@ export const CURATED_DIVING_OPTIONS: DivingOption[] = [
     safetyInfoAr: 'نسبة ٤ غواصين لكل مرشد بحد أقصى. أسطوانة أكسجين وإسعافات أولية متوفرة دائماً وخبرة تفوق ١٠ سنوات في البحر الأحمر.',
     cancellationPolicy: 'Free cancellation or day rescheduling up to 24 hours prior to dive start.',
     cancellationPolicyAr: 'إلغاء مجاني أو تعديل الميعاد حتى ٢٤ ساعة قبل موعد الغطس.',
-    image: 'IMG_P154455176346a013bb70d5_CARD',
+    image: IMG_P154455176346a013bb70d5_CARD,
   },
   {
     id: 'blue-hole-adventure',
@@ -503,7 +503,7 @@ export const CURATED_DIVING_OPTIONS: DivingOption[] = [
     safetyInfoAr: 'العمق محكوم برخصة الغواص (١٨-٣٠ متر) مع التزام كامل بوقفات الأمان ودعم السطح.',
     cancellationPolicy: 'Free cancellation up to 24 hours before scheduled departure.',
     cancellationPolicyAr: 'إلغاء مجاني حتى ٢٤ ساعة قبل موعد الانطلاق.',
-    image: 'IMG_P16826872200634742bd7fd538_CARD',
+    image: IMG_P16826872200634742bd7fd538_CARD,
   },
   {
     id: 'intro-to-diving',
@@ -551,7 +551,7 @@ export const CURATED_DIVING_OPTIONS: DivingOption[] = [
     safetyInfoAr: 'تتم في مياه هادئة وشفافة جداً مع تدريب تدريجي لضمان الأمان والاطمئنان التام.',
     cancellationPolicy: 'Full refund or free time shift up to 12 hours before session.',
     cancellationPolicyAr: 'استرداد كامل أو تغيير الميعاد حتى ١٢ ساعة قبل الجلسة.',
-    image: 'IMG_P15832122924541fe6229603b7_800',
+    image: IMG_P15832122924541fe6229603b7_800,
   },
 ];
 
@@ -635,7 +635,7 @@ export const CURATED_SAFARI_OPTIONS: SafariOption[] = [
     safetyInfoAr: 'سائقون ومرشدون بدو محترفون وخبيرون، حقيبة إسعافات متكاملة في كل سيارة.',
     cancellationPolicy: 'Free cancellation or day rescheduling up to 24 hours prior to departure.',
     cancellationPolicyAr: 'إلغاء مجاني أو تعديل الميعاد حتى ٢٤ ساعة قبل التحرك.',
-    image: 'IMG_P1509316975850ff9c5deb0cd9_CARD',
+    image: IMG_P1509316975850ff9c5deb0cd9_CARD,
   },
   {
     id: 'canyon-adventure',
@@ -685,7 +685,7 @@ export const CURATED_SAFARI_OPTIONS: SafariOption[] = [
     safetyInfoAr: 'بقيادة مرشدين معتمدين للمسارات الجبلية مع إرشادات مستمرة لأماكن الوقوف الآمن.',
     cancellationPolicy: 'Free cancellation up to 24 hours before trip departure.',
     cancellationPolicyAr: 'إلغاء مجاني حتى ٢٤ ساعة قبل انطلاق الرحلة.',
-    image: 'IMG_P1469854523086cc02fe5d8800_800',
+    image: IMG_P1469854523086cc02fe5d8800_800,
   },
   {
     id: 'desert-sunset',
@@ -733,6 +733,6 @@ export const CURATED_SAFARI_OPTIONS: SafariOption[] = [
     safetyInfoAr: 'مسار ممهد وسهل تماماً بدون أي تسلق، مع جلسات سجاد عربي مريحة داخل المخيم.',
     cancellationPolicy: 'Full refund or free time shift up to 12 hours before departure.',
     cancellationPolicyAr: 'استرداد كامل أو تعديل الميعاد حتى ١٢ ساعة قبل الموعد.',
-    image: 'IMG_P15187092688054e9042af9f23_800',
+    image: IMG_P15187092688054e9042af9f23_800,
   },
 ];

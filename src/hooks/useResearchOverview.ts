@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import type { Language } from '../i18n/translations';
+import type { Language } from '../i18n/resolve';
 
 export interface Bilingual {
   en: string;

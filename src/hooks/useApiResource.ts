@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '../services/apiError';
+import { dedupe, readCache, writeCache } from '../services/queryCache';
 
 export type ApiResourceStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -21,7 +22,20 @@ interface UseApiResourceOptions {
    * an error the traveler cannot act on.
    */
   enabled?: boolean;
+  /**
+   * When set, successful results are cached under this key (TTL + in-flight
+   * dedup via src/services/queryCache). A fresh cache serves instantly with
+   * no fetch; a stale cache serves immediately and refreshes in the
+   * background; concurrent callers of the same key share one request.
+   * Callers must pass a stable string literal — a changing cacheKey would
+   * defeat both the cache and the dedup.
+   */
+  cacheKey?: string;
+  /** Freshness window for cacheKey. Defaults to 30s. */
+  ttlMs?: number;
 }
+
+const DEFAULT_TTL_MS = 30_000;
 
 /**
  * One place where a page asks the backend for something.
@@ -43,12 +57,18 @@ interface UseApiResourceOptions {
  * `fetcher` must be stable (defined outside the component, or wrapped in
  * useCallback) — it is a dependency, so an inline arrow would re-request on
  * every render.
+ *
+ * With `cacheKey` set, a fourth behavior joins the contract: a fresh cache
+ * hit serves without fetching (so back-navigation is instant), a stale hit
+ * serves while a background refresh runs, and `reload()` always bypasses the
+ * cache. Callers without `cacheKey` get exactly the pre-cache behavior.
  */
 export function useApiResource<T>(
   fetcher: (signal: AbortSignal) => Promise<T>,
   options: UseApiResourceOptions = {}
 ): ApiResourceState<T> {
-  const { enabled = true } = options;
+  const { enabled = true, cacheKey, ttlMs } = options;
+  const ttl = ttlMs ?? DEFAULT_TTL_MS;
 
   const [data, setData] = useState<T | null>(null);
   const [status, setStatus] = useState<ApiResourceStatus>(enabled ? 'loading' : 'idle');
@@ -71,30 +91,80 @@ export function useApiResource<T>(
     }
 
     const controller = new AbortController();
-    setStatus('loading');
-    setError(null);
-    setRequiresSignIn(false);
 
-    fetcher(controller.signal)
+    if (!cacheKey) {
+      // ---- Un-cached path: exact pre-cache behavior. ---------------------
+      setStatus('loading');
+      setError(null);
+      setRequiresSignIn(false);
+
+      fetcher(controller.signal)
+        .then(result => {
+          if (controller.signal.aborted || !mounted.current) return;
+          setData(result);
+          setStatus('ready');
+        })
+        .catch((err: unknown) => {
+          // A cancelled request is not a failure and must not be shown as one.
+          if (controller.signal.aborted || !mounted.current) return;
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+
+          if (err instanceof ApiError && err.isUnauthorized) {
+            setRequiresSignIn(true);
+          }
+          setError(err instanceof Error ? err.message : 'Something went wrong.');
+          setStatus('error');
+        });
+
+      return () => controller.abort();
+    }
+
+    // ---- Cached path: fresh hit serves instantly; stale hit serves and
+    // refreshes in the background; reload() always bypasses the cache. -----
+    const cacheHit = readCache<T>(cacheKey, ttl);
+    if (cacheHit && !cacheHit.stale && reloadToken === 0) {
+      setData(cacheHit.data);
+      setStatus('ready');
+      setError(null);
+      setRequiresSignIn(false);
+      return () => controller.abort();
+    }
+
+    if (cacheHit) {
+      setData(cacheHit.data);
+      setStatus('ready');
+      setError(null);
+    } else {
+      setStatus('loading');
+    }
+
+    dedupe<T>(cacheKey, () => fetcher(controller.signal))
       .then(result => {
         if (controller.signal.aborted || !mounted.current) return;
         setData(result);
         setStatus('ready');
+        setError(null);
+        setRequiresSignIn(false);
+        writeCache(cacheKey, result);
       })
       .catch((err: unknown) => {
-        // A cancelled request is not a failure and must not be shown as one.
         if (controller.signal.aborted || !mounted.current) return;
         if (err instanceof DOMException && err.name === 'AbortError') return;
 
         if (err instanceof ApiError && err.isUnauthorized) {
           setRequiresSignIn(true);
         }
+        if (cacheHit) {
+          // Background refresh failed — the cached data we are showing stands.
+          setStatus('ready');
+          return;
+        }
         setError(err instanceof Error ? err.message : 'Something went wrong.');
         setStatus('error');
       });
 
     return () => controller.abort();
-  }, [fetcher, enabled, reloadToken]);
+  }, [fetcher, enabled, reloadToken, cacheKey, ttl]);
 
   const reload = useCallback(() => setReloadToken(token => token + 1), []);
 

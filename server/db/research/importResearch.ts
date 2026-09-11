@@ -281,6 +281,13 @@ function importActivities(state: Record<string, Entity[]>, overwrite: boolean) {
     if (!found.match && NEW_ACTIVITIES[researchId]) {
       const blueprint = NEW_ACTIVITIES[researchId];
       const price = numberRange(cell(row, 'price'));
+      // "2.0 Hours" / "1.0 - 2.0 Hours" → minutes, midpoint for a range.
+      // These rows used to be created with `durationMinutes: null`, which
+      // rendered as "null min" on every card that showed the activity.
+      const idealHours = numberRange(cell(row, 'ideal duration'));
+      const durationMinutes = idealHours
+        ? Math.round(((idealHours.min + idealHours.max) / 2) * 60)
+        : null;
       const created: Entity = {
         id: blueprint.id,
         titleEn: name,
@@ -288,7 +295,7 @@ function importActivities(state: Record<string, Entity[]>, overwrite: boolean) {
         category: blueprint.category,
         placeId: blueprint.placeId,
         areaId: blueprint.areaId,
-        durationMinutes: null,
+        durationMinutes,
         accessMethod: '',
         difficulty: cell(row, 'skill level'),
         experienceLevelRequired: cell(row, 'skill level'),
@@ -334,6 +341,10 @@ function importActivities(state: Record<string, Entity[]>, overwrite: boolean) {
     const activity = found.match;
 
     const price = numberRange(cell(row, 'price'));
+    // Backfills durationMinutes on activities created by earlier import runs
+    // (which set it to null). merge() only writes absent/empty fields, so a
+    // curated duration already on the record is never overwritten.
+    const idealHours = numberRange(cell(row, 'ideal duration'));
     const applied = merge(
       activity,
       {
@@ -341,6 +352,9 @@ function importActivities(state: Record<string, Entity[]>, overwrite: boolean) {
         skillLevel: cell(row, 'skill level'),
         bookingModality: cell(row, 'booking modality'),
         idealDuration: cell(row, 'ideal duration'),
+        durationMinutes: idealHours
+          ? Math.round(((idealHours.min + idealHours.max) / 2) * 60)
+          : null,
         equipmentNeeded: cell(row, 'equipment', 'prep'),
         observedPriceRangeEGP: price ? { min: price.min, max: price.max } : null
       },

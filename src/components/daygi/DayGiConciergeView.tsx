@@ -68,18 +68,7 @@ import {
   Database
 } from 'lucide-react';
 import { BookNowCommerceModal } from '../commerce/BookNowCommerceModal';
-
-interface ChatMessage {
-  id: string;
-  sender: 'user' | 'daygi';
-  text: string;
-  timestamp: string;
-  responsePayload?: DayGiResponse;
-  liked?: boolean;
-  disliked?: boolean;
-  actionExecuted?: boolean;
-  executionResult?: any;
-}
+import { ChatMessage } from './types';
 
 export const DayGiConciergeView: React.FC = () => {
   const { 
@@ -674,9 +663,10 @@ export const DayGiConciergeView: React.FC = () => {
    *
    * This was `?? 94`, so a signed-out visitor with no trip was shown
    * "94% — Every booking is confirmed and nothing clashes" about bookings
-   * that do not exist. A score is a measurement or it is nothing.
+   * that do not exist. A score is a measurement or it is nothing — and a
+   * NO_TRIP health (score 0) is also nothing worth rendering as a percentage.
    */
-  const healthScore = tripHealth?.score ?? null;
+  const healthScore = tripHealth && tripHealth.status !== 'NO_TRIP' ? tripHealth.score : null;
   const openIssues = tripHealth?.issues?.length ?? 0;
   const liveSuggestions = proactiveSuggestions.filter((s) => !s.dismissed);
   const activeTasks = orchestratedTasks.filter(
@@ -1627,11 +1617,11 @@ export const DayGiConciergeView: React.FC = () => {
                           <div className="flex items-center gap-1.5 flex-wrap pt-1 animate-in fade-in duration-200">
                             <span className="text-[11px] text-[var(--dg-muted)]">{t('daygi.reason')}</span>
                             {[
-                              { tag: 'ACCURATE', labelAr: '🎯 دقيق ومباشر', labelEn: 'Accurate' },
-                              { tag: 'FAST_RESOLUTION', labelAr: '⚡ سريع وسهل', labelEn: 'Fast' },
-                              { tag: 'SAVED_MONEY', labelAr: '💰 وفّر ميزانية', labelEn: 'Saved Money' },
-                              { tag: 'TOO_VAGUE', labelAr: '❓ غير دقيق', labelEn: 'Vague' },
-                              { tag: 'WRONG_LOCATION', labelAr: '📍 الموقع غير مناسب', labelEn: 'Wrong Spot' }
+                              { tag: 'ACCURATE', labelAr: 'دقيق ومباشر', labelEn: 'Accurate' },
+                              { tag: 'FAST_RESOLUTION', labelAr: 'سريع وسهل', labelEn: 'Fast' },
+                              { tag: 'SAVED_MONEY', labelAr: 'وفّر ميزانية', labelEn: 'Saved Money' },
+                              { tag: 'TOO_VAGUE', labelAr: 'غير دقيق', labelEn: 'Vague' },
+                              { tag: 'WRONG_LOCATION', labelAr: 'الموقع غير مناسب', labelEn: 'Wrong Spot' }
                             ].map((item) => (
                               <button
                                 key={item.tag}

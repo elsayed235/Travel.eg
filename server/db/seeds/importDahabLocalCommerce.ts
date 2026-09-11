@@ -22,6 +22,28 @@ import {
   EvidenceNodeEntity
 } from '../schema';
 
+/**
+ * Legacy activity place references.
+ *
+ * The canonical activities below were originally written with ids like
+ * 'PLC-BLUE-HOLE' that no place row ever carried — the place atlas uses
+ * 'place_blue_hole_sanctuary'. The catalogue rendered those activities without
+ * a resolved place (Explore fell back to generic text). Map them to the real
+ * atlas ids so every activity placeId resolves.
+ */
+const LEGACY_PLACE_ID_TO_ATLAS: Record<string, string> = {
+  'PLC-BLUE-HOLE': 'place_blue_hole_sanctuary',
+  'PLC-DAHAB-LAGUNA': 'place_laguna_sandspit',
+  'PLC-LIGHTHOUSE-REEF': 'place_lighthouse_reef',
+  'PLC-MOUNT-TWILAT': 'place_mount_twilat',
+  'PLC-RAS-ABU-GALUM': 'place_ras_abu_galum',
+  'PLC-WADI-GNAI': 'place_wadi_gnai_crags'
+};
+
+function normalizeActivityPlaceId(id: string): string {
+  return LEGACY_PLACE_ID_TO_ATLAS[id] || id;
+}
+
 export interface ImportResult {
   success: boolean;
   importedAt: string;
@@ -649,7 +671,7 @@ export function importDahabLocalCommerce(options: { forceReload?: boolean } = {}
         titleEn: actDef.titleEn,
         titleAr: actDef.titleAr,
         category: actDef.category,
-        placeId: actDef.placeId,
+        placeId: normalizeActivityPlaceId(actDef.placeId),
         areaId: actDef.areaId,
         durationMinutes: actDef.durationMinutes,
         accessMethod: actDef.accessMethod,

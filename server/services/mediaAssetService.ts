@@ -6,7 +6,15 @@ import path from 'path';
  * into the public web asset directory (`public/images/`).
  */
 export class MediaAssetService {
-  private static readonly SOURCE_DIR = 'C:\\Users\\mohamed\\OneDrive - newtecx\\Desktop\\dahab images';
+  /**
+   * One-time migration source (a dev-machine folder, long gone). Overridable
+   * via MEDIA_SOURCE_DIR for operators re-running the import elsewhere; when
+   * the directory is absent the sync is a silent no-op — the migrated assets
+   * already live in public/images/ and the CMS media table.
+   */
+  private static readonly SOURCE_DIR =
+    process.env.MEDIA_SOURCE_DIR ||
+    'C:\\Users\\mohamed\\OneDrive - newtecx\\Desktop\\dahab images';
   private static readonly DEST_ROOT = path.join(process.cwd(), 'public', 'images');
 
   /**
@@ -85,7 +93,11 @@ export class MediaAssetService {
    */
   public static syncDahabMediaAssets(): { copied: number; skipped: number; total: number } {
     if (!fs.existsSync(this.SOURCE_DIR)) {
-      console.warn(`[MediaAssetService] Source directory not found: ${this.SOURCE_DIR}`);
+      // Silent when the legacy default is absent (normal: migration done).
+      // Loud only when an operator explicitly configured a missing path.
+      if (process.env.MEDIA_SOURCE_DIR) {
+        console.warn(`[MediaAssetService] Source directory not found: ${this.SOURCE_DIR}`);
+      }
       return { copied: 0, skipped: 0, total: 0 };
     }
 

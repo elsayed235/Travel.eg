@@ -25,6 +25,16 @@ export const DATA_DIR = process.env.DAHAB_DATA_DIR
   ? path.resolve(process.env.DAHAB_DATA_DIR)
   : path.join(process.cwd(), 'data');
 
+/**
+ * Lazy version of DATA_DIR for code that must honor late env changes
+ * (tests pointing at temp dirs, tooling). Same resolution, read per call.
+ */
+export function dataDir(): string {
+  return process.env.DAHAB_DATA_DIR
+    ? path.resolve(process.env.DAHAB_DATA_DIR)
+    : path.join(process.cwd(), 'data');
+}
+
 /** Read-only seed datasets baked into the image. */
 export const SEED_DIR = process.env.DAHAB_SEED_DIR
   ? path.resolve(process.env.DAHAB_SEED_DIR)

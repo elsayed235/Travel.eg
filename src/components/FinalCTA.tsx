@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Compass } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { SectionReveal } from './common/SectionReveal';
 import type { CmsHomepageSection } from '../services/api';
 
 interface FinalCTAProps {
@@ -34,26 +35,27 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
       id="final-cta-section"
       aria-label={isAr ? 'ابدأ رحلتك في دهب' : 'Start your Dahab journey'}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="relative py-24 sm:py-32 overflow-hidden chart-gradient-section"
+      className="group relative py-24 sm:py-32 overflow-hidden chart-gradient-section"
     >
-      {/* Tidal depth overlay: desert surface sinking into ocean night */}
+      {/* Chart depth overlay: night ground settling into abyss-night */}
       <div className="absolute inset-0 z-0 chart-gradient-hero opacity-60" />
       {/* Atmospheric Dahab Sunset Photography */}
       <div className="absolute inset-0 z-0">
         <img
           src="/images/hero/gulf-sunset.jpg"
           alt="Atmospheric sunset over the Dahab coastline and Sinai desert mountains"
-          className="w-full h-full object-cover object-center opacity-40 mix-blend-luminosity scale-105 transition-transform duration-1000 group-hover:scale-110"
+          className="chart-kenburns w-full h-full object-cover object-center opacity-40 mix-blend-luminosity"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-[var(--bg-canvas)]/80 to-transparent" />
       </div>
       {/* Shoreline glass divider at the top of the close */}
       <div className="absolute inset-x-0 -top-px h-px chart-gradient-hero opacity-80" />
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Content — cascades badge → headline → supporting → CTAs → footnote
+          as the close scrolls in; static under reduced motion. */}
+      <SectionReveal stagger={90} offset={20} className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         
-        {/* Subtle Tidal Badge */}
+        {/* Ember wayfinder badge */}
         <div className="chart-badge chart-badge-ember mb-6">
           <Compass className="w-3.5 h-3.5" />
           <span>{pick('badge', 'Start Your Sinai Journey', 'ابدأ رحلتك في سيناء')}</span>
@@ -82,8 +84,9 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
           <button
             id="final-cta-plan-trip-btn"
+            type="button"
             onClick={onPlanTripClick}
-            className="chart-cta-primary w-full sm:w-auto inline-flex items-center justify-center gap-2.5 group"
+            className="chart-cta-primary w-full sm:w-auto inline-flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 group"
           >
             <span>{pick('ctaPrimary', 'Plan My Trip', 'خطط لرحلتي')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
@@ -91,8 +94,9 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
 
           <button
             id="final-cta-explore-btn"
+            type="button"
             onClick={onExploreClick}
-            className="chart-cta-secondary w-full sm:w-auto inline-flex items-center justify-center text-white"
+            className="chart-cta-secondary w-full sm:w-auto inline-flex items-center justify-center text-white cursor-pointer active:scale-95 transition-transform"
           >
             <span>{pick('ctaSecondary', 'Explore Dahab', 'استكشف دهب')}</span>
           </button>
@@ -102,7 +106,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
           {pick('footnote', 'Explore without signing up. Picks come from Dahab locals.', 'الاستكشاف من غير تسجيل، والترشيحات من ناس دهب نفسها.')}
         </p>
 
-      </div>
+      </SectionReveal>
     </section>
   );
 };

@@ -28,6 +28,54 @@ import { api } from '../../services/api';
 import type { TransferDetectedPlace, TransferOriginOption, TransferRouteQuote, TransferType } from '../../shared/types/transfers';
 
 type TabId = 'within_dahab' | 'anywhere';
+
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <div className="text-[11px] font-bold text-[var(--text-secondary)]/70 mb-1.5">{children}</div>
+);
+
+const FieldShell = ({ children }: { children: React.ReactNode }) => (
+  <div className="rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-3">{children}</div>
+);
+
+/**
+ * The two transfer features — "inside Dahab" (zone-priced local rides) and
+ * "anywhere in Egypt" (intercity/airport transfers) — are genuinely separate
+ * flows with separate data (TransferOriginOption sets) and separate pricing
+ * logic; this control is where that split has to read as unmistakable, since
+ * everything below it renders one or the other. Sized and colored distinctly
+ * per tab (not just an active/inactive state of the same look) so a traveler
+ * can tell the two modes apart at a glance, not just which one is selected.
+ */
+const TabButton = ({
+  id, icon: Icon, label, desc, activeTab, onSelect, accent,
+}: { id: TabId; icon: any; label: string; desc: string; activeTab: TabId; onSelect: (id: TabId) => void; accent: 'primary' | 'secondary' }) => {
+  const active = activeTab === id;
+  const accentVar = accent === 'primary' ? 'var(--accent-primary)' : 'var(--accent-secondary)';
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(id)}
+      aria-pressed={active}
+      className={`flex-1 text-start rounded-3xl px-6 py-6 border-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+        active ? 'shadow-lg scale-[1.01]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--border-subtle)] opacity-80 hover:opacity-100'
+      }`}
+      style={active ? { backgroundColor: 'var(--surface-container)', borderColor: accentVar } : undefined}
+    >
+      <div className="flex items-center gap-4">
+        <span
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+          style={active ? { backgroundColor: `color-mix(in oklab, ${accentVar} 20%, transparent)`, color: accentVar } : { backgroundColor: 'var(--surface-container)', color: 'var(--text-secondary)' }}
+        >
+          <Icon className="w-7 h-7" />
+        </span>
+        <div className="min-w-0">
+          <div className={`text-base sm:text-lg font-extrabold ${active ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>{label}</div>
+          <div className="text-xs text-[var(--text-secondary)]/70 font-normal mt-0.5">{desc}</div>
+        </div>
+      </div>
+    </button>
+  );
+};
 type GeoState = 'idle' | 'detecting' | 'detected' | 'failed' | 'denied';
 type BookingState = 'idle' | 'preparing' | 'settling' | 'done';
 
@@ -40,16 +88,22 @@ const TIER_ACCENTS: Record<string, string> = {
   premium: 'border-[var(--accent-primary)]/50 hover:border-[var(--accent-primary)]'
 };
 
-export const TransfersHubView: React.FC = () => {
+export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferType }) => {
   const { t, language, isRTL } = useLanguage();
   const isAr = language === 'ar';
   const { showToast, navigateTo, sessionUser, isSignedIn, activeTrip } = useTrip();
 
   // ------------------------------------------------------------------ tabs
-  const [activeTab, setActiveTab] = useState<TabId>('within_dahab');
+  // Fixed by the route (/transfers/local vs /transfers/intercity) rather than
+  // in-page state — the two transfer types are separate pages now, each with
+  // its own URL, so App.tsx remounts this component (via a `key`) when the
+  // traveler switches between them instead of this component tracking which
+  // one is active itself.
+  const activeTab = transferType;
   // ----------------------------------------------------------- within dahab
   const [withinOrigins, setWithinOrigins] = useState<TransferOriginOption[]>([]);
   const [withinOriginId, setWithinOriginId] = useState<string>('');
+  const [withinOriginsError, setWithinOriginsError] = useState<string | null>(null);
   // -------------------------------------------------------------- anywhere
   const [anywhereOrigins, setAnywhereOrigins] = useState<TransferOriginOption[]>([]);
   const [anywhereQuery, setAnywhereQuery] = useState('');
@@ -79,8 +133,12 @@ export const TransfersHubView: React.FC = () => {
   useEffect(() => {
     api.getTransferOrigins('within_dahab').then((r) => {
       setWithinOrigins(r.origins || []);
+      setWithinOriginsError(null);
       if (!withinOriginId && r.origins?.length) setWithinOriginId(r.origins[0].id);
-    }).catch(() => showToast(t('transfers.loadError', 'تعذّر تحميل مناطق دهب')));
+    }).catch(() => {
+      setWithinOriginsError(t('transfers.loadError', 'تعذّر تحميل مناطق دهب'));
+      showToast(t('transfers.loadError', 'تعذّر تحميل مناطق دهب'));
+    });
   }, []);
 
   useEffect(() => {
@@ -120,6 +178,14 @@ export const TransfersHubView: React.FC = () => {
       (err) => setGeoState(err?.code === err?.PERMISSION_DENIED ? 'denied' : 'failed'),
       { timeout: 8000, maximumAge: 0 }
     );
+  }, []);
+
+  // Landing directly on the intercity page (its own route now) should still
+  // offer to detect the traveler's city automatically, the way switching
+  // into this tab used to.
+  useEffect(() => {
+    if (activeTab === 'anywhere' && geoState === 'idle') detectLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ------------------------------------------------------------ quote on change
@@ -213,69 +279,28 @@ export const TransfersHubView: React.FC = () => {
     }
   };
 
+  // The two transfer types are separate pages now — switching means
+  // navigating to the other route, which remounts this component fresh
+  // (App.tsx keys it by transferType) rather than resetting state in place.
   const resetForTab = (tab: TabId) => {
-    // Re-tapping the tab you are already on must not destroy an in-progress
-    // selection: keep the chosen origin, quotes and booking state intact.
     if (tab === activeTab) return;
-    setActiveTab(tab);
-    setSelectedRoute(null);
-    setQuotes([]);
-    setError(null);
-    setBooking('idle');
-    setSelectedTier('private');
-    if (tab === 'anywhere' && geoState === 'idle') detectLocation();
+    navigateTo(tab === 'within_dahab' ? '/transfers/local' : '/transfers/intercity');
   };
 
   // ---------------------------------------------------------------- render
-  const TabButton = ({ id, icon: Icon, label, desc }: { id: TabId; icon: any; label: string; desc: string }) => (
-    <button
-      type="button"
-      onClick={() => resetForTab(id)}
-      className={`flex-1 text-start rounded-2xl px-5 py-4 border transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
-        activeTab === id
-          ? 'bg-[var(--surface-container)] border-[var(--accent-primary)]/50 shadow-md'
-          : 'bg-[var(--surface-card)]/50 border-[var(--border-subtle)] hover:border-white/25'
-      }`}
-      aria-pressed={activeTab === id}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            activeTab === id ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)]' : 'bg-[var(--surface-container)] text-[var(--text-secondary)]'
-          }`}>
-            <Icon className="w-5 h-5" />
-          </span>
-          <div>
-            <div className={`text-sm font-bold ${activeTab === id ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>{label}</div>
-            <div className="text-[11px] text-[var(--text-secondary)]/60 font-normal">{desc}</div>
-          </div>
-        </div>
-        {activeTab === id && <span className="w-1.5 h-6 rounded-full bg-[var(--accent-primary)]" />}
-      </div>
-    </button>
-  );
-
-  const Label = ({ children }: { children: React.ReactNode }) => (
-    <div className="text-[11px] font-bold text-[var(--text-secondary)]/70 mb-1.5">{children}</div>
-  );
-
-  const FieldShell = ({ children }: { children: React.ReactNode }) => (
-    <div className="rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] px-4 py-3">{children}</div>
-  );
-
   return (
     <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
-        {/* ---------------- hero ---------------- */}
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3 py-1 text-[11px] font-bold text-[var(--accent-primary)] mb-3">
-            <Car className="w-3.5 h-3.5" aria-hidden="true" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16">
+        {/* ---------------- hero — concierge editorial voice ---------------- */}
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+            <Car className="w-3.5 h-3.5 inline-block me-1.5 -mt-0.5" aria-hidden="true" />
             <span>{t('transfers.eyebrow', 'Dahab transfers')}</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl chart-heading font-bold tracking-tight">
+          </p>
+          <h1 className="mt-2 font-display text-4xl sm:text-5xl font-semibold tracking-tight text-balance">
             {t('transfers.title', 'Ride the coast your way')}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--text-secondary)]/80 font-normal leading-relaxed">
+          <p className="mt-3 max-w-2xl text-sm sm:text-base text-[var(--text-secondary)] font-normal leading-relaxed">
             {t('transfers.subtitle', 'On-demand cars inside Dahab and private transfers from anywhere in Egypt')}
           </p>
 
@@ -295,9 +320,12 @@ export const TransfersHubView: React.FC = () => {
         </div>
 
         {/* ---------------- tabs ---------------- */}
-        <div className="grid sm:grid-cols-2 gap-3 mb-8">
-          <TabButton id="within_dahab" icon={MapPin} label={t('transfers.tab.within', 'Inside Dahab')} desc={t('transfers.tab.within.desc', 'Hop between Dahab districts')} />
-          <TabButton id="anywhere" icon={Navigation} label={t('transfers.tab.anywhere', 'From anywhere in Egypt')} desc={t('transfers.tab.anywhere.desc', 'Fixed price from any city or airport')} />
+        <div className="mb-3 text-[11px] font-bold text-[var(--text-secondary)]/70 uppercase tracking-wide">
+          {isAr ? 'طريقتان للتنقل — اختر واحدة' : 'Two ways to move — pick one'}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+          <TabButton id="within_dahab" icon={MapPin} label={t('transfers.tab.within', 'Inside Dahab')} desc={t('transfers.tab.within.desc', 'Hop between Dahab districts')} activeTab={activeTab} onSelect={resetForTab} accent="primary" />
+          <TabButton id="anywhere" icon={Navigation} label={t('transfers.tab.anywhere', 'From anywhere in Egypt')} desc={t('transfers.tab.anywhere.desc', 'Fixed price from any city or airport')} activeTab={activeTab} onSelect={resetForTab} accent="secondary" />
         </div>
 
         {/* ---------------- body ---------------- */}
@@ -332,13 +360,16 @@ export const TransfersHubView: React.FC = () => {
             {activeTab === 'within_dahab' && (
               <div>
                 <Label>{t('transfers.origin.within.placeholder', 'Pick a Dahab area')}</Label>
+                {withinOriginsError && (
+                  <div role="alert" className="rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs px-4 py-3 mb-2">{withinOriginsError}</div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {withinOrigins.map((o) => (
                     <button
                       key={o.id}
                       type="button"
                       onClick={() => setWithinOriginId(o.id)}
-                      className={`px-3.5 py-2 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                      className={`px-3.5 py-2 min-w-[44px] min-h-[44px] rounded-full text-xs font-bold border transition-colors cursor-pointer ${
                         withinOriginId === o.id
                           ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border-[var(--accent-primary)]/40'
                           : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-subtle)] hover:border-white/25'
@@ -354,17 +385,17 @@ export const TransfersHubView: React.FC = () => {
             {/* -------- anywhere: origin picker + geo -------- */}
             {activeTab === 'anywhere' && (
               <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col md:flex-row gap-2">
                   <button
                     type="button"
                     onClick={detectLocation}
                     disabled={geoState === 'detecting'}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/25 transition-colors cursor-pointer disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl text-xs font-bold bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30 hover:bg-[var(--accent-primary)]/25 transition-colors cursor-pointer disabled:opacity-60 shrink-0 whitespace-nowrap"
                   >
-                    {geoState === 'detecting' ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
+                    {geoState === 'detecting' ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <LocateFixed className="w-4 h-4 shrink-0" />}
                     {geoState === 'detecting' ? t('transfers.detecting', 'Detecting…') : t('transfers.detectLocation', 'Use my location')}
                   </button>
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 min-w-0">
                     <Search className="w-4 h-4 text-[var(--text-secondary)]/50 absolute top-1/2 -translate-y-1/2 start-3" />
                     <input
                       ref={searchRef}
@@ -372,6 +403,7 @@ export const TransfersHubView: React.FC = () => {
                       value={anywhereQuery}
                       onChange={(e) => { setAnywhereQuery(e.target.value); setAnywherePickerOpen(true); }}
                       onFocus={() => setAnywherePickerOpen(true)}
+                      aria-label={t('transfers.origin.anywhere.placeholder', 'Enter your city or airport')}
                       placeholder={t('transfers.origin.anywhere.placeholder', 'Enter your city or airport')}
                       className="w-full bg-[var(--surface-card)] border border-[var(--border-subtle)] rounded-2xl ps-10 pe-4 py-3 text-sm placeholder:text-[var(--text-secondary)]/50 focus:outline-none focus:border-[var(--accent-primary)]/50"
                     />
@@ -393,7 +425,7 @@ export const TransfersHubView: React.FC = () => {
                             className="w-full flex items-center justify-between gap-2 px-4 py-3 text-start text-sm hover:bg-[var(--surface-container)] transition-colors cursor-pointer"
                           >
                             <span className="font-medium">{isAr ? o.labelAr : o.labelEn}</span>
-                            <span className="inline-flex items-center gap-1 text-[10px] text-[var(--text-secondary)]/60 font-bold">
+                            <span className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)]/60 font-bold">
                               {o.originType === 'airport' ? <Plane className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
                               {o.distanceKm} {t('transfers.km', 'km')}
                             </span>
@@ -423,7 +455,7 @@ export const TransfersHubView: React.FC = () => {
                         </span>
                       )}
                     </span>
-                    <button type="button" onClick={() => { setGeoOrigin(null); setGeoDetected(null); setSelectedOrigin(null); setGeoState('idle'); }} className="hover:opacity-80 cursor-pointer">
+                    <button type="button" onClick={() => { setGeoOrigin(null); setGeoDetected(null); setSelectedOrigin(null); setGeoState('idle'); }} aria-label={t('a11y.clearLocation')} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:opacity-80 cursor-pointer">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -486,7 +518,7 @@ export const TransfersHubView: React.FC = () => {
                       min={new Date().toISOString().split('T')[0]}
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+                      className="w-full bg-transparent text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] cursor-pointer"
                     />
                   </FieldShell>
                   <FieldShell>
@@ -495,7 +527,7 @@ export const TransfersHubView: React.FC = () => {
                       <select
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
-                        className="w-full appearance-none bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+                        className="w-full appearance-none bg-transparent text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] cursor-pointer"
                       >
                         {PRESET_TIMES.map((tm) => <option key={tm} value={tm}>{tm}</option>)}
                       </select>
@@ -507,9 +539,9 @@ export const TransfersHubView: React.FC = () => {
               <FieldShell>
                 <Label><Users className="w-3.5 h-3.5 inline me-1 text-[var(--accent-primary)]" />{t('transfers.passengers', 'Passengers')}</Label>
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setPassengers((p) => Math.max(1, p - 1))} className="w-8 h-8 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-bold hover:border-[var(--accent-primary)]/40 cursor-pointer">−</button>
+                  <button type="button" onClick={() => setPassengers((p) => Math.max(1, p - 1))} className="w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-bold hover:border-[var(--accent-primary)]/40 cursor-pointer">−</button>
                   <span className="flex-1 text-center text-base font-bold">{passengers}</span>
-                  <button type="button" onClick={() => setPassengers((p) => Math.min(14, p + 1))} className="w-8 h-8 rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-bold hover:border-[var(--accent-primary)]/40 cursor-pointer">+</button>
+                  <button type="button" onClick={() => setPassengers((p) => Math.min(14, p + 1))} className="w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm font-bold hover:border-[var(--accent-primary)]/40 cursor-pointer">+</button>
                 </div>
               </FieldShell>
               {isAirport && (
@@ -520,7 +552,7 @@ export const TransfersHubView: React.FC = () => {
                     value={flightNumber}
                     onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
                     placeholder="MS 028"
-                    className="w-full bg-transparent text-sm font-medium placeholder:text-[var(--text-secondary)]/40 focus:outline-none"
+                    className="w-full bg-transparent text-sm font-medium placeholder:text-[var(--text-secondary)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
                   />
                 </FieldShell>
               )}
@@ -589,7 +621,7 @@ export const TransfersHubView: React.FC = () => {
                         </div>
                         <div className="text-end">
                           <div className="text-xl font-black text-[var(--accent-secondary)]">{quote.priceEGP.toLocaleString()}</div>
-                          <div className="text-[10px] text-[var(--text-secondary)]/50 font-bold">{t('transfers.quote', 'Fixed price')}</div>
+                          <div className="text-xs text-[var(--text-secondary)]/50 font-bold">{t('transfers.quote', 'Fixed price')}</div>
                         </div>
                       </div>
                     </button>
@@ -630,7 +662,7 @@ export const TransfersHubView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigateTo('/my-trip')}
-                    className="flex-1 py-3 rounded-xl text-xs font-bold bg-[var(--accent-primary)] text-[#1A1206] cursor-pointer hover:brightness-110 transition-colors"
+                    className="flex-1 py-3 rounded-xl text-xs font-bold bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] cursor-pointer hover:brightness-110 transition-colors"
                   >
                     {t('transfers.viewMyTrip', 'View My Trip')}
                   </button>

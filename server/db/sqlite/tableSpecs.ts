@@ -195,6 +195,16 @@ export const TABLE_SPECS: TableSpec[] = [
     compositeIndexes: [['category', 'area']]
   },
   {
+    // NOTE: declared ahead of accommodations/places (its FK children) even
+    // though it reads as a DKOS table — flushAll() upserts parent-first in
+    // spec order, so this position is load-bearing for fresh-database seeds.
+    table: 'area_profiles',
+    collection: 'areaProfiles',
+    key: 'id',
+    label: 'Area profiles',
+    columns: [t('name_en', 'nameEn', { index: true })]
+  },
+  {
     table: 'accommodations',
     collection: 'accommodations',
     key: 'id',
@@ -313,6 +323,50 @@ export const TABLE_SPECS: TableSpec[] = [
       i('day_number', 'dayNumber'),
       r('price_egp', 'priceEGP')
     ]
+  },
+  {
+    table: 'trip_members',
+    collection: 'tripMembers',
+    key: 'id',
+    label: 'Trip members',
+    columns: [
+      t('trip_id', 'tripId', { notNull: true, index: true, references: fk('trips', 'CASCADE') }),
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('role', 'role', { notNull: true, index: true }),
+      t('status', 'status', { notNull: true, index: true }),
+      t('invited_by', 'invitedBy'),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['trip_id', 'user_id']]
+  },
+  {
+    table: 'trip_item_votes',
+    collection: 'tripItemVotes',
+    key: 'id',
+    label: 'Trip item votes',
+    columns: [
+      t('trip_id', 'tripId', { notNull: true, index: true, references: fk('trips', 'CASCADE') }),
+      t('trip_item_id', 'tripItemId', { notNull: true, index: true }),
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('vote', 'vote', { notNull: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['trip_item_id', 'user_id']]
+  },
+  {
+    table: 'trip_splits',
+    collection: 'tripSplits',
+    key: 'id',
+    label: 'Trip splits',
+    columns: [
+      t('trip_id', 'tripId', { notNull: true, index: true, references: fk('trips', 'CASCADE') }),
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('status', 'status', { notNull: true, index: true }),
+      r('share_egp', 'shareEGP'),
+      r('paid_egp', 'paidEGP'),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['trip_id', 'user_id']]
   },
   {
     table: 'holds',
@@ -501,6 +555,105 @@ export const TABLE_SPECS: TableSpec[] = [
       t('channel'),
       t('created_at', 'createdAt', { index: true })
     ]
+  },
+  {
+    table: 'ambient_nudges',
+    collection: 'ambientNudges',
+    key: 'id',
+    label: 'Ambient nudges',
+    columns: [
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('trip_id', 'tripId', { notNull: true, index: true }),
+      t('nudge_type', 'nudgeType', { notNull: true, index: true }),
+      t('priority', 'priority', { index: true }),
+      t('status', 'status', { notNull: true, index: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['user_id', 'status'], ['trip_id', 'nudge_type']]
+  },
+  {
+    table: 'push_subscriptions',
+    collection: 'pushSubscriptions',
+    key: 'id',
+    label: 'Push subscriptions',
+    columns: [
+      // No FK, same reasoning as notifications: a subscription must survive
+      // its user row long enough for cleanup to prune it deliberately, and
+      // the endpoint itself is the dedupe key (first owner wins).
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('endpoint', 'endpoint', { notNull: true, unique: true }),
+      t('created_at', 'createdAt', { index: true })
+    ]
+  },
+  {
+    table: 'supplier_metrics',
+    collection: 'supplierMetrics',
+    key: 'id',
+    label: 'Supplier metrics',
+    columns: [
+      t('supplier_id', 'supplierId', { notNull: true, index: true }),
+      t('booking_ref', 'bookingRef', { notNull: true, index: true }),
+      t('event', 'event', { notNull: true, index: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['supplier_id', 'event']]
+  },
+  {
+    table: 'reviews',
+    collection: 'reviews',
+    key: 'id',
+    label: 'Reviews',
+    columns: [
+      t('booking_ref', 'bookingRef', { notNull: true, index: true }),
+      t('user_id', 'userId', { notNull: true, index: true }),
+      t('supplier_id', 'supplierId', { notNull: true, index: true }),
+      t('moderation_status', 'moderationStatus', { index: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['supplier_id', 'moderation_status']]
+  },
+  {
+    table: 'supplier_availability_blocks',
+    collection: 'supplierAvailabilityBlocks',
+    key: 'id',
+    label: 'Supplier availability blocks',
+    columns: [
+      t('supplier_id', 'supplierId', { notNull: true, index: true }),
+      t('start_date', 'startDate', { notNull: true, index: true }),
+      t('end_date', 'endDate', { notNull: true, index: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['supplier_id', 'start_date', 'end_date']]
+  },
+  {
+    table: 'payout_schedule',
+    collection: 'payoutSchedule',
+    key: 'id',
+    label: 'Payout schedule',
+    columns: [
+      t('supplier_id', 'supplierId', { notNull: true, index: true }),
+      t('booking_ref', 'bookingRef', { notNull: true, index: true }),
+      t('payout_state', 'payoutState', { notNull: true, index: true }),
+      t('settle_after', 'settleAfter', { index: true }),
+      t('created_at', 'createdAt', { index: true })
+    ],
+    compositeIndexes: [['payout_state', 'settle_after']]
+  },
+  {
+    table: 'analytics_events',
+    collection: 'analyticsEvents',
+    key: 'id',
+    label: 'Analytics events',
+    columns: [
+      // Indexed, not a FK: events must survive the user row (a deleted account
+      // does not erase the funnel that measured it), and anonymous events have
+      // no user at all.
+      t('user_id', 'userId', { index: true }),
+      t('session_id', 'sessionId', { index: true }),
+      t('event_name', 'eventName', { notNull: true, index: true }),
+      t('timestamp', 'timestamp', { index: true })
+    ],
+    compositeIndexes: [['event_name', 'timestamp']]
   },
   {
     table: 'support_messages',
@@ -742,13 +895,6 @@ export const TABLE_SPECS: TableSpec[] = [
     ]
   },
   {
-    table: 'area_profiles',
-    collection: 'areaProfiles',
-    key: 'id',
-    label: 'Area profiles',
-    columns: [t('name_en', 'nameEn', { index: true })]
-  },
-  {
     table: 'places',
     collection: 'places',
     key: 'id',
@@ -875,6 +1021,88 @@ export const TABLE_SPECS: TableSpec[] = [
     columns: [
       t('status', 'status', { index: true }),
       r('score')
+    ]
+  },
+  // ------------------------------------------------------------------ P2: Long-Stay / Reef / Bundles / Journal
+  {
+    table: 'reef_positive_logs',
+    collection: 'reefPositiveLogs',
+    key: 'id',
+    label: 'Reef-positive conservation logs',
+    columns: [
+      t('booking_id', 'bookingId', { index: true }),
+      t('trip_id', 'tripId', { index: true }),
+      t('supplier_id', 'supplierId', { index: true }),
+      t('user_id', 'userId', { index: true }),
+      t('action_type', 'actionType', { index: true }),
+      i('points_awarded', 'pointsAwarded')
+    ]
+  },
+  {
+    table: 'bundles',
+    collection: 'bundles',
+    key: 'id',
+    label: 'Dynamic bundles',
+    columns: [
+      bool('active', 'active'),
+      t('service_types', 'serviceTypes')
+    ]
+  },
+  {
+    table: 'trip_journal_entries',
+    collection: 'tripJournalEntries',
+    key: 'id',
+    label: 'Trip journal entries',
+    columns: [
+      t('trip_id', 'tripId', { index: true }),
+      t('user_id', 'userId', { index: true }),
+      bool('auto_captured', 'autoCaptured')
+    ]
+  },
+  {
+    table: 'trip_places_visited',
+    collection: 'tripPlacesVisited',
+    key: 'id',
+    label: 'Trip places visited',
+    columns: [
+      t('trip_id', 'tripId', { index: true }),
+      t('user_id', 'userId', { index: true }),
+      t('booking_id', 'bookingId', { index: true })
+    ]
+  },
+  // ------------------------------------------------------------------ P3: Fraud Detection
+  {
+    table: 'fraud_signals',
+    collection: 'fraudSignals',
+    key: 'id',
+    label: 'Fraud detection signals',
+    columns: [
+      t('transaction_id', 'transactionId', { index: true }),
+      t('user_id', 'userId', { index: true }),
+      t('signal_type', 'signalType', { index: true }),
+      t('action', 'action', { index: true }),
+      i('risk_score', 'riskScore')
+    ]
+  },
+  {
+    table: 'fraud_rules',
+    collection: 'fraudRules',
+    key: 'id',
+    label: 'Fraud detection rules',
+    columns: [
+      t('rule_name', 'ruleName', { unique: true }),
+      bool('enabled', 'enabled')
+    ]
+  },
+  {
+    table: 'fraud_user_stats',
+    collection: 'fraudUserStats',
+    key: 'userId',
+    label: 'Per-user fraud stats',
+    columns: [
+      t('user_id', 'userId', { index: true }),
+      bool('blocked', 'blocked'),
+      i('cumulative_risk_score', 'cumulativeRiskScore')
     ]
   }
 ];

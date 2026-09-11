@@ -381,7 +381,7 @@ export const ItineraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         });
       });
 
-      showToast(`تم نقل النشاط إلى اليوم ${toDay} بنجاح ✨`);
+      showToast(`تم نقل النشاط إلى اليوم ${toDay} بنجاح`);
     },
     [showToast]
   );

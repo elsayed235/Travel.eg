@@ -122,7 +122,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
         {blueHole && (
           <div
             onClick={() => handleTileClick(blueHole)}
-            className="group relative md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-6 sm:p-8"
+            className="group relative md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 cursor-pointer flex flex-col justify-between p-6 sm:p-8 aurora-hover"
           >
             <img
               src={LANDMARK_PHOTOS[blueHole.id] || '/images/attractions/blue-hole.jpg'}
@@ -322,7 +322,7 @@ export const DahabLandmarksBento: React.FC<DahabLandmarksBentoProps> = ({
 
             <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <h3 className="text-xl sm:text-2xl chart-heading font-bold text-white group-hover:text-[#E8A33D] transition-colors">
+                <h3 className="text-xl sm:text-2xl chart-heading font-bold text-white group-hover:text-[var(--accent-primary)] transition-colors">
                   {pick(stCatherine.name, language)}
                 </h3>
                 <p className="text-xs sm:text-sm text-white/85 mt-1 leading-relaxed line-clamp-2">

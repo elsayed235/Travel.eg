@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ArrowRight, ShieldCheck, Zap, Compass } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -9,22 +9,20 @@ interface StickyBookingBottomBarProps {
   onOpenItinerary: () => void;
 }
 
-export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
+export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = React.memo(({
   onStartCustomPlanner,
   onOpenItinerary,
 }) => {
   const { currentRoute, tripDays, profile, navigateTo } = useTrip();
   const { language , t} = useLanguage();
   const { isDark } = useTheme();
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const barRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show when scrolled down past 280px
-      if (window.scrollY > 280) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
+      if (barRef.current) {
+        const show = window.scrollY > 280;
+        barRef.current.style.display = show ? '' : 'none';
       }
     };
 
@@ -32,14 +30,14 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Only show on the home page and once scrolled down.
+  // Only show on the home page.
   //
   // This used to read `currentView`, which the context has never exposed. The
   // comparison `undefined !== 'home'` was always true, so this component
   // returned null on every render and the sticky booking bar never appeared at
   // all. The route-based equivalent is below.
   const isHomeRoute = currentRoute === '/home' || currentRoute === '/discover' || currentRoute === '/';
-  if (!isHomeRoute || !isVisible) {
+  if (!isHomeRoute) {
     return null;
   }
 
@@ -56,9 +54,11 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
       bottom nav.
     */
     <aside
+      ref={barRef}
       id="sticky-booking-bottom-bar"
       aria-label="Trip booking floating status bar"
       className="fixed bottom-[68px] md:bottom-4 inset-x-0 z-40 max-w-4xl mx-auto px-4 pointer-events-none transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-300 transform translate-y-0"
+      style={{ display: 'none' }}
     >
       <div className="pointer-events-auto backdrop-blur-xl border border-[var(--border-subtle)] rounded-3xl p-3.5 sm:p-4 shadow-2xl flex items-center justify-between gap-4 transition-colors bg-[var(--surface-card)] text-[var(--text-primary)]">
         
@@ -126,4 +126,4 @@ export const StickyBookingBottomBar: React.FC<StickyBookingBottomBarProps> = ({
       </div>
     </aside>
   );
-};
+});

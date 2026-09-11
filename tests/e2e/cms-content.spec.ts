@@ -17,6 +17,11 @@ import { SEED_EMAILS } from './helpers/config';
  */
 
 test.describe('CMS Content (Admin)', () => {
+  // Same desktop-chrome dependency as Command Center: the console sidebar is
+  // `hidden lg:flex`; mobile uses a bottom nav instead. Skip below lg per the
+  // mobile-375 project convention in playwright.config.ts.
+  test.skip(({ viewport }) => (viewport?.width ?? 1024) < 1024, 'Console sidebar chrome is desktop-only (lg breakpoint)');
+
   const openCms = async (page: Page, subTab = '') => {
     await page.goto(`/ops-console#cms${subTab ? `/${subTab}` : ''}`);
     // Wait until the console shell has mounted

@@ -255,6 +255,10 @@ export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | nu
 
   const [activeTab, setActiveTab] = useState<'all' | 'diving' | 'desert' | 'boho' | 'hotel'>('all');
   const [activePhoto, setActivePhoto] = useState<DahabPhotoItem | null>(null);
+  /** Homepage shows a curated taste, not the full catalog — "View All" expands
+      in place rather than routing to a dedicated gallery page (none exists). */
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
+  const CURATED_COUNT = 6;
 
   const filterTabs = [
     { id: 'all', label: 'All Photos', labelAr: 'كل الصور', icon: Camera },
@@ -365,7 +369,7 @@ export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | nu
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => { setActiveTab(tab.id as any); setShowAllPhotos(false); }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] shadow-md shadow-[var(--accent-primary)]/20 scale-105'
@@ -382,13 +386,14 @@ export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | nu
         </div>
       </div>
 
-      {/* Modern Dynamic Photography Grid */}
+      {/* Modern Dynamic Photography Grid — curated to a handful by default;
+          the homepage is a discovery entry point, not the full catalog. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPhotos.map((photo, index) => (
+        {(showAllPhotos ? filteredPhotos : filteredPhotos.slice(0, CURATED_COUNT)).map((photo, index) => (
           <div
             key={photo.id}
             onClick={() => setActivePhoto(photo)}
-            className={`group relative rounded-3xl overflow-hidden cursor-pointer border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 hover:-translate-y-1.5 hover:shadow-2xl ${
+            className={`group relative rounded-3xl overflow-hidden cursor-pointer border transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-500 hover:-translate-y-1.5 hover:shadow-2xl aurora-hover ${
               isDark
                 ? 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/40'
                 : 'bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-[var(--accent-primary)]'
@@ -440,6 +445,19 @@ export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | nu
           </div>
         ))}
       </div>
+
+      {!showAllPhotos && filteredPhotos.length > CURATED_COUNT && (
+        <div className="flex justify-center mt-8">
+          <button
+            type="button"
+            onClick={() => setShowAllPhotos(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-colors cursor-pointer"
+          >
+            <span>{isAr ? `عرض كل الصور (${filteredPhotos.length})` : `View all photos (${filteredPhotos.length})`}</span>
+            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+          </button>
+        </div>
+      )}
 
       {/* Fullscreen Interactive Lightbox Modal */}
       {activePhoto && (
@@ -518,7 +536,7 @@ export const DahabPhotoShowcase: React.FC<{ cmsSection?: CmsHomepageSection | nu
                   setActivePhoto(null);
                   navigateTo('/trip-builder');
                 }}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#B97A1F] to-[#E8A33D] text-[#1A1206] font-bold text-xs flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap"
+                className="px-5 py-3 rounded-xl bg-gradient-to-r from-[var(--accent-secondary)] to-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-bold text-xs flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer whitespace-nowrap"
               >
                 <Compass className="w-4 h-4" />
                 <span>{isAr ? 'خطط لزيارة هذا المعلم' : 'Plan Trip to This Spot'}</span>

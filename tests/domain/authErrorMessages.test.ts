@@ -35,7 +35,11 @@ describe('humanizeAuthError (§6a)', () => {
     expect(humanizeAuthError(codeFor('auth/user-not-found'))).toContain("doesn't look right");
   });
 
-  it('treats unknown message strings (e.g. our own API constants) as a fallback', () => {
-    expect(humanizeAuthError({ message: 'AUTH_INVALID_CREDENTIALS' }, 'en')).toContain('temporarily unavailable');
+  it('treats unknown message strings as a fallback', () => {
+    expect(humanizeAuthError({ message: 'SOME_RANDOM_STRING' }, 'en')).toContain('temporarily unavailable');
+  });
+
+  it('maps server-side API error constants to the right message', () => {
+    expect(humanizeAuthError({ message: 'AUTH_INVALID_CREDENTIALS' }, 'en')).toContain('email or password');
   });
 });

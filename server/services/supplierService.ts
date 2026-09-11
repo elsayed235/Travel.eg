@@ -3,6 +3,9 @@ import { db } from '../db/database';
 import { BookingEntity, SupplierEntity } from '../db/schema';
 import { ledgerService } from './ledgerService';
 import { notificationService } from './notificationService';
+import { reliabilityService } from './reliabilityService';
+import { payoutService } from './payoutService';
+import { payoutsForSupplier } from './payoutService';
 
 export class SupplierService {
   public getSupplierDashboard(supplierId: string): {
@@ -15,8 +18,10 @@ export class SupplierService {
       confirmedCount: number;
       totalEarningsEGP: number;
       escrowPendingEGP: number;
-      reliabilityScore: number;
-      slaResponseRate: string;
+      /** The supplier's rating, or null when none has been collected. */
+      reliabilityScore: number | null;
+      /** Null: no response-time measurement exists in this system yet. */
+      slaResponseRate: string | null;
     };
   } {
     const supplier = db.suppliers.find(s => s.id === supplierId) || null;
@@ -45,8 +50,13 @@ export class SupplierService {
         confirmedCount,
         totalEarningsEGP,
         escrowPendingEGP,
-        reliabilityScore: supplier?.rating || 4.9,
-        slaResponseRate: '99.4%'
+        // Null, not a flattering default. `supplier?.rating || 4.9` invented a
+        // 4.9 for any supplier with no rating and showed it back to that
+        // supplier as their own score; and nothing in this system measures
+        // response time, so the constant '99.4%' was a claim with no
+        // observation behind it. The portal renders "—" for both when absent.
+        reliabilityScore: typeof supplier?.rating === 'number' ? supplier.rating : null,
+        slaResponseRate: null
       }
     };
   }
@@ -85,26 +95,39 @@ export class SupplierService {
         booking.supplierState = 'COMPLETED';
         booking.paymentState = 'CAPTURED';
 
-        // Payout settlement to supplier in ledger
+        // 24h payout schedule: hold funds for dispute window before releasing.
         const payoutAmount = Math.round(booking.amountEGP * 0.85);
-        ledgerService.recordDoubleEntry({
-          transactionId: `TXN-PAYOUT-${Date.now()}`,
-          idempotencyKey: `IDEMP-PAYOUT-${booking.id}`,
+        payoutService.schedulePayout({
+          supplierId: booking.supplierId,
           bookingRef: booking.bookingRef,
-          tripId: booking.tripId,
-          type: 'SUPPLIER_PAYOUT',
           amountEGP: payoutAmount,
-          debitAccount: 'PLATFORM_ESCROW_MAIN',
-          creditAccount: `SUPPLIER_PAYABLE_${booking.supplierId}`,
-          metadata: {
-            serviceType: booking.serviceType,
-            payoutPercentage: '85%',
-            settledAt: now
-          }
         });
       } else if (params.action === 'REJECT') {
         booking.supplierState = 'REJECTED';
         booking.specialRequests = `Rejected by supplier: ${params.reason || 'Capacity constraint'}`;
+      }
+
+      // Record supplier metric for reliability scoring.
+      // Response time = minutes from booking creation to this decision.
+      const responseMinutes = booking.createdAt
+        ? Math.round((Date.now() - new Date(booking.createdAt).getTime()) / 60000)
+        : undefined;
+      const eventMap: Record<string, 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED'> = {
+        ACCEPT: 'ACCEPTED',
+        REJECT: 'REJECTED',
+        CANCEL: 'CANCELLED',
+        COMPLETE: 'COMPLETED',
+      };
+      const metricEvent = eventMap[params.action];
+      if (metricEvent) {
+        reliabilityService.recordSupplierMetric(
+          booking.supplierId,
+          booking.bookingRef,
+          metricEvent,
+          responseMinutes,
+        );
+        // Refresh the supplier's cached score.
+        reliabilityService.refreshSupplierScore(booking.supplierId);
       }
 
       booking.updatedAt = now;
@@ -122,6 +145,22 @@ export class SupplierService {
         metadata: { recipientPhone: booking.travelerPhone, bookingRef: booking.bookingRef, supplierState: booking.supplierState }
       });
 
+      // Review invitation on completion (blueprint row #14). The verified-stay
+      // review only has a funnel if the traveler is actually invited the
+      // moment the stay is over — the bookings surface shows the CTA off this
+      // notification.
+      if (booking.supplierState === 'COMPLETED') {
+        const ownerId = db.trips.find(t => t.id === booking.tripId)?.userId;
+        if (ownerId) {
+          notificationService.sendReviewInvitation({
+            userId: ownerId,
+            bookingRef: booking.bookingRef,
+            supplierId: booking.supplierId,
+            serviceType: booking.serviceType,
+          });
+        }
+      }
+
       db.logAudit(params.supplierId, 'Supplier', 'BOOKING_STATE_MUTATED', 'Booking', booking.id, {
         action: params.action,
         supplierState: booking.supplierState,
@@ -130,6 +169,110 @@ export class SupplierService {
     });
 
     return booking;
+  }
+
+  /**
+   * P6 ops/supplier attention: the Revenue & Analytics feed for the supplier
+   * portal's Revenue tab. Every number is derived from the same bookings the
+   * dashboard reads — no client arithmetic, no invented baselines. Series are
+   * bucketed by day for the last `days` days (default 30, capped at 90);
+   * months with no bookings simply show zero, which is the honest shape.
+   */
+  public getSupplierRevenueAnalytics(supplierId: string, days = 30): {
+    supplierId: string;
+    windowDays: number;
+    currency: 'EGP';
+    totals: {
+      grossBookingsEGP: number;
+      payoutEGP: number;
+      escrowPendingEGP: number;
+      payoutScheduledEGP: number;
+      bookingsCount: number;
+      completedCount: number;
+      cancelledCount: number;
+      rejectedCount: number;
+      /** completed / (completed + cancelled + rejected); null when nothing closed. */
+      completionRate: number | null;
+      avgBookingEGP: number | null;
+    };
+    byServiceType: Array<{ serviceType: string; bookingsCount: number; grossEGP: number; payoutEGP: number }>;
+    daily: Array<{ date: string; bookingsCount: number; grossEGP: number; payoutEGP: number }>;
+    topBookings: Array<{ bookingRef: string; serviceType: string; amountEGP: number; payoutEGP: number; supplierState: string; scheduledDate: string }>;
+  } {
+    const windowDays = Math.max(7, Math.min(days, 90));
+    const allBookings = db.bookings.filter(b => b.supplierId === supplierId);
+    const SHARE = 0.85; // must match getSupplierDashboard's payout share
+    const payoutOf = (b: BookingEntity) => Math.round(b.amountEGP * SHARE);
+
+    // Window for the daily series (UTC day boundaries; booking createdAt is ISO).
+    const now = Date.now();
+    const windowStart = now - windowDays * 24 * 60 * 60 * 1000;
+    const dayKey = (iso: string) => iso.slice(0, 10);
+    const buckets = new Map<string, { bookingsCount: number; grossEGP: number; payoutEGP: number }>();
+    for (let i = windowDays - 1; i >= 0; i--) {
+      const d = new Date(now - i * 24 * 60 * 60 * 1000);
+      buckets.set(d.toISOString().slice(0, 10), { bookingsCount: 0, grossEGP: 0, payoutEGP: 0 });
+    }
+    for (const b of allBookings) {
+      const ts = b.createdAt ? Date.parse(b.createdAt) : NaN;
+      if (!Number.isFinite(ts) || ts < windowStart) continue;
+      const bucket = buckets.get(dayKey(b.createdAt!));
+      if (!bucket) continue;
+      bucket.bookingsCount += 1;
+      bucket.grossEGP += b.amountEGP;
+      bucket.payoutEGP += payoutOf(b);
+    }
+
+    const completed = allBookings.filter(b => b.supplierState === 'COMPLETED');
+    const cancelled = allBookings.filter(b => b.supplierState === 'CANCELLED');
+    const rejected = allBookings.filter(b => b.supplierState === 'REJECTED');
+    const closedCount = completed.length + cancelled.length + rejected.length;
+    const grossBookingsEGP = allBookings.reduce((acc, b) => acc + b.amountEGP, 0);
+
+    const serviceTypes = [...new Set(allBookings.map(b => b.serviceType))];
+
+    return {
+      supplierId,
+      windowDays,
+      currency: 'EGP',
+      totals: {
+        grossBookingsEGP,
+        payoutEGP: completed.reduce((acc, b) => acc + payoutOf(b), 0),
+        escrowPendingEGP: allBookings
+          .filter(b => b.supplierState !== 'COMPLETED' && b.supplierState !== 'CANCELLED' && b.supplierState !== 'REJECTED')
+          .reduce((acc, b) => acc + payoutOf(b), 0),
+        payoutScheduledEGP: payoutsForSupplier(supplierId)
+          .filter(p => p.payoutState === 'PENDING')
+          .reduce((acc, p) => acc + p.amountEGP, 0),
+        bookingsCount: allBookings.length,
+        completedCount: completed.length,
+        cancelledCount: cancelled.length,
+        rejectedCount: rejected.length,
+        completionRate: closedCount > 0 ? completed.length / closedCount : null,
+        avgBookingEGP: allBookings.length > 0 ? Math.round(grossBookingsEGP / allBookings.length) : null
+      },
+      byServiceType: serviceTypes.map(serviceType => {
+        const rows = allBookings.filter(b => b.serviceType === serviceType);
+        return {
+          serviceType,
+          bookingsCount: rows.length,
+          grossEGP: rows.reduce((acc, b) => acc + b.amountEGP, 0),
+          payoutEGP: rows.reduce((acc, b) => acc + payoutOf(b), 0)
+        };
+      }).sort((a, b) => b.grossEGP - a.grossEGP),
+      daily: [...buckets.entries()].map(([date, v]) => ({ date, ...v })),
+      topBookings: [...allBookings]
+        .sort((a, b) => b.amountEGP - a.amountEGP)
+        .slice(0, 5)
+        .map(b => ({
+          bookingRef: b.bookingRef,
+          serviceType: b.serviceType,
+          amountEGP: b.amountEGP,
+          payoutEGP: payoutOf(b),
+          supplierState: b.supplierState,
+          scheduledDate: b.scheduledDate
+        }))
+    };
   }
 }
 

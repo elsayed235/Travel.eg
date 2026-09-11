@@ -13,6 +13,7 @@ import {
   Compass
 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { CategoryIcon } from '../common/CategoryIcon';
 
 interface ActivityOptionModalProps {
   type: 'breakfast' | 'beach' | 'walk' | null;
@@ -166,7 +167,7 @@ export const ActivityOptionModal: React.FC<ActivityOptionModalProps> = ({
                 {rec.desc}
               </p>
               <div className="pt-1 flex flex-wrap items-center justify-between text-[12px] text-[var(--text-secondary)]/60 border-t border-[var(--border-subtle)] gap-2">
-                <span>✨ {rec.vibe}</span>
+                <span className="inline-flex items-center gap-1"><CategoryIcon kind="sparkles" className="w-3.5 h-3.5" /> {rec.vibe}</span>
                 <span className="font-semibold text-[var(--text-primary)]">{rec.price}</span>
               </div>
             </div>

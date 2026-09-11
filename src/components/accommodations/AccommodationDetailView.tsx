@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowLeft, Star, MapPin, BedDouble, Users, CalendarDays, Info, Sparkles,
   Check, AlertTriangle, SkipBack, Loader2, ExternalLink
 } from 'lucide-react';
 import { WhatsAppIcon } from '../common/icons/WhatsAppIcon';
+import { CmsImage } from '../common/CmsImage';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -73,6 +74,17 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
   const [availability, setAvailability] = useState<{ date: string; rooms: number } | null>(null);
   const [availError, setAvailError] = useState<string | null>(null);
   const [bookingMsg, setBookingMsg] = useState<string | null>(null);
+
+  // Long-stay (nomad) pricing — fetched lazily at 28 nights; null when the stay has no monthly/weekly rates.
+  const [longStay, setLongStay] = useState<{ savings: { dailyTotalEGP: number; longStayTotalEGP: number; savingsEGP: number; savingsPercent: number } | null; hasLongStayPricing: boolean } | null>(null);
+  useEffect(() => {
+    if (!accommodation) return;
+    let cancelled = false;
+    api.getLongStayPrice(accommodation.id, 28).then(data => {
+      if (!cancelled && data) setLongStay({ savings: data.savings, hasLongStayPricing: data.hasLongStayPricing });
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [accommodation?.id]);
 
   if (detail.status === 'loading' && !accommodation) {
     return (
@@ -170,11 +182,21 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
         {(() => {
-          const gallery = HOTEL_GALLERIES[accommodationSlug] || DEFAULT_GALLERY;
+          // CMS catalog-binding imagery wins when an editor published a cover
+          // and/or gallery for this property; the slug-keyed literals below
+          // are the compiled fallback (unchanged behavior until then).
+          const cmsGallery = accommodation.coverImageUrl
+            ? [accommodation.coverImageUrl, ...(accommodation.galleryImageUrls || [])]
+            : null;
+          const gallery = cmsGallery && cmsGallery.length > 0
+            ? cmsGallery
+            : (HOTEL_GALLERIES[accommodationSlug] || DEFAULT_GALLERY);
+          const focal = accommodation.coverImageFocal;
+          const srcSet = accommodation.coverImageSrcSet;
           return (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 rounded-3xl overflow-hidden shadow-md border border-[var(--border-subtle)]">
               <div className="md:col-span-2 relative h-72 sm:h-96 overflow-hidden group">
-                <img src={gallery[0]} alt={pageTitle} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                <CmsImage src={gallery[0]} alt={pageTitle} focalX={focal?.x} focalY={focal?.y} srcSet={srcSet} sizes="(max-width: 768px) 100vw, 66vw" fetchPriority="high" loading="eager" className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               </div>
               <div className="hidden md:flex flex-col gap-3 h-96">
@@ -209,7 +231,7 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl chart-heading font-bold leading-tight">{pageTitle}</h1>
+            <h1 className="font-display text-4xl sm:text-5xl font-semibold leading-[1.05] text-balance">{pageTitle}</h1>
 
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className={`flex items-center gap-1.5 font-bold ${isDark ? 'text-[var(--accent-primary)]' : 'text-[#c97b3c]'}`}>
@@ -255,6 +277,24 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
               <p className={`text-xs ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]'}`}>
                 {t('hotels.package')}: <span className="font-bold">{accommodation.packageTotalEGP.toLocaleString()} EGP</span>
               </p>
+            )}
+
+            {/* Long-stay rate — real savings from the longStayService, shown only when they exist */}
+            {longStay?.savings && (
+              <div className={`p-3 rounded-xl border ${isDark ? 'bg-[var(--surface-container)]/60 border-[var(--accent-primary)]/25' : 'bg-[var(--surface-container)] border-[var(--accent-primary)]/25'}`}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className={`text-xs font-bold ${isDark ? 'text-[var(--text-secondary)]' : 'text-[var(--text-secondary)]'}`}>
+                    {t('hotels.longStayMonth')}
+                  </span>
+                  <span className="text-sm font-black text-[var(--accent-primary)]">
+                    −{longStay.savings.savingsPercent}%
+                  </span>
+                </div>
+                <p className={`text-[11px] mt-1 ${isDark ? 'text-[var(--text-secondary)]/70' : 'text-[var(--text-secondary)]/70'}`}>
+                  {(longStay.savings.longStayTotalEGP).toLocaleString()} EGP / {isAr ? 'شهر' : 'month'}
+                  {' · '}{t('hotels.longStaySave')} {(longStay.savings.savingsEGP).toLocaleString()} EGP
+                </p>
+              </div>
             )}
 
             <label className="block">

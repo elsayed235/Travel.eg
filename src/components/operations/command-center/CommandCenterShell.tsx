@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import {
   LayoutDashboard,
-  Activity,
   AlertTriangle,
   DollarSign,
   Users,
   Globe,
   Brain,
-  HelpCircle,
   FileText,
   Flag,
   HeartPulse,
@@ -16,18 +14,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
-  X,
   Plane,
-  ShieldCheck,
-  Clock,
   Package,
   MessageSquare,
-  TrendingUp,
-  Database,
   Bell,
   Car,
   Lightbulb,
   PenTool,
+  MoreHorizontal,
+  X,
 } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { api } from '../../../services/api';
@@ -36,6 +31,7 @@ import { SectionErrorBoundary } from './ErrorBoundary';
 // ─── Section definitions ────────────────────────────────────────────────────
 export type SectionId =
   | 'overview'
+  | 'core'
   | 'trips'
   | 'transfers'
   | 'exceptions'
@@ -52,7 +48,8 @@ export type SectionId =
   | 'flags'
   | 'jobs'
   | 'health'
-  | 'cms';
+  | 'cms'
+  | 'pricing';
 
 interface NavSection {
   id: SectionId;
@@ -63,8 +60,9 @@ interface NavSection {
   group: 'core' | 'domain' | 'system';
 }
 
-const NAV_SECTIONS: NavSection[] = [
+export const NAV_SECTIONS: NavSection[] = [
   { id: 'overview', label: 'Overview', labelAr: 'نظرة عامة', icon: LayoutDashboard, group: 'core' },
+  { id: 'core', label: 'Intelligence Core', labelAr: 'نواة الذكاء', icon: Brain, group: 'core' },
   { id: 'trips', label: 'Live Trips', labelAr: 'الرحلات الحية', icon: Plane, group: 'core' },
   { id: 'transfers', label: 'Transfers', labelAr: 'النقل', icon: Car, group: 'core' },
   { id: 'exceptions', label: 'Exceptions', labelAr: 'الاستثناءات', icon: AlertTriangle, group: 'core' },
@@ -82,10 +80,17 @@ const NAV_SECTIONS: NavSection[] = [
   { id: 'jobs', label: 'Market Jobs', labelAr: 'الوظائف', icon: Zap, group: 'system' },
   { id: 'health', label: 'System Health', labelAr: 'صحة النظام', icon: HeartPulse, group: 'system' },
   { id: 'cms', label: 'CMS Content', labelAr: 'إدارة المحتوى', icon: PenTool, group: 'core' },
+  { id: 'pricing', label: 'Pricing & Inventory', labelAr: 'التسعير والمخزون', icon: DollarSign, group: 'domain' },
 ];
+
+// Mobile: 5 primary tabs + overflow
+const MOBILE_PRIMARY: SectionId[] = ['overview', 'trips', 'intelligence', 'support'];
+const MOBILE_MORE_SECTIONS = NAV_SECTIONS.filter(s => !MOBILE_PRIMARY.includes(s.id) && s.id !== 'overview');
 
 // ─── Lazy section views ─────────────────────────────────────────────────────
 const Overview = React.lazy(() => import('./Overview'));
+const IntelligenceCoreView = React.lazy(() => import('../../intelligence-core/IntelligenceCoreView'));
+const GlobalIntelligenceCore = React.lazy(() => import('../../intelligence-core/GlobalIntelligenceCore').then(m => ({ default: m.GlobalIntelligenceCore })));
 const LiveTripRadar = React.lazy(() => import('./LiveTripRadar'));
 const TransfersSection = React.lazy(() => import('./TransfersSection'));
 const ExceptionsCenter = React.lazy(() => import('./ExceptionsCenter'));
@@ -103,6 +108,7 @@ const FeatureFlagsView = React.lazy(() => import('./FeatureFlagsView'));
 const MarketJobsSection = React.lazy(() => import('./MarketJobsSection'));
 const SystemHealth = React.lazy(() => import('./SystemHealth'));
 const CmsContentDashboard = React.lazy(() => import('./CmsContentDashboard').then(m => ({ default: m.CmsContentDashboard })));
+const PricingInventory = React.lazy(() => import('./PricingInventory'));
 const CommandPalette = React.lazy(() => import('./CommandPalette'));
 
 // ─── Section Badge Polling ──────────────────────────────────────────────────
@@ -139,7 +145,7 @@ function useSectionBadges() {
 
         setBadges(next);
       } catch {
-        // Non-critical — badges just stay at 0
+        // Non-critical
       }
     };
 
@@ -154,48 +160,31 @@ function useSectionBadges() {
 // ─── Section Content Router ─────────────────────────────────────────────────
 function SectionContent({ section, onNavigate }: { section: SectionId; onNavigate: (s: SectionId) => void }) {
   switch (section) {
-    case 'overview':
-      return <Overview onNavigate={onNavigate} />;
-    case 'trips':
-      return <LiveTripRadar />;
-    case 'transfers':
-      return <TransfersSection />;
-    case 'exceptions':
-      return <ExceptionsCenter />;
-    case 'commerce':
-      return <CommerceControl />;
-    case 'accommodations':
-      return <AccommodationsAdmin />;
-    case 'suppliers':
-      return <SupplierCommand />;
-    case 'intelligence':
-      return <IntelligenceCommand />;
-    case 'opportunities':
-      return <OpportunitiesSection />;
-    case 'knowledge':
-      return <KnowledgeOps />;
-    case 'support':
-      return <SupportCenter />;
-    case 'sms':
-      return <SmsCenter />;
-    case 'notifications':
-      return <NotificationsCenter />;
-    case 'audit':
-      return <AuditCenter />;
-    case 'flags':
-      return <FeatureFlagsView />;
-    case 'jobs':
-      return <MarketJobsSection />;
-    case 'health':
-      return <SystemHealth />;
-    case 'cms':
-      return <CmsContentDashboard />;
-    default:
-      return <Overview onNavigate={onNavigate} />;
+    case 'overview': return <Overview onNavigate={onNavigate} />;
+    case 'core': return <IntelligenceCoreView context={{ section }} />;
+    case 'trips': return <LiveTripRadar />;
+    case 'transfers': return <TransfersSection />;
+    case 'exceptions': return <ExceptionsCenter />;
+    case 'commerce': return <CommerceControl />;
+    case 'accommodations': return <AccommodationsAdmin />;
+    case 'suppliers': return <SupplierCommand />;
+    case 'intelligence': return <IntelligenceCommand />;
+    case 'opportunities': return <OpportunitiesSection />;
+    case 'knowledge': return <KnowledgeOps />;
+    case 'support': return <SupportCenter />;
+    case 'sms': return <SmsCenter />;
+    case 'notifications': return <NotificationsCenter />;
+    case 'audit': return <AuditCenter />;
+    case 'flags': return <FeatureFlagsView />;
+    case 'jobs': return <MarketJobsSection />;
+    case 'health': return <SystemHealth />;
+    case 'cms': return <CmsContentDashboard />;
+    case 'pricing': return <PricingInventory />;
+    default: return <Overview onNavigate={onNavigate} />;
   }
 }
 
-// ─── Loading fallback for sections ──────────────────────────────────────────
+// ─── Loading fallback ───────────────────────────────────────────────────────
 function SectionLoading() {
   const { t } = useLanguage();
   return (
@@ -208,21 +197,97 @@ function SectionLoading() {
   );
 }
 
+// ─── Mobile More Menu ───────────────────────────────────────────────────────
+function MobileMoreMenu({ activeSection, onNavigate, onClose, badges }: {
+  activeSection: SectionId;
+  onNavigate: (s: SectionId) => void;
+  onClose: () => void;
+  badges: Partial<Record<SectionId, number>>;
+}) {
+  const { language, t } = useLanguage();
+
+  const groupedSections = {
+    core: MOBILE_MORE_SECTIONS.filter(s => s.group === 'core'),
+    domain: MOBILE_MORE_SECTIONS.filter(s => s.group === 'domain'),
+    system: MOBILE_MORE_SECTIONS.filter(s => s.group === 'system'),
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute bottom-0 left-0 right-0 bg-[var(--surface-container)] border-t border-[var(--border-subtle)] rounded-t-2xl max-h-[70vh] overflow-y-auto">
+        <div className="sticky top-0 bg-[var(--surface-container)] px-4 py-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
+          <span className="text-sm font-bold text-[var(--text-primary)]">{t('cmd.nav.moreSections')}</span>
+          <button type="button" onClick={onClose} aria-label={t('cmd.close')} className="p-1.5 rounded-lg hover:bg-[var(--btn-util-bg)] cursor-pointer">
+            <X className="w-4 h-4 text-[var(--text-muted)]" />
+          </button>
+        </div>
+        <div className="p-4 space-y-4">
+          {(['core', 'domain', 'system'] as const).map(group => (
+            <div key={group}>
+              <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+                {group === 'core' ? t('cmd.group.liveOps') : group === 'domain' ? t('cmd.group.domains') : t('cmd.group.system')}
+              </div>
+              <div className="space-y-1">
+                {groupedSections[group].map(section => {
+                  const Icon = section.icon;
+                  const isActive = activeSection === section.id;
+                  const badgeCount = badges[section.id];
+                  return (
+                    <button
+                      key={section.id}
+                      type="button"
+                      onClick={() => { onNavigate(section.id); onClose(); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
+                          : 'text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="flex-1 text-left">{language === 'ar' ? section.labelAr : section.label}</span>
+                      {badgeCount && badgeCount > 0 ? (
+                        <span className="px-1.5 py-0.5 rounded-full bg-amber-500/25 text-amber-300 text-[10px] font-bold">
+                          {badgeCount}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Shell ─────────────────────────────────────────────────────────────
 export const CommandCenterShell: React.FC = () => {
   const { language, isRTL, t } = useLanguage();
   const [activeSection, setActiveSection] = useState<SectionId>(() => {
-    // Deep-link support: /ops-console#cms opens the CMS Content section
-    // directly; a sub-tab fragment (#cms/navigation) strips to the section id.
     const hash = typeof window !== 'undefined' ? window.location.hash.replace('#', '').split('/')[0] : '';
     return NAV_SECTIONS.some(s => s.id === hash) ? (hash as SectionId) : 'overview';
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 1280);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
   const badges = useSectionBadges();
 
-  // Auto-collapse sidebar when viewport shrinks below 1280px
+  // Track viewport
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    const mql = window.matchMedia('(max-width: 1023px)');
+    checkMobile();
+    mql.addEventListener('change', checkMobile);
+    return () => mql.removeEventListener('change', checkMobile);
+  }, []);
+
+  // Auto-collapse sidebar on medium screens
+  useEffect(() => {
+    if (isMobile) return;
     const mql = window.matchMedia('(max-width: 1280px)');
     const handler = (e: MediaQueryListEvent | MediaQueryList) => {
       if (e.matches) setSidebarCollapsed(true);
@@ -230,7 +295,7 @@ export const CommandCenterShell: React.FC = () => {
     handler(mql);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
-  }, []);
+  }, [isMobile]);
 
   // Cmd+K handler
   useEffect(() => {
@@ -239,14 +304,13 @@ export const CommandCenterShell: React.FC = () => {
         e.preventDefault();
         setPaletteOpen(prev => !prev);
       }
-      // Escape closes palette
-      if (e.key === 'Escape' && paletteOpen) {
-        setPaletteOpen(false);
+      if (e.key === 'Escape') {
+        if (paletteOpen) setPaletteOpen(false);
+        if (moreMenuOpen) setMoreMenuOpen(false);
       }
-      // Number keys 1-9 navigate sections (when not in input/palette)
-      if (!paletteOpen && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+      if (!paletteOpen && !moreMenuOpen && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
         const num = parseInt(e.key);
-        if (num >= 1 && num <= NAV_SECTIONS.length) {
+        if (num >= 1 && num <= 9 && num <= NAV_SECTIONS.length) {
           e.preventDefault();
           setActiveSection(NAV_SECTIONS[num - 1].id);
         }
@@ -254,7 +318,7 @@ export const CommandCenterShell: React.FC = () => {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [paletteOpen]);
+  }, [paletteOpen, moreMenuOpen]);
 
   const handleNavigate = useCallback((section: SectionId) => {
     setActiveSection(section);
@@ -269,37 +333,40 @@ export const CommandCenterShell: React.FC = () => {
     system: NAV_SECTIONS.filter(s => s.group === 'system'),
   };
 
+  const activeSectionData = NAV_SECTIONS.find(s => s.id === activeSection);
+  const activeLabel = activeSectionData
+    ? (language === 'ar' ? activeSectionData.labelAr : activeSectionData.label)
+    : t('cmd.nav.overview');
+
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] flex">
-      {/* ─── Sidebar ──────────────────────────────────────────────────── */}
+    <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col lg:flex-row">
+      {/* ─── Desktop Sidebar ──────────────────────────────────────────── */}
       <aside
-        className={`flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface-container)]/80 flex flex-col transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 ${
+        className={`hidden lg:flex flex-shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface-container)]/60 backdrop-blur-xl flex-col transition-all duration-200 ${
           sidebarCollapsed ? 'w-16' : 'w-56'
         }`}
       >
-        {/* Logo area */}
+        {/* Logo */}
         <div className="px-3 py-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/40 flex items-center justify-center text-[var(--accent-primary)] flex-shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 flex items-center justify-center text-[var(--accent-primary)] flex-shrink-0">
               <Radio className="w-4 h-4 animate-pulse" />
             </div>
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <div className="text-xs font-bold text-[var(--text-primary)] truncate">
-                  {t('cmd.title')}
-                </div>
+                <div className="text-xs font-bold text-[var(--text-primary)] truncate">{t('cmd.title')}</div>
                 <div className="text-[11px] text-[var(--text-muted)] truncate">{t('cmd.subtitle')}</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Nav sections */}
-        <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-1">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-0.5">
           {(['core', 'domain', 'system'] as const).map(group => (
             <div key={group}>
-              {              !sidebarCollapsed && (
-                <div className="px-2 pt-2 pb-1 text-[10px] font-bold text-[var(--text-muted)]">
+              {!sidebarCollapsed && (
+                <div className="px-2 pt-3 pb-1 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                   {group === 'core' ? t('cmd.group.liveOps') : group === 'domain' ? t('cmd.group.domains') : t('cmd.group.system')}
                 </div>
               )}
@@ -312,10 +379,10 @@ export const CommandCenterShell: React.FC = () => {
                     key={section.id}
                     type="button"
                     onClick={() => handleNavigate(section.id)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] border border-[var(--accent-primary)]/30'
-                        : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] border border-transparent'
+                        ? 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)]'
                     }`}
                     title={sidebarCollapsed ? (language === 'ar' ? section.labelAr : section.label) : undefined}
                   >
@@ -324,7 +391,7 @@ export const CommandCenterShell: React.FC = () => {
                       <>
                         <span className="flex-1 text-left truncate">{language === 'ar' ? section.labelAr : section.label}</span>
                         {badgeCount && badgeCount > 0 ? (
-                          <span className="px-1.5 py-0.5 rounded-full bg-amber-500/30 text-amber-300 text-[11px] font-bold min-w-[18px] text-center">
+                          <span className="px-1.5 py-0.5 rounded-full bg-amber-500/25 text-amber-300 text-[10px] font-bold min-w-[18px] text-center">
                             {badgeCount}
                           </span>
                         ) : null}
@@ -337,12 +404,19 @@ export const CommandCenterShell: React.FC = () => {
           ))}
         </nav>
 
-        {/* Collapse toggle */}
-        <div className="px-2 py-2 border-t border-[var(--border-subtle)]">
+        {/* Collapse toggle + keyboard hints */}
+        <div className="px-2 py-2 border-t border-[var(--border-subtle)] space-y-1">
+          {!sidebarCollapsed && (
+            <div className="px-2 py-1 text-[10px] text-[var(--text-muted)]/60 font-mono">
+              <span className="inline-block px-1 py-0.5 rounded bg-[var(--btn-util-bg)] text-[10px]">⌘K</span> search
+              <span className="mx-1">·</span>
+              <span className="inline-block px-1 py-0.5 rounded bg-[var(--btn-util-bg)] text-[10px]">1-9</span> jump
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setSidebarCollapsed(prev => !prev)}
-            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-muted)] hover:bg-[var(--btn-util-bg)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
+            className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--btn-util-bg)] transition-all cursor-pointer"
           >
             {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
             {!sidebarCollapsed && <span>{t('cmd.collapse')}</span>}
@@ -352,40 +426,114 @@ export const CommandCenterShell: React.FC = () => {
 
       {/* ─── Main Content ─────────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Top bar */}
-        <header className="flex-shrink-0 h-12 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/40 flex items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-[var(--text-primary)]">
-              {NAV_SECTIONS.find(s => s.id === activeSection)
-                ? (language === 'ar' ? NAV_SECTIONS.find(s => s.id === activeSection)!.labelAr : NAV_SECTIONS.find(s => s.id === activeSection)!.label)
-                : t('cmd.nav.overview')}
-            </h2>
-          </div>
+        {/* Top bar — desktop */}
+        <header className="hidden lg:flex flex-shrink-0 h-12 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/40 backdrop-blur-sm items-center justify-between px-4 sm:px-6">
+          <h2 className="text-sm font-bold text-[var(--text-primary)]">{activeLabel}</h2>
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs transition-all cursor-pointer"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('cmd.search')}</span>
+            <kbd className="hidden sm:inline text-[10px] px-1 py-0.5 rounded bg-[var(--surface-container)] text-[var(--text-muted)] font-mono border border-[var(--border-subtle)]">⌘K</kbd>
+          </button>
+        </header>
+
+        {/* Mobile top bar */}
+        <header className="lg:hidden flex-shrink-0 h-12 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]/60 backdrop-blur-sm flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            {/* Search trigger */}
-            <button
-              type="button"
-              onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-muted)] text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer"
-            >
-              <Search className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('cmd.search')}</span>
-              <kbd className="hidden sm:inline text-[11px] px-1 py-0.5 rounded bg-[var(--btn-util-bg)] text-[var(--text-muted)] font-mono">⌘K</kbd>
-            </button>
+            <div className="w-6 h-6 rounded-lg bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 flex items-center justify-center">
+              <Radio className="w-3 h-3 text-[var(--accent-primary)] animate-pulse" />
+            </div>
+            <span className="text-xs font-bold text-[var(--text-primary)]">{activeLabel}</span>
           </div>
+          <button
+            type="button"
+            onClick={() => setPaletteOpen(true)}
+            className="p-2 rounded-lg hover:bg-[var(--btn-util-bg)] cursor-pointer"
+          >
+            <Search className="w-4 h-4 text-[var(--text-muted)]" />
+          </button>
         </header>
 
         {/* Section content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <section
+          aria-label={activeLabel}
+          className="flex-1 overflow-y-auto pb-20 lg:pb-6"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
             <SectionErrorBoundary key={activeSection}>
               <Suspense fallback={<SectionLoading />}>
                 <SectionContent section={activeSection} onNavigate={handleNavigate} />
               </Suspense>
             </SectionErrorBoundary>
           </div>
-        </main>
+        </section>
       </div>
+
+      {/* ─── Mobile Bottom Tab Bar ────────────────────────────────────── */}
+      {isMobile && (
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface-container)]/95 backdrop-blur-xl border-t border-[var(--border-subtle)] safe-area-pb">
+          <div className="flex items-stretch">
+            {MOBILE_PRIMARY.map(sectionId => {
+              const section = NAV_SECTIONS.find(s => s.id === sectionId)!;
+              const Icon = section.icon;
+              const isActive = activeSection === sectionId;
+              const badgeCount = badges[sectionId];
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  onClick={() => handleNavigate(section.id)}
+                  className={`flex-1 flex flex-col items-center justify-center py-2 relative transition-colors cursor-pointer ${
+                    isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'
+                  }`}
+                >
+                  <div className="relative">
+                    <Icon className="w-5 h-5" />
+                    {badgeCount && badgeCount > 0 && (
+                      <span className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] font-bold text-white flex items-center justify-center">
+                        {badgeCount > 9 ? '9+' : badgeCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] font-bold mt-0.5 truncate max-w-[60px]">{section.label}</span>
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[var(--accent-primary)] rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+            {/* More button */}
+            <button
+              type="button"
+              onClick={() => setMoreMenuOpen(true)}
+              className={`flex-1 flex flex-col items-center justify-center py-2 transition-colors cursor-pointer ${
+                moreMenuOpen ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)]'
+              }`}
+            >
+              <MoreHorizontal className="w-5 h-5" />
+              <span className="text-[9px] font-bold mt-0.5">More</span>
+            </button>
+          </div>
+        </nav>
+      )}
+
+      {/* ─── Mobile More Menu ─────────────────────────────────────────── */}
+      {moreMenuOpen && (
+        <MobileMoreMenu
+          activeSection={activeSection}
+          onNavigate={handleNavigate}
+          onClose={() => setMoreMenuOpen(false)}
+          badges={badges}
+        />
+      )}
+
+      {/* ─── Global Intelligence Core (floating, every section) ────────── */}
+      <Suspense fallback={null}>
+        <GlobalIntelligenceCore context={{ section: activeSection, route: '/ops-console' }} />
+      </Suspense>
 
       {/* ─── Command Palette ──────────────────────────────────────────── */}
       {paletteOpen && (
