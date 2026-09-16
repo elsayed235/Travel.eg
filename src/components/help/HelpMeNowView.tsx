@@ -93,11 +93,9 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   // when there is none.
   const { profile, user, sessionUser, activeTrip, bookings } = useTrip();
   // Emergency resources fetched from backend
-  const [emergencyHotlines, setEmergencyHotlines] = useState<Array<{ service: string; number: string }>>([
-    { service: 'Hyperbaric Chamber Emergency', number: '+20 122 212 4840 / 137' },
-    { service: 'Dahab Central Hospital ER', number: '123 / +20 69 3640212' },
-    { service: 'Tourism Police Emergency', number: '126 / +20 69 3640103' },
-  ]);
+  const [emergencyState, setEmergencyState] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [emergencyHotlines, setEmergencyHotlines] = useState<Array<{ service: string; number: string }>>([]);
+  const [emergencyError, setEmergencyError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -106,9 +104,11 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
         if (data.emergencyHotlines?.length) {
           setEmergencyHotlines(data.emergencyHotlines);
         }
+        setEmergencyState('loaded');
       })
-      .catch(() => {
-        // Fallback hotlines already in state — no action needed
+      .catch((err) => {
+        setEmergencyState('error');
+        setEmergencyError(err instanceof Error ? err.message : 'Could not load emergency resources.');
       });
     return () => controller.abort();
   }, []);
@@ -406,7 +406,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
   return (
     <div 
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--surface-card)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
+      className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col pb-28 md:pb-16 selection:bg-[var(--accent-secondary)]/20"
     >
       {/* Traveler Top Navigation */}
       <TravelerNav
@@ -416,7 +416,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
       />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-grow">
+      <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         
         {/* Top Breadcrumb */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -425,7 +425,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
               type="button"
               id="back-to-companion-btn"
               onClick={onBackToCompanion || onBackToMyTrip}
-              className="inline-flex items-center gap-1.5 py-3.5 -my-2 text-xs font-semibold text-[var(--text-secondary)]/70 hover:text-[var(--accent-secondary)] transition-colors cursor-pointer"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               <span>{t('help.backToDailyCompanion')}</span>
@@ -434,7 +434,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
             <button
               type="button"
               onClick={onBackToMyTrip}
-              className="text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer py-2 -my-2"
+              className="inline-flex min-h-11 items-center rounded-full px-2 text-xs font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               {t('help.fullItinerary')}
             </button>
@@ -447,32 +447,35 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
         </div>
 
         {/* 2-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
           
           {/* Main Area (7/12) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="space-y-6 lg:col-span-8">
 
             {/* 1. Header Banner */}
-            <div className="bg-[var(--surface-card)] rounded-3xl p-6 sm:p-8 border border-[var(--border-subtle)] shadow-xl space-y-3">
+            <header className="relative overflow-hidden rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.14)] sm:p-8 lg:p-10">
+                          <div className="pointer-events-none absolute -end-16 -top-20 h-52 w-52 rounded-full bg-[var(--accent-primary)]/10 blur-3xl" aria-hidden="true" />
+                          <div className="relative max-w-2xl space-y-3">
               <div className="flex items-center gap-2">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
                   {t('help.sinaiExpertConcierge')}
                 </p>
                 <span className="text-xs text-[var(--text-secondary)]/50 font-mono">{t('help.realtimeResponse')}</span>
               </div>
-              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--text-primary)] tracking-tight text-balance">
+              <h1 className="font-display text-4xl font-black tracking-tight text-[var(--text-primary)] text-balance sm:text-5xl">
                 {travelerName ? t('help.needHelpNamed', { travelerName }) : t('help.needHelpGeneric')}
               </h1>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed font-normal">
-                {t('help.tellUsWhatHappened')}
-              </p>
-            </div>
+              <p className="max-w-xl text-base font-normal leading-7 text-[var(--text-secondary)]">
+                  {t('help.tellUsWhatHappened')}
+                </p>
+              </div>
+            </header>
 
             {/* Urgency Alert */}
             {isUrgent && (
               <div 
                 id="urgency-alert-banner"
-                className="p-4 sm:p-5 rounded-3xl bg-amber-950/70 border border-amber-500/50 flex items-start gap-3.5 animate-in fade-in duration-200 text-amber-200"
+                className="flex items-start gap-3.5 rounded-2xl border border-amber-500/50 bg-amber-950/70 p-4 text-amber-200 shadow-sm animate-in fade-in duration-200 sm:p-5"
               >
                 <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center flex-shrink-0 shadow-xs">
                   <AlertTriangle className="w-5 h-5" />
@@ -490,8 +493,8 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
             {/* STEP 1: CATEGORIES SELECTOR */}
             {currentStep === 'categories' && (
-              <div className="space-y-4">
-                <h2 className="text-lg chart-heading font-bold text-[var(--text-primary)]">
+              <section className="space-y-5 rounded-[2rem] border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4 shadow-sm sm:p-6">
+                <h2 className="text-xl chart-heading font-black tracking-tight text-[var(--text-primary)] sm:text-2xl">
                   {t('help.whatIsYourIssue')}
                 </h2>
 
@@ -510,7 +513,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                         key={cat.id}
                         type="button"
                         onClick={() => handleSelectCategory(cat.id)}
-                        className="p-4 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--surface-container)] border border-[var(--border-subtle)] hover:border-[var(--accent-secondary)]/40 transition-[background-color,border-color,color,box-shadow,transform,opacity] text-start rtl:text-end space-y-2 cursor-pointer group"
+                        className="min-h-[112px] rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-container)] p-4 text-start shadow-sm transition-[background-color,border-color,color,box-shadow,transform,opacity] hover:border-[var(--accent-secondary)]/50 hover:bg-[var(--surface-card)] hover:shadow-md active:scale-[0.99] rtl:text-end cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                       >
                         <span className="w-9 h-9 rounded-xl bg-[var(--surface-container)] text-[var(--accent-primary)] flex items-center justify-center">
                           <CatIcon className="w-4 h-4" aria-hidden="true" />
@@ -522,7 +525,7 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
                     );
                   })}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* STEP 2: SELECT BOOKING */}
@@ -872,7 +875,25 @@ export const HelpMeNowView: React.FC<HelpMeNowViewProps> = ({
 
               {/* Emergency hotlines from backend */}
               <div className="space-y-2">
-                {emergencyHotlines.map((hotline, idx) => (
+                {emergencyState === 'loading' && (
+                  <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-dashed border-[var(--border-subtle)] text-center">
+                    <RefreshCw className="w-4 h-4 text-[var(--text-secondary)] mx-auto animate-spin mb-2" />
+                    <p className="text-xs text-[var(--text-secondary)]/70">{t('help.loadingEmergency')}</p>
+                  </div>
+                )}
+                {emergencyState === 'error' && (
+                  <div className="p-4 rounded-2xl bg-red-950/30 border border-red-500/40 text-center space-y-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400 mx-auto" />
+                    <p className="text-xs text-red-300/80">{emergencyError || t('help.unableToLoadEmergency')}</p>
+                    <p className="text-[11px] text-red-300/60">{t('help.ifYouNeedImmediate')}</p>
+                  </div>
+                )}
+                {emergencyState === 'loaded' && emergencyHotlines.length === 0 && (
+                  <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-dashed border-[var(--border-subtle)] text-center">
+                    <p className="text-xs text-[var(--text-secondary)]/70">{t('help.noEmergencyHotlines')}</p>
+                  </div>
+                )}
+                {emergencyState === 'loaded' && emergencyHotlines.map((hotline, idx) => (
                   <a
                     key={idx}
                     href={`tel:${hotline.number.replace(/[^+\d]/g, '')}`}
