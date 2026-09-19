@@ -58,10 +58,10 @@ export const TRANSLATIONS: Translations = {
   // =========================================================================
   // SPLASH GATE
   // =========================================================================
-  'splash.eyebrow': { en: 'Sinai · Red Sea', ar: 'سيناء · البحر الأحمر' },
-  'splash.title': { en: 'Dahab, at your own pace', ar: 'دهب، على مزاجك' },
+  'splash.eyebrow': { en: 'Dahab · Before you book, see it', ar: 'دهب · قبل ما تحجز، شوفها' },
+  'splash.title': { en: 'Where the desert meets the sea', ar: 'حيث تلتقي الصحراء بالبحر' },
   'splash.subtitle': { en: 'Diving, desert mountains and slow beach days — planned around you.', ar: 'غوص وجبال صحراوية وأيام شاطئ هادية — منظمة حواليك.' },
-  'splash.scroll': { en: 'Scroll to explore', ar: 'انزل للاستكشاف' },
+  'splash.scroll': { en: 'Scroll to enter', ar: 'انزل للدخول' },
   'splash.enter': { en: 'Enter Dahab', ar: 'ادخل دهب' },
   'splash.skip': { en: 'Skip', ar: 'تخطي' },
 
