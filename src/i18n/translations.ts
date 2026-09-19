@@ -56,6 +56,16 @@ export function translate(
 
 export const TRANSLATIONS: Translations = {
   // =========================================================================
+  // SPLASH GATE
+  // =========================================================================
+  'splash.eyebrow': { en: 'Sinai · Red Sea', ar: 'سيناء · البحر الأحمر' },
+  'splash.title': { en: 'Dahab, at your own pace', ar: 'دهب، على مزاجك' },
+  'splash.subtitle': { en: 'Diving, desert mountains and slow beach days — planned around you.', ar: 'غوص وجبال صحراوية وأيام شاطئ هادية — منظمة حواليك.' },
+  'splash.scroll': { en: 'Scroll to explore', ar: 'انزل للاستكشاف' },
+  'splash.enter': { en: 'Enter Dahab', ar: 'ادخل دهب' },
+  'splash.skip': { en: 'Skip', ar: 'تخطي' },
+
+  // =========================================================================
   // 1. BRAND & GLOBAL NAVIGATION
   // =========================================================================
   'brand.name': { en: 'DAHAB', ar: 'دهب' },

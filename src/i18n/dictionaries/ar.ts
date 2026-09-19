@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3695 keys. Loaded per language by
+ * Language: ar. 3701 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~83,071 chars here instead of both languages).
+ * (~83,181 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3402,6 +3402,12 @@ export const AR: Record<string, string> = {
   "seaState": "حالة البحر",
   "searchRestaurantsSeafoodBrunch": "ابحث عن مطعم، سي فود، برانش...",
   "signalConnectivity": "تغطية الاتصالات:",
+  "splash.enter": "ادخل دهب",
+  "splash.eyebrow": "سيناء · البحر الأحمر",
+  "splash.scroll": "انزل للاستكشاف",
+  "splash.skip": "تخطي",
+  "splash.subtitle": "غوص وجبال صحراوية وأيام شاطئ هادية — منظمة حواليك.",
+  "splash.title": "دهب، على مزاجك",
   "spontaneous.0130PMIn2": "٠١:٣٠ م (بعد ساعتين)",
   "spontaneous.3ChoicesForRight": "٣ اختيارات تناسبك دلوقتي بالظبط",
   "spontaneous.activityDetails": "تفاصيل النشاط المحدد",
