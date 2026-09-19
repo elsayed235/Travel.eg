@@ -1,14 +1,45 @@
 import React from 'react';
+import {
+  AlertTriangle,
+  Blocks,
+  FileText,
+  History,
+  Home,
+  Image as ImageIcon,
+  Layout as LayoutIcon,
+  Menu,
+  Search,
+} from 'lucide-react';
 import { DahabMotif } from './DahabMotifs';
 import { DahabIcon, DahabIconName } from './DahabIcons';
 import { useLanguage } from '../../i18n/LanguageContext';
+
+/**
+ * Generic UI icon names accepted alongside the bespoke DahabIconName set.
+ * Admin screens describe empty states with everyday UI metaphors (search,
+ * blocks, history) that have no handcrafted Sinai equivalent; these render
+ * their lucide counterpart inside the same organic container.
+ */
+export type EmptyStateIconName = DahabIconName | 'layout' | 'search' | 'alert-triangle' | 'blocks' | 'home' | 'menu' | 'file-text' | 'history' | 'image';
+
+const GENERIC_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  layout: LayoutIcon,
+  search: Search,
+  'alert-triangle': AlertTriangle,
+  blocks: Blocks,
+  home: Home,
+  menu: Menu,
+  'file-text': FileText,
+  history: History,
+  image: ImageIcon,
+};
 
 export interface DahabEmptyStateProps {
   title?: string;
   description?: string;
   actionText?: string;
   onAction?: () => void;
-  iconName?: DahabIconName;
+  iconName?: EmptyStateIconName;
   motifName?: 'wave-divider' | 'topo-contour' | 'reef-art' | 'footprint';
   className?: string;
 }
@@ -44,7 +75,9 @@ export const DahabEmptyState: React.FC<DahabEmptyStateProps> = ({
       <div className="relative z-10 space-y-4">
         {/* Central Organic Icon Container */}
         <div className="w-16 h-16 mx-auto rounded-2xl bg-[var(--surface-container)]/5 border border-[var(--accent-primary)]/25 text-[var(--accent-primary)] flex items-center justify-center shadow-xs">
-          <DahabIcon name={iconName} size={32} accent />
+          {GENERIC_ICONS[iconName]
+            ? React.createElement(GENERIC_ICONS[iconName], { className: 'w-8 h-8' })
+            : <DahabIcon name={iconName as DahabIconName} size={32} accent />}
         </div>
 
         <div className="space-y-1.5 max-w-sm mx-auto">
