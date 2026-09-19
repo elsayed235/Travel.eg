@@ -19,7 +19,10 @@ export const LEGACY_AREA_TO_AREA_PROFILE_ID: Record<string, string> = {
   eel_garden: 'eel_garden',
   // areaGuide-only id in dahab_hotels.json's editorial copy; no 1:1
   // area_profiles match — Masbat is the closest real neighborhood.
-  'city-centre': 'masbat'
+  'city-centre': 'masbat',
+  // The generalized accommodations catalogue spells it with an underscore;
+  // same editorial-only id, same Masbat fallback.
+  city_centre: 'masbat'
 };
 
 export function resolveAreaProfileId(legacyArea: string): string {

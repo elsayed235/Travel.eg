@@ -61,10 +61,17 @@ export function importDahabAccommodations(): ImportAccommodationsResult {
   }
 
   for (const entry of catalogue) {
-    const existed = db.accommodations.some(a => a.id === entry.id);
-    // areaId is backfilled from the legacy `area` string when the seed entry
-    // doesn't already carry a real area_profiles id.
-    const areaId = entry.areaId || resolveAreaProfileId(entry.area);
+    // Counts an entry as "existed" when the id OR the slug is already present,
+    // mirroring the slug-fallback upsert in accommodationService.createAccommodation.
+    const existed = db.accommodations.some(a => a.id === entry.id) ||
+      db.accommodations.some(a => a.slug === entry.slug);
+    // areaId: prefer the entry's own area_profiles id, but only if it actually
+    // resolves — older catalogue versions carry editorial ids like
+    // "city_centre" in areaId. Fall back to the legacy `area` mapping.
+    let areaId = entry.areaId;
+    if (!areaId || !db.areaProfiles.some(p => p.id === areaId)) {
+      areaId = resolveAreaProfileId(entry.area);
+    }
 
     createAccommodation({
       id: entry.id,

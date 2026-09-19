@@ -231,12 +231,17 @@ const genId = (prefix: string) => `${prefix}-${crypto.randomBytes(6).toString('h
  */
 export function createAccommodation(input: CreateAccommodationInput): AccommodationEntity {
   return db.runInTransaction(() => {
-    const existing = input.id ? db.accommodations.find(a => a.id === input.id) : undefined;
+    // Pre-assigned id (seed importer): match an existing row by id first, then
+    // fall back to slug so legacy databases seeded from older catalogues with
+    // different ids are updated in place instead of tripping the slug guard.
+    const existing = input.id
+      ? db.accommodations.find(a => a.id === input.id) || db.accommodations.find(a => a.slug === input.slug)
+      : undefined;
     if (!existing && db.accommodations.some(a => a.slug === input.slug)) {
       throw new Error(`An accommodation with slug "${input.slug}" already exists.`);
     }
 
-    const id = input.id || existing?.id || genId('ACC');
+    const id = existing ? existing.id : input.id || genId('ACC');
     const packagePriceEGP = input.perNightEGP * input.packageNights;
 
     let sku = existing ? db.productSkus.find(s => s.id === existing.skuId) : undefined;
