@@ -14,7 +14,7 @@ const __dirname = dirname(__filename);
 // Dahab areas with coordinates
 const AREAS: Record<string, { lat: number; lng: number; nameEn: string; nameAr: string }> = {
   lighthouse: { lat: 28.5025, lng: 34.5115, nameEn: 'Lighthouse Area', nameAr: 'منطقة المنارة' },
-  assalah: { lat: 28.5085, lng: 34.5085, nameEn: 'Assalah', nameAr: 'العسقل' },
+  assalah: { lat: 28.5085, lng: 34.5085, nameEn: 'Assalah', nameAr: 'العسلة' },
   mashraba: { lat: 28.4995, lng: 34.5145, nameEn: 'Mashraba', nameAr: 'مشربة' },
   eel_garden: { lat: 28.5105, lng: 34.5065, nameEn: 'Eel Garden', nameAr: 'حديقة الأنقليس' },
   laguna: { lat: 28.4855, lng: 34.5255, nameEn: 'Laguna', nameAr: 'اللاغونا' },
@@ -90,68 +90,68 @@ const HOTELS = [
   { name: 'Miami Beach Resort', nameAr: 'منتجع ميامي بيتش', area: 'laguna', category: 'resort', priceBand: 'premium', rating: 4.3, reviews: 1234, rooms: 85, price: 4800 },
 
   // 4-Star Hotels
-  { name: 'Tropitel Dahab Oasis', nameAr: 'تروبيتيل واحة دهب', area: 'laguna', category: 'hotel', priceBand: 'moderate', rating: 4.5, reviews: 2876, rooms: 140, price: 4200 },
-  { name: 'Ecotel Dahab Bay View', nameAr: 'ايكوتيل خليج دهب', area: 'mashraba', category: 'hotel', priceBand: 'moderate', rating: 4.4, reviews: 1987, rooms: 110, price: 3800 },
+  { name: 'Tropitel Dahab Oasis', nameAr: 'تروبيتيل واحة دهب', area: 'laguna', category: 'mid-range', priceBand: 'moderate', rating: 4.5, reviews: 2876, rooms: 140, price: 4200 },
+  { name: 'Ecotel Dahab Bay View', nameAr: 'ايكوتيل خليج دهب', area: 'mashraba', category: 'mid-range', priceBand: 'moderate', rating: 4.4, reviews: 1987, rooms: 110, price: 3800 },
   { name: 'Dahab Lagoon Club & Resort', nameAr: 'نادي اللاغونا دهب', area: 'laguna', category: 'resort', priceBand: 'moderate', rating: 4.5, reviews: 2156, rooms: 130, price: 5500 },
   { name: 'Panda Resort Dahab', nameAr: 'منتجع باندا دهب', area: 'mashraba', category: 'resort', priceBand: 'moderate', rating: 4.3, reviews: 1654, rooms: 88, price: 3500 },
-  { name: 'Happy Life Village', nameAr: 'قرية الحياة السعيدة', area: 'mashraba', category: 'hotel', priceBand: 'moderate', rating: 4.4, reviews: 1432, rooms: 75, price: 3200 },
+  { name: 'Happy Life Village', nameAr: 'قرية الحياة السعيدة', area: 'mashraba', category: 'mid-range', priceBand: 'moderate', rating: 4.4, reviews: 1432, rooms: 75, price: 3200 },
   { name: 'Ganet Sinai Resort', nameAr: 'منتجع جنت سيناء', area: 'lighthouse', category: 'resort', priceBand: 'moderate', rating: 4.3, reviews: 1876, rooms: 95, price: 3800 },
   { name: 'Retac Qunay Dahab Resort & Spa', nameAr: 'منتجع وسبا ريتاق قني دهب', area: 'laguna', category: 'resort', priceBand: 'moderate', rating: 4.5, reviews: 2345, rooms: 120, price: 4500 },
   { name: 'Octopus Resort', nameAr: 'منتجع الاخطبوط', area: 'laguna', category: 'resort', priceBand: 'moderate', rating: 4.2, reviews: 1543, rooms: 80, price: 3200 },
   { name: 'Sheikh Ali Resort', nameAr: 'منتجع الشيخ علي', area: 'lighthouse', category: 'resort', priceBand: 'moderate', rating: 4.4, reviews: 1765, rooms: 90, price: 3600 },
-  { name: 'Ibis Styles Dahab Lagoon', nameAr: 'ايبس ستايلز لاغونا دهب', area: 'laguna', category: 'hotel', priceBand: 'moderate', rating: 4.3, reviews: 1432, rooms: 100, price: 3400 },
-  { name: 'NEOM Hotel Dahab', nameAr: 'فندق نيوم دهب', area: 'assalah', category: 'boutique-hotel', priceBand: 'moderate', rating: 4.6, reviews: 1987, rooms: 45, price: 4800 },
-  { name: 'Oricana Dahab', nameAr: 'اوريكانا دهب', area: 'mashraba', category: 'hotel', priceBand: 'moderate', rating: 4.2, reviews: 1234, rooms: 65, price: 3000 },
+  { name: 'Ibis Styles Dahab Lagoon', nameAr: 'ايبس ستايلز لاغونا دهب', area: 'laguna', category: 'mid-range', priceBand: 'moderate', rating: 4.3, reviews: 1432, rooms: 100, price: 3400 },
+  { name: 'NEOM Hotel Dahab', nameAr: 'فندق نيوم دهب', area: 'assalah', category: 'boutique', priceBand: 'moderate', rating: 4.6, reviews: 1987, rooms: 45, price: 4800 },
+  { name: 'Oricana Dahab', nameAr: 'اوريكانا دهب', area: 'mashraba', category: 'mid-range', priceBand: 'moderate', rating: 4.2, reviews: 1234, rooms: 65, price: 3000 },
 
   // 3-Star Hotels
-  { name: 'Dahab Plaza Hotel', nameAr: 'فندق بلازا دهب', area: 'city_centre', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 1543, rooms: 60, price: 1800 },
-  { name: 'Acacia Dahab Hotel', nameAr: 'فندق اكايا دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 45, price: 1600 },
-  { name: 'Yasmina Hotel Dahab', nameAr: 'فندق ياسمينا دهب', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 987, rooms: 35, price: 1400 },
-  { name: 'Dyarna Dahab Hotel', nameAr: 'فندق ديارنا دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1500 },
-  { name: 'Bedouin Moon Hotel', nameAr: 'فندق بدوين مون', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.3, reviews: 1654, rooms: 55, price: 2200 },
-  { name: 'Blue Beach Club', nameAr: 'نادي بلو بيتش', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 50, price: 2000 },
+  { name: 'Dahab Plaza Hotel', nameAr: 'فندق بلازا دهب', area: 'city_centre', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 1543, rooms: 60, price: 1800 },
+  { name: 'Acacia Dahab Hotel', nameAr: 'فندق اكايا دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 45, price: 1600 },
+  { name: 'Yasmina Hotel Dahab', nameAr: 'فندق ياسمينا دهب', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 987, rooms: 35, price: 1400 },
+  { name: 'Dyarna Dahab Hotel', nameAr: 'فندق ديارنا دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1500 },
+  { name: 'Bedouin Moon Hotel', nameAr: 'فندق بدوين مون', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.3, reviews: 1654, rooms: 55, price: 2200 },
+  { name: 'Blue Beach Club', nameAr: 'نادي بلو بيتش', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 50, price: 2000 },
   { name: 'Red Sea Relax Resort', nameAr: 'منتجع ريلاكس البحر الأحمر', area: 'mashraba', category: 'resort', priceBand: 'budget', rating: 4.1, reviews: 1345, rooms: 70, price: 2400 },
-  { name: 'Inmo Divers Home', nameAr: 'بيت الغواصين', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.3, reviews: 1543, rooms: 30, price: 1800 },
-  { name: 'Jasmine Hotel & Restaurant', nameAr: 'فندق و مطعم ياسمين', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 40, price: 1600 },
-  { name: 'La Reine Dahab Hotel', nameAr: 'فندق لارين دهب', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 876, rooms: 35, price: 1400 },
-  { name: 'Coral Coast Hotel', nameAr: 'فندق ساحل المرجان', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 987, rooms: 45, price: 1500 },
-  { name: 'Dahab Bay Hotel', nameAr: 'فندق خليج دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 38, price: 1300 },
-  { name: 'Dahab Hotel', nameAr: 'فندق دهب', area: 'city_centre', category: 'hotel', priceBand: 'budget', rating: 3.9, reviews: 654, rooms: 30, price: 1100 },
-  { name: 'Happy Land Hotel', nameAr: 'فندق هابي لاند', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 25, price: 1200 },
-  { name: 'Ghazala Hotel', nameAr: 'فندق غزالة', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1400 },
-  { name: 'Jowhara Hotel', nameAr: 'فندق جوهرة', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 32, price: 1300 },
-  { name: 'Lagona Dahab Village', nameAr: 'قرية لاغونا دهب', area: 'laguna', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 55, price: 1800 },
-  { name: 'Sea Sun Hotel', nameAr: 'فندق سي سن', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 28, price: 1200 },
-  { name: 'Seahorse Hotel', nameAr: 'فندق حصان البحر', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 35, price: 1400 },
-  { name: 'Sababa Hotel', nameAr: 'فندق صبا', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 45, price: 1600 },
-  { name: "Casa D'or Dahab", nameAr: 'كازا دور دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.3, reviews: 1432, rooms: 50, price: 1800 },
+  { name: 'Inmo Divers Home', nameAr: 'بيت الغواصين', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.3, reviews: 1543, rooms: 30, price: 1800 },
+  { name: 'Jasmine Hotel & Restaurant', nameAr: 'فندق و مطعم ياسمين', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 40, price: 1600 },
+  { name: 'La Reine Dahab Hotel', nameAr: 'فندق لارين دهب', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 876, rooms: 35, price: 1400 },
+  { name: 'Coral Coast Hotel', nameAr: 'فندق ساحل المرجان', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 987, rooms: 45, price: 1500 },
+  { name: 'Dahab Bay Hotel', nameAr: 'فندق خليج دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 38, price: 1300 },
+  { name: 'Dahab Hotel', nameAr: 'فندق دهب', area: 'city_centre', category: 'mid-range', priceBand: 'budget', rating: 3.9, reviews: 654, rooms: 30, price: 1100 },
+  { name: 'Happy Land Hotel', nameAr: 'فندق هابي لاند', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 25, price: 1200 },
+  { name: 'Ghazala Hotel', nameAr: 'فندق غزالة', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1400 },
+  { name: 'Jowhara Hotel', nameAr: 'فندق جوهرة', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 32, price: 1300 },
+  { name: 'Lagona Dahab Village', nameAr: 'قرية لاغونا دهب', area: 'laguna', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 55, price: 1800 },
+  { name: 'Sea Sun Hotel', nameAr: 'فندق سي سن', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 28, price: 1200 },
+  { name: 'Seahorse Hotel', nameAr: 'فندق حصان البحر', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 35, price: 1400 },
+  { name: 'Sababa Hotel', nameAr: 'فندق صبا', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 45, price: 1600 },
+  { name: "Casa D'or Dahab", nameAr: 'كازا دور دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.3, reviews: 1432, rooms: 50, price: 1800 },
   { name: 'Golden Plaza Dahab Resort', nameAr: 'منتجع جولدن بلازا دهب', area: 'laguna', category: 'resort', priceBand: 'budget', rating: 4.1, reviews: 987, rooms: 65, price: 2000 },
-  { name: 'Alf Leila Boutique Hotel', nameAr: 'فندق الف ليلة بوتيك', area: 'assalah', category: 'boutique-hotel', priceBand: 'moderate', rating: 4.4, reviews: 1654, rooms: 25, price: 3500 },
+  { name: 'Alf Leila Boutique Hotel', nameAr: 'فندق الف ليلة بوتيك', area: 'assalah', category: 'boutique', priceBand: 'moderate', rating: 4.4, reviews: 1654, rooms: 25, price: 3500 },
 
   // Budget Hotels
-  { name: 'Ali Baba Hotel', nameAr: 'فندق علي بابا', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 3.8, reviews: 876, rooms: 30, price: 900 },
-  { name: '7Heaven Hotel', nameAr: 'فندق سفن هافن', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 3.9, reviews: 654, rooms: 25, price: 1000 },
-  { name: 'Bedouin Lodge Hotel', nameAr: 'فندق بدوين لودج', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1345, rooms: 31, price: 1800 },
-  { name: 'Christina Beach Palace', nameAr: 'قصر كريستينا بيتش', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 35, price: 1200 },
-  { name: 'El Primo Hotel', nameAr: 'فندق البريمو', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 28, price: 1300 },
-  { name: 'Golden Europe Hotel', nameAr: 'فندق جولدن يوروب', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 45, price: 1600 },
-  { name: 'King House Hotel', nameAr: 'فندق كنج هاوس', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 22, price: 1100 },
-  { name: 'Neptune Hotel', nameAr: 'فندك نيبتون', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 30, price: 1300 },
-  { name: 'Star Of Dahab Hotel', nameAr: 'فندق نجمة دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 25, price: 1200 },
-  { name: '4S Hotel', nameAr: 'فندق 4 اس', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 3.9, reviews: 543, rooms: 20, price: 1000 },
-  { name: 'Carmine Hotel', nameAr: 'فندق كارمين', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.3, reviews: 1543, rooms: 40, price: 1800 },
-  { name: 'Club Red Dahab Motel', nameAr: 'موتيل كلاب ريد دهب', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 3.8, reviews: 432, rooms: 18, price: 800 },
-  { name: 'Dahab Coachhouse', nameAr: 'كوتش هاوس دهب', area: 'city_centre', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 22, price: 1100 },
+  { name: 'Ali Baba Hotel', nameAr: 'فندق علي بابا', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 3.8, reviews: 876, rooms: 30, price: 900 },
+  { name: '7Heaven Hotel', nameAr: 'فندق سفن هافن', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 3.9, reviews: 654, rooms: 25, price: 1000 },
+  { name: 'Bedouin Lodge Hotel', nameAr: 'فندق بدوين لودج', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1345, rooms: 31, price: 1800 },
+  { name: 'Christina Beach Palace', nameAr: 'قصر كريستينا بيتش', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 35, price: 1200 },
+  { name: 'El Primo Hotel', nameAr: 'فندق البريمو', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 28, price: 1300 },
+  { name: 'Golden Europe Hotel', nameAr: 'فندق جولدن يوروب', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 45, price: 1600 },
+  { name: 'King House Hotel', nameAr: 'فندق كنج هاوس', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 22, price: 1100 },
+  { name: 'Neptune Hotel', nameAr: 'فندك نيبتون', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 30, price: 1300 },
+  { name: 'Star Of Dahab Hotel', nameAr: 'فندق نجمة دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 25, price: 1200 },
+  { name: '4S Hotel', nameAr: 'فندق 4 اس', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 3.9, reviews: 543, rooms: 20, price: 1000 },
+  { name: 'Carmine Hotel', nameAr: 'فندق كارمين', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.3, reviews: 1543, rooms: 40, price: 1800 },
+  { name: 'Club Red Dahab Motel', nameAr: 'موتيل كلاب ريد دهب', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 3.8, reviews: 432, rooms: 18, price: 800 },
+  { name: 'Dahab Coachhouse', nameAr: 'كوتش هاوس دهب', area: 'city_centre', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 543, rooms: 22, price: 1100 },
   { name: 'Daniela Diving Resort', nameAr: 'منتجع دانيلا للغوص', area: 'lighthouse', category: 'resort', priceBand: 'moderate', rating: 4.4, reviews: 1876, rooms: 60, price: 3200 },
-  { name: 'Elite Residence', nameAr: 'ريزيدنس ايليت', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 35, price: 1500 },
-  { name: 'Ghazala Oasis Hotel', nameAr: 'فندق واحة غزالة', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1400 },
-  { name: 'Mirage Village', nameAr: 'قرية ميراج', area: 'laguna', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 50, price: 1300 },
-  { name: 'Shams Hotel & Dive Centre', nameAr: 'فندق شمس ومركز الغوص', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 35, price: 1500 },
-  { name: 'Sina House', nameAr: 'بيت سيناء', area: 'assalah', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 28, price: 1300 },
-  { name: 'The Wind Farm', nameAr: 'مزرعة الرياح', area: 'laguna', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 30, price: 1200 },
-  { name: 'Zain Dive Inn', nameAr: 'زاين دايف ان', area: 'lighthouse', category: 'hotel', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 25, price: 1300 },
-  { name: 'Diamond Dahab House', nameAr: 'بيت دياموند دهب', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.2, reviews: 987, rooms: 32, price: 1500 },
-  { name: 'Dolphina Hotel', nameAr: 'فندق دولفين', area: 'mashraba', category: 'hotel', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 28, price: 1200 },
+  { name: 'Elite Residence', nameAr: 'ريزيدنس ايليت', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1123, rooms: 35, price: 1500 },
+  { name: 'Ghazala Oasis Hotel', nameAr: 'فندق واحة غزالة', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 40, price: 1400 },
+  { name: 'Mirage Village', nameAr: 'قرية ميراج', area: 'laguna', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 765, rooms: 50, price: 1300 },
+  { name: 'Shams Hotel & Dive Centre', nameAr: 'فندق شمس ومركز الغوص', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 1234, rooms: 35, price: 1500 },
+  { name: 'Sina House', nameAr: 'بيت سيناء', area: 'assalah', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 876, rooms: 28, price: 1300 },
+  { name: 'The Wind Farm', nameAr: 'مزرعة الرياح', area: 'laguna', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 30, price: 1200 },
+  { name: 'Zain Dive Inn', nameAr: 'زاين دايف ان', area: 'lighthouse', category: 'mid-range', priceBand: 'budget', rating: 4.1, reviews: 765, rooms: 25, price: 1300 },
+  { name: 'Diamond Dahab House', nameAr: 'بيت دياموند دهب', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.2, reviews: 987, rooms: 32, price: 1500 },
+  { name: 'Dolphina Hotel', nameAr: 'فندق دولفين', area: 'mashraba', category: 'mid-range', priceBand: 'budget', rating: 4.0, reviews: 654, rooms: 28, price: 1200 },
 ];
 
 // Generate hotel entries
@@ -283,11 +283,11 @@ const APARTMENTS = [
   { name: 'Beachfront Apartment Eel Garden', nameAr: 'شقة على الشاطئ حديقة الأنقليس', area: 'eel_garden', price: 1600, rating: 4.7, reviews: 145 },
 
   // Assalah Area
-  { name: '2BHK Cosy Apt in Central Asala', nameAr: 'شقة مريحة في وسط العسقل', area: 'assalah', price: 1100, rating: 4.5, reviews: 267 },
+  { name: '2BHK Cosy Apt in Central Asala', nameAr: 'شقة مريحة في وسط العسلة', area: 'assalah', price: 1100, rating: 4.5, reviews: 267 },
   { name: 'Luma Retreat Seaview', nameAr: 'لوما ريتريت سي فيو', area: 'assalah', price: 1800, rating: 4.8, reviews: 312 },
-  { name: 'Assalah Beachfront Apartment', nameAr: 'شقة على شاطئ العسقل', area: 'assalah', price: 1400, rating: 4.6, reviews: 189 },
-  { name: 'Palm Garden Apartment Assala', nameAr: 'شقة حديقة النخيل العسقل', area: 'assalah', price: 1200, rating: 4.5, reviews: 156 },
-  { name: 'Cozy Assalah Studio Apartment', nameAr: 'استوديو مريح في العسقل', area: 'assalah', price: 1000, rating: 4.4, reviews: 134 },
+  { name: 'Assalah Beachfront Apartment', nameAr: 'شقة على شاطئ العسلة', area: 'assalah', price: 1400, rating: 4.6, reviews: 189 },
+  { name: 'Palm Garden Apartment Assala', nameAr: 'شقة حديقة النخيل العسلة', area: 'assalah', price: 1200, rating: 4.5, reviews: 156 },
+  { name: 'Cozy Assalah Studio Apartment', nameAr: 'استوديو مريح في العسلة', area: 'assalah', price: 1000, rating: 4.4, reviews: 134 },
 
   // Lighthouse Area
   { name: 'Lighthouse Beach Apartment', nameAr: 'شقة شاطئ المنارة', area: 'lighthouse', price: 1500, rating: 4.6, reviews: 223 },
@@ -364,24 +364,24 @@ const STUDIOS = [
   { name: 'Laras Studio in Dahab', nameAr: 'استوديو لارا في دهب', area: 'lighthouse', price: 950, rating: 4.6, reviews: 189 },
 
   // Sea View Studios
-  { name: 'Sea View Studio Assalah', nameAr: 'استوديو سي فيو العسقل', area: 'assalah', price: 1200, rating: 4.7, reviews: 212 },
+  { name: 'Sea View Studio Assalah', nameAr: 'استوديو سي فيو العسلة', area: 'assalah', price: 1200, rating: 4.7, reviews: 212 },
   { name: 'Sunrise Studio Eel Garden', nameAr: 'استوديو شروق الشمس حديقة الأنقليس', area: 'eel_garden', price: 1300, rating: 4.8, reviews: 256 },
   { name: 'Sunset Studio Lighthouse', nameAr: 'استوديو غروب الشمس المنارة', area: 'lighthouse', price: 1100, rating: 4.6, reviews: 178 },
   { name: 'Panorama Studio Laguna', nameAr: 'استوديو بانوراما اللاغونا', area: 'laguna', price: 1400, rating: 4.7, reviews: 198 },
 
   // Budget Studios
-  { name: 'Budget Studio Assalah', nameAr: 'استوديو اقتصادي العسقل', area: 'assalah', price: 600, rating: 4.3, reviews: 145 },
+  { name: 'Budget Studio Assalah', nameAr: 'استوديو اقتصادي العسلة', area: 'assalah', price: 600, rating: 4.3, reviews: 145 },
   { name: 'Simple Studio Mashraba', nameAr: 'استوديو بسيط المشربة', area: 'mashraba', price: 550, rating: 4.2, reviews: 123 },
   { name: 'Cozy Studio City Centre', nameAr: 'استوديو مريح وسط المدينة', area: 'city_centre', price: 650, rating: 4.3, reviews: 134 },
   { name: 'Clean Studio Lighthouse', nameAr: 'استوديو نظيف المنارة', area: 'lighthouse', price: 700, rating: 4.4, reviews: 156 },
 
   // Garden Studios
-  { name: 'Garden Studio Assalah', nameAr: 'استوديو حديقة العسقل', area: 'assalah', price: 800, rating: 4.5, reviews: 167 },
+  { name: 'Garden Studio Assalah', nameAr: 'استوديو حديقة العسلة', area: 'assalah', price: 800, rating: 4.5, reviews: 167 },
   { name: 'Palm Studio Eel Garden', nameAr: 'استوديو النخيل حديقة الأنقليس', area: 'eel_garden', price: 900, rating: 4.6, reviews: 189 },
   { name: 'Desert Rose Studio', nameAr: 'استوديو وردة الصحراء', area: 'mashraba', price: 750, rating: 4.4, reviews: 145 },
 
   // Long-Stay Studios
-  { name: 'Monthly Studio Assalah', nameAr: 'استوديو شهري العسقل', area: 'assalah', price: 500, rating: 4.3, reviews: 123 },
+  { name: 'Monthly Studio Assalah', nameAr: 'استوديو شهري العسلة', area: 'assalah', price: 500, rating: 4.3, reviews: 123 },
   { name: 'Long Stay Studio Mashraba', nameAr: 'استوديو إقامة طويلة المشربة', area: 'mashraba', price: 480, rating: 4.2, reviews: 98 },
   { name: 'Remote Worker Studio', nameAr: 'استوديو العامل عن بعد', area: 'eel_garden', price: 850, rating: 4.5, reviews: 167 },
 
@@ -441,15 +441,15 @@ const CHALETS = [
   // Beachfront Chalets
   { name: 'Beachfront Chalet with Large Terrace', nameAr: 'شاليه على الشاطئ مع تراس كبير', area: 'assalah', price: 1800, rating: 4.8, reviews: 234 },
   { name: 'Dahab Stays Beachfront Chalet', nameAr: 'شاليه دهب ستايز على الشاطئ', area: 'assalah', price: 2000, rating: 4.9, reviews: 189 },
-  { name: 'Asalaa Beachfront Chalet', nameAr: 'شاليه العسقل على الشاطئ', area: 'assalah', price: 1900, rating: 4.7, reviews: 167 },
+  { name: 'Asalaa Beachfront Chalet', nameAr: 'شاليه العسلة على الشاطئ', area: 'assalah', price: 1900, rating: 4.7, reviews: 167 },
   { name: 'Red Sea View Chalet', nameAr: 'شاليه منظر البحر الأحمر', area: 'eel_garden', price: 1700, rating: 4.6, reviews: 145 },
   { name: 'Coral Beach Chalet', nameAr: 'شاليه شاطئ المرجان', area: 'lighthouse', price: 1800, rating: 4.7, reviews: 178 },
 
   // Assalah Chalets
-  { name: 'Assalah Garden Chalet', nameAr: 'شاليه حديقة العسقل', area: 'assalah', price: 1500, rating: 4.6, reviews: 156 },
-  { name: 'Palm Tree Chalet Assala', nameAr: 'شاليه شجرة النخيل العسقل', area: 'assalah', price: 1400, rating: 4.5, reviews: 134 },
+  { name: 'Assalah Garden Chalet', nameAr: 'شاليه حديقة العسلة', area: 'assalah', price: 1500, rating: 4.6, reviews: 156 },
+  { name: 'Palm Tree Chalet Assala', nameAr: 'شاليه شجرة النخيل العسلة', area: 'assalah', price: 1400, rating: 4.5, reviews: 134 },
   { name: 'Beach Walk Chalet', nameAr: 'شاليه مشي على الشاطئ', area: 'assalah', price: 1600, rating: 4.6, reviews: 145 },
-  { name: 'Cozy Assalah Chalet', nameAr: 'شاليه مريح العسقل', area: 'assalah', price: 1300, rating: 4.5, reviews: 123 },
+  { name: 'Cozy Assalah Chalet', nameAr: 'شاليه مريح العسلة', area: 'assalah', price: 1300, rating: 4.5, reviews: 123 },
 
   // Lighthouse Chalets
   { name: 'Lighthouse Area Chalet', nameAr: 'شاليه منطقة المنارة', area: 'lighthouse', price: 1600, rating: 4.6, reviews: 178 },
@@ -471,7 +471,7 @@ const CHALETS = [
   { name: '3-Bedroom Family Chalet', nameAr: 'شاليه عائلي 3 غرف نوم', area: 'eel_garden', price: 2300, rating: 4.7, reviews: 167 },
 
   // Budget Chalets
-  { name: 'Budget Chalet Assalah', nameAr: 'شاليه اقتصادي العسقل', area: 'assalah', price: 1000, rating: 4.3, reviews: 112 },
+  { name: 'Budget Chalet Assalah', nameAr: 'شاليه اقتصادي العسلة', area: 'assalah', price: 1000, rating: 4.3, reviews: 112 },
   { name: 'Simple Chalet Mashraba', nameAr: 'شاليه بسيط المشربة', area: 'mashraba', price: 900, rating: 4.2, reviews: 98 },
   { name: 'Cozy Budget Chalet', nameAr: 'شاليه اقتصادي مريح', area: 'city_centre', price: 950, rating: 4.3, reviews: 109 },
 
@@ -545,7 +545,7 @@ const VILLAS = [
   { name: 'Seaside Villa with Rooftop', nameAr: 'فيلا على البحر مع سطح', area: 'mashraba', price: 2900, rating: 4.7, reviews: 145 },
 
   // Budget Villas
-  { name: 'Budget Villa Assalah', nameAr: 'فيلا اقتصادية العسقل', area: 'assalah', price: 1800, rating: 4.5, reviews: 112 },
+  { name: 'Budget Villa Assalah', nameAr: 'فيلا اقتصادية العسلة', area: 'assalah', price: 1800, rating: 4.5, reviews: 112 },
   { name: 'Simple Villa Mashraba', nameAr: 'فيلا بسيطة المشربة', area: 'mashraba', price: 1600, rating: 4.4, reviews: 98 },
   { name: 'Cozy Villa City Centre', nameAr: 'فيلا مريحة وسط المدينة', area: 'city_centre', price: 1700, rating: 4.5, reviews: 109 },
 
@@ -565,7 +565,7 @@ VILLAS.forEach((v, i) => {
     name: v.name,
     nameAr: v.nameAr,
     propertyType: 'villa',
-    category: 'premium',
+    category: 'boutique',
     priceBand: v.price > 2500 ? 'premium' : 'moderate',
     areaId: v.area,
     area: v.area,
@@ -620,7 +620,7 @@ const GUESTHOUSES = [
 
   // Budget Guesthouses
   { name: 'Bohemian Spirit Budget', nameAr: 'الروح البوهيمية اقتصادي', area: 'assalah', price: 800, rating: 4.3, reviews: 432 },
-  { name: 'Simple Guesthouse Assalah', nameAr: 'نزل بسيط العسقل', area: 'assalah', price: 700, rating: 4.2, reviews: 345 },
+  { name: 'Simple Guesthouse Assalah', nameAr: 'نزل بسيط العسلة', area: 'assalah', price: 700, rating: 4.2, reviews: 345 },
   { name: 'Budget Stay Mashraba', nameAr: 'إقامة اقتصادية المشربة', area: 'mashraba', price: 750, rating: 4.2, reviews: 323 },
   { name: 'Cozy Guesthouse City Centre', nameAr: 'نزل مريح وسط المدينة', area: 'city_centre', price: 850, rating: 4.3, reviews: 367 },
 
@@ -690,7 +690,7 @@ const CAMPS = [
 
   // Budget Camps
   { name: 'Bedouin Moon Camp', nameAr: 'مخيم بدوين مون', area: 'assalah', price: 350, rating: 4.1, reviews: 432 },
-  { name: 'Simple Camp Assalah', nameAr: 'مخيم بسيط العسقل', area: 'assalah', price: 250, rating: 3.9, reviews: 234 },
+  { name: 'Simple Camp Assalah', nameAr: 'مخيم بسيط العسلة', area: 'assalah', price: 250, rating: 3.9, reviews: 234 },
   { name: 'Budget Beach Camp', nameAr: 'مخيم شاطئ اقتصادي', area: 'mashraba', price: 280, rating: 4.0, reviews: 321 },
   { name: 'Camp Dolphin', nameAr: 'مخيم دولفين', area: 'laguna', price: 320, rating: 4.1, reviews: 389 },
 

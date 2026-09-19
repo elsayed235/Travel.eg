@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 
 const AREAS: Record<string, { lat: number; lng: number; nameEn: string; nameAr: string }> = {
   lighthouse: { lat: 28.5025, lng: 34.5115, nameEn: 'Lighthouse Area', nameAr: 'منطقة المنارة' },
-  assalah: { lat: 28.5085, lng: 34.5085, nameEn: 'Assalah', nameAr: 'العسقل' },
+  assalah: { lat: 28.5085, lng: 34.5085, nameEn: 'Assalah', nameAr: 'العسلة' },
   mashraba: { lat: 28.4995, lng: 34.5145, nameEn: 'Mashraba', nameAr: 'مشربة' },
   eel_garden: { lat: 28.5105, lng: 34.5065, nameEn: 'Eel Garden', nameAr: 'حديقة الأنقليس' },
   laguna: { lat: 28.4855, lng: 34.5255, nameEn: 'Laguna', nameAr: 'اللاغونا' },
@@ -100,14 +100,14 @@ const MORE_APARTMENTS = [
   { name: 'Sunset Apartment Eel Garden', nameAr: 'شقة غروب حديقة الأنقليس', area: 'eel_garden', price: 1650, rating: 4.7, reviews: 167 },
 
   // Assalah Area
-  { name: 'Assalah Seafront Apartment', nameAr: 'شقة على شاطئ العسقل', area: 'assalah', price: 1500, rating: 4.6, reviews: 156 },
+  { name: 'Assalah Seafront Apartment', nameAr: 'شقة على شاطئ العسلة', area: 'assalah', price: 1500, rating: 4.6, reviews: 156 },
   { name: 'Palm Beach Apartment', nameAr: 'شقة شاطئ النخيل', area: 'assalah', price: 1400, rating: 4.5, reviews: 134 },
-  { name: 'Assalah Garden Flat', nameAr: 'شقة حديقة العسقل', area: 'assalah', price: 1100, rating: 4.4, reviews: 112 },
+  { name: 'Assalah Garden Flat', nameAr: 'شقة حديقة العسلة', area: 'assalah', price: 1100, rating: 4.4, reviews: 112 },
   { name: 'Cozy Beach Apartment', nameAr: 'شقة مريحة على الشاطئ', area: 'assalah', price: 1300, rating: 4.5, reviews: 123 },
-  { name: 'Assalah View Apartment', nameAr: 'شقة منظر العسقل', area: 'assalah', price: 1200, rating: 4.4, reviews: 98 },
-  { name: 'Central Assalah Flat', nameAr: 'شقة وسط العسقل', area: 'assalah', price: 1000, rating: 4.3, reviews: 87 },
-  { name: 'Beachside Assalah Apartment', nameAr: 'شقة بجانب الشاطئ العسقل', area: 'assalah', price: 1350, rating: 4.5, reviews: 145 },
-  { name: 'Assalah Modern Apartment', nameAr: 'شقة العسقل العصرية', area: 'assalah', price: 1250, rating: 4.5, reviews: 134 },
+  { name: 'Assalah View Apartment', nameAr: 'شقة منظر العسلة', area: 'assalah', price: 1200, rating: 4.4, reviews: 98 },
+  { name: 'Central Assalah Flat', nameAr: 'شقة وسط العسلة', area: 'assalah', price: 1000, rating: 4.3, reviews: 87 },
+  { name: 'Beachside Assalah Apartment', nameAr: 'شقة بجانب الشاطئ العسلة', area: 'assalah', price: 1350, rating: 4.5, reviews: 145 },
+  { name: 'Assalah Modern Apartment', nameAr: 'شقة العسلة العصرية', area: 'assalah', price: 1250, rating: 4.5, reviews: 134 },
 
   // Lighthouse Area
   { name: 'Lighthouse View Apartment', nameAr: 'شقة منظر المنارة', area: 'lighthouse', price: 1600, rating: 4.7, reviews: 178 },
@@ -149,14 +149,14 @@ const MORE_STUDIOS = [
   { name: 'Beach Studio Eel Garden', nameAr: 'استوديو شاطئ حديقة الأنقليس', area: 'eel_garden', price: 1150, rating: 4.6, reviews: 145 },
 
   // Assalah Studios
-  { name: 'Assalah Beach Studio', nameAr: 'استوديو شاطئ العسقل', area: 'assalah', price: 1000, rating: 4.5, reviews: 134 },
-  { name: 'Palm Studio Assalah', nameAr: 'استوديو النخيل العسقل', area: 'assalah', price: 900, rating: 4.4, reviews: 112 },
-  { name: 'Sea Breeze Studio Assalah', nameAr: 'استوديو نسيم البحر العسقل', area: 'assalah', price: 1050, rating: 4.5, reviews: 123 },
-  { name: 'Assalah Modern Studio', nameAr: 'استوديو العسقل الحديث', area: 'assalah', price: 950, rating: 4.4, reviews: 98 },
-  { name: 'Cozy Assalah Studio', nameAr: 'استوديو مريح العسقل', area: 'assalah', price: 850, rating: 4.3, reviews: 87 },
-  { name: 'Beachfront Assalah Studio', nameAr: 'استوديو على شاطئ العسقل', area: 'assalah', price: 1100, rating: 4.6, reviews: 156 },
-  { name: 'Assalah Garden Studio', nameAr: 'استوديو حديقة العسقل', area: 'assalah', price: 800, rating: 4.3, reviews: 76 },
-  { name: 'Central Assalah Studio', nameAr: 'استوديو وسط العسقل', area: 'assalah', price: 880, rating: 4.4, reviews: 98 },
+  { name: 'Assalah Beach Studio', nameAr: 'استوديو شاطئ العسلة', area: 'assalah', price: 1000, rating: 4.5, reviews: 134 },
+  { name: 'Palm Studio Assalah', nameAr: 'استوديو النخيل العسلة', area: 'assalah', price: 900, rating: 4.4, reviews: 112 },
+  { name: 'Sea Breeze Studio Assalah', nameAr: 'استوديو نسيم البحر العسلة', area: 'assalah', price: 1050, rating: 4.5, reviews: 123 },
+  { name: 'Assalah Modern Studio', nameAr: 'استوديو العسلة الحديث', area: 'assalah', price: 950, rating: 4.4, reviews: 98 },
+  { name: 'Cozy Assalah Studio', nameAr: 'استوديو مريح العسلة', area: 'assalah', price: 850, rating: 4.3, reviews: 87 },
+  { name: 'Beachfront Assalah Studio', nameAr: 'استوديو على شاطئ العسلة', area: 'assalah', price: 1100, rating: 4.6, reviews: 156 },
+  { name: 'Assalah Garden Studio', nameAr: 'استوديو حديقة العسلة', area: 'assalah', price: 800, rating: 4.3, reviews: 76 },
+  { name: 'Central Assalah Studio', nameAr: 'استوديو وسط العسلة', area: 'assalah', price: 880, rating: 4.4, reviews: 98 },
 
   // Lighthouse Studios
   { name: 'Lighthouse View Studio', nameAr: 'استوديو منظر المنارة', area: 'lighthouse', price: 1200, rating: 4.6, reviews: 145 },
@@ -195,14 +195,14 @@ const MORE_CHALETS = [
   { name: 'Beachfront Chalet Eel Garden', nameAr: 'شاليه على الشاطئ حديقة الأنقليس', area: 'eel_garden', price: 2100, rating: 4.9, reviews: 189 },
 
   // Assalah Chalets
-  { name: 'Assalah Modern Chalet', nameAr: 'شاليه العسقل الحديث', area: 'assalah', price: 1600, rating: 4.6, reviews: 145 },
-  { name: 'Beach Chalet Assalah', nameAr: 'شاليه شاطئ العسقل', area: 'assalah', price: 1700, rating: 4.7, reviews: 156 },
-  { name: 'Palm Chalet Assalah', nameAr: 'شاليه النخيل العسقل', area: 'assalah', price: 1500, rating: 4.5, reviews: 134 },
-  { name: 'Assalah Sea Chalet', nameAr: 'شاليه بحر العسقل', area: 'assalah', price: 1800, rating: 4.7, reviews: 167 },
-  { name: 'Garden Chalet Assalah', nameAr: 'شاليه حديقة العسقل', area: 'assalah', price: 1400, rating: 4.5, reviews: 123 },
-  { name: 'Cozy Assalah Beach Chalet', nameAr: 'شاليه مريح شاطئ العسقل', area: 'assalah', price: 1550, rating: 4.6, reviews: 145 },
-  { name: 'Assalah Modern Beach Chalet', nameAr: 'شاليه العسقل الحديث على الشاطئ', area: 'assalah', price: 1750, rating: 4.7, reviews: 156 },
-  { name: 'Assalah Luxury Chalet', nameAr: 'شاليه فاخر العسقل', area: 'assalah', price: 2200, rating: 4.8, reviews: 178 },
+  { name: 'Assalah Modern Chalet', nameAr: 'شاليه العسلة الحديث', area: 'assalah', price: 1600, rating: 4.6, reviews: 145 },
+  { name: 'Beach Chalet Assalah', nameAr: 'شاليه شاطئ العسلة', area: 'assalah', price: 1700, rating: 4.7, reviews: 156 },
+  { name: 'Palm Chalet Assalah', nameAr: 'شاليه النخيل العسلة', area: 'assalah', price: 1500, rating: 4.5, reviews: 134 },
+  { name: 'Assalah Sea Chalet', nameAr: 'شاليه بحر العسلة', area: 'assalah', price: 1800, rating: 4.7, reviews: 167 },
+  { name: 'Garden Chalet Assalah', nameAr: 'شاليه حديقة العسلة', area: 'assalah', price: 1400, rating: 4.5, reviews: 123 },
+  { name: 'Cozy Assalah Beach Chalet', nameAr: 'شاليه مريح شاطئ العسلة', area: 'assalah', price: 1550, rating: 4.6, reviews: 145 },
+  { name: 'Assalah Modern Beach Chalet', nameAr: 'شاليه العسلة الحديث على الشاطئ', area: 'assalah', price: 1750, rating: 4.7, reviews: 156 },
+  { name: 'Assalah Luxury Chalet', nameAr: 'شاليه فاخر العسلة', area: 'assalah', price: 2200, rating: 4.8, reviews: 178 },
 
   // Lighthouse Chalets
   { name: 'Lighthouse Modern Chalet', nameAr: 'شاليه المنارة الحديث', area: 'lighthouse', price: 1700, rating: 4.6, reviews: 145 },
@@ -240,12 +240,12 @@ const MORE_VILLAS = [
   { name: 'Sea View Villa Eel Garden', nameAr: 'فيلا منظر البحر حديقة الأنقليس', area: 'eel_garden', price: 3400, rating: 4.7, reviews: 145 },
 
   // Assalah Villas
-  { name: 'Assalah Beach Villa', nameAr: 'فيلا شاطئ العسقل', area: 'assalah', price: 3000, rating: 4.7, reviews: 145 },
-  { name: 'Assalah Modern Villa', nameAr: 'فيلا العسقل الحديثة', area: 'assalah', price: 2800, rating: 4.6, reviews: 134 },
-  { name: 'Palm Villa Assalah', nameAr: 'فيلا النخيل العسقل', area: 'assalah', price: 2600, rating: 4.5, reviews: 123 },
-  { name: 'Assalah Luxury Villa', nameAr: 'فيلا فاخرة العسقل', area: 'assalah', price: 3500, rating: 4.8, reviews: 167 },
-  { name: 'Garden Villa Assalah', nameAr: 'فيلا حديقة العسقل', area: 'assalah', price: 2400, rating: 4.5, reviews: 112 },
-  { name: 'Assalah Pool Villa', nameAr: 'فيلا مسبح العسقل', area: 'assalah', price: 3200, rating: 4.7, reviews: 156 },
+  { name: 'Assalah Beach Villa', nameAr: 'فيلا شاطئ العسلة', area: 'assalah', price: 3000, rating: 4.7, reviews: 145 },
+  { name: 'Assalah Modern Villa', nameAr: 'فيلا العسلة الحديثة', area: 'assalah', price: 2800, rating: 4.6, reviews: 134 },
+  { name: 'Palm Villa Assalah', nameAr: 'فيلا النخيل العسلة', area: 'assalah', price: 2600, rating: 4.5, reviews: 123 },
+  { name: 'Assalah Luxury Villa', nameAr: 'فيلا فاخرة العسلة', area: 'assalah', price: 3500, rating: 4.8, reviews: 167 },
+  { name: 'Garden Villa Assalah', nameAr: 'فيلا حديقة العسلة', area: 'assalah', price: 2400, rating: 4.5, reviews: 112 },
+  { name: 'Assalah Pool Villa', nameAr: 'فيلا مسبح العسلة', area: 'assalah', price: 3200, rating: 4.7, reviews: 156 },
 
   // Lighthouse Villas
   { name: 'Lighthouse Beach Villa', nameAr: 'فيلا شاطئ المنارة', area: 'lighthouse', price: 3200, rating: 4.7, reviews: 145 },
@@ -281,12 +281,12 @@ const MORE_GUESTHOUSES = [
   { name: 'Ocean View Guesthouse', nameAr: 'نزل منظر المحيط', area: 'eel_garden', price: 1400, rating: 4.6, reviews: 156 },
 
   // Assalah Guesthouses
-  { name: 'Assalah Beach Guesthouse', nameAr: 'نزل شاطئ العسقل', area: 'assalah', price: 1100, rating: 4.5, reviews: 123 },
-  { name: 'Palm Guesthouse Assalah', nameAr: 'نزل النخيل العسقل', area: 'assalah', price: 1000, rating: 4.4, reviews: 112 },
-  { name: 'Assalah Modern Guesthouse', nameAr: 'نزل العسقل الحديث', area: 'assalah', price: 1200, rating: 4.5, reviews: 134 },
-  { name: 'Assalah Sea Guesthouse', nameAr: 'نزل بحر العسقل', area: 'assalah', price: 1300, rating: 4.6, reviews: 145 },
-  { name: 'Cozy Assalah Guesthouse', nameAr: 'نزل مريح العسقل', area: 'assalah', price: 950, rating: 4.3, reviews: 98 },
-  { name: 'Assalah Garden Guesthouse', nameAr: 'نزل حديقة العسقل', area: 'assalah', price: 1050, rating: 4.4, reviews: 112 },
+  { name: 'Assalah Beach Guesthouse', nameAr: 'نزل شاطئ العسلة', area: 'assalah', price: 1100, rating: 4.5, reviews: 123 },
+  { name: 'Palm Guesthouse Assalah', nameAr: 'نزل النخيل العسلة', area: 'assalah', price: 1000, rating: 4.4, reviews: 112 },
+  { name: 'Assalah Modern Guesthouse', nameAr: 'نزل العسلة الحديث', area: 'assalah', price: 1200, rating: 4.5, reviews: 134 },
+  { name: 'Assalah Sea Guesthouse', nameAr: 'نزل بحر العسلة', area: 'assalah', price: 1300, rating: 4.6, reviews: 145 },
+  { name: 'Cozy Assalah Guesthouse', nameAr: 'نزل مريح العسلة', area: 'assalah', price: 950, rating: 4.3, reviews: 98 },
+  { name: 'Assalah Garden Guesthouse', nameAr: 'نزل حديقة العسلة', area: 'assalah', price: 1050, rating: 4.4, reviews: 112 },
 
   // Lighthouse Guesthouses
   { name: 'Lighthouse Beach Guesthouse', nameAr: 'نزل شاطئ المنارة', area: 'lighthouse', price: 1300, rating: 4.6, reviews: 145 },
@@ -317,10 +317,10 @@ const MORE_CAMPS = [
   { name: 'Reef Camp Eel Garden', nameAr: 'مخيم المرجان حديقة الأنقليس', area: 'eel_garden', price: 550, rating: 4.5, reviews: 145 },
 
   // Assalah Camps
-  { name: 'Assalah Beach Camp', nameAr: 'مخيم شاطئ العسقل', area: 'assalah', price: 450, rating: 4.3, reviews: 123 },
-  { name: 'Assalah Modern Camp', nameAr: 'مخيم العسقل الحديث', area: 'assalah', price: 400, rating: 4.2, reviews: 98 },
-  { name: 'Palm Camp Assalah', nameAr: 'مخيم النخيل العسقل', area: 'assalah', price: 380, rating: 4.1, reviews: 87 },
-  { name: 'Assalah Sea Camp', nameAr: 'مخيم بحر العسقل', area: 'assalah', price: 420, rating: 4.2, reviews: 112 },
+  { name: 'Assalah Beach Camp', nameAr: 'مخيم شاطئ العسلة', area: 'assalah', price: 450, rating: 4.3, reviews: 123 },
+  { name: 'Assalah Modern Camp', nameAr: 'مخيم العسلة الحديث', area: 'assalah', price: 400, rating: 4.2, reviews: 98 },
+  { name: 'Palm Camp Assalah', nameAr: 'مخيم النخيل العسلة', area: 'assalah', price: 380, rating: 4.1, reviews: 87 },
+  { name: 'Assalah Sea Camp', nameAr: 'مخيم بحر العسلة', area: 'assalah', price: 420, rating: 4.2, reviews: 112 },
 
   // Lighthouse Camps
   { name: 'Lighthouse Beach Camp', nameAr: 'مخيم شاطئ المنارة', area: 'lighthouse', price: 500, rating: 4.4, reviews: 134 },
@@ -350,9 +350,9 @@ const MORE_ECOLODGES = [
   { name: 'Ocean Eco Lodge', nameAr: 'نزل المحيط البيئي', area: 'eel_garden', price: 1000, rating: 4.8, reviews: 167 },
 
   // Assalah Eco-lodges
-  { name: 'Assalah Eco Lodge', nameAr: 'نزل العسقل البيئي', area: 'assalah', price: 800, rating: 4.6, reviews: 134 },
+  { name: 'Assalah Eco Lodge', nameAr: 'نزل العسلة البيئي', area: 'assalah', price: 800, rating: 4.6, reviews: 134 },
   { name: 'Palm Eco Lodge', nameAr: 'نزل النخيل البيئي', area: 'assalah', price: 850, rating: 4.6, reviews: 123 },
-  { name: 'Assalah Beach Eco Lodge', nameAr: 'نزل شاطئ العسقل البيئي', area: 'assalah', price: 900, rating: 4.7, reviews: 145 },
+  { name: 'Assalah Beach Eco Lodge', nameAr: 'نزل شاطئ العسلة البيئي', area: 'assalah', price: 900, rating: 4.7, reviews: 145 },
 
   // Lighthouse Eco-lodges
   { name: 'Lighthouse Eco Lodge', nameAr: 'نزل المنارة البيئي', area: 'lighthouse', price: 850, rating: 4.6, reviews: 134 },
