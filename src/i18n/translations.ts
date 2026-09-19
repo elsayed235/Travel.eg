@@ -2058,6 +2058,10 @@ export const TRANSLATIONS: Translations = {
   'rentals.cancelBooking': { en: 'Cancel this rental', ar: 'إلغاء هذا التأجير' },
   'rentals.myBookings': { en: 'My rental bookings', ar: 'حجوزات التأجير' },
   'rentals.noBookings': { en: 'No rental bookings yet.', ar: 'لا توجد حجوزات تأجير بعد.' },
+  'rentals.errorStartDate': { en: 'The start date must be today or later.', ar: 'يجب أن يكون تاريخ البداية اليوم أو بعده.' },
+  'rentals.errorEndDate': { en: 'The end date must be on or after the start date.', ar: 'يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.' },
+  'rentals.errorWindow': { en: 'Rental windows must be between 1 and {max} days.', ar: 'يجب أن تكون مدة التأجير بين يوم واحد و{max} أيام.' },
+  'rentals.errorGeneric': { en: 'Couldn’t check availability. Please try again.', ar: 'تعذّر التحقق من التوفر. حاول مرة أخرى.' },
 
   // =========================================================================
   // §5 i18n codemod — tripos, navigation, common — GENERATED
@@ -2233,7 +2237,13 @@ export const TRANSLATIONS: Translations = {
   "nav.theme-2": { en: "Theme", ar: "سمة التطبيق" },
   "nav.intel": { en: "Intel", ar: "استخبارات" },
   // a11y (accessible names for icon-only controls; never shown visually).
-  "a11y.clearSearch": { en: "Clear search", ar: "مسح البحث" },
+  'a11y.clearSearch': { en: "Clear search", ar: "مسح البحث" },
+  'transfers.loadError': { en: 'Couldn’t load the options list. Please try again.', ar: 'تعذّر تحميل القايمة. حاول مرة أخرى.' },
+  'transfers.chooseOrigin': { en: 'Pick a starting point to see fixed prices.', ar: 'اختار نقطة الانطلاق الأول عشان تشوف الأسعار الثابتة.' },
+  'transfers.settling': { en: 'Confirming…', ar: 'جاري التأكيد…' },
+  'transfers.preparing': { en: 'Holding your ride…', ar: 'جاري حجز عربيتك…' },
+  'transfers.viewMyTrip': { en: 'View My Trip', ar: 'اعرض رحلتي' },
+  'transfers.another': { en: 'Book another ride', ar: 'احجز انتقالة تانية' },
   "a11y.closeSearch": { en: "Close search", ar: "إغلاق البحث" },
   "a11y.openMobileMenu": { en: "Open navigation menu", ar: "فتح قائمة التنقل" },
   "a11y.closeMobileMenu": { en: "Close navigation menu", ar: "إغلاق قائمة التنقل" },

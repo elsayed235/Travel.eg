@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 3703 keys. Loaded per language by
+ * Language: en. 3713 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~90,848 chars here instead of both languages).
+ * (~91,177 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3324,6 +3324,10 @@ export const EN: Record<string, string> = {
   "rentals.discount": "Multi-day discount",
   "rentals.e-bike": "E-bike",
   "rentals.endDate": "End date",
+  "rentals.errorEndDate": "The end date must be on or after the start date.",
+  "rentals.errorGeneric": "Couldn’t check availability. Please try again.",
+  "rentals.errorStartDate": "The start date must be today or later.",
+  "rentals.errorWindow": "Rental windows must be between 1 and {max} days.",
   "rentals.extras": "Add-ons",
   "rentals.extrasTotal": "Add-ons",
   "rentals.featured": "Featured",
@@ -3551,12 +3555,14 @@ export const EN: Record<string, string> = {
   "tip": "Tip",
   "transfer.noTelemetry": "No telemetry",
   "transfers.airportWait": "60-min wait on delayed flights",
+  "transfers.another": "Book another ride",
   "transfers.asap": "ASAP now",
   "transfers.available": "Available today",
   "transfers.book": "Book this ride",
   "transfers.bookedMessage": "Your transfer is locked in. Check My Trip for live driver tracking.",
   "transfers.bookedTitle": "Ride on the way",
   "transfers.children": "Children",
+  "transfers.chooseOrigin": "Pick a starting point to see fixed prices.",
   "transfers.date": "Travel date",
   "transfers.detectLocation": "Use my location",
   "transfers.detecting": "Detecting your location…",
@@ -3566,6 +3572,7 @@ export const EN: Record<string, string> = {
   "transfers.flightNumber": "Flight number",
   "transfers.from": "From",
   "transfers.km": "km",
+  "transfers.loadError": "Couldn’t load the options list. Please try again.",
   "transfers.locationDenied": "Location permission was denied — search manually.",
   "transfers.locationDetected": "Detected",
   "transfers.locationFailed": "We couldn’t read your location — pick a city below.",
@@ -3579,11 +3586,13 @@ export const EN: Record<string, string> = {
   "transfers.passenger.count": "How many travelers?",
   "transfers.passengers": "Passengers",
   "transfers.pickup": "Pickup point",
+  "transfers.preparing": "Holding your ride…",
   "transfers.pricedFrom": "priced from",
   "transfers.quote": "Fixed price from",
   "transfers.roundTrip": "Return",
   "transfers.scheduled": "Scheduled",
   "transfers.searchOrigin": "Search your city or area…",
+  "transfers.settling": "Confirming…",
   "transfers.signInToBook": "Sign in to book your transfer",
   "transfers.subtitle": "On-demand cars inside Dahab and private transfers from anywhere in Egypt — fixed zone pricing, drivers you can trust.",
   "transfers.tab.anywhere": "From anywhere in Egypt",
@@ -3599,6 +3608,7 @@ export const EN: Record<string, string> = {
   "transfers.trust.fixed": "Fixed zone pricing",
   "transfers.trust.onTime": "On-time guaranteed",
   "transfers.trust.peace": "Verified local drivers",
+  "transfers.viewMyTrip": "View My Trip",
   "trip.conservation.empty": "No eco-actions logged for this trip yet — log one from a completed booking.",
   "trip.conservation.subtitle": "Eco-actions from your completed bookings",
   "trip.conservation.title": "Your Reef Impact",

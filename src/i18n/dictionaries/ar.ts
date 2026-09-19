@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3703 keys. Loaded per language by
+ * Language: ar. 3713 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~83,248 chars here instead of both languages).
+ * (~83,570 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3324,6 +3324,10 @@ export const AR: Record<string, string> = {
   "rentals.discount": "خصم الأيام المتعددة",
   "rentals.e-bike": "عجلة كهربائية",
   "rentals.endDate": "تاريخ النهاية",
+  "rentals.errorEndDate": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.",
+  "rentals.errorGeneric": "تعذّر التحقق من التوفر. حاول مرة أخرى.",
+  "rentals.errorStartDate": "يجب أن يكون تاريخ البداية اليوم أو بعده.",
+  "rentals.errorWindow": "يجب أن تكون مدة التأجير بين يوم واحد و{max} أيام.",
   "rentals.extras": "إضافات",
   "rentals.extrasTotal": "الإضافات",
   "rentals.featured": "مميز",
@@ -3551,12 +3555,14 @@ export const AR: Record<string, string> = {
   "tip": "نصيحة",
   "transfer.noTelemetry": "لا توجد بيانات",
   "transfers.airportWait": "بنستناك ساعة لو الرحلة اتأخرت",
+  "transfers.another": "احجز انتقالة تانية",
   "transfers.asap": "أقرب وقت (دلوقتي)",
   "transfers.available": "متاح النهارده",
   "transfers.book": "احجز العرباية دي",
   "transfers.bookedMessage": "حجز انتقالتك اتأكد. هتلاقي تتبع السواق في رحلتي.",
   "transfers.bookedTitle": "العرباية اتأكدت",
   "transfers.children": "أطفال",
+  "transfers.chooseOrigin": "اختار نقطة الانطلاق الأول عشان تشوف الأسعار الثابتة.",
   "transfers.date": "تاريخ الرحلة",
   "transfers.detectLocation": "استخدم موقعي الحالي",
   "transfers.detecting": "بنحدد موقعك…",
@@ -3566,6 +3572,7 @@ export const AR: Record<string, string> = {
   "transfers.flightNumber": "رقم الرحلة",
   "transfers.from": "من",
   "transfers.km": "كم",
+  "transfers.loadError": "تعذّر تحميل القايمة. حاول مرة أخرى.",
   "transfers.locationDenied": "مسموحلناش نوصل لموقعك — دوّر يدوي.",
   "transfers.locationDetected": "اتحدد موقعك",
   "transfers.locationFailed": "مقدرناش نحدد موقعك — اختار مدينتك من القايمة.",
@@ -3579,11 +3586,13 @@ export const AR: Record<string, string> = {
   "transfers.passenger.count": "كام راكب؟",
   "transfers.passengers": "عدد الركاب",
   "transfers.pickup": "نقطة الاستلام",
+  "transfers.preparing": "جاري حجز عربيتك…",
   "transfers.pricedFrom": "السعر من",
   "transfers.quote": "سعر ثابت يبدأ من",
   "transfers.roundTrip": "ذهاب وعودة",
   "transfers.scheduled": "ميعاد محدد",
   "transfers.searchOrigin": "دور على مدينتك أو منطقتك…",
+  "transfers.settling": "جاري التأكيد…",
   "transfers.signInToBook": "سجّل دخولك عشان تحجز انتقالتك",
   "transfers.subtitle": "عربية جوه دهب في أي لحظة أو انتقالات خاصة من أي مكان في مصر — أسعار ثابتة حسب المنطقة وسواقين من أهل المكان.",
   "transfers.tab.anywhere": "من أي مكان في الجمهورية",
@@ -3599,6 +3608,7 @@ export const AR: Record<string, string> = {
   "transfers.trust.fixed": "سعر ثابت لكل منطقة",
   "transfers.trust.onTime": "التزام بالمعاد",
   "transfers.trust.peace": "سواقين مضمونين من أهل المكان",
+  "transfers.viewMyTrip": "اعرض رحلتي",
   "trip.conservation.empty": "لا توجد إجراءات بيئية لهذه الرحلة بعد — سجّل واحدًا من حجز مكتمل.",
   "trip.conservation.subtitle": "إجراءات بيئية من حجوزاتك المكتملة",
   "trip.conservation.title": "أثرك على الشعاب",

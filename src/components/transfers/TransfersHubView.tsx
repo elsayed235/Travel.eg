@@ -569,9 +569,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
               <div className="rounded-3xl bg-[var(--surface-card)] border border-dashed border-[var(--border-subtle)] p-8 text-center">
                 <RouteIcon className="w-8 h-8 text-[var(--text-secondary)]/40 mx-auto mb-2" />
                 <p className="text-xs text-[var(--text-secondary)]/60">
-                  {activeTab === 'anywhere'
-                    ? t('transfers.chooseOrigin', 'Pick your city or airport to see fixed prices.')
-                    : t('transfers.chooseOrigin', 'Pick a Dahab area to see fixed prices.')}
+                {t('transfers.chooseOrigin')}
                 </p>
               </div>
             )}

@@ -88,8 +88,28 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
     });
   };
 
+  const rentalErrorMessage = (raw: string): string => {
+    if (raw.includes('start date must be today or later')) return t('rentals.errorStartDate');
+    if (raw.includes('end date must be on or after')) return t('rentals.errorEndDate');
+    if (raw.includes('Rental windows must be between')) return t('rentals.errorWindow', { max: 30 });
+    return t('rentals.errorGeneric');
+  };
+
   const handleCheck = async () => {
     if (!rental) return;
+    // Client-side guard first so the message is fully localized.
+    if (endDate < startDate) {
+      setAvailability(null);
+      setQuote(null);
+      setCheckError(t('rentals.errorEndDate'));
+      return;
+    }
+    if (startDate < today) {
+      setAvailability(null);
+      setQuote(null);
+      setCheckError(t('rentals.errorStartDate'));
+      return;
+    }
     setChecking(true);
     setCheckError(null);
     setAvailability(null);
@@ -111,7 +131,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
       setAvailability(avail);
       setQuote(priceQuote);
     } catch (e: any) {
-      setCheckError(String(e?.message || e || ''));
+      setCheckError(rentalErrorMessage(String(e?.message || e || '')));
     } finally {
       setChecking(false);
     }
@@ -508,7 +528,6 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
                   {checkError}
                 </div>
               )}
-
               {/* Availability + quote */}
               {availability && quote && (
                 <div className={`rounded-xl border p-3 space-y-1.5 text-xs ${isDark ? 'bg-[var(--surface-container)] border-[var(--border-subtle)]' : 'bg-[var(--surface-card)] border-[var(--border-subtle)]'}`}>
