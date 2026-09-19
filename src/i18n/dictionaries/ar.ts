@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3701 keys. Loaded per language by
+ * Language: ar. 3703 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~83,192 chars here instead of both languages).
+ * (~83,248 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -2329,6 +2329,8 @@ export const AR: Record<string, string> = {
   "hotels.roomsLabel": "الغرف",
   "hotels.searchPlaceholder": "ابحث عن فندق أو منطقة…",
   "hotels.signInToHold": "سجّل الدخول لحجز الغرفة",
+  "hotels.similarBody": "هذه الإقامات متاحة الآن في الكتالوج:",
+  "hotels.similarTitle": "إقامات مشابهة في دهب",
   "hotels.soldOut": "لا توجد غرف متاحة حالياً",
   "hotels.statsAvgRating": "متوسط التقييم",
   "hotels.statsHotels": "فنادق",

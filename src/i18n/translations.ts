@@ -1956,6 +1956,8 @@ export const TRANSLATIONS: Translations = {
     ar: 'ربما تمت إزالة الفندق أو الرابط قديم. تصفّح الكتالوج الكامل.',
   },
   'hotels.backToList': { en: 'Back to all hotels', ar: 'عودة لكل الفنادق' },
+  'hotels.similarTitle': { en: 'Similar stays in Dahab', ar: 'إقامات مشابهة في دهب' },
+  'hotels.similarBody': { en: 'These are live in the catalogue right now:', ar: 'هذه الإقامات متاحة الآن في الكتالوج:' },
   'hotels.planWithConcierge': { en: 'Plan this stay with AskDayGI', ar: 'خطط الإقامة مع AskDayGI' },
   'hotels.planWhatsAppBody': {
     en: 'Hi! I’d like to book {hotel} in Dahab and plan the stay.',

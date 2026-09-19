@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowLeft, Star, MapPin, BedDouble, Users, CalendarDays, Info, Sparkles,
-  Check, AlertTriangle, SkipBack, Loader2, ExternalLink
+  Check, AlertTriangle, SkipBack, Loader2, ExternalLink, Compass
 } from 'lucide-react';
 import { WhatsAppIcon } from '../common/icons/WhatsAppIcon';
 import { CmsImage } from '../common/CmsImage';
@@ -12,6 +12,7 @@ import { api } from '../../services/api';
 import { useApiResource } from '../../hooks/useApiResource';
 import type { AccommodationEntity, AccommodationDetailResponse, PropertySourceEntity } from '../../shared/types/commerce';
 import { PROPERTY_TYPE_LABEL } from './AccommodationCard';
+import { AccommodationCard } from './AccommodationCard';
 
 const CATEGORY_LABEL: Record<AccommodationEntity['category'], { en: string; ar: string }> = {
   'budget': { en: 'Budget', ar: 'ميزانية' },
@@ -68,6 +69,19 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
   );
   const accommodation = detail.data?.accommodation ?? null;
 
+  // Dead-link recovery: when the slug doesn't resolve, surface a few live
+  // top-rated stays so the visitor still lands somewhere bookable instead
+  // of a dead end. Fetched once, only rendered in the not-found branch.
+  const similar = useApiResource<import('../../shared/types/commerce').AccommodationCatalogueResponse>(
+    useCallback((signal) => api.getAccommodations(undefined, signal), [])
+  );
+  const similarStays = React.useMemo(() => {
+    const all = similar.data?.accommodations ?? [];
+    return [...all]
+      .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
+      .slice(0, 4);
+  }, [similar.data]);
+
   const [checkIn, setCheckIn] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [rooms, setRooms] = useState<number>(1);
   const [checking, setChecking] = useState(false);
@@ -109,6 +123,28 @@ export const AccommodationDetailView: React.FC<AccommodationDetailViewProps> = (
         >
           {t('hotels.backToList')}
         </button>
+
+        {similarStays.length > 0 && (
+          <div className="mt-12 text-start">
+            <div className="flex items-center gap-2 mb-1">
+              <Compass className={`w-5 h-5 ${isDark ? 'text-[var(--accent-primary)]' : 'text-[var(--accent-primary)]'}`} />
+              <h2 className="chart-heading font-bold text-lg">{t('hotels.similarTitle')}</h2>
+            </div>
+            <p className={`text-sm mb-5 ${isDark ? 'text-[var(--text-secondary)]/75' : 'text-[var(--text-secondary)]'}`}>
+              {t('hotels.similarBody')}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {similarStays.map(a => (
+                <AccommodationCard
+                  key={a.id}
+                  accommodation={a}
+                  isDark={isDark}
+                  onOpen={(slug) => navigateTo('/hotels', { hotelSlug: slug })}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }

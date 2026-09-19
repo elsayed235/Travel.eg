@@ -47,13 +47,29 @@ export interface MeetingSchedulerProps {
   initialStartDate?: Date;
   /** Initial selected end date. */
   initialEndDate?: Date;
-  /** Callback fired when the schedule button is clicked. */
+  /** Callback fired when the schedule button is clicked. The dates carry
+   *  the user-picked times (defaults 09:00 / 10:00 when untouched). */
   onSchedule: (details: { startDate: Date | null; endDate: Date | null; aiNotes: boolean }) => void;
   /** Callback fired when the cancel button is clicked. */
   onCancel: () => void;
 }
 
 const formatTime = (date: Date | null) => (date ? format(date, "h:mm a") : "—");
+
+/** 30-minute steps across a 24h dial — coarse enough to tap, fine enough to be real. */
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? "00" : "30";
+  return `${String(h).padStart(2, "0")}:${m}`;
+});
+
+/** Applies an "HH:mm" to a date without touching its day component. */
+const withTime = (date: Date, hhmm: string): Date => {
+  const [h, m] = hhmm.split(":").map(Number);
+  const next = new Date(date);
+  next.setHours(h, m, 0, 0);
+  return next;
+};
 
 export const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
   title = "Schedule a meeting",
@@ -71,6 +87,24 @@ export const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
   const [endDate, setEndDate] = useState<Date | null>(initialEndDate || null);
   const [aiNotes, setAiNotes] = useState(false);
 
+  // Real time selection — defaults mirror the original static display so an
+  // untouched picker still schedules at 9:00 → 10:00.
+  const [startTime, setStartTime] = useState<string>(
+    initialStartDate ? format(initialStartDate, "HH:mm") : "09:00",
+  );
+  const [endTime, setEndTime] = useState<string>(
+    initialEndDate ? format(initialEndDate, "HH:mm") : "10:00",
+  );
+
+  const handleStartTimeChange = (hhmm: string) => {
+    setStartTime(hhmm);
+    if (startDate) setStartDate(withTime(startDate, hhmm));
+  };
+  const handleEndTimeChange = (hhmm: string) => {
+    setEndTime(hhmm);
+    if (endDate) setEndDate(withTime(endDate, hhmm));
+  };
+
   const days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 }),
     end: endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 }),
@@ -78,12 +112,12 @@ export const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
 
   const handleDateClick = (day: Date) => {
     if (!startDate || (startDate && endDate)) {
-      setStartDate(day);
+      setStartDate(withTime(day, startTime));
       setEndDate(null);
     } else if (isBefore(day, startDate)) {
-      setStartDate(day);
+      setStartDate(withTime(day, startTime));
     } else {
-      setEndDate(day);
+      setEndDate(withTime(day, endTime));
     }
   };
 
@@ -182,9 +216,16 @@ export const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
                   <span className="flex-grow text-sm">
                     {startDate ? format(startDate, "MMMM d, yyyy") : "—"}
                   </span>
-                  <span className="rounded-lg bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary">
-                    {formatTime(startDate)}
-                  </span>
+                  <select
+                    aria-label="Start time"
+                    value={startTime}
+                    onChange={(e) => handleStartTimeChange(e.target.value)}
+                    className="cursor-pointer rounded-lg bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary outline-none"
+                  >
+                    {TIME_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{format(withTime(new Date(), opt), "h:mm a")}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -194,9 +235,16 @@ export const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
                   <span className="flex-grow text-sm">
                     {endDate ? format(endDate, "MMMM d, yyyy") : "—"}
                   </span>
-                  <span className="rounded-lg bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary">
-                    {formatTime(endDate)}
-                  </span>
+                  <select
+                    aria-label="End time"
+                    value={endTime}
+                    onChange={(e) => handleEndTimeChange(e.target.value)}
+                    className="cursor-pointer rounded-lg bg-accent-primary/10 px-3 py-1 text-sm font-semibold text-accent-primary outline-none"
+                  >
+                    {TIME_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{format(withTime(new Date(), opt), "h:mm a")}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
