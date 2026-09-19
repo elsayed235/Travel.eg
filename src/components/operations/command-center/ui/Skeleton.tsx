@@ -1,11 +1,13 @@
 import React from 'react';
 
-type SkeletonVariant = 'card' | 'table' | 'list' | 'text' | 'kpi' | 'tab';
+type SkeletonVariant = 'card' | 'table' | 'table-row' | 'list' | 'text' | 'kpi' | 'tab';
 
 interface SkeletonProps {
   variant?: SkeletonVariant;
   count?: number;
   className?: string;
+  /** Explicit pulse height (px) — honoured by the text/table-row variants. */
+  height?: number;
 }
 
 const shimmer = 'animate-pulse bg-[var(--btn-util-bg)] rounded';
@@ -14,7 +16,7 @@ function SkeletonPulse({ className = '' }: { className?: string }) {
   return <div className={`${shimmer} ${className}`} />;
 }
 
-export function Skeleton({ variant = 'text', count = 1, className = '' }: SkeletonProps) {
+export function Skeleton({ variant = 'text', count = 1, className = '', height }: SkeletonProps) {
   const items = Array.from({ length: count }, (_, i) => i);
 
   const renderVariant = (key: number) => {
@@ -69,6 +71,14 @@ export function Skeleton({ variant = 'text', count = 1, className = '' }: Skelet
             </div>
             <SkeletonPulse className="w-12 h-5 rounded" />
           </div>
+        );
+      case 'table-row':
+        return (
+          <SkeletonPulse
+            key={key}
+            className={`w-full rounded ${className}`}
+            {...(height !== undefined ? { style: { height } } : {})}
+          />
         );
       case 'tab':
         return (

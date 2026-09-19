@@ -9,3 +9,5 @@ export { KpiCard } from './KpiCard';
 export { MiniSparkline } from './MiniSparkline';
 export { DataTable } from './DataTable';
 export { MetricGrid } from './MetricGrid';
+export { TablePagination } from './TablePagination';
+export { Pagination } from '../Pagination';
