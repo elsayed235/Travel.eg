@@ -2059,6 +2059,13 @@ export const api = {
     return await readJson<{ page?: any; blocks?: any[]; seo?: any }>(res, 'Could not load page.');
   },
 
+  async listCmsPages(status?: string, signal?: AbortSignal): Promise<{ pages?: any[] }> {
+    const qs = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
+    const res = await fetchWithTimeout(`/api/admin/content/pages${qs}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error(res.status === 401 || res.status === 403 ? 'Not authorized to view pages' : 'Failed to load pages');
+    return await readJson<{ pages?: any[] }>(res, 'Could not load pages.');
+  },
+
   async createCmsPage(data: Record<string, any>, signal?: AbortSignal): Promise<{ page?: any }> {
     const res = await fetchWithTimeout('/api/admin/content/pages', {
       method: 'POST',

@@ -3,6 +3,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
 import { ClickableCard } from '../common/ClickableCard';
+import { api } from '../../services/api';
 import type { CmsRevision } from '../../services/api';
 
 interface RevisionsBrowserProps {
@@ -22,15 +23,7 @@ export const RevisionsBrowser: React.FC<RevisionsBrowserProps> = ({ entityType, 
   const loadRevisions = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (entityType) params.set('entityType', entityType);
-      if (entityId) params.set('entityId', entityId);
-      params.set('limit', String(limit));
-      const res = await fetch(`/api/admin/content/revisions?${params}`, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error(t('cms.revisionsLoadFailed'));
-      const json = await res.json();
+      const json = await api.listCmsRevisions(entityType, entityId, limit);
       setRevisions(json.revisions || []);
       setError(null);
     } catch (err: any) {

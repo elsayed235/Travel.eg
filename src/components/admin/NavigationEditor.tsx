@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Menu, Plus, Trash2, X } from 'lucide-react';
+import { Eye, EyeOff, Menu, Plus, Trash2, X } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
@@ -38,11 +38,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({ menuKey = DE
   const loadItems = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/content/navigation/${menuKey}`, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error(t('cms.loadFailed'));
-      const json = await res.json();
+      const json = await api.getCmsNavigationAdmin(menuKey);
       setItems(json.items || []);
       setError(null);
     } catch (err: any) {
@@ -112,23 +108,11 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({ menuKey = DE
     try {
       const payload = { ...form };
       if (form.id) {
-        const res = await fetch(`/api/admin/content/navigation/${form.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error(t('cms.navSaveFailed'));
-        const json = await res.json();
+        const json = await api.updateCmsNavigationItem(form.id, payload);
         setItems(prev => prev.map(i => i.id === form.id ? json.item : i));
         showToast(t('cms.navItemSaved'));
       } else {
-        const res = await fetch('/api/admin/content/navigation', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error(t('cms.navSaveFailed'));
-        const json = await res.json();
+        const json = await api.createCmsNavigationItem(payload);
         setItems(prev => [...prev, json.item]);
         showToast(t('cms.navItemCreated'));
       }
@@ -144,14 +128,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({ menuKey = DE
     if (!confirm(t('cms.deleteNavConfirm'))) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/content/navigation/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || t('cms.navDeleteFailed'));
-      }
+      await api.deleteCmsNavigationItem(id);
       setItems(prev => prev.filter(i => i.id !== id));
       showToast(t('cms.navItemDeleted'));
     } catch (err: any) {
@@ -162,11 +139,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({ menuKey = DE
   };
 
   const handleToggleVisible = (id: string, current: number) => {
-    fetch(`/api/admin/content/navigation/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, visible: current ? 0 : 1 }),
-    }).then(() => loadItems());
+    api.updateCmsNavigationItem(id, { id, visible: current ? 0 : 1 }).then(() => loadItems());
   };
 
   const visibleItems = items.filter(i => i.visible === 1);
@@ -272,7 +245,7 @@ export const NavigationEditor: React.FC<NavigationEditorProps> = ({ menuKey = DE
                             }`}
                             title={item.visible ? t('cms.hide') : t('cms.show')}
                           >
-                            {item.visible ? '👁' : '👁‍🗨'}
+                            {item.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                           </button>
                           <button
                             type="button"

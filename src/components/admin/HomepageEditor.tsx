@@ -84,16 +84,7 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
     }
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/content/homepage/${editingKey}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || t('cms.saveFailed'));
-      }
-      const json = await res.json();
+      const json = await api.updateCmsHomepage(editingKey, editForm);
       setSections(prev => prev.map(s => s.section_key === editingKey ? json.section : s));
       showToast(t('cms.sectionSaved'));
       cancelEdit();

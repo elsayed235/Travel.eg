@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Star, Trash2 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
@@ -80,9 +80,7 @@ export const PagesCrud: React.FC<PagesCrudProps> = ({ onBack }) => {
   const loadPages = useCallback(async () => {
     setLoading(true);
     try {
-      const params = statusFilter !== 'all' ? { status: statusFilter } : undefined;
-      const url = '/api/admin/content/pages' + (params ? `?status=${params.status}` : '');
-      const json = await fetch(url, { headers: { 'Content-Type': 'application/json' } }).then(r => r.json());
+      const json = await api.listCmsPages(statusFilter);
       setPages(json.pages || []);
       setError(null);
     } catch (err: any) {
@@ -97,11 +95,7 @@ export const PagesCrud: React.FC<PagesCrudProps> = ({ onBack }) => {
   const loadPageDetail = useCallback(async (id: string) => {
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/admin/content/pages/${id}`, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error(t('cms.loadFailed'));
-      const json = await res.json();
+      const json = await api.getCmsAdminPage(id) as unknown as PageDetail;
       setSelectedPage(json);
       setBlocks(json.blocks || []);
       setSeoData(json.seo || null);
@@ -367,7 +361,7 @@ export const PagesCrud: React.FC<PagesCrudProps> = ({ onBack }) => {
                         </span>
                         {page.featured > 0 && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
-                            ⭐ {t('cms.featured')}
+                            <Star className="w-3 h-3 inline-block" /> {t('cms.featured')}
                           </span>
                         )}
                       </div>

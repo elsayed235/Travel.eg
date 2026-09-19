@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
+import { api } from '../../services/api';
 import type { CmsSeo } from '../../services/api';
 
 interface SeoEditorProps {
@@ -86,16 +87,7 @@ export const SeoEditor: React.FC<SeoEditorProps> = ({ seo, pageType, pageId, onS
         if ((payload as any)[k] === '') delete (payload as any)[k];
       });
 
-      const res = await fetch(`/api/admin/content/seo/${pageType}/${pageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || t('cms.seoSaveFailed'));
-      }
-      const json = await res.json();
+      const json = await api.updateCmsSeo(pageType, pageId, payload);
       showToast(t('cms.seoSaved'));
       if (onSave) onSave(json.seo);
     } catch (err: any) {

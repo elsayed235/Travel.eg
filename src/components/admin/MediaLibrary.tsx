@@ -95,10 +95,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({ onSelect, onClose, s
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`/api/admin/content/media/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      await api.deleteCmsMedia(id);
       setMedia(prev => prev.filter(m => m.id !== id));
       setDeleteConfirm(null);
       showToast(t('cms.mediaDeleted'));
