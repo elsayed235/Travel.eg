@@ -103,6 +103,7 @@ export const ROUTES = [
   '/hotels',
   '/accommodations',
   '/admin/content',
+  '/rentals',
   '/rentals-page',
   '/attractions',
   '/preview',
