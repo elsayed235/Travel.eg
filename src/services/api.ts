@@ -217,6 +217,46 @@ export interface CmsPageWithBlocks {
   blocks: CmsPageBlockWire[];
 }
 
+/** Wire shape of a cms_seo row (see server/db/sqlite/cmsSchema.ts). */
+export interface CmsSeo {
+  id: string;
+  page_type: string;
+  page_id: string;
+  title_en: string;
+  title_ar: string;
+  description_en: string;
+  description_ar: string;
+  og_title_en: string;
+  og_title_ar: string;
+  og_description_en: string;
+  og_description_ar: string;
+  og_image_url: string;
+  canonical_url: string;
+  noindex: number;
+  updated_at: string;
+}
+
+/** Wire shape of a cms_revisions row (see server/db/sqlite/cmsSchema.ts). */
+export interface CmsRevision {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  action: string;
+  actor_id: string;
+  actor_name: string;
+  payload: string | Record<string, unknown>;
+  created_at: string;
+}
+
+/** Generic async collection state for ops dashboard sections. */
+export interface DashboardSectionState<T> {
+  source: 'live' | 'initial';
+  loading: boolean;
+  data: T;
+  lastUpdated?: string;
+  error?: string;
+}
+
 export interface NavigationItemWire {
   id: string;
   menu_key: string;
@@ -2011,6 +2051,280 @@ export const api = {
     return await readJson<{ media?: any[] }>(res, 'Could not load media.');
   },
 
+  // ── Pages ──────────────────────────────────────────────────────────────────
+
+  async getCmsAdminPage(id: string, signal?: AbortSignal): Promise<{ page?: any; blocks?: any[]; seo?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/pages/${id}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error(res.status === 404 ? 'Page not found' : 'Failed to load page');
+    return await readJson<{ page?: any; blocks?: any[]; seo?: any }>(res, 'Could not load page.');
+  },
+
+  async createCmsPage(data: Record<string, any>, signal?: AbortSignal): Promise<{ page?: any }> {
+    const res = await fetchWithTimeout('/api/admin/content/pages', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to create page.');
+      throw new Error(err.message || 'Failed to create page.');
+    }
+    return await readJson<{ page?: any }>(res, 'Failed to create page.');
+  },
+
+  async updateCmsPage(id: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ page?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/pages/${id}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update page.');
+      throw new Error(err.message || 'Failed to update page.');
+    }
+    return await readJson<{ page?: any }>(res, 'Failed to update page.');
+  },
+
+  async deleteCmsPage(id: string, signal?: AbortSignal): Promise<{ message?: string }> {
+    const res = await fetchWithTimeout(`/api/admin/content/pages/${id}`, {
+      method: 'DELETE',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to delete page.');
+      throw new Error(err.message || 'Failed to delete page.');
+    }
+    return await readJson<{ message?: string }>(res, 'Failed to delete page.');
+  },
+
+  async publishCmsPage(id: string, signal?: AbortSignal): Promise<{ page?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/pages/${id}/publish`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to publish page.');
+      throw new Error(err.message || 'Failed to publish page.');
+    }
+    return await readJson<{ page?: any }>(res, 'Failed to publish page.');
+  },
+
+  async archiveCmsPage(id: string, signal?: AbortSignal): Promise<{ page?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/pages/${id}/archive`, {
+      method: 'POST',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to archive page.');
+      throw new Error(err.message || 'Failed to archive page.');
+    }
+    return await readJson<{ page?: any }>(res, 'Failed to archive page.');
+  },
+
+  // ── Blocks ────────────────────────────────────────────────────────────────
+
+  async listCmsBlocks(pageId: string, signal?: AbortSignal): Promise<{ blocks?: any[] }> {
+    const res = await fetchWithTimeout(`/api/admin/content/blocks/${pageId}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load blocks');
+    return await readJson<{ blocks?: any[] }>(res, 'Could not load blocks.');
+  },
+
+  async createCmsBlock(data: Record<string, any>, signal?: AbortSignal): Promise<{ block?: any }> {
+    const res = await fetchWithTimeout('/api/admin/content/blocks', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to create block.');
+      throw new Error(err.message || 'Failed to create block.');
+    }
+    return await readJson<{ block?: any }>(res, 'Failed to create block.');
+  },
+
+  async updateCmsBlock(id: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ block?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/blocks/${id}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update block.');
+      throw new Error(err.message || 'Failed to update block.');
+    }
+    return await readJson<{ block?: any }>(res, 'Failed to update block.');
+  },
+
+  async deleteCmsBlock(id: string, signal?: AbortSignal): Promise<{ message?: string }> {
+    const res = await fetchWithTimeout(`/api/admin/content/blocks/${id}`, {
+      method: 'DELETE',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to delete block.');
+      throw new Error(err.message || 'Failed to delete block.');
+    }
+    return await readJson<{ message?: string }>(res, 'Failed to delete block.');
+  },
+
+  // ── Homepage ───────────────────────────────────────────────────────────────
+
+  async getCmsHomepageAdmin(signal?: AbortSignal): Promise<{ sections?: any[] }> {
+    const res = await fetchWithTimeout('/api/admin/content/homepage', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load homepage sections');
+    return await readJson<{ sections?: any[] }>(res, 'Could not load homepage sections.');
+  },
+
+  async updateCmsHomepage(sectionKey: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ section?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/homepage/${encodeURIComponent(sectionKey)}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update homepage section.');
+      throw new Error(err.message || 'Failed to update homepage section.');
+    }
+    return await readJson<{ section?: any }>(res, 'Failed to update homepage section.');
+  },
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+
+  async getCmsNavigationAdmin(menuKey: string, signal?: AbortSignal): Promise<{ items?: any[] }> {
+    const res = await fetchWithTimeout(`/api/admin/content/navigation/${encodeURIComponent(menuKey)}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load navigation items');
+    return await readJson<{ items?: any[] }>(res, 'Could not load navigation items.');
+  },
+
+  async createCmsNavigationItem(data: Record<string, any>, signal?: AbortSignal): Promise<{ item?: any }> {
+    const res = await fetchWithTimeout('/api/admin/content/navigation', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to create navigation item.');
+      throw new Error(err.message || 'Failed to create navigation item.');
+    }
+    return await readJson<{ item?: any }>(res, 'Failed to create navigation item.');
+  },
+
+  async updateCmsNavigationItem(id: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ item?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/navigation/${id}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update navigation item.');
+      throw new Error(err.message || 'Failed to update navigation item.');
+    }
+    return await readJson<{ item?: any }>(res, 'Failed to update navigation item.');
+  },
+
+  async deleteCmsNavigationItem(id: string, signal?: AbortSignal): Promise<{ message?: string }> {
+    const res = await fetchWithTimeout(`/api/admin/content/navigation/${id}`, {
+      method: 'DELETE',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to delete navigation item.');
+      throw new Error(err.message || 'Failed to delete navigation item.');
+    }
+    return await readJson<{ message?: string }>(res, 'Failed to delete navigation item.');
+  },
+
+  // ── SEO ────────────────────────────────────────────────────────────────────
+
+  async getCmsSeoAdmin(pageType: string, pageId: string, signal?: AbortSignal): Promise<{ seo?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/seo/${encodeURIComponent(pageType)}/${encodeURIComponent(pageId)}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load SEO data');
+    return await readJson<{ seo?: any }>(res, 'Could not load SEO data.');
+  },
+
+  async updateCmsSeo(pageType: string, pageId: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ seo?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/seo/${encodeURIComponent(pageType)}/${encodeURIComponent(pageId)}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update SEO.');
+      throw new Error(err.message || 'Failed to update SEO.');
+    }
+    return await readJson<{ seo?: any }>(res, 'Failed to update SEO.');
+  },
+
+  // ── Revisions ──────────────────────────────────────────────────────────────
+
+  async listCmsRevisions(entityType?: string, entityId?: string, limit = 50, signal?: AbortSignal): Promise<{ revisions?: any[] }> {
+    const params = new URLSearchParams();
+    if (entityType) params.set('entityType', entityType);
+    if (entityId) params.set('entityId', entityId);
+    params.set('limit', String(limit));
+    const res = await fetchWithTimeout(`/api/admin/content/revisions?${params}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Failed to load revisions');
+    return await readJson<{ revisions?: any[] }>(res, 'Could not load revisions.');
+  },
+
+  // ── Media ──────────────────────────────────────────────────────────────────
+
+  async uploadCmsMedia(data: Record<string, any>, signal?: AbortSignal): Promise<{ asset?: any }> {
+    const res = await fetchWithTimeout('/api/admin/content/media/upload', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to upload media.');
+      throw new Error(err.message || 'Failed to upload media.');
+    }
+    return await readJson<{ asset?: any }>(res, 'Failed to upload media.');
+  },
+
+  async updateCmsMedia(id: string, data: Record<string, any>, signal?: AbortSignal): Promise<{ asset?: any }> {
+    const res = await fetchWithTimeout(`/api/admin/content/media/${id}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(data),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to update media.');
+      throw new Error(err.message || 'Failed to update media.');
+    }
+    return await readJson<{ asset?: any }>(res, 'Failed to update media.');
+  },
+
+  async deleteCmsMedia(id: string, force = false, signal?: AbortSignal): Promise<{ message?: string }> {
+    const params = new URLSearchParams();
+    if (force) params.set('force', 'true');
+    const res = await fetchWithTimeout(`/api/admin/content/media/${id}?${params}`, {
+      method: 'DELETE',
+      headers: defaultHeaders(),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await readJson<{ message?: string }>(res, 'Failed to delete media.');
+      throw new Error(err.message || 'Failed to delete media.');
+    }
+    return await readJson<{ message?: string }>(res, 'Failed to delete media.');
+  },
+
   // ---------------------------------------------------------------------------
   // CMS public content (GET, read-only). The wire shapes below are the single
   // source of truth; src/hooks/useCMSContent reshapes them into view models.
@@ -2535,6 +2849,27 @@ export const api = {
       headers: defaultHeaders()
     });
     if (!res.ok) return { count: 0, logs: [] };
+    return await res.json();
+  },
+
+  async getOperationsTrips(params: Record<string, string> = {}) {
+    const query = new URLSearchParams(params).toString();
+    const res = await fetchWithTimeout(`/api/operations/trips${query ? `?${query}` : ''}`, { headers: defaultHeaders() });
+    if (!res.ok) throw new Error('Failed to load operations trips');
+    return await res.json();
+  },
+
+  async getOperationsBookings(params: Record<string, string> = {}) {
+    const query = new URLSearchParams(params).toString();
+    const res = await fetchWithTimeout(`/api/operations/bookings${query ? `?${query}` : ''}`, { headers: defaultHeaders() });
+    if (!res.ok) throw new Error('Failed to load operations bookings');
+    return await res.json();
+  },
+
+  async getOperationsMessages(params: Record<string, string> = {}) {
+    const query = new URLSearchParams(params).toString();
+    const res = await fetchWithTimeout(`/api/support/messages${query ? `?${query}` : ''}`, { headers: defaultHeaders() });
+    if (!res.ok) throw new Error('Failed to load operations messages');
     return await res.json();
   },
 
