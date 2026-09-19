@@ -8,6 +8,13 @@ export default defineConfig(() => {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
+        // Specific subpath aliases MUST precede bare '@': Vite matches alias
+        // keys as ordered prefixes, so '@/lib/cn' would otherwise hit
+        // '@' -> repo root and resolve to <root>/lib/cn (nonexistent).
+        '@/components': path.resolve(__dirname, 'src', 'components'),
+        '@/lib': path.resolve(__dirname, 'src', 'lib'),
+        '@/i18n': path.resolve(__dirname, 'src', 'i18n'),
+        '@/pages': path.resolve(__dirname, 'src', 'pages'),
         '@': path.resolve(__dirname, '.'),
       },
     },

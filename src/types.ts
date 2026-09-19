@@ -97,6 +97,10 @@ export type AppRoute =
   | '/ops-console'
   | '/supplier-portal'
   | '/market-intelligence'
+  | '/admin/content'
+  | '/rentals-page'
+  | '/accommodations'
+  | '/hotels'
   | '/arrive'
   | '/first-two-hours'
   | '/auth/sign-in'
@@ -115,6 +119,7 @@ export type AppRoute =
   | '/rentals'
   | '/attractions'
   | '/preview'
+  | '/design'
   | '/404';
 
 export interface FoodOrderItem {

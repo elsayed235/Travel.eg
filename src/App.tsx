@@ -77,8 +77,11 @@ const CmsPreviewPage = lazy(() => import('./components/pages/CmsPreviewPage').th
 const RestaurantsView = lazy(() => import('./components/restaurants/RestaurantsView').then(m => ({ default: m.RestaurantsView })));
 const HotelsView = lazy(() => import('./components/accommodations/AccommodationsView').then(m => ({ default: m.AccommodationsView })));
 const RentalsView = lazy(() => import('./components/rentals/RentalsView').then(m => ({ default: m.RentalsView })));
+const RentalsPage = lazy(() => import('./pages/RentalsPage').then(m => ({ default: m.RentalsPage })));
+const AdminContent = lazy(() => import('./components/admin/AdminContent').then(m => ({ default: m.AdminContent })));
 const AttractionsView = lazy(() => import('./components/attractions/AttractionsView').then(m => ({ default: m.AttractionsView })));
 const SearchDrawer = lazy(() => import('./components/common/SearchDrawer').then(m => ({ default: m.SearchDrawer })));
+const SchedulerDemoPage = lazy(() => import('./pages/SchedulerDemoPage').then(m => ({ default: m.SchedulerDemoPage })));
 
 /**
  * Prefetch map for high-probability navigation targets.
@@ -177,7 +180,8 @@ function MainAppContent() {
       '/listings': { en: 'Dahab Listings', ar: 'إعلانات دهب' },
       '/restaurants': { en: 'Restaurants', ar: 'المطاعم' },
       '/hotels': { en: 'Dahab Hotels', ar: 'فنادق دهب' },
-      '/rentals': { en: 'Bike & Ride Rentals', ar: 'تأجير العجلات' }
+      '/rentals': { en: 'Bike & Ride Rentals', ar: 'تأجير العجلات' },
+      '/design': { en: 'Design System', ar: 'نظام التصميم' }
     };
     const label = labels[route];
     if (!label) return '';
@@ -439,6 +443,9 @@ function MainAppContent() {
       case '/rentals':
         return <RentalsView />;
 
+      case '/rentals-page':
+        return <RentalsPage />;
+
       case '/attractions':
         return <AttractionsView />;
 
@@ -465,6 +472,11 @@ function MainAppContent() {
 
       case '/daygi':
         return <DayGiConciergeView />;
+
+      // Design-system demo surface: themed shadcn-style primitives live here
+      // until they're adopted by real screens.
+      case '/design':
+        return <SchedulerDemoPage />;
 
       case '/ai-director':
         return <DayGiConciergeView />;
@@ -503,6 +515,13 @@ function MainAppContent() {
         return (
           <RequireRole roles={['Operations', 'Admin']}>
             <MarketIntelligenceView />
+          </RequireRole>
+        );
+
+      case '/admin/content':
+        return (
+          <RequireRole roles={['Operations', 'Admin']}>
+            <AdminContent />
           </RequireRole>
         );
 

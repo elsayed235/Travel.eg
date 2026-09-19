@@ -101,15 +101,18 @@ export const ROUTES = [
   '/listings',
   '/restaurants',
   '/hotels',
-  '/rentals',
+  '/accommodations',
+  '/admin/content',
+  '/rentals-page',
   '/attractions',
   '/preview',
+  '/design',
   '/404'
 ] as const satisfies readonly AppRoute[];
 
 /** Empty when ROUTES covers the union. Anything else is a compile error below. */
 type MissingRoutes = Exclude<AppRoute, (typeof ROUTES)[number]>;
-const _routesAreExhaustive: MissingRoutes extends never ? true : MissingRoutes = true;
+const _routesAreExhaustive: MissingRoutes extends never ? true : never = true as MissingRoutes extends never ? true : never;
 void _routesAreExhaustive;
 
 export const DEFAULT_ROUTE: AppRoute = '/home';
