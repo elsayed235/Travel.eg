@@ -32,31 +32,36 @@ function listFiles(dir: string, re: RegExp): string[] {
 const testFiles = listFiles(path.join(repoRoot, 'tests'), /\.test\.ts$/);
 const setupFiles = [path.join(repoRoot, 'tests', 'setup.ts')];
 const runScripts = listFiles(path.join(repoRoot, 'server', 'test'), /^run.*\.ts$/);
-const dbScripts = [
-  'server/db/sqlite/migrateJsonToSqlite.ts',
-  'server/db/sqlite/checkIntegrity.ts',
-  'server/db/sqlite/backup.ts',
-  'server/db/sqlite/emitSchema.ts',
-  'server/db/research/importResearch.ts',
-  'server/db/sqlite/addNavTabs.ts',
-].map((p) => path.join(repoRoot, p));
-const dtsFiles = listFiles(repoRoot, /\.d\.ts$/).filter((f) => !f.includes(`${path.sep}node_modules${path.sep}`));
+// All server/db files are entry points (package.json db:* scripts + research)
+const dbFiles = listFiles(path.join(repoRoot, 'server', 'db'), /\.ts$/).filter(
+  (f) => !f.endsWith('.d.ts')
+);
 
 const standardRoots = [
   'src/main.tsx',
   'server.ts',
   'vite.config.ts',
   'vitest.config.ts',
+  'vitest.ui.config.ts',
 ].map((p) => path.join(repoRoot, p));
 
-const allRoots = [...standardRoots, ...testFiles, ...setupFiles, ...runScripts, ...dbScripts, ...dtsFiles, ...rootModules].filter((f) => fs.existsSync(f));
+const allRoots = [...standardRoots, ...testFiles, ...setupFiles, ...runScripts, ...dbFiles, ...rootModules].filter((f) => fs.existsSync(f));
 
-const configPath = path.join(repoRoot, 'tsconfig.json');
-const configFile = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-const compilerOptions: ts.CompilerOptions = {
-  ...(configFile.compilerOptions ?? {}),
-  moduleResolution: ts.ModuleResolutionKind.Bundler,
-};
+// Read compilerOptions via TypeScript's config parser so that composite
+// tsconfigs, comments, and the @/* -> ["./*", "./src/*"] alias are honoured.
+// Fallback to JSON parse if the TS API is unavailable (tsx environment).
+let compilerOptions: ts.CompilerOptions;
+const parsed = ts.readConfigFile(path.join(repoRoot, 'tsconfig.json'), (f) => fs.readFileSync(f, 'utf8'));
+if (!parsed.error && parsed.config) {
+  const converted = ts.parseJsonConfigFileContent(parsed.config, ts.sys, repoRoot);
+  compilerOptions = converted.options;
+} else {
+  const configFile = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tsconfig.json'), 'utf8'));
+  compilerOptions = {
+    ...(configFile.compilerOptions ?? {}),
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+  };
+}
 
 const host: ts.ModuleResolutionHost = {
   fileExists: (f) => fs.existsSync(f),
@@ -127,7 +132,7 @@ const roots = new Set(allRoots.map(canonical));
 const candidatesCandidates = [
   ...listFiles(path.join(repoRoot, 'src'), /\.(ts|tsx)$/),
   ...listFiles(path.join(repoRoot, 'server'), /\.(ts|tsx)$/),
-];
+].filter((f) => !f.endsWith('.d.ts'));
 const unreachable = candidatesCandidates.filter((f) => !reachable.has(canonical(f))).sort();
 
 console.log(`roots: ${allRoots.length}`);
