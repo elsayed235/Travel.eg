@@ -75,3 +75,12 @@ export interface PostActivityFoodResponse {
   contextPromptEn: string;
   contextPromptAr: string;
 }
+
+export interface ParsedSearchIntent {
+  activityCategory: 'diving' | 'desert' | 'relaxation' | 'food' | 'general';
+  maxDurationMinutes: number;
+  locationPreference: 'nearby' | 'blue_hole' | 'canyon' | 'laguna' | 'any';
+  budgetLevel: 'budget' | 'moderate' | 'premium';
+  timeSlot: 'now' | 'morning' | 'sunset' | 'night';
+  confidence: number;
+}

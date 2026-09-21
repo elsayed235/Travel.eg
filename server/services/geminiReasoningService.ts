@@ -6,6 +6,7 @@ import {
 } from './geminiQuota';
 import { AccommodationSearchFilters } from '../db/schema';
 import { db } from '../db/database';
+import type { ParsedSearchIntent } from '../../src/shared/types/context';
 
 // Read lazily, NOT at module scope — see the note in daygiReasoningService:
 // module-level env reads run before server.ts calls dotenv.config().
@@ -28,14 +29,7 @@ function getGenAI(): GoogleGenAI | null {
   return aiClient;
 }
 
-export interface ParsedSearchIntent {
-  activityCategory: 'diving' | 'desert' | 'relaxation' | 'food' | 'general';
-  maxDurationMinutes: number;
-  locationPreference: 'nearby' | 'blue_hole' | 'canyon' | 'laguna' | 'any';
-  budgetLevel: 'budget' | 'moderate' | 'premium';
-  timeSlot: 'now' | 'morning' | 'sunset' | 'night';
-  confidence: number;
-}
+export type { ParsedSearchIntent } from '../../src/shared/types/context';
 
 export class GeminiReasoningService {
   /**

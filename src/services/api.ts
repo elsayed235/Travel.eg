@@ -4,7 +4,7 @@ import type { DahabCuratedStory, DahabGalleryPhoto, DahabActivity, DahabAttracti
 import type { SupportMessage } from '../shared/types/user';
 import type { TripEntity, TripItemEntity, TripItemWithSupplier } from '../shared/types/trip';
 import type { TransferResolveGeoResponse } from '../shared/types/transfers';
-import type { FitWindowResponse, PostActivityFoodResponse, RouteEstimate } from '../shared/types/context';
+import type { FitWindowResponse, ParsedSearchIntent, PostActivityFoodResponse, RouteEstimate } from '../shared/types/context';
 import type { GroundedIntelligenceQueryResponse, ProductOpportunity } from '../types/intelligence';
 import type { Language } from '../i18n/resolve';
 
@@ -2474,6 +2474,18 @@ export const api = {
     });
     if (!res.ok) throw await apiErrorFrom(res, 'Could not load travel time.');
     return await readJson<RouteEstimate>(res, 'Could not load travel time.');
+  },
+
+  async parseSearchIntent(query: string, signal?: AbortSignal): Promise<ParsedSearchIntent> {
+    const res = await fetchWithTimeout('/api/context/parse-intent', {
+      method: 'POST',
+      headers: defaultHeaders(),
+      body: JSON.stringify({ query }),
+      timeout: AI_TIMEOUT_MS,
+      signal
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not parse search intent.');
+    return await readJson<ParsedSearchIntent>(res, 'Could not parse search intent.');
   },
 
   async getBackgroundJobsStatus() {
