@@ -80,7 +80,7 @@ describe('role separation', () => {
     ['/operations/overview',  'Traveler',   false],
     ['/operations/overview',  'Supplier',   false],
     ['/operations/overview',  'Operations', true],
-    ['/suppliers',            'Traveler',   false],
+    ['/suppliers',            'Traveler',   true],
     ['/suppliers',            'Supplier',   true],
     ['/market/refresh',       'Traveler',   false],
     ['/market/refresh',       'Product',    true],
@@ -97,7 +97,10 @@ describe('role separation', () => {
   });
 
   it('keeps the supplier IBAN surface away from travellers', () => {
-    expect(requiredRolesFor('/suppliers')).not.toContain('Traveler');
+    // Listing is now allowed for Traveler (IBAN hiding is enforced in the
+    // handler via canSeePayoutDetails). Sub-paths remain gated.
+    expect(requiredRolesFor('/suppliers', 'GET')).toContain('Traveler');
+    expect(requiredRolesFor('/suppliers/ABC', 'GET')).not.toContain('Traveler');
   });
 
   it('lets an authenticated traveller reach their own trip, which has no role rule', () => {
