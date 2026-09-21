@@ -108,6 +108,7 @@ import { hotelRouter } from './server/api/hotelRoutes';
 import { accommodationRouter } from './server/api/accommodationRoutes';
 import { adminAccommodationRouter } from './server/api/adminAccommodationRoutes';
 import { rentalRouter, rentalBookingRouter } from './server/api/rentalRoutes';
+import { priceComparisonRouter } from './server/api/priceComparisonRoutes';
 import { initializeCmsSchema } from './server/db/sqlite/cmsSchema';
 import { seedCmsContent } from './server/db/sqlite/cmsSeed';
 import { migrateMediaAssets } from './server/db/sqlite/cmsMediaMigration';
@@ -246,6 +247,9 @@ app.use('/api/admin/accommodations', adminAccommodationRouter);
 // (traveler hold/checkout/cancel and provider actions).
 app.use('/api/rentals', rentalRouter);
 app.use('/api/rental-bookings', rentalBookingRouter);
+
+// Price comparison across booking platforms (StayingAPI live -> mock fallback)
+app.use('/api/price-comparison', priceComparisonRouter);
 
 // CMS uploaded media — served from the state dir's cms-media/ (honors
 // DAHAB_DATA_DIR, like the upload endpoint, so isolated environments stay

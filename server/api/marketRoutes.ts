@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED: use /api/dahab/commerce/* — this router mirrors dahabRoutes and will be removed.
+ * Canonical implementation: server/api/dahabRoutes.ts (commerce/* + autonomous ops).
+ * TODO: remove /api/market mount in server.ts once clients migrate — keep until then to avoid 404 regression.
+ */
 import { Router } from 'express';
 import { marketFreshnessService } from '../services/marketFreshnessService';
 import { autonomousDataOpsService } from '../services/autonomousDataOpsService';
@@ -10,6 +15,15 @@ import {
 } from '../middleware/queryParams';
 
 export const marketRouter = Router();
+
+// Deprecation: mirror of dahabRoutes — emit warning + header for existing clients.
+marketRouter.use((req, res, next) => {
+  res.setHeader('Deprecation', 'true');
+  res.setHeader('Sunset', 'Thu, 31 Dec 2026 23:59:59 GMT');
+  res.setHeader('X-Deprecated-Use', '/api/dahab/commerce/*');
+  console.warn(`[DEPRECATED] ${req.method} ${req.originalUrl} — use /api/dahab/commerce/* (canonical: server/api/dahabRoutes.ts)`);
+  next();
+});
 
 // Schedule policies
 marketRouter.get('/jobs', (_req, res) => {
