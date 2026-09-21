@@ -6,6 +6,7 @@ import { SqlitePersistenceAdapter } from '../../server/db/sqlite/SqlitePersisten
 import { initializeCmsSchema } from '../../server/db/sqlite/cmsSchema';
 import { db } from '../../server/db/database';
 import { payoutService } from '../../server/services/payoutService';
+import { ledgerService } from '../../server/services/ledgerService';
 
 /**
  * 24-hour payout scheduling (blueprint row #12).
@@ -90,6 +91,19 @@ beforeEach(() => {
     createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
     updatedAt: new Date().toISOString(),
   } as any);
+  // Seed escrow with a PAYMENT_CAPTURED so settlePayout escrow guard can succeed.
+  // In production this ledger entry is created by paymentService.processCheckout;
+  // the test suite previously omitted it, but the new escrow check requires it.
+  ledgerService.recordDoubleEntry({
+    transactionId: 'TXN-SEED-ESCROW',
+    idempotencyKey: 'seed-escrow-beforeEach',
+    bookingRef: 'BK-COMPLETED-001',
+    tripId: 'TRIP-1',
+    type: 'PAYMENT_CAPTURED',
+    amountEGP: 10000,
+    debitAccount: 'TRAVELER_PAYMENT_GATEWAY',
+    creditAccount: 'PLATFORM_ESCROW_MAIN',
+  });
 });
 
 afterEach(() => {

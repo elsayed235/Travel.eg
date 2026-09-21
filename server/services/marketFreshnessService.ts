@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import { db } from '../db/database';
+import { distributedLockService } from './distributedLockService';
 import {
   SupplierEntity,
   SupplierOfferEntity,
@@ -345,7 +347,7 @@ export class MarketFreshnessService {
       const oldVal = Array.isArray(rawOld) ? rawOld.join(', ') : String(rawOld);
       const newVal = Array.isArray(rawNew) ? rawNew.join(', ') : String(rawNew);
       if (newVal && oldVal && oldVal !== newVal) {
-        const id = `cnt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+        const id = `cnt_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
         historyEntries.push({
           id,
           supplierId: existingSupplier.id,
@@ -358,7 +360,7 @@ export class MarketFreshnessService {
         });
 
         changeEvents.push({
-          id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          id: `evt_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
           eventType: 'CONTACT_CHANGED',
           entityType: 'SUPPLIER',
           entityId: existingSupplier.id,
@@ -402,7 +404,7 @@ export class MarketFreshnessService {
     const srcType = payload.sourceType || payload.snapshot?.sourceType || 'INSTAGRAM';
     const ingestionMode = payload.ingestionMode || payload.snapshot?.ingestionMode || 'IMPORTED_SNAPSHOT';
 
-    const runId = `RUN-MKT-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+    const runId = `RUN-MKT-${Date.now()}-${crypto.randomBytes(3).toString('hex').slice(0, 5)}`;
     const now = new Date().toISOString();
 
     const suppliersToProcess = payload.suppliers || payload.snapshot?.suppliers || [];
@@ -426,7 +428,12 @@ export class MarketFreshnessService {
       sourceReference: srcRef
     };
 
-    return db.runInTransaction(() => {
+    const lock = distributedLockService.tryAcquire('lock:marketRefresh', 30000);
+    if (!lock) {
+      throw Object.assign(new Error('Market refresh already in progress (lock:marketRefresh).'), { status: 409 });
+    }
+    try {
+      return db.runInTransaction(() => {
       try {
         const generatedEvents: MarketChangeEventEntity[] = [];
         const newContactHistory: ContactHistoryEntity[] = [];
@@ -481,7 +488,7 @@ export class MarketFreshnessService {
             db.suppliers.push(newSup);
 
             const evt: MarketChangeEventEntity = {
-              id: `evt_sup_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              id: `evt_sup_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
               eventType: 'NEW_SUPPLIER',
               entityType: 'SUPPLIER',
               entityId: newSup.id,
@@ -535,7 +542,7 @@ export class MarketFreshnessService {
               if (sup.cdwsVerified !== undefined) existing.cdwsVerified = sup.cdwsVerified;
 
               generatedEvents.push({
-                id: `evt_reg_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                id: `evt_reg_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
                 eventType: 'REGULATORY_STATUS_CHANGED',
                 entityType: 'REGULATORY',
                 entityId: existing.id,
@@ -555,7 +562,7 @@ export class MarketFreshnessService {
               // Queue for manual review if regulatory status downgraded
               if (sup.verificationStatus === 'UNVERIFIED_REGULATORY_CLAIM' || sup.cdwsVerified === false) {
                 db.marketReviewQueue.push({
-                  id: `REV-REG-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+                  id: `REV-REG-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`,
                   issueType: 'REGULATORY_CHANGE',
                   severity: 'HIGH',
                   status: 'PENDING_REVIEW',
@@ -608,7 +615,7 @@ export class MarketFreshnessService {
             db.socialAccounts.push(newSoc);
 
             generatedEvents.push({
-              id: `evt_soc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              id: `evt_soc_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
               eventType: 'INSTAGRAM_ACCOUNT_CHANGED',
               entityType: 'SOCIAL_ACCOUNT',
               entityId: newSoc.id,
@@ -632,7 +639,7 @@ export class MarketFreshnessService {
               existingSoc.retrievedAt = referenceTime;
 
               generatedEvents.push({
-                id: `evt_act_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                id: `evt_act_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
                 eventType: 'ACTIVITY_SIGNAL_CHANGED',
                 entityType: 'SOCIAL_ACCOUNT',
                 entityId: existingSoc.id,
@@ -692,7 +699,7 @@ export class MarketFreshnessService {
             db.supplierOffers.push(offer);
 
             generatedEvents.push({
-              id: `evt_off_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              id: `evt_off_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
               eventType: 'NEW_OFFER',
               entityType: 'OFFER',
               entityId: offer.id,
@@ -756,7 +763,7 @@ export class MarketFreshnessService {
             const competing = sameDayDifferentSourceObs[0];
             const compAmt = competing.priceEGP !== undefined ? competing.priceEGP : competing.amount;
             generatedEvents.push({
-              id: `evt_cnf_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              id: `evt_cnf_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
               eventType: 'SOURCE_PRICE_CONFLICT',
               entityType: 'PRICE',
               entityId: offer.id,
@@ -779,7 +786,7 @@ export class MarketFreshnessService {
             });
 
             db.marketReviewQueue.push({
-              id: `REV-CNF-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+              id: `REV-CNF-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`,
               issueType: 'SOURCE_PRICE_CONFLICT',
               severity: 'MEDIUM',
               status: 'PENDING_REVIEW',
@@ -802,7 +809,7 @@ export class MarketFreshnessService {
           const newPriceObs: PriceObservationEntity = {
             id:
               obs.id ||
-              `obs_${obs.supplierId}_${obs.activityId}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+              `obs_${obs.supplierId}_${obs.activityId}_${Date.now()}_${crypto.randomBytes(2).toString('hex')}`,
             offerId: offer.id,
             supplierId: obs.supplierId,
             activityId: obs.activityId,
@@ -840,7 +847,7 @@ export class MarketFreshnessService {
             evaluation.changeType === 'PRICE_UNCHANGED' ? 'PRICE_UNCHANGED' : 'PRICE_CHANGED';
 
           const priceEvt: MarketChangeEventEntity = {
-            id: `evt_prc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            id: `evt_prc_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
             eventType,
             entityType: 'PRICE',
             entityId: newPriceObs.id,
@@ -871,7 +878,7 @@ export class MarketFreshnessService {
           if (evaluation.isAnomaly) {
             anomaliesCount++;
             db.marketReviewQueue.push({
-              id: `REV-ANOM-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+              id: `REV-ANOM-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`,
               issueType: 'PRICE_ANOMALY',
               severity: 'HIGH',
               status: 'PENDING_REVIEW',
@@ -926,7 +933,7 @@ export class MarketFreshnessService {
 
         if (!srcRecord) {
           srcRecord = {
-            id: `sf_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            id: `sf_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
             sourceReference: srcRef,
             sourceType: srcType,
             supplierSourceFreshness: overallFreshness.status,
@@ -956,7 +963,7 @@ export class MarketFreshnessService {
         let srcHealth = db.sourceHealthRecords.find(h => h.sourceReference === srcRef);
         if (!srcHealth) {
           srcHealth = {
-            id: `sh_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+            id: `sh_${Date.now()}_${crypto.randomBytes(2).toString('hex')}`,
             sourceReference: srcRef,
             sourceType: srcType,
             healthStatus: 'HEALTHY',
@@ -1006,7 +1013,7 @@ export class MarketFreshnessService {
 
         // 8. Generate & Save Market Snapshot
         const snapshot: MarketSnapshotEntity = {
-          id: `snap_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+          id: `snap_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`,
           timestamp: referenceTime,
           source: trigger,
           supplierCount: db.suppliers.length,
@@ -1076,7 +1083,10 @@ export class MarketFreshnessService {
         }
         throw err;
       }
-    });
+      });
+    } finally {
+      distributedLockService.release(lock);
+    }
   }
 
   /**

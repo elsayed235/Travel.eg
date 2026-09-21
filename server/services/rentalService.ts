@@ -77,10 +77,9 @@ function eachDay(start: string, end: string): string[] {
   return out;
 }
 
-/** Today's local calendar date in Dahab (UTC+2, no DST). */
+/** Today's local calendar date in Dahab (Africa/Cairo, UTC+2, no DST). */
 function todayLocal(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Africa/Cairo' });
 }
 
 /**

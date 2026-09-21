@@ -68,6 +68,16 @@ interface PendingConfirm extends IntelConfirmation {
   expiresMs: number;
 }
 
+/**
+ * VOLATILITY NOTE: pendingConfirms is an in-memory Map, not persisted to db.
+ * A server restart drops all pending confirmation tokens. Clients must re-request
+ * the action to obtain a fresh token; expired tokens surface as 404/410, not
+ * silent success. The TTL sweep (sweepConfirms) bounds memory to ~1000 entries
+ * and evicts expired tokens within 2× CONFIRM_TTL_MS. For crash resilience a
+ * persistent store (e.g. db.intelligenceConfirms) would be required, but the
+ * current TTL + idempotent tool design makes loss observable and recoverable.
+ * See also consumedConfirms tombstones below.
+ */
 const pendingConfirms = new Map<string, PendingConfirm>();
 /**
  * Tombstones for consumed confirmations: a replayed (already-executed) token

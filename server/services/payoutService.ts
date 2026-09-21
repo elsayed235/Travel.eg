@@ -85,11 +85,23 @@ export function eligiblePayouts(): PayoutScheduleEntity[] {
 /**
  * Settles a single payout: creates the SUPPLIER_PAYOUT ledger entry and
  * marks the schedule as SETTLED. Returns the created ledger entry id.
+ * Guards against escrow overdraw: if PLATFORM_ESCROW_MAIN holds less than
+ * the payout amount the settlement is deferred (left PENDING for a later
+ * sweep after more PAYMENT_CAPTURED funds arrive).
  */
 export function settlePayout(payoutId: string): string | null {
   const payout = db.payoutSchedule.find(p => p.id === payoutId && p.payoutState === 'PENDING');
   if (!payout) return null;
   if (payout.settleAfter > new Date().toISOString()) return null; // still in hold
+
+  // Escrow balance guard — do not overdraw PLATFORM_ESCROW_MAIN. Computed
+  // the same way ledgerService.verifyLedgerIntegrity does: net credits minus
+  // debits for the escrow account across all ledger entries.
+  const escrowBalance = ledgerService.verifyLedgerIntegrity().escrowBalanceEGP;
+  if (escrowBalance < payout.amountEGP) {
+    console.warn(`[Payout] insufficient escrow for ${payout.id}: need ${payout.amountEGP} EGP, have ${escrowBalance} EGP — leaving PENDING`);
+    return null;
+  }
 
   // Create the actual SUPPLIER_PAYOUT ledger entry.
   const booking = db.bookings.find(b => b.bookingRef === payout.bookingRef);

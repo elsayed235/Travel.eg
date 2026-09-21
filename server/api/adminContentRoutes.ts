@@ -301,9 +301,11 @@ adminContentRouter.post('/media/upload', async (req: AuthenticatedRequest, res: 
     const uniqueName = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}-${stored}`;
     const filePath = path.join(mediaUploadDir(), uniqueName);
 
-    // Write file to disk (full buffer was already validated against the
-    // allow-list, size cap, magic-body check, and MIME-vs-bytes match).
-    fs.writeFileSync(filePath, buffer);
+    // Write file to disk without blocking the event loop (5 MB payloads
+    // previously used fs.writeFileSync which stalls concurrent requests).
+    // Async file I/O is safe here; no sync is required because the media
+    // record is created only after the write completes.
+    await fs.promises.writeFile(filePath, buffer);
 
     // Responsive variants (400/800/1200px, never upscaled, GIFs skipped).
     // Best-effort by design: a variant failure must never fail the upload —
@@ -313,7 +315,7 @@ adminContentRouter.post('/media/upload', async (req: AuthenticatedRequest, res: 
     try {
       const generated = await generateVariants(buffer, mimeType, stem);
       for (const variant of generated) {
-        fs.writeFileSync(path.join(mediaUploadDir(), variant.filename), variant.buffer);
+        await fs.promises.writeFile(path.join(mediaUploadDir(), variant.filename), variant.buffer);
         variants.push({
           width: variant.width,
           url: `/api/media/${variant.filename}`,
