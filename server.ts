@@ -79,6 +79,8 @@ import {
   pickAllowedKeys,
   DAYGI_PREFERENCE_KEYS,
   DAYGI_EXPERIMENT_FLAG_KEYS,
+  DAYGI_ANALYTICS_KEYS,
+  RICH_AVAILABILITY_KEYS,
   optionalCount,
   planAmountEGP
 } from './server/middleware/bodyParams';
@@ -87,7 +89,9 @@ import {
   enumParam,
   REVIEW_ISSUE_TYPES,
   REVIEW_STATUSES,
-  SEVERITIES
+  SEVERITIES,
+  FRAUD_SIGNAL_ACTIONS,
+  FRAUD_SIGNAL_TYPES
 } from './server/middleware/queryParams';
 import { apiAccessPolicy } from './server/middleware/apiAccessPolicy';
 import { AuthenticatedRequest } from './server/middleware/correlationMiddleware';
@@ -284,7 +288,13 @@ app.get('/api/media/:filename', (req, res) => {
   // is allowed to run script, load subresources, or inherit the page's origin.
   res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
 
-  fs.createReadStream(filePath).pipe(res);
+  const stream = fs.createReadStream(filePath);
+  stream.on('error', (err) => {
+    console.error('[media] stream error', err);
+    if (!res.headersSent) return res.status(500).json({ error: 'Failed to read media file.' });
+    try { res.end(); } catch {}
+  });
+  stream.pipe(res);
 });
 
 // ---------------------------------------------------------------------------
@@ -741,11 +751,38 @@ app.post('/api/support/messages/:id/reply', (req: AuthenticatedRequest, res) => 
   }
 });
 
-app.post('/api/analytics/daygi', (req, res) => {
+app.post('/api/analytics/daygi', (req: AuthenticatedRequest, res) => {
   try {
-    const { eventType, payload, timestamp } = req.body;
-    db.logAudit('ANONYMOUS_OR_USER', 'Traveler', `DAYGI_EVENT_${eventType}`, 'DayGI', `EVT-${Date.now()}`, payload || {});
-    res.json({ status: 'ok', logged: true, timestamp: timestamp || new Date().toISOString() });
+    const body = req.body && typeof req.body === 'object' ? req.body as Record<string, unknown> : {};
+    const sanitized: Record<string, unknown> = {};
+    for (const key of DAYGI_ANALYTICS_KEYS) {
+      const v = (body as any)[key];
+      if (v === undefined) continue;
+      if (typeof v === 'string') sanitized[key] = (v as string).slice(0, 500);
+      else if (typeof v === 'number' && Number.isFinite(v)) sanitized[key] = v;
+      else if (typeof v === 'boolean') sanitized[key] = v;
+      else if (v && typeof v === 'object' && !Array.isArray(v)) {
+        const inner: Record<string, unknown> = {};
+        for (const [ik, iv] of Object.entries(v as Record<string, unknown>)) {
+          if (typeof iv === 'string') inner[ik.slice(0, 64)] = (iv as string).slice(0, 500);
+          else if (typeof iv === 'number' && Number.isFinite(iv)) inner[ik.slice(0, 64)] = iv;
+          else if (typeof iv === 'boolean') inner[ik.slice(0, 64)] = iv;
+        }
+        sanitized[key] = inner;
+      } else if (Array.isArray(v) && v.every((e: unknown) => typeof e === 'string')) {
+        sanitized[key] = (v as string[]).map((str) => str.slice(0, 200)).slice(0, 20);
+      }
+    }
+    if (Object.keys(sanitized).length === 0) {
+      return res.status(400).json({ error: 'payload must contain at least one allowed field.' });
+    }
+    const eventTypeRaw = typeof sanitized.eventType === 'string' ? sanitized.eventType as string : 'UNKNOWN';
+    const eventType = eventTypeRaw.slice(0, 64).replace(/[^a-zA-Z0-9_-]/g, '') || 'UNKNOWN';
+    const payload = (sanitized.payload && typeof sanitized.payload === 'object' ? sanitized.payload : sanitized) as Record<string, unknown>;
+    const actorId = req.user?.userId ?? 'ANONYMOUS_OR_USER';
+    const actorRole = (req.user?.role as string) ?? 'Traveler';
+    db.logAudit(actorId, actorRole, `DAYGI_EVENT_${eventType}`, 'DayGI', `EVT-${Date.now()}`, payload || {});
+    res.json({ status: 'ok', logged: true, timestamp: (sanitized.timestamp as string) || new Date().toISOString() });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -962,23 +999,28 @@ app.post('/api/daygi/beta/feedback', (req: AuthenticatedRequest, res) => {
   }
 });
 
-app.post('/api/daygi/beta/alert-interaction', (req, res) => {
+app.post('/api/daygi/beta/alert-interaction', (req: AuthenticatedRequest, res) => {
   try {
-    const { alertId, lifecycle } = req.body;
+    const alertId = requiredString(req.body?.alertId, 'alertId', 128);
+    const lifecycle = requiredEnum(req.body?.lifecycle, ['SHOWN', 'OPENED', 'IGNORED', 'ACTED_ON', 'DISMISSED'] as const, 'lifecycle');
     daygiProductTelemetryService.recordAlertInteraction(alertId, lifecycle);
+    db.logAudit(req.user!.userId, req.user!.role, 'DAYGI_ALERT_INTERACTION', 'DayGI', alertId, { lifecycle });
     res.json({ success: true });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message });
   }
 });
 
-app.post('/api/daygi/beta/card-interaction', (req, res) => {
+app.post('/api/daygi/beta/card-interaction', (req: AuthenticatedRequest, res) => {
   try {
-    const { cardType, action, durationSec } = req.body;
+    const cardType = requiredString(req.body?.cardType, 'cardType', 64);
+    const action = requiredEnum(req.body?.action, ['SHOWN', 'CLICKED', 'ACCEPTED', 'REJECTED', 'COMPLETED'] as const, 'action');
+    const durationSec = req.body?.durationSec !== undefined ? requiredCount(req.body.durationSec, 'durationSec', 0, 86400) : 0;
     daygiProductTelemetryService.recordCardInteraction(cardType, action, durationSec);
+    db.logAudit(req.user!.userId, req.user!.role, 'DAYGI_CARD_INTERACTION', 'DayGI', cardType, { action, durationSec });
     res.json({ success: true });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message });
   }
 });
 
@@ -1147,6 +1189,16 @@ app.get('/api/reef-actions/mine', (req: AuthenticatedRequest, res) => {
 
 /** User: get reef-action logs for a booking. */
 app.get('/api/reef-actions/booking/:bookingId', (req: AuthenticatedRequest, res) => {
+  const booking = db.bookings.find(b => b.id === req.params.bookingId || b.bookingRef === req.params.bookingId);
+  if (!booking) return res.status(404).json({ error: 'Booking not found.' });
+  const trip = db.trips.find(tr => tr.id === booking.tripId);
+  const tripOwnerId = trip?.userId;
+  const isTripOwner = tripOwnerId != null && mayActOnTripsOf(req.user!, tripOwnerId);
+  const isOwnSupplier = req.user!.role === 'Supplier' && req.user!.supplierId === booking.supplierId;
+  const isOpsAdmin = req.user!.role === 'Operations' || req.user!.role === 'Admin';
+  if (!isTripOwner && !isOwnSupplier && !isOpsAdmin) {
+    return res.status(403).json({ error: 'You may only view reef logs for your own bookings or services.' });
+  }
   const logs = reefPositiveService.getLogsForBooking(req.params.bookingId);
   res.json({ logs });
 });
@@ -1312,15 +1364,30 @@ app.get('/api/fraud/dashboard', (req: AuthenticatedRequest, res) => {
 
 /** Admin: get all fraud signals with optional filters. */
 app.get('/api/fraud/signals', (req: AuthenticatedRequest, res) => {
-  if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
-    return res.status(403).json({ error: 'Admin or Operations only.' });
+  try {
+    if (req.user!.role !== 'Admin' && req.user!.role !== 'Operations') {
+      return res.status(403).json({ error: 'Admin or Operations only.' });
+    }
+    const userId = stringParam(req.query.userId, 'userId');
+    const combinedAllowed = [...FRAUD_SIGNAL_ACTIONS, ...FRAUD_SIGNAL_TYPES] as unknown as readonly string[];
+    const action = enumParam(req.query.action, combinedAllowed, 'action');
+    const rawLimit = req.query.limit;
+    let limit: number | undefined;
+    if (rawLimit !== undefined && rawLimit !== '') {
+      const parsed = typeof rawLimit === 'string' ? Number(rawLimit) : Number(rawLimit as any);
+      limit = requiredCount(parsed, 'limit', 1, 100);
+    } else {
+      limit = 50;
+    }
+    const signals = fraudDetectionService.getSignals({
+      userId: userId ?? undefined,
+      action: action ?? undefined,
+      limit,
+    });
+    res.json({ signals });
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
   }
-  const signals = fraudDetectionService.getSignals({
-    userId: req.query.userId as string | undefined,
-    action: req.query.action as string | undefined,
-    limit: parseInt(req.query.limit as string, 10) || 100,
-  });
-  res.json({ signals });
 });
 
 /** Admin: get all fraud rules. */
@@ -2291,16 +2358,27 @@ app.post('/api/bookings/:bookingId/reschedule', (req: AuthenticatedRequest, res)
 
 app.post('/api/commerce/availability/rich', (req, res) => {
   try {
+    const body = (req.body && typeof req.body === 'object' ? req.body : {}) as Record<string, unknown>;
+    const sanitized: Record<string, unknown> = {};
+    for (const k of RICH_AVAILABILITY_KEYS as unknown as string[]) {
+      if ((body as any)[k] !== undefined) sanitized[k] = (body as any)[k];
+    }
+    const serviceType = sanitized.serviceType !== undefined ? requiredEnum(sanitized.serviceType, SERVICE_TYPES, 'serviceType') : 'transfer' as const;
+    const skuId = sanitized.skuId !== undefined ? requiredString(sanitized.skuId, 'skuId', 128) : undefined;
+    const date = sanitized.date !== undefined ? requiredCalendarDate(sanitized.date, 'date') : undefined;
+    const timeSlot = sanitized.timeSlot !== undefined ? requiredString(sanitized.timeSlot, 'timeSlot', 64) : undefined;
+    const rawPassengers = (sanitized.passengers ?? sanitized.passengersCount) as unknown;
+    const passengers = rawPassengers !== undefined ? requiredCount(rawPassengers, 'passengers', 1, 50) : undefined;
     const result = bookingService.getRichAvailability({
-      serviceType: req.body?.serviceType || 'transfer',
-      skuId: req.body?.skuId,
-      date: req.body?.date,
-      timeSlot: req.body?.timeSlot,
-      passengers: req.body?.passengers
+      serviceType,
+      skuId,
+      date,
+      timeSlot,
+      passengers
     });
     res.json(result);
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message });
   }
 });
 

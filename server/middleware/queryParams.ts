@@ -134,3 +134,12 @@ export const REVIEW_STATUSES = [
 ] as const;
 
 export const SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+
+export const FRAUD_SIGNAL_ACTIONS = ['allow', 'review', 'block'] as const;
+export const FRAUD_SIGNAL_TYPES = [
+  'velocity_hourly',
+  'velocity_daily',
+  'refund_rate',
+  'amount_anomaly',
+  'duplicate_payment'
+] as const;

@@ -251,3 +251,29 @@ export const DAYGI_EXPERIMENT_FLAG_KEYS = [
   'confirmationStyle',
   'recommendationCardLayout'
 ] as const;
+
+export const DAYGI_ANALYTICS_KEYS = [
+  'eventType',
+  'payload',
+  'timestamp',
+  'intentKey',
+  'actionType',
+  'step',
+  'language',
+  'sessionId',
+  'tripId',
+  'bookingRef',
+  'rating',
+  'reasonTag',
+  'durationMs',
+  'confidence'
+] as const;
+
+export const RICH_AVAILABILITY_KEYS = [
+  'serviceType',
+  'skuId',
+  'date',
+  'timeSlot',
+  'passengers',
+  'passengersCount'
+] as const;
