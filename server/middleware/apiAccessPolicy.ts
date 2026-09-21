@@ -114,7 +114,10 @@ const PUBLIC_RULES: Rule[] = [
   // Supplier availability calendar (blueprint row #12). The monthly view is
   // public so travel planners can show blocked dates without sign-in.
   // (Path is relative to the /api mount — a leading /api here never matched.)
-  { pattern: /^\/suppliers\/[^/]+\/availability$/, methods: ['GET'] }
+  { pattern: /^\/suppliers\/[^/]+\/availability$/, methods: ['GET'] },
+
+  // Paymob webhook — must be public so Paymob can POST without a Dahab session.
+  { pattern: /^\/payments\/paymob-webhook$/, methods: ['POST'] }
 ];
 
 /**
@@ -128,7 +131,11 @@ const ROLE_RULES: RoleRule[] = [
 
   // Back-office consoles.
   { pattern: /^\/operations\//, roles: ['Operations', 'Admin'] },
-  { pattern: /^\/suppliers/, roles: ['Supplier', 'Operations', 'Admin'] },
+  // Supplier directory listing: any authenticated user may browse suppliers
+  // (IBAN hiding is enforced in the handler — canSeePayoutDetails). Sub-paths
+  // like /suppliers/:id/dashboard remain Supplier/Operations/Admin only.
+  { pattern: /^\/suppliers$/, methods: ['GET'], roles: ['Traveler', 'Supplier', 'Operations', 'Admin'] },
+  { pattern: /^\/suppliers\//, roles: ['Supplier', 'Operations', 'Admin'] },
 
   // Market intelligence and autonomous data operations, including snapshot
   // rollback and schedule policy changes.

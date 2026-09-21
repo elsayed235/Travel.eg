@@ -2190,17 +2190,35 @@ app.post('/api/commerce/recovery/substitute', (req: AuthenticatedRequest, res) =
   }
 });
 
-app.post('/api/commerce/refund', (req, res) => {
+app.post('/api/commerce/refund', (req: AuthenticatedRequest, res) => {
   try {
     // Number(undefined) is NaN, and that NaN used to be written straight into a
     // double-entry ledger row debiting PLATFORM_ESCROW_MAIN.
+    const tripId = requiredString(req.body?.tripId, 'tripId');
+    const bookingId = optionalString(req.body?.bookingId, 'bookingId');
+    // Ownership check: refunds mutate money for a trip. Verify the caller may act
+    // on this trip (Operations/Admin pass, Traveler only for own trip). The gate
+    // already restricts this to Operations/Admin, but this is defence-in-depth
+    // and also makes bookingId handling consistent.
+    const trip = db.trips.find(t => t.id === tripId);
+    if (!trip) return res.status(404).json({ error: 'Trip not found.' });
+    if (!mayActOnTripsOf(req.user!, trip.userId)) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+    if (bookingId) {
+      const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
+      if (!booking) return res.status(404).json({ error: 'Booking not found.' });
+      if (booking.tripId !== tripId) {
+        return res.status(400).json({ error: 'Booking does not belong to the given trip.' });
+      }
+    }
     const result = paymentService.processRefund({
-      bookingId: optionalString(req.body?.bookingId, 'bookingId'),
-      tripId: requiredString(req.body?.tripId, 'tripId'),
+      bookingId,
+      tripId,
       amountEGP: requiredAmountEGP(req.body?.amountEGP, 'amountEGP'),
       reason: requiredString(req.body?.reason, 'reason', 500),
       idempotencyKey: requiredString(req.body?.idempotencyKey, 'idempotencyKey', 128),
-      initiatedBy: optionalString(req.body?.initiatedBy, 'initiatedBy')
+      initiatedBy: req.user!.userId
     });
     res.json(result);
   } catch (err: any) {

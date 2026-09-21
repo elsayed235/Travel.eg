@@ -37,7 +37,8 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
     userId: authResult.user.id,
     email: authResult.user.email,
     name: authResult.user.name,
-    role: authResult.user.role as any
+    role: authResult.user.role as any,
+    supplierId: (authResult.user as any).supplierId
   };
 
   next();
