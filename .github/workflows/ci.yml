@@ -39,6 +39,12 @@ jobs:
       - name: Type-check
         run: npm run lint
 
+      # Drift gate: src/i18n/dictionaries/{en,ar}.ts are generated from
+      # src/i18n/translations.ts — this fails if they are stale (per
+      # scripts/i18n/emitDictionaries.ts:71).
+      - name: i18n dictionary drift gate
+        run: npx tsx scripts/i18n/emitDictionaries.ts
+
       # The suite swaps the Database singleton onto an in-memory adapter in
       # tests/setup.ts and installs an fs tripwire, so it never touches
       # data/dahab_db.json. Baseline to hold: 19 files, 257 tests.
@@ -55,7 +61,7 @@ jobs:
       - name: Verify boot-critical seed data is present
         run: |
           set -e
-          for f in data/dahab_local_commerce.json data/instagram/dahab_instagram_sources.json; do
+          for f in data/dahab_local_commerce.json data/instagram/dahab_instagram_sources.json data/dahab_hotels.json data/dahab_rentals.json; do
             test -s "$f" || { echo "::error file=$f::missing or empty; the server cannot boot without it"; exit 1; }
           done
           echo "Seed datasets present."
@@ -63,6 +69,10 @@ jobs:
       # Guards the reverse mistake: runtime state carries live session tokens,
       # traveler contact details and supplier payout IBANs, and must never be
       # committed.
+      # Note: VOLUME is not durable on Cloud Run — container filesystems are
+      # ephemeral there, so /app/data must be backed by a durable mount
+      # (e.g. Filestore NFS) or the store is disposable. Keep this comment
+      # even if the mount is configured elsewhere.
       - name: Verify runtime state is not committed
         run: |
           set -e

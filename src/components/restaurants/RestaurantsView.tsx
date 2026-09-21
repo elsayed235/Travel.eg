@@ -411,17 +411,17 @@ const RestaurantDetailModal: React.FC<{
 // Best-for chips
 // ---------------------------------------------------------------------------
 
-const BEST_FOR: { key: string; en: string; ar: string }[] = [
-  { key: 'seafood', en: 'Seafood', ar: 'سي فود طازج' },
-  { key: 'egyptian', en: 'Egyptian', ar: 'أكل مصري' },
-  { key: 'italian', en: 'Italian', ar: 'إيطالي' },
-  { key: 'indian', en: 'Indian', ar: 'هندي' },
-  { key: 'asian', en: 'Asian', ar: 'آسيوي' },
-  { key: 'brunch', en: 'Brunch', ar: 'برانش ع شمرة' },
-  { key: 'mediterranean', en: 'Mediterranean', ar: 'متوسطي' },
-  { key: 'openlate', en: 'Open late', ar: 'مفتوح متأخر' },
-  { key: 'cheap', en: 'Cheap eats', ar: 'أكل رخيص' },
-  { key: 'datenight', en: 'Date night', ar: 'مكان رومانسى' },
+const BEST_FOR: { key: string; labelKey: string }[] = [
+  { key: 'seafood', labelKey: 'restaurants.bestFor.seafood' },
+  { key: 'egyptian', labelKey: 'restaurants.bestFor.egyptian' },
+  { key: 'italian', labelKey: 'restaurants.bestFor.italian' },
+  { key: 'indian', labelKey: 'restaurants.bestFor.indian' },
+  { key: 'asian', labelKey: 'restaurants.bestFor.asian' },
+  { key: 'brunch', labelKey: 'restaurants.bestFor.brunch' },
+  { key: 'mediterranean', labelKey: 'restaurants.bestFor.mediterranean' },
+  { key: 'openlate', labelKey: 'restaurants.bestFor.openlate' },
+  { key: 'cheap', labelKey: 'restaurants.bestFor.cheap' },
+  { key: 'datenight', labelKey: 'restaurants.bestFor.datenight' },
 ];
 
 const BestForSection: React.FC<{ language: 'en' | 'ar'; onFilter: (cuisines: string[]) => void }> = ({ language, onFilter }) => {
@@ -452,7 +452,7 @@ const BestForSection: React.FC<{ language: 'en' | 'ar'; onFilter: (cuisines: str
                 ? 'bg-[var(--accent-primary)] text-[var(--surface-container)] border-[var(--accent-primary)]'
                 : 'bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--surface-container)]'
             }`}>
-            {language === 'ar' ? b.ar : b.en}
+            {t(b.labelKey)}
           </button>
         ))}
       </div>

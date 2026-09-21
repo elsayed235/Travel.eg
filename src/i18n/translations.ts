@@ -1903,6 +1903,20 @@ export const TRANSLATIONS: Translations = {
   'footer.follow': { en: 'Follow', ar: 'تابعنا' },
 
   // =========================================================================
+  // RESTAURANTS — Best-for chips (used by RestaurantsView BEST_FOR)
+  // =========================================================================
+  'restaurants.bestFor.seafood': { en: 'Seafood', ar: 'سي فود طازج' },
+  'restaurants.bestFor.egyptian': { en: 'Egyptian', ar: 'أكل مصري' },
+  'restaurants.bestFor.italian': { en: 'Italian', ar: 'إيطالي' },
+  'restaurants.bestFor.indian': { en: 'Indian', ar: 'هندي' },
+  'restaurants.bestFor.asian': { en: 'Asian', ar: 'آسيوي' },
+  'restaurants.bestFor.brunch': { en: 'Brunch', ar: 'برانش ع شمرة' },
+  'restaurants.bestFor.mediterranean': { en: 'Mediterranean', ar: 'متوسطي' },
+  'restaurants.bestFor.openlate': { en: 'Open late', ar: 'مفتوح متأخر' },
+  'restaurants.bestFor.cheap': { en: 'Cheap eats', ar: 'أكل رخيص' },
+  'restaurants.bestFor.datenight': { en: 'Date night', ar: 'مكان رومانسى' },
+
+  // =========================================================================
   // 29. HOTELS
   // =========================================================================
   'hotels.title': { en: 'Hotels in Dahab', ar: 'فنادق دهب' },

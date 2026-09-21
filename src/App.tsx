@@ -106,19 +106,22 @@ export const routePrefetchMap: Record<string, () => Promise<unknown>> = {
  * route and its code arriving is real, and a screen reader user is otherwise
  * told nothing at all.
  */
-const RouteLoading: React.FC = () => (
-  <div
-    role="status"
-    aria-live="polite"
-    className="min-h-[60vh] flex flex-col items-center justify-center gap-3"
-  >
-    <span
-      aria-hidden="true"
-      className="w-6 h-6 rounded-full border-2 border-[var(--accent-primary)] border-t-transparent animate-spin"
-    />
-    <span className="text-sm text-[var(--text-secondary)]">Loading…</span>
-  </div>
-);
+const RouteLoading: React.FC = () => {
+  const { t } = useLanguage();
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="min-h-[60vh] flex flex-col items-center justify-center gap-3"
+    >
+      <span
+        aria-hidden="true"
+        className="w-6 h-6 rounded-full border-2 border-[var(--accent-primary)] border-t-transparent animate-spin"
+      />
+      <span className="text-sm text-[var(--text-secondary)]">{t('cmd.loading')}</span>
+    </div>
+  );
+};
 
 /**
  * Screen-reader channel for toasts.

@@ -133,7 +133,7 @@ export const RentalsProviderPanel: React.FC<RentalsProviderPanelProps> = ({ show
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-sm text-[var(--text-primary)]/60">
         <Loader2 className="w-4 h-4 animate-spin" />
-        {isAr ? 'جاري التحميل…' : 'Loading…'}
+        {t('cmd.loading')}
       </div>
     );
   }

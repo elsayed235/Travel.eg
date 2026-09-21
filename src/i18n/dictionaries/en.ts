@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 3713 keys. Loaded per language by
+ * Language: en. 3723 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~91,177 chars here instead of both languages).
+ * (~91,258 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3378,6 +3378,16 @@ export const EN: Record<string, string> = {
   "rentals.zones": "Your area in Dahab",
   "restaurant": "Restaurant",
   "restaurants": "Restaurants",
+  "restaurants.bestFor.asian": "Asian",
+  "restaurants.bestFor.brunch": "Brunch",
+  "restaurants.bestFor.cheap": "Cheap eats",
+  "restaurants.bestFor.datenight": "Date night",
+  "restaurants.bestFor.egyptian": "Egyptian",
+  "restaurants.bestFor.indian": "Indian",
+  "restaurants.bestFor.italian": "Italian",
+  "restaurants.bestFor.mediterranean": "Mediterranean",
+  "restaurants.bestFor.openlate": "Open late",
+  "restaurants.bestFor.seafood": "Seafood",
   "restaurants.dahabBullet1": "Dahab is small — most restaurants are a short walk from the promenade and dive centres.",
   "restaurants.dahabBullet2": "Fresh Red Sea catch is picked at the ice counter — grab it yourself or have the restaurant do it.",
   "restaurants.dahabBullet3": "Many kitchens stay open until midnight — plan a late seafood dinner after a sunset dive.",

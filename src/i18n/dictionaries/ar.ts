@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3713 keys. Loaded per language by
+ * Language: ar. 3723 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~83,570 chars here instead of both languages).
+ * (~83,653 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3378,6 +3378,16 @@ export const AR: Record<string, string> = {
   "rentals.zones": "منطقتك في دهب",
   "restaurant": "المطعم",
   "restaurants": "المطاعم",
+  "restaurants.bestFor.asian": "آسيوي",
+  "restaurants.bestFor.brunch": "برانش ع شمرة",
+  "restaurants.bestFor.cheap": "أكل رخيص",
+  "restaurants.bestFor.datenight": "مكان رومانسى",
+  "restaurants.bestFor.egyptian": "أكل مصري",
+  "restaurants.bestFor.indian": "هندي",
+  "restaurants.bestFor.italian": "إيطالي",
+  "restaurants.bestFor.mediterranean": "متوسطي",
+  "restaurants.bestFor.openlate": "مفتوح متأخر",
+  "restaurants.bestFor.seafood": "سي فود طازج",
   "restaurants.dahabBullet1": "دهب مدينة صغيرة — معظم المطاعم على بعد خطوات من الممشى ومراكز الغطس.",
   "restaurants.dahabBullet2": "السي فود الطازج بيتم اختياره من تلج السمك — اختار صيدك بنفسك أو اطلبه من المطعم.",
   "restaurants.dahabBullet3": "كتير من المطابخ شغالة لحد نص الليل — خطط لعشاء سي فود متأخر بعد غروب الشمس.",

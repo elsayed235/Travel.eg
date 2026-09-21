@@ -367,7 +367,7 @@ export const SupplierPortalView: React.FC = () => {
             )}
 
             {actingSupplierId && revenue.status === 'loading' && (
-              <p className="text-sm text-[var(--text-secondary)]">{isRTL ? 'جاري التحميل…' : 'Loading…'}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{t('cmd.loading')}</p>
             )}
 
             {actingSupplierId && revenue.status !== 'loading' && !revenueData && (
@@ -508,7 +508,7 @@ export const SupplierPortalView: React.FC = () => {
 
               {actingSupplierId && dashboard.status === 'loading' && (
                 <p className="p-5 rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm text-[var(--text-secondary)]">
-                  {(language === 'ar') ? 'جاري التحميل…' : 'Loading…'}
+                  {t('cmd.loading')}
                 </p>
               )}
 

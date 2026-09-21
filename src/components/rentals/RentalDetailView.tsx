@@ -200,7 +200,7 @@ export const RentalDetailView: React.FC<RentalDetailViewProps> = ({ rentalSlug, 
   if (detail.status === 'loading') {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[var(--surface-container)] text-[var(--text-primary)]' : 'bg-[var(--bg-canvas)] text-[var(--text-primary)]'}`}>
-        <span className="text-sm font-bold opacity-60">{isAr ? 'جاري التحميل…' : 'Loading…'}</span>
+        <span className="text-sm font-bold opacity-60">{t('cmd.loading')}</span>
       </div>
     );
   }
