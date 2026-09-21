@@ -12,28 +12,25 @@
  * derived from THAT, never from whatever the client declared.
  */
 
-const ALLOWED_IMAGE_MIME_TYPE_SET: ReadonlySet<string> = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-]);
+import {
+  ALLOWED_IMAGE_MIME_TYPES as VALIDATED_MIME_TYPES,
+  EXTENSION_BY_MIME as VALIDATED_EXT_BY_MIME,
+  ALLOWED as VALIDATED_ALLOWED,
+  sniffImageType as validatedSniff,
+} from '../utils/imageValidation';
 
-export const ALLOWED_IMAGE_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-] as const;
+const ALLOWED_IMAGE_MIME_TYPE_SET: ReadonlySet<string> = new Set(
+  VALIDATED_MIME_TYPES as readonly string[]
+);
+
+export const ALLOWED_IMAGE_MIME_TYPES = VALIDATED_MIME_TYPES;
 
 export type UploadImageMime = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
-export const EXTENSION_BY_MIME: Record<UploadImageMime, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-  'image/gif': 'gif',
-};
+export const EXTENSION_BY_MIME: Record<UploadImageMime, string> = VALIDATED_EXT_BY_MIME;
+
+// Re-export allow-list with dot-prefixed extensions per spec §1 allowlist
+export const ALLOWED = VALIDATED_ALLOWED;
 
 /**
  * Default cap — prefer maxMediaUploadBytes(), which honors MEDIA_MAX_UPLOAD_MB.
@@ -117,44 +114,14 @@ export interface ParsedMediaUpload {
 /**
  * Sniff the image type from the leading magic bytes. Returns null when the
  * buffer is not any of the four supported raster formats.
+ * Delegates to server/utils/imageValidation.ts (canonical allowlist).
  */
 export function sniffImageMime(buffer: Buffer): UploadImageMime | null {
-  // JPEG: FFD8FF
-  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-    return 'image/jpeg';
-  }
-
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (
-    buffer.length >= 8 &&
-    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e &&
-    buffer[3] === 0x47 && buffer[4] === 0x0d && buffer[5] === 0x0a &&
-    buffer[6] === 0x1a && buffer[7] === 0x0a
-  ) {
-    return 'image/png';
-  }
-
-  // WebP: RIFF....WEBP
-  if (
-    buffer.length >= 12 &&
-    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 &&
-    buffer[3] === 0x46 && buffer[8] === 0x57 && buffer[9] === 0x45 &&
-    buffer[10] === 0x42 && buffer[11] === 0x50
-  ) {
-    return 'image/webp';
-  }
-
-  // GIF: GIF87a / GIF89a
-  if (
-    buffer.length >= 6 && buffer[0] === 0x47 && buffer[1] === 0x49 &&
-    buffer[2] === 0x46 && buffer[3] === 0x38 &&
-    (buffer[4] === 0x37 || buffer[4] === 0x39) && buffer[5] === 0x61
-  ) {
-    return 'image/gif';
-  }
-
-  return null;
+  return validatedSniff(buffer);
 }
+
+// Spec alias: plan names this function sniffImageType
+export const sniffImageType = sniffImageMime;
 
 /**
  * Parse and validate a base64 image data URL. Throws MediaUploadError with a

@@ -1,6 +1,7 @@
 import type { Database as SqliteDb } from 'better-sqlite3';
 import { SqlitePersistenceAdapter } from './SqlitePersistenceAdapter';
 import { db } from '../database';
+import { ALLOWED_IMAGE_MIME_TYPES } from '../../utils/imageValidation';
 
 /**
  * Migrate existing hardcoded Unsplash URLs to CMS media assets.
@@ -179,19 +180,42 @@ export function migrateMediaAssets(): void {
     return;
   }
 
-  console.log(`[CMS] Migrating ${KNOWN_MEDIA.length} known media URLs to CMS...`);
+  // Filter through the same allowlist the upload endpoint uses — never auto-migrate
+  // SVG or other script-capable types. Currently all KNOWN_MEDIA are .jpg but
+  // the filter is load-bearing for future entries and legacy rows.
+  const allowedExts = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+  const filtered = KNOWN_MEDIA.filter(m => {
+    const ext = ('.' + (m.filename.split('.').pop() || '').toLowerCase());
+    if (!allowedExts.has(ext)) {
+      console.warn(`[CMS] Skipping disallowed media asset during migration: ${m.filename} (ext ${ext})`);
+      return false;
+    }
+    return true;
+  });
+  // Keep mime consistent with the allowlist (image/jpeg for .jpg/.jpeg)
+  const allowedMimes = new Set(ALLOWED_IMAGE_MIME_TYPES as readonly string[]);
+
+  console.log(`[CMS] Migrating ${filtered.length} known media URLs to CMS...`);
   const ts = now();
   let registered = 0;
 
-  for (const media of KNOWN_MEDIA) {
+  for (const media of filtered) {
     try {
+      const mimeForFile = media.filename.toLowerCase().endsWith('.png') ? 'image/png'
+        : media.filename.toLowerCase().endsWith('.webp') ? 'image/webp'
+        : media.filename.toLowerCase().endsWith('.gif') ? 'image/gif'
+        : 'image/jpeg';
+      if (!allowedMimes.has(mimeForFile)) {
+        console.warn(`[CMS] Skipping disallowed MIME during migration: ${media.filename}`);
+        continue;
+      }
       c.prepare(`
         INSERT INTO cms_media (id, filename, original_url, storage_path, mime_type,
           file_size, width, height, aspect_ratio, alt_en, alt_ar, caption_en, caption_ar,
           credit, category, tags, usage_count, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
-        id('MED'), media.filename, media.url, '', 'image/jpeg',
+        id('MED'), media.filename, media.url, '', mimeForFile,
         0, 0, 0, '',
         media.alt_en, media.alt_ar, '', '',
         media.credit, media.category, '', 0,

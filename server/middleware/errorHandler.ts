@@ -2,6 +2,25 @@ import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './correlationMiddleware';
 
 export function errorHandler(err: any, req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  // body-parser / express.json() raises `entity.too.large` (413) when the
+  // request body exceeds the configured limit. Express's default handler
+  // would render this as an HTML page; we must return JSON so the CMS
+  // dashboard's base64 error path can surface it via `cmsFetch`.
+  if (err && (err.type === 'entity.too.large' || err.status === 413 || err.statusCode === 413)) {
+    const correlationIdEarly = (req as AuthenticatedRequest).correlationId || 'unknown';
+    console.error(`[ERROR] [${correlationIdEarly}] ${req.method} ${req.originalUrl}:`, err);
+    if (res.headersSent) return next(err);
+    return res.status(413).json({
+      type: 'https://dahab.travel/errors/payload-too-large',
+      title: 'Payload Too Large',
+      status: 413,
+      detail: err.message || 'Request body too large.',
+      instance: req.originalUrl,
+      correlationId: correlationIdEarly,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   const status = err.status || err.statusCode || 500;
   const correlationId = req.correlationId || 'unknown';
 

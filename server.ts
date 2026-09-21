@@ -184,7 +184,25 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
-app.use(express.json());
+
+// Dedicated body parser for the base64 upload endpoint only — MUST be
+// registered before the global 100kb parser so a valid image at the cap
+// (base64 inflates by ~33%) is not rejected by the smaller limit. The
+// route-level limit is ceil(cap * 4/3) + 64KB; the cap is
+// MEDIA_MAX_UPLOAD_MB (default 5MB — see maxMediaUploadBytes in
+// server/services/mediaUpload.ts). No other /api route sees this larger
+// limit. See Workstream 1 spec and errorHandler's entity.too.large branch.
+{
+  const rawMaxBytes = maxMediaUploadBytes();
+  const inflatedLimitBytes = Math.ceil(rawMaxBytes * (4 / 3)) + 64 * 1024;
+  const uploadPrefix = '/api/admin/content/media/upload';
+  app.use(
+    uploadPrefix,
+    express.json({ limit: inflatedLimitBytes, type: ['application/json', 'application/*+json'] })
+  );
+}
+
+app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 app.use(correlationMiddleware);
 
@@ -208,25 +226,8 @@ app.use('/api', apiAccessPolicy);
 app.use('/api/dahab/admin', adminDahabRouter);
 app.use('/api/dahab', dahabRouter);
 
-// CMS Content Management routes
-
-// Dedicated body parser for the base64 upload endpoint only.
-// The general express.json() limit would reject a multi-MB image as body
-// because base64 inflates it by ~33% and the maxBytes check lives *after*
-// decoding. We set the route-level limit to ceil(cap * 4/3) + 64KB so a valid
-// image at the cap gets through, while the route handler still enforces the
-// cap on the decoded buffer. The cap is MEDIA_MAX_UPLOAD_MB (default 5MB —
-// see maxMediaUploadBytes in mediaUpload.ts). No other /api route sees this
-// larger limit.
-{
-  const rawMaxBytes = maxMediaUploadBytes();
-  const inflatedLimitBytes = Math.ceil(rawMaxBytes * (4 / 3)) + 64 * 1024;
-  const uploadPrefix = '/api/admin/content/media/upload';
-  app.use(
-    uploadPrefix,
-    express.json({ limit: inflatedLimitBytes, type: ['application/json', 'application/*+json'] })
-  );
-}
+// CMS Content Management routes (dedicated upload parser is registered
+// above the global 100kb parser — see the block after helmet).
 
 app.use('/api/admin/content', adminContentRouter);
 app.use('/api/admin', adminSiteRouter);
