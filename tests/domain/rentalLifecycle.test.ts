@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { db } from '../../server/db/database';
 import { rentalService } from '../../server/services/rentalService';
 import { resetDb, seedRentalListing, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
@@ -41,6 +41,10 @@ describe('rental booking lifecycle', () => {
   beforeEach(() => {
     resetDb();
     seedTrip();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('creates a 15-minute hold that consumes day-slot inventory', () => {
@@ -191,15 +195,17 @@ describe('rental booking lifecycle', () => {
   });
 
   it('allows cancellation past the free window but does not refund', () => {
+    vi.useFakeTimers({ now: new Date('2027-01-10T10:00:00+02:00') });
     const listing = seedRentalListing();
-    // Start date is today, so now > startTs − 24h: outside the free window.
-    const booking = hold(listing.id, { startDate: localDate(0), endDate: localDate(2) });
+    // Fixed date + frozen clock: startDate is "today" (2027-01-10) so now > startTs − 24h (outside free window) without midnight flip.
+    const booking = hold(listing.id, { startDate: '2027-01-10', endDate: '2027-01-12' });
     checkout(booking.id);
 
     const cancelled = rentalService.cancelRentalBooking({ bookingId: booking.id, actor: travelActor });
     expect(cancelled.status).toBe('CANCELLED');
     expect(cancelled.paymentState).toBe('CAPTURED'); // no refund issued
     expect(db.ledgerEntries.some(e => e.type === 'REFUND_ISSUED' && e.bookingRef === booking.bookingRef)).toBe(false);
+    vi.useRealTimers();
   });
 
   it('cancels an unpaid hold with no money movement', () => {
@@ -303,8 +309,9 @@ describe('rental booking lifecycle', () => {
   });
 
   it('reconciles CONFIRMED → READY_FOR_PICKUP when the start date arrives', () => {
+    vi.useFakeTimers({ now: new Date('2027-01-10T10:00:00+02:00') });
     const listing = seedRentalListing();
-    const booking = hold(listing.id, { startDate: localDate(0), endDate: localDate(2) });
+    const booking = hold(listing.id, { startDate: '2027-01-10', endDate: '2027-01-12' });
     checkout(booking.id);
     rentalService.acceptRentalBooking({ bookingId: booking.id, supplierId: listing.supplierId });
 
@@ -312,6 +319,7 @@ describe('rental booking lifecycle', () => {
     const updated = db.rentalBookings.find(b => b.id === booking.id)!;
     expect(updated.status).toBe('READY_FOR_PICKUP');
     expect(db.bookings.find(b => b.bookingRef === booking.bookingRef)!.supplierState).toBe('READY_FOR_PICKUP');
+    vi.useRealTimers();
   });
 
   it('rejects holds for listings that are not approved or active', () => {

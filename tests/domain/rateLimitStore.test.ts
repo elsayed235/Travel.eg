@@ -22,6 +22,7 @@ afterEach(async () => {
   if (REAL_STORE === undefined) delete process.env.RATE_LIMIT_STORE;
   else process.env.RATE_LIMIT_STORE = REAL_STORE;
   fs.rmSync(dir, { recursive: true, force: true });
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -52,12 +53,14 @@ describe('shared rate-limit store', () => {
     expect(third.remaining).toBe(0);
   });
 
-  it('resets when the window passes', async () => {
+  it('resets when the window passes', () => {
+    vi.useFakeTimers();
     const key = `qa-reset-${Date.now()}`;
     expect(sharedAcquire(key, 30, 1)!.allowed).toBe(true);
     expect(sharedAcquire(key, 30, 1)!.allowed).toBe(false);
-    await new Promise(r => setTimeout(r, 50));
+    vi.advanceTimersByTime(50);
     expect(sharedAcquire(key, 30, 1)!.allowed).toBe(true);
+    vi.useRealTimers();
   });
 
   it('isolates keys from each other', () => {
@@ -68,12 +71,14 @@ describe('shared rate-limit store', () => {
     expect(sharedAcquire(b, 60000, 1)!.allowed).toBe(true);
   });
 
-  it('collects expired windows', async () => {
+  it('collects expired windows', () => {
+    vi.useFakeTimers();
     const key = `qa-gc-${Date.now()}`;
     sharedAcquire(key, 30, 5);
-    await new Promise(r => setTimeout(r, 50));
+    vi.advanceTimersByTime(50);
     expect(sharedCollectGarbage()).toBeGreaterThanOrEqual(1);
     expect(sharedAcquire(key, 30, 5)!.remaining).toBe(4);
+    vi.useRealTimers();
   });
 
   it('fails open (null) rather than throwing when the store is broken', () => {

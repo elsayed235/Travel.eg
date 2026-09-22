@@ -15,6 +15,11 @@ export default defineConfig({
     // The suite touches the shared JSON database singleton, so files must not
     // run concurrently against each other.
     fileParallelism: false,
-    reporters: 'verbose'
+    reporters: 'verbose',
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      thresholds: { lines: 60, branches: 50 }
+    }
   }
 });
