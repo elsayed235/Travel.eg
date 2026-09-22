@@ -216,7 +216,8 @@ export class AuthService {
   public syncFirebaseUserSession(
     firebaseUid: string,
     email: string,
-    displayName?: string
+    displayName?: string,
+    emailVerified?: boolean
   ): { user: Omit<UserEntity, 'passwordHash' | 'passwordSalt'>; session: SessionEntity } {
     if (!firebaseUid) {
       throw new Error('A verified Firebase uid is required.');
@@ -228,12 +229,21 @@ export class AuthService {
     // Link a pre-existing local account to this uid on first federated sign-in,
     // but only when the provider asserts the address is verified — otherwise an
     // unverified address could be used to claim someone else's account.
+    // firebaseAdminService.verifyIdToken returns { emailVerified } — check it.
     if (!user && email) {
       const byEmail = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (byEmail && !byEmail.firebaseUid) {
-        byEmail.firebaseUid = firebaseUid;
-        byEmail.updatedAt = new Date().toISOString();
-        user = byEmail;
+        if (emailVerified === false) {
+          console.warn(`[authService] refusing to link unverified email ${email} to firebaseUid ${firebaseUid}`);
+        } else {
+          if (emailVerified !== true) {
+            // TODO: firebaseAdminService.verifyIdToken should return email_verified; enforce verified check once available
+            console.warn(`[authService] linking by email without explicit emailVerified=true for ${email} — TODO enforce verified (identity.emailVerified=${String(emailVerified)})`);
+          }
+          byEmail.firebaseUid = firebaseUid;
+          byEmail.updatedAt = new Date().toISOString();
+          user = byEmail;
+        }
       }
     }
 

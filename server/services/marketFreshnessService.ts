@@ -660,6 +660,30 @@ export class MarketFreshnessService {
         }
 
         // 3. Process Supplier Offers & Price Observations
+        // Pre-index observations by supplierId+activityId to avoid O(n²) filter+sort per incoming observation
+        const observationIndex = new Map<string, PriceObservationEntity[]>();
+        for (const p of db.priceObservations) {
+          const key = `${p.supplierId}::${p.activityId}::${p.pricingBasis || 'PER_PERSON'}`;
+          let arr = observationIndex.get(key);
+          if (!arr) { arr = []; observationIndex.set(key, arr); }
+          arr.push(p);
+        }
+        // Also build supplier+activity index (pricingBasis-agnostic) for idempotency & latest lookup
+        const supplierActivityIndex = new Map<string, PriceObservationEntity[]>();
+        for (const p of db.priceObservations) {
+          const key = `${p.supplierId}::${p.activityId}`;
+          let arr = supplierActivityIndex.get(key);
+          if (!arr) { arr = []; supplierActivityIndex.set(key, arr); }
+          arr.push(p);
+        }
+        // Sort each bucket once (newest first) so hot loop does O(1) lookup
+        for (const arr of observationIndex.values()) {
+          arr.sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
+        }
+        for (const arr of supplierActivityIndex.values()) {
+          arr.sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
+        }
+
         for (const obs of observationsToProcess) {
           const obsAmount = obs.priceEGP !== undefined ? obs.priceEGP : obs.amount;
           if (!obs.supplierId || !obs.activityId || obsAmount === undefined) continue;
@@ -718,11 +742,9 @@ export class MarketFreshnessService {
             });
           }
 
-          // Find all observations for this supplier & activity
-          const previousObservations = db.priceObservations
-            .filter(p => p.supplierId === obs.supplierId && p.activityId === obs.activityId)
-            .sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
-
+          // Lookup pre-indexed observations for this supplier & activity (O(1))
+          const saKey = `${obs.supplierId}::${obs.activityId}`;
+          const previousObservations = supplierActivityIndex.get(saKey) || [];
           const latestObs = previousObservations[0] || null;
 
           // Pure Idempotency Check: Avoid creating duplicate observations if exact observation already recorded
@@ -749,7 +771,7 @@ export class MarketFreshnessService {
             offer.titleAr
           );
 
-          // Check for Source Price Conflicts (different prices observed on same date from different sources)
+          // Check for Source Price Conflicts (different prices observed on same date from different sources) — uses pre-indexed bucket
           const sameDayDifferentSourceObs = previousObservations.filter(
             p =>
               p.observedAt.split('T')[0] === (obs.observedAt || referenceTime).split('T')[0] &&
@@ -830,6 +852,17 @@ export class MarketFreshnessService {
             validUntil: obs.validUntil
           };
           db.priceObservations.push(newPriceObs);
+          // Keep pre-indexed maps in sync for subsequent loop iterations in same refresh
+          {
+            const k1 = `${newPriceObs.supplierId}::${newPriceObs.activityId}::${newPriceObs.pricingBasis}`;
+            let arr1 = observationIndex.get(k1);
+            if (!arr1) { arr1 = []; observationIndex.set(k1, arr1); }
+            arr1.unshift(newPriceObs);
+            const k2 = `${newPriceObs.supplierId}::${newPriceObs.activityId}`;
+            let arr2 = supplierActivityIndex.get(k2);
+            if (!arr2) { arr2 = []; supplierActivityIndex.set(k2, arr2); }
+            arr2.unshift(newPriceObs);
+          }
 
           // Update Offer pointer & freshness
           offer.price = obsAmount;

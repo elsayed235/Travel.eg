@@ -101,6 +101,12 @@ function sweepConfirms(): void {
   }
 }
 
+// Periodic sweep every 5min so expired tokens don't linger even without traffic.
+// Keeps volatile Map bounded; if db.intelligenceConfirms table existed we would persist here.
+// TODO: move pendingConfirms to db.intelligenceConfirms for crash resilience when table is added.
+const _intelSweepInterval = setInterval(sweepConfirms, 5 * 60 * 1000);
+if (typeof (_intelSweepInterval as any).unref === 'function') (_intelSweepInterval as any).unref();
+
 function nowISO(): string {
   return new Date().toISOString();
 }

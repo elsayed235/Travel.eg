@@ -561,7 +561,8 @@ app.post('/api/auth/firebase-session', authRateLimiter, async (req, res) => {
     const result = authService.syncFirebaseUserSession(
       identity.uid,
       identity.email || '',
-      identity.displayName || undefined
+      identity.displayName || undefined,
+      identity.emailVerified
     );
 
     const isProd = process.env.NODE_ENV === 'production';

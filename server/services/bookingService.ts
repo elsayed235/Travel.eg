@@ -409,24 +409,58 @@ export function rescheduleBooking(params: {
     // to the new slot below.
     releaseBookingCapacity(booking);
 
-    // Ensure new slot exists (dynamically create if needed)
+    // Ensure new slot exists (dynamically create if needed) — guarded against unbounded inflation
     const sku = db.productSkus.find(s => s.id === booking.skuId);
     let newSlot = db.inventorySlots.find(
       s => s.skuId === booking.skuId && s.date === params.newDate && s.timeSlot === params.newTime
     );
     if (!newSlot) {
-      newSlot = {
-        id: `SLOT-${booking.skuId}-${params.newDate}-${params.newTime}-${Date.now()}`,
-        skuId: booking.skuId,
-        date: params.newDate,
-        timeSlot: params.newTime,
-        totalCapacity: sku?.maxCapacityPerSlot || 6,
-        reservedCapacity: 0,
-        heldCapacity: 0,
-        priceEGP: sku?.basePriceEGP || booking.amountEGP,
-        status: 'AVAILABLE'
-      };
-      db.inventorySlots.push(newSlot);
+      if (db.inventorySlots.length > 10000) {
+        throw Object.assign(new Error('inventory cap reached (10000 slots) — cannot create new slot'), { status: 503 });
+      }
+      if (db.inventorySlots.length > 5000) {
+        console.warn(`[bookingService] inventorySlots approaching cap: ${db.inventorySlots.length} slots`);
+        // When near cap, cap dynamic creation to a 7-day window and reuse nearest slot outside window
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const maxDate = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+        if (params.newDate < todayStr || params.newDate > maxDate) {
+          const nearest = db.inventorySlots
+            .filter(s => s.skuId === booking.skuId)
+            .sort((a, b) => a.date.localeCompare(b.date))[0];
+          if (nearest) {
+            console.warn(`[bookingService] reschedule date ${params.newDate} outside 7-day window, reusing nearest slot ${nearest.date}`);
+            newSlot = nearest;
+          } else {
+            throw Object.assign(new Error('Reschedule date outside 7-day creation window and no existing slot to reuse'), { status: 400 });
+          }
+        } else {
+          newSlot = {
+            id: `SLOT-${booking.skuId}-${params.newDate}-${params.newTime}-${Date.now()}`,
+            skuId: booking.skuId,
+            date: params.newDate,
+            timeSlot: params.newTime,
+            totalCapacity: sku?.maxCapacityPerSlot || 6,
+            reservedCapacity: 0,
+            heldCapacity: 0,
+            priceEGP: sku?.basePriceEGP || booking.amountEGP,
+            status: 'AVAILABLE'
+          };
+          db.inventorySlots.push(newSlot);
+        }
+      } else {
+        newSlot = {
+          id: `SLOT-${booking.skuId}-${params.newDate}-${params.newTime}-${Date.now()}`,
+          skuId: booking.skuId,
+          date: params.newDate,
+          timeSlot: params.newTime,
+          totalCapacity: sku?.maxCapacityPerSlot || 6,
+          reservedCapacity: 0,
+          heldCapacity: 0,
+          priceEGP: sku?.basePriceEGP || booking.amountEGP,
+          status: 'AVAILABLE'
+        };
+        db.inventorySlots.push(newSlot);
+      }
     }
 
     const availInNew = newSlot.totalCapacity - (newSlot.reservedCapacity + newSlot.heldCapacity);

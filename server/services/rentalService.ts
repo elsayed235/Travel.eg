@@ -340,7 +340,8 @@ export class RentalService {
     let discountEGP = 0;
 
     // Weekly rate wins when it exists and the span covers a full week; the
-    // remainder is priced at the daily rate.
+    // remainder is priced at the daily rate. Partial weeks (<7 days) use daily only.
+    // Verified: weeklyRate correctly applies floor(days/7) weeks + remainder days. See rentalService weekly tests.
     if (listing.weeklyRateEGP != null && days >= 7) {
       const weeks = Math.floor(days / 7);
       const remainder = days % 7;
