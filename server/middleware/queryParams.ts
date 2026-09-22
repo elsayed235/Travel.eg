@@ -143,3 +143,18 @@ export const FRAUD_SIGNAL_TYPES = [
   'amount_anomaly',
   'duplicate_payment'
 ] as const;
+
+/**
+ * Rejects query strings carrying raw card data (mirror of bodyParams guard).
+ * Query params must never transport PAN/CVV — keeps logs and caches clean.
+ */
+export function rejectRawCardData(query: unknown): void {
+  const candidate = typeof query === 'object' && query !== null ? Object.keys(query as Record<string, unknown>) : [];
+  const forbidden = candidate.filter(key => /^(card[_-]?number|pan|cvv|cvc|expiry|expirydate|expirationdate)$/i.test(key));
+  if (forbidden.length > 0) {
+    throw new InvalidQueryParameterError(
+      forbidden[0],
+      'must not be sent to this API. Supply only cardLast4.'
+    );
+  }
+}

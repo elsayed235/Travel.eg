@@ -14,7 +14,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export function correlationMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const correlationId = (req.headers['x-correlation-id'] as string) || `req-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+  const correlationId = (req.headers['x-correlation-id'] as string) || `req-${crypto.randomUUID()}`;
   req.correlationId = correlationId;
   res.setHeader('x-correlation-id', correlationId);
   next();

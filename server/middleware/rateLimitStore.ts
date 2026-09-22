@@ -92,6 +92,8 @@ export function sharedAcquire(key: string, windowMs: number, maxRequests: number
     });
     return txn();
   } catch {
+    // Fail-open: a storage error must not become a 500 for legitimate traffic.
+    // The caller (rateLimiter) will fall back to its in-memory limiter instead.
     return null;
   }
 }

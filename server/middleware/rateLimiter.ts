@@ -37,8 +37,11 @@ export function createRateLimiter(options: {
     const now = Date.now();
 
     // Shared buckets first (multi-process truth when RATE_LIMIT_STORE=sqlite).
-    // Falls back to the in-memory map below when unconfigured or on error —
-    // a limiter must never 500 legitimate traffic because its store hiccuped.
+    // Fail-open fallback: when unconfigured or on store error sharedAcquire
+    // returns null and we fall through to the in-memory map below. A limiter
+    // must never 500 legitimate traffic because its store hiccuped — briefly
+    // under-counting only weakens abuse protection, while failing closed
+    // turns a storage hiccup into a self-inflicted outage.
     const shared = sharedAcquire(key, options.windowMs, options.maxRequests);
     if (shared) {
       res.setHeader('X-RateLimit-Limit', options.maxRequests);

@@ -185,7 +185,7 @@ export const PAYMENT_PROVIDERS = ['PAYMOB', 'STRIPE', 'CASH_ON_ARRIVAL'] as cons
  */
 export function rejectRawCardData(body: unknown): void {
   const candidate = typeof body === 'object' && body !== null ? Object.keys(body) : [];
-  const forbidden = candidate.filter(key => /^(cardnumber|pan|cvv|cvc|expiry|expirydate|expirationdate)$/i.test(key));
+  const forbidden = candidate.filter(key => /^(card[_-]?number|pan|cvv|cvc|expiry|expirydate|expirationdate)$/i.test(key));
   if (forbidden.length > 0) {
     throw new InvalidRequestBodyError(
       forbidden[0],

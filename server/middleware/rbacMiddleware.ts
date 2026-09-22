@@ -19,7 +19,7 @@ export function requireRole(...allowedRoles: Array<'Traveler' | 'Supplier' | 'Op
         type: 'https://dahab.travel/errors/forbidden',
         title: 'Forbidden Resource',
         status: 403,
-        detail: `Access denied. Role '${req.user.role}' does not have permission. Required one of: ${allowedRoles.join(', ')}`,
+        detail: 'Your account does not have permission to access this resource.',
         instance: req.originalUrl,
         correlationId: req.correlationId
       });
