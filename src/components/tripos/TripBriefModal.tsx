@@ -142,7 +142,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                 type="text"
                 value={travelerName}
                 onChange={(e) => setTravelerName(e.target.value)}
-                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               />
             </div>
 
@@ -153,7 +153,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
               <select
                 value={durationDays}
                 onChange={(e) => setDurationDays(Number(e.target.value))}
-                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               >
                 <option value={3}>3 Days (Weekend Escape)</option>
                 <option value={4}>4 Days (Standard Dahab)</option>
@@ -170,7 +170,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
               <select
                 value={travelersCount}
                 onChange={(e) => setTravelersCount(Number(e.target.value))}
-                className="w-full bg-[var(--text-primary)] border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--brand-sand)]"
               >
                 <option value={1}>1 Solo Traveler</option>
                 <option value={2}>2 Couple / Friends</option>
@@ -195,7 +195,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                     className={`py-2 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       pace === p
                         ? 'bg-[var(--surface-card)] text-amber-300 border-[var(--surface-card)]'
-                        : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {t(`profile.pace.${p}`)}
@@ -220,7 +220,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
                     className={`py-2 rounded-xl text-xs font-bold transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border ${
                       budgetTier === b
                         ? 'bg-[var(--brand-sand)] text-white border-[var(--brand-sand)]'
-                        : 'bg-[var(--text-primary)] text-slate-700 border-slate-200 hover:bg-slate-100'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {t(`hotels.${b.toLowerCase()}`)}
@@ -231,7 +231,7 @@ export const TripBriefModal: React.FC<TripBriefModalProps> = ({ isOpen, onClose 
           </div>
 
           {/* Section 3: Add Custom Constraint */}
-          <div className="p-4 rounded-2xl bg-[var(--text-primary)] border border-slate-200 space-y-3">
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold text-slate-900">
                 {t('tripos.addCustomTripConstraint')}

@@ -2362,7 +2362,9 @@ export const api = {
   },
 
   async getCmsPage(slug: string, signal?: AbortSignal): Promise<CmsPageWithBlocks> {
-    const res = await fetchWithTimeout(`/api/content/pages/${slug}`, { headers: defaultHeaders(), signal });
+    // Blocks carry the actual content for pages like faq and travel-guides
+    // (their page rows hold only title/description), so always request them.
+    const res = await fetchWithTimeout(`/api/content/pages/${slug}?include_blocks=true`, { headers: defaultHeaders(), signal });
     if (!res.ok) return { page: null, blocks: [] };
     return await readJson<CmsPageWithBlocks>(res, 'CMS page');
   },

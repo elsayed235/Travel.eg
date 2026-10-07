@@ -158,7 +158,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
 
         {/* Pass Card Visual Body (Apple Wallet / Passbook Style) */}
         <div className="p-5 sm:p-6 space-y-5 overflow-y-auto max-h-[75vh]">
-          <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] via-[var(--surface-container)] to-[var(--text-primary)] border-2 border-[var(--accent-primary)]/40 p-5 shadow-inner space-y-5 relative overflow-hidden">
+          <div className="rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] via-[var(--surface-container)] to-black border-2 border-[var(--accent-primary)]/40 p-5 shadow-inner space-y-5 relative overflow-hidden">
             {/* Watermark / Glow */}
             <div className="absolute -top-12 -right-12 w-40 h-40 bg-[var(--accent-secondary)]/10 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-[var(--accent-primary)]/15 rounded-full blur-2xl pointer-events-none" />
@@ -181,7 +181,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
             </div>
 
             {/* QR Code & Pass Metadata */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-[var(--text-primary)]/70 p-4 rounded-xl border border-[var(--border-subtle)] relative z-10">
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-black/70 p-4 rounded-xl border border-[var(--border-subtle)] relative z-10">
               {/* High-Contrast Standalone SVG QR Matrix (Works 100% Offline) */}
               <div className="w-28 h-28 bg-[var(--surface-card)] rounded-lg p-2 flex flex-col items-center justify-center flex-shrink-0 shadow-md">
                 <svg viewBox="0 0 100 100" className="w-full h-full text-[var(--surface-container)]">
@@ -260,7 +260,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
             </div>
 
             {/* Bedouin Driver Card (Included in Pass) */}
-            <div className="p-3.5 rounded-xl bg-[var(--text-primary)]/90 border border-[var(--accent-secondary)]/30 space-y-2 relative z-10">
+            <div className="p-3.5 rounded-xl bg-black/90 border border-[var(--accent-secondary)]/30 space-y-2 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-[var(--accent-secondary)] font-bold text-xs">
                   <Car className="w-4 h-4" />
@@ -328,7 +328,7 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
         </div>
 
         {/* Modal Actions */}
-        <div className="p-4 sm:p-5 bg-[var(--text-primary)] border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 bg-black border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleSaveOffline}

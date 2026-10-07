@@ -1,0 +1,163 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#main-app-content"
+  - banner:
+    - navigation "DAHAB TRAVEL OS Header" [ref=e6]:
+      - button "DAHAB TRAVEL OS" [ref=e8] [cursor=pointer]:
+        - generic [ref=e9]: D
+        - generic [ref=e13]:
+          - generic [ref=e14]: DAHAB
+          - generic [ref=e15]: TRAVEL OS
+      - generic [ref=e16]:
+        - button "Discover" [ref=e17] [cursor=pointer]
+        - button "Stay & Taste" [ref=e24] [cursor=pointer]
+        - button "Getting Around" [ref=e31] [cursor=pointer]
+        - button "My Trip" [ref=e39] [cursor=pointer]
+        - button "Site map" [ref=e48] [cursor=pointer]
+      - generic [ref=e54]:
+        - 'button "Theme: Soft Charcoal. Open Theme Menu." [ref=e57] [cursor=pointer]'
+        - button "Search (⌘K)" [ref=e68] [cursor=pointer]
+        - button "Switch to Arabic" [ref=e72] [cursor=pointer]
+        - button "S System" [ref=e160] [cursor=pointer]:
+          - generic [ref=e161]: S
+          - generic [ref=e162]: System
+        - button "Get Started" [ref=e82] [cursor=pointer]
+  - main "Dahab Sinai Travel Platform" [ref=e87]:
+    - generic [ref=e165]:
+      - generic [ref=e166]:
+        - generic [ref=e171]:
+          - heading "admin.contentTitle" [level=1] [ref=e172]
+          - paragraph [ref=e173]: admin.contentSubtitle
+        - generic [ref=e174]: CMS Content
+      - generic [ref=e176]:
+        - button "Media" [ref=e177]
+        - button "Pages" [ref=e183]
+        - button "Blocks" [ref=e188]
+        - button "Homepage" [ref=e192]
+        - button "Navigation" [ref=e197]
+        - button "SEO" [ref=e200]
+        - button "Revisions" [ref=e205]
+      - generic [ref=e212]:
+        - generic [ref=e436]: admin.pagesTitle
+        - generic [ref=e439]:
+          - generic [ref=e440]:
+            - generic [ref=e441]:
+              - button "cms.back" [ref=e1411]
+              - generic [ref=e1414]:
+                - heading "cms.editPage" [level=2] [ref=e1415]
+                - paragraph [ref=e1416]: /test-crud-page
+            - generic [ref=e444]:
+              - button "cms.publish" [ref=e1417] [cursor=pointer]
+              - button "cms.save" [ref=e1418] [cursor=pointer]
+          - generic [ref=e448]:
+            - generic [ref=e1419]:
+              - generic [ref=e1420]:
+                - generic [ref=e1421]: Type
+                - combobox [ref=e1422]:
+                  - option "cms.typePage" [selected]
+                  - option "cms.typeLanding"
+                  - option "cms.typeArticle"
+              - generic [ref=e1423]:
+                - generic [ref=e1424]: URL Slug
+                - textbox "experience-slug" [ref=e1425]: test-crud-page
+            - generic [ref=e1426]:
+              - generic [ref=e1427]:
+                - generic [ref=e1428]: Title (English)
+                - textbox "cms.titlePlaceholderEn" [ref=e1429]: Test CRUD Page - UPDATED
+              - generic [ref=e1430]:
+                - generic [ref=e1431]: Title (Arabic)
+                - textbox "cms.titlePlaceholderAr" [ref=e1432]: صفحة اختبار CRUD
+            - generic [ref=e449]:
+              - generic [ref=e1433]:
+                - generic [ref=e1434]: Subtitle (English)
+                - textbox "cms.subtitlePlaceholderEn" [ref=e1435]
+              - generic [ref=e1436]:
+                - generic [ref=e1437]: Subtitle (Arabic)
+                - textbox "cms.subtitlePlaceholderAr" [ref=e1438]
+            - generic [ref=e1439]:
+              - generic [ref=e1440]:
+                - generic [ref=e1441]: Description (English)
+                - textbox "cms.descPlaceholderEn" [ref=e1442]
+              - generic [ref=e1443]:
+                - generic [ref=e1444]: Description (Arabic)
+                - textbox "cms.descPlaceholderAr" [ref=e1445]
+            - generic [ref=e1446]:
+              - generic [ref=e1447]:
+                - generic [ref=e1448]: Body Content (English)
+                - textbox "cms.bodyPlaceholderEn" [ref=e1449]
+              - generic [ref=e1450]:
+                - generic [ref=e1451]: Body Content (Arabic)
+                - textbox "cms.bodyPlaceholderAr" [ref=e1452]
+            - generic [ref=e1453]:
+              - heading "cms.seoSection" [level=3] [ref=e1454]
+              - generic [ref=e1455]:
+                - generic [ref=e1456]:
+                  - generic [ref=e1457]: page
+                  - generic [ref=e1458]: /CMS-MUC43882-193MX
+                - generic [ref=e1459]:
+                  - generic [ref=e1460]:
+                    - generic [ref=e1461]: SEO Title (English)
+                    - textbox "Page title for search engines" [ref=e1462]
+                    - paragraph [ref=e1463]: 0/60
+                  - generic [ref=e1464]:
+                    - generic [ref=e1465]: SEO Title (Arabic)
+                    - textbox "عنوان الصفحة لمحركات البحث" [ref=e1466]
+                - generic [ref=e1467]:
+                  - generic [ref=e1468]:
+                    - generic [ref=e1469]: Meta Description (English)
+                    - textbox "Brief description for search results" [ref=e1470]
+                    - paragraph [ref=e1471]: 0/160
+                  - generic [ref=e1472]:
+                    - generic [ref=e1473]: Meta Description (Arabic)
+                    - textbox "وصف موجز لنتائج البحث" [ref=e1474]
+                - generic [ref=e1475]:
+                  - heading "Social / Open Graph Tags" [level=4] [ref=e1476]
+                  - generic [ref=e1477]:
+                    - generic [ref=e1478]:
+                      - generic [ref=e1479]: OG Title (English)
+                      - textbox "Title for social shares" [ref=e1480]
+                    - generic [ref=e1481]:
+                      - generic [ref=e1482]: OG Title (Arabic)
+                      - textbox "العنوان للمشاركات الاجتماعية" [ref=e1483]
+                  - generic [ref=e1484]:
+                    - generic [ref=e1485]:
+                      - generic [ref=e1486]: OG Description (English)
+                      - textbox "Description for social shares" [ref=e1487]
+                    - generic [ref=e1488]:
+                      - generic [ref=e1489]: OG Description (Arabic)
+                      - textbox "الوصف للمشاركات الاجتماعية" [ref=e1490]
+                  - generic [ref=e1491]:
+                    - generic [ref=e1492]: OG Image URL
+                    - textbox "https://..." [ref=e1493]
+                - generic [ref=e1494]:
+                  - generic [ref=e1495]: Canonical URL
+                  - textbox "https://dahab.com/page-slug" [ref=e1496]
+                  - paragraph [ref=e1497]: Leave empty to use the default URL
+                - generic [ref=e1499] [cursor=pointer]:
+                  - checkbox "noindex — hide page from search" [ref=e1500]
+                  - generic [ref=e1501]: noindex — hide page from search
+                - button "cms.saveSeo" [ref=e1503] [cursor=pointer]
+            - generic [ref=e1504]:
+              - generic [ref=e1505]:
+                - heading "cms.blocksSection (0)" [level=3] [ref=e1506]
+                - button "+ cms.addBlock" [ref=e1507] [cursor=pointer]
+              - paragraph [ref=e1508]: cms.noBlocks
+            - generic [ref=e1509]:
+              - generic [ref=e1510]:
+                - generic [ref=e1511]: Sort Order
+                - spinbutton [ref=e1512]: "0"
+              - generic [ref=e1513]:
+                - generic [ref=e1514]: Featured
+                - spinbutton [ref=e1515]: "0"
+              - generic [ref=e1516]:
+                - generic [ref=e1517]: Hero Image URL
+                - textbox "https://..." [ref=e1518]
+  - generic [ref=e102]: cms.pageSaved
+  - generic [ref=e1519]: cms.pageSaved
+  - complementary "Ahmed's 18-Stage Interactive Dahab Journey" [ref=e424]:
+    - generic [ref=e425]:
+      - button "Ahmed's 18-Stage Dahab Journey" [ref=e426] [cursor=pointer]
+      - button "Next Journey Stage" [ref=e433] [cursor=pointer]
+  - generic [ref=e104]:
+    - button "Sinai 24/7 Rapid Emergency" [ref=e105] [cursor=pointer]
+    - button "Dahab Tools" [ref=e113] [cursor=pointer]

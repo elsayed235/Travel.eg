@@ -1,0 +1,52 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#main-app-content"
+  - banner:
+    - navigation "DAHAB TRAVEL OS Header" [ref=e6]:
+      - button "DAHAB TRAVEL OS" [ref=e8] [cursor=pointer]:
+        - generic [ref=e9]: D
+        - generic [ref=e13]:
+          - generic [ref=e14]: DAHAB
+          - generic [ref=e15]: TRAVEL OS
+      - generic [ref=e16]:
+        - button "Discover" [ref=e17] [cursor=pointer]
+        - button "Stay & Taste" [ref=e24] [cursor=pointer]
+        - button "Getting Around" [ref=e31] [cursor=pointer]
+        - button "My Trip" [ref=e39] [cursor=pointer]
+        - button "Site map" [ref=e48] [cursor=pointer]
+      - generic [ref=e54]:
+        - 'button "Theme: Soft Charcoal. Open Theme Menu." [ref=e57] [cursor=pointer]'
+        - button "Search (⌘K)" [ref=e68] [cursor=pointer]
+        - button "Switch to Arabic" [ref=e72] [cursor=pointer]
+        - button "Sign In" [ref=e77] [cursor=pointer]
+        - button "Get Started" [ref=e82] [cursor=pointer]
+  - main "Dahab Sinai Travel Platform" [ref=e87]:
+    - generic [ref=e119]:
+      - generic [ref=e120]:
+        - button "Back to Dahab" [ref=e121]
+        - generic [ref=e125]:
+          - button "العربية" [ref=e126]
+          - button "English" [ref=e127]
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - heading "Welcome Back to Dahab" [level=1] [ref=e134]
+          - paragraph [ref=e135]: Sign in to access your itinerary, ledger, and bookings
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - generic [ref=e138]: Email Address
+            - textbox "Email Address" [ref=e140]:
+              - /placeholder: name@example.com
+          - generic [ref=e141]:
+            - generic [ref=e142]:
+              - generic [ref=e143]: Password
+              - button "Forgot password?" [ref=e144]
+            - textbox "Password" [ref=e146]:
+              - /placeholder: ••••••••
+          - button "Sign In" [ref=e147]
+        - paragraph [ref=e152]:
+          - text: Don't have an account yet?
+          - button "Sign up free" [ref=e153]
+        - generic [ref=e154]: End-to-end encrypted identity & double-entry ledger
+  - generic [ref=e104]:
+    - button "Sinai 24/7 Rapid Emergency" [ref=e105] [cursor=pointer]
+    - button "Dahab Tools" [ref=e113] [cursor=pointer]

@@ -116,7 +116,14 @@ src/hooks/useOperationsOverviewData.ts
 tests/browser-qa/*.mjs
 tests/e2e/helpers/
 tests/e2e/splash-gate.spec.ts
-tests/ui/
+# `tests/ui/*` rather than the directory itself: git cannot re-include a file
+# whose parent directory is excluded, and one test here must not be ignored.
+# The ten older files were added before the rule and stay tracked.
+tests/ui/*
+# ...except this one: it is the homepage next-step gate's only behavioural
+# proof (a non-anonymous lifecycle cannot be produced without a session), and
+# an ignored test is a test CI never runs.
+!tests/ui/ConciergeNextStep.test.tsx
 # themeTokenContrast is a known pre-existing failure (18 ink-as-surface
 # offenders in tracked files) — keep local until design tokens are fixed.
 # The committed domain tests (moduleAliasResolution, splashGate,

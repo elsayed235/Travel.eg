@@ -39,13 +39,13 @@ export const IntentSelector: React.FC = () => {
         id="concierge-intent"
         aria-label={t('concierge.intent.title')}
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8"
+        className="dahab-shell py-12 sm:py-16"
       >
         <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+          <p className="dahab-eyebrow text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-accent)]">
             {t('concierge.intent.eyebrow')}
           </p>
-          <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight text-[var(--text-primary)] text-balance sm:text-5xl">
+          <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight text-[var(--text-primary)] text-balance sm:text-5xl lg:text-[3.5rem]">
             {t('concierge.intent.title')}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base">
@@ -76,7 +76,7 @@ export const IntentSelector: React.FC = () => {
         </div>
 
         {/* Matches — split rows, editorial not cards */}
-        <div className="mt-6 overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-card)]">
+        <div className="dahab-card mt-6 overflow-hidden">
           <p className="border-b border-[var(--border-subtle)] px-6 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)]">
             {t('concierge.intent.matches')} · {t(intent.labelKey)}
           </p>
@@ -132,7 +132,7 @@ export const IntentSelector: React.FC = () => {
           <button
             type="button"
             onClick={() => navigateTo('/trip-builder')}
-            className="inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full bg-[var(--surface-card)] px-6 text-sm font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--accent-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            className="inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full bg-[var(--surface-card)] px-6 text-sm font-bold text-[var(--text-primary)] border border-[var(--border-subtle)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             {t('concierge.intent.customCta')}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />

@@ -66,7 +66,7 @@ export const TripHealthModal: React.FC<TripHealthModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Status Summary Banner */}
-        <div className="p-6 bg-[var(--text-primary)] border-b border-slate-200 flex items-center justify-between">
+        <div className="p-6 bg-white border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-xs ${

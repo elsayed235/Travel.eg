@@ -110,7 +110,7 @@ import { adminAccommodationRouter } from './server/api/adminAccommodationRoutes'
 import { rentalRouter, rentalBookingRouter } from './server/api/rentalRoutes';
 import { priceComparisonRouter } from './server/api/priceComparisonRoutes';
 import { initializeCmsSchema } from './server/db/sqlite/cmsSchema';
-import { seedCmsContent } from './server/db/sqlite/cmsSeed';
+import { seedCmsContent, backfillHomepageSections } from './server/db/sqlite/cmsSeed';
 import { migrateMediaAssets } from './server/db/sqlite/cmsMediaMigration';
 import { importLegacySiteSettings } from './server/services/siteInfoService';
 import { catalogBindings } from './server/services/catalogContentService';
@@ -158,6 +158,9 @@ runMigrationsAndSeed();
 dahabKnowledgeOs.bootstrapValidatedCorpus();
 initializeCmsSchema();
 seedCmsContent();
+// Reconciles an EXISTING database with the shipped homepage section list (the
+// bulk seed only runs on an empty table). See cmsSeed.backfillHomepageSections.
+backfillHomepageSections();
 migrateMediaAssets();
 importLegacySiteSettings();
 

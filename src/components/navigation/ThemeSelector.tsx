@@ -122,7 +122,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
         title={t('nav.theme', { getShortName_activeTheme_: getShortName(activeTheme) })}
         className={`group relative h-9 px-2.5 sm:px-3 rounded-full flex items-center gap-2 transition-[background-color,border-color,color,box-shadow,transform,opacity] duration-200 cursor-pointer border shadow-sm select-none ${
           isDark
-            ? 'bg-[var(--surface-container)]/90 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] text-white hover:border-[var(--border-subtle)]'
+            ? 'bg-[var(--surface-container)]/90 hover:bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-on-media)] hover:border-[var(--border-subtle)]'
             : 'bg-[var(--btn-util-bg)] hover:bg-[var(--surface-container)] border-[var(--text-primary)]/12 text-[var(--text-primary)] hover:border-[var(--text-primary)]/20'
         } ${isOpen ? 'ring-2 ring-[var(--focus-ring)]' : ''}`}
       >
@@ -179,8 +179,13 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
               isRTL ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
             } ${
               isDark
-                ? 'bg-[var(--surface-container)]/98 border-[var(--border-subtle)] text-white shadow-[0_20px_50px_rgba(0,0,0,0.85)]'
-                : 'bg-[var(--btn-util-bg)] border-[var(--text-primary)]/15 text-[var(--text-primary)] shadow-[0_20px_50px_rgba(18,36,32,0.15)]'
+                ? 'bg-[var(--surface-container)]/98 border-[var(--border-subtle)] text-[var(--text-on-media)] shadow-[0_20px_50px_rgba(0,0,0,0.85)]'
+                // Light mode used `--btn-util-bg` (a 7-8% tint), so the menu
+                // composited over the hero photograph: the same 11px label
+                // measured 4.54:1 (en) and 2.88:1 (ar) on the SAME theme,
+                // because the surface moved, not the ink. Tier 2 of the glass
+                // ladder is the system's own answer for a plate over imagery.
+                : 'bg-[var(--glass-soft-bg)] border-[var(--text-primary)]/15 text-[var(--text-primary)] shadow-[0_20px_50px_rgba(18,36,32,0.15)]'
             }`}
           >
             {/* Header: Minimal Icon Tabs */}
@@ -249,8 +254,8 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 {/* 3. Ultra High Contrast Mode (Single Sleek Pill) */}
                 {proTheme && (
                   <div className="pt-2 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)]">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400 mb-1.5 px-1">
-                      <Eye className="w-3 h-3 text-amber-400" />
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--text-accent)] mb-1.5 px-1">
+                      <Eye className="w-3 h-3 text-[var(--text-accent)]" />
                       <span>{t('nav.highContrast')}</span>
                     </div>
                     {renderCleanThemePill(proTheme, true)}
@@ -291,19 +296,19 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   onClick={toggleLargeText}
                   className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     largeText
-                      ? 'bg-teal-500/15 border-teal-500 text-[var(--text-primary)]'
+                      ? 'bg-[var(--accent-secondary)]/15 border-[var(--accent-secondary)] text-[var(--text-primary)]'
                       : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className={`p-1.5 rounded-lg ${largeText ? 'bg-teal-500 text-white' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
+                    <div className={`p-1.5 rounded-lg ${largeText ? 'bg-[var(--accent-secondary)] text-[var(--accent-secondary-ink)]' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
                       <Type className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-xs font-semibold">
                       {t('nav.largeText110')}
                     </span>
                   </div>
-                  <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${largeText ? 'bg-teal-500' : 'bg-gray-400/40'}`}>
+                  <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${largeText ? 'bg-[var(--accent-secondary)]' : 'bg-gray-400/40'}`}>
                     <div className={`w-3.5 h-3.5 rounded-full bg-[var(--surface-card)] transition-transform ${largeText ? 'translate-x-3.5' : 'translate-x-0'}`} />
                   </div>
                 </button>
@@ -314,19 +319,19 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   onClick={toggleReducedMotion}
                   className={`w-full p-2 rounded-xl border text-start flex items-center justify-between gap-3 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer ${
                     reducedMotion
-                      ? 'bg-rose-500/15 border-rose-500 text-[var(--text-primary)]'
+                      ? 'bg-[var(--accent-primary)]/15 border-[var(--accent-primary)] text-[var(--text-primary)]'
                       : 'bg-[var(--surface-container)] border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-[var(--border-subtle)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className={`p-1.5 rounded-lg ${reducedMotion ? 'bg-rose-500 text-white' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
+                    <div className={`p-1.5 rounded-lg ${reducedMotion ? 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)]' : 'bg-black/10 dark:bg-[var(--btn-util-bg)]'}`}>
                       <ZapOff className="w-3.5 h-3.5" />
                     </div>
                     <span className="text-xs font-semibold">
                       {t('nav.reduceMotion')}
                     </span>
                   </div>
-                  <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${reducedMotion ? 'bg-rose-500' : 'bg-gray-400/40'}`}>
+                  <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${reducedMotion ? 'bg-[var(--accent-primary)]' : 'bg-gray-400/40'}`}>
                     <div className={`w-3.5 h-3.5 rounded-full bg-[var(--surface-card)] transition-transform ${reducedMotion ? 'translate-x-3.5' : 'translate-x-0'}`} />
                   </div>
                 </button>
@@ -336,7 +341,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             {/* Minimalist Micro Footer */}
             <div className="pt-2 mt-2.5 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-secondary)] px-1">
               <span className="flex items-center gap-1 font-medium">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <CheckCircle2 className="w-3 h-3 text-[var(--text-accent)]" />
                 <span>WCAG AAA</span>
               </span>
               <span className="font-mono text-[11px] opacity-70">

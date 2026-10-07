@@ -35,7 +35,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
       id="final-cta-section"
       aria-label={isAr ? 'ابدأ رحلتك في دهب' : 'Start your Dahab journey'}
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="group relative py-24 sm:py-32 overflow-hidden chart-gradient-section"
+      className="group relative py-16 sm:py-20 overflow-hidden chart-gradient-section"
     >
       {/* Chart depth overlay: night ground settling into abyss-night */}
       <div className="absolute inset-0 z-0 chart-gradient-hero opacity-60" />
@@ -46,7 +46,11 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
           alt="Atmospheric sunset over the Dahab coastline and Sinai desert mountains"
           className="chart-kenburns w-full h-full object-cover object-center opacity-40 mix-blend-luminosity"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-[var(--bg-canvas)]/80 to-transparent" />
+        {/* `via` is the stop the headline and the supporting line sit on. At /80
+            the supporting copy measured 4.15:1 on a 390px viewport (lagoon-
+            breeze) where the wider text wraps onto the paler part of the
+            frame; /88 holds the reading band without flattening the sunset. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-canvas)] via-[var(--bg-canvas)]/88 to-transparent" />
       </div>
       {/* Shoreline glass divider at the top of the close */}
       <div className="absolute inset-x-0 -top-px h-px chart-gradient-hero opacity-80" />
@@ -63,19 +67,30 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
 
         {/* Headline: light display with a serif-italic turn on the second
             line. Same ink throughout — the italic carries the voice, not a
-            contrasting color. */}
+            contrasting color.
+
+            Ink is `--text-primary`, not `text-white`: the backdrop is
+            `chart-gradient-section` + a canvas-mixed gradient overlay, so on
+            the light themes it resolves to near-white and white type measured
+            1.04:1 at the headline (only a black photograph underneath could
+            have saved it, at 4.06:1). The token is white on the dark themes
+            and dark ink on the light ones. */}
         <h2
           id="final-cta-headline"
-          className="chart-heading text-4xl sm:text-6xl md:text-7xl text-white tracking-tight leading-[1.05] text-balance"
+          className="chart-heading text-4xl sm:text-6xl md:text-7xl text-[var(--text-primary)] tracking-tight leading-[1.05] text-balance"
         >
           {pick('headline', 'Ready to discover Dahab', 'جاهز تكتشف دهب')} <br className="hidden sm:inline" />
           <span className="chart-heading-accent">{pick('headlineAccent', 'your way?', 'على مزاجك؟')}</span>
         </h2>
 
         {/* Supporting text */}
+        {/* `--text-secondary`, not `--text-muted`: this line sits on the
+            photograph rather than on a solid canvas, and `--text-muted` is the
+            one tier the veiled frame cannot carry (4.15:1 at 390px in the
+            light themes). Same tier as the hero's subtitle on the same problem. */}
         <p
           id="final-cta-supporting-text"
-          className="mt-6 text-base sm:text-xl text-[var(--text-muted)] font-normal leading-relaxed max-w-xl mx-auto text-balance"
+          className="mt-6 text-base sm:text-xl text-[var(--text-secondary)] font-normal leading-relaxed max-w-xl mx-auto text-balance"
         >
           {pick('supporting', 'Start with a few simple questions and build your trip around you.', 'جاوب على كام سؤال بسيط، وإحنا نبنيلك الرحلة على مقاسك.')}
         </p>
@@ -92,17 +107,22 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onPlanTripClick, onExploreCl
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform rtl:rotate-180" />
           </button>
 
+          {/* No ink class here on purpose: `.chart-cta-secondary` already sets
+              `color: var(--text-primary)`, which is right in both modes
+              (measured 16.16:1 dark / 14.45:1 light). The `text-white` that used
+              to sit here never applied — same specificity, earlier source order
+              — and would have been a 1.05:1 trap the day the cascade changed. */}
           <button
             id="final-cta-explore-btn"
             type="button"
             onClick={onExploreClick}
-            className="chart-cta-secondary w-full sm:w-auto inline-flex items-center justify-center text-white cursor-pointer active:scale-95 transition-transform"
+            className="chart-cta-secondary w-full sm:w-auto inline-flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
           >
             <span>{pick('ctaSecondary', 'Explore Dahab', 'استكشف دهب')}</span>
           </button>
         </div>
 
-        <p className="mt-8 text-sm font-normal text-white/70 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-8 text-sm font-normal text-[var(--text-secondary)] max-w-xl mx-auto leading-relaxed">
           {pick('footnote', 'Explore without signing up. Picks come from Dahab locals.', 'الاستكشاف من غير تسجيل، والترشيحات من ناس دهب نفسها.')}
         </p>
 

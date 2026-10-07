@@ -66,16 +66,6 @@ export const AdminContent: React.FC = () => {
                 <h1 className="text-lg font-extrabold text-[var(--text-primary)]">{t('admin.contentMediaTitle')}</h1>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">{t('admin.contentMediaSubtitle')}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => showToast(t('admin.mediaUploadComing'))}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-xs font-bold cursor-pointer hover:brightness-110 transition-[filter]"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  {t('admin.uploadMedia')}
-                </button>
-              </div>
             </div>
             {/* Library */}
             <div className="flex-1 overflow-hidden">

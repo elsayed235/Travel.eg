@@ -1,0 +1,36 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#main-app-content"
+  - banner:
+    - navigation "DAHAB TRAVEL OS Header" [ref=e6]:
+      - button "DAHAB TRAVEL OS" [ref=e8] [cursor=pointer]:
+        - generic [ref=e9]: D
+        - generic [ref=e13]:
+          - generic [ref=e14]: DAHAB
+          - generic [ref=e15]: TRAVEL OS
+      - generic [ref=e16]:
+        - button "Discover" [ref=e17] [cursor=pointer]
+        - button "Stay & Taste" [ref=e24] [cursor=pointer]
+        - button "Getting Around" [ref=e31] [cursor=pointer]
+        - button "My Trip" [ref=e39] [cursor=pointer]
+        - button "Site map" [ref=e48] [cursor=pointer]
+      - generic [ref=e54]:
+        - 'button "Theme: Soft Charcoal. Open Theme Menu." [ref=e57] [cursor=pointer]'
+        - button "Search (⌘K)" [ref=e68] [cursor=pointer]
+        - button "Switch to Arabic" [ref=e72] [cursor=pointer]
+        - button "S System" [ref=e160] [cursor=pointer]:
+          - generic [ref=e161]: S
+          - generic [ref=e162]: System
+        - button "Get Started" [ref=e82] [cursor=pointer]
+  - main "Dahab Sinai Travel Platform" [ref=e87]:
+    - status [ref=e165]:
+      - generic [ref=e167]: Loading…
+  - generic [ref=e102]: Welcome back, System Administrator!
+  - generic [ref=e168]: Welcome back, System Administrator!
+  - complementary "Ahmed's 18-Stage Interactive Dahab Journey" [ref=e172]:
+    - generic [ref=e173]:
+      - button "Ahmed's 18-Stage Dahab Journey" [ref=e174] [cursor=pointer]
+      - button "Next Journey Stage" [ref=e181] [cursor=pointer]
+  - generic [ref=e104]:
+    - button "Sinai 24/7 Rapid Emergency" [ref=e105] [cursor=pointer]
+    - button "Dahab Tools" [ref=e113] [cursor=pointer]

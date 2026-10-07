@@ -89,7 +89,16 @@ export const DahabFooter: React.FC<DahabFooterProps> = ({ navigateTo, cmsSection
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-8">
         <div className="space-y-2 max-w-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1C1917] via-[var(--accent-primary)] to-[#1B9A8B] text-[#F2EDDF] flex items-center justify-center text-sm font-bold shadow-md" aria-hidden="true">
+            {/* Brand mark: a plate on the theme's own container surface with
+                accent copy ink — the same recipe as the navbar's TRAVEL OS
+                chip, so the two brand marks read as one system. It was a
+                painted gradient (#1C1917 -> accent -> #1B9A8B) whose fill the
+                ink could not track: its fixed teal stop capped the white "D"
+                at 3.47:1 (4.34 measured in Arabic) and, on a themed ramp, one
+                theme drew a fill the paired dark ink sat on at 1.93:1. The
+                surface pair a theme declares for its own canvas carries the
+                accent ink at >=4.5:1 everywhere, measured. */}
+            <div className="w-8 h-8 rounded-xl bg-[var(--surface-container)] text-[var(--text-accent-strong)] flex items-center justify-center text-sm font-bold shadow-md" aria-hidden="true">
               D
             </div>
             <span className="chart-heading font-bold tracking-wide text-[var(--text-primary)]">

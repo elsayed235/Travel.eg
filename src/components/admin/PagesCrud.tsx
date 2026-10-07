@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Plus, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Star, Trash2, Image } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
@@ -7,6 +7,7 @@ import { ClickableCard } from '../common/ClickableCard';
 import { api } from '../../services/api';
 import type { CmsContentPage, CmsPageBlockWire, CmsSeo } from '../../services/api';
 import { SeoEditor } from './SeoEditor';
+import { MediaLibrary } from './MediaLibrary';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,7 @@ export const PagesCrud: React.FC<PagesCrudProps> = ({ onBack }) => {
   });
   const [blocks, setBlocks] = useState<CmsPageBlockWire[]>([]);
   const [seoData, setSeoData] = useState<Record<string, any> | null>(null);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   const loadPages = useCallback(async () => {
     setLoading(true);
@@ -728,18 +730,52 @@ export const PagesCrud: React.FC<PagesCrudProps> = ({ onBack }) => {
           </div>
           <div>
             <label className="block text-xs font-bold text-[var(--text-secondary)] mb-1">
-              {language === 'ar' ? 'رابط الصورة الرئيسية' : 'Hero Image URL'}
+              {language === 'ar' ? 'الصورة الرئيسية' : 'Hero Image'}
             </label>
-            <input
-              type="url"
-              value={form.hero_image_url || ''}
-              onChange={e => setForm(f => ({ ...f, hero_image_url: e.target.value }))}
-              placeholder="https://..."
-              className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)]"
-            />
+            <div className="flex items-center gap-2">
+              <div className="w-16 h-10 rounded-lg overflow-hidden bg-[var(--surface-container)] border border-[var(--border-subtle)] flex-shrink-0">
+                {form.hero_image_url ? (
+                  <img src={form.hero_image_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image className="w-4 h-4 text-[var(--text-muted)]" />
+                  </div>
+                )}
+              </div>
+              <input
+                type="url"
+                value={form.hero_image_url || ''}
+                onChange={e => setForm(f => ({ ...f, hero_image_url: e.target.value }))}
+                placeholder="https://..."
+                className="flex-1 px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs focus:outline-none focus:border-[var(--accent-primary)]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowMediaPicker(true)}
+                className="px-2 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-xs font-bold cursor-pointer hover:brightness-110"
+              >
+                <Image className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Media picker modal */}
+      {showMediaPicker && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowMediaPicker(false)}>
+          <div className="w-full max-w-3xl h-[70vh] rounded-2xl bg-[var(--surface-container)] shadow-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+            <MediaLibrary
+              onSelect={(url) => {
+                setForm(f => ({ ...f, hero_image_url: url }));
+                setShowMediaPicker(false);
+              }}
+              onClose={() => setShowMediaPicker(false)}
+              selectable
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

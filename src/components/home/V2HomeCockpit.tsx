@@ -15,9 +15,18 @@ interface V2HomeCockpitProps {
  * essence bento, practical-services panels, AI widget and wayfinder —
  * with one continuous concierge experience (see concierge/ConciergeHome).
  *
- * This shell keeps only global chrome: back-to-top and the screen-reader
- * h1. Old section components remain in the tree for CMS/admin reference
- * but are no longer rendered on the public homepage.
+ * This shell keeps only global chrome: back-to-top. The old section
+ * components (stats band, landmarks bento, trip-entry cards, micro rail,
+ * stories rail, photo showcase, essence bento, practical-services panels, AI
+ * widget, wayfinder) were deleted outright rather than parked "for reference"
+ * — a component nobody renders is a second source of truth waiting to drift,
+ * and the CMS seeds only the sections this page actually draws.
+ *
+ * There is no sr-only `<h1>` here any more. It duplicated the hero's own
+ * `<h1>` ("Your Dahab trip" above "Where the desert meets the sea"), which
+ * gave every page load two top-level headings and two competing answers to
+ * "what is this page called?". The hero headline is the real page title, so
+ * it is now the only `<h1>`.
  */
 export const V2HomeCockpit: React.FC<V2HomeCockpitProps> = () => {
   const { t, isRTL } = useLanguage();
@@ -42,8 +51,6 @@ export const V2HomeCockpit: React.FC<V2HomeCockpitProps> = () => {
       className="w-full bg-[var(--bg-canvas)] pb-28 text-[var(--text-primary)] transition-colors duration-300 md:pb-20"
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <h1 className="sr-only">{t('home.yourDahabTrip')}</h1>
-
       <ConciergeHome />
 
       <button

@@ -1,17 +1,27 @@
 import type { Database as SqliteDb } from 'better-sqlite3';
 import { SqlitePersistenceAdapter } from './SqlitePersistenceAdapter';
 import { db } from '../database';
+import {
+  HERO_IMAGE_DEFAULT,
+  HERO_VEIL_DEFAULT,
+  HOME_SECTIONS,
+  HOME_SECTION_IDS
+} from '../../../src/shared/homeSections';
+import { TRANSLATIONS } from '../../../src/i18n/translations';
 
 /**
  * Seed the CMS tables with existing editorial content.
  *
- * This runs once when the CMS tables are first created. It populates:
+ * The bulk seed runs once when the CMS tables are first created. It populates:
  * - Homepage hero section
  * - 5 trip programmes
  * - 8 gallery photos
  * - 4 curated stories
  * - 5 explore categories
  *
+ * The static pages (/about, /faq, /travel-guides) are hard routes in App.tsx,
+ * so they are verified idempotently on EVERY boot: databases seeded before
+ * those slugs existed backfill them without touching any row an editor owns.
  * After seeding, administrators manage all content through the CMS dashboard.
  */
 
@@ -29,133 +39,89 @@ function id(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
 }
 
+/**
+ * Homepage section rows — the shipped list, exactly (src/shared/homeSections).
+ *
+ * The keys here used to name sections the 2026 rebuild deleted (stats,
+ * marquee, essence, ticker, season, micro, landmarks, gallery), so the
+ * dashboard was editing a homepage nobody saw. The hero's seed values are the
+ * copy the hero falls back to, so seeding changes nothing a visitor reads.
+ */
+const HERO_SEED_CONFIG = {
+  image_url: HERO_IMAGE_DEFAULT,
+  description_en: TRANSLATIONS['concierge.hero.subtitle'].en,
+  description_ar: TRANSLATIONS['concierge.hero.subtitle'].ar,
+  overlay_opacity: HERO_VEIL_DEFAULT,
+};
+
+/** Insert any missing shipped section. Never overwrites an operator's row. */
+function insertHomepageSections(c: SqliteDb): number {
+  const ins = c.prepare(`
+    INSERT OR IGNORE INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  let inserted = 0;
+  HOME_SECTIONS.forEach((spec, index) => {
+    const label = TRANSLATIONS[`cms.homeSections.${spec.id}.label`];
+    const isHero = spec.id === 'hero';
+    const heroTitle = TRANSLATIONS['concierge.hero.titleA'];
+    inserted += ins.run(
+      id('HSEC'),
+      spec.id,
+      isHero ? heroTitle.en : label.en,
+      isHero ? heroTitle.ar : label.ar,
+      1,
+      index,
+      JSON.stringify(isHero ? HERO_SEED_CONFIG : {}),
+      now()
+    ).changes;
+  });
+  return inserted;
+}
+
+/**
+ * Reconcile an EXISTING database with the shipped section list.
+ *
+ * The bulk seed runs once, on an empty table, so a database created before
+ * this list would keep the dead keys forever and never gain the rows the page
+ * reads. This runs on every boot: it inserts only what is missing, and retires
+ * rows whose section no longer exists by hiding them — they are operator
+ * content, and a key the page does not know is already unreachable.
+ */
+export function backfillHomepageSections(): void {
+  const c = getConn();
+  if (!c) return;
+  const added = insertHomepageSections(c);
+  const placeholders = HOME_SECTION_IDS.map(() => '?').join(', ');
+  const retired = c
+    .prepare(
+      `UPDATE cms_homepage_sections SET visible = 0, updated_at = ?
+       WHERE section_key NOT IN (${placeholders}) AND visible <> 0`
+    )
+    .run(now(), ...HOME_SECTION_IDS).changes;
+  if (added || retired) {
+    console.log(`[CMS] Homepage sections reconciled: ${added} added, ${retired} retired`);
+  }
+}
+
 export function seedCmsContent(): void {
   const c = getConn();
   if (!c) return;
 
-  // Only seed if tables are empty
-  const pageCount = (c.prepare('SELECT COUNT(*) as n FROM cms_pages').get() as { n: number })?.n ?? 0;
-  if (pageCount > 0) {
-    console.log('[CMS] Tables already contain data, skipping seed');
-    return;
-  }
-
-  console.log('[CMS] Seeding editorial content into CMS tables...');
   const ts = now();
+  // The bulk seed below runs once. Its marker is the homepage-sections table:
+  // cms_pages alone cannot be the marker, because the static-page backfill at
+  // the end of this function inserts page rows on its own — using it as the
+  // marker would suppress the bulk seed on a fresh database.
+  const bulkDone = (((c.prepare('SELECT COUNT(*) as n FROM cms_homepage_sections').get() as { n: number })?.n ?? 0) > 0);
+  if (!bulkDone) {
+  console.log('[CMS] Seeding editorial content into CMS tables...');
 
-  // --- Homepage Hero Section ---
-  c.prepare(`
-    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id('HSEC'), 'hero',
-    'You made it to Dahab. We’ll handle the rest.',
-    'وصلت دهب؟ سيب الباقي علينا.',
-    1, 0, JSON.stringify({
-      badge_en: 'DAHAB OS \u00b7 ACTIVE TRAVEL COMPANION',
-      badge_ar: '\u0645\u0646\u0635\u0629 \u062f\u0647\u0628 \u00b7 \u0631\u0641\u064a\u0642\u0643 \u0627\u0644\u0630\u0643\u064a \u0627\u0644\u0645\u064a\u062f\u0627\u0646\u064a',
-      subtitle_en: 'Real-time Red Sea marine radar, adaptive day planning, and curated Sinai wonder.',
-      subtitle_ar: '\u0631\u0627\u062f\u0627\u0631 \u0628\u062d\u0631\u064a \u0644\u062d\u0627\u0644\u0629 \u0627\u0644\u062c\u0648 \u0648\u0627\u0644\u0645\u0648\u062c\u060c \u062a\u0638\u0628\u064a\u0637 \u064a\u0648\u0645\u0643 \u0623\u0648\u0644 \u0628\u0623\u0648\u0644\u060c \u0648\u062a\u062c\u0627\u0631\u0628 \u062d\u0642\u064a\u0642\u064a\u0629 \u0648\u0633\u062a\u0646\u0627\u0621.',
-      cta_itinerary_en: 'Command Center',
-      cta_itinerary_ar: '\u062c\u062f\u0648\u0644 \u0631\u062d\u0644\u062a\u064a',
-      cta_whatnow_en: 'What Should I Do Now?',
-      cta_whatnow_ar: '\u0623\u0639\u0645\u0644 \u0625\u064a\u0647 \u062f\u0644\u0648\u0642\u062a\u064a\u061f',
-      cta_explore_en: 'Living Map & Spots',
-      cta_explore_ar: '\u062e\u0631\u064a\u0637\u0629 \u0627\u0644\u0623\u0645\u0627\u0643\u0646 \u0627\u0644\u062d\u064a\u0629'
-    }), ts
-  );
-
-  // --- Homepage Stats Band (depth soundings) ---
-  c.prepare(`
-    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id('HSEC'), 'stats',
-    'The coast in numbers',
-    '\u0627\u0644\u0633\u0627\u062d\u0644 \u0628\u0627\u0644\u0623\u0631\u0642\u0627\u0645',
-    1, 1, JSON.stringify({
-      items: [
-        { id: 'bluehole', value: '100', suffix: 'm+', label_en: 'The Blue Hole drop-off', label_ar: '\u0647\u0628\u0648\u0637 \u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 \u0627\u0644\u0634\u0647\u064a\u0631', accent: 'text-[var(--accent-primary)]', icon: 'anchor' },
-        { id: 'visibility', value: '30', suffix: 'm+', label_en: 'Reef visibility this season', label_ar: '\u0631\u0624\u064a\u0629 \u0627\u0644\u0634\u0639\u0627\u0628 \u0627\u0644\u0645\u0648\u0633\u0645 \u062f\u064a', accent: 'text-cyan-400', icon: 'eye' },
-        { id: 'summit', value: '2285', suffix: 'm', label_en: 'Mount Sinai summit', label_ar: '\u0642\u0645\u0629 \u062c\u0628\u0644 \u0645\u0648\u0633\u0649', accent: 'text-[var(--accent-secondary)]', icon: 'mountain' },
-        { id: 'sos', value: '24', suffix: '/7', label_en: 'Hyperbaric & SOS response', label_ar: '\u063a\u0631\u0641\u0629 \u0636\u063a\u0637 \u0648\u0646\u062c\u062f\u0629 \u0639\u0644\u0649 \u0645\u062f\u0627\u0631 \u0627\u0644\u0633\u0627\u0639\u0629', accent: 'text-rose-400', icon: 'heart' }
-      ]
-    }), ts
-  );
-
-  // --- Homepage Marquee ---
-  c.prepare(`
-    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id('HSEC'), 'marquee',
-    'Destination marquee',
-    '\u0634\u0631\u064a\u0637 \u0627\u0644\u0648\u062c\u0647\u0627\u062a',
-    1, 2, JSON.stringify({
-      items_en: 'Blue Hole — The Canyon — Three Pools — Ras Abu Galum — Lighthouse Reef — Wadi Gnai — Mount Sinai — Blue Lagoon — Eel Garden — ',
-      items_ar: '\u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 — \u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646 — \u0627\u0644\u062b\u0644\u0627\u062b \u0628\u0631\u0643 — \u0631\u0623\u0633 \u0623\u0628\u0648 \u062c\u0627\u0644\u0648\u0645 — \u0634\u0639\u0627\u0628 \u0627\u0644\u0644\u0627\u064a\u062a\u0647\u0627\u0648\u0633 — \u0648\u0627\u062f\u064a \u0642\u0646\u064a — \u062c\u0628\u0644 \u0645\u0648\u0633\u0649 — \u0627\u0644\u0628\u0644\u0648 \u0644\u0627\u062c\u0648\u0646 — \u0625\u064a\u0644 \u062c\u0627\u0631\u062f\u0646 — '
-    }), ts
-  );
-
-  // --- Homepage Essence Bento (editorial copy) ---
-  c.prepare(`
-    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id('HSEC'), 'essence',
-    'The Dahab Edit — pick your mood',
-    '\u062c\u0648 \u062f\u0647\u0628 \u062d\u0633\u0628 \u0645\u0632\u0627\u062c\u0643',
-    1, 3, JSON.stringify({
-      eyebrow: { en: 'The Dahab Edit', ar: '\u0631\u0648\u062d \u062f\u0647\u0628' },
-      title: { en: 'One coast. Five ways to feel alive', ar: '\u0633\u0627\u062d\u0644 \u0648\u0627\u062d\u062f \u00b7 \u062e\u0645\u0633 \u062d\u0627\u0644\u0627\u062a \u062a\u0639\u064a\u0634\u0647\u0627' },
-      subtitle: { en: 'Pick the mood — we open the doors', ar: '\u0627\u062e\u062a\u0627\u0631 \u0627\u0644\u0645\u0648\u062f — \u0648\u0625\u062d\u0646\u0627 \u0646\u0641\u062a\u062d \u0644\u0643 \u0627\u0644\u0623\u0628\u0648\u0627\u0628' },
-      dive: {
-        kicker: { en: '100m+ \u00b7 The Blue Hole', ar: '\u0661\u0660\u0660\u0645+ \u00b7 \u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644' },
-        title: { en: 'Book Dive & Marine Trip', ar: '\u062d\u062c\u0632 \u063a\u0637\u0633 \u0648\u0631\u062d\u0644\u0627\u062a \u0628\u062d\u0631\u064a\u0629' },
-        line: { en: 'The Blue Hole, The Canyon & guided freedive walls with vetted centers', ar: '\u0627\u0644\u0628\u0644\u0648\u0647\u0648\u0644 \u0648\u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646 \u0648\u062c\u062f\u0631\u0627\u0646 \u0627\u0644\u0641\u0631\u064a\u062f\u0627\u064a\u0641 \u0645\u0639 \u0645\u0631\u0627\u0643\u0632 \u0645\u0639\u062a\u0645\u062f\u0629' },
-        desc: { en: 'Blue Hole, The Canyon, guided freediving sessions & marine permits.', ar: '\u0627\u0644\u0628\u0644\u0648 \u0647\u0648\u0644\u060c \u0627\u0644\u0643\u0627\u0646\u064a\u0648\u0646\u060c \u0627\u0644\u063a\u0648\u0635 \u0627\u0644\u062d\u0631 \u0648\u062a\u0635\u0627\u0631\u064a\u062d \u0631\u0623\u0633 \u0623\u0628\u0648 \u062c\u0627\u0644\u0648\u0645.' }
-      },
-      food: {
-        title: { en: 'Palapa Beach Food Delivery', ar: '\u0623\u0643\u0644 \u0648\u0645\u0645\u064a\u0632\u0627\u062a \u0648\u0627\u0635\u0644\u0629 \u0644\u0644\u0634\u0627\u0637\u0626' },
-        line: { en: 'Bedouin zarb nights, fresh catch & lagoon breakfasts', ar: '\u0633\u0647\u0631\u0627\u062a \u0627\u0644\u0632\u0631\u0628 \u0627\u0644\u0628\u062f\u0648\u064a\u060c \u0635\u064a\u062f \u0637\u0627\u0632\u062c \u0648\u0641\u0637\u0627\u0631 \u0639\u0644\u0649 \u0627\u0644\u0644\u0627\u062c\u0648\u0646' }
-      },
-      explore: {
-        title: { en: 'Explore Dahab', ar: '\u0627\u0633\u062a\u0643\u0634\u0641 \u062f\u0647\u0628' },
-        line: { en: 'Canyon hikes, camel trails & Wadi Gnai boulders', ar: '\u0645\u0634\u064a \u062c\u0628\u0644\u064a\u060c \u062f\u0631\u0648\u0628 \u062c\u0645\u0627\u0644 \u0648\u0635\u062e\u0648\u0631 \u0648\u0627\u062f\u064a \u0642\u0646\u064a' }
-      },
-      stay: {
-        title: { en: 'Stay by the water', ar: '\u0628\u064a\u062a\u0643 \u0639\u0644\u0649 \u0627\u0644\u0645\u064a\u0629' },
-        line: { en: 'Seafront rooms from verified hosts', ar: '\u0623\u0648\u0627\u0636\u0639 \u0639\u0644\u0649 \u0627\u0644\u0628\u062d\u0631 \u0645\u0646 \u0645\u0636\u064a\u0641\u064a\u0646 \u0645\u0648\u062b\u0642\u064a\u0646' },
-        cta: { en: 'Browse stays', ar: '\u0634\u0648\u0641 \u0623\u0645\u0627\u0643\u0646 \u0627\u0644\u0625\u0642\u0627\u0645\u0629' }
-      },
-      help: {
-        kicker: { en: 'On call 24/7', ar: '\u0639\u0627\u0644\u062e\u0637 \u0662\u0664/\u0667' },
-        title: { en: 'Someone local, always', ar: '\u0641\u064a \u062d\u062f \u0645\u0646 \u062f\u0647\u0628 \u062f\u0627\u064a\u0645\u0627\u064b' },
-        line: { en: 'Hyperbaric chamber, SOS hotline & live concierge', ar: '\u063a\u0631\u0641\u0629 \u0627\u0644\u0636\u063a\u0637\u060c \u062e\u0637 \u0627\u0644\u0646\u062c\u062f\u0629 \u0648\u0627\u0644\u0643\u0648\u0646\u0633\u064a\u0631\u062c \u0627\u0644\u0645\u0628\u0627\u0634\u0631' },
-        cta: { en: 'Open help hub', ar: '\u0627\u0641\u062a\u062d \u0645\u0631\u0643\u0632 \u0627\u0644\u0645\u0633\u0627\u0639\u062f\u0629' }
-      }
-    }), ts
-  );
-
-  // --- Visibility-only sections (content is live/compiled; editors control show/hide) ---
-  const visSections = [
-    { key: 'ticker', en: 'Live conditions ticker', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u062d\u0627\u0644\u0629 \u0627\u0644\u062d\u064a\u0629' },
-    { key: 'season', en: 'Seasonal tide strip', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u0645\u0648\u0633\u0645' },
-    { key: 'trip_entry', en: 'Trip planning entry', ar: '\u0642\u0633\u0645 \u062a\u062e\u0637\u064a\u0637 \u0627\u0644\u0631\u062d\u0644\u0629' },
-    { key: 'stories', en: 'Curated experiences rail', ar: '\u0634\u0631\u064a\u0637 \u0627\u0644\u062a\u062c\u0627\u0631\u0628' },
-    { key: 'micro', en: 'Micro experiences', ar: '\u062a\u062c\u0627\u0631\u0628 \u0633\u064a\u0646\u0627\u0621' },
-    { key: 'landmarks', en: 'Landmarks bento', ar: '\u0645\u0639\u0627\u0644\u0645 \u0633\u064a\u0646\u0627\u0621' },
-    { key: 'gallery', en: 'Photo showcase', ar: '\u0645\u0639\u0631\u0636 \u0627\u0644\u0635\u0648\u0631' },
-    { key: 'final_cta', en: 'Final call to action', ar: '\u0627\u0644\u062e\u0627\u062a\u0645\u0629' },
-    { key: 'footer', en: 'Site footer', ar: '\u062a\u0630\u064a\u064a\u0644 \u0627\u0644\u0645\u0648\u0642\u0639' },
-  ];
-  const visIns = c.prepare(`
-    INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
-    VALUES (?, ?, ?, ?, 1, ?, '{}', ?)
-  `);
-  visSections.forEach((s, i) => {
-    visIns.run(id('HSEC'), s.key, s.en, s.ar, 4 + i, ts);
-  });
+  // --- Homepage Sections ---
+  // One row per section the homepage renders, in shipped order (see
+  // src/shared/homeSections.ts). insertHomepageSections is shared with the
+  // boot-time backfill so a fresh database and an existing one converge.
+  insertHomepageSections(c);
 
   // --- Trip Programmes ---
   const programmes = [
@@ -325,8 +291,13 @@ export function seedCmsContent(): void {
     }
     console.log(`[CMS] Seeded ${mobileItems.length} mobile navigation items`);
   }
+  } else {
+    console.log('[CMS] Tables already contain data, skipping bulk seed');
+  }
 
   // --- Static Pages (About, FAQ, Travel Guides) ---
+  // Hard routes in App.tsx: verified on every boot so databases seeded before
+  // these slugs existed heal themselves. Existing rows are never touched.
   const staticPages = [
     {
       slug: 'about-dahab',
@@ -382,6 +353,8 @@ Built with local passion by people who call Dahab home.`,
   ];
 
   for (const page of staticPages) {
+    const pageExists = c.prepare('SELECT id FROM cms_pages WHERE slug = ?').get(page.slug) as { id: string } | undefined;
+    if (pageExists) continue;
     c.prepare(`
       INSERT INTO cms_pages (id, slug, type, title_en, title_ar, subtitle_en, subtitle_ar,
         description_en, description_ar, body_en, body_ar, hero_image_url, status,
@@ -398,7 +371,10 @@ Built with local passion by people who call Dahab home.`,
 
   // Seed FAQ blocks
   const faqPage = c.prepare('SELECT id FROM cms_pages WHERE slug = ?').get('faq') as { id: string } | undefined;
-  if (faqPage) {
+  const faqHasBlocks = faqPage
+    ? ((((c.prepare("SELECT COUNT(*) as n FROM cms_blocks WHERE page_id = ? AND type = 'faq'").get(faqPage.id) as { n: number })?.n ?? 0) > 0))
+    : true;
+  if (faqPage && !faqHasBlocks) {
     c.prepare(`
       INSERT INTO cms_blocks (id, page_id, type, sort_order, visible, title_en, title_ar,
         body_en, body_ar, config, created_at, updated_at)
@@ -421,7 +397,10 @@ Built with local passion by people who call Dahab home.`,
 
   // Seed Travel Guides blocks
   const guidesPage = c.prepare('SELECT id FROM cms_pages WHERE slug = ?').get('travel-guides') as { id: string } | undefined;
-  if (guidesPage) {
+  const guidesHasBlocks = guidesPage
+    ? ((((c.prepare("SELECT COUNT(*) as n FROM cms_blocks WHERE page_id = ? AND type = 'rich_text'").get(guidesPage.id) as { n: number })?.n ?? 0) > 0))
+    : true;
+  if (guidesPage && !guidesHasBlocks) {
     c.prepare(`
       INSERT INTO cms_blocks (id, page_id, type, sort_order, visible, title_en, title_ar,
         body_en, body_ar, config, created_at, updated_at)
@@ -469,6 +448,8 @@ Built with local passion by people who call Dahab home.`,
   ];
 
   for (const cat of exploreCategories) {
+    const catExists = c.prepare('SELECT id FROM cms_pages WHERE slug = ?').get(cat.slug) as { id: string } | undefined;
+    if (catExists) continue;
     c.prepare(`
       INSERT INTO cms_pages (id, slug, type, title_en, title_ar, subtitle_en, subtitle_ar,
         description_en, description_ar, body_en, body_ar, hero_image_url, status,
@@ -513,9 +494,10 @@ Built with local passion by people who call Dahab home.`,
     { number: '03', title_en: 'Enjoy the journey', title_ar: 'استمتع بالرحلة', description_en: 'Keep your trip organized and get help when you need it.', description_ar: 'حافظ على تنظيم رحلتك واحصل على المساعدة عندما تحتاجها.', subtext_en: 'One clear itinerary in your pocket with local tips, timing cues, and seamless support.', subtext_ar: 'خط سير واضح في جيبك مع نصائح محلية وإشارات توقيت ودعم سلس.', iconName: 'MapPin', sort_order: 2 },
   ];
 
-  // Clear existing blocks for how-it-works page first
-  c.prepare('DELETE FROM cms_blocks WHERE page_id = ?').run(howItWorksPageId);
-
+  // Seed the steps only into a page that has none yet — editors own these rows
+  // afterwards, and a restart must not wipe their work.
+  const howItWorksHasBlocks = ((((c.prepare('SELECT COUNT(*) as n FROM cms_blocks WHERE page_id = ?').get(howItWorksPageId) as { n: number })?.n ?? 0) > 0));
+  if (!howItWorksHasBlocks) {
   for (const step of howItWorksSteps) {
     c.prepare(`
       INSERT INTO cms_blocks (id, page_id, type, sort_order, visible, title_en, title_ar,
@@ -528,6 +510,7 @@ Built with local passion by people who call Dahab home.`,
       JSON.stringify({ subtext_en: step.subtext_en, subtext_ar: step.subtext_ar, iconName: step.iconName, number: step.number }),
       ts, ts
     );
+  }
   }
 
   // --- Trip Preview Days (stored as blocks on a static page) ---
@@ -552,7 +535,8 @@ Built with local passion by people who call Dahab home.`,
     );
   }
 
-  c.prepare('DELETE FROM cms_blocks WHERE page_id = ?').run(tripPreviewPageId);
+  // Same ownership rule as how-it-works above: seed days only once.
+  const tripPreviewSeedNeeded = ((((c.prepare('SELECT COUNT(*) as n FROM cms_blocks WHERE page_id = ?').get(tripPreviewPageId) as { n: number })?.n ?? 0) === 0));
 
   const tripPreviewDays = [
     { day: 1, title_en: 'Arrival · Hotel · Dinner', title_ar: 'الوصول · الفندق · العشاء', subtitle_en: 'Check into boutique seafront eco-lodge, coastal stroll along the promenade, and fresh Bedouin fish dinner by the water.', subtitle_ar: 'تسجيل الوصول في فندق بيتيك على الشاطئ، نزهة ساحلية على الممشى، وعشاء سمك بدوي طازج بجانب الماء.', highlights_en: ['Scenic transfer from Sharm/Tabah', 'Promenade sunset stroll', 'Authentic catch of the day by torchlight'], highlights_ar: ['نقل سياحي من شرم/طابا', 'نزولة عند الغروب على الممشى', 'صيد اليوم الطازج بالشمس'], tag: 'Arrival & Settle In', tag_ar: 'الوصول والاستقرار' },
@@ -563,6 +547,7 @@ Built with local passion by people who call Dahab home.`,
   ];
 
   for (const day of tripPreviewDays) {
+    if (!tripPreviewSeedNeeded) continue;
     c.prepare(`
       INSERT INTO cms_blocks (id, page_id, type, sort_order, visible, title_en, title_ar,
         body_en, body_ar, config, created_at, updated_at)
@@ -604,5 +589,5 @@ Built with local passion by people who call Dahab home.`,
   }
 
   const finalCount = (c.prepare('SELECT COUNT(*) as n FROM cms_pages').get() as { n: number })?.n ?? 0;
-  console.log(`[CMS] Seeded ${finalCount} editorial content items into CMS tables`);
+  console.log(`[CMS] cms_pages now holds ${finalCount} items (bulk seed ${bulkDone ? 'skipped' : 'complete'}; static slugs verified)`);
 }

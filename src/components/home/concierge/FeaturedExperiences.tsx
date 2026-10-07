@@ -36,15 +36,15 @@ export const FeaturedExperiences: React.FC = () => {
         id="concierge-experiences"
         aria-label={t('concierge.experiences.title')}
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="w-full border-y border-[var(--border-subtle)] bg-[var(--surface-card)]"
+        className="dahab-band"
       >
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="dahab-shell py-12 sm:py-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">
+            <div className="max-w-xl lg:max-w-2xl">
+              <p className="dahab-eyebrow text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-accent)]">
                 {t('concierge.experiences.eyebrow')}
               </p>
-              <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight text-[var(--text-primary)] text-balance sm:text-5xl">
+              <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight text-[var(--text-primary)] text-balance sm:text-5xl lg:text-[3.5rem]">
                 {t('concierge.experiences.title')}
               </h2>
             </div>
@@ -55,7 +55,7 @@ export const FeaturedExperiences: React.FC = () => {
 
           <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-12">
             {/* Featured — spans 7 cols, tall image-led composition */}
-            <article className="group relative min-h-[440px] overflow-hidden rounded-3xl border border-[var(--border-subtle)] sm:min-h-[520px] lg:col-span-7">
+            <article className="dahab-card group relative min-h-[440px] overflow-hidden sm:min-h-[520px] lg:col-span-7">
               <img
                 src={PHOTOS[featured.id] ?? '/images/attractions/blue-hole.jpg'}
                 alt={pick(featured.name, language)}
@@ -65,20 +65,20 @@ export const FeaturedExperiences: React.FC = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" aria-hidden="true" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                <p className="inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 text-[11px] font-bold text-[var(--text-on-media)] backdrop-blur-sm">
                   <Clock className="h-3 w-3" aria-hidden="true" />
                   {pick(featured.duration, language)} · {featured.priceEgp}
                 </p>
-                <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-white text-balance sm:text-4xl">
+                <h3 className="mt-3 font-display text-3xl font-semibold leading-tight text-[var(--text-on-media)] text-balance sm:text-4xl">
                   {pick(featured.name, language)}
                 </h3>
-                <p className="mt-2 text-sm text-white/70">
+                <p className="mt-2 text-sm text-[var(--text-on-media)]/80">
                   {pick(featured.skill, language)} · {pick(featured.modality, language)}
                 </p>
                 <button
                   type="button"
                   onClick={() => navigateTo('/trip-builder')}
-                  className="mt-5 inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full bg-[var(--accent-primary)] px-6 text-sm font-bold text-[var(--accent-primary-ink)] transition-all duration-200 hover:brightness-110 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="mt-5 inline-flex min-h-[48px] cursor-pointer items-center gap-2 rounded-full bg-[var(--accent-primary)] px-6 text-sm font-bold text-[var(--accent-primary-ink)] transition-all duration-200 hover:brightness-110 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--text-on-media)]"
                 >
                   {t('concierge.experiences.book')}
                   <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
@@ -93,7 +93,7 @@ export const FeaturedExperiences: React.FC = () => {
                   key={exp.id}
                   type="button"
                   onClick={() => navigateTo('/explore')}
-                  className="group flex flex-1 cursor-pointer items-stretch gap-4 rounded-3xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-3 text-start transition-colors duration-200 hover:border-[var(--accent-primary)]/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="dahab-card dahab-card--inset group flex flex-1 cursor-pointer items-stretch gap-4 p-3 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <span className="relative block w-32 shrink-0 overflow-hidden rounded-2xl sm:w-40">
                     <img
@@ -106,7 +106,7 @@ export const FeaturedExperiences: React.FC = () => {
                     />
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col justify-center py-2 pe-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)]">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-accent)]">
                       {pick(exp.duration, language)} · {exp.priceEgp}
                     </span>
                     <span className="mt-1 font-display text-xl font-semibold leading-snug text-[var(--text-primary)]">
@@ -126,7 +126,7 @@ export const FeaturedExperiences: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigateTo('/explore')}
-                className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-primary)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--accent-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[var(--border-subtle)] text-sm font-bold text-[var(--text-primary)] transition-colors hover:border-[var(--accent-primary)]/50 hover:text-[var(--text-accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 {t('concierge.experiences.viewAll')}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />

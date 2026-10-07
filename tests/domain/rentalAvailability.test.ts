@@ -16,6 +16,7 @@ const future = (offsetDays: number): string => {
   d.setDate(d.getDate() + offsetDays);
   return d.toLocaleDateString('sv-SE'); // YYYY-MM-DD in local time
 };
+const past = (offsetDays: number): string => future(-offsetDays);
 
 describe('rental availability engine', () => {
   beforeEach(() => {
@@ -247,7 +248,7 @@ describe('rental booking window validation', () => {
     expect(() =>
       rentalService.checkAvailability({
         listingId: listing.id,
-        startDate: '2026-09-01',
+        startDate: past(1),
         endDate: future(2),
         quantity: 1
       })
@@ -288,8 +289,8 @@ describe('rental booking window validation', () => {
         travelerName: 'Test',
         travelerPhone: '+20000000000',
         travelerEmail: 't@example.com',
-        startDate: '2026-09-01',
-        endDate: '2026-09-03',
+        startDate: past(1),
+        endDate: past(1),
         quantity: 1,
         idempotencyKey: nextIdempotencyKey()
       })

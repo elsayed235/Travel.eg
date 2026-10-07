@@ -50,10 +50,25 @@ export function writeCache(key: string, data: unknown): void {
  * Run `fetcher`, sharing the in-flight promise with every caller that asks
  * for the same key before it settles. The fetcher runs exactly once for N
  * concurrent callers of the same key.
+ *
+ * Abort-aware: when the shared flight rejects with an AbortError, a late
+ * joiner does NOT inherit the cancellation — it starts a fresh flight bound
+ * to its own signal. Without this, React StrictMode's mount/unmount/remount
+ * poisons the second mount: it dedupes onto the first mount's signal-bound
+ * fetch, the first cleanup aborts it, and the second mount renders its
+ * fallback forever (this is what kept /about and /faq on "Page Not Found"
+ * in dev while the API served 200).
  */
 export function dedupe<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   const existing = inFlight.get(key);
-  if (existing) return existing as Promise<T>;
+  if (existing) {
+    return (existing as Promise<T>).catch((err: any) => {
+      if (err?.name !== 'AbortError') throw err;
+      const current = inFlight.get(key);
+      if (current && current !== existing) return current as Promise<T>;
+      return dedupe(key, fetcher);
+    });
+  }
   const promise = fetcher().finally(() => {
     inFlight.delete(key);
   });

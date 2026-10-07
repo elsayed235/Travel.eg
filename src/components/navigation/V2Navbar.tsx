@@ -380,7 +380,7 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                       backgroundSize: '200% 200%'
                     }}
                   />
-                  <span className="relative z-10 font-black text-xs text-white leading-none tracking-tighter">
+                  <span className="relative z-10 font-black text-xs text-[var(--text-on-media)] leading-none tracking-tighter">
                     D
                   </span>
                 </div>
@@ -391,7 +391,15 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                     <span className="font-black text-sm text-[var(--text-primary)]">
                       DAHAB
                     </span>
-                    <span className="hidden sm:inline text-[10px] font-bold font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded-md bg-[var(--surface-container)] text-[var(--accent-primary)] border border-[var(--border-subtle)]">
+                    {/* 10px bold needs 4.5:1; raw `--accent-primary` on this
+                        chip measured 4.18:1 (lagoon-breeze) / 4.28:1
+                        (editorial-sand). `--text-accent` is the theme's own
+                        accent pulled toward its canvas ink, but on a chip this
+                        small it measured 4.21:1 (lagoon-breeze) at the real
+                        1514px desktop width — the earlier 5.2:1 was read at
+                        938px. Small accent copy takes the strong variant: same
+                        hue, contrast moved the safe way in every theme. */}
+                    <span className="hidden sm:inline text-[10px] font-bold font-['JetBrains_Mono',monospace] px-1.5 py-0.5 rounded-md bg-[var(--surface-container)] text-[var(--text-accent-strong)] border border-[var(--border-subtle)]">
                       TRAVEL OS
                     </span>
                   </div>
@@ -534,8 +542,14 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                     title={`Signed in as ${signedInName || 'Traveler'}`}
                     className="h-8 pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer border shadow-xs bg-[var(--btn-util-bg)] hover:bg-[var(--btn-util-hover)] border-[var(--border-subtle)] text-[var(--text-primary)]"
                   >
-                    {/* Avatar circle */}
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-[10px] font-bold text-white">
+                    {/* Avatar circle. Ink is `--accent-primary-ink`, the same
+                        "foreground for anything sitting ON the accents" the
+                        filled CTAs and the selected intent pill use: white on
+                        this gradient measured 2.56:1 on the dark themes
+                        (brass) and 1.31:1 on high-contrast-pro (cyan->yellow),
+                        against 4.5:1 needed at 10px bold. The pair passes in
+                        every theme because the theme owns both sides of it. */}
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-[10px] font-bold text-[var(--accent-primary-ink)]">
                       {signedInInitial || <User className="w-3 h-3" />}
                     </div>
                     <span className="max-w-[70px] truncate text-[12px] font-bold hidden sm:inline">
@@ -561,7 +575,9 @@ export const V2Navbar: React.FC<V2NavbarProps> = ({ onOpenSearch, onOpenQuickBoo
                         {/* Profile header */}
                         <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-sm font-bold text-white shadow-md">
+                            {/* Same gradient, same problem as the bar avatar
+                                above — same fix. */}
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-primary)] flex items-center justify-center text-sm font-bold text-[var(--accent-primary-ink)] shadow-md">
                               {signedInInitial || <User className="w-5 h-5" />}
                             </div>
                             <div className="min-w-0 flex-1">

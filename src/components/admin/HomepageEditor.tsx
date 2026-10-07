@@ -1,25 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Home } from 'lucide-react';
+import { Home, Image as ImageIcon, ChevronDown, ChevronUp, Eye, EyeOff, Pencil, Save, X, Upload, Zap, MapPin, BookOpen, Star, Megaphone, Layout, Compass, Anchor } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useUI } from '../../context/UIContext';
 import { DahabEmptyState } from '../common/DahabEmptyState';
+import { MediaLibrary } from './MediaLibrary';
 import { api } from '../../services/api';
 import type { CmsHomepageSection } from '../../services/api';
+import { HERO_VEIL_DEFAULT, HOME_SECTIONS, type HomeSectionId } from '../../shared/homeSections';
 
 interface HomepageEditorProps {
   onBack?: () => void;
 }
 
-const KNOWN_SECTIONS = [
-  { key: 'hero', label_en: 'Hero Banner', label_ar: 'الشريط العلوي', default_title_en: 'Welcome to Dahab', default_title_ar: 'مرحباً بكم في دهب' },
-  { key: 'featured_programs', label_en: 'Featured Programs', label_ar: 'البرامج المميزة', default_title_en: 'Featured Programs', default_title_ar: 'البرامج المميزة' },
-  { key: 'featured_gallery', label_en: 'Gallery Highlights', label_ar: 'أبرز المعرض', default_title_en: 'Gallery Highlights', default_title_ar: 'أبرز المعرض' },
-  { key: 'featured_stories', label_en: 'Dahab Stories', label_ar: 'قصص دهب', default_title_en: 'Dahab Stories', default_title_ar: 'قصص دهب' },
-  { key: 'call_to_action', label_en: 'Call to Action', label_ar: 'الدعوة لاتخاذ إجراء', default_title_en: 'Book Your Adventure', default_title_ar: 'احجز مغامرتك' },
-  { key: 'services_preview', label_en: 'Services Preview', label_ar: 'معاينة الخدمات', default_title_en: 'What We Offer', default_title_ar: 'ماذا نقدم' },
-  { key: 'testimonials', label_en: 'Testimonials', label_ar: 'التقييمات', default_title_en: 'What Travelers Say', default_title_ar: 'ماذا يقول المسافرون' },
-  { key: 'partners', label_en: 'Partners', label_ar: 'الشركاء', default_title_en: 'Our Partners', default_title_ar: 'شركاؤنا' },
-];
+/**
+ * Icon per section. A Record over the shared ids, so a section added to
+ * src/shared/homeSections.ts cannot reach this panel iconless — and this panel
+ * can no longer name a section the homepage does not render (it used to list
+ * thirteen, most of them deleted).
+ */
+const SECTION_ICONS: Record<HomeSectionId, React.ReactNode> = {
+  hero: <Home className="w-4 h-4" />,
+  next_step: <Zap className="w-4 h-4" />,
+  services: <Compass className="w-4 h-4" />,
+  experiences: <Star className="w-4 h-4" />,
+  intent: <Layout className="w-4 h-4" />,
+  itineraries: <MapPin className="w-4 h-4" />,
+  stories: <BookOpen className="w-4 h-4" />,
+  final_cta: <Megaphone className="w-4 h-4" />,
+  footer: <Anchor className="w-4 h-4" />
+};
+
+const specOf = (sectionKey: string) => HOME_SECTIONS.find(s => s.id === sectionKey);
 
 export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
   const { t, language } = useLanguage();
@@ -27,21 +38,21 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
   const [sections, setSections] = useState<CmsHomepageSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<CmsHomepageSection>>({
-    title_en: '',
-    title_ar: '',
-    visible: 1,
-    sort_order: 0,
-    config: {},
-  });
+  const [editForm, setEditForm] = useState<Partial<CmsHomepageSection>>({});
+  const [saving, setSaving] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<string>('');
 
   const loadSections = useCallback(async () => {
     setLoading(true);
     try {
       const json = await api.getCmsHomepageAdmin();
-      setSections(json.sections || []);
+      // Only sections the homepage actually renders. A row for a key nobody
+      // draws (this table's own history) is not editable here: the panel used
+      // to list thirteen of them, which is why it looked alive while editing
+      // a page that no longer existed.
+      setSections((json.sections || []).filter(s => specOf(s.section_key)));
       setError(null);
     } catch (err: any) {
       setError(err?.message || t('cms.loadFailed'));
@@ -61,30 +72,33 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
       title_ar: section.title_ar,
       visible: section.visible,
       sort_order: section.sort_order,
-      config: section.config || {},
+      config: { ...(section.config || {}) },
     });
   };
 
   const cancelEdit = () => {
     setEditingKey(null);
-    setEditForm({
-      title_en: '',
-      title_ar: '',
-      visible: 1,
-      sort_order: 0,
-      config: {},
-    });
+    setEditForm({});
+  };
+
+  const updateConfig = (key: string, value: any) => {
+    setEditForm(f => ({
+      ...f,
+      config: { ...(f.config || {}), [key]: value },
+    }));
   };
 
   const handleSave = async () => {
     if (!editingKey) return;
-    if (!editForm.title_en && !editForm.title_ar) {
-      showToast(t('cms.titleRequired'));
-      return;
-    }
     setSaving(true);
     try {
-      const json = await api.updateCmsHomepage(editingKey, editForm);
+      const json = await api.updateCmsHomepage(editingKey, {
+        title_en: editForm.title_en,
+        title_ar: editForm.title_ar,
+        visible: editForm.visible,
+        sort_order: editForm.sort_order,
+        config: editForm.config,
+      });
       setSections(prev => prev.map(s => s.section_key === editingKey ? json.section : s));
       showToast(t('cms.sectionSaved'));
       cancelEdit();
@@ -95,18 +109,34 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
     }
   };
 
-  const getSectionLabel = (key: string) => {
-    const known = KNOWN_SECTIONS.find(s => s.key === key);
-    return known ? (language === 'ar' ? known.label_ar : known.label_en) : key;
+  const openMediaPicker = (target: string) => {
+    setMediaPickerTarget(target);
+    setShowMediaPicker(true);
   };
 
-  const getSectionDefaultTitle = (key: string) => {
-    const known = KNOWN_SECTIONS.find(s => s.key === key);
-    return known ? (language === 'ar' ? known.default_title_ar : known.default_title_en) : '';
+  const handleMediaSelect = (url: string) => {
+    updateConfig(mediaPickerTarget, url);
+    setShowMediaPicker(false);
+    setMediaPickerTarget('');
   };
 
-  // Group sections by visibility
-  const visibleSections = sections.filter(s => s.visible === 1);
+  const moveSection = async (key: string, dir: -1 | 1) => {
+    const idx = sections.findIndex(s => s.section_key === key);
+    if (idx < 0) return;
+    const newSections = [...sections];
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= newSections.length) return;
+    [newSections[idx], newSections[swapIdx]] = [newSections[swapIdx], newSections[idx]];
+    // Update sort orders
+    const updated = newSections.map((s, i) => ({ ...s, sort_order: i }));
+    setSections(updated);
+    // Persist each changed section
+    for (const s of updated) {
+      try { await api.updateCmsHomepage(s.section_key, { sort_order: s.sort_order }); } catch {}
+    }
+  };
+
+  const visibleSections = sections.filter(s => s.visible === 1).sort((a, b) => a.sort_order - b.sort_order);
   const hiddenSections = sections.filter(s => s.visible !== 1);
 
   return (
@@ -114,18 +144,22 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-[var(--border-subtle)] bg-[var(--surface-container)]">
         <div>
-          <h1 className="text-lg font-extrabold text-[var(--text-primary)]">{t('cms.homepageTitle')}</h1>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">{t('cms.homepageSubtitle')}</p>
+          <h1 className="text-lg font-extrabold text-[var(--text-primary)]">
+            {language === 'ar' ? 'تخصيص الصفحة الرئيسية' : 'Homepage Sections'}
+          </h1>
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            {language === 'ar' ? 'تحكم في كل قسم بالصور والأيقونات والنصوص' : 'Control each section with images, icons & text'}
+          </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <span className="text-xs text-[var(--text-muted)]">
-            {visibleSections.length} {language === 'ar' ? 'مرئي' : 'visible'} · {hiddenSections.length} {language === 'ar' ? 'مخفي' : 'hidden'}
+            {visibleSections.length} {language === 'ar' ? 'مرئي' : 'visible'}
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-4 space-y-4">
+      <div className="flex-1 overflow-auto p-4 space-y-3">
         {loading && (
           <div className="flex items-center justify-center h-40">
             <span className="w-5 h-5 rounded-full border-2 border-[var(--accent-primary)] border-t-transparent animate-spin" />
@@ -134,168 +168,276 @@ export const HomepageEditor: React.FC<HomepageEditorProps> = ({ onBack }) => {
         {error && !loading && (
           <DahabEmptyState title={error} iconName="alert-triangle" motifName="wave-divider" />
         )}
-        {!loading && !error && sections.length === 0 && (
-          <DahabEmptyState
-            title={t('cms.noSectionsFound')}
-            description={t('cms.noSectionsDescription')}
-            iconName="home"
-            motifName="reef-art"
-          />
-        )}
 
-        {/* Visible sections */}
-        {!loading && !error && visibleSections.length > 0 && (
-          <div className="space-y-2">
-            <h2 className="text-xs font-extrabold text-[var(--text-muted)] uppercase tracking-wider">
-              {language === 'ar' ? 'الأقسام المرئية' : 'Visible Sections'}
-            </h2>
-            {visibleSections.map(section => (
-              <div
-                key={section.id}
-                className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4 text-[var(--accent-primary)]" />
-                    <span className="text-sm font-extrabold text-[var(--text-primary)]">
-                      {getSectionLabel(section.section_key)}
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                      {t('cms.visible')}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-[var(--text-muted)]">#{section.sort_order}</span>
-                    <button
-                      type="button"
-                      onClick={() => startEdit(section)}
-                      className="px-2.5 py-1 rounded-lg bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-xs font-bold cursor-pointer hover:brightness-110 transition-colors"
-                    >
-                      {t('cms.edit')}
-                    </button>
-                  </div>
+        {/* Section cards */}
+        {!loading && !error && visibleSections.map((section, idx) => {
+          const spec = specOf(section.section_key);
+          if (!spec) return null;
+          const isEditing = editingKey === section.section_key;
+          const cfg = isEditing ? (editForm.config || {}) : (section.config || {});
+          const imageUrl = cfg.image_url || cfg.hero_image || cfg.background_image || '';
+
+          return (
+            <div
+              key={section.id}
+              className={`rounded-xl border bg-[var(--surface-card)] overflow-hidden transition-all ${
+                isEditing
+                  ? 'border-[var(--accent-primary)] shadow-lg shadow-[var(--accent-primary)]/10'
+                  : 'border-[var(--border-subtle)] hover:border-[var(--accent-primary)]/30'
+              }`}
+            >
+              {/* Card header */}
+              <div className="flex items-center gap-3 p-3">
+                <div className="flex flex-col gap-0.5">
+                  <button type="button" onClick={() => moveSection(section.section_key, -1)} disabled={idx === 0} className="p-0.5 hover:bg-[var(--surface-container)] rounded disabled:opacity-20">
+                    <ChevronUp className="w-3 h-3 text-[var(--text-muted)]" />
+                  </button>
+                  <button type="button" onClick={() => moveSection(section.section_key, 1)} disabled={idx === visibleSections.length - 1} className="p-0.5 hover:bg-[var(--surface-container)] rounded disabled:opacity-20">
+                    <ChevronDown className="w-3 h-3 text-[var(--text-muted)]" />
+                  </button>
                 </div>
-                {editingKey === section.section_key && (
-                  <div className="mt-3 pt-3 border-t border-[var(--border-subtle)] space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
-                          {language === 'ar' ? 'العنوان (EN)' : 'Title (English)'}
-                        </label>
-                        <input
-                          type="text"
-                          value={editForm.title_en || ''}
-                          onChange={e => setEditForm(f => ({ ...f, title_en: e.target.value }))}
-                          placeholder={getSectionDefaultTitle(section.section_key)}
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)]"
-                        />
+
+                {/* Image preview */}
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--surface-container)] flex-shrink-0">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[var(--accent-primary)]">
+                      {SECTION_ICONS[spec.id]}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--accent-primary)]">
+                      {SECTION_ICONS[spec.id]}
+                    </span>
+                    <span className="text-sm font-extrabold text-[var(--text-primary)] truncate">
+                      {t(`cms.homeSections.${section.section_key}.label`)}
+                    </span>
+                  </div>
+                  {/* `||` binds tighter than `?:`, so the parenthesis below is load-bearing:
+                      without it the condition reads "has a title OR the UI is Arabic", which
+                      shows the untitled placeholder on exactly the rows that HAVE copy. */}
+                  <p className="text-[11px] text-[var(--text-muted)] truncate">
+                    {section.title_en || section.title_ar || (language === 'ar' ? 'بدون عنوان' : 'No title')}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-[var(--text-muted)]">#{section.sort_order}</span>
+                  <button
+                    type="button"
+                    onClick={() => isEditing ? cancelEdit() : startEdit(section)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
+                      isEditing
+                        ? 'bg-[var(--surface-container)] text-[var(--text-secondary)] border border-[var(--border-subtle)]'
+                        : 'bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] hover:brightness-110'
+                    }`}
+                  >
+                    {isEditing ? <X className="w-3 h-3" /> : <Pencil className="w-3 h-3" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Expanded editor */}
+              {isEditing && (
+                <div className="border-t border-[var(--border-subtle)] p-4 space-y-4 bg-[var(--surface-container)]/50">
+                  {/* Image */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1.5 uppercase tracking-wider">
+                      {language === 'ar' ? 'صورة القسم' : 'Section Image'}
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <div className="w-24 h-16 rounded-lg overflow-hidden bg-[var(--surface-card)] border border-[var(--border-subtle)] flex-shrink-0">
+                        {cfg.image_url ? (
+                          <img src={cfg.image_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-6 h-6 text-[var(--text-muted)]" />
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
-                          {language === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}
-                        </label>
+                      <div className="flex-1 space-y-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker('image_url')}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] text-[var(--accent-primary-ink)] text-xs font-bold cursor-pointer hover:brightness-110"
+                        >
+                          <Upload className="w-3 h-3" />
+                          {language === 'ar' ? 'اختر من المكتبة' : 'Choose from Library'}
+                        </button>
                         <input
                           type="text"
-                          value={editForm.title_ar || ''}
-                          onChange={e => setEditForm(f => ({ ...f, title_ar: e.target.value }))}
-                          placeholder={getSectionDefaultTitle(section.section_key)}
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-container)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)] dir=rtl"
+                          value={cfg.image_url || ''}
+                          onChange={e => updateConfig('image_url', e.target.value)}
+                          placeholder="https://... or /api/media/..."
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs focus:outline-none focus:border-[var(--accent-primary)]"
                         />
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={editForm.visible === 1}
-                          onChange={e => setEditForm(f => ({ ...f, visible: e.target.checked ? 1 : 0 }))}
-                          className="w-3.5 h-3.5 rounded border-[var(--border-subtle)] text-[var(--accent-primary)]"
-                        />
-                        <span className="text-xs text-[var(--text-muted)]">{t('cms.visible')}</span>
+                  </div>
+
+                  {/* Titles */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
+                        {language === 'ar' ? 'العنوان (EN)' : 'Title (English)'}
                       </label>
+                      <input
+                        type="text"
+                        value={editForm.title_en || ''}
+                        onChange={e => setEditForm(f => ({ ...f, title_en: e.target.value }))}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
+                        {language === 'ar' ? 'العنوان (AR)' : 'Title (Arabic)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editForm.title_ar || ''}
+                        onChange={e => setEditForm(f => ({ ...f, title_ar: e.target.value }))}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)]"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Descriptions */}
+                  {(spec.fields.includes('description_en') || spec.fields.includes('description_ar')) && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
+                          {language === 'ar' ? 'الوصف (EN)' : 'Description (EN)'}
+                        </label>
+                        <textarea
+                          value={cfg.description_en || ''}
+                          onChange={e => updateConfig('description_en', e.target.value)}
+                          rows={3}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)] resize-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[var(--text-secondary)] mb-1">
+                          {language === 'ar' ? 'الوصف (AR)' : 'Description (AR)'}
+                        </label>
+                        <textarea
+                          value={cfg.description_ar || ''}
+                          onChange={e => updateConfig('description_ar', e.target.value)}
+                          rows={3}
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-sm focus:outline-none focus:border-[var(--accent-primary)] resize-none"
+                          dir="rtl"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* No CTA fields: the sections this panel edits take their
+                      button copy from translations, so a CTA input here would
+                      write a value nothing reads. */}
+
+                  {/* Overlay opacity (hero only) */}
+                  {section.section_key === 'hero' && (
+                    <div className="flex items-center gap-3">
+                      <label className="text-[10px] font-bold text-[var(--text-secondary)]">
+                        {language === 'ar' ? 'شفافية الطبقات' : 'Overlay Opacity'}
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={cfg.overlay_opacity ?? HERO_VEIL_DEFAULT}
+                        onChange={e => updateConfig('overlay_opacity', parseInt(e.target.value))}
+                        className="flex-1"
+                      />
+                      <span className="text-xs text-[var(--text-muted)] w-8 text-right">{cfg.overlay_opacity ?? HERO_VEIL_DEFAULT}%</span>
+                    </div>
+                  )}
+
+                  {/* Visibility + sort */}
+                  <div className="flex items-center gap-4 pt-2 border-t border-[var(--border-subtle)]">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editForm.visible === 1}
+                        onChange={e => setEditForm(f => ({ ...f, visible: e.target.checked ? 1 : 0 }))}
+                        className="w-4 h-4 rounded border-[var(--border-subtle)] text-[var(--accent-primary)]"
+                      />
+                      <span className="text-xs font-bold text-[var(--text-secondary)]">
+                        {editForm.visible === 1 ? <><Eye className="w-3 h-3 inline" /> {language === 'ar' ? 'مرئي' : 'Visible'}</> : <><EyeOff className="w-3 h-3 inline" /> {language === 'ar' ? 'مخفي' : 'Hidden'}</>}
+                      </span>
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-[10px] font-bold text-[var(--text-secondary)]">{language === 'ar' ? 'الترتيب' : 'Order'}</label>
                       <input
                         type="number"
                         value={editForm.sort_order || 0}
                         onChange={e => setEditForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 0 }))}
-                        className="w-20 px-2 py-1 rounded bg-[var(--surface-container)] border border-[var(--border-subtle)] text-xs focus:outline-none focus:border-[var(--accent-primary)]"
+                        className="w-16 px-2 py-1 rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-center focus:outline-none focus:border-[var(--accent-primary)]"
                       />
-                      <span className="text-[10px] text-[var(--text-muted)]">{t('cms.sortOrder')}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold cursor-pointer hover:brightness-110 disabled:opacity-50"
-                      >
-                        {saving ? t('cms.saving') : t('cms.save')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEdit}
-                        className="px-3 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs font-bold cursor-pointer hover:bg-[var(--surface-container)]"
-                      >
-                        {t('cms.cancel')}
-                      </button>
-                    </div>
+                    <div className="flex-1" />
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold cursor-pointer hover:brightness-110 disabled:opacity-50"
+                    >
+                      {saving ? <span className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin" /> : <Save className="w-3 h-3" />}
+                      {saving ? t('cms.saving') : t('cms.save')}
+                    </button>
                   </div>
-                )}
-                <p className="text-xs text-[var(--text-secondary)] mt-2">
-                  {language === 'ar'
-                    ? `${section.title_ar || '—'} · ${section.title_en || '—'}`
-                    : `${section.title_en || '—'} · ${section.title_ar || '—'}`}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {/* Hidden sections */}
         {!loading && !error && hiddenSections.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 mt-6">
             <h2 className="text-xs font-extrabold text-[var(--text-muted)] uppercase tracking-wider">
               {language === 'ar' ? 'الأقسام المخفية' : 'Hidden Sections'}
             </h2>
-            {hiddenSections.map(section => (
+            {hiddenSections.map(section => {
+              const spec = specOf(section.section_key);
+              if (!spec) return null;
+              return (
               <div
                 key={section.id}
-                className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface-container)] p-4 opacity-70"
+                className="rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface-container)] p-3 opacity-60 flex items-center gap-3"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4 text-[var(--text-muted)]" />
-                    <span className="text-sm font-bold text-[var(--text-secondary)]">
-                      {getSectionLabel(section.section_key)}
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">
-                      {t('cms.hidden')}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => startEdit(section)}
-                    className="px-2.5 py-1 rounded-lg bg-slate-500 text-white text-xs font-bold cursor-pointer hover:brightness-110 transition-colors"
-                  >
-                    {t('cms.edit')}
-                  </button>
-                </div>
+                <span className="text-[var(--text-muted)]">
+                  {SECTION_ICONS[spec.id]}
+                </span>
+                <span className="text-sm font-bold text-[var(--text-secondary)] flex-1">
+                  {t(`cms.homeSections.${section.section_key}.label`)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => startEdit(section)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-500 text-white text-xs font-bold cursor-pointer hover:brightness-110"
+                >
+                  {language === 'ar' ? 'تفعيل' : 'Enable'}
+                </button>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Hero specific */}
-        {!loading && !error && (
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-gradient-to-r from-[var(--accent-primary)]/5 to-[var(--accent-secondary)]/5 p-4">
-            <h2 className="text-xs font-extrabold text-[var(--text-primary)] uppercase tracking-wider mb-3">
-              {t('cms.heroSection')}
-            </h2>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {t('cms.heroDescription')}
-            </p>
+              );
+            })}
           </div>
         )}
       </div>
+
+      {/* Media picker modal */}
+      {showMediaPicker && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowMediaPicker(false)}>
+          <div className="w-full max-w-3xl h-[70vh] rounded-2xl bg-[var(--surface-container)] shadow-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+            <MediaLibrary onSelect={handleMediaSelect} onClose={() => setShowMediaPicker(false)} selectable />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

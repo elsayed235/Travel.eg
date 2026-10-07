@@ -396,7 +396,7 @@ export const MarketIntelligenceView: React.FC = () => {
     <div
       id="market-intelligence-view"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-[var(--text-primary)] text-[var(--text-primary)] pb-24"
+      className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] pb-24"
     >
       {/* 1. Header Cockpit & Executive Summary */}
       <header className="bg-[var(--surface-container)] border-b border-[var(--border-subtle)] px-4 sm:px-6 lg:px-8 pt-8 pb-6">

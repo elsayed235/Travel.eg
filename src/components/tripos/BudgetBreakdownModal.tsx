@@ -66,7 +66,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
         </div>
 
         {/* Summary Metric Cards */}
-        <div className="p-6 bg-[var(--text-primary)] border-b border-slate-200 grid grid-cols-3 gap-3 text-center">
+        <div className="p-6 bg-white border-b border-slate-200 grid grid-cols-3 gap-3 text-center">
           <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-slate-200 space-y-1 shadow-2xs">
             <div className="text-[11px] font-black text-slate-500">
               {t('tripos.estimatedTotal')}
@@ -106,7 +106,7 @@ export const BudgetBreakdownModal: React.FC<BudgetBreakdownModalProps> = ({ isOp
               {budgetBreakdown.costDrivers.map((driver) => (
                 <div
                   key={driver.category}
-                  className="p-3.5 rounded-2xl bg-[var(--text-primary)] border border-slate-200/80 flex items-center justify-between"
+                  className="p-3.5 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <span

@@ -14,8 +14,8 @@ function hold(listingId: string, over: { startDate?: string; endDate?: string; q
     travelerName: 'Test Traveler',
     travelerPhone: '+20 100 000 0000',
     travelerEmail: 'traveler@test.test',
-    startDate: over.startDate || '2026-10-01',
-    endDate: over.endDate || '2026-10-03',
+    startDate: over.startDate || localDate(0),
+    endDate: over.endDate || localDate(2),
     quantity: over.quantity || 2,
     idempotencyKey: over.idempotencyKey || nextIdempotencyKey()
   }).booking;
@@ -53,7 +53,7 @@ describe('rental booking lifecycle', () => {
     expect(booking.status).toBe('PENDING_PAYMENT');
     expect(booking.expiresAt).toBeDefined();
 
-    const slot = db.inventorySlots.find(s => s.skuId === listing.skuId && s.date === '2026-10-01');
+    const slot = db.inventorySlots.find(s => s.skuId === listing.skuId && s.date === localDate(0));
     expect(slot).toBeDefined();
     expect(slot!.heldCapacity).toBe(2);
     expect(slot!.totalCapacity).toBe(10);
@@ -103,7 +103,7 @@ describe('rental booking lifecycle', () => {
     expect(db.tripItems.some(ti => ti.tripId === 'TRIP-TEST' && ti.bookingId === result.bookingRef)).toBe(true);
 
     // Slot accounting moved from held to reserved.
-    const slot = db.inventorySlots.find(s => s.skuId === listing.skuId && s.date === '2026-10-01');
+    const slot = db.inventorySlots.find(s => s.skuId === listing.skuId && s.date === localDate(0));
     expect(slot!.heldCapacity).toBe(0);
     expect(slot!.reservedCapacity).toBe(2);
   });
@@ -152,8 +152,8 @@ describe('rental booking lifecycle', () => {
     // Still consuming inventory after acceptance.
     const consuming = rentalService.checkAvailability({
       listingId: listing.id,
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 9
     });
     expect(consuming.available).toBe(false);
@@ -175,8 +175,8 @@ describe('rental booking lifecycle', () => {
 
     const freed = rentalService.checkAvailability({
       listingId: listing.id,
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 10
     });
     expect(freed.available).toBe(true);
@@ -218,8 +218,8 @@ describe('rental booking lifecycle', () => {
 
     const freed = rentalService.checkAvailability({
       listingId: listing.id,
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 10
     });
     expect(freed.available).toBe(true);
@@ -255,8 +255,8 @@ describe('rental booking lifecycle', () => {
 
     const freed = rentalService.checkAvailability({
       listingId: listing.id,
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 10
     });
     expect(freed.available).toBe(true);

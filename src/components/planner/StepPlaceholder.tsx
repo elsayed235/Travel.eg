@@ -82,7 +82,7 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
         </div>
 
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-[var(--text-primary)] border border-[var(--text-primary)]/5 flex items-start gap-3">
+          <div className="p-4 rounded-2xl bg-[var(--surface-container)] border border-[var(--border-subtle)] flex items-start gap-3">
             <Compass className="w-4 h-4 text-[var(--text-secondary)] mt-0.5 flex-shrink-0" />
             <div className="text-xs sm:text-sm text-[var(--text-primary)]/75 leading-relaxed font-medium">
               <span className="font-bold text-[var(--text-primary)]">Selected Interests:</span>{' '}
@@ -115,7 +115,7 @@ export const StepPlaceholder: React.FC<StepPlaceholderProps> = ({
           type="button"
           id="placeholder-return-home"
           onClick={onReturnHome}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[var(--text-primary)] hover:bg-[var(--surface-container)] transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-[var(--accent-primary-ink)] bg-[var(--accent-primary)] hover:brightness-110 transition-[background-color,border-color,color,box-shadow,transform,opacity,filter] cursor-pointer shadow-xs"
         >
           <Home className="w-4 h-4" />
           <span>Return to Homepage</span>

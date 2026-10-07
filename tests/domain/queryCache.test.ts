@@ -61,6 +61,46 @@ describe('queryCache', () => {
     expect(calls).toBe(2);
   });
 
+  it('retries with a fresh flight when the shared flight aborts', async () => {
+    // React StrictMode mount/unmount/remount: the first mount's signal-bound
+    // fetch is aborted by its own cleanup while the second mount is still
+    // joining it via dedupe. The joiner must get a fresh run, not the
+    // cancellation.
+    let calls = 0;
+    const abortErr = new DOMException('aborted', 'AbortError');
+    const first = dedupe('a', async () => {
+      calls++;
+      await new Promise(resolve => setTimeout(resolve, 5));
+      throw abortErr;
+    });
+    const second = dedupe('a', async () => {
+      calls++;
+      return 'recovered';
+    });
+
+    await expect(first).rejects.toBe(abortErr);
+    await expect(second).resolves.toBe('recovered');
+    expect(calls).toBe(2);
+  });
+
+  it('still shares non-abort rejections without re-running', async () => {
+    let calls = 0;
+    const failure = new Error('boom');
+    const first = dedupe('e', async () => {
+      calls++;
+      await new Promise(resolve => setTimeout(resolve, 5));
+      throw failure;
+    });
+    const second = dedupe('e', async () => {
+      calls++;
+      return 'never';
+    });
+
+    await expect(first).rejects.toBe(failure);
+    await expect(second).rejects.toBe(failure);
+    expect(calls).toBe(1);
+  });
+
   it('cacheSize tracks live entries', () => {
     clearCache();
     writeCache('a', 1);

@@ -27,6 +27,12 @@ function run(path: string, method = 'GET', role?: Role): Outcome {
 }
 const allow = (o: Outcome) => o.nexted && o.status === null;
 
+/** YYYY-MM-DD for today + offsetDays in local time — keeps fixture windows relative to "now". */
+const localDate = (offset: number) => {
+  const d = new Date(); d.setDate(d.getDate() + offset);
+  return d.toLocaleDateString('sv-SE');
+};
+
 describe('rentals API access policy', () => {
   it('browse, detail, check-availability and quote are public', () => {
     expect(allow(run('/rentals'))).toBe(true);
@@ -76,8 +82,8 @@ describe('rental ownership and price integrity', () => {
       travelerName: 'T',
       travelerPhone: '',
       travelerEmail: 't@t.test',
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 1,
       idempotencyKey: nextIdempotencyKey()
     });
@@ -111,8 +117,8 @@ describe('rental ownership and price integrity', () => {
       travelerName: 'T',
       travelerPhone: '',
       travelerEmail: 't@t.test',
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 1,
       idempotencyKey: nextIdempotencyKey()
     });
@@ -143,8 +149,8 @@ describe('rental ownership and price integrity', () => {
       travelerName: 'T',
       travelerPhone: '',
       travelerEmail: 't@t.test',
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: localDate(0),
+      endDate: localDate(2),
       quantity: 2,
       idempotencyKey: nextIdempotencyKey()
     });

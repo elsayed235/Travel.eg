@@ -1,0 +1,348 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#main-app-content"
+  - banner:
+    - navigation "DAHAB TRAVEL OS Header" [ref=e6]:
+      - button "DAHAB TRAVEL OS" [ref=e8] [cursor=pointer]:
+        - generic [ref=e9]: D
+        - generic [ref=e13]:
+          - generic [ref=e14]: DAHAB
+          - generic [ref=e15]: TRAVEL OS
+      - generic [ref=e16]:
+        - button "Discover" [ref=e17] [cursor=pointer]
+        - button "Stay & Taste" [ref=e24] [cursor=pointer]
+        - button "Getting Around" [ref=e31] [cursor=pointer]
+        - button "My Trip" [ref=e39] [cursor=pointer]
+        - button "Site map" [ref=e48] [cursor=pointer]
+      - generic [ref=e54]:
+        - 'button "Theme: Soft Charcoal. Open Theme Menu." [ref=e57] [cursor=pointer]'
+        - button "Search (⌘K)" [ref=e68] [cursor=pointer]
+        - button "Switch to Arabic" [ref=e72] [cursor=pointer]
+        - button "S System" [ref=e160] [cursor=pointer]:
+          - generic [ref=e161]: S
+          - generic [ref=e162]: System
+        - button "Get Started" [ref=e82] [cursor=pointer]
+  - main "Dahab Sinai Travel Platform" [ref=e87]:
+    - generic [ref=e165]:
+      - generic [ref=e166]:
+        - generic [ref=e171]:
+          - heading "admin.contentTitle" [level=1] [ref=e172]
+          - paragraph [ref=e173]: admin.contentSubtitle
+        - generic [ref=e174]: CMS Content
+      - generic [ref=e176]:
+        - button "Media" [ref=e177]
+        - button "Pages" [active] [ref=e183]
+        - button "Blocks" [ref=e188]
+        - button "Homepage" [ref=e192]
+        - button "Navigation" [ref=e197]
+        - button "SEO" [ref=e200]
+        - button "Revisions" [ref=e205]
+      - generic [ref=e212]:
+        - generic [ref=e436]: admin.pagesTitle
+        - generic [ref=e439]:
+          - generic [ref=e440]:
+            - generic [ref=e441]:
+              - heading "cms.pagesTitle" [level=1] [ref=e442]
+              - paragraph [ref=e443]: cms.pagesSubtitle
+            - generic [ref=e444]:
+              - combobox [ref=e445] [cursor=pointer]:
+                - option "cms.allStatus" [selected]
+                - option "cms.published"
+                - option "cms.draft"
+                - option "cms.archived"
+              - button "cms.newPage" [ref=e446] [cursor=pointer]
+          - generic [ref=e449]:
+            - button "static_page Travel Guide /new-page-1788793110357 cms.status.draft cms.deletePage" [ref=e450] [cursor=pointer]:
+              - generic [ref=e451]:
+                - generic [ref=e452]:
+                  - generic [ref=e453]: static_page
+                  - heading "Travel Guide" [level=3] [ref=e455]
+                  - paragraph [ref=e456]: /new-page-1788793110357
+                - generic [ref=e457]:
+                  - generic [ref=e458]: cms.status.draft
+                  - button "cms.deletePage" [ref=e459]
+            - button "trip_program Dahab First Timer /dahab-first-timer cms.status.published cms.deletePage" [ref=e463] [cursor=pointer]:
+              - generic [ref=e464]:
+                - generic [ref=e465]:
+                  - generic [ref=e466]: trip_program
+                  - heading "Dahab First Timer" [level=3] [ref=e468]
+                  - paragraph [ref=e469]: /dahab-first-timer
+                - generic [ref=e470]:
+                  - generic [ref=e471]: cms.status.published
+                  - button "cms.deletePage" [ref=e472]
+            - button "gallery cms.featured The Blue Hole & The Bells Chimney /gallery-blue-hole-bells cms.status.published cms.deletePage" [ref=e476] [cursor=pointer]:
+              - generic [ref=e477]:
+                - generic [ref=e478]:
+                  - generic [ref=e479]:
+                    - generic [ref=e480]: gallery
+                    - generic [ref=e481]: cms.featured
+                  - heading "The Blue Hole & The Bells Chimney" [level=3] [ref=e484]
+                  - paragraph [ref=e485]: /gallery-blue-hole-bells
+                - generic [ref=e486]:
+                  - generic [ref=e487]: cms.status.published
+                  - button "cms.deletePage" [ref=e488]
+            - button "curated_story cms.featured The Blue Lagoon Boat & Hammock Retreat /story-blue-lagoon-retreat cms.status.published cms.deletePage" [ref=e492] [cursor=pointer]:
+              - generic [ref=e493]:
+                - generic [ref=e494]:
+                  - generic [ref=e495]:
+                    - generic [ref=e496]: curated_story
+                    - generic [ref=e497]: cms.featured
+                  - heading "The Blue Lagoon Boat & Hammock Retreat" [level=3] [ref=e500]
+                  - paragraph [ref=e501]: /story-blue-lagoon-retreat
+                - generic [ref=e502]:
+                  - generic [ref=e503]: cms.status.published
+                  - button "cms.deletePage" [ref=e504]
+            - button "static_page About Dahab Travel Platform /about-dahab cms.status.published cms.deletePage" [ref=e508] [cursor=pointer]:
+              - generic [ref=e509]:
+                - generic [ref=e510]:
+                  - generic [ref=e511]: static_page
+                  - heading "About Dahab Travel Platform" [level=3] [ref=e513]
+                  - paragraph [ref=e514]: /about-dahab
+                - generic [ref=e515]:
+                  - generic [ref=e516]: cms.status.published
+                  - button "cms.deletePage" [ref=e517]
+            - button "static_page Frequently Asked Questions /faq cms.status.published cms.deletePage" [ref=e521] [cursor=pointer]:
+              - generic [ref=e522]:
+                - generic [ref=e523]:
+                  - generic [ref=e524]: static_page
+                  - heading "Frequently Asked Questions" [level=3] [ref=e526]
+                  - paragraph [ref=e527]: /faq
+                - generic [ref=e528]:
+                  - generic [ref=e529]: cms.status.published
+                  - button "cms.deletePage" [ref=e530]
+            - button "static_page Travel Guides /travel-guides cms.status.published cms.deletePage" [ref=e534] [cursor=pointer]:
+              - generic [ref=e535]:
+                - generic [ref=e536]:
+                  - generic [ref=e537]: static_page
+                  - heading "Travel Guides" [level=3] [ref=e539]
+                  - paragraph [ref=e540]: /travel-guides
+                - generic [ref=e541]:
+                  - generic [ref=e542]: cms.status.published
+                  - button "cms.deletePage" [ref=e543]
+            - button "explore_category cms.featured Diving /cat-diving cms.status.published cms.deletePage" [ref=e547] [cursor=pointer]:
+              - generic [ref=e548]:
+                - generic [ref=e549]:
+                  - generic [ref=e550]:
+                    - generic [ref=e551]: explore_category
+                    - generic [ref=e552]: cms.featured
+                  - heading "Diving" [level=3] [ref=e555]
+                  - paragraph [ref=e556]: /cat-diving
+                - generic [ref=e557]:
+                  - generic [ref=e558]: cms.status.published
+                  - button "cms.deletePage" [ref=e559]
+            - button "trip_program Dahab Adventure /dahab-adventure cms.status.published cms.deletePage" [ref=e563] [cursor=pointer]:
+              - generic [ref=e564]:
+                - generic [ref=e565]:
+                  - generic [ref=e566]: trip_program
+                  - heading "Dahab Adventure" [level=3] [ref=e568]
+                  - paragraph [ref=e569]: /dahab-adventure
+                - generic [ref=e570]:
+                  - generic [ref=e571]: cms.status.published
+                  - button "cms.deletePage" [ref=e572]
+            - button "gallery cms.featured Blue Lagoon Turquoise Solitude /gallery-blue-lagoon cms.status.published cms.deletePage" [ref=e576] [cursor=pointer]:
+              - generic [ref=e577]:
+                - generic [ref=e578]:
+                  - generic [ref=e579]:
+                    - generic [ref=e580]: gallery
+                    - generic [ref=e581]: cms.featured
+                  - heading "Blue Lagoon Turquoise Solitude" [level=3] [ref=e584]
+                  - paragraph [ref=e585]: /gallery-blue-lagoon
+                - generic [ref=e586]:
+                  - generic [ref=e587]: cms.status.published
+                  - button "cms.deletePage" [ref=e588]
+            - button "curated_story cms.featured Wadi Gnai Stargazing & Bedouin Fire BBQ /story-desert-stargazing cms.status.published cms.deletePage" [ref=e592] [cursor=pointer]:
+              - generic [ref=e593]:
+                - generic [ref=e594]:
+                  - generic [ref=e595]:
+                    - generic [ref=e596]: curated_story
+                    - generic [ref=e597]: cms.featured
+                  - heading "Wadi Gnai Stargazing & Bedouin Fire BBQ" [level=3] [ref=e600]
+                  - paragraph [ref=e601]: /story-desert-stargazing
+                - generic [ref=e602]:
+                  - generic [ref=e603]: cms.status.published
+                  - button "cms.deletePage" [ref=e604]
+            - button "explore_category cms.featured Adventure /cat-adventure cms.status.published cms.deletePage" [ref=e608] [cursor=pointer]:
+              - generic [ref=e609]:
+                - generic [ref=e610]:
+                  - generic [ref=e611]:
+                    - generic [ref=e612]: explore_category
+                    - generic [ref=e613]: cms.featured
+                  - heading "Adventure" [level=3] [ref=e616]
+                  - paragraph [ref=e617]: /cat-adventure
+                - generic [ref=e618]:
+                  - generic [ref=e619]: cms.status.published
+                  - button "cms.deletePage" [ref=e620]
+            - button "trip_program Slow Dahab /slow-dahab cms.status.published cms.deletePage" [ref=e624] [cursor=pointer]:
+              - generic [ref=e625]:
+                - generic [ref=e626]:
+                  - generic [ref=e627]: trip_program
+                  - heading "Slow Dahab" [level=3] [ref=e629]
+                  - paragraph [ref=e630]: /slow-dahab
+                - generic [ref=e631]:
+                  - generic [ref=e632]: cms.status.published
+                  - button "cms.deletePage" [ref=e633]
+            - button "gallery cms.featured The Submarine Canyon Sun Rays /gallery-canyon-rift cms.status.published cms.deletePage" [ref=e637] [cursor=pointer]:
+              - generic [ref=e638]:
+                - generic [ref=e639]:
+                  - generic [ref=e640]:
+                    - generic [ref=e641]: gallery
+                    - generic [ref=e642]: cms.featured
+                  - heading "The Submarine Canyon Sun Rays" [level=3] [ref=e645]
+                  - paragraph [ref=e646]: /gallery-canyon-rift
+                - generic [ref=e647]:
+                  - generic [ref=e648]: cms.status.published
+                  - button "cms.deletePage" [ref=e649]
+            - button "curated_story cms.featured The Canyon Submarine Rift Exploration /story-canyon-dive cms.status.published cms.deletePage" [ref=e653] [cursor=pointer]:
+              - generic [ref=e654]:
+                - generic [ref=e655]:
+                  - generic [ref=e656]:
+                    - generic [ref=e657]: curated_story
+                    - generic [ref=e658]: cms.featured
+                  - heading "The Canyon Submarine Rift Exploration" [level=3] [ref=e661]
+                  - paragraph [ref=e662]: /story-canyon-dive
+                - generic [ref=e663]:
+                  - generic [ref=e664]: cms.status.published
+                  - button "cms.deletePage" [ref=e665]
+            - button "explore_category cms.featured Beach & Coastal Chill /cat-beach cms.status.published cms.deletePage" [ref=e669] [cursor=pointer]:
+              - generic [ref=e670]:
+                - generic [ref=e671]:
+                  - generic [ref=e672]:
+                    - generic [ref=e673]: explore_category
+                    - generic [ref=e674]: cms.featured
+                  - heading "Beach & Coastal Chill" [level=3] [ref=e677]
+                  - paragraph [ref=e678]: /cat-beach
+                - generic [ref=e679]:
+                  - generic [ref=e680]: cms.status.published
+                  - button "cms.deletePage" [ref=e681]
+            - button "trip_program Diving Week /diving-week cms.status.published cms.deletePage" [ref=e685] [cursor=pointer]:
+              - generic [ref=e686]:
+                - generic [ref=e687]:
+                  - generic [ref=e688]: trip_program
+                  - heading "Diving Week" [level=3] [ref=e690]
+                  - paragraph [ref=e691]: /diving-week
+                - generic [ref=e692]:
+                  - generic [ref=e693]: cms.status.published
+                  - button "cms.deletePage" [ref=e694]
+            - button "gallery cms.featured Wadi Gnai Canyon & Oasis /gallery-wadi-gnai cms.status.published cms.deletePage" [ref=e698] [cursor=pointer]:
+              - generic [ref=e699]:
+                - generic [ref=e700]:
+                  - generic [ref=e701]:
+                    - generic [ref=e702]: gallery
+                    - generic [ref=e703]: cms.featured
+                  - heading "Wadi Gnai Canyon & Oasis" [level=3] [ref=e706]
+                  - paragraph [ref=e707]: /gallery-wadi-gnai
+                - generic [ref=e708]:
+                  - generic [ref=e709]: cms.status.published
+                  - button "cms.deletePage" [ref=e710]
+            - button "curated_story cms.featured Assalah Spice & Seaside Mezzes Tour /story-assalah-food cms.status.published cms.deletePage" [ref=e714] [cursor=pointer]:
+              - generic [ref=e715]:
+                - generic [ref=e716]:
+                  - generic [ref=e717]:
+                    - generic [ref=e718]: curated_story
+                    - generic [ref=e719]: cms.featured
+                  - heading "Assalah Spice & Seaside Mezzes Tour" [level=3] [ref=e722]
+                  - paragraph [ref=e723]: /story-assalah-food
+                - generic [ref=e724]:
+                  - generic [ref=e725]: cms.status.published
+                  - button "cms.deletePage" [ref=e726]
+            - button "explore_category cms.featured Food & Cafés /cat-food cms.status.published cms.deletePage" [ref=e730] [cursor=pointer]:
+              - generic [ref=e731]:
+                - generic [ref=e732]:
+                  - generic [ref=e733]:
+                    - generic [ref=e734]: explore_category
+                    - generic [ref=e735]: cms.featured
+                  - heading "Food & Cafés" [level=3] [ref=e738]
+                  - paragraph [ref=e739]: /cat-food
+                - generic [ref=e740]:
+                  - generic [ref=e741]: cms.status.published
+                  - button "cms.deletePage" [ref=e742]
+            - button "trip_program Couples Escape /couples-escape cms.status.published cms.deletePage" [ref=e746] [cursor=pointer]:
+              - generic [ref=e747]:
+                - generic [ref=e748]:
+                  - generic [ref=e749]: trip_program
+                  - heading "Couples Escape" [level=3] [ref=e751]
+                  - paragraph [ref=e752]: /couples-escape
+                - generic [ref=e753]:
+                  - generic [ref=e754]: cms.status.published
+                  - button "cms.deletePage" [ref=e755]
+            - button "gallery cms.featured Lighthouse Promenade Golden Sunset /gallery-lighthouse-sunset cms.status.published cms.deletePage" [ref=e759] [cursor=pointer]:
+              - generic [ref=e760]:
+                - generic [ref=e761]:
+                  - generic [ref=e762]:
+                    - generic [ref=e763]: gallery
+                    - generic [ref=e764]: cms.featured
+                  - heading "Lighthouse Promenade Golden Sunset" [level=3] [ref=e767]
+                  - paragraph [ref=e768]: /gallery-lighthouse-sunset
+                - generic [ref=e769]:
+                  - generic [ref=e770]: cms.status.published
+                  - button "cms.deletePage" [ref=e771]
+            - button "explore_category cms.featured Local Life & Soul /cat-local-life cms.status.published cms.deletePage" [ref=e775] [cursor=pointer]:
+              - generic [ref=e776]:
+                - generic [ref=e777]:
+                  - generic [ref=e778]:
+                    - generic [ref=e779]: explore_category
+                    - generic [ref=e780]: cms.featured
+                  - heading "Local Life & Soul" [level=3] [ref=e783]
+                  - paragraph [ref=e784]: /cat-local-life
+                - generic [ref=e785]:
+                  - generic [ref=e786]: cms.status.published
+                  - button "cms.deletePage" [ref=e787]
+            - button "gallery cms.featured Dahab South Laguna Kite Spot /gallery-laguna-kite cms.status.published cms.deletePage" [ref=e791] [cursor=pointer]:
+              - generic [ref=e792]:
+                - generic [ref=e793]:
+                  - generic [ref=e794]:
+                    - generic [ref=e795]: gallery
+                    - generic [ref=e796]: cms.featured
+                  - heading "Dahab South Laguna Kite Spot" [level=3] [ref=e799]
+                  - paragraph [ref=e800]: /gallery-laguna-kite
+                - generic [ref=e801]:
+                  - generic [ref=e802]: cms.status.published
+                  - button "cms.deletePage" [ref=e803]
+            - button "gallery cms.featured Mount Sinai Dawn & St. Catherine /gallery-st-catherine cms.status.published cms.deletePage" [ref=e807] [cursor=pointer]:
+              - generic [ref=e808]:
+                - generic [ref=e809]:
+                  - generic [ref=e810]:
+                    - generic [ref=e811]: gallery
+                    - generic [ref=e812]: cms.featured
+                  - heading "Mount Sinai Dawn & St. Catherine" [level=3] [ref=e815]
+                  - paragraph [ref=e816]: /gallery-st-catherine
+                - generic [ref=e817]:
+                  - generic [ref=e818]: cms.status.published
+                  - button "cms.deletePage" [ref=e819]
+            - button "gallery cms.featured Bedouin Zarb Feast & Stargazing /gallery-bedouin-campfire cms.status.published cms.deletePage" [ref=e823] [cursor=pointer]:
+              - generic [ref=e824]:
+                - generic [ref=e825]:
+                  - generic [ref=e826]:
+                    - generic [ref=e827]: gallery
+                    - generic [ref=e828]: cms.featured
+                  - heading "Bedouin Zarb Feast & Stargazing" [level=3] [ref=e831]
+                  - paragraph [ref=e832]: /gallery-bedouin-campfire
+                - generic [ref=e833]:
+                  - generic [ref=e834]: cms.status.published
+                  - button "cms.deletePage" [ref=e835]
+            - button "static_page How It Works /how-it-works cms.status.published cms.deletePage" [ref=e839] [cursor=pointer]:
+              - generic [ref=e840]:
+                - generic [ref=e841]:
+                  - generic [ref=e842]: static_page
+                  - heading "How It Works" [level=3] [ref=e844]
+                  - paragraph [ref=e845]: /how-it-works
+                - generic [ref=e846]:
+                  - generic [ref=e847]: cms.status.published
+                  - button "cms.deletePage" [ref=e848]
+            - button "static_page Sample Itinerary /trip-preview cms.status.published cms.deletePage" [ref=e852] [cursor=pointer]:
+              - generic [ref=e853]:
+                - generic [ref=e854]:
+                  - generic [ref=e855]: static_page
+                  - heading "Sample Itinerary" [level=3] [ref=e857]
+                  - paragraph [ref=e858]: /trip-preview
+                - generic [ref=e859]:
+                  - generic [ref=e860]: cms.status.published
+                  - button "cms.deletePage" [ref=e861]
+  - generic [ref=e102]: Welcome back, System Administrator!
+  - complementary "Ahmed's 18-Stage Interactive Dahab Journey" [ref=e424]:
+    - generic [ref=e425]:
+      - button "Ahmed's 18-Stage Dahab Journey" [ref=e426] [cursor=pointer]
+      - button "Next Journey Stage" [ref=e433] [cursor=pointer]
+  - generic [ref=e104]:
+    - button "Sinai 24/7 Rapid Emergency" [ref=e105] [cursor=pointer]
+    - button "Dahab Tools" [ref=e113] [cursor=pointer]

@@ -158,11 +158,7 @@ export const ProgramDetailView: React.FC = () => {
       {/* 1. TOP BREADCRUMB & WAYFINDING BAR */}
       <nav
         aria-label="Breadcrumb navigation"
-        className={`border-b sticky top-16 sm:top-20 z-30 backdrop-blur-xl transition-colors ${
-          isDark
-            ? 'bg-[var(--surface-card)]/85 border-[var(--border-subtle)] text-[var(--text-secondary)]'
-            : 'bg-[var(--text-primary)]/90 border-[var(--text-primary)]/10 text-[var(--text-secondary)]'
-        }`}
+        className={`border-b sticky top-16 sm:top-20 z-30 backdrop-blur-xl transition-colors bg-[var(--surface-card)]/85 border-[var(--border-subtle)] text-[var(--text-secondary)]`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 text-xs font-semibold">
           <div className="flex items-center gap-2 flex-wrap">
@@ -540,11 +536,7 @@ export const ProgramDetailView: React.FC = () => {
                 {activeDay.highlights.map((highlight, idx) => (
                   <div
                     key={idx}
-                    className={`flex items-start gap-3 p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] ${
-                      isDark
-                        ? 'bg-[var(--surface-container)]/70 border-[var(--border-subtle)] hover:border-[var(--border-subtle)]'
-                        : 'bg-[var(--text-primary)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/25'
-                    }`}
+                    className={`flex items-start gap-3 p-4 rounded-2xl border transition-[background-color,border-color,color,box-shadow,transform,opacity] bg-[var(--surface-container)]/70 border-[var(--border-subtle)] hover:border-[var(--border-subtle)]`}
                   >
                     <div className="w-6 h-6 rounded-full bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <CheckCircle2 className="w-4 h-4" />

@@ -113,6 +113,59 @@
 }
 
 /* ==========================================================================
+   INK OVER SURFACE — the single owner of every "readable text" decision.
+   ========================================================================== */
+/*
+   One decision: what ink stays legible on the surface underneath it. Three
+   surface classes exist on this product, so this block names three inks — and
+   it is the only place the homepage takes one from. A component references a
+   role below; it never picks a palette value of its own.
+
+     media        a black-based surface: a photograph behind a scrim
+                  (`from-black/85`, `bg-black/50`, `bg-black/55`) or the dark
+                  centre of a brand-gradient mark. Every scrim is black in
+                  every theme by construction, so its ink is too. One value;
+                  the muted tier is the same token at /80.
+     accent-copy  accent-coloured copy on a theme surface — section eyebrows,
+                  selected/hovered labels, the ember badge. The raw accent is
+                  only safe on the dark themes (4.18:1 lagoon-breeze, 4.28:1
+                  editorial-sand, against their own surfaces), so the ink is the
+                  accent pulled toward the theme's canvas ink. That mix was
+                  measured at 938px wide and credited with a 5.29:1 floor; at
+                  the real 1514px desktop width it lands lower on the two light
+                  themes, which is why small accent copy now takes the variant
+                  below instead.
+     accent-copy-strong
+                  the same accent ink for SMALL copy (<=14px) on a tinted row
+                  or a chrome chip, where the 80/20 mix above measured 4.21:1
+                  (TRAVEL OS chip, lagoon-breeze) and 4.34:1 (selected itinerary
+                  tab title). Pulling it toward the canvas ink keeps the hue and
+                  moves contrast the safe way in every theme — darker on the
+                  light themes, lighter on the dark ones.
+     accent-fill  anything ON an accent or brand-gradient fill — filled CTAs,
+                  the selected intent pill, avatar initials, the brand "D"
+                  marks. Its ink is the theme's paired `--accent-primary-ink`
+                  (declared by each theme, ~150 consumers app-wide). The theme
+                  owns both sides of that pair, so it passes everywhere.
+
+   Carve-outs, deliberate: `--accent-secondary` as text (the hero's italic line)
+   is a different hue, not a second ink; decorative `aria-hidden` icons keep the
+   raw accent (they need 3:1 and it clears ~4.7:1 on every theme).
+
+   Brought in by this pass: the theme picker's section label (was
+   `text-amber-400`, 1.41:1 open on the light themes), its two icons, and the
+   footer brand mark (was hardcoded `#F2EDDF` over the brand gradient). The
+   navbar's brand glyph and the picker's dark-mode branch now take the media
+   value instead of a bare `text-white`. Avatar initials moved 2.56:1 → 7.14:1
+   the same way.
+*/
+:root {
+  --text-on-media: #FFFFFF;
+  --text-accent: color-mix(in oklab, var(--accent-primary) 80%, var(--text-primary));
+  --text-accent-strong: color-mix(in oklab, var(--text-accent) 55%, var(--text-primary));
+}
+
+/* ==========================================================================
    DAHAB MULTI-THEME ENGINE (CSS VARIABLES & TOKENS)
    ========================================================================== */
 
@@ -1921,6 +1974,111 @@ a {
 .chart-depth-4 { background: color-mix(in oklab, var(--bg-canvas) 65%, #1C1917); }
 .chart-depth-5 { background: color-mix(in oklab, var(--bg-canvas) 40%, #141311); }
 
+/* ==========================================================================
+   CONCIERGE EDITORIAL LAYER (2026) — the homepage's presentation system.
+
+   One primitive per presentation job, so the nine sections stop each
+   inventing their own container, section header and surface:
+
+     .dahab-shell    the content measure + gutter. A single lever for the
+                     page's horizontal rhythm; sized to match `max-w-7xl` so
+                     homepage content stays aligned with the navbar and the
+                     footer rather than drifting to its own width.
+     .dahab-eyebrow  the small-caps section label with a leading brass rule.
+                     The rule is a pseudo-element, so it never lands inside the
+                     label's own measured text region, and `gap` (not margins)
+                     keeps it on the correct side in RTL.
+     .dahab-band     the tinted chapter backdrop. Edge-to-edge on phones, where
+                     the strip reads as a chapter break; from `lg` up a
+                     contained, rounded panel floating on the canvas. The panel
+                     keeps the section's EXACT surface ink, so the copy inside
+                     measures the same contrast it did as a flat stripe — only
+                     the edges and the depth are new.
+     .dahab-card     the standard raised surface: hairline + a 1px top sheen
+                     laid inside the padding edge, with a lift reserved for the
+                     interactive variants only.
+     .dahab-card--inset
+                     the inverted variant for cards that sit INSIDE a tinted
+                     band and must read against it (canvas ink, same chrome).
+
+   Every value derives from the active theme's tokens, so all six themes
+   inherit the layer with zero per-theme overrides.
+   ========================================================================== */
+
+:root {
+  --editorial-shell: 80rem;              /* = max-w-7xl, shared with the nav */
+  --editorial-panel-radius: 2rem;
+  --editorial-sheen: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  --editorial-lift: 0 20px 48px -28px rgba(0, 0, 0, 0.55);
+}
+
+.dahab-shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--editorial-shell);
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) { .dahab-shell { padding-inline: 1.5rem; } }
+@media (min-width: 1024px) { .dahab-shell { padding-inline: 2rem; } }
+
+.dahab-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.dahab-eyebrow::before {
+  content: '';
+  flex: none;
+  width: 1.75rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.dahab-band {
+  width: 100%;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+@media (min-width: 1024px) {
+  .dahab-band {
+    width: auto;
+    max-width: var(--editorial-shell);
+    margin-inline: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--editorial-panel-radius);
+    box-shadow: var(--editorial-lift);
+  }
+}
+
+.dahab-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.5rem;
+  box-shadow: inset 0 1px 0 var(--editorial-sheen);
+}
+.dahab-card--inset { background: var(--bg-canvas); }
+
+/* Lift only where the surface is actually a control, so a static panel never
+   twitches under the pointer. Transform only — no reflow, and it collapses
+   fully under reduced motion. */
+.dahab-card:is(button, a) {
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+.dahab-card:is(button, a):hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent-primary) 45%, var(--border-subtle));
+  box-shadow: inset 0 1px 0 var(--editorial-sheen), var(--editorial-lift);
+}
+@media (prefers-reduced-motion: reduce) {
+  .dahab-card:is(button, a) { transition: none; }
+  .dahab-card:is(button, a):hover { transform: none; }
+}
+
 /* Pinprick starfield: pure CSS, symmetric for RTL, inert under
    reduced motion (static dots, no animation to disable). */
 .chart-starfield {
@@ -2069,11 +2227,16 @@ a {
 }
 .chart-badge-ember {
   background: color-mix(in oklab, var(--surface-card) 85%, rgba(200,147,61,0.14));
-  color: #B97A1F;
+  /* Was #B97A1F, with `[data-theme="dark"] #E3B25A` and a light-theme #8A5206
+     override — three hardcoded hexes for one ink. The badge's surface is
+     near-white in the light themes (background measured #F5F4F3 on the
+     homepage, where the raw amber read 3.26:1) and dark in the others, which
+     is exactly the problem `--text-accent` solves. Measured after the move:
+     5.70-6.29:1 on the light themes and 7.45:1 on charcoal — the dark side
+     gives up 0.85 against #E3B25A, which is the price of the two hexes and
+     still 65% above the 4.5:1 floor. */
+  color: var(--text-accent);
   border-color: color-mix(in oklab, var(--border-subtle) 50%, rgba(200,147,61,0.4));
-}
-[data-theme="dark"] .chart-badge-ember {
-  color: #E3B25A;
 }
 
 .chart-parallax-container { perspective: 1000px; overflow: hidden; }
@@ -2119,77 +2282,7 @@ a {
   50% { background-position: 100% 50%; }
 }
 
-/* ==========================================================================
-   2026 HOMEPAGE UPGRADE — marquee, spotlight hover, aurora wash
-   ========================================================================== */
-
-/* Seamless marquee loop: the content row is duplicated in markup; both copies
-   are aria-hidden. Reduced motion freezes the row in place (first copy only,
-   second hidden by overflow) instead of animating. */
-@keyframes dahab-marquee-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.dahab-marquee {
-  animation: dahab-marquee-scroll 36s linear infinite;
-}
-.dahab-marquee-rtl {
-  animation: dahab-marquee-scroll 36s linear infinite reverse;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .dahab-marquee,
-  .dahab-marquee-rtl {
-    animation: none;
-  }
-}
-
-/* Pointer-following spotlight hover for bento tiles. --mx/--my are set from
-   JS in HomeEssenceBento; the glow only renders where the custom properties
-   exist, so touch devices (no mousemove) simply never show it. */
-.dahab-spotlight {
-  position: relative;
-}
-.dahab-spotlight::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 400ms ease;
-  background: radial-gradient(
-    220px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.10),
-    transparent 65%
-  );
-}
-.dahab-spotlight:hover::after { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .dahab-spotlight::after { display: none; }
-}
-
-/* Slow ember wash behind the stats band — a single hue-cycling radial that
-   reads as firelight under stars. Disabled under reduced motion. */
-@keyframes dahab-aurora {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-.dahab-aurora-wash {
-  background: linear-gradient(
-    115deg,
-    color-mix(in oklab, var(--bg-canvas) 90%, #E8A33D) 0%,
-    var(--bg-canvas) 35%,
-    color-mix(in oklab, var(--bg-canvas) 92%, #1B2452) 65%,
-    var(--bg-canvas) 100%
-  );
-  background-size: 220% 220%;
-  animation: dahab-aurora 22s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dahab-aurora-wash { animation: none; }
   .animate-wave-crest { animation: none; }
 }
 
