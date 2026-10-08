@@ -50,6 +50,8 @@ export class TransferService {
       basePriceEGP: quote.priceEGP,
       currency: 'EGP',
       maxCapacityPerSlot: tier.capacity,
+      // Shared seats are sold per person; a private or premium car is one price.
+      pricingBasis: tier.id === 'shared' ? 'per_person' : 'per_vehicle',
       active: true,
       includedItems: route.originType === 'airport' ? ['60-minute flight-delay wait'] : undefined,
       cancellationPolicyHours: 12

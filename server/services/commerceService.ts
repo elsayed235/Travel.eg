@@ -177,15 +177,29 @@ export function assertSupplierBookable(supplierId: string, skuId?: string): void
  * whatever the client sent — so the explainer's "same numbers checkout will
  * charge" was true of none of them.
  */
+export type PricingBasis = 'per_person' | 'per_stay' | 'per_vehicle';
+
+/**
+ * Basis for a SKU: its own `pricingBasis`, else hotels per stay, private and
+ * premium transfers per vehicle (also for rows created before the field
+ * existed — their ids end in the tier), everything else per person.
+ */
+export function pricingBasisOf(sku: ProductSkuEntity): PricingBasis {
+  if (sku.pricingBasis) return sku.pricingBasis;
+  if (sku.serviceType === 'hotel') return 'per_stay';
+  if (sku.serviceType === 'transfer' && /^SKU-TRF-.+-(private|premium)$/.test(sku.id)) return 'per_vehicle';
+  return 'per_person';
+}
+
 export function priceSkuLine(sku: ProductSkuEntity, passengersCount?: number): {
-  basis: 'per_person' | 'per_stay';
+  basis: PricingBasis;
   passengersCount: number;
   unitPriceEGP: number;
   amountEGP: number;
 } {
   const passengers = Math.max(1, Math.floor(passengersCount ?? 1));
-  const basis: 'per_person' | 'per_stay' = sku.serviceType === 'hotel' ? 'per_stay' : 'per_person';
-  const amountEGP = basis === 'per_stay' ? sku.basePriceEGP : sku.basePriceEGP * passengers;
+  const basis = pricingBasisOf(sku);
+  const amountEGP = basis === 'per_person' ? sku.basePriceEGP * passengers : sku.basePriceEGP;
   return { basis, passengersCount: passengers, unitPriceEGP: sku.basePriceEGP, amountEGP };
 }
 
@@ -912,7 +926,7 @@ export class CommerceService {
     items: Array<{ skuId: string; passengersCount?: number; nights?: number }>;
   }): {
     currency: 'EGP';
-    lines: Array<{ skuId: string; title: string; titleAr: string; serviceType: string; basis: 'per_person' | 'per_stay'; passengersCount: number; nights: number | null; unitPriceEGP: number; amountEGP: number; supplierId: string; cancellationPolicyHours: number }>;
+    lines: Array<{ skuId: string; title: string; titleAr: string; serviceType: string; basis: PricingBasis; passengersCount: number; nights: number | null; unitPriceEGP: number; amountEGP: number; supplierId: string; cancellationPolicyHours: number }>;
     totalEGP: number;
   } {
     const lines = params.items.map(item => {

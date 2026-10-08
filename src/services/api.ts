@@ -82,7 +82,7 @@ export interface PriceExplanation {
     title: string;
     titleAr: string;
     serviceType: string;
-    basis: 'per_person' | 'per_stay';
+    basis: 'per_person' | 'per_stay' | 'per_vehicle';
     passengersCount: number;
     nights: number | null;
     unitPriceEGP: number;

@@ -556,6 +556,12 @@ export interface ProductSkuEntity {
   active: boolean;
   includedItems?: string[];
   cancellationPolicyHours: number;
+  /**
+   * How the base price scales with the party. Absent: hotels per stay,
+   * everything else per person. Private and premium transfers are priced
+   * per vehicle (the car is the product, whoever rides in it).
+   */
+  pricingBasis?: 'per_person' | 'per_stay' | 'per_vehicle';
 }
 
 export interface InventorySlotEntity {
@@ -785,6 +791,12 @@ export interface RentalListingEntity {
   status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
   active: boolean;
   cancellationPolicyHours: number;
+  /**
+   * How the base price scales with the party. Absent: hotels per stay,
+   * everything else per person. Private and premium transfers are priced
+   * per vehicle (the car is the product, whoever rides in it).
+   */
+  pricingBasis?: 'per_person' | 'per_stay' | 'per_vehicle';
   policies: { en: string; ar: string };
   createdAt: string;
   updatedAt: string;
