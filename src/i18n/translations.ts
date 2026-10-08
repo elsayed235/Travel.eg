@@ -4511,6 +4511,42 @@ export const TRANSLATIONS: Translations = {
   "cms.editNavItem": { en: "Edit Nav Item", ar: "تعديل عنصر التنقل" },
   "admin.blocksForPage": { en: "Blocks for", ar: "كتل لـ" },
   "admin.editPage": { en: "Edit Page", ar: "تعديل الصفحة" },
+
+  // =========================================================================
+  // GRANITE & LAGOON SHELL + UI PRIMITIVES (Arabic: light Egyptian colloquial)
+  // =========================================================================
+  'shell.tab.discover': { en: 'Discover', ar: 'اكتشف' },
+  'shell.tab.plan': { en: 'Plan', ar: 'خطّط' },
+  'shell.tab.trip': { en: 'Trip', ar: 'رحلتي' },
+  'shell.tab.today': { en: 'Today', ar: 'النهارده' },
+  'shell.tab.account': { en: 'Account', ar: 'حسابي' },
+  'shell.tabsLabel': { en: 'Main sections', ar: 'الأقسام الرئيسية' },
+  'shell.home': { en: 'DAHAB home', ar: 'الرئيسية' },
+  'shell.search': { en: 'Search', ar: 'دوّر' },
+  'shell.switchLanguage': { en: 'العربية', ar: 'English' },
+  'shell.switchLanguageLabel': { en: 'Switch to Arabic', ar: 'غيّر للإنجليزي' },
+  'shell.signIn': { en: 'Sign in', ar: 'ادخل' },
+  'shell.askDaygi': { en: 'Plan with DayGi', ar: 'خطّط مع DayGi' },
+  'shell.askPlaceholder': { en: 'Ask DayGi anything…', ar: 'قول لـ DayGi عايز إيه…' },
+  'shell.nav.stays': { en: 'Stays', ar: 'إقامة' },
+  'shell.nav.experiences': { en: 'Experiences', ar: 'تجارب' },
+  'shell.nav.food': { en: 'Food', ar: 'أكل' },
+  'shell.nav.rides': { en: 'Rides', ar: 'مشاوير' },
+  'shell.nav.more': { en: 'More', ar: 'كمان' },
+  'shell.nav.live': { en: 'Dahab live', ar: 'دهب دلوقتي' },
+  'shell.nav.rentals': { en: 'Bike rentals', ar: 'إيجار عجل' },
+  'shell.nav.thingsToDo': { en: 'Things to do', ar: 'تعمل إيه' },
+  'shell.nav.help': { en: 'Help & SOS', ar: 'مساعدة وطوارئ' },
+  'shell.nav.bookings': { en: 'My bookings', ar: 'حجوزاتي' },
+  'shell.close': { en: 'Close', ar: 'اقفل' },
+  'ui.price.perPerson': { en: 'per person', ar: 'للفرد' },
+  'ui.price.perNight': { en: 'per night', ar: 'في الليلة' },
+  'ui.price.total': { en: 'total', ar: 'إجمالي' },
+  'ui.price.from': { en: 'from', ar: 'من' },
+  'ui.price.about': { en: 'about {amount}', ar: 'تقريباً {amount}' },
+  'ui.price.chargedInEgp': { en: 'Charged in Egyptian pounds', ar: 'هيتخصم منك بالجنيه المصري' },
+  'ui.currency.label': { en: 'Show prices in', ar: 'اعرض الأسعار بـ' },
+
 };
 
 // ============================================================================

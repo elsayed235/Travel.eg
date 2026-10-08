@@ -430,6 +430,13 @@ export const AI_TIMEOUT_MS = 30000;
  * Sinai / desert connectivity gracefully.
  * Automatically transmits HttpOnly SameSite session cookies via credentials: 'include'.
  */
+export interface FxRatesWire {
+  base: 'EGP';
+  egpPerUnit: Record<string, number>;
+  asOf: string;
+  indicative: boolean;
+}
+
 export async function fetchWithTimeout(
   resource: string,
   options: RequestInit & { timeout?: number } = {}
@@ -2403,6 +2410,17 @@ export const api = {
     const res = await fetchWithTimeout('/api/content/theme', { headers: defaultHeaders(), signal });
     if (!res.ok) throw new Error('Theme bundle unavailable');
     return await readJson<{ tokens?: Record<string, string> }>(res, 'Theme bundle');
+  },
+
+  /**
+   * Display-only currency rates (EGP per unit). Charges are always EGP; the
+   * UI uses these for the "≈ €25" line under a price (server/services/fxService.ts).
+   */
+  async getFxRates(signal?: AbortSignal): Promise<FxRatesWire> {
+    const res = await fetchWithTimeout('/api/fx/rates', { headers: defaultHeaders(), signal });
+    if (!res.ok) throw new Error('Currency rates unavailable');
+    const body = await readJson<{ data: FxRatesWire }>(res, 'Currency rates');
+    return body.data;
   },
 
   async getCmsTripPreview(signal?: AbortSignal): Promise<{ blocks?: CmsPageBlockWire[] }> {

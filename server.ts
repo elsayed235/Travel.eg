@@ -102,6 +102,7 @@ import { dahabRouter } from './server/api/dahabRoutes';
 import { maxMediaUploadBytes, serveMediaHeaders } from './server/services/mediaUpload';
 import { adminDahabRouter } from './server/api/adminDahabRoutes';
 import { contentRouter } from './server/api/contentRoutes';
+import { fxRouter } from './server/api/fxRoutes';
 import { adminContentRouter } from './server/api/adminContentRoutes';
 import { adminSiteRouter } from './server/api/adminSiteRoutes';
 import { marketRouter } from './server/api/marketRoutes';
@@ -241,6 +242,9 @@ app.use('/api/dahab', dahabRouter);
 app.use('/api/admin/content', adminContentRouter);
 app.use('/api/admin', adminSiteRouter);
 app.use('/api/content', contentRouter);
+
+// Display-only currency rates (charges are always EGP).
+app.use('/api/fx', fxRouter);
 
 // Dahab hotels catalogue (public GET list + detail)
 app.use('/api/hotels', hotelRouter);

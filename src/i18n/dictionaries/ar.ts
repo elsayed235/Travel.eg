@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3925 keys. Loaded per language by
+ * Language: ar. 3956 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~86,828 chars here instead of both languages).
+ * (~87,095 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3619,6 +3619,30 @@ export const AR: Record<string, string> = {
   "saveThisDocumentOr": "احفظ هذه الصفحة أو حمل الملف لاستخدامه في البلو لاجون ورأس أبو جالوم.",
   "seaState": "حالة البحر",
   "searchRestaurantsSeafoodBrunch": "ابحث عن مطعم، سي فود، برانش...",
+  "shell.askDaygi": "خطّط مع DayGi",
+  "shell.askPlaceholder": "قول لـ DayGi عايز إيه…",
+  "shell.close": "اقفل",
+  "shell.home": "الرئيسية",
+  "shell.nav.bookings": "حجوزاتي",
+  "shell.nav.experiences": "تجارب",
+  "shell.nav.food": "أكل",
+  "shell.nav.help": "مساعدة وطوارئ",
+  "shell.nav.live": "دهب دلوقتي",
+  "shell.nav.more": "كمان",
+  "shell.nav.rentals": "إيجار عجل",
+  "shell.nav.rides": "مشاوير",
+  "shell.nav.stays": "إقامة",
+  "shell.nav.thingsToDo": "تعمل إيه",
+  "shell.search": "دوّر",
+  "shell.signIn": "ادخل",
+  "shell.switchLanguage": "English",
+  "shell.switchLanguageLabel": "غيّر للإنجليزي",
+  "shell.tab.account": "حسابي",
+  "shell.tab.discover": "اكتشف",
+  "shell.tab.plan": "خطّط",
+  "shell.tab.today": "النهارده",
+  "shell.tab.trip": "رحلتي",
+  "shell.tabsLabel": "الأقسام الرئيسية",
   "signalConnectivity": "تغطية الاتصالات:",
   "splash.enter": "ادخل دهب",
   "splash.eyebrow": "دهب · قبل ما تحجز، شوفها",
@@ -3921,6 +3945,13 @@ export const AR: Record<string, string> = {
   "tripos.yourDahabOperatingBrief": "ملخص رحلتك في دهب",
   "tripos.zeroTimingCollisionsOr": "لا توجد أي تعارضات زمنية أو مخاطر إجهاد",
   "type": "النوع",
+  "ui.currency.label": "اعرض الأسعار بـ",
+  "ui.price.about": "تقريباً {amount}",
+  "ui.price.chargedInEgp": "هيتخصم منك بالجنيه المصري",
+  "ui.price.from": "من",
+  "ui.price.perNight": "في الليلة",
+  "ui.price.perPerson": "للفرد",
+  "ui.price.total": "إجمالي",
   "vegan": "فيجان",
   "vegetarian": "نباتي",
   "verifiedSnapshot": "تاريخ التحديث المعتمد: ",

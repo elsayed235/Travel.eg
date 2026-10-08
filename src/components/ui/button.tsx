@@ -1,47 +1,71 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/cn';
 
 /**
- * Dahab Button — same API shape as shadcn's button (variant/size/asChild-style
- * polymorphism omitted where unused), but every color routes through the
- * project's theme-reactive tokens (`--color-accent-primary` etc.) so the
- * component recolors itself when ThemeContext swaps data-theme-id.
+ * Button — Granite & Lagoon (src/styles/tokens.css).
+ *
+ * One action colour: `primary` is the lagoon fill and should appear once per
+ * view. Every size clears the 44px touch target on phones (sm only on
+ * pointer-fine screens), presses scale down slightly, and colours come from
+ * the theme tokens so all three themes recolour it for free.
  */
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-canvas)] disabled:pointer-events-none disabled:opacity-50',
+  [
+    'relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none',
+    'font-ui font-semibold rounded-dg-md',
+    'transition-[background-color,color,border-color,transform,box-shadow] duration-200 ease-dg-out',
+    'active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--dg-focus)]',
+    'disabled:pointer-events-none disabled:opacity-45',
+  ].join(' '),
   {
     variants: {
       variant: {
-        default:
-          'bg-accent-primary text-[var(--accent-primary-ink)] hover:brightness-110 shadow-sm',
-        outline:
-          'border border-border-subtle bg-transparent text-text-primary hover:bg-surface-container',
-        ghost: 'text-text-secondary hover:bg-surface-container hover:text-text-primary',
+        primary: 'bg-dg-action text-dg-action-ink hover:bg-dg-action-hover shadow-[0_8px_20px_-12px_var(--dg-action)]',
+        secondary: 'bg-dg-sunken text-dg-ink hover:bg-[color-mix(in_oklab,var(--dg-surface-sunken)_80%,var(--dg-ink)_8%)]',
+        outline: 'border border-dg-line-strong bg-transparent text-dg-ink hover:bg-dg-action-wash',
+        ghost: 'bg-transparent text-dg-ink-2 hover:bg-dg-action-wash hover:text-dg-ink',
+        highlight: 'bg-dg-highlight text-dg-highlight-ink hover:brightness-105',
+        danger: 'bg-dg-critical-wash text-dg-critical hover:bg-[color-mix(in_oklab,var(--dg-critical-wash)_70%,var(--dg-critical)_14%)]',
+        onMedia: 'bg-white/92 text-[#0B151C] hover:bg-white backdrop-blur-md',
       },
       size: {
-        default: 'h-11 px-5',
-        sm: 'h-9 px-3.5 text-[--text-xs]',
-        icon: 'h-10 w-10 p-0',
+        sm: 'h-11 sm:h-9 px-3.5 text-[0.8125rem]',
+        md: 'h-12 sm:h-11 px-5 text-[0.9375rem]',
+        lg: 'h-14 px-6 text-base rounded-dg-lg',
+        icon: 'h-11 w-11 p-0 rounded-full',
       },
+      block: { true: 'w-full', false: '' },
     },
-    defaultVariants: { variant: 'default', size: 'default' },
+    defaultVariants: { variant: 'primary', size: 'md', block: false },
   },
 );
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  /** Shows a spinner, keeps the width, blocks repeat taps. */
+  loading?: boolean;
+  leadingIcon?: React.ReactNode;
+  trailingIcon?: React.ReactNode;
+}
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, type = 'button', ...props }, ref) => (
+  ({ className, variant, size, block, type = 'button', loading = false, leadingIcon, trailingIcon, children, disabled, ...props }, ref) => (
     <button
       type={type}
-      className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
+      className={cn(buttonVariants({ variant, size, block }), className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : leadingIcon}
+      {children}
+      {!loading && trailingIcon}
+    </button>
   ),
 );
 Button.displayName = 'Button';

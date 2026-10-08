@@ -1,52 +1,48 @@
 import * as React from 'react';
-
 import { cn } from '@/lib/cn';
 
-/** Dahab Card — surfaces built on the theme-reactive `--surface-card` token. */
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
+/**
+ * Card — a separate object on the page. Use it by role (a listing, a booking,
+ * a summary), not as a default wrapper: sections are laid out with spacing,
+ * not boxes. `interactive` adds press feedback for whole-card taps; give it
+ * an `onClick` or wrap a real link inside.
+ */
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  interactive?: boolean;
+  padded?: boolean;
+  as?: 'div' | 'article' | 'section';
+}
+
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ interactive = false, padded = true, as = 'div', className, ...props }, ref) => {
+    const Tag = as as 'div';
+    return (
+    <Tag
       ref={ref}
       className={cn(
-        'rounded-2xl border border-border-subtle bg-surface-card text-text-primary shadow-lg',
+        'bg-dg-surface border border-dg-line rounded-dg-lg min-w-0',
+        padded && 'p-4',
+        interactive &&
+          'cursor-pointer transition-[transform,box-shadow,border-color] duration-200 ease-dg-out hover:shadow-dg-card hover:border-dg-line-strong active:scale-[0.985]',
         className,
       )}
       {...props}
     />
-  ),
+    );
+  },
 );
 Card.displayName = 'Card';
 
-const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />
-  ),
+/** Back-compat for the shadcn-style composition the /design demo uses. */
+export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...p }) => (
+  <div className={cn('flex flex-col gap-1.5 p-5', className)} {...p} />
 );
-CardHeader.displayName = 'CardHeader';
-
-const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn('font-display text-2xl font-semibold leading-none tracking-tight', className)}
-      {...props}
-    />
-  ),
+export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ className, ...p }) => (
+  <h3 className={cn('font-dg-display text-lg font-semibold leading-tight text-dg-ink', className)} {...p} />
 );
-CardTitle.displayName = 'CardTitle';
-
-const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn('text-sm text-text-secondary', className)} {...props} />
-  ),
+export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({ className, ...p }) => (
+  <p className={cn('text-sm text-dg-ink-2', className)} {...p} />
 );
-CardDescription.displayName = 'CardDescription';
-
-const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
-  ),
+export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...p }) => (
+  <div className={cn('p-5 pt-0', className)} {...p} />
 );
-CardContent.displayName = 'CardContent';
-
-export { Card, CardHeader, CardTitle, CardDescription, CardContent };

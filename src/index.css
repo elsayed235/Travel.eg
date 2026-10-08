@@ -1,6 +1,47 @@
 @import "tailwindcss";
 @import "./styles/tokens.css";
 
+/* Granite & Lagoon tokens as Tailwind utilities (bg-dg-surface, text-dg-ink,
+   rounded-dg-lg, shadow-dg-card, …). `inline` keeps the var() reference so
+   utilities follow the active theme instead of baking one theme's value. */
+@theme inline {
+  --color-dg-bg: var(--dg-bg);
+  --color-dg-bg-sunken: var(--dg-bg-sunken);
+  --color-dg-surface: var(--dg-surface);
+  --color-dg-raised: var(--dg-surface-raised);
+  --color-dg-sunken: var(--dg-surface-sunken);
+  --color-dg-ink: var(--dg-ink);
+  --color-dg-ink-2: var(--dg-ink-2);
+  --color-dg-ink-3: var(--dg-ink-3);
+  --color-dg-line: var(--dg-line);
+  --color-dg-line-strong: var(--dg-line-strong);
+  --color-dg-action: var(--dg-action);
+  --color-dg-action-hover: var(--dg-action-hover);
+  --color-dg-action-ink: var(--dg-action-ink);
+  --color-dg-action-wash: var(--dg-action-wash);
+  --color-dg-highlight: var(--dg-highlight);
+  --color-dg-highlight-ink: var(--dg-highlight-ink);
+  --color-dg-highlight-wash: var(--dg-highlight-wash);
+  --color-dg-positive: var(--dg-positive);
+  --color-dg-positive-wash: var(--dg-positive-wash);
+  --color-dg-warning: var(--dg-warning);
+  --color-dg-warning-wash: var(--dg-warning-wash);
+  --color-dg-critical: var(--dg-critical);
+  --color-dg-critical-wash: var(--dg-critical-wash);
+  --color-dg-chrome: var(--dg-chrome-bg);
+  --color-dg-scrim: var(--dg-scrim);
+  --radius-dg-sm: var(--dg-radius-sm);
+  --radius-dg-md: var(--dg-radius-md);
+  --radius-dg-lg: var(--dg-radius-lg);
+  --radius-dg-xl: var(--dg-radius-xl);
+  --shadow-dg-card: var(--dg-shadow-card);
+  --shadow-dg-sheet: var(--dg-shadow-sheet);
+  --shadow-dg-modal: var(--dg-shadow-modal);
+  --ease-dg-out: var(--dg-ease-out);
+  --font-ui: var(--dg-font-ui);
+  --font-dg-display: var(--dg-font-display);
+}
+
 /* Dark mode follows the app theme attribute (set on <html>/<body> by
    ThemeContext), not the OS. Without this, `dark:` palette classes only
    fire when the OS prefers dark, leaving dark theme surfaces with

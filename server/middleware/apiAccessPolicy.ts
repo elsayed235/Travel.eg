@@ -33,6 +33,9 @@ const PUBLIC_RULES: Rule[] = [
   { pattern: /^\/auth\/(register|login|firebase-session|logout)$/, methods: ['POST'] },
   { pattern: /^\/health$/, methods: ['GET'] },
 
+  // Display-only currency rates; no PII, charges stay EGP (fxService.ts).
+  { pattern: /^\/fx\/rates$/, methods: ['GET'] },
+
   // Anonymous product analytics ingestion. The handler whitelists event names
   // and strips PII, so the exposure is bounded by design.
   { pattern: /^\/analytics\/events$/, methods: ['POST'] },

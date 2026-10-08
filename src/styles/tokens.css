@@ -416,3 +416,8 @@ canvas {
     --dg-dur-slow: 150ms;
   }
 }
+
+/* Skeleton sweep (components/ui/feedback.tsx). Static under reduced motion. */
+@keyframes dg-shimmer {
+  to { transform: translateX(100%); }
+}

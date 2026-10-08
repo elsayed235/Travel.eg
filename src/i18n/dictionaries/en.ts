@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 3925 keys. Loaded per language by
+ * Language: en. 3956 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~95,021 chars here instead of both languages).
+ * (~95,313 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3619,6 +3619,30 @@ export const EN: Record<string, string> = {
   "saveThisDocumentOr": "Save this document or download JSON to access in Blue Lagoon & Ras Abu Galum.",
   "seaState": "Sea State",
   "searchRestaurantsSeafoodBrunch": "Search restaurants, seafood, brunch...",
+  "shell.askDaygi": "Plan with DayGi",
+  "shell.askPlaceholder": "Ask DayGi anything…",
+  "shell.close": "Close",
+  "shell.home": "DAHAB home",
+  "shell.nav.bookings": "My bookings",
+  "shell.nav.experiences": "Experiences",
+  "shell.nav.food": "Food",
+  "shell.nav.help": "Help & SOS",
+  "shell.nav.live": "Dahab live",
+  "shell.nav.more": "More",
+  "shell.nav.rentals": "Bike rentals",
+  "shell.nav.rides": "Rides",
+  "shell.nav.stays": "Stays",
+  "shell.nav.thingsToDo": "Things to do",
+  "shell.search": "Search",
+  "shell.signIn": "Sign in",
+  "shell.switchLanguage": "العربية",
+  "shell.switchLanguageLabel": "Switch to Arabic",
+  "shell.tab.account": "Account",
+  "shell.tab.discover": "Discover",
+  "shell.tab.plan": "Plan",
+  "shell.tab.today": "Today",
+  "shell.tab.trip": "Trip",
+  "shell.tabsLabel": "Main sections",
   "signalConnectivity": "Signal & Connectivity:",
   "splash.enter": "Enter Dahab",
   "splash.eyebrow": "Dahab · Before you book, see it",
@@ -3921,6 +3945,13 @@ export const EN: Record<string, string> = {
   "tripos.yourDahabOperatingBrief": "Your Dahab Operating Brief",
   "tripos.zeroTimingCollisionsOr": "Zero timing collisions or fatigue violations detected",
   "type": "Type",
+  "ui.currency.label": "Show prices in",
+  "ui.price.about": "about {amount}",
+  "ui.price.chargedInEgp": "Charged in Egyptian pounds",
+  "ui.price.from": "from",
+  "ui.price.perNight": "per night",
+  "ui.price.perPerson": "per person",
+  "ui.price.total": "total",
   "vegan": "Vegan",
   "vegetarian": "Vegetarian",
   "verifiedSnapshot": "Verified Snapshot: ",
