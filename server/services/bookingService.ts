@@ -4,6 +4,7 @@ import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { commerceService } from './commerceService';
 import { canTransition } from './bookingLifecycle';
+import { freeCancellationUntil } from './serviceTime';
 
 // ---------------------------------------------------------------------------
 // Booking lifecycle service
@@ -37,6 +38,12 @@ export interface BookingSummary {
   scheduledTime: string;
   confirmationCode: string;
   cancellationKey?: string;
+  /**
+   * ISO instant until which cancelling refunds in full: the service start
+   * (Africa/Cairo) minus the SKU's cancellationPolicyHours. Null when the
+   * booking has no usable date. The UI renders "Free cancellation until …".
+   */
+  freeCancellationUntil: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -261,11 +268,13 @@ export function cancelBooking(params: {
   }
 
   const now = new Date().toISOString();
-  const sku = db.productSkus.find(s => s.id === booking.skuId);
-  const policyHours = sku?.cancellationPolicyHours ?? 24;
-  const bookingTime = new Date(booking.createdAt).getTime();
-  const hoursSinceBooking = (Date.now() - bookingTime) / (1000 * 60 * 60);
-  const withinPolicy = hoursSinceBooking < policyHours;
+  // Free cancellation runs until policyHours BEFORE the service starts. This
+  // was hoursSinceBooking < policyHours, so a dive booked a month ahead lost
+  // its refund a day after purchase while one booked for tonight refunded in
+  // full an hour before departure. An unknown start refunds nothing
+  // automatically — ops can still refund by hand.
+  const deadline = freeCancellationDeadline(booking);
+  const withinPolicy = deadline !== null && Date.now() <= deadline.getTime();
 
   let refunded = false;
   let refundAmountEGP: number | undefined;
@@ -566,6 +575,12 @@ export function getRichAvailability(params: {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** The booking's free-cancellation deadline under its SKU's policy (24h when the SKU is gone). */
+function freeCancellationDeadline(b: BookingEntity): Date | null {
+  const sku = db.productSkus.find(s => s.id === b.skuId);
+  return freeCancellationUntil(b, sku?.cancellationPolicyHours ?? 24);
+}
+
 function toSummary(b: BookingEntity): BookingSummary {
   return {
     id: b.id,
@@ -586,6 +601,7 @@ function toSummary(b: BookingEntity): BookingSummary {
     scheduledDate: b.scheduledDate,
     scheduledTime: b.scheduledTime,
     confirmationCode: b.confirmationCode,
+    freeCancellationUntil: freeCancellationDeadline(b)?.toISOString() ?? null,
     createdAt: b.createdAt,
     updatedAt: b.updatedAt
   };
