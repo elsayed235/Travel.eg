@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/extensions/common_extension.dart';
-import 'package:flutter_tdd/core/widgets/app_text_span_with_seperator.dart';
-import 'package:flutter_tdd/core/widgets/base_form_option/options_listview/option_item_widget.dart';
+import 'package:rehla/core/extensions/common_extension.dart';
+import 'package:rehla/core/widgets/app_text_span_with_seperator.dart';
+import 'package:rehla/core/widgets/base_form_option/options_listview/option_item_widget.dart';
 
 enum OptionsDisplayMode { details, summarized }
 

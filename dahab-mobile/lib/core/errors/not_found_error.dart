@@ -1,5 +1,5 @@
 
-import 'package:flutter_tdd/core/localization/translate.dart';
+import 'package:rehla/core/localization/translate.dart';
 
 import 'base_error.dart';
 

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:flutter_tdd/core/extensions/common_extension.dart';
-import 'package:flutter_tdd/generated/l10n.dart';
+import 'package:rehla/core/extensions/common_extension.dart';
+import 'package:rehla/generated/l10n.dart';
 
 abstract class CollectionHelper {
   /// check two collections (Map, List) are equal or not ignoring ordering.

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/constants/app_loader_widget.dart';
-import 'package:flutter_tdd/core/constants/gaps.dart';
-import 'package:flutter_tdd/core/constants/types.dart';
-import 'package:flutter_tdd/core/errors/base_error.dart';
-import 'package:flutter_tdd/core/theme/colors/app_colors.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/constants/app_loader_widget.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/constants/types.dart';
+import 'package:rehla/core/errors/base_error.dart';
+import 'package:rehla/core/theme/colors/app_colors.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
 
 import 'base_bloc.dart';
 import 'base_state.dart';

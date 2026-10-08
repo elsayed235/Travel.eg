@@ -1,7 +1,7 @@
-import 'package:flutter_tdd/core/constants/fake_images.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
-import 'package:flutter_tdd/features/account/domain/models/account_domain_model.dart';
-import 'package:flutter_tdd/features/account/domain/repositories/account_repository.dart';
+import 'package:rehla/core/constants/fake_images.dart';
+import 'package:rehla/core/http/models/result.dart';
+import 'package:rehla/features/account/domain/models/account_domain_model.dart';
+import 'package:rehla/features/account/domain/repositories/account_repository.dart';
 
 class FakeAccountRepository implements AccountRepository {
   static AccountProfileDomainModel get seedProfile => AccountProfileDomainModel(

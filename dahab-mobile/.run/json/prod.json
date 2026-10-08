@@ -1,10 +1,9 @@
 {
-  "APP_ID": "system.prod",
-  "APP_BASE_URL": "prod/",
+  "APP_ID": "app.rehla.prod",
+  "APP_BASE_URL": "https://rehla.example/",
   "APP_ENV_NAME": "prod",
   "APP_API": "api/",
-  "APP_APP_NAME_EN": "Prod Name",
-  "APP_APP_NAME_AR": "برودكشن",
+  "APP_APP_NAME_EN": "REHLA",
+  "APP_APP_NAME_AR": "رحلة",
   "APP_LOCAL_LOGO": "assets/images/icon.png"
-
 }

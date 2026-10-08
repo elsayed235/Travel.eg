@@ -21,7 +21,7 @@ EdgeInsetsDirectional.only(start: AppSpacing.xl, end: AppSpacing.sm)
 'العدد 12'.toArabicDigits  // العدد ١٢
 ```
 
-- Import `package:flutter_tdd/core/utils/arabic_numerals.dart`
+- Import `package:rehla/core/utils/arabic_numerals.dart`
 - Prices: `NumberFormat.decimalPattern('ar_EG')` or `AppPrice`
 - Back chevron: AutoRoute / `Navigator.pop` with a direction-aware icon (`matchTextDirection: true`)
 - Test long Arabic strings for overflow before finishing a screen

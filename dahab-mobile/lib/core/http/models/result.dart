@@ -1,7 +1,7 @@
-import 'package:flutter_tdd/core/errors/base_error.dart';
-import 'package:flutter_tdd/core/errors/forbidden_error.dart';
-import 'package:flutter_tdd/core/errors/not_found_error.dart';
-import 'package:flutter_tdd/core/errors/unknown_error.dart';
+import 'package:rehla/core/errors/base_error.dart';
+import 'package:rehla/core/errors/forbidden_error.dart';
+import 'package:rehla/core/errors/not_found_error.dart';
+import 'package:rehla/core/errors/unknown_error.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'result.freezed.dart';

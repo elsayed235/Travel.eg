@@ -4,12 +4,12 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:flutter_tdd/core/errors/custom_error.dart';
-import 'package:flutter_tdd/core/errors/not_found_error.dart';
-import 'package:flutter_tdd/core/errors/unauthorized_error.dart';
-import 'package:flutter_tdd/core/helpers/app_snack_bar_service.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/errors/custom_error.dart';
+import 'package:rehla/core/errors/not_found_error.dart';
+import 'package:rehla/core/errors/unauthorized_error.dart';
+import 'package:rehla/core/helpers/app_snack_bar_service.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/http/models/result.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,10 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/bloc/device_cubit/device_cubit.dart';
-import 'package:flutter_tdd/core/constants/input_field_style/custom_input_decoration.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/bloc/device_cubit/device_cubit.dart';
+import 'package:rehla/core/constants/input_field_style/custom_input_decoration.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
 
 class GenericTextField extends StatelessWidget {
   final TextEditingController? controller;

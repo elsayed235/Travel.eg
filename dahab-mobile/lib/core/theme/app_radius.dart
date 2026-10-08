@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Design radii from FLUTTER_SPEC.md.
-/// Nothing in this app exceeds [sheet]. If a design asks for more, it is wrong.
+/// REHLA radii (website tokens: --dg-radius-*). Chips and avatars are fully
+/// rounded; everything else uses one of four steps.
 class AppRadius {
   const AppRadius._();
 
-  static const double image = 6;
-  static const double chip = 6;
-  static const double button = 8;
-  static const double card = 10;
-  static const double sheet = 14;
+  static const double image = 12;
+  static const double chip = 999;
+  static const double button = 12;
+  static const double card = 20;
+  static const double sheet = 28;
 
   static const BorderRadius imageAll = BorderRadius.all(Radius.circular(image));
   static const BorderRadius chipAll = BorderRadius.all(Radius.circular(chip));

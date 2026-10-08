@@ -65,50 +65,6 @@ class AccountController {
     AutoRouter.of(context).push(const EditProfileRoute());
   }
 
-  void openMyOrders(BuildContext context) {
-    AutoRouter.of(context).push(const AccountMyOrdersRoute());
-  }
-
-  void openMyListings(BuildContext context) {
-    AutoRouter.of(context).push(const AccountMyListingsRoute());
-  }
-
-  void openConversations(BuildContext context) {
-    AutoRouter.of(context).push(const ConversationsRoute());
-  }
-
-  void openMyRequests(BuildContext context) {
-    AutoRouter.of(context).push(const AccountMyRequestsRoute());
-  }
-
-  void openMyReviews(BuildContext context) {
-    AutoRouter.of(context).push(const AccountMyReviewsRoute());
-  }
-
-  void openAddresses(BuildContext context) {
-    AutoRouter.of(context).push(const AccountAddressesRoute());
-  }
-
-  Future<void> openRadiusSheet(BuildContext context) async {
-    final current = context.read<DeviceCubit>().state.model.searchRadiusKm;
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.colors.surface1,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetTop),
-      builder: (ctx) => BuildAccountRadiusSheet(
-        currentKm: current,
-        onSelect: (km) async {
-          Navigator.of(ctx).pop();
-          await DeviceSettings.setSearchRadiusKm(context, km);
-          if (context.mounted) {
-            AppSnackBar.showSimpleToast(msg: Translate.s.account_radius_updated);
-          }
-        },
-      ),
-    );
-  }
-
   void openNotifications(BuildContext context) {
     AutoRouter.of(context).push(const AccountNotificationsRoute());
   }

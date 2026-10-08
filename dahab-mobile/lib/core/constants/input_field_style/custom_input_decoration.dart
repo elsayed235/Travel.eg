@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
-import 'package:flutter_tdd/core/theme/colors/app_colors.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/colors/app_colors.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
 
 class CustomInputDecoration extends InputDecoration {
   final String lang;

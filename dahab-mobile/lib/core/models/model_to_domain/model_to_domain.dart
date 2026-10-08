@@ -1,6 +1,6 @@
-import 'package:flutter_tdd/core/http/models/result.dart';
-import 'package:flutter_tdd/core/models/api_model/base_api_model.dart';
-import 'package:flutter_tdd/core/models/domain_model/base_domain_model.dart';
+import 'package:rehla/core/http/models/result.dart';
+import 'package:rehla/core/models/api_model/base_api_model.dart';
+import 'package:rehla/core/models/domain_model/base_domain_model.dart';
 /// from implements x repository add with ModelToDomainResult after the name of class
 mixin ModelToDomainResult {
   /// example:

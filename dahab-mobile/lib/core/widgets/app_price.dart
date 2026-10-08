@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
-import 'package:flutter_tdd/core/utils/arabic_numerals.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/utils/arabic_numerals.dart';
 
 class AppPrice extends StatelessWidget {
   final num amount;

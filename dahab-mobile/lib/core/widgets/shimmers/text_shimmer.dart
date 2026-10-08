@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/widgets/shimmers/base_shimmer_widget.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/widgets/shimmers/base_shimmer_widget.dart';
 
 class TextShimmer extends StatelessWidget {
   final double lineWidthPercent;

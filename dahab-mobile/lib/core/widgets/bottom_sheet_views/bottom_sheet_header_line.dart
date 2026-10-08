@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
 
 class BottomSheetHeaderLine extends StatelessWidget {
   const BottomSheetHeaderLine({super.key});

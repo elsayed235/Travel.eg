@@ -153,60 +153,6 @@ class BuildAccountLogoutSheet extends StatelessWidget {
     );
   }
 }
-
-class BuildAccountRadiusSheet extends StatelessWidget {
-  final int currentKm;
-  final ValueChanged<int> onSelect;
-
-  const BuildAccountRadiusSheet({
-    super.key,
-    required this.currentKm,
-    required this.onSelect,
-  });
-
-  static const options = [10, 15, 25, 50, 100, 150];
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          AppSpacing.xl,
-          AppSpacing.lg,
-          AppSpacing.xl,
-          AppSpacing.xl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              Translate.s.account_radius_title,
-              style: AppTextStyle.sectionTitle(color: context.colors.text),
-              textAlign: TextAlign.center,
-            ),
-            Gaps.vGap9,
-            Text(
-              Translate.s.account_radius_hint,
-              style: AppTextStyle.body(color: context.colors.text2),
-              textAlign: TextAlign.center,
-            ),
-            Gaps.vGap18,
-            for (final km in options) ...[
-              _OptionRow(
-                title: Translate.s.account_radius_value(km.toLocaleDigits),
-                selected: currentKm == km,
-                onTap: () => onSelect(km),
-              ),
-              if (km != options.last) Gaps.vGap9,
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _OptionRow extends StatelessWidget {
   final String title;
   final bool selected;

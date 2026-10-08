@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/gaps.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
-import 'package:flutter_tdd/core/widgets/app_button.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/widgets/app_button.dart';
 
 class BottomSheetButtonWidget extends StatelessWidget {
   final String? customSaveText;

@@ -5728,6 +5728,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Discover`
+  String get home_nav_discover {
+    return Intl.message(
+      'Discover',
+      name: 'home_nav_discover',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan`
+  String get home_nav_plan {
+    return Intl.message('Plan', name: 'home_nav_plan', desc: '', args: []);
+  }
+
+  /// `Trip`
+  String get home_nav_trip {
+    return Intl.message('Trip', name: 'home_nav_trip', desc: '', args: []);
+  }
+
+  /// `Today`
+  String get home_nav_today {
+    return Intl.message('Today', name: 'home_nav_today', desc: '', args: []);
+  }
+
+  /// `DayGi`
+  String get home_nav_daygi {
+    return Intl.message('DayGi', name: 'home_nav_daygi', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

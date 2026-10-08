@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/errors/base_error.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
-import 'package:flutter_tdd/core/requester/state/requester_state.dart';
+import 'package:rehla/core/errors/base_error.dart';
+import 'package:rehla/core/http/models/result.dart';
+import 'package:rehla/core/requester/state/requester_state.dart';
 
 abstract class Requester<T> extends Cubit<RequesterState<T>> {
   Requester({RequesterState<T>? initialState}) : super(initialState ?? const RequesterState.init());

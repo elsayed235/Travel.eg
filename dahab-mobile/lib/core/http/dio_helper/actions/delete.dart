@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_tdd/core/errors/custom_error.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/errors/custom_error.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/http/models/result.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../helpers/loading_helper.dart';

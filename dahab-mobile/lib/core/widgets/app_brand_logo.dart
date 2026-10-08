@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/res.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/res.dart';
 
 /// Brand assets for دبّرها — always pick light/dark from the active theme.
 class AppBrandAssets {

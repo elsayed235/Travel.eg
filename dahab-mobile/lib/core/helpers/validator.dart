@@ -1,4 +1,4 @@
-import 'package:flutter_tdd/core/localization/translate.dart';
+import 'package:rehla/core/localization/translate.dart';
 
 extension Validator on String {
 

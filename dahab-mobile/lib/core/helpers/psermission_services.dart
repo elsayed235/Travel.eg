@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/duration_constants.dart';
-import 'package:flutter_tdd/core/helpers/app_snack_bar_service.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
+import 'package:rehla/core/constants/duration_constants.dart';
+import 'package:rehla/core/helpers/app_snack_bar_service.dart';
+import 'package:rehla/core/localization/translate.dart';
 import 'package:injectable/injectable.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,7 +24,7 @@ class PermissionServices {
   }
 
   Future<bool> requestPermission(Permission permission, BuildContext context) async {
-    if(permission == Permission.storage && Platform.isAndroid){
+    if(permission == Permission.storage && !kIsWeb && Platform.isAndroid){
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       if(androidInfo.version.sdkInt > 29){

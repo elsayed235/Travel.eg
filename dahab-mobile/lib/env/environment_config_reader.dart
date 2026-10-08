@@ -1,5 +1,5 @@
 
-import 'package:flutter_tdd/core/models/localized_name_model/localized_name_model.dart';
+import 'package:rehla/core/models/localized_name_model/localized_name_model.dart';
 
 import 'app_env_type.dart';
 import 'i_environment_config_reader.dart';

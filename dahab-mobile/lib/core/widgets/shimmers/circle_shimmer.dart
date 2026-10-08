@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/widgets/shimmers/base_shimmer_widget.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/widgets/shimmers/base_shimmer_widget.dart';
 
 class CircleShimmer extends StatelessWidget {
   final double radius;

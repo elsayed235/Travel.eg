@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
-import 'package:flutter_tdd/core/utils/arabic_numerals.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/utils/arabic_numerals.dart';
 
 /// Live reach radar — the app's core idea drawn: a request goes out from
 /// you and reaches the owners around you.

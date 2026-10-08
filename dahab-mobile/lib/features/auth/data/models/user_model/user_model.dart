@@ -1,5 +1,5 @@
-import 'package:flutter_tdd/core/models/api_model/base_api_model.dart';
-import 'package:flutter_tdd/features/auth/domain/models/user_domain_model.dart';
+import 'package:rehla/core/models/api_model/base_api_model.dart';
+import 'package:rehla/features/auth/domain/models/user_domain_model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_model.freezed.dart';

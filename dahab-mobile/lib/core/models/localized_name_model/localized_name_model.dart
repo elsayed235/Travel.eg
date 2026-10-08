@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter_tdd/core/constants/app_config.dart';
+import 'package:rehla/core/constants/app_config.dart';
 
 /// how to use ?
 /// @JsonKey(name: "name", ) required final LocalizedNameModel localizedName,

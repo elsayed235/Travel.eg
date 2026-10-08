@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/errors/base_error.dart';
-import 'package:flutter_tdd/core/requester/consumer/requester_state_consumer.dart';
-import 'package:flutter_tdd/core/requester/requester.dart';
-import 'package:flutter_tdd/core/requester/state/requester_state.dart';
+import 'package:rehla/core/errors/base_error.dart';
+import 'package:rehla/core/requester/consumer/requester_state_consumer.dart';
+import 'package:rehla/core/requester/requester.dart';
+import 'package:rehla/core/requester/state/requester_state.dart';
 
 class RequesterConsumer<T> extends StatelessWidget {
   final Requester<T> requester;

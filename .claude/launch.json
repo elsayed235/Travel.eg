@@ -4,8 +4,21 @@
     {
       "name": "dahab-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "rehla-mobile-web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/tarekfouda/Documents/DAHAB/dahab-mobile/tool/serve_web.mjs",
+        "/Users/tarekfouda/Documents/DAHAB/dahab-mobile/build/web",
+        "5180"
+      ],
+      "port": 5180
     }
   ]
 }

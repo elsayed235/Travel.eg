@@ -1,10 +1,10 @@
-import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/bloc/value_state_manager/value_state_manager_import.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
 
 class NetworkLayerWidget extends StatefulWidget {
   final Widget child;
@@ -47,7 +47,7 @@ class _NetworkLayerWidgetState extends State<NetworkLayerWidget> {
                 return Visibility(
                   visible: visible,
                   child: Container(
-                    height: Platform.isIOS? 35 : 30,
+                    height: defaultTargetPlatform == TargetPlatform.iOS ? 35 : 30,
                     width: MediaQuery.of(context).size.width,
                     padding: const EdgeInsets.only(top: 6),
                     color: widget.isNetworkConnected? context.colors.green : context.colors.black,

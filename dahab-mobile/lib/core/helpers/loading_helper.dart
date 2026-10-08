@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_tdd/core/bloc/value_state_manager/value_state_manager_import.dart';
-import 'package:flutter_tdd/core/constants/app_loader_widget.dart';
+import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
+import 'package:rehla/core/constants/app_loader_widget.dart';
 import 'package:injectable/injectable.dart';
 
 @singleton

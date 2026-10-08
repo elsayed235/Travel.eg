@@ -1,10 +1,10 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/bloc/device_cubit/device_cubit.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/helpers/global_context.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/bloc/device_cubit/device_cubit.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/helpers/global_context.dart';
+import 'package:rehla/core/http/models/result.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../network/network_info.dart';

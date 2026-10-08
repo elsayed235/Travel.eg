@@ -41,15 +41,15 @@ class _HomeState extends State<Home> {
                     children: [
                       TickerMode(
                         enabled: index == 0,
-                        child: BuildHomeFeedBody(controller: controller),
+                        child: BuildHomeTabPlaceholder(icon: Icons.explore_outlined, title: Translate.s.home_nav_discover),
                       ),
                       TickerMode(
                         enabled: index == 1,
-                        child: BuildExploreBody(controller: controller.exploreController),
+                        child: BuildHomeTabPlaceholder(icon: Icons.route_outlined, title: Translate.s.home_nav_plan),
                       ),
                       TickerMode(
                         enabled: index == 2,
-                        child: BuildOrdersBody(controller: controller.ordersController),
+                        child: BuildHomeTabPlaceholder(icon: Icons.luggage_outlined, title: Translate.s.home_nav_trip),
                       ),
                       TickerMode(
                         enabled: index == 3,
@@ -61,25 +61,13 @@ class _HomeState extends State<Home> {
                 AppBottomNav(
                   index: index,
                   onChanged: (i) => controller.onNavChanged(context, i),
-                  centerLabel: Translate.s.home_nav_request,
-                  onCenterTap: () => controller.openCreateRequest(context),
+                  centerLabel: Translate.s.home_nav_daygi,
+                  onCenterTap: () => controller.openDaygi(context),
                   items: [
-                    AppBottomNavItem(
-                      icon: Icons.home_outlined,
-                      label: Translate.s.home_nav_home,
-                    ),
-                    AppBottomNavItem(
-                      icon: Icons.explore_outlined,
-                      label: Translate.s.home_nav_explore,
-                    ),
-                    AppBottomNavItem(
-                      icon: Icons.receipt_long_outlined,
-                      label: Translate.s.home_nav_orders,
-                    ),
-                    AppBottomNavItem(
-                      icon: Icons.person_outline,
-                      label: Translate.s.home_nav_account,
-                    ),
+                    AppBottomNavItem(icon: Icons.explore_outlined, label: Translate.s.home_nav_discover),
+                    AppBottomNavItem(icon: Icons.route_outlined, label: Translate.s.home_nav_plan),
+                    AppBottomNavItem(icon: Icons.luggage_outlined, label: Translate.s.home_nav_trip),
+                    AppBottomNavItem(icon: Icons.person_outline, label: Translate.s.home_nav_account),
                   ],
                 ),
               ],

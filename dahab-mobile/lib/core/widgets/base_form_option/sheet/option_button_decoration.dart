@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/dimens.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/constants/dimens.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
 
 class OptionButtonDecoration extends StatelessWidget {
   final Widget child;

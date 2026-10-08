@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_tdd/features/auth/domain/models/user_domain_model.dart';
+import 'package:rehla/features/auth/domain/models/user_domain_model.dart';
 
 part 'user_state.dart';
 

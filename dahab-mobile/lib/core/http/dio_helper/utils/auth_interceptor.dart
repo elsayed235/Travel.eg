@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/http/dio_helper/actions/post.dart';
-import 'package:flutter_tdd/core/http/generic_http/api_names.dart';
-import 'package:flutter_tdd/core/http/models/request_body_model.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/http/dio_helper/actions/post.dart';
+import 'package:rehla/core/http/generic_http/api_names.dart';
+import 'package:rehla/core/http/models/request_body_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInterceptor extends Interceptor {

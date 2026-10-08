@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter_tdd/core/errors/custom_error.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/errors/custom_error.dart';
+import 'package:rehla/core/http/models/result.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../helpers/di.dart';

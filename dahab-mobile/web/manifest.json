@@ -1,11 +1,11 @@
 {
-    "name": "flutter_tdd",
-    "short_name": "flutter_tdd",
+    "name": "REHLA",
+    "short_name": "REHLA",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B151C",
+    "theme_color": "#0B151C",
+    "description": "REHLA — Dahab, Nuweiba and Siwa, planned around you.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

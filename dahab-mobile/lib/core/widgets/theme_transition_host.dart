@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/helpers/theme_transition_service.dart';
+import 'package:rehla/core/helpers/theme_transition_service.dart';
 
 /// Full-screen cover host for [ThemeTransitionService].
 /// Mount once under [MaterialApp] so theme swaps stay visually continuous.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/errors/base_error.dart';
+import 'package:rehla/core/errors/base_error.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'base_state.freezed.dart';

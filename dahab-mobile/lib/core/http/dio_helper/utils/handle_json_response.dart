@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/http/models/result.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../models/http_request_model.dart';

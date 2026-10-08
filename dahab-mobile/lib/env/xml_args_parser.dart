@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_tdd/core/extensions/string_helper_extension.dart';
+import 'package:rehla/core/extensions/string_helper_extension.dart';
 import 'package:xml/xml.dart';
 
 class XmlArgsParser {

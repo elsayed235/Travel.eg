@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
 
 class Dimens {
   static const double cardBorderRadius = AppRadius.card;

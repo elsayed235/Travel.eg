@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/requester/requester.dart';
-import 'package:flutter_tdd/core/requester/state/requester_state.dart';
+import 'package:rehla/core/requester/requester.dart';
+import 'package:rehla/core/requester/state/requester_state.dart';
 
 class RequesterStateConsumer<T> extends StatelessWidget {
   final Requester<T> requester;

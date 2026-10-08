@@ -1,9 +1,9 @@
 {
-  "APP_ID": "system.dev",
-  "APP_BASE_URL": "dev/",
+  "APP_ID": "app.rehla.dev",
+  "APP_BASE_URL": "http://localhost:3000/",
   "APP_ENV_NAME": "dev",
   "APP_API": "api/",
-  "APP_APP_NAME_EN": "Dev Name",
-  "APP_APP_NAME_AR": "ديف",
+  "APP_APP_NAME_EN": "REHLA Dev",
+  "APP_APP_NAME_AR": "رحلة ديف",
   "APP_LOCAL_LOGO": "assets/images/icon.png"
 }

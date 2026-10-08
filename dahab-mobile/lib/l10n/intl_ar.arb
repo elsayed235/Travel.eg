@@ -598,5 +598,10 @@
   "ai_home_or_try": "أو جرّب",
   "ai_home_example_1": "٢٠ كرسي لفرح يوم الخميس",
   "ai_home_example_2": "لابتوب خفيف للشغل لمدة أسبوع",
-  "ai_home_example_3": "فستان سواريه مقاس M بكرة"
+  "ai_home_example_3": "فستان سواريه مقاس M بكرة",
+  "home_nav_discover": "اكتشف",
+  "home_nav_plan": "خطّط",
+  "home_nav_trip": "رحلتي",
+  "home_nav_today": "النهارده",
+  "home_nav_daygi": "DayGi"
 }

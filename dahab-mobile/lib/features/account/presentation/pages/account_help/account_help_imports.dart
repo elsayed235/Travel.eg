@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/gaps.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
-import 'package:flutter_tdd/core/widgets/default_app_bar.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/default_app_bar.dart';
 
 part 'account_help.dart';

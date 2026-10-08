@@ -1,8 +1,8 @@
-import 'package:flutter_tdd/core/requester/requester.dart';
-import 'package:flutter_tdd/core/requester/state/requester_state.dart';
-import 'package:flutter_tdd/features/account/data/repositories/fake_account_repository.dart';
-import 'package:flutter_tdd/features/account/domain/models/account_domain_model.dart';
-import 'package:flutter_tdd/features/account/domain/repositories/account_repository.dart';
+import 'package:rehla/core/requester/requester.dart';
+import 'package:rehla/core/requester/state/requester_state.dart';
+import 'package:rehla/features/account/data/repositories/fake_account_repository.dart';
+import 'package:rehla/features/account/domain/models/account_domain_model.dart';
+import 'package:rehla/features/account/domain/repositories/account_repository.dart';
 
 class AccountRequester extends Requester<AccountProfileDomainModel> {
   AccountRequester({AccountRepository? repository})

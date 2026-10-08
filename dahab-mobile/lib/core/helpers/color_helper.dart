@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/colors/app_colors.dart';
+import 'package:rehla/core/theme/colors/app_colors.dart';
 
 class ColorHelper {
 

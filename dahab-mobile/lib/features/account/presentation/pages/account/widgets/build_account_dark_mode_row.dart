@@ -6,7 +6,9 @@ class BuildAccountDarkModeRow extends StatelessWidget {
   const BuildAccountDarkModeRow({super.key, required this.isDark});
 
   Future<void> _toggle(BuildContext context) async {
-    final coverColor = isDark ? AppLightColors().bg : AppDarkColors().bg;
+    // Cover with the background the screen is about to have (same place).
+    final destination = Theme.of(context).extension<RehlaColorsExtension>()?.destination ?? RehlaDestination.dahab;
+    final coverColor = RehlaPalettes.of(destination, isDark ? Brightness.light : Brightness.dark).bg;
     final mode = isDark ? AdaptiveThemeMode.light : AdaptiveThemeMode.dark;
     await ThemeTransitionService.instance.transition(coverColor, () {
       if (!context.mounted) return;

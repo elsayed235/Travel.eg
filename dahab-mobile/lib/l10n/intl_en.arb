@@ -598,5 +598,10 @@
   "ai_home_or_try": "Or try",
   "ai_home_example_1": "20 chairs for a wedding on Thursday",
   "ai_home_example_2": "A light laptop for work for a week",
-  "ai_home_example_3": "An evening dress, size M, tomorrow"
+  "ai_home_example_3": "An evening dress, size M, tomorrow",
+  "home_nav_discover": "Discover",
+  "home_nav_plan": "Plan",
+  "home_nav_trip": "Trip",
+  "home_nav_today": "Today",
+  "home_nav_daygi": "DayGi"
 }

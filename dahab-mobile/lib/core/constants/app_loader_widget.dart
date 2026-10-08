@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/widgets/app_brand_logo.dart';
-import 'package:flutter_tdd/core/widgets/svg_icons/app_loader_image.dart';
+import 'package:rehla/core/widgets/app_brand_logo.dart';
+import 'package:rehla/core/widgets/svg_icons/app_loader_image.dart';
 
 enum AppLoaderSize {
   small(25),

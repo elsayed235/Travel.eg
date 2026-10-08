@@ -1,4 +1,4 @@
-import 'package:flutter_tdd/core/errors/unknown_error.dart';
+import 'package:rehla/core/errors/unknown_error.dart';
 
 abstract class BaseError {
   const BaseError(this.message);

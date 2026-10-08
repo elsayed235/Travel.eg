@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/theme/colors/app_colors.dart';
-import 'package:flutter_tdd/core/theme/themes/app_theme.dart';
+import 'package:rehla/core/theme/colors/app_colors.dart';
+import 'package:rehla/core/theme/themes/app_theme.dart';
 
 class CustomInputTextStyle extends TextStyle{
 

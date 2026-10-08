@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/generated/l10n.dart';
+import 'package:rehla/generated/l10n.dart';
 
 class Translate {
   Translate._();

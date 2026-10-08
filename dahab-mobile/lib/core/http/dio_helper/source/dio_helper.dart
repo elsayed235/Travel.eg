@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_tdd/core/http/models/result.dart';
+import 'package:rehla/core/http/models/result.dart';
 import '../../../helpers/di.dart';
 import '../../generic_http/api_names.dart';
 import '../../models/request_body_model.dart';

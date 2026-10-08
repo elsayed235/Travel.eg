@@ -48,32 +48,6 @@ class BuildAccountBody extends StatelessWidget {
                   onEdit: () => controller.openEditProfile(context),
                 ),
                 Gaps.vGap18,
-                BuildAccountStats(
-                  stats: profile.stats,
-                  onOrdersTap: () => controller.openMyOrders(context),
-                  onRequestsTap: () => controller.openMyRequests(context),
-                  onReviewsTap: () => controller.openMyReviews(context),
-                ),
-                Gaps.vGap24,
-                BuildAccountSection(
-                  title: Translate.s.account_section_activity,
-                  children: [
-                    BuildAccountTile(
-                      icon: Icons.chat_bubble_outline,
-                      title: Translate.s.chat_conversations_title,
-                      subtitle: Translate.s.chat_conversations_tile_hint,
-                      onTap: () => controller.openConversations(context),
-                    ),
-                    BuildAccountTile(
-                      icon: Icons.search_outlined,
-                      title: Translate.s.account_my_requests_title,
-                      subtitle: Translate.s.account_my_requests_subtitle,
-                      onTap: () => controller.openMyRequests(context),
-                      showDivider: false,
-                    ),
-                  ],
-                ),
-                Gaps.vGap18,
                 BuildAccountSection(
                   title: Translate.s.account_section_profile,
                   children: [
@@ -82,14 +56,6 @@ class BuildAccountBody extends StatelessWidget {
                       title: Translate.s.account_edit_profile,
                       subtitle: Translate.s.account_edit_profile_hint,
                       onTap: () => controller.openEditProfile(context),
-                    ),
-                    BuildAccountTile(
-                      icon: Icons.location_on_outlined,
-                      title: Translate.s.account_addresses,
-                      subtitle: Translate.s.account_addresses_count(
-                        profile.addresses.length.toLocaleDigits,
-                      ),
-                      onTap: () => controller.openAddresses(context),
                     ),
                     BuildAccountTile(
                       icon: Icons.notifications_none_rounded,
@@ -104,12 +70,6 @@ class BuildAccountBody extends StatelessWidget {
                 BuildAccountSection(
                   title: Translate.s.account_section_preferences,
                   children: [
-                    BuildAccountTile(
-                      icon: Icons.radar_outlined,
-                      title: Translate.s.account_radius_title,
-                      subtitle: controller.radiusLabel(deviceState.model.searchRadiusKm),
-                      onTap: () => controller.openRadiusSheet(context),
-                    ),
                     BuildAccountTile(
                       icon: Icons.language,
                       title: Translate.s.label_app_language,

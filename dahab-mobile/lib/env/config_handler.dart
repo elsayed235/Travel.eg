@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_tdd/core/constants/app_constants.dart';
+import 'package:rehla/core/constants/app_constants.dart';
 import 'package:process_run/process_run.dart';
 
 import 'app_env_type.dart';

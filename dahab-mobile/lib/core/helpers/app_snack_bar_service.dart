@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/gaps.dart';
-import 'package:flutter_tdd/core/errors/base_error.dart';
-import 'package:flutter_tdd/core/errors/unknown_error.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/helpers/global_context.dart';
-import 'package:flutter_tdd/core/localization/translate.dart';
-import 'package:flutter_tdd/core/theme/app_radius.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
-import 'package:flutter_tdd/core/theme/colors/app_colors.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
-import 'package:flutter_tdd/core/widgets/svg_icon_wrapper.dart';
-import 'package:flutter_tdd/res.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/errors/base_error.dart';
+import 'package:rehla/core/errors/unknown_error.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/helpers/global_context.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/colors/app_colors.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/svg_icon_wrapper.dart';
+import 'package:rehla/res.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 enum ToastType { success, error, info }

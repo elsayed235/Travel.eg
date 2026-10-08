@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_tdd/core/helpers/color_helper.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/helpers/color_helper.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
 
 class AppLoaderImage extends StatelessWidget {
   final double size;

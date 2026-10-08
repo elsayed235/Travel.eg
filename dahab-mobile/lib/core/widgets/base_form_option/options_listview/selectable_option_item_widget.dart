@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/dimens.dart';
-import 'package:flutter_tdd/core/constants/gaps.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
-import 'package:flutter_tdd/core/widgets/base_form_option/options_listview/check_icon.dart';
-import 'package:flutter_tdd/core/widgets/base_form_option/options_listview/option_item_widget.dart';
+import 'package:rehla/core/constants/dimens.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/base_form_option/options_listview/check_icon.dart';
+import 'package:rehla/core/widgets/base_form_option/options_listview/option_item_widget.dart';
 class SelectableOptionItemWidget extends StatelessWidget {
   final GestureTapCallback? onTap;
   final bool isSelected;

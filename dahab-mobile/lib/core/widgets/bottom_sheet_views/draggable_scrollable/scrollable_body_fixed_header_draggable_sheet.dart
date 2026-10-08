@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tdd/core/constants/dimens.dart';
-import 'package:flutter_tdd/core/theme/app_spacing.dart';
-import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
-import 'package:flutter_tdd/core/widgets/bottom_sheet_views/draggable_scrollable/app_draggable_scrollable_sheet.dart';
+import 'package:rehla/core/constants/dimens.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/widgets/bottom_sheet_views/draggable_scrollable/app_draggable_scrollable_sheet.dart';
 
 class ScrollableBodyFixedHeaderDraggableSheet extends StatelessWidget {
   final Widget header;

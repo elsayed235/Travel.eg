@@ -1,9 +1,9 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/bloc/device_cubit/device_cubit.dart';
-import 'package:flutter_tdd/core/constants/app_constants.dart';
-import 'package:flutter_tdd/generated/l10n.dart';
+import 'package:rehla/core/bloc/device_cubit/device_cubit.dart';
+import 'package:rehla/core/constants/app_constants.dart';
+import 'package:rehla/generated/l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Syncs DeviceCubit + AdaptiveTheme + SharedPreferences for locale/theme/radius.

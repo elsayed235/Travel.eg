@@ -1,42 +1,38 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_tdd/core/bloc/device_cubit/device_cubit.dart';
-import 'package:flutter_tdd/core/helpers/di.dart';
-import 'package:flutter_tdd/core/helpers/global_context.dart';
-import 'package:flutter_tdd/core/theme/colors/app_dark_colors.dart';
-import 'package:flutter_tdd/core/theme/colors/app_light_colors.dart';
+import 'package:rehla/core/helpers/di.dart';
+import 'package:rehla/core/helpers/global_context.dart';
+import 'package:rehla/core/theme/colors/rehla_palettes.dart';
+import 'package:rehla/core/theme/destination/rehla_destination.dart';
 
+/// Colour tokens. Values come from [RehlaPalettes] for the active destination
+/// and light/dark mode, carried in [ThemeData] by [RehlaColorsExtension].
 abstract class AppColors {
-  static final AppDarkColors _dark = AppDarkColors();
-  static final AppLightColors _light = AppLightColors();
+  /// Palette that never changes with the place or mode (Dahab, light).
+  static AppColors get fixedColors => RehlaPalettes.of(RehlaDestination.dahab, Brightness.light);
 
-  static AppColors get fixedColors => _light;
-
-  static const Color snackBarGreenSuccess = Color(0xFF2E7F5F);
-  static const Color snackBarRedError = Color(0xFFB4384C);
-  static const Color snackBarYellowAlert = Color(0xFF96701F);
+  static const Color snackBarGreenSuccess = Color(0xFF1F6B47);
+  static const Color snackBarRedError = Color(0xFFA23A22);
+  static const Color snackBarYellowAlert = Color(0xFF8A5A0B);
   static const Color onSnack = Color(0xFFFFFFFF);
 
-  static AppColors get noContextInstance =>
-      getIt.get<GlobalContext>().context().read<DeviceCubit>().state.model.themeMode ==
-              AdaptiveThemeMode.dark
-          ? _dark
-          : _light;
+  /// For code without a BuildContext (form sheets): the app's current palette.
+  static AppColors get noContextInstance => of(getIt.get<GlobalContext>().context());
 
-  /// Binds to [Theme] so AdaptiveTheme swaps rebuild every `context.colors` caller.
+  /// Binds to [Theme] so destination and dark-mode swaps rebuild every
+  /// `context.colors` caller.
   static AppColors of(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    return brightness == Brightness.dark ? _dark : _light;
+    final theme = Theme.of(context);
+    return theme.extension<RehlaColorsExtension>()?.colors ??
+        RehlaPalettes.of(RehlaDestination.dahab, theme.brightness);
   }
 
   /// Screen background.
   Color get bg;
 
-  /// Cards, fields.
+  /// Cards.
   Color get surface1;
 
-  /// Inputs, filters.
+  /// Inputs, filters, raised rows.
   Color get surface2;
 
   /// Icon tiles, secondary buttons.
@@ -57,26 +53,34 @@ abstract class AppColors {
   /// Tertiary / disabled.
   Color get text3;
 
-  /// Primary button fill.
+  /// The one action colour (lagoon in Dahab): primary buttons, active states.
   Color get button;
 
-  /// Primary button label.
+  /// Label on [button].
   Color get onButton;
 
-  /// Availability / success.
+  /// Soft tint of the action colour: selected chips, hover, badges.
+  Color get actionWash;
+
+  /// The single highlight per view (sunset coral in Dahab).
+  Color get highlight;
+
+  Color get highlightBg;
+
+  /// Success / availability.
   Color get green;
 
   Color get greenBg;
 
-  /// Icons and text on a solid green fill (same in both themes).
+  /// Icons and text on a solid green fill (same in every palette).
   Color get onGreen => const Color(0xFFFFFFFF);
 
-  /// Rating, verification.
+  /// Warnings, estimates.
   Color get amber;
 
   Color get amberBg;
 
-  /// Late, problems, errors.
+  /// Problems, errors.
   Color get red;
 
   /// Magr aliases — mapped to tokens, never duplicate hex.
