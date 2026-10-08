@@ -73,8 +73,10 @@ export const DESTINATIONS: Record<DestinationId, Destination> = {
     catalogue: 'early',
     chrome: { abyss: '#0F1A1E', salt: '#F2F1EB' },
     swatch: ['#6FB3BF', '#B6A28C'],
-    heroImage: '/images/explore/explore-sunrise-golden.webp',
-    heroFocus: '50% 55%',
+    // Nuweiba is simple beach camps facing the sea, no yachts or resorts:
+    // a palm-frond shade on bare sand with the Gulf and the far mountains.
+    heroImage: '/images/explore/explore-beach-cove.webp',
+    heroFocus: '30% 55%',
     motion: {
       spring: { type: 'tween', duration: 0.48, ease: [0.45, 0, 0.2, 1] },
       layout: { type: 'tween', duration: 0.5, ease: [0.45, 0, 0.2, 1] },
