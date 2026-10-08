@@ -86,83 +86,94 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(qty, date) => "${qty} • ${date}";
 
-  static String m30(km) => "No requests within ${km} km";
+  static String m30(place) => "What brings you to ${place}?";
 
-  static String m31(km) => "Widen to ${km} km";
+  static String m31(place) =>
+      "${place} is just opening on REHLA: plans first, bookings soon.";
 
-  static String m32(count) => "${count} requests";
+  static String m32(place) => "Right now in ${place}";
 
-  static String m33(place) => "Near ${place}";
+  static String m33(place) => "Worth your time in ${place}";
 
-  static String m34(time) => "Valid for ${time}";
+  static String m34(source, time) => "${source} · ${time}";
 
-  static String m35(date) => "Available on ${date}";
+  static String m35(km) => "No requests within ${km} km";
 
-  static String m36(km) => "${km} km";
+  static String m36(km) => "Widen to ${km} km";
 
-  static String m37(days) => "Within ${days} days";
+  static String m37(count) => "${count} requests";
 
-  static String m38(greeting, name) => "${greeting}, ${name}";
+  static String m38(place) => "Near ${place}";
 
-  static String m39(place, km) => "${place} ${km} km";
+  static String m39(time) => "Valid for ${time}";
 
-  static String m40(date) => "Needed ${date}";
+  static String m40(date) => "Available on ${date}";
 
   static String m41(km) => "${km} km";
 
-  static String m42(count, km) =>
+  static String m42(days) => "Within ${days} days";
+
+  static String m43(greeting, name) => "${greeting}, ${name}";
+
+  static String m44(place, km) => "${place} ${km} km";
+
+  static String m45(date) => "Needed ${date}";
+
+  static String m46(km) => "${km} km";
+
+  static String m47(count, km) =>
       "${count} neighbors within ${km} km could have what you need";
 
-  static String m43(count) => "Reaches ${count} people in your area";
+  static String m48(count) => "Reaches ${count} people in your area";
 
-  static String m44(count) => "View all (${count})";
+  static String m49(count) => "View all (${count})";
 
-  static String m45(month) => "Availability — ${month}";
+  static String m50(month) => "Availability — ${month}";
 
-  static String m46(count) => "Book ${count} chairs";
+  static String m51(count) => "Book ${count} chairs";
 
-  static String m47(min, insurance) =>
+  static String m52(min, insurance) =>
       "Request minimum ${min} · expected insurance ${insurance} EGP";
 
-  static String m48(min) => "Quantity must be at least ${min}";
+  static String m53(min) => "Quantity must be at least ${min}";
 
-  static String m49(unit) => "Quantity (${unit})";
+  static String m54(unit) => "Quantity (${unit})";
 
-  static String m50(min, insurance) =>
+  static String m55(min, insurance) =>
       "Minimum ${min} · expected insurance ${insurance} EGP";
 
-  static String m51(count) => "${count} chairs";
+  static String m56(count) => "${count} chairs";
 
-  static String m52(count) => "(${count} reviews)";
+  static String m57(count) => "(${count} reviews)";
 
-  static String m53(available, total) => "${available} of ${total}";
+  static String m58(available, total) => "${available} of ${total}";
 
-  static String m54(time) => "Commits to deliver before ${time}";
+  static String m59(time) => "Commits to deliver before ${time}";
 
-  static String m55(count) => "Compare ${count}";
+  static String m60(count) => "Compare ${count}";
 
-  static String m56(count) => "${count} deals";
+  static String m61(count) => "${count} deals";
 
-  static String m57(km) => "${km} km";
+  static String m62(km) => "${km} km";
 
-  static String m58(minutes) => "Last offer ${minutes}m ago";
+  static String m63(minutes) => "Last offer ${minutes}m ago";
 
-  static String m59(count) => "${count} new offers";
+  static String m64(count) => "${count} new offers";
 
-  static String m60(qty, date, budget) =>
+  static String m65(qty, date, budget) =>
       "${qty} • ${date} • Budget ${budget} EGP";
 
-  static String m61(minutes) => "${minutes} min";
+  static String m66(minutes) => "${minutes} min";
 
-  static String m62(count) => "${count} offers on your request";
+  static String m67(count) => "${count} offers on your request";
 
-  static String m63(date, qty) => "Needed ${date} · ${qty}";
+  static String m68(date, qty) => "Needed ${date} · ${qty}";
 
-  static String m64(count) => "${count} orders are waiting on you for pickup";
+  static String m69(count) => "${count} orders are waiting on you for pickup";
 
-  static String m65(provider, qty) => "${provider} · ${qty}";
+  static String m70(provider, qty) => "${provider} · ${qty}";
 
-  static String m66(MB, files) =>
+  static String m71(MB, files) =>
       "These files must be under ${MB} MB: ${files}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -964,6 +975,32 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_whatsapp_same_hint": MessageLookupByLibrary.simpleMessage(
       "Use the phone number for WhatsApp",
     ),
+    "discover_air": MessageLookupByLibrary.simpleMessage("Air"),
+    "discover_ask_daygi": MessageLookupByLibrary.simpleMessage("Ask DayGi"),
+    "discover_doors_title": m30,
+    "discover_early_note": m31,
+    "discover_hero_cta": MessageLookupByLibrary.simpleMessage("Plan my trip"),
+    "discover_live": m32,
+    "discover_pick_cta": MessageLookupByLibrary.simpleMessage(
+      "Plan around this",
+    ),
+    "discover_picks_title": m33,
+    "discover_prompt_body": MessageLookupByLibrary.simpleMessage(
+      "Tell us who\'s coming and what you love. We\'ll suggest plans and show why each one fits.",
+    ),
+    "discover_prompt_cta": MessageLookupByLibrary.simpleMessage(
+      "Start planning",
+    ),
+    "discover_prompt_title": MessageLookupByLibrary.simpleMessage(
+      "Not sure where to start?",
+    ),
+    "discover_source": m34,
+    "discover_sunset": MessageLookupByLibrary.simpleMessage("Sunset"),
+    "discover_switch_label": MessageLookupByLibrary.simpleMessage(
+      "Choose a destination",
+    ),
+    "discover_water": MessageLookupByLibrary.simpleMessage("Water"),
+    "discover_wind": MessageLookupByLibrary.simpleMessage("Wind"),
     "done": MessageLookupByLibrary.simpleMessage("Done"),
     "error_BadRequest_Error": MessageLookupByLibrary.simpleMessage(
       "Bad request",
@@ -1010,10 +1047,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_empty_title": MessageLookupByLibrary.simpleMessage(
       "No results in this radius",
     ),
-    "explore_empty_title_radius": m30,
+    "explore_empty_title_radius": m35,
     "explore_empty_widen": MessageLookupByLibrary.simpleMessage("Widen radius"),
-    "explore_empty_widen_to": m31,
-    "explore_results_count": m32,
+    "explore_empty_widen_to": m36,
+    "explore_results_count": m37,
     "explore_search_hint": MessageLookupByLibrary.simpleMessage(
       "Search chairs, backdrop, lighting…",
     ),
@@ -1024,11 +1061,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_sort_soonest": MessageLookupByLibrary.simpleMessage(
       "Needed soonest",
     ),
-    "explore_subtitle": m33,
+    "explore_subtitle": m38,
     "explore_title": MessageLookupByLibrary.simpleMessage("Explore"),
     "failureActions": MessageLookupByLibrary.simpleMessage("Failure actions"),
     "fillField": MessageLookupByLibrary.simpleMessage("Please fill this field"),
-    "handover_countdown": m34,
+    "handover_countdown": m39,
     "handover_done": MessageLookupByLibrary.simpleMessage("Done showing"),
     "handover_open_ritual": MessageLookupByLibrary.simpleMessage(
       "Full-screen code",
@@ -1042,12 +1079,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_ask_placeholder": MessageLookupByLibrary.simpleMessage(
       "Type or say what you need. We\'ll sort out the details.",
     ),
-    "home_available_on": m35,
+    "home_available_on": m40,
     "home_buy": MessageLookupByLibrary.simpleMessage("Buy"),
     "home_card_offer": MessageLookupByLibrary.simpleMessage("Make an offer"),
     "home_categories_title": MessageLookupByLibrary.simpleMessage("Categories"),
-    "home_distance_km": m36,
-    "home_due_in_days": m37,
+    "home_distance_km": m41,
+    "home_due_in_days": m42,
     "home_due_today": MessageLookupByLibrary.simpleMessage("Needed today"),
     "home_due_tomorrow": MessageLookupByLibrary.simpleMessage(
       "Needed tomorrow",
@@ -1061,7 +1098,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_greeting_morning": MessageLookupByLibrary.simpleMessage(
       "Good morning",
     ),
-    "home_greeting_named": m38,
+    "home_greeting_named": m43,
     "home_headline": MessageLookupByLibrary.simpleMessage("What do you need?"),
     "home_headline_fulfiller": MessageLookupByLibrary.simpleMessage(
       "Nearby requests you can fulfill",
@@ -1072,7 +1109,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_headline_sub": MessageLookupByLibrary.simpleMessage(
       "Browse nearby requests or post what you need",
     ),
-    "home_location_km": m39,
+    "home_location_km": m44,
     "home_nav_account": MessageLookupByLibrary.simpleMessage("Account"),
     "home_nav_daygi": MessageLookupByLibrary.simpleMessage("DayGi"),
     "home_nav_discover": MessageLookupByLibrary.simpleMessage("Discover"),
@@ -1084,13 +1121,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_nav_today": MessageLookupByLibrary.simpleMessage("Today"),
     "home_nav_trip": MessageLookupByLibrary.simpleMessage("Trip"),
     "home_nearest": MessageLookupByLibrary.simpleMessage("Nearest"),
-    "home_need_by_chip": m40,
+    "home_need_by_chip": m45,
     "home_notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
     "home_price_unit_day": MessageLookupByLibrary.simpleMessage("/day"),
-    "home_radius_label": m41,
-    "home_reach_line": m42,
+    "home_radius_label": m46,
+    "home_reach_line": m47,
     "home_rent": MessageLookupByLibrary.simpleMessage("Rent"),
-    "home_request_subtitle": m43,
+    "home_request_subtitle": m48,
     "home_request_title": MessageLookupByLibrary.simpleMessage(
       "Request it and we\'ll find it",
     ),
@@ -1103,7 +1140,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_side_empty": MessageLookupByLibrary.simpleMessage(
       "No requests in this category right now",
     ),
-    "home_view_all": m44,
+    "home_view_all": m49,
     "internet_connected": MessageLookupByLibrary.simpleMessage(
       "Internet connected",
     ),
@@ -1132,13 +1169,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "lifecycle_handover": MessageLookupByLibrary.simpleMessage("Handover"),
     "lifecycle_offers": MessageLookupByLibrary.simpleMessage("Offers"),
     "lifecycle_published": MessageLookupByLibrary.simpleMessage("Posted"),
-    "listing_availability": m45,
-    "listing_book": m46,
+    "listing_availability": m50,
+    "listing_book": m51,
     "listing_buy": MessageLookupByLibrary.simpleMessage("Buy"),
     "listing_fulfill_cta": MessageLookupByLibrary.simpleMessage(
       "Offer on this request",
     ),
-    "listing_fulfill_sheet_hint": m47,
+    "listing_fulfill_sheet_hint": m52,
     "listing_fulfill_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Submit your offer to this requester",
     ),
@@ -1161,21 +1198,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_offer_err_price": MessageLookupByLibrary.simpleMessage(
       "Enter an offer price",
     ),
-    "listing_offer_err_qty": m48,
+    "listing_offer_err_qty": m53,
     "listing_offer_price_label": MessageLookupByLibrary.simpleMessage(
       "Your offer price",
     ),
-    "listing_offer_qty_label": m49,
+    "listing_offer_qty_label": m54,
     "listing_offer_sent": MessageLookupByLibrary.simpleMessage(
       "Offer sent — conversation opened",
     ),
-    "listing_offer_sheet_hint": m50,
+    "listing_offer_sheet_hint": m55,
     "listing_offer_sheet_title": MessageLookupByLibrary.simpleMessage(
       "Submit your offer on this listing",
     ),
     "listing_offer_submit": MessageLookupByLibrary.simpleMessage("Send offer"),
     "listing_owner_label": MessageLookupByLibrary.simpleMessage("Owner"),
-    "listing_qty": m51,
+    "listing_qty": m56,
     "listing_rent": MessageLookupByLibrary.simpleMessage("Rent"),
     "listing_request_details_hint": MessageLookupByLibrary.simpleMessage(
       "Someone is looking for this — insurance, deposit, and terms are shown here",
@@ -1183,8 +1220,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_request_details_title": MessageLookupByLibrary.simpleMessage(
       "Request details",
     ),
-    "listing_reviews": m52,
-    "listing_stock": m53,
+    "listing_reviews": m57,
+    "listing_stock": m58,
     "listing_total_one_day": MessageLookupByLibrary.simpleMessage(
       "Total for one day",
     ),
@@ -1251,8 +1288,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "offers_ask": MessageLookupByLibrary.simpleMessage("Ask"),
     "offers_back": MessageLookupByLibrary.simpleMessage("My requests"),
     "offers_best": MessageLookupByLibrary.simpleMessage("Best"),
-    "offers_commit_before": m54,
-    "offers_compare": m55,
+    "offers_commit_before": m59,
+    "offers_compare": m60,
     "offers_compare_subtitle": MessageLookupByLibrary.simpleMessage(
       "Price · distance · rating · response",
     ),
@@ -1260,24 +1297,24 @@ class MessageLookup extends MessageLookupByLibrary {
       "Compare offers",
     ),
     "offers_currency": MessageLookupByLibrary.simpleMessage("EGP"),
-    "offers_deals_count": m56,
+    "offers_deals_count": m61,
     "offers_delivery_free": MessageLookupByLibrary.simpleMessage("Free"),
     "offers_delivery_on_renter": MessageLookupByLibrary.simpleMessage(
       "On renter",
     ),
     "offers_delivery_pickup": MessageLookupByLibrary.simpleMessage("Pickup"),
-    "offers_distance_km": m57,
+    "offers_distance_km": m62,
     "offers_field_deals": MessageLookupByLibrary.simpleMessage("Deals"),
     "offers_field_delivery": MessageLookupByLibrary.simpleMessage("Delivery"),
     "offers_field_insurance": MessageLookupByLibrary.simpleMessage("Insurance"),
     "offers_field_response": MessageLookupByLibrary.simpleMessage("Response"),
     "offers_late_risk": MessageLookupByLibrary.simpleMessage("Tight timing"),
     "offers_new": MessageLookupByLibrary.simpleMessage("New"),
-    "offers_nudge_last": m58,
-    "offers_nudge_new": m59,
-    "offers_request_summary": m60,
-    "offers_response_minutes": m61,
-    "offers_title": m62,
+    "offers_nudge_last": m63,
+    "offers_nudge_new": m64,
+    "offers_request_summary": m65,
+    "offers_response_minutes": m66,
+    "offers_title": m67,
     "offers_verified": MessageLookupByLibrary.simpleMessage("Verified"),
     "offers_why_cheapest": MessageLookupByLibrary.simpleMessage("Lowest price"),
     "offers_why_fastest": MessageLookupByLibrary.simpleMessage("Fastest"),
@@ -1326,7 +1363,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "order_detail_enter_code_title": MessageLookupByLibrary.simpleMessage(
       "Confirm receipt with code",
     ),
-    "order_detail_event": m63,
+    "order_detail_event": m68,
     "order_detail_status_updated": MessageLookupByLibrary.simpleMessage(
       "Order status updated",
     ),
@@ -1334,7 +1371,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Order timeline",
     ),
     "order_detail_title": MessageLookupByLibrary.simpleMessage("Order details"),
-    "orders_action_needed": m64,
+    "orders_action_needed": m69,
     "orders_awaiting_peer": MessageLookupByLibrary.simpleMessage(
       "Awaiting offers",
     ),
@@ -1354,7 +1391,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Cancelled",
     ),
     "orders_filter_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "orders_meta": m65,
+    "orders_meta": m70,
     "orders_next_details": MessageLookupByLibrary.simpleMessage("Details"),
     "orders_next_enter_code": MessageLookupByLibrary.simpleMessage(
       "Enter pickup code",
@@ -1419,7 +1456,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
-    "size_more_than_mg_error": m66,
+    "size_more_than_mg_error": m71,
     "something_went_wrong": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),

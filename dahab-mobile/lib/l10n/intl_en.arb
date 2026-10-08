@@ -603,5 +603,21 @@
   "home_nav_plan": "Plan",
   "home_nav_trip": "Trip",
   "home_nav_today": "Today",
-  "home_nav_daygi": "DayGi"
+  "home_nav_daygi": "DayGi",
+  "discover_hero_cta": "Plan my trip",
+  "discover_switch_label": "Choose a destination",
+  "discover_live": "Right now in {place}",
+  "discover_air": "Air",
+  "discover_water": "Water",
+  "discover_wind": "Wind",
+  "discover_sunset": "Sunset",
+  "discover_source": "{source} · {time}",
+  "discover_doors_title": "What brings you to {place}?",
+  "discover_picks_title": "Worth your time in {place}",
+  "discover_pick_cta": "Plan around this",
+  "discover_prompt_title": "Not sure where to start?",
+  "discover_prompt_body": "Tell us who's coming and what you love. We'll suggest plans and show why each one fits.",
+  "discover_prompt_cta": "Start planning",
+  "discover_early_note": "{place} is just opening on REHLA: plans first, bookings soon.",
+  "discover_ask_daygi": "Ask DayGi"
 }

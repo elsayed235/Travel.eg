@@ -19,7 +19,16 @@ import { haptic } from '../../../design/feedback';
  * ones open the planner already set to that place and that wish.
  */
 
-const hhmm = (iso: string | null | undefined) => (iso ? iso.slice(11, 16) : null);
+/**
+ * HH:mm. An instant (`…Z` / with an offset, like observedAt) is shown on the
+ * reader's clock; a bare wall time (sunset, already local to the place) as written.
+ */
+const hhmm = (iso: string | null | undefined) => {
+  if (!iso || iso.length < 16) return null;
+  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(iso.slice(16))) return iso.slice(11, 16);
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
 
 const Conditions: React.FC = () => {
   const { t, language } = useLanguage();

@@ -84,83 +84,94 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m29(qty, date) => "${qty} • ${date}";
 
-  static String m30(km) => "مفيش طلبات في نطاق ${km} كم";
+  static String m30(place) => "إيه اللي جايبك ${place}؟";
 
-  static String m31(km) => "وسّع النطاق لـ ${km} كم";
+  static String m31(place) =>
+      "${place} لسه بتفتح على رحلة: الخطط الأول، والحجز قريب.";
 
-  static String m32(count) => "${count} طلب";
+  static String m32(place) => "دلوقتي في ${place}";
 
-  static String m33(place) => "حاجات قريبة من ${place}";
+  static String m33(place) => "حاجات تستاهل في ${place}";
 
-  static String m34(time) => "صالح لمدة ${time}";
+  static String m34(source, time) => "${source} · الساعة ${time}";
 
-  static String m35(date) => "متاح يوم ${date}";
+  static String m35(km) => "مفيش طلبات في نطاق ${km} كم";
 
-  static String m36(km) => "${km} كم";
+  static String m36(km) => "وسّع النطاق لـ ${km} كم";
 
-  static String m37(days) => "خلال ${days} يوم";
+  static String m37(count) => "${count} طلب";
 
-  static String m38(greeting, name) => "${greeting} يا ${name}";
+  static String m38(place) => "حاجات قريبة من ${place}";
 
-  static String m39(place, km) => "${place} ${km} كم";
+  static String m39(time) => "صالح لمدة ${time}";
 
-  static String m40(date) => "محتاجها ${date}";
+  static String m40(date) => "متاح يوم ${date}";
 
   static String m41(km) => "${km} كم";
 
-  static String m42(count, km) =>
+  static String m42(days) => "خلال ${days} يوم";
+
+  static String m43(greeting, name) => "${greeting} يا ${name}";
+
+  static String m44(place, km) => "${place} ${km} كم";
+
+  static String m45(date) => "محتاجها ${date}";
+
+  static String m46(km) => "${km} كم";
+
+  static String m47(count, km) =>
       "${count} جار في نطاق ${km} كم ممكن يوفّرولك اللي محتاجه";
 
-  static String m43(count) => "يوصل لـ ${count} شخص في نطاقك";
+  static String m48(count) => "يوصل لـ ${count} شخص في نطاقك";
 
-  static String m44(count) => "عرض الكل (${count})";
+  static String m49(count) => "عرض الكل (${count})";
 
-  static String m45(month) => "التوافر — ${month}";
+  static String m50(month) => "التوافر — ${month}";
 
-  static String m46(count) => "احجز ${count} كرسي";
+  static String m51(count) => "احجز ${count} كرسي";
 
-  static String m47(min, insurance) =>
+  static String m52(min, insurance) =>
       "الحد الأدنى للطلب ${min} · التأمين المتوقع ${insurance} ج";
 
-  static String m48(min) => "الكمية لازم تكون على الأقل ${min}";
+  static String m53(min) => "الكمية لازم تكون على الأقل ${min}";
 
-  static String m49(unit) => "الكمية (${unit})";
+  static String m54(unit) => "الكمية (${unit})";
 
-  static String m50(min, insurance) =>
+  static String m55(min, insurance) =>
       "الحد الأدنى ${min} · التأمين المتوقع ${insurance} ج";
 
-  static String m51(count) => "${count} كرسي";
+  static String m56(count) => "${count} كرسي";
 
-  static String m52(count) => "(${count} تقييم)";
+  static String m57(count) => "(${count} تقييم)";
 
-  static String m53(available, total) => "${available} من ${total}";
+  static String m58(available, total) => "${available} من ${total}";
 
-  static String m54(time) => "يلتزم بالتسليم قبل ${time}";
+  static String m59(time) => "يلتزم بالتسليم قبل ${time}";
 
-  static String m55(count) => "قارن الـ${count}";
+  static String m60(count) => "قارن الـ${count}";
 
-  static String m56(count) => "${count} صفقة";
+  static String m61(count) => "${count} صفقة";
 
-  static String m57(km) => "${km} كم";
+  static String m62(km) => "${km} كم";
 
-  static String m58(minutes) => "آخر عرض منذ ${minutes} د";
+  static String m63(minutes) => "آخر عرض منذ ${minutes} د";
 
-  static String m59(count) => "${count} عروض جديدة";
+  static String m64(count) => "${count} عروض جديدة";
 
-  static String m60(qty, date, budget) =>
+  static String m65(qty, date, budget) =>
       "${qty} • ${date} • ميزانية ${budget} ج";
 
-  static String m61(minutes) => "${minutes} دقيقة";
+  static String m66(minutes) => "${minutes} دقيقة";
 
-  static String m62(count) => "${count} عروض على طلبك";
+  static String m67(count) => "${count} عروض على طلبك";
 
-  static String m63(date, qty) => "محتاجها ${date} · ${qty}";
+  static String m68(date, qty) => "محتاجها ${date} · ${qty}";
 
-  static String m64(count) => "${count} طلب مستني منك خطوة الاستلام";
+  static String m69(count) => "${count} طلب مستني منك خطوة الاستلام";
 
-  static String m65(provider, qty) => "${provider} · ${qty}";
+  static String m70(provider, qty) => "${provider} · ${qty}";
 
-  static String m66(MB, files) =>
+  static String m71(MB, files) =>
       "يجب أن تكون حجم الملفات التالية أقل من ${MB} ميحابيت, ${files}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -928,6 +939,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_whatsapp_same_hint": MessageLookupByLibrary.simpleMessage(
       "استخدم رقم الموبايل كواتساب",
     ),
+    "discover_air": MessageLookupByLibrary.simpleMessage("الجو"),
+    "discover_ask_daygi": MessageLookupByLibrary.simpleMessage("اسأل DayGi"),
+    "discover_doors_title": m30,
+    "discover_early_note": m31,
+    "discover_hero_cta": MessageLookupByLibrary.simpleMessage("خطّط رحلتي"),
+    "discover_live": m32,
+    "discover_pick_cta": MessageLookupByLibrary.simpleMessage("خطّط حواليها"),
+    "discover_picks_title": m33,
+    "discover_prompt_body": MessageLookupByLibrary.simpleMessage(
+      "قولنا مين جاي وبتحب إيه، ونقترح عليك خطط ونقولك كل واحدة مناسبة ليه.",
+    ),
+    "discover_prompt_cta": MessageLookupByLibrary.simpleMessage("يلا نخطط"),
+    "discover_prompt_title": MessageLookupByLibrary.simpleMessage(
+      "مش عارف تبدأ منين؟",
+    ),
+    "discover_source": m34,
+    "discover_sunset": MessageLookupByLibrary.simpleMessage("المغرب"),
+    "discover_switch_label": MessageLookupByLibrary.simpleMessage(
+      "اختار المكان",
+    ),
+    "discover_water": MessageLookupByLibrary.simpleMessage("الميّة"),
+    "discover_wind": MessageLookupByLibrary.simpleMessage("الهوا"),
     "done": MessageLookupByLibrary.simpleMessage("تم"),
     "error_BadRequest_Error": MessageLookupByLibrary.simpleMessage(
       "طلب غير صالح",
@@ -972,10 +1005,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_empty_title": MessageLookupByLibrary.simpleMessage(
       "مفيش نتائج في النطاق ده",
     ),
-    "explore_empty_title_radius": m30,
+    "explore_empty_title_radius": m35,
     "explore_empty_widen": MessageLookupByLibrary.simpleMessage("وسّع النطاق"),
-    "explore_empty_widen_to": m31,
-    "explore_results_count": m32,
+    "explore_empty_widen_to": m36,
+    "explore_results_count": m37,
     "explore_search_hint": MessageLookupByLibrary.simpleMessage(
       "دور على كراسي، كوشة، إضاءة…",
     ),
@@ -988,11 +1021,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_sort_soonest": MessageLookupByLibrary.simpleMessage(
       "الأقرب موعدًا",
     ),
-    "explore_subtitle": m33,
+    "explore_subtitle": m38,
     "explore_title": MessageLookupByLibrary.simpleMessage("استكشف"),
     "failureActions": MessageLookupByLibrary.simpleMessage("إجراءات الفشل"),
     "fillField": MessageLookupByLibrary.simpleMessage("الرجاء ملء الحقل"),
-    "handover_countdown": m34,
+    "handover_countdown": m39,
     "handover_done": MessageLookupByLibrary.simpleMessage("تم العرض"),
     "handover_open_ritual": MessageLookupByLibrary.simpleMessage(
       "عرض بملء الشاشة",
@@ -1006,18 +1039,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_ask_placeholder": MessageLookupByLibrary.simpleMessage(
       "اكتب طلبك أو قوله، وإحنا نرتّبه",
     ),
-    "home_available_on": m35,
+    "home_available_on": m40,
     "home_buy": MessageLookupByLibrary.simpleMessage("شراء"),
     "home_card_offer": MessageLookupByLibrary.simpleMessage("قدّم عرض"),
     "home_categories_title": MessageLookupByLibrary.simpleMessage("التصنيفات"),
-    "home_distance_km": m36,
-    "home_due_in_days": m37,
+    "home_distance_km": m41,
+    "home_due_in_days": m42,
     "home_due_today": MessageLookupByLibrary.simpleMessage("محتاجها النهارده"),
     "home_due_tomorrow": MessageLookupByLibrary.simpleMessage("محتاجها بكرة"),
     "home_featured_label": MessageLookupByLibrary.simpleMessage("أقرب موعد"),
     "home_greeting_evening": MessageLookupByLibrary.simpleMessage("مساء الخير"),
     "home_greeting_morning": MessageLookupByLibrary.simpleMessage("صباح الخير"),
-    "home_greeting_named": m38,
+    "home_greeting_named": m43,
     "home_headline": MessageLookupByLibrary.simpleMessage("محتاج إيه؟"),
     "home_headline_fulfiller": MessageLookupByLibrary.simpleMessage(
       "في طلبات قريبة تقدر تنفّذها",
@@ -1028,7 +1061,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_headline_sub": MessageLookupByLibrary.simpleMessage(
       "تصفّح الطلبات القريبة أو اطلب اللي محتاجه",
     ),
-    "home_location_km": m39,
+    "home_location_km": m44,
     "home_nav_account": MessageLookupByLibrary.simpleMessage("حسابي"),
     "home_nav_daygi": MessageLookupByLibrary.simpleMessage("DayGi"),
     "home_nav_discover": MessageLookupByLibrary.simpleMessage("اكتشف"),
@@ -1040,13 +1073,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_nav_today": MessageLookupByLibrary.simpleMessage("النهارده"),
     "home_nav_trip": MessageLookupByLibrary.simpleMessage("رحلتي"),
     "home_nearest": MessageLookupByLibrary.simpleMessage("الأقرب"),
-    "home_need_by_chip": m40,
+    "home_need_by_chip": m45,
     "home_notifications": MessageLookupByLibrary.simpleMessage("الإشعارات"),
     "home_price_unit_day": MessageLookupByLibrary.simpleMessage("/اليوم"),
-    "home_radius_label": m41,
-    "home_reach_line": m42,
+    "home_radius_label": m46,
+    "home_reach_line": m47,
     "home_rent": MessageLookupByLibrary.simpleMessage("إيجار"),
-    "home_request_subtitle": m43,
+    "home_request_subtitle": m48,
     "home_request_title": MessageLookupByLibrary.simpleMessage(
       "اطلبها ونلاقيها لك",
     ),
@@ -1059,7 +1092,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_side_empty": MessageLookupByLibrary.simpleMessage(
       "مفيش طلبات في التصنيف ده دلوقتي",
     ),
-    "home_view_all": m44,
+    "home_view_all": m49,
     "internet_connected": MessageLookupByLibrary.simpleMessage(
       "تم الاتصال بالانترنت",
     ),
@@ -1088,13 +1121,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "lifecycle_handover": MessageLookupByLibrary.simpleMessage("تسليم"),
     "lifecycle_offers": MessageLookupByLibrary.simpleMessage("عروض"),
     "lifecycle_published": MessageLookupByLibrary.simpleMessage("منشور"),
-    "listing_availability": m45,
-    "listing_book": m46,
+    "listing_availability": m50,
+    "listing_book": m51,
     "listing_buy": MessageLookupByLibrary.simpleMessage("شراء"),
     "listing_fulfill_cta": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك على الطلب",
     ),
-    "listing_fulfill_sheet_hint": m47,
+    "listing_fulfill_sheet_hint": m52,
     "listing_fulfill_sheet_title": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك للطالب ده",
     ),
@@ -1117,21 +1150,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_offer_err_price": MessageLookupByLibrary.simpleMessage(
       "اكتب سعر العرض",
     ),
-    "listing_offer_err_qty": m48,
+    "listing_offer_err_qty": m53,
     "listing_offer_price_label": MessageLookupByLibrary.simpleMessage(
       "سعرك في العرض",
     ),
-    "listing_offer_qty_label": m49,
+    "listing_offer_qty_label": m54,
     "listing_offer_sent": MessageLookupByLibrary.simpleMessage(
       "تم إرسال عرضك وفتحت المحادثة",
     ),
-    "listing_offer_sheet_hint": m50,
+    "listing_offer_sheet_hint": m55,
     "listing_offer_sheet_title": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك على الحاجة دي",
     ),
     "listing_offer_submit": MessageLookupByLibrary.simpleMessage("إرسال العرض"),
     "listing_owner_label": MessageLookupByLibrary.simpleMessage("صاحب العرض"),
-    "listing_qty": m51,
+    "listing_qty": m56,
     "listing_rent": MessageLookupByLibrary.simpleMessage("إيجار"),
     "listing_request_details_hint": MessageLookupByLibrary.simpleMessage(
       "طالب بيدور على الحاجة دي — الشروط والعربون والتأمين ظاهرة هنا",
@@ -1139,8 +1172,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_request_details_title": MessageLookupByLibrary.simpleMessage(
       "تفاصيل الطلب المطلوب",
     ),
-    "listing_reviews": m52,
-    "listing_stock": m53,
+    "listing_reviews": m57,
+    "listing_stock": m58,
     "listing_total_one_day": MessageLookupByLibrary.simpleMessage(
       "إجمالي يوم واحد",
     ),
@@ -1205,31 +1238,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "offers_ask": MessageLookupByLibrary.simpleMessage("اسأله"),
     "offers_back": MessageLookupByLibrary.simpleMessage("طلباتي"),
     "offers_best": MessageLookupByLibrary.simpleMessage("الأفضل"),
-    "offers_commit_before": m54,
-    "offers_compare": m55,
+    "offers_commit_before": m59,
+    "offers_compare": m60,
     "offers_compare_subtitle": MessageLookupByLibrary.simpleMessage(
       "سعر · مسافة · تقييم · سرعة الرد",
     ),
     "offers_compare_title": MessageLookupByLibrary.simpleMessage("قارن العروض"),
     "offers_currency": MessageLookupByLibrary.simpleMessage("ج"),
-    "offers_deals_count": m56,
+    "offers_deals_count": m61,
     "offers_delivery_free": MessageLookupByLibrary.simpleMessage("مجاني"),
     "offers_delivery_on_renter": MessageLookupByLibrary.simpleMessage(
       "على المستأجر",
     ),
     "offers_delivery_pickup": MessageLookupByLibrary.simpleMessage("استلام"),
-    "offers_distance_km": m57,
+    "offers_distance_km": m62,
     "offers_field_deals": MessageLookupByLibrary.simpleMessage("الصفقات"),
     "offers_field_delivery": MessageLookupByLibrary.simpleMessage("التوصيل"),
     "offers_field_insurance": MessageLookupByLibrary.simpleMessage("التأمين"),
     "offers_field_response": MessageLookupByLibrary.simpleMessage("الرد"),
     "offers_late_risk": MessageLookupByLibrary.simpleMessage("وقت ضيق"),
     "offers_new": MessageLookupByLibrary.simpleMessage("جديد"),
-    "offers_nudge_last": m58,
-    "offers_nudge_new": m59,
-    "offers_request_summary": m60,
-    "offers_response_minutes": m61,
-    "offers_title": m62,
+    "offers_nudge_last": m63,
+    "offers_nudge_new": m64,
+    "offers_request_summary": m65,
+    "offers_response_minutes": m66,
+    "offers_title": m67,
     "offers_verified": MessageLookupByLibrary.simpleMessage("موثق"),
     "offers_why_cheapest": MessageLookupByLibrary.simpleMessage("أقل سعر"),
     "offers_why_fastest": MessageLookupByLibrary.simpleMessage("أسرع"),
@@ -1278,13 +1311,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "order_detail_enter_code_title": MessageLookupByLibrary.simpleMessage(
       "تأكيد الاستلام بالكود",
     ),
-    "order_detail_event": m63,
+    "order_detail_event": m68,
     "order_detail_status_updated": MessageLookupByLibrary.simpleMessage(
       "تم تحديث حالة الطلب",
     ),
     "order_detail_timeline": MessageLookupByLibrary.simpleMessage("مسار الطلب"),
     "order_detail_title": MessageLookupByLibrary.simpleMessage("تفاصيل الطلب"),
-    "orders_action_needed": m64,
+    "orders_action_needed": m69,
     "orders_awaiting_peer": MessageLookupByLibrary.simpleMessage(
       "بانتظار عروض",
     ),
@@ -1304,7 +1337,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "orders_filter_all": MessageLookupByLibrary.simpleMessage("الكل"),
     "orders_filter_cancelled": MessageLookupByLibrary.simpleMessage("ملغي"),
     "orders_filter_done": MessageLookupByLibrary.simpleMessage("مكتمل"),
-    "orders_meta": m65,
+    "orders_meta": m70,
     "orders_next_details": MessageLookupByLibrary.simpleMessage("التفاصيل"),
     "orders_next_enter_code": MessageLookupByLibrary.simpleMessage(
       "دخّل كود الاستلام",
@@ -1359,7 +1392,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "pick_location_title": MessageLookupByLibrary.simpleMessage("حدد المكان"),
     "retry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
-    "size_more_than_mg_error": m66,
+    "size_more_than_mg_error": m71,
     "something_went_wrong": MessageLookupByLibrary.simpleMessage("حدث خطأ ما"),
     "splash_brand": MessageLookupByLibrary.simpleMessage("دبّرها"),
     "splash_subtitle": MessageLookupByLibrary.simpleMessage(

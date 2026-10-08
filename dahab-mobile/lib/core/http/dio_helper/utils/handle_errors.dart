@@ -18,7 +18,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class HandleErrors {
   void catchError(
       {Response? response,
-      required Function(dynamic) errorFunc}) {
+      required Function(dynamic) errorFunc,
+      bool quiet = false}) {
+    if (quiet) {
+      log("quiet request failed ${response?.statusCode}");
+      return;
+    }
     if (response == null) {
       log("failed response Check Server");
       AppSnackBar.showSimpleToast(msg: "Check Server");
@@ -79,6 +84,19 @@ class HandleErrors {
       return MyResult.isError(NotFoundError());
     }
     return MyResult.isSuccess(response);
+  }
+
+  /// The server's own sentence when it sent one (REHLA answers
+  /// `{ error: "..." }`), otherwise Dio's description of the failure.
+  String messageOf(DioException e, Function(dynamic) errorFunc) {
+    var data = e.response?.data;
+    try {
+      if (data is String) data = json.decode(data);
+      if (data is Map && data["error"] is String) return data["error"] as String;
+      final custom = errorFunc(data);
+      if (custom is String && custom.isNotEmpty) return custom;
+    } catch (_) {}
+    return e.message ?? "";
   }
 
   void _tokenExpired() async {

@@ -12,6 +12,9 @@ class HttpRequestModel {
   bool? showLoader;
   bool refresh;
 
+  /// No error toast: for reads the screen can simply leave out.
+  final bool quiet;
+
   HttpRequestModel(
       {required this.url,
       required this.responseType,
@@ -21,5 +24,6 @@ class HttpRequestModel {
       this.toJsonFunc,
       this.showLoader,
       this.errorFunc,
-      this.refresh = true});
+      this.refresh = true,
+      this.quiet = false});
 }

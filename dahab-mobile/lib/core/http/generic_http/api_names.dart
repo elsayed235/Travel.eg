@@ -1,28 +1,24 @@
 import 'package:rehla/core/constants/app_config.dart';
 
-class ApiNames{
+/// REHLA API paths, relative to [baseUrl] (`<host>/api/`). The website and the
+/// app share one server; see server.ts and server/middleware/apiAccessPolicy.ts
+/// for which of these work before sign-in.
+class ApiNames {
   static String baseUrl = AppConfig.instance.baseUrl;
 
-  // auth routes
-  static const String login = "auth";
-  static const String refreshToken = "auth";
-  static const String savePublicKey = "users/";
-  static const String updateUser = "users/";
-  static const String register = "auth/create_account";
-  static const String activeAccount = "otp/verify";
-  static const String resendCode = "ResendCode";
-  static const String switchNotify = "SwitchNotify";
-  static const String forgetPassword = "cabaf46ee69d7b8445a5d791";
-  static const String resetPassword = "A2q4mG84Z9rE2B38In4HALSWTwt9eQ5Slzq56Cod";
+  // Session
+  static const String login = "auth/login";
+  static const String register = "auth/register";
+  static const String me = "auth/me";
+  static const String logout = "auth/logout";
 
-  // AI gateway (see docs/ai_backend_contract.md)
-  static const String aiStructureRequest = "ai/structure-request";
-  static const String aiParseSearch = "ai/parse-search";
-  static const String aiPriceGuidance = "ai/price-guidance";
-  static const String aiSuggestReplies = "ai/suggest-replies";
-  static const String aiReviewSummary = "ai/review-summary/";
+  // Discovery (public)
+  static const String conditions = "telemetry/conditions";
+  static const String fxRates = "fx/rates";
 
-
-
-
+  // Planning and the concierge
+  static const String daygiQuery = "daygi/query";
+  static const String trips = "trips";
+  /// Append the signed-in user id (`trips/user/<id>`); the server checks it.
+  static const String tripsOfUser = "trips/user/";
 }

@@ -6,6 +6,8 @@ import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/widgets/app_bottom_nav.dart';
 import 'package:rehla/features/account/presentation/pages/account/account_imports.dart';
 import 'package:rehla/features/account/presentation/pages/account/widgets/account_widgets_imports.dart';
+import 'package:rehla/features/discover/presentation/pages/discover/discover_imports.dart';
+import 'package:rehla/features/plan/domain/models/plan_vibe.dart';
 
 import 'widgets/home_widgets_imports.dart';
 

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 
 import 'dart:developer';
 
@@ -43,4 +44,9 @@ extension ListUpdate<T> on List<T> {
       return this;
     }
   }
+}
+
+extension LocaleContextExtension on BuildContext {
+  /// Bilingual content (destinations, editorial) picks its language with this.
+  bool get isArabic => Localizations.localeOf(this).languageCode == 'ar';
 }

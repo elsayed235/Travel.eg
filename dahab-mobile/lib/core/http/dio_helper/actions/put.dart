@@ -27,11 +27,8 @@ class Put extends DioHelper {
       return getIt<HandleErrors>().statusError(response, params.errorFunc);
     } on DioException catch (e) {
       if (params.showLoader) getIt<LoadingHelper>().dismissDialog();
-      getIt<HandleErrors>().catchError(
-        errorFunc: params.errorFunc,
-        response: e.response,
-      );
-      return MyResult.isError(CustomError(msg: e.message.toString()));
+      getIt<HandleErrors>().catchError(errorFunc: params.errorFunc, response: e.response, quiet: params.quiet);
+      return MyResult.isError(CustomError(msg: getIt<HandleErrors>().messageOf(e, params.errorFunc)));
     }
   }
 }

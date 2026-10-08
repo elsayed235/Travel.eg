@@ -5758,6 +5758,146 @@ class S {
   String get home_nav_daygi {
     return Intl.message('DayGi', name: 'home_nav_daygi', desc: '', args: []);
   }
+
+  /// `Plan my trip`
+  String get discover_hero_cta {
+    return Intl.message(
+      'Plan my trip',
+      name: 'discover_hero_cta',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose a destination`
+  String get discover_switch_label {
+    return Intl.message(
+      'Choose a destination',
+      name: 'discover_switch_label',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Right now in {place}`
+  String discover_live(Object place) {
+    return Intl.message(
+      'Right now in $place',
+      name: 'discover_live',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Air`
+  String get discover_air {
+    return Intl.message('Air', name: 'discover_air', desc: '', args: []);
+  }
+
+  /// `Water`
+  String get discover_water {
+    return Intl.message('Water', name: 'discover_water', desc: '', args: []);
+  }
+
+  /// `Wind`
+  String get discover_wind {
+    return Intl.message('Wind', name: 'discover_wind', desc: '', args: []);
+  }
+
+  /// `Sunset`
+  String get discover_sunset {
+    return Intl.message('Sunset', name: 'discover_sunset', desc: '', args: []);
+  }
+
+  /// `{source} · {time}`
+  String discover_source(Object source, Object time) {
+    return Intl.message(
+      '$source · $time',
+      name: 'discover_source',
+      desc: '',
+      args: [source, time],
+    );
+  }
+
+  /// `What brings you to {place}?`
+  String discover_doors_title(Object place) {
+    return Intl.message(
+      'What brings you to $place?',
+      name: 'discover_doors_title',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Worth your time in {place}`
+  String discover_picks_title(Object place) {
+    return Intl.message(
+      'Worth your time in $place',
+      name: 'discover_picks_title',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Plan around this`
+  String get discover_pick_cta {
+    return Intl.message(
+      'Plan around this',
+      name: 'discover_pick_cta',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not sure where to start?`
+  String get discover_prompt_title {
+    return Intl.message(
+      'Not sure where to start?',
+      name: 'discover_prompt_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tell us who's coming and what you love. We'll suggest plans and show why each one fits.`
+  String get discover_prompt_body {
+    return Intl.message(
+      'Tell us who\'s coming and what you love. We\'ll suggest plans and show why each one fits.',
+      name: 'discover_prompt_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start planning`
+  String get discover_prompt_cta {
+    return Intl.message(
+      'Start planning',
+      name: 'discover_prompt_cta',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{place} is just opening on REHLA: plans first, bookings soon.`
+  String discover_early_note(Object place) {
+    return Intl.message(
+      '$place is just opening on REHLA: plans first, bookings soon.',
+      name: 'discover_early_note',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Ask DayGi`
+  String get discover_ask_daygi {
+    return Intl.message(
+      'Ask DayGi',
+      name: 'discover_ask_daygi',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

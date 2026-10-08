@@ -75,6 +75,12 @@ abstract class AppColors {
   /// Icons and text on a solid green fill (same in every palette).
   Color get onGreen => const Color(0xFFFFFFFF);
 
+  /// Text and glass over photography (same in every palette and mode).
+  Color get onImage => const Color(0xFFFFFFFF);
+
+  /// Darkening behind text on photos; near-black granite, never pure black.
+  Color get scrim => const Color(0xFF0B1418);
+
   /// Warnings, estimates.
   Color get amber;
 

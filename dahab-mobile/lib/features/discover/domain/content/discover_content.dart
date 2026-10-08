@@ -1,0 +1,258 @@
+import 'package:flutter/material.dart';
+import 'package:rehla/core/theme/destination/rehla_destination.dart';
+import 'package:rehla/features/discover/domain/models/discover_door.dart';
+import 'package:rehla/features/discover/domain/models/editorial_pick.dart';
+import 'package:rehla/features/plan/domain/models/plan_vibe.dart';
+
+/// Editorial home content per destination, mirroring the website
+/// (src/data/destinationEditorial.ts). Arabic is light Egyptian colloquial.
+/// Images are bundled so the first screen paints offline.
+class DiscoverContent {
+  const DiscoverContent._();
+
+  static const _img = 'assets/images/places';
+
+  static List<DiscoverDoor> doors(RehlaDestination d) => switch (d) {
+    RehlaDestination.dahab => const [
+      DiscoverDoor(
+        id: 'dive',
+        icon: Icons.scuba_diving_outlined,
+        labelEn: 'Dive & snorkel',
+        labelAr: 'غطس وسنوركل',
+        planVibes: [PlanVibe.diving, PlanVibe.sea],
+      ),
+      DiscoverDoor(
+        id: 'kite',
+        icon: Icons.kitesurfing_outlined,
+        labelEn: 'Kite & wind',
+        labelAr: 'كايت',
+        planVibes: [PlanVibe.adventure, PlanVibe.sea],
+      ),
+      DiscoverDoor(
+        id: 'desert',
+        icon: Icons.landscape_outlined,
+        labelEn: 'Desert & Sinai',
+        labelAr: 'صحرا وسينا',
+        planVibes: [PlanVibe.desert, PlanVibe.adventure],
+      ),
+      DiscoverDoor(
+        id: 'stay',
+        icon: Icons.cottage_outlined,
+        labelEn: 'Stay',
+        labelAr: 'إقامة',
+        askEn: 'Where should I stay in Dahab?',
+        askAr: 'أنزل فين في دهب؟',
+      ),
+      DiscoverDoor(
+        id: 'food',
+        icon: Icons.restaurant_outlined,
+        labelEn: 'Food',
+        labelAr: 'أكل',
+        askEn: 'Where should I eat in Dahab tonight?',
+        askAr: 'آكل فين في دهب النهارده؟',
+      ),
+      DiscoverDoor(
+        id: 'bike',
+        icon: Icons.pedal_bike_outlined,
+        labelEn: 'Bike rentals',
+        labelAr: 'إيجار عجل',
+        askEn: 'How do I rent a bike in Dahab?',
+        askAr: 'أأجّر عجلة في دهب إزاي؟',
+      ),
+      DiscoverDoor(
+        id: 'rides',
+        icon: Icons.airport_shuttle_outlined,
+        labelEn: 'Rides & airport',
+        labelAr: 'مشاوير ومطار',
+        askEn: 'How do I get from Sharm airport to Dahab?',
+        askAr: 'أروح من مطار شرم لدهب إزاي؟',
+      ),
+      DiscoverDoor(
+        id: 'help',
+        icon: Icons.health_and_safety_outlined,
+        labelEn: 'Help & SOS',
+        labelAr: 'مساعدة وطوارئ',
+        askEn: 'I need help in Dahab',
+        askAr: 'محتاج مساعدة في دهب',
+      ),
+    ],
+    RehlaDestination.nuweiba => const [
+      DiscoverDoor(
+        id: 'camps',
+        icon: Icons.holiday_village_outlined,
+        labelEn: 'Beach camps',
+        labelAr: 'كامبات',
+        planVibes: [PlanVibe.unplug, PlanVibe.sea],
+      ),
+      DiscoverDoor(
+        id: 'snorkel',
+        icon: Icons.pool_outlined,
+        labelEn: 'Snorkel',
+        labelAr: 'سنوركل',
+        planVibes: [PlanVibe.sea],
+      ),
+      DiscoverDoor(
+        id: 'canyons',
+        icon: Icons.terrain_outlined,
+        labelEn: 'Canyons',
+        labelAr: 'كانيونات',
+        planVibes: [PlanVibe.nature, PlanVibe.adventure],
+      ),
+      DiscoverDoor(
+        id: 'stars',
+        icon: Icons.nights_stay_outlined,
+        labelEn: 'Stars',
+        labelAr: 'نجوم',
+        planVibes: [PlanVibe.stars],
+      ),
+      DiscoverDoor(
+        id: 'unplug',
+        icon: Icons.self_improvement_outlined,
+        labelEn: 'Unplug',
+        labelAr: 'فصلان',
+        planVibes: [PlanVibe.unplug],
+      ),
+      DiscoverDoor(
+        id: 'desert',
+        icon: Icons.landscape_outlined,
+        labelEn: 'Desert',
+        labelAr: 'صحرا',
+        planVibes: [PlanVibe.desert],
+      ),
+    ],
+    RehlaDestination.siwa => const [
+      DiscoverDoor(
+        id: 'springs',
+        icon: Icons.water_drop_outlined,
+        labelEn: 'Springs',
+        labelAr: 'عيون',
+        planVibes: [PlanVibe.wellness],
+      ),
+      DiscoverDoor(
+        id: 'salt',
+        icon: Icons.waves_outlined,
+        labelEn: 'Salt lakes',
+        labelAr: 'بحيرات الملح',
+        planVibes: [PlanVibe.wellness],
+      ),
+      DiscoverDoor(
+        id: 'safari',
+        icon: Icons.directions_car_outlined,
+        labelEn: 'Sand sea',
+        labelAr: 'بحر الرمال',
+        planVibes: [PlanVibe.desert, PlanVibe.adventure],
+      ),
+      DiscoverDoor(
+        id: 'heritage',
+        icon: Icons.fort_outlined,
+        labelEn: 'Heritage',
+        labelAr: 'تاريخ',
+        planVibes: [PlanVibe.culture],
+      ),
+      DiscoverDoor(
+        id: 'wellness',
+        icon: Icons.spa_outlined,
+        labelEn: 'Wellness',
+        labelAr: 'استشفاء',
+        planVibes: [PlanVibe.wellness, PlanVibe.unplug],
+      ),
+      DiscoverDoor(
+        id: 'stars',
+        icon: Icons.nights_stay_outlined,
+        labelEn: 'Stars',
+        labelAr: 'نجوم',
+        planVibes: [PlanVibe.stars],
+      ),
+    ],
+  };
+
+  static List<EditorialPick> picks(RehlaDestination d) => switch (d) {
+    RehlaDestination.dahab => const [
+      EditorialPick(
+        id: 'dh-blue-hole',
+        titleEn: 'Snorkel the Blue Hole rim',
+        titleAr: 'سنوركل على حافة البلو هول',
+        metaEn: 'Morning · calm water',
+        metaAr: 'الصبح · الميّة هادية',
+        image: '$_img/blue-hole-aerial.webp',
+        vibes: [PlanVibe.sea, PlanVibe.diving],
+      ),
+      EditorialPick(
+        id: 'dh-abu-galum',
+        titleEn: 'Walk to Ras Abu Galum',
+        titleAr: 'مشي لرأس أبو جالوم',
+        metaEn: 'Full day · by the coast',
+        metaAr: 'يوم كامل · على الساحل',
+        image: '$_img/ras-abu-galum.webp',
+        vibes: [PlanVibe.nature, PlanVibe.adventure],
+      ),
+      EditorialPick(
+        id: 'dh-sinai-sunrise',
+        titleEn: 'Sunrise on Mount Sinai',
+        titleAr: 'الشروق من فوق جبل موسى',
+        metaEn: 'Overnight · warm layers',
+        metaAr: 'طول الليل · هات تقيل',
+        image: '$_img/st-catherine.webp',
+        vibes: [PlanVibe.desert, PlanVibe.culture],
+      ),
+    ],
+    RehlaDestination.nuweiba => const [
+      EditorialPick(
+        id: 'nw-shore-snorkel',
+        titleEn: 'Snorkel straight from your camp',
+        titleAr: 'سنوركل من قدام الكامب على طول',
+        metaEn: 'House reef · any time of day',
+        metaAr: 'شعاب قريبة · في أي وقت',
+        image: '$_img/house-reef.webp',
+        vibes: [PlanVibe.sea],
+      ),
+      EditorialPick(
+        id: 'nw-colored-canyon',
+        titleEn: 'Walk the Colored Canyon',
+        titleAr: 'مشي في الكانيون الملوّن',
+        metaEn: 'Half day · early start',
+        metaAr: 'نص يوم · بدري',
+        image: '$_img/colored-canyon.webp',
+        vibes: [PlanVibe.nature, PlanVibe.adventure],
+      ),
+      EditorialPick(
+        id: 'nw-fire-stars',
+        titleEn: 'Bedouin dinner and stars',
+        titleAr: 'عشا بدوي ونجوم',
+        metaEn: 'Evening · at the camp',
+        metaAr: 'بالليل · في الكامب',
+        image: '$_img/story-campfire.webp',
+        vibes: [PlanVibe.stars],
+      ),
+    ],
+    RehlaDestination.siwa => const [
+      EditorialPick(
+        id: 'sw-sand-sea',
+        titleEn: 'Into the Great Sand Sea',
+        titleAr: 'جوه بحر الرمال الأعظم',
+        metaEn: 'Afternoon to night · 4x4',
+        metaAr: 'من العصر للّيل · دفع رباعي',
+        image: '$_img/book-desert-camp-2.webp',
+        vibes: [PlanVibe.desert, PlanVibe.adventure],
+      ),
+      EditorialPick(
+        id: 'sw-salt-float',
+        titleEn: 'Float in the salt lakes',
+        titleAr: 'تطفو في بحيرات الملح',
+        metaEn: 'Half day · bring a towel',
+        metaAr: 'نص يوم · هات فوطة',
+        image: '$_img/hero-siwa.webp',
+        vibes: [PlanVibe.wellness],
+      ),
+      EditorialPick(
+        id: 'sw-campfire',
+        titleEn: 'Tea on the coals, stars above',
+        titleAr: 'شاي على الفحم ونجوم فوقك',
+        metaEn: 'Evening · in the dunes',
+        metaAr: 'بالليل · وسط الكثبان',
+        image: '$_img/story-campfire.webp',
+        vibes: [PlanVibe.stars, PlanVibe.unplug],
+      ),
+    ],
+  };
+}

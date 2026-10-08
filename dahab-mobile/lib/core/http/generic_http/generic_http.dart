@@ -31,8 +31,9 @@ class GenericHttpImpl<T> extends GenericHttp<T> {
       url: model.url,
       showLoader: model.showLoader ?? false,
       forceRefresh: model.refresh,
-      errorFunc: model.errorFunc ?? (data) => data,
+      errorFunc: model.errorFunc ?? (data) => data is Map ? (data["error"] ?? data["message"] ?? "") : data,
       body: model.requestBody ?? {},
+      quiet: model.quiet,
     );
 
     await _checkInternetConnection();

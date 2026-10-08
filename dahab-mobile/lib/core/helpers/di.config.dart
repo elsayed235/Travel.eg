@@ -35,6 +35,14 @@ import 'package:rehla/core/http/dio_helper/utils/handle_request_body.dart'
     as _i199;
 import 'package:rehla/core/http/generic_http/generic_http.dart' as _i185;
 import 'package:rehla/core/network/network_info.dart' as _i455;
+import 'package:rehla/features/discover/data/data_sources/discover_remote_data_source.dart'
+    as _i130;
+import 'package:rehla/features/discover/data/data_sources/impl_discover_remote_data_source.dart'
+    as _i644;
+import 'package:rehla/features/discover/data/repositories/impl_discover_repository.dart'
+    as _i73;
+import 'package:rehla/features/discover/domain/repositories/discover_repository.dart'
+    as _i329;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -71,6 +79,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i568.Utilities>(() => _i568.Utilities());
     gh.lazySingleton<_i83.FirebaseAnalyticsHelper>(
       () => _i83.FirebaseAnalyticsHelper(),
+    );
+    gh.factory<_i329.DiscoverRepository>(() => _i73.ImplDiscoverRepository());
+    gh.factory<_i130.DiscoverRemoteDataSource>(
+      () => _i644.ImplDiscoverRemoteDataSource(),
     );
     return this;
   }

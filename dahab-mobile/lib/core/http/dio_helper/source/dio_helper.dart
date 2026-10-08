@@ -17,7 +17,6 @@ abstract class DioHelper {
         ),
       )
         ..interceptors.add(CacheManager()().interceptor)
-        // ..interceptors.add(AuthInterceptor())
         ..interceptors.add(LogInterceptor(
           responseBody: true,
           requestBody: true,

@@ -63,6 +63,7 @@ import cookieParser from 'cookie-parser';
 import { correlationMiddleware } from './server/middleware/correlationMiddleware';
 import { optionalAuth } from './server/middleware/authMiddleware';
 import { wantsBearerToken } from './server/middleware/nativeClient';
+import { devCors, devCorsOrigins } from './server/middleware/devCors';
 import {
   requiredString,
   optionalString,
@@ -194,6 +195,13 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
+
+// Local Flutter web previews only; inert unless DEV_CORS_ORIGINS is set and
+// never active in production (server/middleware/devCors.ts).
+{
+  const origins = devCorsOrigins();
+  if (origins.size > 0) app.use(devCors(origins));
+}
 
 // Dedicated body parser for the base64 upload endpoint only — MUST be
 // registered before the global 100kb parser so a valid image at the cap

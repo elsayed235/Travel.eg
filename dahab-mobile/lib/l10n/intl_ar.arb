@@ -603,5 +603,21 @@
   "home_nav_plan": "خطّط",
   "home_nav_trip": "رحلتي",
   "home_nav_today": "النهارده",
-  "home_nav_daygi": "DayGi"
+  "home_nav_daygi": "DayGi",
+  "discover_hero_cta": "خطّط رحلتي",
+  "discover_switch_label": "اختار المكان",
+  "discover_live": "دلوقتي في {place}",
+  "discover_air": "الجو",
+  "discover_water": "الميّة",
+  "discover_wind": "الهوا",
+  "discover_sunset": "المغرب",
+  "discover_source": "{source} · الساعة {time}",
+  "discover_doors_title": "إيه اللي جايبك {place}؟",
+  "discover_picks_title": "حاجات تستاهل في {place}",
+  "discover_pick_cta": "خطّط حواليها",
+  "discover_prompt_title": "مش عارف تبدأ منين؟",
+  "discover_prompt_body": "قولنا مين جاي وبتحب إيه، ونقترح عليك خطط ونقولك كل واحدة مناسبة ليه.",
+  "discover_prompt_cta": "يلا نخطط",
+  "discover_early_note": "{place} لسه بتفتح على رحلة: الخطط الأول، والحجز قريب.",
+  "discover_ask_daygi": "اسأل DayGi"
 }
