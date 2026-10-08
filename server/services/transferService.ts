@@ -6,6 +6,8 @@ import { notificationService } from './notificationService';
 import { transferRouteService } from './transferRouteService';
 import { distributedLockService } from './distributedLockService';
 import { assertSupplierBookable, InsufficientCapacityError, priceSkuLine } from './commerceService';
+import { assertTransition } from './bookingLifecycle';
+import { supplierService } from './supplierService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -424,9 +426,16 @@ export class TransferService {
   public updateSupplierStatus(bookingId: string, supplierState: BookingEntity['supplierState'], resource?: any): BookingEntity {
     const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
     if (!booking) throw new Error(`Booking ${bookingId} not found`);
+    // Validated here, not only in the route, so no caller can skip a step.
+    assertTransition(booking.supplierState, supplierState);
 
     return db.runInTransaction(() => {
       booking.supplierState = supplierState;
+      // Reaching COMPLETED settles the money side exactly as /respond COMPLETE
+      // does. This path used to complete bookings with no payout at all.
+      if (supplierState === 'COMPLETED') {
+        supplierService.settleCompletion(booking);
+      }
       if (resource) {
         booking.assignedResource = { ...booking.assignedResource, ...resource };
       }

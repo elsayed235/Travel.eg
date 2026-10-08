@@ -7,6 +7,7 @@ import { reliabilityService } from './reliabilityService';
 import { payoutService } from './payoutService';
 import { payoutsForSupplier } from './payoutService';
 import { PaymentService } from './paymentService';
+import { assertTransition } from './bookingLifecycle';
 
 export class SupplierService {
   public getSupplierDashboard(supplierId: string): {
@@ -80,6 +81,25 @@ export class SupplierService {
       const err = new Error('This booking belongs to a different supplier.') as Error & { status?: number };
       err.status = 403;
       throw err;
+    }
+
+    // Lifecycle validation, the same state machine the /status route uses.
+    // COMPLETE used to apply from any state — straight from
+    // PENDING_CONFIRMATION — and schedule a payout for a service nobody had
+    // accepted, let alone delivered. Validated before any write.
+    const target = ({ ACCEPT: 'CONFIRMED', REJECT: 'REJECTED', DISPATCH: 'DISPATCHED', COMPLETE: 'COMPLETED' } as const)[params.action];
+    if (!target) {
+      const err = new Error(`Unknown action "${params.action}".`) as Error & { status?: number };
+      err.status = 400;
+      throw err;
+    }
+    // DISPATCH with a resource from CONFIRMED is assign-then-dispatch: the
+    // assignment is the ASSIGNED step, so both steps are validated.
+    if (params.action === 'DISPATCH' && booking.supplierState === 'CONFIRMED' && params.assignedResource) {
+      assertTransition(booking.supplierState, 'ASSIGNED');
+      assertTransition('ASSIGNED', target);
+    } else {
+      assertTransition(booking.supplierState, target);
     }
 
     const now = new Date().toISOString();

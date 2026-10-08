@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { db } from '../db/database';
 import { PaymentEntity } from '../db/schema';
 import { ledgerService } from './ledgerService';
+import { canTransition } from './bookingLifecycle';
 import { PaymentState } from '../../src/shared';
 
 // No fallback: a hardcoded secret in source lets anyone who can read this repo
@@ -402,7 +403,12 @@ export class PaymentService {
         const booking = db.bookings.find(b => b.id === params.bookingId || b.bookingRef === params.bookingId);
         if (booking) {
           booking.paymentState = 'REFUNDED';
-          booking.supplierState = 'CANCELLED';
+          // Only a live booking becomes CANCELLED. A refund on a REJECTED or
+          // COMPLETED booking used to rewrite it to CANCELLED, erasing that
+          // the supplier refused it or delivered it.
+          if (canTransition(booking.supplierState, 'CANCELLED')) {
+            booking.supplierState = 'CANCELLED';
+          }
           booking.updatedAt = now;
         }
       }

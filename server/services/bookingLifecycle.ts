@@ -81,3 +81,19 @@ export function canTransition(from: SupplierState, to: SupplierState): boolean {
 export function allowedTransitions(from: SupplierState): SupplierState[] {
   return TRANSITIONS[from] ?? [];
 }
+
+/**
+ * Throws a 409 when `from → to` is not a legal lifecycle step. Shared by both
+ * supplier routes (/respond and /status) so neither can complete — and pay out
+ * — a booking that never went through acceptance and delivery.
+ */
+export function assertTransition(from: SupplierState, to: SupplierState): void {
+  if (canTransition(from, to)) return;
+  const err = new Error(`Cannot transition from "${from}" to "${to}".`) as Error & {
+    status?: number;
+    details?: Record<string, unknown>;
+  };
+  err.status = 409;
+  err.details = { currentState: from, requestedState: to };
+  throw err;
+}

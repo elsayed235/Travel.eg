@@ -2783,7 +2783,7 @@ app.post('/api/suppliers/bookings/:bookingId/respond', (req: AuthenticatedReques
     });
     res.json({ booking: updated });
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message, ...(err.details || {}) });
   }
 });
 
@@ -3095,22 +3095,14 @@ app.post('/api/suppliers/bookings/:bookingId/status', (req: AuthenticatedRequest
       return res.status(403).json({ error: 'You may only update your own bookings.' });
     }
 
-    // Validate the transition using the lifecycle state machine.
-    // Without this, a supplier could jump from PENDING_CONFIRMATION to
-    // COMPLETED, bypassing the ASSIGNED and DISPATCHED states.
-    const { canTransition } = require('./server/services/bookingLifecycle');
-    if (!canTransition(booking.supplierState, supplierState)) {
-      return res.status(409).json({
-        error: `Cannot transition from "${booking.supplierState}" to "${supplierState}".`,
-        currentState: booking.supplierState,
-        requestedState: supplierState
-      });
-    }
-
+    // The lifecycle state machine is enforced inside updateSupplierStatus
+    // (409 with currentState/requestedState) — the same check /respond runs —
+    // so neither route can jump from PENDING_CONFIRMATION to COMPLETED.
+    // Reaching COMPLETED schedules the payout there as well.
     const updated = transferService.updateSupplierStatus(bookingId, supplierState, resource);
     res.json({ booking: updated });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message, ...(err.details || {}) });
   }
 });
 
@@ -3741,6 +3733,12 @@ app.post('/api/testing/golden-journey', async (req, res) => {
 
     // Milestone 4: Direct Supplier Dispatch & Resource Allocation
     const transferBooking = multiCheckoutResult.bookings.find(b => b.serviceType === 'transfer')!;
+    // Accept first: the lifecycle no longer lets DISPATCH skip acceptance.
+    supplierService.updateBookingState({
+      bookingId: transferBooking.id,
+      supplierId: 'SUP-SHUTTLE-01',
+      action: 'ACCEPT'
+    });
     const updatedTransfer = supplierService.updateBookingState({
       bookingId: transferBooking.id,
       supplierId: 'SUP-SHUTTLE-01',

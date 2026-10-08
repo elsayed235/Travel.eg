@@ -925,11 +925,18 @@ export class RentalService {
     db.runInTransaction(() => {
       booking.status = 'REJECTED';
       booking.updatedAt = now;
+      // Reject first: the supplier route now enforces the lifecycle, and
+      // PENDING_CONFIRMATION → REJECTED is the legal step. processRefund
+      // leaves a REJECTED mirror as it is (it only cancels live bookings), so
+      // rentals still distinguish REJECTED from CANCELLED.
+      supplierService.updateBookingState({
+        bookingId: booking.bookingRef,
+        supplierId: params.supplierId,
+        action: 'REJECT',
+        reason: params.reason || 'Capacity constraint'
+      });
       if (booking.paymentState === 'CAPTURED') {
         booking.paymentState = 'REFUNDED';
-        // Refund first: paymentService.processRefund clobbers the bookings
-        // mirror's supplierState to CANCELLED. The REJECT write below must run
-        // after it so rentals distinguish REJECTED from CANCELLED.
         paymentService.processRefund({
           bookingId: booking.bookingRef,
           tripId: booking.tripId,
@@ -939,12 +946,6 @@ export class RentalService {
           initiatedBy: params.supplierId
         });
       }
-      supplierService.updateBookingState({
-        bookingId: booking.bookingRef,
-        supplierId: params.supplierId,
-        action: 'REJECT',
-        reason: params.reason || 'Capacity constraint'
-      });
       const listing = db.rentalListings.find(l => l.id === booking.listingId);
       if (listing) {
         this.applySlotDelta(listing, booking.startDate, booking.endDate, booking.quantity, 'reserved', -booking.quantity);
