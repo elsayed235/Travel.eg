@@ -187,6 +187,30 @@ describe('CMS homepage seed', () => {
     backfillHomepageSections();
     expect(JSON.stringify(cmsHomepage.findAll())).toBe(before);
   });
+
+  it('refreshes hero copy that still holds an old shipped default, never an edited one', () => {
+    const connection = (adapter as any).connection;
+    const insertHero = (titleAr: string, descriptionAr: string) =>
+      connection
+        .prepare(
+          `INSERT INTO cms_homepage_sections (id, section_key, title_en, title_ar, visible, sort_order, config, updated_at)
+           VALUES ('HSEC-HERO', 'hero', 'Where the desert', ?, 1, 0, ?, '2026-01-01T00:00:00.000Z')`
+        )
+        .run(titleAr, JSON.stringify({ description_ar: descriptionAr }));
+
+    insertHero('حيث يلتقي', 'كل اللي تحتاجه في دهب — إقامة وأكل ومواصلات وشعاب وصحراء — في مكان واحد وهادي.');
+    backfillHomepageSections();
+    let hero = cmsHomepage.findAll().find(r => r.section_key === 'hero')!;
+    expect(hero.title_ar).toBe('هنا الصحرا');
+    expect(hero.config.description_ar).not.toContain('مواصلات');
+
+    connection.prepare("DELETE FROM cms_homepage_sections WHERE section_key = 'hero'").run();
+    insertHero('عنوان كتبه فريق التشغيل', 'وصف مخصص');
+    backfillHomepageSections();
+    hero = cmsHomepage.findAll().find(r => r.section_key === 'hero')!;
+    expect(hero.title_ar).toBe('عنوان كتبه فريق التشغيل');
+    expect(hero.config.description_ar).toBe('وصف مخصص');
+  });
 });
 
 // ---------------------------------------------------------------------------

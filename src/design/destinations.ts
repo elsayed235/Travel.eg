@@ -28,8 +28,14 @@ export interface Destination {
   chrome: { abyss: string; salt: string };
   /** Representative swatch pair for pickers (water/land). */
   swatch: [string, string];
-  /** Hero imagery under public/images; destinations without photography yet use their landscape art. */
-  heroImage?: string;
+  /**
+   * Home hero photograph (public/images). Nuweiba and Siwa use representative
+   * library photos until real photography of each place lands; swap the path,
+   * nothing else changes.
+   */
+  heroImage: string;
+  /** CSS object-position for the hero crop. */
+  heroFocus?: string;
   /** Motion personality: how springs feel in this place. */
   motion: {
     spring: Transition;
@@ -49,7 +55,9 @@ export const DESTINATIONS: Record<DestinationId, Destination> = {
     catalogue: 'live',
     chrome: { abyss: '#0B151C', salt: '#F5F4F0' },
     swatch: ['#1F9D97', '#9A5642'],
-    heroImage: '/images/hero/conc-hero-reef.webp',
+    // Same photograph the CMS hero ships with (HERO_IMAGE_DEFAULT).
+    heroImage: '/images/hero/coral-reef-split.jpg',
+    heroFocus: '50% 50%',
     motion: {
       spring: { type: 'spring', stiffness: 420, damping: 30 },
       layout: { type: 'spring', stiffness: 380, damping: 32 },
@@ -65,6 +73,8 @@ export const DESTINATIONS: Record<DestinationId, Destination> = {
     catalogue: 'early',
     chrome: { abyss: '#0F1A1E', salt: '#F2F1EB' },
     swatch: ['#6FB3BF', '#B6A28C'],
+    heroImage: '/images/explore/explore-sunrise-golden.webp',
+    heroFocus: '50% 55%',
     motion: {
       spring: { type: 'tween', duration: 0.48, ease: [0.45, 0, 0.2, 1] },
       layout: { type: 'tween', duration: 0.5, ease: [0.45, 0, 0.2, 1] },
@@ -80,6 +90,8 @@ export const DESTINATIONS: Record<DestinationId, Destination> = {
     catalogue: 'early',
     chrome: { abyss: '#16130F', salt: '#F6F2EA' },
     swatch: ['#4A7445', '#D9B583'],
+    heroImage: '/images/hero/splash-desert-golden.webp',
+    heroFocus: '55% 50%',
     motion: {
       spring: { type: 'tween', duration: 0.6, ease: [0.37, 0, 0.2, 1] },
       layout: { type: 'tween', duration: 0.7, ease: [0.37, 0, 0.2, 1] },

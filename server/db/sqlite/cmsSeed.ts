@@ -102,6 +102,44 @@ export function backfillHomepageSections(): void {
   if (added || retired) {
     console.log(`[CMS] Homepage sections reconciled: ${added} added, ${retired} retired`);
   }
+  const migrated = migrateUntouchedHeroCopy(c);
+  if (migrated) console.log('[CMS] Hero copy refreshed to the shipped defaults (it had never been edited)');
+}
+
+/**
+ * Hero copy that earlier releases seeded verbatim. The seed copies the shipped
+ * text into the CMS, so a later copy change (here: Arabic moved to light
+ * Egyptian colloquial) would stay hidden behind the old snapshot forever. A
+ * row still holding one of these exact strings was never touched by an
+ * operator, so it is safe to move it to today's default. Edited rows never
+ * match and are left alone.
+ */
+const LEGACY_HERO_COPY = {
+  title_ar: ['حيث يلتقي'],
+  description_ar: ['كل اللي تحتاجه في دهب — إقامة وأكل ومواصلات وشعاب وصحراء — في مكان واحد وهادي.'],
+};
+
+function migrateUntouchedHeroCopy(c: SqliteDb): number {
+  const row = c.prepare("SELECT id, title_ar, config FROM cms_homepage_sections WHERE section_key = 'hero'").get() as
+    | { id: string; title_ar: string | null; config: string | null }
+    | undefined;
+  if (!row) return 0;
+  let changed = 0;
+  if (row.title_ar && LEGACY_HERO_COPY.title_ar.includes(row.title_ar)) {
+    c.prepare('UPDATE cms_homepage_sections SET title_ar = ?, updated_at = ? WHERE id = ?').run(TRANSLATIONS['concierge.hero.titleA'].ar, now(), row.id);
+    changed++;
+  }
+  try {
+    const config = row.config ? JSON.parse(row.config) : null;
+    if (config && LEGACY_HERO_COPY.description_ar.includes(config.description_ar)) {
+      config.description_ar = TRANSLATIONS['concierge.hero.subtitle'].ar;
+      c.prepare('UPDATE cms_homepage_sections SET config = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(config), now(), row.id);
+      changed++;
+    }
+  } catch {
+    // malformed operator config: leave it for the dashboard to fix
+  }
+  return changed;
 }
 
 export function seedCmsContent(): void {

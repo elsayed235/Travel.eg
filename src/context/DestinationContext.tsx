@@ -36,6 +36,13 @@ function readInitial(): DestinationId {
 interface DestinationContextValue {
   destinationId: DestinationId;
   destination: Destination;
+  /**
+   * The destination once the page-wide colour crossfade has finished. Media
+   * that make their own entrance (the home hero photo) key on this, so the
+   * photo arrives after the palette instead of being frozen inside the
+   * crossfade snapshot.
+   */
+  settledDestinationId: DestinationId;
   /** Switch place. Cross-fades the document where the browser supports it. */
   setDestination: (id: DestinationId) => void;
 }
@@ -44,6 +51,7 @@ const DestinationContext = createContext<DestinationContextValue | undefined>(un
 
 export const DestinationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [destinationId, setDestinationId] = useState<DestinationId>(readInitial);
+  const [settledDestinationId, setSettled] = useState<DestinationId>(destinationId);
   const { themeId, reducedMotion } = useTheme();
 
   useEffect(() => {
@@ -68,6 +76,14 @@ export const DestinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const setDestination = useCallback(
     (id: DestinationId) => {
       if (id === destinationId) return;
+      // Warm the next hero photo while the palette crossfades.
+      try {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = DESTINATIONS[id].heroImage;
+      } catch {
+        // preloading is an optimisation only
+      }
       const apply = () => flushSync(() => setDestinationId(id));
       type VT = { ready?: Promise<unknown>; finished?: Promise<unknown> };
       const doc = document as Document & { startViewTransition?: (cb: () => void) => VT };
@@ -76,17 +92,19 @@ export const DestinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // A newer switch (or navigation) can abort this one; the state update
         // still lands, so the rejection is expected and not an error.
         vt?.ready?.catch(() => {});
-        vt?.finished?.catch(() => {});
+        if (vt?.finished) vt.finished.catch(() => {}).finally(() => setSettled(id));
+        else setSettled(id);
       } else {
         apply();
+        setSettled(id);
       }
     },
     [destinationId, reducedMotion],
   );
 
   const value = useMemo(
-    () => ({ destinationId, destination: DESTINATIONS[destinationId], setDestination }),
-    [destinationId, setDestination],
+    () => ({ destinationId, destination: DESTINATIONS[destinationId], settledDestinationId, setDestination }),
+    [destinationId, settledDestinationId, setDestination],
   );
 
   return <DestinationContext.Provider value={value}>{children}</DestinationContext.Provider>;

@@ -1,112 +1,168 @@
 import React, { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Compass } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
-import { HERO_IMAGE_DEFAULT, HERO_VEIL_DEFAULT } from '../../../shared/homeSections';
+import { useDestination } from '../../../context/DestinationContext';
+import { DESTINATIONS, type DestinationId } from '../../../design/destinations';
+import { HERO_VEIL_DEFAULT } from '../../../shared/homeSections';
 import type { HeroContent } from './homeLayout';
 
 /**
- * Concierge hero — one cinematic frame, one thesis, two actions.
+ * Home hero — one photograph per destination, one thesis, two actions.
  *
- * Deliberately still: a single high-quality photograph with a calm
- * theme-aware scrim. No video carousel, no auto-rotation, no shader
- * layer — the previous hero cycled five scenes behind a cinema-glass
- * plate and competed with its own headline for attention.
+ * Switching destination is the moment the place "arrives" (brand board §03):
+ *   1. DestinationContext crossfades the page palette (View Transitions).
+ *   2. Once that settles (`settledDestinationId`), the new photograph comes
+ *      into focus — opacity, a blur that clears and a slight pull back, at
+ *      the destination's own tempo — while the old one drifts out behind it.
+ *   3. The headline lines rise in one after another.
+ * Keying on the settled destination keeps the photo out of the crossfade
+ * snapshot, so the two motions run in sequence instead of fighting.
  *
- * Text colour is NOT hardcoded white. The scrim is mixed from
- * `--bg-canvas`, so on the two light themes it resolves to near-white —
- * white type on it measured 1.05:1 (the headline essentially vanished).
- * Because the scrim makes the photograph behave like the canvas, the ink
- * follows the same canvas tokens: `--text-primary` is white on the dark
- * themes and dark ink on the light ones, correct in both by construction.
+ * At rest the photo breathes with a very slow Ken Burns drift. Reduced
+ * motion: a short crossfade, no drift, no blur.
  *
- * The photo, headline line A, subtitle and scrim strength now come from the
- * CMS (`hero` in homeLayout.ts) and fall back to the shipped values
- * individually — a CMS that sets only the photo leaves the copy alone, and a
- * CMS image that 404s falls back to the shipped photograph instead of
- * leaving a blank frame. Line B (the italic accent) and the eyebrow stay
- * translated.
+ * Copy: Dahab keeps the CMS-editable headline (`hero` in homeLayout.ts);
+ * Nuweiba and Siwa use their translated lines until the CMS is destination
+ * aware. The scrim is built from the canvas token, so text contrast follows
+ * the theme and the destination palette automatically.
  */
+
+interface HeroCopy {
+  eyebrow: string;
+  titleA: string;
+  titleB: string;
+  subtitle: string;
+}
+
+function copyFor(id: DestinationId, hero: HeroContent | undefined, t: (k: string) => string): HeroCopy {
+  if (id === 'dahab') {
+    return {
+      eyebrow: t('concierge.hero.eyebrow'),
+      titleA: hero?.titleA ?? t('concierge.hero.titleA'),
+      titleB: t('concierge.hero.titleB'),
+      subtitle: hero?.subtitle ?? t('concierge.hero.subtitle'),
+    };
+  }
+  return {
+    eyebrow: t(`hero.${id}.eyebrow`),
+    titleA: t(`hero.${id}.titleA`),
+    titleB: t(`hero.${id}.titleB`),
+    subtitle: t(`hero.${id}.subtitle`),
+  };
+}
+
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
 export const ConciergeHero: React.FC<{
   hero?: HeroContent;
   onPlan: () => void;
   onExplore: () => void;
 }> = ({ hero, onPlan, onExplore }) => {
-  const { t, isRTL } = useLanguage();
-  const [imageFailed, setImageFailed] = useState(false);
+  const { t, isRTL, language } = useLanguage();
+  const { settledDestinationId } = useDestination();
+  const reduce = useReducedMotion();
+  const [failed, setFailed] = useState<Record<string, boolean>>({});
 
-  const image = imageFailed || !hero?.imageUrl ? HERO_IMAGE_DEFAULT : hero.imageUrl;
+  const id = settledDestinationId;
+  const d = DESTINATIONS[id];
+  // The CMS hero photo is Dahab's; other places use their own photograph.
+  const cmsImage = id === 'dahab' && hero?.imageUrl && !failed[hero.imageUrl] ? hero.imageUrl : null;
+  const image = cmsImage ?? d.heroImage;
+  const copy = copyFor(id, hero, t);
+  // Slower places arrive more slowly: Dahab ~1.2s, Nuweiba ~1.5s, Siwa ~1.8s.
+  const arrive = reduce ? 0.2 : 1.2 * (1 + (d.motion.stagger - 1) * 0.4);
 
-  /* Scrim stops are the shipped calibration scaled by one operator number.
-     k = 1 (the 88 default) reproduces the previous values exactly, so the
-     measured contrast of this section is unchanged unless someone edits it. */
   const k = (hero?.veil ?? HERO_VEIL_DEFAULT) / HERO_VEIL_DEFAULT;
   const stop = (base: number) => `${Math.round(base * k * 100) / 100}%`;
+  const side = isRTL ? 'to left' : 'to right';
+
+  const line = (i: number) => ({
+    initial: reduce ? { opacity: 0 } : { opacity: 0, y: 28, filter: 'blur(8px)' },
+    animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
+    exit: reduce ? { opacity: 0 } : { opacity: 0, y: -14, filter: 'blur(4px)', transition: { duration: 0.35, ease: EASE_OUT } },
+    transition: { duration: reduce ? 0.2 : 0.9, ease: EASE_OUT, delay: reduce ? 0 : 0.25 + i * 0.12 * d.motion.stagger },
+  });
 
   return (
     <section
-      aria-label="Dahab digital concierge"
-      dir={isRTL ? 'rtl' : 'ltr'}
-      className="relative w-full overflow-hidden bg-[var(--bg-canvas)] text-[var(--text-primary)]"
+      data-home-section="hero"
+      aria-label={t('hero.region', { place: d.name[language] })}
+      className="relative isolate w-full overflow-hidden bg-dg-bg text-dg-ink"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0" aria-hidden="true">
-        <img
-          src={image}
-          alt=""
-          fetchPriority="high"
-          decoding="async"
-          onError={() => setImageFailed(true)}
-          className="h-full w-full object-cover object-center"
-        />
-        {/* Sophisticated overlay: deep charcoal base, stronger on the reading side.
-            Theme-aware via color-mix so light themes lift instead of assuming night.
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={image}
+            className="absolute inset-0"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.12, filter: 'blur(14px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.04, filter: 'blur(6px)' }}
+            transition={{ duration: arrive, ease: EASE_OUT }}
+          >
+            <motion.img
+              src={image}
+              alt=""
+              fetchPriority="high"
+              decoding="async"
+              onError={() => cmsImage && setFailed((f) => ({ ...f, [cmsImage]: true }))}
+              className="h-full w-full object-cover"
+              style={{ objectPosition: d.heroFocus ?? '50% 50%' }}
+              animate={reduce ? undefined : { scale: [1, 1.07], x: ['0%', isRTL ? '1.2%' : '-1.2%'] }}
+              transition={reduce ? undefined : { duration: 26, ease: 'linear', repeat: Infinity, repeatType: 'mirror' }}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-            The mid stops carry the reading column, so they have to be strong
-            enough to actually stand in for the canvas: at 55%/42% the subtitle
-            sat on rgb(166,200,197) and measured 4.25:1 against lagoon-breeze's
-            `--text-secondary` (4.26:1 — a fail, not a rounding error). The veil
-            now holds ~70% across the text block and falls away after it, so the
-            photograph still owns the right-hand two fifths. */}
+        {/* Reading scrim, made of the canvas colour so it follows theme and place. */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-[background-image] duration-700"
           style={{
-            backgroundImage: isRTL
-              ? `linear-gradient(to left, color-mix(in oklab, var(--bg-canvas) ${stop(88)}, transparent) 0%, color-mix(in oklab, var(--bg-canvas) ${stop(70)}, transparent) 45%, color-mix(in oklab, var(--bg-canvas) ${stop(18)}, transparent) 80%, transparent 100%)`
-              : `linear-gradient(to right, color-mix(in oklab, var(--bg-canvas) ${stop(88)}, transparent) 0%, color-mix(in oklab, var(--bg-canvas) ${stop(70)}, transparent) 45%, color-mix(in oklab, var(--bg-canvas) ${stop(18)}, transparent) 80%, transparent 100%)`
+            backgroundImage: `linear-gradient(${side}, color-mix(in oklab, var(--dg-bg) ${stop(86)}, transparent) 0%, color-mix(in oklab, var(--dg-bg) ${stop(64)}, transparent) 42%, color-mix(in oklab, var(--dg-bg) ${stop(14)}, transparent) 78%, transparent 100%)`,
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage:
-              `linear-gradient(to top, color-mix(in oklab, var(--bg-canvas) ${stop(92)}, transparent) 0%, color-mix(in oklab, var(--bg-canvas) ${stop(50)}, transparent) 24%, transparent 44%, color-mix(in oklab, var(--bg-canvas) ${stop(30)}, transparent) 100%)`
+            backgroundImage: `linear-gradient(to top, var(--dg-bg) 0%, color-mix(in oklab, var(--dg-bg) ${stop(55)}, transparent) 22%, transparent 46%, color-mix(in oklab, var(--dg-bg) ${stop(40)}, transparent) 100%)`,
           }}
         />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-[92svh] w-full max-w-7xl flex-col justify-end px-4 pb-16 pt-36 sm:px-6 sm:pb-20 lg:px-8">
+      <div className="relative z-10 mx-auto flex min-h-[88svh] w-full max-w-[var(--dg-content-max)] flex-col justify-end px-[var(--dg-gutter)] pb-14 pt-32 sm:pb-20">
         <div className="max-w-2xl lg:max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)] backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-primary)]" aria-hidden="true" />
-            {t('concierge.hero.eyebrow')}
-          </p>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={id}>
+              <motion.p
+                {...line(0)}
+                className="inline-flex items-center gap-2 rounded-full border border-dg-line bg-dg-chrome px-3.5 py-1.5 text-[0.8125rem] font-medium text-dg-ink-2 backdrop-blur-md"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-dg-action" aria-hidden="true" />
+                {copy.eyebrow}
+              </motion.p>
 
-          <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl lg:text-[5rem]">
-            {hero?.titleA ?? t('concierge.hero.titleA')}
-            <br />
-            <span className="italic text-[var(--accent-secondary)]">{t('concierge.hero.titleB')}</span>
-          </h1>
+              <h1 className="mt-5 font-dg-display text-[2.75rem] font-semibold leading-[1.04] text-balance sm:text-6xl lg:text-[5rem] [font-variation-settings:'SOFT'_100]">
+                <motion.span {...line(1)} className="block">
+                  {copy.titleA}
+                </motion.span>
+                <motion.span {...line(2)} className="block italic text-dg-highlight rtl:not-italic">
+                  {copy.titleB}
+                </motion.span>
+              </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
-            {hero?.subtitle ?? t('concierge.hero.subtitle')}
-          </p>
+              <motion.p {...line(3)} className="mt-5 max-w-xl text-base leading-relaxed text-dg-ink-2 sm:text-lg">
+                {copy.subtitle}
+              </motion.p>
+            </motion.div>
+          </AnimatePresence>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={onPlan}
-              className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2.5 rounded-full bg-[var(--accent-primary)] px-7 text-sm font-bold text-[var(--accent-primary-ink)] shadow-xl transition-transform duration-200 hover:brightness-110 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-dg-lg bg-dg-action px-7 text-[0.9375rem] font-semibold text-dg-action-ink shadow-[0_14px_30px_-14px_var(--dg-action)] transition-[transform,background-color] duration-200 hover:bg-dg-action-hover active:scale-[0.98]"
             >
               {t('concierge.hero.plan')}
               <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
@@ -114,16 +170,14 @@ export const ConciergeHero: React.FC<{
             <button
               type="button"
               onClick={onExplore}
-              className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-card)] px-7 text-sm font-bold text-[var(--text-primary)] backdrop-blur-sm transition-colors duration-200 hover:bg-[var(--surface-container)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-dg-lg border border-dg-line-strong bg-dg-chrome px-7 text-[0.9375rem] font-semibold text-dg-ink backdrop-blur-md transition-colors duration-200 hover:bg-dg-action-wash"
             >
               <Compass className="h-4 w-4" aria-hidden="true" />
-              {t('concierge.hero.explore')}
+              {t('hero.explore', { place: d.name[language] })}
             </button>
           </div>
 
-          <p className="mt-6 text-xs font-medium tracking-wide text-[var(--text-secondary)]">
-            {t('concierge.hero.note')}
-          </p>
+          <p className="mt-6 text-[0.8125rem] text-dg-ink-3">{t('concierge.hero.note')}</p>
         </div>
       </div>
     </section>

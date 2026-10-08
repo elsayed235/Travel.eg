@@ -44,7 +44,7 @@ export type HomeSectionId =
 
 /** Shipped order. CMS `sort_order` reorders from here; absent rows keep a slot. */
 export const HOME_SECTIONS: readonly HomeSectionSpec[] = [
-  { id: 'hero', anchor: 'section[aria-label="Dahab digital concierge"]', fields: ['image_url', 'description_en', 'description_ar', 'overlay_opacity'] },
+  { id: 'hero', anchor: 'section[data-home-section="hero"]', fields: ['image_url', 'description_en', 'description_ar', 'overlay_opacity'] },
   { id: 'next_step', anchor: '#concierge-nextstep', fields: [] },
   { id: 'services', anchor: '#concierge-services', fields: [] },
   { id: 'experiences', anchor: '#concierge-experiences', fields: [] },

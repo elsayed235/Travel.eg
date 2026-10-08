@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 4047 keys. Loaded per language by
+ * Language: ar. 4057 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~88,566 chars here instead of both languages).
+ * (~88,799 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -1707,12 +1707,12 @@ export const AR: Record<string, string> = {
   "concierge.experiences.title": "عيشها، مش بس اتفرج عليها",
   "concierge.experiences.viewAll": "كل التجارب",
   "concierge.hero.explore": "استكشف دهب",
-  "concierge.hero.eyebrow": "دهب · الكونسيرج الرقمي",
-  "concierge.hero.note": "حجز مباشر موثّق · إلغاء مرن · ترشيحات أهل دهب",
-  "concierge.hero.plan": "خطط لرحلتي",
-  "concierge.hero.subtitle": "كل اللي تحتاجه في دهب — إقامة وأكل ومواصلات وشعاب وصحراء — في مكان واحد وهادي.",
-  "concierge.hero.titleA": "حيث يلتقي",
-  "concierge.hero.titleB": "الصحراء بالبحر",
+  "concierge.hero.eyebrow": "دهب · جنوب سينا",
+  "concierge.hero.note": "حجز مباشر موثّق · إلغاء مرن · ترشيحات من أهل المكان",
+  "concierge.hero.plan": "خطّط رحلتي",
+  "concierge.hero.subtitle": "كل اللي محتاجه في دهب في مكان واحد: إقامة، وأكل، ومشاوير، وشعاب، وصحرا.",
+  "concierge.hero.titleA": "هنا الصحرا",
+  "concierge.hero.titleB": "بتقابل البحر",
   "concierge.intent.adventure": "مغامرة",
   "concierge.intent.custom": "أو صمّمها على مزاجك",
   "concierge.intent.customCta": "افتح مخطط الرحلة",
@@ -2301,9 +2301,19 @@ export const AR: Record<string, string> = {
   "hero.cta.explore": "خريطة الأماكن الحية",
   "hero.cta.itinerary": "جدول رحلتي",
   "hero.cta.whatNow": "أعمل إيه دلوقتي؟",
+  "hero.explore": "اكتشف {place}",
+  "hero.nuweiba.eyebrow": "نويبع · سينا",
+  "hero.nuweiba.subtitle": "بحر رايق، وجبال هادية، وأيام من غير برنامج: كامبات، وشعاب قريبة، ونجوم بالليل.",
+  "hero.nuweiba.titleA": "عشة على البحر،",
+  "hero.nuweiba.titleB": "والوقت ملكك",
+  "hero.region": "{place} في لمحة",
   "hero.scene.desert": "وديان وكانيونات سيناء",
   "hero.scene.lagoon": "اللاجونا وممشى دهب",
   "hero.scene.reef": "الشعاب المرجانية والبلو هول",
+  "hero.siwa.eyebrow": "سيوة · الصحرا الغربية",
+  "hero.siwa.subtitle": "بحيرات ملح بتطفو فيها، وعيون دافية، ونخل على حافة بحر الرمال الأعظم.",
+  "hero.siwa.titleA": "واحة",
+  "hero.siwa.titleB": "بتداوي",
   "hero.subtitle": "رادار بحري لحالة الجو والموج، تظبيط يومك أول بأول، وتجارب حقيقية وسط جبال وبحر سيناء.",
   "hero.title": "وصلت دهب؟ سيب الباقي علينا.",
   "home.100CustomizableAnytime": "قابلة للتخصيص والتعديل في أي وقت",

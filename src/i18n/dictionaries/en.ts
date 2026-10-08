@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 4047 keys. Loaded per language by
+ * Language: en. 4057 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~97,058 chars here instead of both languages).
+ * (~97,388 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -1707,8 +1707,8 @@ export const EN: Record<string, string> = {
   "concierge.experiences.title": "Do this, not just see it",
   "concierge.experiences.viewAll": "View all experiences",
   "concierge.hero.explore": "Explore Dahab",
-  "concierge.hero.eyebrow": "Dahab · Digital concierge",
-  "concierge.hero.note": "Direct verified bookings · Flexible cancellation · Local picks",
+  "concierge.hero.eyebrow": "Dahab · South Sinai",
+  "concierge.hero.note": "Verified direct bookings · Flexible cancellation · Picks from people who live there",
   "concierge.hero.plan": "Plan my trip",
   "concierge.hero.subtitle": "Everything you need in Dahab — stays, tables, rides, reefs and desert — in one calm place.",
   "concierge.hero.titleA": "Where the desert",
@@ -2301,9 +2301,19 @@ export const EN: Record<string, string> = {
   "hero.cta.explore": "Living Map & Spots",
   "hero.cta.itinerary": "Command Center",
   "hero.cta.whatNow": "What Should I Do Now?",
+  "hero.explore": "Explore {place}",
+  "hero.nuweiba.eyebrow": "Nuweiba · Sinai",
+  "hero.nuweiba.subtitle": "Calm sea, soft mountains and days with nothing on the schedule: camps, shallow reefs and starry nights.",
+  "hero.nuweiba.titleA": "A hut on the shore,",
+  "hero.nuweiba.titleB": "and time is yours",
+  "hero.region": "{place} at a glance",
   "hero.scene.desert": "Sinai Canyons & Valleys",
   "hero.scene.lagoon": "Laguna & Coastline",
   "hero.scene.reef": "Coral Reef & Blue Hole",
+  "hero.siwa.eyebrow": "Siwa · Western Desert",
+  "hero.siwa.subtitle": "Salt lakes you float in, warm springs and palm groves at the edge of the Great Sand Sea.",
+  "hero.siwa.titleA": "An oasis",
+  "hero.siwa.titleB": "that heals",
   "hero.subtitle": "Real-time Red Sea marine radar, adaptive day planning, and curated Sinai wonder.",
   "hero.title": "You made it to Dahab. We’ll handle the rest.",
   "home.100CustomizableAnytime": "100% customizable anytime",
