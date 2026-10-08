@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Sparkles,
   Moon,
   Sun,
   Check,
@@ -8,13 +7,11 @@ import {
   Palette,
   Eye,
   Compass,
-  Waves,
   Sliders,
   Type,
   ZapOff,
   CheckCircle2,
   Monitor,
-  Droplets,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTheme, ThemeId, ThemeOption } from '../../context/ThemeContext';
@@ -79,16 +76,10 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 
   const getThemeIcon = (id: ThemeId) => {
     switch (id) {
-      case 'charcoal-minimal':
-        return Sparkles;
-      case 'deep-reef':
-        return Waves;
-      case 'sinai-midnight':
+      case 'abyss':
         return Moon;
-      case 'editorial-sand':
+      case 'salt':
         return Sun;
-      case 'lagoon-breeze':
-        return Droplets;
       case 'high-contrast-pro':
         return Eye;
       default:
@@ -97,11 +88,6 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   };
 
   const getShortName = (theme: ThemeOption) => {
-    if (theme.id === 'charcoal-minimal') return t('nav.softCharcoal');
-    if (theme.id === 'deep-reef') return t('nav.emeraldGreen');
-    if (theme.id === 'sinai-midnight') return t('nav.midnightBlue');
-    if (theme.id === 'editorial-sand') return t('nav.warmSand');
-    if (theme.id === 'lagoon-breeze') return t('nav.lagoonBlue');
     if (theme.id === 'high-contrast-pro') return t('nav.highContrast');
     return language === 'ar' ? theme.nameAr : theme.nameEn;
   };

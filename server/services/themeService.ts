@@ -71,23 +71,20 @@ export const THEME_TOKENS: Record<string, ThemeTokenSpec> = {
 export const THEME_TOKEN_KEYS = Object.keys(THEME_TOKENS);
 
 /** Font stacks the app already loads — no external fetching, CSP-safe.
- *  Luxury Re-Skin: Cormorant (Latin display serif) + Montserrat (body)
- *  replaced Outfit/Chakra Petch; Arabic stays on Alexandria/El Messiri. */
+ *  Granite & Lagoon (src/styles/tokens.css): Fraunces + Alexandria display,
+ *  IBM Plex Sans + Plex Sans Arabic for UI. */
 export const FONT_STACKS: Record<string, string> = {
-  Montserrat: "'Montserrat', 'Alexandria', sans-serif",
-  Cormorant: "'Cormorant', 'El Messiri', Georgia, serif",
-  Alexandria: "'Alexandria', sans-serif",
-  'El Messiri': "'El Messiri', Georgia, serif",
+  'IBM Plex Sans': "'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif",
+  Fraunces: "'Fraunces', 'Alexandria', Georgia, serif",
+  Alexandria: "'Alexandria', 'IBM Plex Sans Arabic', sans-serif",
+  'IBM Plex Sans Arabic': "'IBM Plex Sans Arabic', system-ui, sans-serif",
   System: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
 };
 
 /** Mirrors ThemeId in src/context/ThemeContext.tsx — keep in sync. */
 export const THEME_IDS = [
-  'charcoal-minimal',
-  'deep-reef',
-  'sinai-midnight',
-  'editorial-sand',
-  'lagoon-breeze',
+  'abyss',
+  'salt',
   'high-contrast-pro',
 ] as const;
 

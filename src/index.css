@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
 /* Dark mode follows the app theme attribute (set on <html>/<body> by
    ThemeContext), not the OS. Without this, `dark:` palette classes only
@@ -7,20 +8,20 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Luxury Re-Skin type system. Cormorant is the Latin display serif
-     (skill direction), Montserrat the body face; Arabic glyphs always fall
-     through to Alexandria (body) / El Messiri (display serif) — Cormorant
-     and Montserrat have no Arabic coverage, and the [dir=rtl] rules below
-     force Alexandria/El Messiri on Arabic runs regardless. */
-  --font-serif: 'El Messiri', Georgia, serif;
-  --font-sans: 'Montserrat', 'Alexandria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Cormorant', 'El Messiri', Georgia, serif;
-  --font-chart: 'Cormorant', 'Alexandria', serif;
-  --font-arabic: 'Alexandria', -apple-system, sans-serif;
-  --font-arabic-display: 'Alexandria', sans-serif;
-  --font-arabic-body: 'Alexandria', sans-serif;
-  --font-arabic-serif: 'El Messiri', 'Alexandria', serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Granite & Lagoon type system (src/styles/tokens.css, plan §06).
+     Fraunces is the Latin display face, Alexandria the Arabic display face,
+     IBM Plex Sans / Plex Sans Arabic carry every running line and control,
+     Plex Mono the readings. All OFL. The [dir=rtl] rules below swap the
+     Arabic faces in for RTL runs. */
+  --font-serif: 'Fraunces', 'Alexandria', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', 'Alexandria', Georgia, serif;
+  --font-chart: 'Fraunces', 'Alexandria', serif;
+  --font-arabic: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-arabic-display: 'Alexandria', 'IBM Plex Sans Arabic', sans-serif;
+  --font-arabic-body: 'IBM Plex Sans Arabic', sans-serif;
+  --font-arabic-serif: 'Alexandria', 'IBM Plex Sans Arabic', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* ------------------------------------------------------------------
      Reading scale.
@@ -165,287 +166,8 @@
   --text-accent-strong: color-mix(in oklab, var(--text-accent) 55%, var(--text-primary));
 }
 
-/* ==========================================================================
-   DAHAB MULTI-THEME ENGINE (CSS VARIABLES & TOKENS)
-   ========================================================================== */
-
-/* 0. NEW DARK STYLE: Charcoal Minimal #1F1F1F (2026) */
-:root[data-theme-id="charcoal-minimal"],
-[data-theme-id="charcoal-minimal"] {
-  /* Stone Noir: warm stone-black + gold (Luxury Re-Skin) */
-  --bg-canvas: #141311;
-  --surface-card: #201D1A;
-  --surface-container: #2A2622;
-  --text-primary: #F5F2EC;
-  --text-secondary: #C9C2B8;
-  --accent-primary: #C8933D;
-  --accent-secondary: #C9A24B;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #1A1408;
-  --accent-secondary-ink: #1A1408;
-  --focus-ring: #C8933D;
-  --border-subtle: rgba(245, 242, 236, 0.14);
-  --header-bg: rgba(20, 19, 17, 0.88);
-  --header-border: rgba(201, 147, 61, 0.18);
-  --header-pill-bg: rgba(42, 38, 34, 0.82);
-  --header-pill-border: rgba(201, 147, 61, 0.24);
-  --header-pill-active: rgba(200, 147, 61, 0.28);
-  --header-pill-active-text: #E9C47F;
-  --btn-book-bg: #C8933D;
-  --btn-book-hover: #B97F2E;
-  --btn-book-text: #1A1408;
-  --btn-util-bg: rgba(255, 255, 255, 0.08);
-  --btn-util-hover: rgba(255, 255, 255, 0.15);
-  --btn-util-text: #F5F2EC;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.55);
-
-  /* Aurora UI Extended Tokens */
-  --aurora-primary: #C8933D;
-  --aurora-secondary: #E9C47F;
-  --aurora-accent: #A16207;
-  --aurora-glow: rgba(200, 147, 61, 0.22);
-  --aurora-warm: rgba(200, 147, 61, 0.16);
-  --aurora-success: #10B981;
-  --aurora-warning: #F59E0B;
-  --aurora-error: #EF4444;
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: var(--bg-canvas);
-  --surface-elevated: var(--surface-container);
-  --surface-warm: #38322C;
-  --surface-dark: #0E0D0C;
-  --brand-primary: #C8933D;
-  --brand-secondary: #B97F2E;
-  --brand-accent: #E9C47F;
-  --brand-coral: #FB7185;
-  --brand-sand: #E7D3AE;
-  --text-muted: #A8A29E;
-  --text-inverse: #141311;
-}
-
-/* 1. DARK STYLE 1: OLED Cyber Emerald 2026 */
-:root,
-:root[data-theme="dark"],
-:root[data-theme-id="deep-reef"],
-[data-theme-id="deep-reef"],
-.dark {
-  /* Black Olive + gold (Luxury Re-Skin dark default) */
-  --bg-canvas: #14160F;
-  --surface-card: #1E2118;
-  --surface-container: #282C20;
-  --text-primary: #F5F4EE;
-  --text-secondary: #C4C7BB;
-  --accent-primary: #C8933D;
-  --accent-secondary: #C9A24B;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #1A1408;
-  --accent-secondary-ink: #1A1408;
-  --focus-ring: #C8933D;
-  --border-subtle: rgba(245, 244, 238, 0.14);
-  --header-bg: rgba(20, 22, 15, 0.88);
-  --header-border: rgba(201, 147, 61, 0.18);
-  --header-pill-bg: rgba(40, 44, 32, 0.82);
-  --header-pill-border: rgba(201, 147, 61, 0.24);
-  --header-pill-active: rgba(200, 147, 61, 0.28);
-  --header-pill-active-text: #E9C47F;
-  --btn-book-bg: #C8933D;
-  --btn-book-hover: #B97F2E;
-  --btn-book-text: #1A1408;
-  --btn-util-bg: rgba(255, 255, 255, 0.08);
-  --btn-util-hover: rgba(255, 255, 255, 0.14);
-  --btn-util-text: #F5F4EE;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.70);
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: var(--bg-canvas);
-  --surface-elevated: var(--surface-container);
-  --surface-warm: #2B2F23;
-  --surface-dark: #0C0D09;
-  --brand-primary: #C8933D;
-  --brand-secondary: #E9C47F;
-  --brand-accent: #C9A24B;
-  --brand-coral: #FB7185;
-  --brand-sand: #E7D3AE;
-  --text-muted: #A9AD9F;
-  --text-inverse: #14160F;
-}
-
-/* 2. DARK STYLE 2: Sinai Cyber Cobalt 2026 */
-:root[data-theme-id="sinai-midnight"],
-[data-theme-id="sinai-midnight"] {
-  /* Midnight Stone: cool-black + gold (Luxury Re-Skin) */
-  --bg-canvas: #131418;
-  --surface-card: #1D1F26;
-  --surface-container: #272A33;
-  --text-primary: #F4F5F7;
-  --text-secondary: #C2C6CF;
-  --accent-primary: #C8933D;
-  --accent-secondary: #C9A24B;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #1A1408;
-  --accent-secondary-ink: #1A1408;
-  --focus-ring: #C8933D;
-  --border-subtle: rgba(244, 245, 247, 0.14);
-  --header-bg: rgba(19, 20, 24, 0.88);
-  --header-border: rgba(201, 147, 61, 0.18);
-  --header-pill-bg: rgba(39, 42, 51, 0.82);
-  --header-pill-border: rgba(201, 147, 61, 0.24);
-  --header-pill-active: rgba(200, 147, 61, 0.28);
-  --header-pill-active-text: #E9C47F;
-  --btn-book-bg: #C8933D;
-  --btn-book-hover: #B97F2E;
-  --btn-book-text: #1A1408;
-  --btn-util-bg: rgba(255, 255, 255, 0.08);
-  --btn-util-hover: rgba(255, 255, 255, 0.14);
-  --btn-util-text: #F4F5F7;
-  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.75);
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: var(--bg-canvas);
-  --surface-elevated: var(--surface-container);
-  --surface-warm: #33353F;
-  --surface-dark: #0E0F13;
-  --brand-primary: #C8933D;
-  --brand-secondary: #E9C47F;
-  --brand-accent: #C9A24B;
-  --brand-coral: #F43F5E;
-  --brand-sand: #E7D3AE;
-  --text-muted: #A8ADB8;
-  --text-inverse: #131418;
-}
-
-/* 3. LIGHT STYLE 1: Editorial Sand (Accessible AAA) */
-:root[data-theme="light"],
-:root[data-theme-id="editorial-sand"],
-[data-theme-id="editorial-sand"],
-.light {
-  /* Warm Paper + deep gold (Luxury Re-Skin light default; skill #A16207) */
-  --bg-canvas: #FAF9F6;
-  --surface-card: #FFFFFF;
-  --surface-container: #F1EFE9;
-  --text-primary: #1C1917;
-  --text-secondary: #57534E;
-  --accent-primary: #A16207;
-  --accent-secondary: #8F6413;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #FFFFFF;
-  --accent-secondary-ink: #FFFFFF;
-  --focus-ring: #A16207;
-  --border-subtle: rgba(28, 25, 23, 0.14);
-  --header-bg: rgba(250, 249, 246, 0.90);
-  --header-border: rgba(28, 25, 23, 0.12);
-  --header-pill-bg: rgba(241, 239, 233, 0.95);
-  --header-pill-border: rgba(28, 25, 23, 0.12);
-  --header-pill-active: #A16207;
-  --header-pill-active-text: #FFFFFF;
-  --btn-book-bg: #A16207;
-  --btn-book-hover: #8A5206;
-  --btn-book-text: #FFFFFF;
-  --btn-util-bg: rgba(28, 25, 23, 0.07);
-  --btn-util-hover: rgba(28, 25, 23, 0.13);
-  --btn-util-text: #1C1917;
-  --shadow-ambient: 0 12px 36px rgba(28, 25, 23, 0.09);
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: var(--bg-canvas);
-  --surface-elevated: var(--surface-container);
-  --surface-warm: #ECE7DC;
-  --surface-dark: #FFFFFF;
-  --brand-primary: #A16207;
-  --brand-secondary: #8F6413;
-  --brand-accent: #C8933D;
-  --brand-coral: #B45309;
-  --brand-sand: #8F6413;
-  --text-muted: #57534E;
-  --text-inverse: #FFFFFF;
-}
-
-/* 4. LIGHT STYLE 2: Lagoon Breeze (Accessible AAA) */
-:root[data-theme-id="lagoon-breeze"],
-[data-theme-id="lagoon-breeze"] {
-  /* Lagoon Paper: warm lagoon wash, gold actions, teal links kept (live ink) */
-  --bg-canvas: #F4FAF9;
-  --surface-card: #FFFFFF;
-  --surface-container: #E3EFEE;
-  --text-primary: #0E2A2D;
-  --text-secondary: #2E5A60;
-  --accent-primary: #A16207;
-  --accent-secondary: #0F766E;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #FFFFFF;
-  --accent-secondary-ink: #FFFFFF;
-  --focus-ring: #A16207;
-  --border-subtle: rgba(15, 118, 110, 0.16);
-  --header-bg: rgba(244, 250, 249, 0.90);
-  --header-border: rgba(15, 118, 110, 0.16);
-  --header-pill-bg: rgba(227, 239, 238, 0.95);
-  --header-pill-border: rgba(15, 118, 110, 0.18);
-  --header-pill-active: #A16207;
-  --header-pill-active-text: #FFFFFF;
-  --btn-book-bg: #A16207;
-  --btn-book-hover: #8A5206;
-  --btn-book-text: #FFFFFF;
-  --btn-util-bg: rgba(15, 118, 110, 0.08);
-  --btn-util-hover: rgba(15, 118, 110, 0.16);
-  --btn-util-text: #0E2A2D;
-  --shadow-ambient: 0 12px 36px rgba(15, 118, 110, 0.10);
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: var(--bg-canvas);
-  --surface-elevated: var(--surface-container);
-  --surface-warm: #D7EAE8;
-  --surface-dark: #FFFFFF;
-  --brand-primary: #A16207;
-  --brand-secondary: #0F766E;
-  --brand-accent: #C8933D;
-  --brand-coral: #C2410C;
-  --brand-sand: #0F766E;
-  --text-muted: #47666B;
-  --text-inverse: #FFFFFF;
-}
-
-/* 5. ULTRA ACCESSIBILITY THEME: High Contrast Pro (Max 21.0:1 Ratio) */
-:root[data-theme-id="high-contrast-pro"],
-[data-theme-id="high-contrast-pro"] {
-  --bg-canvas: #000000;
-  --surface-card: #0A0A0A;
-  --surface-container: #171717;
-  --text-primary: #FFFFFF;
-  --text-secondary: #F5F5F5;
-  --accent-primary: #FFE600;
-  --accent-secondary: #00F0FF;
-  /* Foreground for anything sitting ON the accents above. */
-  --accent-primary-ink: #08110F;
-  --accent-secondary-ink: #08110F;
-  --focus-ring: #FFE600;
-  --border-subtle: rgba(255, 255, 255, 0.50);
-  --header-bg: #000000;
-  --header-border: #FFE600;
-  --header-pill-bg: #171717;
-  --header-pill-border: #FFE600;
-  --header-pill-active: #FFE600;
-  --header-pill-active-text: #000000;
-  --btn-book-bg: #FFE600;
-  --btn-book-hover: #FFD000;
-  --btn-book-text: #000000;
-  --btn-util-bg: rgba(255, 255, 255, 0.20);
-  --btn-util-hover: rgba(255, 255, 255, 0.35);
-  --btn-util-text: #FFFFFF;
-  --shadow-ambient: 0 0 0 2px #FFFFFF;
-
-  /* Legacy Compat Tokens */
-  --surface-canvas: #000000;
-  --surface-elevated: #171717;
-  --surface-warm: #262626;
-  --surface-dark: #000000;
-  --brand-primary: #FFE600;
-  --brand-secondary: #00F0FF;
-  --brand-accent: #FFE600;
-  --brand-coral: #FF3366;
-  --brand-sand: #FFFFFF;
-  --text-muted: #E5E5E5;
-  --text-inverse: #000000;
-}
+/* The six-theme engine that lived here moved to src/styles/tokens.css as
+   three themes (abyss / salt / high-contrast-pro) on one palette. */
 
 /* ==========================================================================
    THE LIVING CHART — INSTRUMENT LAYER (Sinai 2027)
@@ -611,21 +333,13 @@
    ========================================================================== */
 
 /* Universal Smooth Theme Switch Transition */
+/* Theme switches cross-fade on the document only. This used to target every
+   div/button/input: an unlayered rule beats Tailwind's layered utilities, so
+   it silently replaced each component's own `transition-*` (hover lifts and
+   press feedback never animated) and kept the compositor busy on every node. */
 html,
-body,
-header,
-main,
-footer,
-nav,
-section,
-article,
-aside,
-div,
-button,
-input,
-select,
-textarea {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Base Body Styles */
@@ -647,46 +361,46 @@ body {
 /* --------------------------------------------------------------------------
    1. CHARCOAL MINIMAL (#1F1F1F): Universal Canvas, Card & Container Mappings
    -------------------------------------------------------------------------- */
-[data-theme-id="charcoal-minimal"] .bg-\[\#081714\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#05100E\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#04171D\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#041310\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#050B0A\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#040711\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#060A13\],
-[data-theme-id="charcoal-minimal"] .bg-slate-950,
-[data-theme-id="charcoal-minimal"] .bg-zinc-950,
-[data-theme-id="charcoal-minimal"] .bg-gray-950 {
+[data-theme-id="abyss"] .bg-\[\#081714\],
+[data-theme-id="abyss"] .bg-\[\#05100E\],
+[data-theme-id="abyss"] .bg-\[\#04171D\],
+[data-theme-id="abyss"] .bg-\[\#041310\],
+[data-theme-id="abyss"] .bg-\[\#050B0A\],
+[data-theme-id="abyss"] .bg-\[\#040711\],
+[data-theme-id="abyss"] .bg-\[\#060A13\],
+[data-theme-id="abyss"] .bg-slate-950,
+[data-theme-id="abyss"] .bg-zinc-950,
+[data-theme-id="abyss"] .bg-gray-950 {
   background-color: var(--bg-canvas) !important;
 }
 
-[data-theme-id="charcoal-minimal"] .bg-\[\#0E2520\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#062C35\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#071417\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0B241E\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0E1729\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#081022\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0A1513\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#122420\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0B1E1A\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#091815\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0A1A17\],
-[data-theme-id="charcoal-minimal"] .bg-slate-900,
-[data-theme-id="charcoal-minimal"] .bg-zinc-900,
-[data-theme-id="charcoal-minimal"] .bg-gray-900 {
+[data-theme-id="abyss"] .bg-\[\#0E2520\],
+[data-theme-id="abyss"] .bg-\[\#062C35\],
+[data-theme-id="abyss"] .bg-\[\#071417\],
+[data-theme-id="abyss"] .bg-\[\#0B241E\],
+[data-theme-id="abyss"] .bg-\[\#0E1729\],
+[data-theme-id="abyss"] .bg-\[\#081022\],
+[data-theme-id="abyss"] .bg-\[\#0A1513\],
+[data-theme-id="abyss"] .bg-\[\#122420\],
+[data-theme-id="abyss"] .bg-\[\#0B1E1A\],
+[data-theme-id="abyss"] .bg-\[\#091815\],
+[data-theme-id="abyss"] .bg-\[\#0A1A17\],
+[data-theme-id="abyss"] .bg-slate-900,
+[data-theme-id="abyss"] .bg-zinc-900,
+[data-theme-id="abyss"] .bg-gray-900 {
   background-color: var(--surface-card) !important;
 }
 
-[data-theme-id="charcoal-minimal"] .bg-\[\#13312B\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#173832\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0A3A46\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#104957\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#11352C\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#11221F\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0F1E3D\],
-[data-theme-id="charcoal-minimal"] .bg-slate-800,
-[data-theme-id="charcoal-minimal"] .bg-zinc-800,
-[data-theme-id="charcoal-minimal"] .bg-gray-800 {
+[data-theme-id="abyss"] .bg-\[\#13312B\],
+[data-theme-id="abyss"] .bg-\[\#173832\],
+[data-theme-id="abyss"] .bg-\[\#0A3A46\],
+[data-theme-id="abyss"] .bg-\[\#104957\],
+[data-theme-id="abyss"] .bg-\[\#11352C\],
+[data-theme-id="abyss"] .bg-\[\#11221F\],
+[data-theme-id="abyss"] .bg-\[\#0F1E3D\],
+[data-theme-id="abyss"] .bg-slate-800,
+[data-theme-id="abyss"] .bg-zinc-800,
+[data-theme-id="abyss"] .bg-gray-800 {
   background-color: var(--surface-container) !important;
 }
 
@@ -699,24 +413,24 @@ body {
    the legacy darks above receive: charcoal folds them into its own tiers, and
    light themes lift them off stone onto theme surfaces.
    -------------------------------------------------------------------------- */
-[data-theme-id="charcoal-minimal"] .bg-\[\#141311\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#131418\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#14160F\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#0E0D0C\] {
+[data-theme-id="abyss"] .bg-\[\#141311\],
+[data-theme-id="abyss"] .bg-\[\#131418\],
+[data-theme-id="abyss"] .bg-\[\#14160F\],
+[data-theme-id="abyss"] .bg-\[\#0E0D0C\] {
   background-color: var(--bg-canvas) !important;
 }
 
-[data-theme-id="charcoal-minimal"] .bg-\[\#1C1917\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#201D1A\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#1E2118\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#1D1F26\] {
+[data-theme-id="abyss"] .bg-\[\#1C1917\],
+[data-theme-id="abyss"] .bg-\[\#201D1A\],
+[data-theme-id="abyss"] .bg-\[\#1E2118\],
+[data-theme-id="abyss"] .bg-\[\#1D1F26\] {
   background-color: var(--surface-card) !important;
 }
 
-[data-theme-id="charcoal-minimal"] .bg-\[\#2A2622\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#282C20\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#272A33\],
-[data-theme-id="charcoal-minimal"] .bg-\[\#33353F\] {
+[data-theme-id="abyss"] .bg-\[\#2A2622\],
+[data-theme-id="abyss"] .bg-\[\#282C20\],
+[data-theme-id="abyss"] .bg-\[\#272A33\],
+[data-theme-id="abyss"] .bg-\[\#33353F\] {
   background-color: var(--surface-container) !important;
 }
 
@@ -836,31 +550,7 @@ body {
 /* --------------------------------------------------------------------------
    3. DARK THEME 2 (Sinai Midnight): Midnight Slate Background Overrides
    -------------------------------------------------------------------------- */
-[data-theme-id="sinai-midnight"] .bg-\[\#081714\],
-[data-theme-id="sinai-midnight"] .bg-\[\#05100E\],
-[data-theme-id="sinai-midnight"] .bg-\[\#04171D\],
-[data-theme-id="sinai-midnight"] .bg-\[\#041310\],
-[data-theme-id="sinai-midnight"] .bg-\[\#050B0A\] {
-  background-color: var(--bg-canvas) !important;
-}
 
-[data-theme-id="sinai-midnight"] .bg-\[\#0E2520\],
-[data-theme-id="sinai-midnight"] .bg-\[\#062C35\],
-[data-theme-id="sinai-midnight"] .bg-\[\#071417\],
-[data-theme-id="sinai-midnight"] .bg-\[\#0B241E\],
-[data-theme-id="sinai-midnight"] .bg-\[\#122420\],
-[data-theme-id="sinai-midnight"] .bg-\[\#0B1E1A\] {
-  background-color: var(--surface-card) !important;
-}
-
-[data-theme-id="sinai-midnight"] .bg-\[\#13312B\],
-[data-theme-id="sinai-midnight"] .bg-\[\#173832\],
-[data-theme-id="sinai-midnight"] .bg-\[\#0A3A46\],
-[data-theme-id="sinai-midnight"] .bg-\[\#104957\],
-[data-theme-id="sinai-midnight"] .bg-\[\#11352C\],
-[data-theme-id="sinai-midnight"] .bg-\[\#11221F\] {
-  background-color: var(--surface-container) !important;
-}
 
 /* --------------------------------------------------------------------------
    4. ULTRA CONTRAST (High Contrast Pro): Black & High Ratio Overrides
@@ -1298,12 +988,9 @@ body {
   opacity: 0.65;
 }
 
-[data-theme-id="sinai-midnight"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.input-custom-override),
-[data-theme-id="sinai-midnight"] textarea:not(.input-custom-override),
-[data-theme-id="sinai-midnight"] select:not(.input-custom-override),
-[data-theme-id="charcoal-minimal"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.input-custom-override),
-[data-theme-id="charcoal-minimal"] textarea:not(.input-custom-override),
-[data-theme-id="charcoal-minimal"] select:not(.input-custom-override) {
+[data-theme-id="abyss"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.input-custom-override),
+[data-theme-id="abyss"] textarea:not(.input-custom-override),
+[data-theme-id="abyss"] select:not(.input-custom-override) {
   background-color: var(--surface-container) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-subtle) !important;
@@ -1313,39 +1000,22 @@ body {
    8. THEME-SPECIFIC ACCENT ENHANCEMENTS
    -------------------------------------------------------------------------- */
 /* Charcoal Minimal (Sky Blue & Modern Neutral Accents) */
-[data-theme-id="charcoal-minimal"] .text-\[\#52C4B7\],
-[data-theme-id="charcoal-minimal"] .text-\[\#20A89A\] {
+[data-theme-id="abyss"] .text-\[\#52C4B7\],
+[data-theme-id="abyss"] .text-\[\#20A89A\] {
   color: var(--accent-primary) !important;
 }
 
-[data-theme-id="charcoal-minimal"] .border-\[\#52C4B7\],
-[data-theme-id="charcoal-minimal"] .border-\[\#20A89A\]\/30,
-[data-theme-id="charcoal-minimal"] .border-\[\#20A89A\]\/40 {
-  border-color: rgba(56, 189, 248, 0.35) !important;
+[data-theme-id="abyss"] .border-\[\#52C4B7\],
+[data-theme-id="abyss"] .border-\[\#20A89A\]\/30,
+[data-theme-id="abyss"] .border-\[\#20A89A\]\/40 {
+  border-color: color-mix(in oklab, var(--accent-primary) 35%, transparent) !important;
 }
 
 /* Sinai Midnight (Electric Cyan & Night Sky Accents) */
-[data-theme-id="sinai-midnight"] .text-\[\#52C4B7\],
-[data-theme-id="sinai-midnight"] .text-\[\#20A89A\] {
-  color: var(--accent-primary) !important;
-}
 
-[data-theme-id="sinai-midnight"] .border-\[\#52C4B7\],
-[data-theme-id="sinai-midnight"] .border-\[\#20A89A\]\/30,
-[data-theme-id="sinai-midnight"] .border-\[\#20A89A\]\/40 {
-  border-color: rgba(56, 189, 248, 0.35) !important;
-}
 
 /* Lagoon Breeze (Fresh Ocean Teal Accents) */
-[data-theme-id="lagoon-breeze"] .text-\[\#52C4B7\],
-[data-theme-id="lagoon-breeze"] .text-\[\#20A89A\] {
-  color: #0D9488 !important;
-}
 
-[data-theme-id="lagoon-breeze"] .border-\[\#52C4B7\],
-[data-theme-id="lagoon-breeze"] .border-\[\#20A89A\]\/30 {
-  border-color: rgba(13, 148, 136, 0.25) !important;
-}
 
 /* Glassmorphism Header Classes */
 .header-glass {
@@ -1377,16 +1047,15 @@ body {
   font-feature-settings: "tnum" 1, "zero" 1;
 }
 
-/* Retired display faces map onto the two-voice system so older
-   arbitrary classes (font-['Plus_Jakarta_Sans'], etc.) fall back to
-   Montserrat instead of the browser default. */
+/* Retired faces (font-['Plus_Jakarta_Sans'] and friends) resolve to the UI
+   face instead of the browser default. */
 [class*="Plus_Jakarta"],
 [class*="Playfair"],
 [class*="Space_Grotesk"],
 [class*="Readex"],
 [class*="Cairo"],
-[class*="Plex"] {
-  font-family: 'Montserrat', 'Alexandria', sans-serif !important;
+[class*="JetBrains"] {
+  font-family: var(--font-sans) !important;
 }
 
 .tabular-nums {
@@ -1397,7 +1066,7 @@ body {
 /* Dual-Language RTL Typography Rules */
 [dir="rtl"] body,
 [dir="rtl"] {
-  font-family: 'Alexandria', -apple-system, sans-serif !important;
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif !important;
   letter-spacing: 0em !important;
   line-height: 1.7;
 }
@@ -1407,13 +1076,13 @@ body {
 [dir="rtl"] h2,
 [dir="rtl"] h3,
 [dir="rtl"] h4 {
-  font-family: 'Alexandria', sans-serif !important;
+  font-family: 'Alexandria', 'IBM Plex Sans Arabic', sans-serif !important;
   letter-spacing: 0em !important;
   line-height: 1.4;
 }
 
 [dir="rtl"] .font-serif {
-  font-family: 'El Messiri', 'Alexandria', serif !important;
+  font-family: 'Alexandria', 'IBM Plex Sans Arabic', sans-serif !important;
   letter-spacing: 0em !important;
 }
 
@@ -1428,7 +1097,7 @@ body {
   approximating anyway, and it isolates the run without claiming `display`.
 */
 [dir="rtl"] .font-mono {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: 'IBM Plex Mono', monospace !important;
   direction: ltr;
   unicode-bidi: isolate;
 }

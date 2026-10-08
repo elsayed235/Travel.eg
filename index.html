@@ -1,11 +1,18 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="dark" data-theme="dark" data-theme-id="abyss">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: the app draws edge to edge on notched phones and in
+         the native shell; chrome pads itself with env(safe-area-inset-*). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DAHAB" />
+    <meta name="format-detection" content="telephone=no" />
     <title>DAHAB — Your Dahab trip, built around you</title>
     <meta name="description" content="A premium digital travel platform for Dahab, Egypt. Personalized planning, local experiences, and authentic adventures." />
-    <meta name="theme-color" content="#141311" />
+    <meta name="theme-color" content="#0B151C" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph / social. Canonical + og:url are stamped per-route by the
@@ -29,16 +36,15 @@
     <link rel="alternate" hreflang="x-default" href="/" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Luxury Re-Skin: Cormorant (Latin display serif) + Montserrat (body)
-         replace Outfit/Chakra Petch. Arabic never touches them: Alexandria
-         carries RTL body/headings, El Messiri the display serif, JetBrains
-         Mono the live readings. -->
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300..700&family=Cormorant:ital,wght@0,400..700;1,400..700&family=El+Messiri:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:wght@300..800&display=swap" rel="stylesheet" />
+    <!-- Granite & Lagoon type (src/styles/tokens.css): Fraunces (Latin display),
+         Alexandria (Arabic display), IBM Plex Sans + Plex Sans Arabic (UI),
+         Plex Mono (readings). Weights are the ones the system uses, no more. -->
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;600;700&family=Fraunces:opsz,wght,SOFT@9..144,400..600,100&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <script>
       /*
@@ -63,6 +69,16 @@
           root.dir = lang === 'ar' ? 'rtl' : 'ltr';
           root.classList.remove('rtl', 'ltr');
           root.classList.add(lang === 'ar' ? 'rtl' : 'ltr');
+          // Theme before first paint (ThemeContext stays the source of truth
+          // and re-applies on mount). Legacy six-theme ids fold into the two
+          // Granite & Lagoon themes.
+          var tid = localStorage.getItem('dahab_travel_os_theme_id');
+          var light = { 'salt': 1, 'editorial-sand': 1, 'lagoon-breeze': 1 };
+          var theme = tid === 'high-contrast-pro' ? 'high-contrast-pro' : (tid && light[tid] ? 'salt' : 'abyss');
+          root.setAttribute('data-theme-id', theme);
+          root.setAttribute('data-theme', theme === 'salt' ? 'light' : 'dark');
+          root.classList.toggle('dark', theme !== 'salt');
+          root.classList.toggle('light', theme === 'salt');
           var canonical = document.querySelector('link[rel="canonical"]');
           var origin = location.origin;
           if (canonical && origin.indexOf('http') === 0) {
@@ -74,15 +90,9 @@
       })();
     </script>
   </head>
-  <body class="bg-[#141311] text-[#F5F2EC] antialiased selection:bg-[#C8933D]/30 selection:text-[#F5F2EC] min-h-screen">
-    <!-- impeccable:direction key=reskin-2026-09
-      THESIS: Luxury Re-Skin over the Sinai instrument world — warm stone and gold on paper, glass surfaces, one gold fire per viewport.
-      OWN-WORLD: warm stone night (#141311/#1C1917) with bone star ink (#F2EDDF) and pinprick starfields; brass ticks (#C9A24B) for waypoints; gold firelight (#C8933D) reserved for the single action per viewport; lagoon teal kept as live-data ink only; Cormorant display serif with Montserrat body, El Messiri italic accent, Alexandria for Arabic.
-      STORY: A first-time visitor sees a Dahab companion that reads the sky tonight, shows real conditions and real prices, and offers one clear next step for their journey phase.
-      FIRST VIEWPORT: cinematic scene framed as a chart plate under stone scrims; serif display headline; one gold Plan CTA; scenes as a plotted constellation stack; live sea/air/sunset readings along the base.
-      FORM: full re-skin per approved plan (ui-ux-pro-max): skill palette #1C1917/#A16207/#FAFAF9 + Cormorant/Montserrat, adapted for bilingual + 6-theme engine; supersedes Star Chart palette, chart-* API survives by redefinition.
-    -->
-    <div id="root" class="min-h-screen bg-[#141311] text-[#F5F2EC]"></div>
+  <body class="antialiased">
+    <!-- Design direction: Granite & Lagoon — docs/premium-plan/DAHAB_PREMIUM_PLAN.html §06. -->
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

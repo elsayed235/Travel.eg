@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
-export type ThemeId = 'charcoal-minimal' | 'deep-reef' | 'sinai-midnight' | 'editorial-sand' | 'lagoon-breeze' | 'high-contrast-pro';
+/**
+ * Granite & Lagoon (src/styles/tokens.css): one palette, three themes. The
+ * colour values live in CSS only — this context owns the `data-theme-id`
+ * attribute and nothing else, so CSS, the CMS and components can no longer
+ * disagree about what the accent is (they used to: four authorities).
+ */
+export type ThemeId = 'abyss' | 'salt' | 'high-contrast-pro';
 export type ThemeMode = 'dark' | 'light';
 
 export interface ThemeOption {
@@ -25,110 +31,48 @@ export interface ThemeOption {
   };
 }
 
+// Swatches mirror tokens.css for the theme picker and the CMS preview only.
 export const THEME_OPTIONS: ThemeOption[] = [
   {
-    id: 'charcoal-minimal',
-    nameEn: 'Soft Charcoal',
-    nameAr: 'رمادي هادئ',
+    id: 'abyss',
+    nameEn: 'Abyss',
+    nameAr: 'عُمق',
     category: 'dark',
-    taglineEn: 'Pure studio charcoal with titanium and crisp white contrast',
-    taglineAr: 'رمادي فحمي نقي ومريح جداً للعين',
-    accentLabel: 'Sky Cyan',
+    taglineEn: 'Red Sea at depth, lagoon light',
+    taglineAr: 'عمق البحر الأحمر مع ضوء اللاجونا',
+    accentLabel: 'Lagoon',
     wcagLevel: 'AAA',
-    contrastRatio: '15.6:1',
+    contrastRatio: '15.2:1',
     swatches: {
-      bg: '#1F1F1F',
-      card: '#292929',
-      container: '#333333',
-      accent: '#38BDF8',
-      accentSecondary: '#F6C36E',
-      text: '#FFFFFF',
-      textSecondary: '#D1D5DB',
-      focusRing: '#38BDF8',
+      bg: '#0B151C',
+      card: '#0F1C25',
+      container: '#13222C',
+      accent: '#3CC2BC',
+      accentSecondary: '#F08A6C',
+      text: '#ECE9E2',
+      textSecondary: '#BAC3C7',
+      focusRing: '#3CC2BC',
     },
   },
   {
-    id: 'deep-reef',
-    nameEn: 'Emerald Green',
-    nameAr: 'أخضر زمردي',
-    category: 'dark',
-    taglineEn: 'Deep obsidian ocean with vibrant emerald glow',
-    taglineAr: 'أسود أوبسيديان مع لمسات زمردية هادئة',
-    accentLabel: 'Emerald',
-    wcagLevel: 'AAA',
-    contrastRatio: '17.8:1',
-    swatches: {
-      bg: '#050B0A',
-      card: '#0A1513',
-      container: '#11221F',
-      accent: '#10B981',
-      accentSecondary: '#F59E0B',
-      text: '#F8FAFC',
-      textSecondary: '#94A3B8',
-      focusRing: '#10B981',
-    },
-  },
-  {
-    id: 'sinai-midnight',
-    nameEn: 'Midnight Blue',
-    nameAr: 'أزرق ليلي',
-    category: 'dark',
-    taglineEn: 'Night sky with luminous cyan accents',
-    taglineAr: 'سماء سيناء الليلية مع أزرق هادئ',
-    accentLabel: 'Electric Cyan',
-    wcagLevel: 'AAA',
-    contrastRatio: '18.9:1',
-    swatches: {
-      bg: '#040711',
-      card: '#081022',
-      container: '#0F1E3D',
-      accent: '#06B6D4',
-      accentSecondary: '#8B5CF6',
-      text: '#F8FAFC',
-      textSecondary: '#94A3B8',
-      focusRing: '#06B6D4',
-    },
-  },
-  {
-    id: 'editorial-sand',
-    nameEn: 'Warm Sand',
-    nameAr: 'رمال الصحراء',
+    id: 'salt',
+    nameEn: 'Salt',
+    nameAr: 'ملح',
     category: 'light',
-    taglineEn: 'Warm desert dunes and deep obsidian ink',
-    taglineAr: 'كثبان الصحراء الدافئة مع نصوص واضحة',
-    accentLabel: 'Obsidian Ink',
+    taglineEn: 'Salt flat light, granite ink',
+    taglineAr: 'ضوء الملّاحة وحبر الجرانيت',
+    accentLabel: 'Lagoon',
     wcagLevel: 'AAA',
-    contrastRatio: '17.1:1',
+    contrastRatio: '16.4:1',
     swatches: {
-      bg: '#F8F6F0',
+      bg: '#F5F4F0',
       card: '#FFFFFF',
-      container: '#EFECE2',
-      accent: '#0F172A',
-      accentSecondary: '#059669',
-      text: '#090D16',
-      textSecondary: '#334155',
-      focusRing: '#0F172A',
-    },
-  },
-  {
-    id: 'lagoon-breeze',
-    nameEn: 'Lagoon Blue',
-    nameAr: 'أزرق فيروزي',
-    category: 'light',
-    taglineEn: 'Crystal sea water with deep slate legibility',
-    taglineAr: 'مياه اللاجونا الكريستالية الفيروزية',
-    accentLabel: 'Pure Teal',
-    wcagLevel: 'AAA',
-    contrastRatio: '15.4:1',
-    swatches: {
-      bg: '#F0F9FF',
-      card: '#FFFFFF',
-      container: '#E0F2FE',
-      accent: '#0D9488',
-      accentSecondary: '#0284C7',
-      text: '#022C22',
-      textSecondary: '#134E4A',
-      focusRing: '#0D9488',
+      container: '#ECEAE4',
+      accent: '#0E7C7A',
+      accentSecondary: '#B4523A',
+      text: '#0B151C',
+      textSecondary: '#4B4744',
+      focusRing: '#0E7C7A',
     },
   },
   {
@@ -143,16 +87,31 @@ export const THEME_OPTIONS: ThemeOption[] = [
     contrastRatio: '21.0:1',
     swatches: {
       bg: '#000000',
-      card: '#080808',
-      container: '#141414',
-      accent: '#FBBF24',
-      accentSecondary: '#38BDF8',
+      card: '#0A0A0A',
+      container: '#171717',
+      accent: '#FFE600',
+      accentSecondary: '#00F0FF',
       text: '#FFFFFF',
-      textSecondary: '#E2E8F0',
-      focusRing: '#FBBF24',
+      textSecondary: '#F5F5F5',
+      focusRing: '#FFE600',
     },
   },
 ];
+
+/** Saved ids from the six-theme era fold into the two brand themes. */
+const LEGACY_THEME_IDS: Record<string, ThemeId> = {
+  'charcoal-minimal': 'abyss',
+  'deep-reef': 'abyss',
+  'sinai-midnight': 'abyss',
+  'editorial-sand': 'salt',
+  'lagoon-breeze': 'salt',
+};
+
+export const resolveThemeId = (raw: string | null | undefined): ThemeId | null => {
+  if (!raw) return null;
+  if (THEME_OPTIONS.some(t => t.id === raw)) return raw as ThemeId;
+  return LEGACY_THEME_IDS[raw] ?? null;
+};
 
 interface ThemeContextType {
   themeId: ThemeId;
@@ -182,17 +141,15 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeId, setThemeIdState] = useState<ThemeId>(() => {
     try {
-      const savedThemeId = localStorage.getItem('dahab_travel_os_theme_id') as ThemeId | null;
-      if (savedThemeId && THEME_OPTIONS.some((t) => t.id === savedThemeId)) {
-        return savedThemeId;
-      }
+      const saved = resolveThemeId(localStorage.getItem('dahab_travel_os_theme_id'));
+      if (saved) return saved;
       const legacyTheme = localStorage.getItem('dahab_travel_os_theme');
-      if (legacyTheme === 'light') return 'editorial-sand';
-      if (legacyTheme === 'dark') return 'charcoal-minimal';
+      if (legacyTheme === 'light') return 'salt';
+      if (legacyTheme === 'dark') return 'abyss';
     } catch {
       // Fallback
     }
-    return 'charcoal-minimal';
+    return 'abyss';
   });
 
   // CMS default theme for first-time visitors: only when this browser never
@@ -210,10 +167,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     import('../services/api').then(({ api }) =>
       api.getThemeBundle().then(data => {
         if (cancelled || !data) return;
-        const id = data.tokens?.['brand.homeTheme'];
-        if (typeof id === 'string' && THEME_OPTIONS.some(t => t.id === id)) {
-          setThemeIdState(id as ThemeId);
-        }
+        const id = resolveThemeId(data.tokens?.['brand.homeTheme']);
+        if (id) setThemeIdState(id);
       }).catch(() => {
         // Offline: compiled default stands.
       })
@@ -316,101 +271,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('a11y-large-text');
     }
 
-    // Set dynamic CSS variables on root for instantaneous 100% cascade
-    const s = activeTheme.swatches;
-    root.style.setProperty('--bg-canvas', s.bg);
-    root.style.setProperty('--surface-card', s.card);
-    root.style.setProperty('--surface-container', s.container);
-    root.style.setProperty('--accent-primary', s.accent);
-    root.style.setProperty('--accent-secondary', s.accentSecondary);
-    root.style.setProperty('--text-primary', s.text);
-    root.style.setProperty('--text-secondary', s.textSecondary);
-    root.style.setProperty('--focus-ring', s.focusRing);
-
-    if (themeId === 'high-contrast-pro') {
-      root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.45)');
-      root.style.setProperty('--header-bg', '#000000');
-      root.style.setProperty('--header-border', '#FFE600');
-      root.style.setProperty('--btn-book-bg', '#FFE600');
-      root.style.setProperty('--btn-book-hover', '#FFD000');
-      root.style.setProperty('--btn-book-text', '#000000');
-      root.style.setProperty('--badge-primary-bg', '#000000');
-      root.style.setProperty('--badge-primary-text', '#FFE600');
-    } else if (isDark) {
-      const borderAlpha = highContrastMode ? '0.35' : '0.14';
-      root.style.setProperty(
-        '--border-subtle',
-        themeId === 'charcoal-minimal'
-          ? `rgba(255, 255, 255, ${highContrastMode ? '0.30' : '0.12'})`
-          : themeId === 'sinai-midnight'
-          ? `rgba(56, 189, 248, ${borderAlpha})`
-          : `rgba(16, 185, 129, ${borderAlpha})`
-      );
-      root.style.setProperty(
-        '--header-bg',
-        themeId === 'charcoal-minimal'
-          ? 'rgba(31, 31, 31, 0.88)'
-          : themeId === 'sinai-midnight'
-          ? 'rgba(4, 7, 17, 0.85)'
-          : 'rgba(5, 11, 10, 0.85)'
-      );
-      root.style.setProperty(
-        '--header-border',
-        themeId === 'charcoal-minimal'
-          ? 'rgba(255, 255, 255, 0.12)'
-          : themeId === 'sinai-midnight'
-          ? 'rgba(56, 189, 248, 0.15)'
-          : 'rgba(16, 185, 129, 0.15)'
-      );
-      root.style.setProperty('--btn-book-bg', s.accent);
-      root.style.setProperty(
-        '--btn-book-hover',
-        themeId === 'charcoal-minimal'
-          ? '#0284C7'
-          : themeId === 'sinai-midnight'
-          ? '#0891B2'
-          : '#059669'
-      );
-      // Contrast: Light accent on dark background -> dark button text for >14:1 AAA contrast
-      root.style.setProperty('--btn-book-text', '#020606');
-      root.style.setProperty('--badge-primary-bg', `${s.accent}20`);
-      root.style.setProperty('--badge-primary-text', s.accent);
-    } else {
-      const borderAlpha = highContrastMode ? '0.28' : '0.12';
-      root.style.setProperty(
-        '--border-subtle',
-        themeId === 'lagoon-breeze'
-          ? `rgba(15, 118, 110, ${borderAlpha})`
-          : `rgba(10, 26, 23, ${borderAlpha})`
-      );
-      root.style.setProperty(
-        '--header-bg',
-        themeId === 'lagoon-breeze' ? 'rgba(240, 248, 248, 0.88)' : 'rgba(250, 248, 243, 0.88)'
-      );
-      root.style.setProperty(
-        '--header-border',
-        themeId === 'lagoon-breeze' ? 'rgba(15, 118, 110, 0.15)' : 'rgba(10, 26, 23, 0.12)'
-      );
-      // Editorial sand uses deep obsidian (#0A1A17), Lagoon breeze uses deep teal (#0B5E57 for 7.2:1 AAA)
-      const lightBtnBg = themeId === 'lagoon-breeze' ? '#0B5E57' : s.accent;
-      root.style.setProperty('--btn-book-bg', lightBtnBg);
-      root.style.setProperty(
-        '--btn-book-hover',
-        themeId === 'lagoon-breeze' ? '#063935' : '#14312B'
-      );
-      // Contrast: Dark button on light theme -> pure white text for >7:1 AAA contrast
-      root.style.setProperty('--btn-book-text', '#FFFFFF');
-      root.style.setProperty('--badge-primary-bg', `${s.accent}15`);
-      root.style.setProperty('--badge-primary-text', s.accent);
-    }
+    // Browser chrome (Android address bar, iOS PWA status area) follows the
+    // canvas. The colours themselves are CSS-only (tokens.css).
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute('content', activeTheme.swatches.bg);
   }, [themeId, activeTheme, isDark, highContrastMode, reducedMotion, largeText]);
 
   const toggleTheme = () => {
-    if (themeId === 'deep-reef') setThemeIdState('editorial-sand');
-    else if (themeId === 'sinai-midnight') setThemeIdState('lagoon-breeze');
-    else if (themeId === 'editorial-sand') setThemeIdState('deep-reef');
-    else if (themeId === 'lagoon-breeze') setThemeIdState('sinai-midnight');
-    else setThemeIdState('deep-reef');
+    setThemeIdState(themeId === 'salt' ? 'abyss' : 'salt');
   };
 
   const setThemeId = (newId: ThemeId) => {
@@ -423,11 +291,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (modeOrId: ThemeMode | ThemeId) => {
     if (modeOrId === 'dark') {
-      setThemeIdState('deep-reef');
+      setThemeIdState('abyss');
     } else if (modeOrId === 'light') {
-      setThemeIdState('editorial-sand');
-    } else if (THEME_OPTIONS.some((t) => t.id === modeOrId)) {
-      setThemeIdState(modeOrId as ThemeId);
+      setThemeIdState('salt');
+    } else {
+      const id = resolveThemeId(modeOrId);
+      if (id) setThemeIdState(id);
     }
   };
 

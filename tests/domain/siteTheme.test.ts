@@ -65,7 +65,9 @@ describe('Site Theme tokens', () => {
     });
 
     it('accepts only known theme ids for the home theme', () => {
-      expect(assertThemeValue('brand.homeTheme', 'deep-reef')).toBe('deep-reef');
+      expect(assertThemeValue('brand.homeTheme', 'salt')).toBe('salt');
+      // Retired six-theme ids are no longer accepted for new writes.
+      expect(() => assertThemeValue('brand.homeTheme', 'deep-reef')).toThrow(/must be one of/);
       expect(() => assertThemeValue('brand.homeTheme', 'midnight-hacker')).toThrow(/must be one of/);
     });
 
