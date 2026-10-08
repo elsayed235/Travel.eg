@@ -159,3 +159,101 @@ export function bookingActionError(error: unknown): BookingErrorInfo {
   // DNS failure) — nothing was decided by the server.
   return { code: 'network', detail: error instanceof Error ? error.message : undefined };
 }
+
+// ---------------------------------------------------------------------------
+// Free-cancellation deadline (server: bookingService freeCancellationUntil)
+// ---------------------------------------------------------------------------
+
+const DAHAB_TZ = 'Africa/Cairo';
+
+/**
+ * "Thu 12 Nov, 09:30" / "الخميس، 12 نوفمبر، 09:30" — always Dahab's clock
+ * (the deadline is a Cairo wall time whatever the traveller's device says)
+ * and Western digits in both languages, like every price and time on screen.
+ */
+export function formatCairoDeadline(iso: string, language: 'en' | 'ar'): string | null {
+  const at = Date.parse(iso);
+  if (Number.isNaN(at)) return null;
+  return new Intl.DateTimeFormat(language === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
+    timeZone: DAHAB_TZ,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(at));
+}
+
+export type FreeCancellationView =
+  | { kind: 'until'; when: string }
+  | { kind: 'ended'; when: string };
+
+/**
+ * What to say about free cancellation, from the server's deadline. Null when
+ * the server gave none (no usable date), so nothing is promised.
+ */
+export function freeCancellationView(
+  freeCancellationUntil: string | null | undefined,
+  language: 'en' | 'ar',
+  now: number = Date.now()
+): FreeCancellationView | null {
+  if (!freeCancellationUntil) return null;
+  const when = formatCairoDeadline(freeCancellationUntil, language);
+  if (!when) return null;
+  return Date.parse(freeCancellationUntil) > now ? { kind: 'until', when } : { kind: 'ended', when };
+}
+
+// ---------------------------------------------------------------------------
+// Review eligibility (server: reviewService.verifyStay)
+// ---------------------------------------------------------------------------
+
+/**
+ * Supplier states in which the booking was accepted and not called off.
+ * Mirrors ACCEPTED_LIVE_STATES in server/services/reviewService.ts.
+ */
+export const REVIEWABLE_ACCEPTED_STATES: ReadonlyArray<string> = [
+  'CONFIRMED', 'ASSIGNED', 'DISPATCHED', 'EN_ROUTE', 'IN_PROGRESS', 'ARRIVED',
+  'READY_FOR_PICKUP', 'ACTIVE', 'RETURNED'
+];
+
+/** Minutes Africa/Cairo is ahead of UTC at an instant (DST-aware via Intl). */
+function cairoOffsetMinutes(at: number): number {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: DAHAB_TZ, hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(new Date(at));
+  const get = (type: string) => Number(parts.find(p => p.type === type)?.value);
+  const wallAsUtc = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second'));
+  return Math.round((wallAsUtc - Math.floor(at / 1000) * 1000) / 60000);
+}
+
+/** The instant the scheduled day ends in Dahab (next day 00:00 Cairo), or null for an unusable date. */
+export function cairoEndOfDay(scheduledDate: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledDate || '')) return null;
+  const [y, m, d] = scheduledDate.split('-').map(Number);
+  const wallAsUtc = Date.UTC(y, m - 1, d + 1, 0, 0);
+  let instant = wallAsUtc - cairoOffsetMinutes(wallAsUtc) * 60000;
+  instant = wallAsUtc - cairoOffsetMinutes(instant) * 60000;
+  return instant;
+}
+
+/**
+ * Whether to invite a review: the supplier marked the booking COMPLETED, or
+ * accepted it and its scheduled day in Dahab is over.
+ *
+ * The server's rule is the same with one refinement the client cannot see —
+ * it ends a timed service at start + the SKU's duration. Waiting for the end
+ * of the day is never earlier than that, so an invitation shown here is one
+ * the server will accept. Paid-but-not-yet-happened (paymentState CAPTURED)
+ * used to qualify; the server now refuses it with 409.
+ */
+export function isReviewEligible(
+  booking: Pick<BookingDetail, 'supplierState' | 'scheduledDate'>,
+  now: number = Date.now()
+): boolean {
+  if (booking.supplierState === 'COMPLETED') return true;
+  if (!REVIEWABLE_ACCEPTED_STATES.includes(booking.supplierState)) return false;
+  const end = cairoEndOfDay(booking.scheduledDate);
+  return end !== null && end <= now;
+}

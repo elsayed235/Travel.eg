@@ -30,8 +30,10 @@ import {
   bookingActionError,
   BookingErrorInfo,
   cancellationEligibility,
+  freeCancellationView,
   rescheduleEligibility
 } from '../../services/bookingManage';
+import { Badge } from '../ui/badge';
 import { useLanguage } from '../../i18n/LanguageContext';
 import type { ConfirmedBookingItem } from '../../types';
 import { BookingTimeline } from './BookingTimeline';
@@ -127,6 +129,14 @@ export const BookingManageModal: React.FC<BookingManageModalProps> = ({
   onBookingChanged
 }) => {
   const { t, language, isRTL } = useLanguage();
+  /** "Free cancellation until Thu 12 Nov, 09:30" — the server's deadline, in Dahab time. */
+  const freeCancellationText = (until: string | null | undefined): string | null => {
+    const view = freeCancellationView(until, language === 'ar' ? 'ar' : 'en');
+    if (!view) return null;
+    return view.kind === 'until'
+      ? t('bookings.freeCancellation.until', { when: view.when })
+      : t('bookings.freeCancellation.ended', { when: view.when });
+  };
 
   // ---- booking record (the real backend detail) ----
   const [detail, setDetail] = useState<BookingDetail | null>(null);
@@ -472,6 +482,16 @@ export const BookingManageModal: React.FC<BookingManageModalProps> = ({
                   <dt className="text-[var(--text-secondary)]/70">{t('bookings.manage.scheduleLabel')}</dt>
                   <dd className="font-semibold" dir="ltr">{detail.scheduledDate} · {detail.scheduledTime}</dd>
                 </div>
+                {freeCancellationText(detail.freeCancellationUntil) && (
+                  <div className={fieldRow}>
+                    <dt className="text-[var(--text-secondary)]/70">{t('bookings.manage.policyLabel')}</dt>
+                    <dd>
+                      <Badge tone={freeCancellationView(detail.freeCancellationUntil, language === 'ar' ? 'ar' : 'en')?.kind === 'until' ? 'positive' : 'neutral'}>
+                        {freeCancellationText(detail.freeCancellationUntil)}
+                      </Badge>
+                    </dd>
+                  </div>
+                )}
                 <div className={fieldRow}>
                   <dt className="text-[var(--text-secondary)]/70">{t('bookings.manage.travelersLabel')}</dt>
                   <dd className="font-semibold flex items-center gap-1.5">
@@ -554,7 +574,7 @@ export const BookingManageModal: React.FC<BookingManageModalProps> = ({
                 </div>
                 <div className="flex justify-between gap-3">
                   <span className="text-[var(--text-secondary)]/70">{t('bookings.manage.policyLabel')}</span>
-                  <span className="text-[var(--text-secondary)] font-semibold text-end">{t('bookings.manage.noPolicy')}</span>
+                  <span className="text-[var(--text-secondary)] font-semibold text-end">{freeCancellationText(detail.freeCancellationUntil) ?? t('bookings.manage.noPolicy')}</span>
                 </div>
               </div>
               <label className="block">

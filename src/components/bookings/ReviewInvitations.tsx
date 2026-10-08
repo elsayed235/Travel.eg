@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PenLine, Star, X } from 'lucide-react';
 import { api, BookingReviewState } from '../../services/api';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { ApiError } from '../../services/apiError';
+import { isReviewEligible } from '../../services/bookingManage';
 
 /**
  * Verified-stay review invitations (blueprint row #14).
@@ -85,9 +87,12 @@ export const ReviewInvitations: React.FC<{ tripId: string | null }> = ({ tripId 
     (async () => {
       try {
         const detailed = await api.getTripBookingsDetailed(tripId);
-        const done = (detailed.bookings || []).filter(
-          b => b.supplierState === 'COMPLETED' || b.paymentState === 'CAPTURED',
-        );
+        // Only services that have happened. paymentState CAPTURED used to
+        // qualify, and card checkout captures at purchase — so a traveller was
+        // invited to review a dive weeks before it, and the server now
+        // refuses that review (409). Same rule as the server: COMPLETED, or
+        // accepted and its day in Dahab is over.
+        const done = (detailed.bookings || []).filter(b => isReviewEligible(b));
         if (cancelled) return;
         setCompleted(done as CompletedBooking[]);
         const found: Record<string, BookingReviewState> = {};
@@ -148,8 +153,14 @@ export const ReviewInvitations: React.FC<{ tripId: string | null }> = ({ tripId 
       setCompleted(prev => prev.filter(b => b.bookingRef !== openFormFor));
       setOpenFormFor(null);
       setThanks(true);
-    } catch (err: any) {
-      setError(err?.message || t('review.submitFailed'));
+    } catch (err: unknown) {
+      // 409: the server does not consider the service finished yet. Say that
+      // plainly rather than echoing its sentence.
+      setError(
+        err instanceof ApiError && err.status === 409
+          ? t('review.notFinishedYet')
+          : t('review.submitFailed')
+      );
     } finally {
       setSubmitting(false);
     }
