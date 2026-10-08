@@ -100,7 +100,7 @@ describe('Site Theme tokens', () => {
       siteTheme.upsert('type.body', FONT_STACKS.System);
       const v1 = siteTheme.bundle().version;
       expect(v1).not.toBe(v0);
-      siteTheme.upsert('type.body', FONT_STACKS.Montserrat);
+      siteTheme.upsert('type.body', FONT_STACKS['IBM Plex Sans']);
       expect(siteTheme.bundle().version).not.toBe(v1);
     });
 

@@ -62,6 +62,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { correlationMiddleware } from './server/middleware/correlationMiddleware';
 import { optionalAuth } from './server/middleware/authMiddleware';
+import { wantsBearerToken } from './server/middleware/nativeClient';
 import {
   requiredString,
   optionalString,
@@ -475,7 +476,9 @@ app.post('/api/auth/register', authRateLimiter, (req, res) => {
       role: result.session.role,
       expiresAt: result.session.expiresAt
     };
-    res.json({ success: true, user: result.user, session: safeSession });
+    // The Flutter app is not a browser and asks for the token explicitly
+    // (nativeClient.ts). The website never receives it.
+    res.json({ success: true, user: result.user, session: wantsBearerToken(req) ? { ...safeSession, token: result.session.token } : safeSession });
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
@@ -497,7 +500,9 @@ app.post('/api/auth/login', authRateLimiter, (req, res) => {
       role: result.session.role,
       expiresAt: result.session.expiresAt
     };
-    res.json({ success: true, user: result.user, session: safeSession });
+    // The Flutter app is not a browser and asks for the token explicitly
+    // (nativeClient.ts). The website never receives it.
+    res.json({ success: true, user: result.user, session: wantsBearerToken(req) ? { ...safeSession, token: result.session.token } : safeSession });
   } catch (err: any) {
     res.status(401).json({ error: err.message });
   }
@@ -577,7 +582,9 @@ app.post('/api/auth/firebase-session', authRateLimiter, async (req, res) => {
       role: result.session.role,
       expiresAt: result.session.expiresAt
     };
-    res.json({ success: true, user: result.user, session: safeSession });
+    // The Flutter app is not a browser and asks for the token explicitly
+    // (nativeClient.ts). The website never receives it.
+    res.json({ success: true, user: result.user, session: wantsBearerToken(req) ? { ...safeSession, token: result.session.token } : safeSession });
   } catch (err: any) {
     console.error('[auth/firebase-session]', err);
     res.status(400).json({ error: 'Could not establish a session.' });
