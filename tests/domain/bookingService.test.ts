@@ -8,7 +8,7 @@ import {
   rescheduleBooking,
   getRichAvailability
 } from '../../server/services/bookingService';
-import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
+import { futureDate, nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
 
 /**
  * The traveller-facing booking surface — detail, cancel, reschedule and rich
@@ -20,7 +20,10 @@ import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtu
  * checkout), so the inventory rows under test are the ones production writes.
  */
 
-const DATE = '2026-09-10';
+// Relative, not pinned: free cancellation is measured against the service
+// start, so a fixed date becomes a past booking as the calendar moves.
+const DATE = futureDate(30);
+const NEXT_DAY = futureDate(31);
 const MORNING = '08:30 AM (Morning Dive)';
 const AFTERNOON = '01:30 PM (Afternoon Dive)';
 const IDK = () => nextIdempotencyKey();
@@ -233,11 +236,13 @@ describe('bookingService — cancellation', () => {
   });
 
   it('cancels without a refund once the free-cancellation window has passed', () => {
-    const { bookings } = bookFor();
+    // A captured booking whose service starts within the SKU's 24h window:
+    // today, with no clock time, starts at 00:00 Cairo — already inside it.
+    const { bookings } = bookFor({ provider: 'PAYMOB' });
     const b = bookings[0];
-    // Age the booking past the SKU's 24h policy window.
-    const aged = db.bookings.find(x => x.id === b.id)!;
-    aged.createdAt = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+    const late = db.bookings.find(x => x.id === b.id)!;
+    late.scheduledDate = new Date().toISOString().slice(0, 10);
+    late.scheduledTime = 'FULL_DAY';
 
     const result = cancelBooking({
       bookingId: b.id,
@@ -286,17 +291,19 @@ describe('bookingService — cancellation', () => {
   });
 
   it('cancels a legacy booking that never touched inventory without corrupting it', () => {
-    // Direct checkout with no holdToken — no slot row, no hold. Cancelling must
-    // be a no-op on inventory, not a crash.
-    const res = commerceService.completeMultiServiceCheckout({
-      tripId: 'TRIP-TEST',
-      travelerName: 'Test Traveler',
-      travelerPhone: '+20 100 000 0000',
-      travelerEmail: 'traveler@test.test',
-      items: [{ serviceType: 'diving', skuId: 'SKU-DIVE-TEST', scheduledDate: DATE, scheduledTime: MORNING, amountEGP: 2400 }],
-      paymentParams: { idempotencyKey: IDK(), provider: 'CASH_ON_ARRIVAL' }
-    });
-    const b = res.bookings[0];
+    // A booking from the old direct checkout (no holdToken) — no slot row, no
+    // hold. Checkout now refuses to create these, but the store still holds
+    // them, so the row is seeded as it was written. Cancelling must be a no-op
+    // on inventory, not a crash.
+    const now = new Date().toISOString();
+    const b = {
+      id: 'DHB-DIV-LEGACY-1', bookingRef: 'DHB-DIV-LEGACY-1', tripId: 'TRIP-TEST', supplierId: 'SUP-TEST',
+      skuId: 'SKU-DIVE-TEST', serviceType: 'diving' as const, amountEGP: 2400, paymentState: 'PENDING' as const,
+      supplierState: 'PENDING_CONFIRMATION' as const, travelerName: 'Test Traveler', travelerPhone: '+20 100 000 0000',
+      travelerEmail: 'traveler@test.test', passengersCount: 2, scheduledDate: DATE, scheduledTime: MORNING,
+      confirmationCode: 'DHB-DIV-LEGACY', createdAt: now, updatedAt: now
+    };
+    db.bookings.push(b);
     const out = cancelBooking({
       bookingId: b.id, tripId: b.tripId, userId: 'USR-TEST', userRole: 'Traveler',
       reason: 'legacy', cancellationKey: b.confirmationCode
@@ -426,13 +433,13 @@ describe('bookingService — rescheduling', () => {
     });
     rescheduleBooking({
       bookingId: b.id, tripId: b.tripId, userId: 'USR-TEST', userRole: 'Traveler',
-      newDate: '2026-09-11', newTime: MORNING, idempotencyKey: IDK()
+      newDate: NEXT_DAY, newTime: MORNING, idempotencyKey: IDK()
     });
     expect(slotAt(DATE, MORNING)!.reservedCapacity).toBe(0);
     expect(slotAt(DATE, AFTERNOON)!.reservedCapacity).toBe(0);
-    expect(slotAt('2026-09-11', MORNING)!.reservedCapacity).toBe(2);
+    expect(slotAt(NEXT_DAY, MORNING)!.reservedCapacity).toBe(2);
     expect(db.holds.filter(h => h.status === 'CONVERTED')).toHaveLength(1);
-    expect(db.holds.find(h => h.status === 'CONVERTED')!.slotId).toBe(slotAt('2026-09-11', MORNING)!.id);
+    expect(db.holds.find(h => h.status === 'CONVERTED')!.slotId).toBe(slotAt(NEXT_DAY, MORNING)!.id);
   });
 });
 

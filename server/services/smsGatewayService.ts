@@ -1,11 +1,13 @@
 import crypto from 'crypto';
 import { db } from '../db/database';
 import { notificationService } from './notificationService';
+import type { BookingEntity } from '../db/schema';
 
 export interface SmsMessageRecord {
   id: string;
   recipientPhone: string;
-  recipientRole: 'DRIVER' | 'DIVE_INSTRUCTOR' | 'HOTEL_DESK' | 'TRAVELER' | 'BEDOUIN_GUIDE';
+  /** SUPPLIER: the supplier's own contact number, when nobody is assigned yet. */
+  recipientRole: 'DRIVER' | 'DIVE_INSTRUCTOR' | 'HOTEL_DESK' | 'TRAVELER' | 'BEDOUIN_GUIDE' | 'SUPPLIER';
   recipientName: string;
   message: string;
   channel: 'TWILIO_SMS' | 'WHATSAPP_BUSINESS';
@@ -170,58 +172,68 @@ export class SmsGatewayService {
   }
 
   /**
-   * Helper to dispatch simultaneous notifications to all relevant suppliers
-   * (Driver, Dive Master, Hotel Reception, and Traveler) upon booking confirmation.
+   * Booking SMS to the people actually on the booking, read from the DB.
+   *
+   * This was dispatchTripBookingSmsSuite, which texted '+20 100 876 5432'
+   * ("Mahmoud Salem") and '+20 101 445 6677' ("Omar Soliman") on every single
+   * checkout — the caller hardcoded hasDiving/hasSafari true — handing a
+   * stranger the traveller's name and phone each time, and told the traveller
+   * a driver was assigned when nobody had been.
+   *
+   * Provider side: the assigned driver, else the assigned guide, else the
+   * supplier's contact number on record. Nobody with a number → no provider
+   * SMS (logged). Traveller side: the booking's own phone, or nothing.
    */
-  public async dispatchTripBookingSmsSuite(params: {
-    travelerName: string;
-    travelerPhone: string;
-    bookingRef: string;
-    hotelName?: string;
-    hasTransfer?: boolean;
-    hasDiving?: boolean;
-    hasSafari?: boolean;
-  }) {
-    const promises: Promise<any>[] = [];
+  public async dispatchBookingSms(booking: BookingEntity, opts: { travelerUserId?: string } = {}): Promise<SmsMessageRecord[]> {
+    const sends: Promise<SmsMessageRecord>[] = [];
+    const resource = booking.assignedResource;
+    const supplier = db.suppliers.find(s => s.id === booking.supplierId);
+    const supplierPhone =
+      supplier?.phone || supplier?.whatsapp || supplier?.phoneNumbers?.[0] || supplier?.whatsappNumbers?.[0];
 
-    // 1. SMS to Driver
-    if (params.hasTransfer) {
-      promises.push(
-        this.sendSms({
-          to: '+20 100 876 5432',
-          recipientName: 'Mahmoud Salem (Airport Van)',
-          recipientRole: 'DRIVER',
-          bookingRef: params.bookingRef,
-          message: `🚨 Dahab Shuttle: Confirmed Transfer for ${params.travelerName} (${params.travelerPhone}). Dropoff: ${params.hotelName || 'Dahab'}. Ref: ${params.bookingRef}`
-        })
-      );
+    const provider: { to: string; name: string; role: SmsMessageRecord['recipientRole'] } | null =
+      resource?.driverPhone
+        ? { to: resource.driverPhone, name: resource.driverName || 'Assigned driver', role: 'DRIVER' }
+        : resource?.guidePhone
+          ? {
+              to: resource.guidePhone,
+              name: resource.guideName || 'Assigned guide',
+              role: booking.serviceType === 'diving' ? 'DIVE_INSTRUCTOR' : 'BEDOUIN_GUIDE'
+            }
+          : supplierPhone
+            ? { to: supplierPhone, name: supplier?.businessName || booking.supplierId, role: 'SUPPLIER' }
+            : null;
+
+    if (provider) {
+      sends.push(this.sendSms({
+        to: provider.to,
+        recipientName: provider.name,
+        recipientRole: provider.role,
+        bookingRef: booking.bookingRef,
+        message: `Dahab booking ${booking.bookingRef}: ${booking.serviceType} for ${booking.travelerName} ` +
+          `(${booking.passengersCount} pax) on ${booking.scheduledDate} ${booking.scheduledTime}. Please confirm in the supplier portal.`
+      }));
+    } else {
+      console.warn(`[SMS] No contact number on record for supplier ${booking.supplierId} (booking ${booking.bookingRef}); provider SMS not sent.`);
+      db.logAudit('SmsGateway', 'System', 'SMS_SKIPPED_NO_RECIPIENT', 'Booking', booking.id, {
+        supplierId: booking.supplierId,
+        bookingRef: booking.bookingRef
+      });
     }
 
-    // 2. SMS to Dive Center
-    if (params.hasDiving) {
-      promises.push(
-        this.sendSms({
-          to: '+20 101 445 6677',
-          recipientName: 'Omar Soliman (Dive Instructor)',
-          recipientRole: 'DIVE_INSTRUCTOR',
-          bookingRef: params.bookingRef,
-          message: `🤿 Dahab Dive Master: New Canyon Reef Guided Session for ${params.travelerName}. VCH: ${params.bookingRef}. Equipment & tank holds reserved.`
-        })
-      );
-    }
-
-    // 3. SMS to Traveler
-    promises.push(
-      this.sendSms({
-        to: params.travelerPhone || '+20 100 123 4567',
-        recipientName: params.travelerName,
+    if (booking.travelerPhone) {
+      sends.push(this.sendSms({
+        to: booking.travelerPhone,
+        recipientName: booking.travelerName,
         recipientRole: 'TRAVELER',
-        bookingRef: params.bookingRef,
-        message: `🌴 Dahab Travel: Your Sinai trip is 100% confirmed! Ref: ${params.bookingRef}. Driver assigned & Digital Pass ready at: https://dahab.travel/pass`
-      })
-    );
+        recipientUserId: opts.travelerUserId,
+        bookingRef: booking.bookingRef,
+        message: `Dahab Travel: booking ${booking.bookingRef} received for ${booking.scheduledDate} ${booking.scheduledTime}. ` +
+          `We will message you when the provider confirms.`
+      }));
+    }
 
-    return Promise.all(promises);
+    return Promise.all(sends);
   }
 }
 

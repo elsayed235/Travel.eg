@@ -250,6 +250,44 @@ export function evaluateCheckout(input: {
   return { signals, compositeScore, action };
 }
 
+/** The fraud gate refused a checkout. 403, before any money moved. */
+export class FraudBlockedError extends Error {
+  public readonly status = 403;
+  public readonly code = 'FRAUD_BLOCKED';
+  public readonly details: { riskScore: number; signals: Array<{ type: string; description: string }> };
+
+  constructor(result: ReturnType<typeof evaluateCheckout>) {
+    super('Transaction blocked by fraud detection.');
+    this.name = 'FraudBlockedError';
+    this.details = {
+      riskScore: result.compositeScore,
+      signals: result.signals.map(s => ({ type: s.signalType, description: s.description })),
+    };
+  }
+}
+
+/**
+ * The one fraud gate every checkout path runs — multi-service, the single
+ * hold-settling checkout and rental checkout — right before payment. Only the
+ * multi route used to evaluate fraud, so a blocked user could still pay
+ * through the other two. 'review' proceeds (the ops console sees the signal);
+ * 'block' throws FraudBlockedError.
+ *
+ * Callers run it AFTER their idempotent-replay check: evaluated before it, a
+ * client retry with the same key matched duplicate_payment (risk 80 → block)
+ * and permanently blocked an honest traveller.
+ */
+export function assertCheckoutAllowed(input: {
+  userId: string;
+  transactionId: string;
+  amountEGP: number;
+  bookingId?: string;
+}): ReturnType<typeof evaluateCheckout> {
+  const result = evaluateCheckout(input);
+  if (result.action === 'block') throw new FraudBlockedError(result);
+  return result;
+}
+
 function createSignal(
   input: { userId: string; transactionId: string; amountEGP: number; bookingId?: string },
   signalType: FraudSignalEntity['signalType'],

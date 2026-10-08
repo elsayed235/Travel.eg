@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { db } from '../db/database';
 import { PaymentEntity } from '../db/schema';
 import { ledgerService } from './ledgerService';
+import { canTransition } from './bookingLifecycle';
+import { adjustPayoutForRefund } from './payoutService';
 import { PaymentState } from '../../src/shared';
 
 // No fallback: a hardcoded secret in source lets anyone who can read this repo
@@ -43,8 +45,7 @@ export class PaymentService {
     // are marked CAPTURED and written to the ledger as simulated settlements —
     // a "successful" checkout collects no money while issuing a real voucher.
     // CASH_ON_ARRIVAL is the honest exception: no money moved, so the payment
-    // is recorded as PENDING and the ledger carries an escrow hold, not a
-    // captured payment.
+    // is recorded as PENDING and the ledger gets nothing at all.
     //
     // Until a gateway is integrated the card path must not run anywhere money
     // is expected. Set ALLOW_SIMULATED_PAYMENTS=true to use it in dev/demo.
@@ -120,25 +121,34 @@ export class PaymentService {
     db.runInTransaction(() => {
       db.payments.push(payment);
 
-      // Ledger: Credit Escrow, Debit Traveler. Cash-on-arrival is a pending
-      // escrow hold — the money settles only when the traveler pays on site.
-      ledgerService.recordDoubleEntry({
-        transactionId,
-        idempotencyKey: `LEDGER-${params.idempotencyKey}`,
-        bookingRef: params.bookingId || `TRIP-${params.tripId}`,
-        tripId: params.tripId,
-        type: isCashOnArrival ? 'HOLD_ESCROW' : 'PAYMENT_CAPTURED',
-        amountEGP: params.amountEGP,
-        debitAccount: isCashOnArrival ? 'TRAVELER_CASH_ON_ARRIVAL' : `TRAVELER_GATEWAY_${cardLast4}`,
-        creditAccount: 'PLATFORM_ESCROW_MAIN',
-        metadata: {
-          provider: payment.provider,
-          authCode: payment.authCode,
-          cardBrand: payment.cardBrand,
-          payerEmail: payment.payerEmail,
-          ...(isCashOnArrival ? { reason: 'Pay upon arrival. No platform money movement.' } : {})
-        }
-      });
+      // Ledger: Credit Escrow, Debit Traveler — for money that actually moved.
+      //
+      // Cash-on-arrival used to write a HOLD_ESCROW entry crediting
+      // PLATFORM_ESCROW_MAIN here. The traveller pays the provider in person,
+      // so that cash never reaches escrow — yet the phantom credit counted in
+      // the escrow balance settlePayout guards on, letting payouts for other
+      // bookings draw on money that was never received. The cash side is
+      // booked when the supplier completes the booking
+      // (supplierService.settleCompletion): commission owed by the supplier,
+      // no payout.
+      if (!isCashOnArrival) {
+        ledgerService.recordDoubleEntry({
+          transactionId,
+          idempotencyKey: `LEDGER-${params.idempotencyKey}`,
+          bookingRef: params.bookingId || `TRIP-${params.tripId}`,
+          tripId: params.tripId,
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: params.amountEGP,
+          debitAccount: `TRAVELER_GATEWAY_${cardLast4}`,
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          metadata: {
+            provider: payment.provider,
+            authCode: payment.authCode,
+            cardBrand: payment.cardBrand,
+            payerEmail: payment.payerEmail
+          }
+        });
+      }
 
       // Platform Commission Entry (15%)
       // Commission is recognized on settlement. A pending cash hold has not
@@ -394,8 +404,26 @@ export class PaymentService {
         const booking = db.bookings.find(b => b.id === params.bookingId || b.bookingRef === params.bookingId);
         if (booking) {
           booking.paymentState = 'REFUNDED';
-          booking.supplierState = 'CANCELLED';
+          // Only a live booking becomes CANCELLED. A refund on a REJECTED or
+          // COMPLETED booking used to rewrite it to CANCELLED, erasing that
+          // the supplier refused it or delivered it.
+          if (canTransition(booking.supplierState, 'CANCELLED')) {
+            booking.supplierState = 'CANCELLED';
+          }
           booking.updatedAt = now;
+
+          // The supplier's pending payout must shrink with the refund. It was
+          // never touched (cancelPayout had no caller), so a booking refunded
+          // inside the 24h hold still had its full 85% settle from escrow —
+          // paying the supplier with the money just returned. Cancelled on a
+          // full refund, cut to the supplier share of the remainder on a
+          // partial one.
+          const remainingEGP = refundable - params.amountEGP;
+          adjustPayoutForRefund(
+            booking.bookingRef,
+            remainingEGP - Math.round(remainingEGP * PaymentService.COMMISSION_RATE),
+            refundId
+          );
         }
       }
 

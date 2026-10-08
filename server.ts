@@ -2101,7 +2101,7 @@ app.post('/api/commerce/hold', (req: AuthenticatedRequest, res) => {
   } catch (err: any) {
     // 409 for InsufficientCapacityError so the client can show "sold out"
     // rather than treating it as a malformed request.
-    res.status(err.status || 400).json({ error: err.message, details: err.details });
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -2178,6 +2178,8 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
         holdToken: optionalString(item.holdToken, `items[${index}].holdToken`, 128),
         scheduledDate: requiredCalendarDate(item.scheduledDate, `items[${index}].scheduledDate`),
         scheduledTime: requiredString(item.scheduledTime, `items[${index}].scheduledTime`, 64),
+        // The price the client showed. Checkout charges the catalogue price and
+        // rejects this with 409 PRICE_CHANGED when they differ.
         amountEGP: requiredAmountEGP(item.amountEGP, `items[${index}].amountEGP`),
         // Every booking used to be written with a hardcoded passengersCount of
         // 2, so a solo traveler and a party of six were dispatched to the
@@ -2204,24 +2206,15 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
       return res.status(404).json({ error: 'Trip not found.' });
     }
 
-    // Fraud detection: evaluate the checkout attempt before processing payment.
-    const fraudResult = fraudDetectionService.evaluateCheckout({
-      userId: req.user!.userId,
-      transactionId: requiredString(payment.idempotencyKey, 'paymentParams.idempotencyKey', 128),
-      amountEGP: total,
-    });
-    if (fraudResult.action === 'block') {
-      return res.status(403).json({
-        error: 'Transaction blocked by fraud detection.',
-        riskScore: fraudResult.compositeScore,
-        signals: fraudResult.signals.map(s => ({ type: s.signalType, description: s.description })),
-      });
-    }
-    // For 'review', attach a flag but proceed (ops console will see it).
+    // Fraud detection runs inside the checkout (fraudDetectionService.
+    // assertCheckoutAllowed), after its replay check and on the server price —
+    // the same gate the single and rental checkouts run. Evaluated here, before
+    // the replay check, a client retry matched duplicate_payment and blocked
+    // the user. A block surfaces as 403 { code: 'FRAUD_BLOCKED', details }.
 
     const result = commerceService.completeMultiServiceCheckout({
       tripId,
-      travelerUserId: req.user?.userId,
+      travelerUserId: req.user!.userId,
       travelerName: requiredString(req.body?.travelerName, 'travelerName', 120),
       travelerPhone: requiredString(req.body?.travelerPhone, 'travelerPhone', 32),
       travelerEmail: requiredString(req.body?.travelerEmail, 'travelerEmail', 254),
@@ -2236,7 +2229,9 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
     });
     res.json(result);
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message });
+    // code (PRICE_CHANGED, HOLD_EXPIRED, SUPPLIER_UNAVAILABLE, ...) is what the
+    // client branches on — e.g. PRICE_CHANGED re-confirms at details.currentAmountEGP.
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -2790,7 +2785,7 @@ app.post('/api/suppliers/bookings/:bookingId/respond', (req: AuthenticatedReques
     });
     res.json({ booking: updated });
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message, ...(err.details || {}) });
   }
 });
 
@@ -2883,16 +2878,11 @@ app.post('/api/commerce/checkout', (req: AuthenticatedRequest, res) => {
       }
     });
 
-    // Automated Multi-Party SMS Dispatch
-    smsGatewayService.dispatchTripBookingSmsSuite({
-      travelerName,
-      travelerPhone,
-      bookingRef: result.booking.bookingRef,
-      hotelName: dropoffLocation || 'Dahab Bay Hotel',
-      hasTransfer: true,
-      hasDiving: true,
-      hasSafari: true
-    }).catch(err => console.warn('[SMS Dispatch Background Warn]:', err));
+    // Booking SMS to the supplier/assignee on record and the traveller. This
+    // passed hasDiving/hasSafari: true on every transfer, texting two
+    // hardcoded strangers the traveller's name and phone each time.
+    smsGatewayService.dispatchBookingSms(result.booking, { travelerUserId: req.user!.userId })
+      .catch(err => console.warn('[SMS Dispatch Background Warn]:', err));
 
     res.json({
       status: 'CONFIRMED',
@@ -2901,32 +2891,17 @@ app.post('/api/commerce/checkout', (req: AuthenticatedRequest, res) => {
       ledgerVerified: true
     });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    // Status and code pass through, so SUPPLIER_UNAVAILABLE is a 409 the
+    // client can act on rather than a generic 400.
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
 app.get('/api/transfers/telemetry/:bookingId', (req, res) => {
-  const { bookingId } = req.params;
-  const telemetry = db.transferTelemetry.find(t => t.bookingId === bookingId || t.referenceCode === bookingId);
-  if (!telemetry) {
-    return res.json({
-      bookingId,
-      referenceCode: bookingId,
-      driverName: 'Mahmoud Salem',
-      driverNameAr: 'محمود سالم',
-      driverPhone: '+20 100 876 5432',
-      vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
-      vehiclePlate: 'ط ج د 4821',
-      pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
-      dropoffLocation: 'Ali Baba Hotel, Lighthouse, Dahab',
-      scheduledTime: 'Day 1 · 10:30 AM',
-      flightNumber: 'MS-028 (Cairo → SSH)',
-      flightStatus: 'ON_TIME',
-      status: 'DISPATCHED',
-      lastGpsUpdate: '2 mins ago (Sinai Checkpoint Northbound km 42)'
-    });
-  }
-  res.json(telemetry);
+  // An unknown or not-yet-dispatched booking is reported as NOT_ASSIGNED with
+  // null driver fields — never the canned "Mahmoud Salem" record this used to
+  // return for any id. See transferService.telemetryFor.
+  res.json(transferService.telemetryFor(req.params.bookingId));
 });
 
 // ---------------------------------------------------------------------------
@@ -3016,7 +2991,7 @@ app.post('/api/transfers/prepare-booking', (req: AuthenticatedRequest, res) => {
       hold
     });
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message, details: err.details });
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -3100,22 +3075,14 @@ app.post('/api/suppliers/bookings/:bookingId/status', (req: AuthenticatedRequest
       return res.status(403).json({ error: 'You may only update your own bookings.' });
     }
 
-    // Validate the transition using the lifecycle state machine.
-    // Without this, a supplier could jump from PENDING_CONFIRMATION to
-    // COMPLETED, bypassing the ASSIGNED and DISPATCHED states.
-    const { canTransition } = require('./server/services/bookingLifecycle');
-    if (!canTransition(booking.supplierState, supplierState)) {
-      return res.status(409).json({
-        error: `Cannot transition from "${booking.supplierState}" to "${supplierState}".`,
-        currentState: booking.supplierState,
-        requestedState: supplierState
-      });
-    }
-
+    // The lifecycle state machine is enforced inside updateSupplierStatus
+    // (409 with currentState/requestedState) — the same check /respond runs —
+    // so neither route can jump from PENDING_CONFIRMATION to COMPLETED.
+    // Reaching COMPLETED schedules the payout there as well.
     const updated = transferService.updateSupplierStatus(bookingId, supplierState, resource);
     res.json({ booking: updated });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    res.status(err.status || 400).json({ error: err.message, ...(err.details || {}) });
   }
 });
 
@@ -3652,6 +3619,26 @@ app.post('/api/testing/golden-journey', async (req, res) => {
       passengersCount: 2,
       idempotencyKey: `HLD-DIV-${idempotencyKey}`
     });
+    // Checkout settles only held lines, at the catalogue price — so the hotel
+    // and safari are held too, and every amount below is the hold's.
+    const holdHotel = commerceService.createHold({
+      skuId: 'SKU-HTL-001',
+      tripId: testTripId,
+      travelerId: 'USR-AHMED-01',
+      date: todayStr,
+      timeSlot: 'Check-in 14:00',
+      passengersCount: 2,
+      idempotencyKey: `HLD-HTL-${idempotencyKey}`
+    });
+    const holdSafari = commerceService.createHold({
+      skuId: 'SKU-SAF-001',
+      tripId: testTripId,
+      travelerId: 'USR-AHMED-01',
+      date: todayStr,
+      timeSlot: '02:00 AM (Sunrise Trek)',
+      passengersCount: 2,
+      idempotencyKey: `HLD-SAF-${idempotencyKey}`
+    });
     results.push({
       step: '2_CONCURRENCY_HOLD_LOCKING',
       status: holdTransfer.status === 'ACTIVE' && holdDiving.status === 'ACTIVE' ? 'PASSED' : 'FAILED',
@@ -3664,6 +3651,7 @@ app.post('/api/testing/golden-journey', async (req, res) => {
     // Milestone 3: Multi-Vertical Atomic Checkout & Paymob Settlement
     const multiCheckoutResult = commerceService.completeMultiServiceCheckout({
       tripId: testTripId,
+      travelerUserId: 'USR-AHMED-01',
       travelerName: 'Test Traveler (Golden 100%)',
       travelerPhone: '+20 100 999 8888',
       travelerEmail: 'golden.100@dahab.travel',
@@ -3671,9 +3659,10 @@ app.post('/api/testing/golden-journey', async (req, res) => {
         {
           serviceType: 'hotel',
           skuId: 'SKU-HTL-001',
+          holdToken: holdHotel.holdToken,
           scheduledDate: todayStr,
           scheduledTime: 'Check-in 14:00',
-          amountEGP: 12500,
+          amountEGP: holdHotel.amountEGP,
           dropoffLocation: 'Ali Baba Boutique Hotel, Lighthouse'
         },
         {
@@ -3682,7 +3671,7 @@ app.post('/api/testing/golden-journey', async (req, res) => {
           holdToken: holdTransfer.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '10:30 AM',
-          amountEGP: 1400,
+          amountEGP: holdTransfer.amountEGP,
           pickupLocation: 'SSH Airport Terminal 1',
           dropoffLocation: 'Ali Baba Hotel'
         },
@@ -3692,14 +3681,15 @@ app.post('/api/testing/golden-journey', async (req, res) => {
           holdToken: holdDiving.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 2700
+          amountEGP: holdDiving.amountEGP
         },
         {
           serviceType: 'safari',
           skuId: 'SKU-SAF-001',
+          holdToken: holdSafari.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '02:00 AM (Sunrise Trek)',
-          amountEGP: 4200
+          amountEGP: holdSafari.amountEGP
         }
       ],
       paymentParams: {
@@ -3723,6 +3713,12 @@ app.post('/api/testing/golden-journey', async (req, res) => {
 
     // Milestone 4: Direct Supplier Dispatch & Resource Allocation
     const transferBooking = multiCheckoutResult.bookings.find(b => b.serviceType === 'transfer')!;
+    // Accept first: the lifecycle no longer lets DISPATCH skip acceptance.
+    supplierService.updateBookingState({
+      bookingId: transferBooking.id,
+      supplierId: 'SUP-SHUTTLE-01',
+      action: 'ACCEPT'
+    });
     const updatedTransfer = supplierService.updateBookingState({
       bookingId: transferBooking.id,
       supplierId: 'SUP-SHUTTLE-01',

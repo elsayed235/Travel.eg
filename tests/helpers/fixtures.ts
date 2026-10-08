@@ -1,5 +1,6 @@
 import { db } from '../../server/db/database';
 import { InMemoryPersistenceAdapter } from '../../server/db/adapters/InMemoryPersistenceAdapter';
+import { commerceService } from '../../server/services/commerceService';
 import type {
   ProductSkuEntity,
   RentalBookingEntity,
@@ -66,6 +67,55 @@ export function seedTrip(over: Partial<TripEntity> = {}): TripEntity {
 
 let holdSeq = 0;
 export const nextIdempotencyKey = () => `IDK-TEST-${++holdSeq}`;
+
+/**
+ * A calendar date `days` from today (YYYY-MM-DD, UTC). Cancellation windows
+ * are measured against the service start, so a fixture pinned to a fixed date
+ * silently turns into a past booking as the calendar moves on.
+ */
+export function futureDate(days: number): string {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * A checkout line backed by a real ACTIVE hold, priced by the catalogue.
+ *
+ * Multi-service checkout requires a hold owned by the caller and charges the
+ * server's price for the held party size, so a fixture can no longer hand it a
+ * bare skuId and an arbitrary amount.
+ */
+export function heldItem(over: {
+  skuId?: string;
+  tripId?: string;
+  userId?: string;
+  date?: string;
+  time?: string;
+  pax?: number;
+} = {}) {
+  const skuId = over.skuId ?? 'SKU-DIVE-TEST';
+  const sku = db.productSkus.find(s => s.id === skuId);
+  if (!sku) throw new Error(`heldItem: seed ${skuId} first`);
+  const scheduledDate = over.date ?? futureDate(30);
+  const scheduledTime = over.time ?? '08:30 AM (Morning Dive)';
+  const hold = commerceService.createHold({
+    skuId,
+    tripId: over.tripId ?? 'TRIP-TEST',
+    travelerId: over.userId ?? 'USR-TEST',
+    date: scheduledDate,
+    timeSlot: scheduledTime,
+    passengersCount: over.pax ?? 1,
+    idempotencyKey: nextIdempotencyKey()
+  });
+  return {
+    serviceType: sku.serviceType,
+    skuId,
+    holdToken: hold.holdToken,
+    scheduledDate,
+    scheduledTime,
+    amountEGP: hold.amountEGP,
+    passengersCount: hold.passengersCount
+  };
+}
 
 /**
  * An approved, active rental listing plus its supplier and 'rental' SKU.

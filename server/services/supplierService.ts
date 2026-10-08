@@ -6,6 +6,8 @@ import { notificationService } from './notificationService';
 import { reliabilityService } from './reliabilityService';
 import { payoutService } from './payoutService';
 import { payoutsForSupplier } from './payoutService';
+import { PaymentService } from './paymentService';
+import { assertTransition } from './bookingLifecycle';
 
 export class SupplierService {
   public getSupplierDashboard(supplierId: string): {
@@ -81,6 +83,25 @@ export class SupplierService {
       throw err;
     }
 
+    // Lifecycle validation, the same state machine the /status route uses.
+    // COMPLETE used to apply from any state — straight from
+    // PENDING_CONFIRMATION — and schedule a payout for a service nobody had
+    // accepted, let alone delivered. Validated before any write.
+    const target = ({ ACCEPT: 'CONFIRMED', REJECT: 'REJECTED', DISPATCH: 'DISPATCHED', COMPLETE: 'COMPLETED' } as const)[params.action];
+    if (!target) {
+      const err = new Error(`Unknown action "${params.action}".`) as Error & { status?: number };
+      err.status = 400;
+      throw err;
+    }
+    // DISPATCH with a resource from CONFIRMED is assign-then-dispatch: the
+    // assignment is the ASSIGNED step, so both steps are validated.
+    if (params.action === 'DISPATCH' && booking.supplierState === 'CONFIRMED' && params.assignedResource) {
+      assertTransition(booking.supplierState, 'ASSIGNED');
+      assertTransition('ASSIGNED', target);
+    } else {
+      assertTransition(booking.supplierState, target);
+    }
+
     const now = new Date().toISOString();
 
     db.runInTransaction(() => {
@@ -93,15 +114,7 @@ export class SupplierService {
         }
       } else if (params.action === 'COMPLETE') {
         booking.supplierState = 'COMPLETED';
-        booking.paymentState = 'CAPTURED';
-
-        // 24h payout schedule: hold funds for dispute window before releasing.
-        const payoutAmount = Math.round(booking.amountEGP * 0.85);
-        payoutService.schedulePayout({
-          supplierId: booking.supplierId,
-          bookingRef: booking.bookingRef,
-          amountEGP: payoutAmount,
-        });
+        this.settleCompletion(booking);
       } else if (params.action === 'REJECT') {
         booking.supplierState = 'REJECTED';
         booking.specialRequests = `Rejected by supplier: ${params.reason || 'Capacity constraint'}`;
@@ -169,6 +182,53 @@ export class SupplierService {
     });
 
     return booking;
+  }
+
+  /**
+   * The money side of a booking reaching COMPLETED.
+   *
+   * - Paid through the platform (CAPTURED): schedule the supplier's 85% from
+   *   escrow behind the 24h dispute hold. schedulePayout is idempotent per
+   *   booking, so a second call never schedules a second payout.
+   * - Cash on arrival (still PENDING): the supplier collected the cash in
+   *   person, so it never entered escrow and there is nothing to pay out.
+   *   COMPLETE used to stamp CAPTURED and schedule an 85% payout from escrow
+   *   anyway — paying the supplier twice, from other travellers' money. The
+   *   platform's commission is booked instead as a receivable owed by the
+   *   supplier (SUPPLIER_RECEIVABLE_<id> → PLATFORM_REVENUE_COMMISSIONS), which
+   *   leaves escrow untouched; collecting it is an ops settlement.
+   * - Anything else (REFUNDED, FAILED, ...): no money to move.
+   */
+  public settleCompletion(booking: BookingEntity): void {
+    if (booking.paymentState === 'PENDING') {
+      booking.paymentState = 'CAPTURED'; // paid, in person, to the supplier
+      const commission = Math.round(booking.amountEGP * PaymentService.COMMISSION_RATE);
+      if (commission > 0) {
+        ledgerService.recordDoubleEntry({
+          transactionId: `TXN-CASH-COMM-${booking.bookingRef}`,
+          idempotencyKey: `LEDGER-CASH-COMM-${booking.bookingRef}`,
+          bookingRef: booking.bookingRef,
+          tripId: booking.tripId,
+          type: 'PLATFORM_COMMISSION',
+          amountEGP: commission,
+          debitAccount: `SUPPLIER_RECEIVABLE_${booking.supplierId}`,
+          creditAccount: 'PLATFORM_REVENUE_COMMISSIONS',
+          metadata: {
+            rate: `${PaymentService.COMMISSION_RATE * 100}%`,
+            reason: 'Cash collected on site by the supplier; commission owed to the platform.'
+          }
+        });
+      }
+      return;
+    }
+    if (booking.paymentState === 'CAPTURED') {
+      // 24h payout schedule: hold funds for dispute window before releasing.
+      payoutService.schedulePayout({
+        supplierId: booking.supplierId,
+        bookingRef: booking.bookingRef,
+        amountEGP: Math.round(booking.amountEGP * 0.85),
+      });
+    }
   }
 
   /**

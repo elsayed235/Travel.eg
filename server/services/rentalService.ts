@@ -11,9 +11,10 @@ import {
   RentalMaintenanceBlockEntity,
   RentalPriceBreakdown
 } from '../db/schema';
-import { InsufficientCapacityError } from './commerceService';
+import { assertSupplierBookable, InsufficientCapacityError } from './commerceService';
 import { distributedLockService } from './distributedLockService';
 import { paymentService } from './paymentService';
+import { assertCheckoutAllowed } from './fraudDetectionService';
 import { supplierService } from './supplierService';
 import { ledgerService } from './ledgerService';
 import { notificationService } from './notificationService';
@@ -517,6 +518,8 @@ export class RentalService {
     if (listing.status !== 'APPROVED' || !listing.active) {
       throw domainError('This rental is not currently bookable.', 409);
     }
+    // A Suspended / unverified provider cannot be booked, whatever the listing says.
+    assertSupplierBookable(listing.supplierId, listing.skuId);
     const days = daysInRange(params.startDate, params.endDate);
     if (days < 1 || days > MAX_RENTAL_DAYS) {
       throw domainError(`Rental windows must be between 1 and ${MAX_RENTAL_DAYS} days.`, 400);
@@ -679,12 +682,25 @@ export class RentalService {
       throw domainError('This rental hold has expired. Please book again.', 409);
     }
 
+    // Before payment: the provider may have been suspended since the hold.
+    assertSupplierBookable(rentalBooking.supplierId, rentalBooking.skuId);
+
     // Price comes from the hold's server-computed snapshot — never the body.
     const totalAmountEGP = rentalBooking.priceBreakdown.totalEGP;
     const listing = db.rentalListings.find(l => l.id === rentalBooking.listingId);
     const now = new Date().toISOString();
     const bookingRef = `DHB-REN-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
     const confirmationCode = `DHB-REN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+
+    // Fraud gate — the same call every checkout path makes; rentals never ran
+    // it. After the replay check above, so a retry is never scored as a
+    // duplicate payment.
+    assertCheckoutAllowed({
+      userId: rentalBooking.userId,
+      transactionId: params.idempotencyKey,
+      amountEGP: totalAmountEGP,
+      bookingId: bookingRef
+    });
 
     // bookingRef is generated before settlement so the PAYMENT_CAPTURED ledger
     // entry and the payment row carry it — refunds are keyed off the ledger's
@@ -920,11 +936,18 @@ export class RentalService {
     db.runInTransaction(() => {
       booking.status = 'REJECTED';
       booking.updatedAt = now;
+      // Reject first: the supplier route now enforces the lifecycle, and
+      // PENDING_CONFIRMATION → REJECTED is the legal step. processRefund
+      // leaves a REJECTED mirror as it is (it only cancels live bookings), so
+      // rentals still distinguish REJECTED from CANCELLED.
+      supplierService.updateBookingState({
+        bookingId: booking.bookingRef,
+        supplierId: params.supplierId,
+        action: 'REJECT',
+        reason: params.reason || 'Capacity constraint'
+      });
       if (booking.paymentState === 'CAPTURED') {
         booking.paymentState = 'REFUNDED';
-        // Refund first: paymentService.processRefund clobbers the bookings
-        // mirror's supplierState to CANCELLED. The REJECT write below must run
-        // after it so rentals distinguish REJECTED from CANCELLED.
         paymentService.processRefund({
           bookingId: booking.bookingRef,
           tripId: booking.tripId,
@@ -934,12 +957,6 @@ export class RentalService {
           initiatedBy: params.supplierId
         });
       }
-      supplierService.updateBookingState({
-        bookingId: booking.bookingRef,
-        supplierId: params.supplierId,
-        action: 'REJECT',
-        reason: params.reason || 'Capacity constraint'
-      });
       const listing = db.rentalListings.find(l => l.id === booking.listingId);
       if (listing) {
         this.applySlotDelta(listing, booking.startDate, booking.endDate, booking.quantity, 'reserved', -booking.quantity);

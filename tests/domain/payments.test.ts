@@ -2,7 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { db } from '../../server/db/database';
 import { paymentService, PaymentService } from '../../server/services/paymentService';
 import { commerceService } from '../../server/services/commerceService';
-import { resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
+import { heldItem, resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
+
+// Each checkout holds its own slot: the reference test books 200 times, far
+// past one slot's capacity.
+let slotSeq = 0;
 
 /**
  * Payment settlement and webhook trust — CRIT-5 and CRIT-7.
@@ -20,16 +24,11 @@ import { resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtu
 const checkout = (over: Record<string, unknown> = {}) =>
   commerceService.completeMultiServiceCheckout({
     tripId: 'TRIP-TEST',
+    travelerUserId: 'USR-TEST',
     travelerName: 'Test Traveler',
     travelerPhone: '+201000000000',
     travelerEmail: 'traveler@example.test',
-    items: [{
-      serviceType: 'diving',
-      skuId: 'SKU-DIVE-TEST',
-      scheduledDate: '2026-09-10',
-      scheduledTime: '08:30 AM (Morning Dive)',
-      amountEGP: 1200
-    }],
+    items: [heldItem({ time: `SLOT-${++slotSeq}` })],
     paymentParams: { idempotencyKey: nextIdempotencyKey() },
     ...over
   });

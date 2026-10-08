@@ -37,7 +37,7 @@ function optionalStringArray(value: unknown): string[] | undefined {
 }
 
 function sendError(res: Response, err: any) {
-  res.status(err.status || 400).json({ error: err.message, details: err.details });
+  res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
 }
 
 // ---------------------------------------------------------------------------

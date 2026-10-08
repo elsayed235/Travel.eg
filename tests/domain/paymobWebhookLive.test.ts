@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { db } from '../../server/db/database';
 import { paymentService } from '../../server/services/paymentService';
 import { commerceService } from '../../server/services/commerceService';
-import { resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
+import { heldItem, resetDb, seedSku, seedTrip, nextIdempotencyKey } from '../helpers/fixtures';
 
 /**
  * Paymob webhook end-to-end: signed acceptance, tamper rejection, replay
@@ -23,16 +23,11 @@ const describeLive = LIVE_SECRET ? describe : describe.skip;
 const checkout = (over: Record<string, unknown> = {}) =>
   commerceService.completeMultiServiceCheckout({
     tripId: 'TRIP-TEST',
+    travelerUserId: 'USR-TEST',
     travelerName: 'Test Traveler',
     travelerPhone: '+201000000000',
     travelerEmail: 'traveler@example.test',
-    items: [{
-      serviceType: 'diving',
-      skuId: 'SKU-DIVE-TEST',
-      scheduledDate: '2026-09-10',
-      scheduledTime: '08:30 AM (Morning Dive)',
-      amountEGP: 1200
-    }],
+    items: [heldItem()],
     paymentParams: { idempotencyKey: nextIdempotencyKey() },
     ...over
   });

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../../server/db/database';
 import { commerceService, UnknownSkuError } from '../../server/services/commerceService';
-import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
+import { heldItem, nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
 
 /**
  * A booking must name inventory that exists.
@@ -13,23 +13,23 @@ import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtu
  * gear delivery became a real booking dispatched to a real dive centre for a
  * service that dive centre does not sell.
  */
-const checkout = (over: { skuId?: string; serviceType?: 'diving' | 'transfer' | 'hotel' | 'safari' } = {}) =>
-  commerceService.completeMultiServiceCheckout({
+const checkout = (over: { skuId?: string; serviceType?: 'diving' | 'transfer' | 'hotel' | 'safari'; pax?: number } = {}) => {
+  const skuId = over.skuId ?? 'SKU-DIVE-TEST';
+  // A catalogue SKU is checked out the real way, through a hold. An unknown
+  // one cannot be held, and must be refused before any hold is even looked at.
+  const line = db.productSkus.some(s => s.id === skuId)
+    ? heldItem({ skuId, time: '09:00 AM', pax: over.pax })
+    : { skuId, scheduledDate: '2026-09-10', scheduledTime: '09:00 AM', amountEGP: 1200 };
+  return commerceService.completeMultiServiceCheckout({
     tripId: 'TRIP-TEST',
+    travelerUserId: 'USR-TEST',
     travelerName: 'Test Traveler',
     travelerPhone: '+20 100 000 0000',
     travelerEmail: 'test@example.com',
-    items: [
-      {
-        serviceType: over.serviceType ?? 'diving',
-        skuId: over.skuId ?? 'SKU-DIVE-TEST',
-        scheduledDate: '2026-09-10',
-        scheduledTime: '09:00 AM',
-        amountEGP: 1200
-      }
-    ],
+    items: [{ ...line, serviceType: over.serviceType ?? 'diving' }],
     paymentParams: { idempotencyKey: nextIdempotencyKey(), provider: 'CASH_ON_ARRIVAL' }
   });
+};
 
 describe('checkout inventory resolution', () => {
   beforeEach(() => {
@@ -86,10 +86,13 @@ describe('checkout inventory resolution', () => {
     expect(db.bookings).toHaveLength(0);
   });
 
-  it('still settles money for a valid SKU', () => {
+  it('still records the payment for a valid SKU', () => {
     checkout();
     expect(db.payments.length).toBeGreaterThan(0);
-    expect(db.ledgerEntries.length).toBeGreaterThan(0);
+    // Cash on arrival: the payment row is the commitment. No ledger entry —
+    // the cash goes to the supplier in person and never reaches escrow.
+    expect(db.payments[0].state).toBe('PENDING');
+    expect(db.ledgerEntries).toHaveLength(0);
   });
 });
 
@@ -238,8 +241,10 @@ describe('checkout and the itinerary', () => {
   });
 
   it('records the real party size rather than a hardcoded 2', () => {
-    checkout();
-    // Falls back to the trip's travelersCount, which is 4 here.
-    expect(db.bookings[0].passengersCount).toBe(4);
+    // The party that was held (and priced) — 3 here, not the trip's 4 and
+    // not a hardcoded 2.
+    checkout({ pax: 3 });
+    expect(db.bookings[0].passengersCount).toBe(3);
+    expect(db.bookings[0].amountEGP).toBe(1200 * 3);
   });
 });

@@ -5,7 +5,10 @@ import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { transferRouteService } from './transferRouteService';
 import { distributedLockService } from './distributedLockService';
-import { InsufficientCapacityError } from './commerceService';
+import { assertSupplierBookable, InsufficientCapacityError, priceSkuLine } from './commerceService';
+import { assertTransition } from './bookingLifecycle';
+import { supplierService } from './supplierService';
+import { assertCheckoutAllowed } from './fraudDetectionService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -153,6 +156,9 @@ export class TransferService {
 
     const sku = db.productSkus.find(s => s.id === params.skuId);
     if (!sku) throw new Error('Transfer SKU does not exist');
+    // Same gates as commerceService.createHold: no holds against a supplier
+    // that is not Active.
+    assertSupplierBookable(sku.supplierId, sku.id);
 
     const lockKey = `lock:slot:${params.skuId}:${params.date}:${params.timeSlot}`;
     const lease = distributedLockService.tryAcquire(lockKey, 5000);
@@ -205,7 +211,8 @@ export class TransferService {
           travelerId: params.travelerId,
           serviceType: 'transfer',
           passengersCount: params.passengersCount,
-          amountEGP: sku.basePriceEGP,
+          // The party's price under the one pricing rule, as commerceService.createHold.
+          amountEGP: priceSkuLine(sku, params.passengersCount).amountEGP,
           expiresAt: expires.toISOString(),
           status: 'ACTIVE',
           idempotencyKey: params.idempotencyKey,
@@ -284,10 +291,24 @@ export class TransferService {
 
     const sku = db.productSkus.find(s => s.id === hold.skuId);
     if (!sku) throw new Error('Product SKU not found');
+    // Before payment: the supplier may have been suspended since the hold.
+    assertSupplierBookable(sku.supplierId, sku.id);
 
     const bookingRef = `DHB-TRF-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
     const confirmationCode = `DHB-SSH-${crypto.randomBytes(4).toString('hex').toUpperCase()}-OK`;
     const now = new Date().toISOString();
+
+    // Fraud gate — the same call multi-service and rental checkout make. This
+    // path never ran it. Skipped for a key that already settled: that is a
+    // retry, and scoring it would match duplicate_payment and block the user.
+    if (!existingPayment) {
+      assertCheckoutAllowed({
+        userId: hold.travelerId,
+        transactionId: params.paymentParams.idempotencyKey,
+        amountEGP: hold.amountEGP,
+        bookingId: bookingRef
+      });
+    }
 
     // 1. Process payment BEFORE the booking transaction — if payment fails,
     // no booking is created and no inventory is consumed.
@@ -415,12 +436,67 @@ export class TransferService {
     });
   }
 
+  /**
+   * Live transfer telemetry for a booking, or an honest "not assigned yet".
+   *
+   * The route used to answer an unknown booking with a canned record —
+   * "Mahmoud Salem", +20 100 876 5432, a white HiAce, plate ط ج د 4821,
+   * DISPATCHED two minutes ago — for any id at all. A booking nobody has
+   * dispatched has no driver, and says so. `assigned` is false for stored
+   * records the supplier has not yet filled in too.
+   */
+  public telemetryFor(bookingId: string): Omit<TransferTelemetryEntity, 'driverName' | 'driverPhone' | 'vehicleModel' | 'vehiclePlate' | 'status' | 'lastGpsUpdate' | 'flightStatus' | 'pickupLocation' | 'dropoffLocation' | 'scheduledTime' | 'updatedAt'> & {
+    assigned: boolean;
+    status: TransferTelemetryEntity['status'] | 'NOT_ASSIGNED';
+    driverName: string | null;
+    driverPhone: string | null;
+    vehicleModel: string | null;
+    vehiclePlate: string | null;
+    pickupLocation: string | null;
+    dropoffLocation: string | null;
+    scheduledTime: string | null;
+    flightStatus: TransferTelemetryEntity['flightStatus'] | null;
+    lastGpsUpdate: string | null;
+    updatedAt: string | null;
+  } {
+    const record = db.transferTelemetry.find(t => t.bookingId === bookingId || t.referenceCode === bookingId);
+    if (record) {
+      return { ...record, assigned: Boolean(record.driverName || record.driverPhone) };
+    }
+    const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
+    return {
+      bookingId,
+      referenceCode: booking?.bookingRef ?? bookingId,
+      assigned: false,
+      status: 'NOT_ASSIGNED',
+      driverName: null,
+      driverNameAr: undefined,
+      driverPhone: null,
+      vehicleModel: null,
+      vehiclePlate: null,
+      pickupLocation: booking?.pickupLocation ?? null,
+      dropoffLocation: booking?.dropoffLocation ?? null,
+      scheduledTime: booking?.scheduledTime ?? null,
+      flightNumber: booking?.flightNumber,
+      flightStatus: null,
+      lastGpsUpdate: null,
+      updatedAt: null
+    };
+  }
+
   public updateSupplierStatus(bookingId: string, supplierState: BookingEntity['supplierState'], resource?: any): BookingEntity {
     const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
     if (!booking) throw new Error(`Booking ${bookingId} not found`);
+    // Validated here, not only in the route, so no caller can skip a step.
+    assertTransition(booking.supplierState, supplierState);
 
     return db.runInTransaction(() => {
       booking.supplierState = supplierState;
+      // Reaching COMPLETED settles the money side exactly as /respond COMPLETE
+      // does. This path used to complete bookings with no payout at all.
+      if (supplierState === 'COMPLETED') {
+        supplierService.settleCompletion(booking);
+      }
       if (resource) {
         booking.assignedResource = { ...booking.assignedResource, ...resource };
       }

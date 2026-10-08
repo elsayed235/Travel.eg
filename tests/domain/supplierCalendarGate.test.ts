@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../../server/db/database';
 import { commerceService, SupplierDateBlockedError } from '../../server/services/commerceService';
 import { supplierCalendarService } from '../../server/services/supplierCalendarService';
-import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
+import { heldItem, nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
 
 /**
  * Supplier calendar gate (blueprint row #12).
@@ -34,17 +34,16 @@ const seedBlock = (supplierId = 'SUP-TEST') =>
 const checkout = (date: string) =>
   commerceService.completeMultiServiceCheckout({
     tripId: 'TRIP-TEST',
+    travelerUserId: 'USR-TEST',
     travelerName: 'Test Traveler',
     travelerPhone: '+20 100 000 0000',
     travelerEmail: 'test@example.test',
+    // A blocked date cannot be held, so that line goes in bare — the calendar
+    // gate must refuse it before the missing hold is even considered.
     items: [
-      {
-        serviceType: 'diving',
-        skuId: 'SKU-DIVE-TEST',
-        scheduledDate: date,
-        scheduledTime: '08:30 AM (Morning Dive)',
-        amountEGP: 1200
-      }
+      supplierCalendarService.isDateBlocked('SUP-TEST', date)
+        ? { serviceType: 'diving', skuId: 'SKU-DIVE-TEST', scheduledDate: date, scheduledTime: '08:30 AM (Morning Dive)', amountEGP: 1200 }
+        : heldItem({ date })
     ],
     paymentParams: { idempotencyKey: nextIdempotencyKey(), provider: 'CASH_ON_ARRIVAL' }
   });
@@ -135,6 +134,7 @@ describe('supplier calendar gate', () => {
         () =>
           commerceService.completeMultiServiceCheckout({
             tripId: 'TRIP-TEST',
+            travelerUserId: 'USR-TEST',
             travelerName: 'Test Traveler',
             travelerPhone: '+20 100 000 0000',
             travelerEmail: 'test@example.test',
