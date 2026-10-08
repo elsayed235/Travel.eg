@@ -45,6 +45,18 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { useTrip } from '../../context/TripContext';
 import { formatTripDateRange } from '../../utils/tripDates';
 import { api } from '../../services/api';
+import { useHeldCheckout } from '../../hooks/useHeldCheckout';
+import { newAttemptKey, type CheckoutLine, type HeldCheckoutOutcome } from '../../services/heldCheckout';
+import { CheckoutIssuePanel } from '../commerce/CheckoutIssuePanel';
+import {
+  PLANNER_HOTEL_SLOT,
+  PLANNER_SKUS,
+  PLANNER_TRANSFER_SLOT,
+  TRANSFER_HOLD_STORAGE_KEY,
+  matchingTransferHold,
+  transferSkuFor,
+  tripDayDate,
+} from '../../services/plannerCheckout';
 import { analytics } from '../../services/analytics';
 import type { PriceExplanation } from '../../services/api';
 import { IMG_BLUE_HOLE_HERO } from '../../shared/placeholderImagery';
@@ -114,7 +126,14 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
   const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
 
   // Processing & Confirmation State
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const checkout = useHeldCheckout({
+    keyPrefix: 'PLAN',
+    onConfirmed: outcome => recordSettledTrip(outcome),
+  });
+  /** Holding and settling — drives the processing overlay. */
+  const isProcessing = checkout.busy;
+  /** What the server actually charged, which a re-confirmed price can change. */
+  const [chargedTotalEGP, setChargedTotalEGP] = useState<number | null>(null);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
   /**
    * Why the settlement failed, if it did.
@@ -187,114 +206,159 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
     }
   };
 
+  /**
+   * Every service on this page, as checkout lines.
+   *
+   * This page used to settle only the transfer hold through the single-item
+   * checkout while showing — and recording in the ledger — the total for all
+   * four services, so the hotel, dive and safari were "confirmed" without
+   * being booked. Now each selected service is held for the trip's party on
+   * its trip day and the lot settles in one multi-service checkout.
+   */
+  const buildCheckoutLines = (): CheckoutLine[] => {
+    const lines: CheckoutLine[] = [];
+    const arrivalDate = tripDayDate(activeTrip, 1);
+    if (selectedHotel) {
+      lines.push({
+        serviceType: 'hotel',
+        skuId: PLANNER_SKUS.hotel,
+        scheduledDate: arrivalDate,
+        scheduledTime: PLANNER_HOTEL_SLOT,
+        passengersCount: travelers,
+        amountEGP: hotelPrice,
+        dropoffLocation: selectedHotel.name,
+      });
+    }
+    if (selectedTransfer) {
+      const skuId = transferSkuFor(selectedTransfer.id);
+      // The seat the transfer step already held, when it is still good for
+      // exactly this line; otherwise it is held again here.
+      const existing = matchingTransferHold({
+        skuId,
+        tripId: bookingTripId,
+        date: arrivalDate,
+        timeSlot: PLANNER_TRANSFER_SLOT,
+        passengersCount: travelers,
+      });
+      lines.push({
+        serviceType: 'transfer',
+        skuId,
+        scheduledDate: arrivalDate,
+        scheduledTime: PLANNER_TRANSFER_SLOT,
+        passengersCount: travelers,
+        amountEGP: transferPrice,
+        pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
+        dropoffLocation: selectedHotel ? selectedHotel.name : undefined,
+        specialRequests: flightNumber ? `Flight ${flightNumber}` : undefined,
+        existingHold: existing ?? undefined,
+      });
+    }
+    if (selectedDiving) {
+      lines.push({
+        serviceType: 'diving',
+        skuId: PLANNER_SKUS.diving,
+        scheduledDate: tripDayDate(activeTrip, divingDay),
+        scheduledTime: divingTime,
+        passengersCount: travelers,
+        amountEGP: divingPrice,
+      });
+    }
+    if (selectedSafari) {
+      lines.push({
+        serviceType: 'safari',
+        skuId: PLANNER_SKUS.safari,
+        scheduledDate: tripDayDate(activeTrip, safariDay),
+        scheduledTime: safariTime,
+        passengersCount: travelers,
+        amountEGP: safariPrice,
+      });
+    }
+    return lines;
+  };
+
   const handlePayAndConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreedToTerms || isProcessing) return;
+    if (!agreedToTerms || checkout.busy) return;
+    setSettlementError(null);
+    checkout.reset();
 
-    setIsProcessing(true);
+    if (!isSignedIn) {
+      setSettlementError(t('checkout.error.signIn'));
+      return;
+    }
+    if (!bookingTripId) {
+      // Nothing can be held or paid without the traveller's trip; saying so
+      // beats a server 404 dressed up as a payment failure.
+      setSettlementError(t('checkout.error.noTrip'));
+      return;
+    }
 
-    try {
-      const idempotencyKey = `IDEMP-PAY-${Date.now()}`;
-      let holdToken: string | undefined;
-      const holdRaw = sessionStorage.getItem('current_transfer_hold');
-      if (holdRaw) {
-        try {
-          const parsed = JSON.parse(holdRaw);
-          holdToken = parsed.holdToken;
-        } catch {}
-      }
-
-      const paymentProvider = paymentMethod === 'card' ? cardGateway : paymentMethod === 'wallet' ? 'PAYMOB' : 'CASH_ON_ARRIVAL';
-
-      // Authoritative backend checkout settlement
-      await api.completeCheckout({
-        holdToken,
-        tripId: bookingTripId,
-        travelerName: billingName,
-        travelerPhone: billingPhone,
-        travelerEmail: billingEmail,
-        pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
-        dropoffLocation: selectedHotel ? selectedHotel.name : 'Dahab Bay Hotel',
-        flightNumber: flightNumber || 'MS-028',
-        scheduledDate: new Date().toISOString().split('T')[0],
-        scheduledTime: '10:30 AM',
-        idempotencyKey,
+    const paymentProvider = paymentMethod === 'card' ? cardGateway : paymentMethod === 'wallet' ? 'PAYMOB' : 'CASH_ON_ARRIVAL';
+    await checkout.submit({
+      tripId: bookingTripId,
+      traveler: { name: billingName, phone: billingPhone, email: billingEmail },
+      lines: buildCheckoutLines(),
+      payment: {
+        provider: paymentProvider,
         // Only the last four digits leave the browser. The full PAN, expiry and
         // CVV must never reach our API — a real integration replaces these
         // fields with a hosted gateway iframe and sends its token instead.
         cardLast4: paymentMethod === 'card' ? cardNumber.replace(/\D/g, '').slice(-4) : undefined,
         cardBrand: paymentMethod === 'card' ? cardGateway : undefined,
         cardHolderName: paymentMethod === 'card' ? cardholderName : billingName,
-        provider: paymentProvider,
-        amountEGP: totalTripPrice,
-        serviceType: 'multi_service',
-        supplierId: 'SUP-SHUTTLE-01'
-      });
-
-      /*
-        Removed: two SMS dispatches fired from the browser on every checkout.
-
-        The first texted a hardcoded number, +20 100 876 5432, addressed to
-        "Mahmoud Salem (Driver)" — a driver nobody had assigned, at a number
-        written into this file — telling them a transfer was confirmed. The
-        second told the traveler "Driver assigned", which was not true either:
-        a booking now starts at PENDING_CONFIRMATION and carries no assignment
-        until the supplier accepts it.
-
-        Neither could have worked in any case. /api/sms/* is restricted to
-        Operations and Admin, so a traveler's call returns 403 — and the failure
-        was swallowed into a console warning while `setSmsDispatched(true)`
-        never ran. Supplier dispatch belongs on the server, after checkout, to
-        the supplier the SKU actually resolves to.
-      */
-
-      // Update local ledger
-      const debitAccount = paymentMethod === 'card'
-        ? `TRAVELER_CARD_${cardNumber.slice(-4)}`
-        : paymentMethod === 'wallet'
-        ? `TRAVELER_WALLET_${walletProvider.toUpperCase()}`
-        : paymentMethod === 'instapay'
-        ? `INSTAPAY_IPA_${instapayAddress.split('@')[0]}`
-        : 'TRAVELER_CASH_ON_ARRIVAL';
-
-      recordLedgerEntry({
-        transactionId: `TXN-${Date.now().toString().slice(-6)}-PAY`,
-        idempotencyKey,
-        bookingRef: `DHB-TRIP-2026-${Math.floor(100 + Math.random() * 900)}`,
-        tripId: bookingTripId,
-        type: 'PAYMENT_CAPTURED',
-        amountEGP: totalTripPrice,
-        debitAccount,
-        creditAccount: 'PLATFORM_ESCROW_MAIN',
-        currency: 'EGP',
-        status: 'SETTLED',
-        metadata: {
-          serviceType: 'all',
-          travelerName: billingName,
-          method: paymentMethod,
-          gateway: cardGateway,
-          reason: `Full Trip Checkout Settlement (${selectedHotel?.name || 'Hotel'}, Transfer, Diving, Safari)`
-        }
-      });
-      // Only now, with the backend having actually settled, is this confirmed.
-      setIsProcessing(false);
-      setIsConfirmed(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err: any) {
-      setIsProcessing(false);
-      const message = String(err?.message || '');
-      setSettlementError(
-        /401|Sign in|Authentication/i.test(message)
-          ? (isRTL
-              ? 'محتاج تسجّل دخولك قبل إتمام الدفع. حجزك محفوظ — سجّل دخولك وحاول تاني.'
-              : 'You need to sign in before paying. Your selections are kept — sign in and try again.')
-          : (isRTL
-              ? `تعذّر إتمام الدفع: ${message}. لم يتم خصم أي مبلغ.`
-              : `The payment could not be completed: ${message}. Nothing was charged.`)
-      );
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+      },
+      attemptKey: newAttemptKey('PLAN'),
+    });
   };
+
+  /** The server settled every line: record what it charged, under its reference. */
+  function recordSettledTrip(outcome: Extract<HeldCheckoutOutcome, { kind: 'confirmed' }>) {
+    const chargedEGP = outcome.held.reduce((sum, line) => sum + line.amountEGP, 0);
+    const bookingRef = outcome.result.bookings?.[0]?.bookingRef || outcome.result.transactionId;
+    try {
+      sessionStorage.removeItem(TRANSFER_HOLD_STORAGE_KEY);
+    } catch {
+      // The stale hold is ignored by matchingTransferHold anyway.
+    }
+
+    /*
+      Removed: two SMS dispatches fired from the browser on every checkout.
+      Supplier dispatch belongs on the server, after checkout, to the supplier
+      the SKU actually resolves to — which is where it now happens.
+    */
+
+    const debitAccount = paymentMethod === 'card'
+      ? `TRAVELER_CARD_${cardNumber.slice(-4)}`
+      : paymentMethod === 'wallet'
+      ? `TRAVELER_WALLET_${walletProvider.toUpperCase()}`
+      : paymentMethod === 'instapay'
+      ? `INSTAPAY_IPA_${instapayAddress.split('@')[0]}`
+      : 'TRAVELER_CASH_ON_ARRIVAL';
+
+    recordLedgerEntry({
+      transactionId: outcome.result.transactionId,
+      idempotencyKey: `${outcome.result.transactionId}-LOCAL`,
+      bookingRef,
+      tripId: outcome.tripId,
+      type: 'PAYMENT_CAPTURED',
+      amountEGP: chargedEGP,
+      debitAccount,
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      status: outcome.result.paymentState === 'CAPTURED' ? 'SETTLED' : 'PENDING',
+      metadata: {
+        serviceType: 'all',
+        travelerName: billingName,
+        method: paymentMethod,
+        gateway: cardGateway,
+        reason: `Full Trip Checkout Settlement (${selectedHotel?.name || 'Hotel'}, Transfer, Diving, Safari)`
+      }
+    });
+    setChargedTotalEGP(chargedEGP);
+    // Only now, with the backend having actually settled, is this confirmed.
+    setIsConfirmed(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   const handleShareClick = () => {
     navigator.clipboard?.writeText?.(`https://dahab.travel/trip/${tripId}`);
@@ -442,7 +506,7 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
               <div className="text-end">
                 <span className="text-[var(--text-primary)]/50 block text-[12px]">{t('booking.totalPaidConfirmed')}</span>
                 <span className="text-sm font-black text-[var(--text-primary)]">
-                  EGP {totalTripPrice.toLocaleString()}
+                  EGP {(chargedTotalEGP ?? totalTripPrice).toLocaleString()}
                 </span>
               </div>
             </div>
@@ -1531,6 +1595,29 @@ export const BookingPaymentStep: React.FC<BookingPaymentStepProps> = ({
 
               {/* A failed settlement has to be visible here. The traveller
                   previously saw the confirmation screen regardless. */}
+              {(checkout.phase === 'priceChanged' || checkout.phase === 'failed') && checkout.outcome && checkout.outcome.kind !== 'confirmed' && (
+                <CheckoutIssuePanel
+                  className="mt-4"
+                  priceChange={checkout.outcome.kind === 'priceChanged' ? checkout.outcome : null}
+                  issue={checkout.outcome.kind === 'failed' ? checkout.outcome.issue : null}
+                  busy={checkout.busy}
+                  onConfirmPrice={() => { void checkout.confirmPrice(); }}
+                  onRehold={() => { void checkout.rehold(); }}
+                  onRetry={() => { void checkout.rehold(); }}
+                  onSignIn={() => { setIntendedRoute('/trip-builder'); navigateTo('/auth/sign-in'); }}
+                  onContactSupport={() => navigateTo('/help')}
+                  onPickAnotherDate={onBackToReview}
+                  onDismiss={checkout.reset}
+                  alternativesQuery={(() => {
+                    const failed = checkout.outcome.kind === 'failed' ? checkout.outcome : null;
+                    const line = failed && checkout.lastRequest?.lines.find(l => l.skuId === failed.issue.skuId);
+                    return line && bookingTripId
+                      ? { tripId: bookingTripId, skuId: line.skuId, date: line.scheduledDate, timeSlot: line.scheduledTime, passengersCount: line.passengersCount }
+                      : null;
+                  })()}
+                />
+              )}
+
               {settlementError && (
                 <div
                   role="alert"
