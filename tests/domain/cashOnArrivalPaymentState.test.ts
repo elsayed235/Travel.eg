@@ -5,6 +5,8 @@ import { commerceService } from '../../server/services/commerceService';
 import { ledgerService } from '../../server/services/ledgerService';
 import { rentalService } from '../../server/services/rentalService';
 import { cancelBooking } from '../../server/services/bookingService';
+import { supplierService } from '../../server/services/supplierService';
+import { transferService } from '../../server/services/transferService';
 import { futureDate, heldItem, resetDb, seedSku, seedTrip, seedRentalListing, nextIdempotencyKey } from '../helpers/fixtures';
 
 /**
@@ -14,6 +16,13 @@ import { futureDate, heldItem, resetDb, seedSku, seedTrip, seedRentalListing, ne
  *   CASH_ON_ARRIVAL → booking may be CONFIRMED, payment must NOT be CAPTURED,
  *   ledger must NOT represent money as settled, cancellation must not attempt
  *   a refund of money that was never captured.
+ *
+ * Escrow: the traveller pays the provider in person, so the cash never enters
+ * PLATFORM_ESCROW_MAIN. Checkout used to write a HOLD_ESCROW entry crediting
+ * escrow for money that had not (and never would) arrive, which let payouts
+ * for other bookings draw on it. Nothing is written at checkout now; on
+ * completion the platform's 15% is booked as a receivable from the supplier
+ * and no payout is scheduled (the supplier already holds the cash).
  *
  * This regression was introduced when the rental checkout flow hardcoded
  * `paymentState: 'CAPTURED'` after processCheckout returned PENDING for
@@ -65,18 +74,13 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
     expect(payment!.provider).toBe('CASH_ON_ARRIVAL');
     expect(payment!.paymentMethodType).toBe('CASH');
 
-    // Ledger carries a HOLD_ESCROW entry, NOT a PAYMENT_CAPTURED entry.
+    // No PAYMENT_CAPTURED entry, and nothing credits escrow: no money moved.
     const capturedEntries = db.ledgerEntries.filter(
       (e) => e.type === 'PAYMENT_CAPTURED' && e.tripId === 'TRIP-TEST'
     );
     expect(capturedEntries).toHaveLength(0);
-
-    const holdEntries = db.ledgerEntries.filter(
-      (e) => e.type === 'HOLD_ESCROW' && e.tripId === 'TRIP-TEST'
-    );
-    expect(holdEntries.length).toBeGreaterThanOrEqual(1);
-    expect(holdEntries[0].amountEGP).toBe(1200);
-    expect(holdEntries[0].debitAccount).toBe('TRAVELER_CASH_ON_ARRIVAL');
+    expect(db.ledgerEntries.filter((e) => e.creditAccount === 'PLATFORM_ESCROW_MAIN')).toHaveLength(0);
+    expect(ledgerService.verifyLedgerIntegrity().escrowBalanceEGP).toBe(0);
 
     // No commission entry (money has not settled).
     const commissionEntries = db.ledgerEntries.filter(
@@ -175,6 +179,54 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
         idempotencyKey: nextIdempotencyKey(),
       })
     ).toThrow(/exceeds what was captured/);
+  });
+});
+
+describe('CASH_ON_ARRIVAL — completion (cash collected on site)', () => {
+  beforeEach(() => {
+    resetDb();
+    seedSku();
+    seedTrip();
+  });
+
+  function completeCashBooking() {
+    const result = commerceService.completeMultiServiceCheckout({
+      tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
+      travelerName: 'Test Traveler',
+      travelerPhone: '+201000000000',
+      travelerEmail: 'cash@traveler.test',
+      items: [heldItem()],
+      paymentParams: { idempotencyKey: nextIdempotencyKey(), provider: 'CASH_ON_ARRIVAL' },
+    });
+    const ref = result.bookings[0].bookingRef;
+    supplierService.updateBookingState({ bookingId: ref, supplierId: 'SUP-TEST', action: 'ACCEPT' });
+    for (const state of ['ASSIGNED', 'DISPATCHED', 'EN_ROUTE', 'ARRIVED'] as const) {
+      transferService.updateSupplierStatus(ref, state);
+    }
+    supplierService.updateBookingState({ bookingId: ref, supplierId: 'SUP-TEST', action: 'COMPLETE' });
+    return db.bookings.find((b) => b.bookingRef === ref)!;
+  }
+
+  it('schedules no payout from escrow for cash the supplier already holds', () => {
+    const booking = completeCashBooking();
+    expect(booking.supplierState).toBe('COMPLETED');
+    expect(db.payoutSchedule.filter((p) => p.bookingRef === booking.bookingRef)).toHaveLength(0);
+    expect(ledgerService.verifyLedgerIntegrity().escrowBalanceEGP).toBe(0);
+  });
+
+  it('books the platform commission as a receivable from the supplier, once', () => {
+    const booking = completeCashBooking();
+    const commission = db.ledgerEntries.filter(
+      (e) => e.type === 'PLATFORM_COMMISSION' && e.bookingRef === booking.bookingRef
+    );
+    expect(commission).toHaveLength(1);
+    expect(commission[0].amountEGP).toBe(Math.round(1200 * PaymentService.COMMISSION_RATE));
+    expect(commission[0].debitAccount).toBe('SUPPLIER_RECEIVABLE_SUP-TEST');
+    expect(commission[0].creditAccount).toBe('PLATFORM_REVENUE_COMMISSIONS');
+    // The booking is now paid (in person); the ledger stays balanced.
+    expect(booking.paymentState).toBe('CAPTURED');
+    expect(ledgerService.verifyLedgerIntegrity().balanced).toBe(true);
   });
 });
 
@@ -293,20 +345,14 @@ describe('CASH_ON_ARRIVAL — rental checkout (original regression)', () => {
     expect(payment).toBeDefined();
     expect(payment!.state).toBe('PENDING');
 
-    // Ledger: HOLD_ESCROW, not PAYMENT_CAPTURED.
+    // Ledger: no PAYMENT_CAPTURED, and no escrow credit for unreceived cash.
     const capturedEntries = db.ledgerEntries.filter(
       (e) =>
         e.type === 'PAYMENT_CAPTURED' &&
         e.bookingRef === checkoutResult.bookingRef
     );
     expect(capturedEntries).toHaveLength(0);
-
-    const holdEntries = db.ledgerEntries.filter(
-      (e) =>
-        e.type === 'HOLD_ESCROW' &&
-        e.bookingRef === checkoutResult.bookingRef
-    );
-    expect(holdEntries.length).toBeGreaterThanOrEqual(1);
+    expect(ledgerService.verifyLedgerIntegrity().escrowBalanceEGP).toBe(0);
 
     // No commission booked.
     const commissionEntries = db.ledgerEntries.filter(

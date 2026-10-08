@@ -86,10 +86,13 @@ describe('checkout inventory resolution', () => {
     expect(db.bookings).toHaveLength(0);
   });
 
-  it('still settles money for a valid SKU', () => {
+  it('still records the payment for a valid SKU', () => {
     checkout();
     expect(db.payments.length).toBeGreaterThan(0);
-    expect(db.ledgerEntries.length).toBeGreaterThan(0);
+    // Cash on arrival: the payment row is the commitment. No ledger entry —
+    // the cash goes to the supplier in person and never reaches escrow.
+    expect(db.payments[0].state).toBe('PENDING');
+    expect(db.ledgerEntries).toHaveLength(0);
   });
 });
 

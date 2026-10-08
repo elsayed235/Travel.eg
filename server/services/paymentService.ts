@@ -43,8 +43,7 @@ export class PaymentService {
     // are marked CAPTURED and written to the ledger as simulated settlements —
     // a "successful" checkout collects no money while issuing a real voucher.
     // CASH_ON_ARRIVAL is the honest exception: no money moved, so the payment
-    // is recorded as PENDING and the ledger carries an escrow hold, not a
-    // captured payment.
+    // is recorded as PENDING and the ledger gets nothing at all.
     //
     // Until a gateway is integrated the card path must not run anywhere money
     // is expected. Set ALLOW_SIMULATED_PAYMENTS=true to use it in dev/demo.
@@ -120,25 +119,34 @@ export class PaymentService {
     db.runInTransaction(() => {
       db.payments.push(payment);
 
-      // Ledger: Credit Escrow, Debit Traveler. Cash-on-arrival is a pending
-      // escrow hold — the money settles only when the traveler pays on site.
-      ledgerService.recordDoubleEntry({
-        transactionId,
-        idempotencyKey: `LEDGER-${params.idempotencyKey}`,
-        bookingRef: params.bookingId || `TRIP-${params.tripId}`,
-        tripId: params.tripId,
-        type: isCashOnArrival ? 'HOLD_ESCROW' : 'PAYMENT_CAPTURED',
-        amountEGP: params.amountEGP,
-        debitAccount: isCashOnArrival ? 'TRAVELER_CASH_ON_ARRIVAL' : `TRAVELER_GATEWAY_${cardLast4}`,
-        creditAccount: 'PLATFORM_ESCROW_MAIN',
-        metadata: {
-          provider: payment.provider,
-          authCode: payment.authCode,
-          cardBrand: payment.cardBrand,
-          payerEmail: payment.payerEmail,
-          ...(isCashOnArrival ? { reason: 'Pay upon arrival. No platform money movement.' } : {})
-        }
-      });
+      // Ledger: Credit Escrow, Debit Traveler — for money that actually moved.
+      //
+      // Cash-on-arrival used to write a HOLD_ESCROW entry crediting
+      // PLATFORM_ESCROW_MAIN here. The traveller pays the provider in person,
+      // so that cash never reaches escrow — yet the phantom credit counted in
+      // the escrow balance settlePayout guards on, letting payouts for other
+      // bookings draw on money that was never received. The cash side is
+      // booked when the supplier completes the booking
+      // (supplierService.settleCompletion): commission owed by the supplier,
+      // no payout.
+      if (!isCashOnArrival) {
+        ledgerService.recordDoubleEntry({
+          transactionId,
+          idempotencyKey: `LEDGER-${params.idempotencyKey}`,
+          bookingRef: params.bookingId || `TRIP-${params.tripId}`,
+          tripId: params.tripId,
+          type: 'PAYMENT_CAPTURED',
+          amountEGP: params.amountEGP,
+          debitAccount: `TRAVELER_GATEWAY_${cardLast4}`,
+          creditAccount: 'PLATFORM_ESCROW_MAIN',
+          metadata: {
+            provider: payment.provider,
+            authCode: payment.authCode,
+            cardBrand: payment.cardBrand,
+            payerEmail: payment.payerEmail
+          }
+        });
+      }
 
       // Platform Commission Entry (15%)
       // Commission is recognized on settlement. A pending cash hold has not
