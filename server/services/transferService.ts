@@ -423,6 +423,54 @@ export class TransferService {
     });
   }
 
+  /**
+   * Live transfer telemetry for a booking, or an honest "not assigned yet".
+   *
+   * The route used to answer an unknown booking with a canned record —
+   * "Mahmoud Salem", +20 100 876 5432, a white HiAce, plate ط ج د 4821,
+   * DISPATCHED two minutes ago — for any id at all. A booking nobody has
+   * dispatched has no driver, and says so. `assigned` is false for stored
+   * records the supplier has not yet filled in too.
+   */
+  public telemetryFor(bookingId: string): Omit<TransferTelemetryEntity, 'driverName' | 'driverPhone' | 'vehicleModel' | 'vehiclePlate' | 'status' | 'lastGpsUpdate' | 'flightStatus' | 'pickupLocation' | 'dropoffLocation' | 'scheduledTime' | 'updatedAt'> & {
+    assigned: boolean;
+    status: TransferTelemetryEntity['status'] | 'NOT_ASSIGNED';
+    driverName: string | null;
+    driverPhone: string | null;
+    vehicleModel: string | null;
+    vehiclePlate: string | null;
+    pickupLocation: string | null;
+    dropoffLocation: string | null;
+    scheduledTime: string | null;
+    flightStatus: TransferTelemetryEntity['flightStatus'] | null;
+    lastGpsUpdate: string | null;
+    updatedAt: string | null;
+  } {
+    const record = db.transferTelemetry.find(t => t.bookingId === bookingId || t.referenceCode === bookingId);
+    if (record) {
+      return { ...record, assigned: Boolean(record.driverName || record.driverPhone) };
+    }
+    const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
+    return {
+      bookingId,
+      referenceCode: booking?.bookingRef ?? bookingId,
+      assigned: false,
+      status: 'NOT_ASSIGNED',
+      driverName: null,
+      driverNameAr: undefined,
+      driverPhone: null,
+      vehicleModel: null,
+      vehiclePlate: null,
+      pickupLocation: booking?.pickupLocation ?? null,
+      dropoffLocation: booking?.dropoffLocation ?? null,
+      scheduledTime: booking?.scheduledTime ?? null,
+      flightNumber: booking?.flightNumber,
+      flightStatus: null,
+      lastGpsUpdate: null,
+      updatedAt: null
+    };
+  }
+
   public updateSupplierStatus(bookingId: string, supplierState: BookingEntity['supplierState'], resource?: any): BookingEntity {
     const booking = db.bookings.find(b => b.id === bookingId || b.bookingRef === bookingId);
     if (!booking) throw new Error(`Booking ${bookingId} not found`);

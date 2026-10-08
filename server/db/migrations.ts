@@ -127,6 +127,22 @@ export function buildSeedLedgerEntries(): LedgerEntryEntity[] {
   return entries;
 }
 
+/**
+ * Invented contact numbers earlier seeds wrote onto supplier records. Booking
+ * SMS goes to the supplier contact on record, so a row still carrying one
+ * would text a stranger the traveller's name and phone. Seed reconcile merges
+ * over existing rows (and keeps fields the seed no longer sets), so the old
+ * values are cleared explicitly; a number Ops has since changed is untouched.
+ */
+const RETIRED_SEED_PHONES = new Set(['+20 100 876 5432', '+20 101 445 6677']);
+
+function retireSeededPhones(): void {
+  for (const supplier of db.suppliers) {
+    if (supplier.phone && RETIRED_SEED_PHONES.has(supplier.phone)) delete supplier.phone;
+    if (supplier.whatsapp && RETIRED_SEED_PHONES.has(supplier.whatsapp)) delete supplier.whatsapp;
+  }
+}
+
 export function runMigrationsAndSeed() {
   db.runInTransaction(() => {
     // 1. Seed Users if empty.
@@ -217,8 +233,10 @@ export function runMigrationsAndSeed() {
         category: 'transfer',
         tier: 'Tier 1 Certified',
         status: 'Active',
-        leadContact: 'Captain Mahmoud Salem (+20 100 876 5432)',
-        phone: '+20 100 876 5432',
+        // No phone: '+20 100 876 5432' was an invented number, and booking SMS
+        // now goes to the supplier contact on record — so it would be texted
+        // the traveller's details on every transfer. Ops records the real one.
+        leadContact: 'Captain Mahmoud Salem',
         email: 'dispatch@sinai-shuttle.com',
         area: 'Sharm El Sheikh & Dahab Highway',
         licenseNumber: 'MOT-SINAI-TRF-#4821',
@@ -235,8 +253,8 @@ export function runMigrationsAndSeed() {
         category: 'diving',
         tier: 'Vetted Local Partner',
         status: 'Active',
-        leadContact: 'Omar Soliman (+20 101 445 6677)',
-        phone: '+20 101 445 6677',
+        // No phone: '+20 101 445 6677' was invented (see SUP-SHUTTLE-01).
+        leadContact: 'Omar Soliman',
         email: 'bookings@sinai-divers.com',
         area: 'Lighthouse & Canyon',
         licenseNumber: 'UNVERIFIED_CLAIM_CDWS-#4912',
@@ -297,6 +315,7 @@ export function runMigrationsAndSeed() {
         db.suppliers.push(sup);
       }
     }
+    retireSeededPhones();
 
     // 2b. The eight in-destination services the Book Now catalogue sells.
     //
@@ -308,6 +327,7 @@ export function runMigrationsAndSeed() {
       if (idx >= 0) db.suppliers[idx] = { ...db.suppliers[idx], ...sup };
       else db.suppliers.push(sup);
     }
+    retireSeededPhones();
     for (const sku of IN_DESTINATION_SKUS) {
       const idx = db.productSkus.findIndex(s => s.id === sku.id);
       if (idx >= 0) db.productSkus[idx] = { ...db.productSkus[idx], ...sku };

@@ -101,7 +101,7 @@ export const IN_DESTINATION_SUPPLIERS: SupplierEntity[] = [
     tier: 'Vetted Local Partner',
     status: 'Active',
     leadContact: 'Sheikh Salem Bedouin Heritage Council',
-    phone: '+20 100 876 5432',
+    // No phone: this reused the invented '+20 100 876 5432' (see migrations.ts).
     email: 'heritage@wadignai.example',
     area: 'Wadi Gnai Granite Amphitheatre',
     onboardedAt: '2026-08-30',

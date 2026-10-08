@@ -2876,16 +2876,11 @@ app.post('/api/commerce/checkout', (req: AuthenticatedRequest, res) => {
       }
     });
 
-    // Automated Multi-Party SMS Dispatch
-    smsGatewayService.dispatchTripBookingSmsSuite({
-      travelerName,
-      travelerPhone,
-      bookingRef: result.booking.bookingRef,
-      hotelName: dropoffLocation || 'Dahab Bay Hotel',
-      hasTransfer: true,
-      hasDiving: true,
-      hasSafari: true
-    }).catch(err => console.warn('[SMS Dispatch Background Warn]:', err));
+    // Booking SMS to the supplier/assignee on record and the traveller. This
+    // passed hasDiving/hasSafari: true on every transfer, texting two
+    // hardcoded strangers the traveller's name and phone each time.
+    smsGatewayService.dispatchBookingSms(result.booking, { travelerUserId: req.user!.userId })
+      .catch(err => console.warn('[SMS Dispatch Background Warn]:', err));
 
     res.json({
       status: 'CONFIRMED',
@@ -2901,27 +2896,10 @@ app.post('/api/commerce/checkout', (req: AuthenticatedRequest, res) => {
 });
 
 app.get('/api/transfers/telemetry/:bookingId', (req, res) => {
-  const { bookingId } = req.params;
-  const telemetry = db.transferTelemetry.find(t => t.bookingId === bookingId || t.referenceCode === bookingId);
-  if (!telemetry) {
-    return res.json({
-      bookingId,
-      referenceCode: bookingId,
-      driverName: 'Mahmoud Salem',
-      driverNameAr: 'محمود سالم',
-      driverPhone: '+20 100 876 5432',
-      vehicleModel: 'Toyota HiAce Comfort Van 2024 White',
-      vehiclePlate: 'ط ج د 4821',
-      pickupLocation: 'Sharm El Sheikh Intl Airport (SSH) Terminal 1',
-      dropoffLocation: 'Ali Baba Hotel, Lighthouse, Dahab',
-      scheduledTime: 'Day 1 · 10:30 AM',
-      flightNumber: 'MS-028 (Cairo → SSH)',
-      flightStatus: 'ON_TIME',
-      status: 'DISPATCHED',
-      lastGpsUpdate: '2 mins ago (Sinai Checkpoint Northbound km 42)'
-    });
-  }
-  res.json(telemetry);
+  // An unknown or not-yet-dispatched booking is reported as NOT_ASSIGNED with
+  // null driver fields — never the canned "Mahmoud Salem" record this used to
+  // return for any id. See transferService.telemetryFor.
+  res.json(transferService.telemetryFor(req.params.bookingId));
 });
 
 // ---------------------------------------------------------------------------
