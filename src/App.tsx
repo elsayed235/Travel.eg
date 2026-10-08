@@ -349,9 +349,11 @@ function MainAppContent() {
                 timeSlot: meal.time || '12:00 PM',
                 serviceType: 'food',
               }).then(() => {
-                showToast(`"${meal.title}" added to your trip ✓`);
+                showToast(t('food.mealAddedToTrip', { title: meal.title }));
               }).catch(() => {
-                showToast(`"${meal.title}" added to your trip ✓`);
+                // Both branches used to say "added ✓", so a meal the server
+                // refused looked saved and was simply missing from the trip.
+                showToast(t('food.mealAddToTripFailed', { title: meal.title }));
               });
             } : undefined}
           />
