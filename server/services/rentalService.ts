@@ -14,6 +14,7 @@ import {
 import { assertSupplierBookable, InsufficientCapacityError } from './commerceService';
 import { distributedLockService } from './distributedLockService';
 import { paymentService } from './paymentService';
+import { assertCheckoutAllowed } from './fraudDetectionService';
 import { supplierService } from './supplierService';
 import { ledgerService } from './ledgerService';
 import { notificationService } from './notificationService';
@@ -690,6 +691,16 @@ export class RentalService {
     const now = new Date().toISOString();
     const bookingRef = `DHB-REN-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
     const confirmationCode = `DHB-REN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+
+    // Fraud gate — the same call every checkout path makes; rentals never ran
+    // it. After the replay check above, so a retry is never scored as a
+    // duplicate payment.
+    assertCheckoutAllowed({
+      userId: rentalBooking.userId,
+      transactionId: params.idempotencyKey,
+      amountEGP: totalAmountEGP,
+      bookingId: bookingRef
+    });
 
     // bookingRef is generated before settlement so the PAYMENT_CAPTURED ledger
     // entry and the payment row carry it — refunds are keyed off the ledger's

@@ -2195,20 +2195,11 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
       return res.status(404).json({ error: 'Trip not found.' });
     }
 
-    // Fraud detection: evaluate the checkout attempt before processing payment.
-    const fraudResult = fraudDetectionService.evaluateCheckout({
-      userId: req.user!.userId,
-      transactionId: requiredString(payment.idempotencyKey, 'paymentParams.idempotencyKey', 128),
-      amountEGP: total,
-    });
-    if (fraudResult.action === 'block') {
-      return res.status(403).json({
-        error: 'Transaction blocked by fraud detection.',
-        riskScore: fraudResult.compositeScore,
-        signals: fraudResult.signals.map(s => ({ type: s.signalType, description: s.description })),
-      });
-    }
-    // For 'review', attach a flag but proceed (ops console will see it).
+    // Fraud detection runs inside the checkout (fraudDetectionService.
+    // assertCheckoutAllowed), after its replay check and on the server price —
+    // the same gate the single and rental checkouts run. Evaluated here, before
+    // the replay check, a client retry matched duplicate_payment and blocked
+    // the user. A block surfaces as 403 { code: 'FRAUD_BLOCKED', details }.
 
     const result = commerceService.completeMultiServiceCheckout({
       tripId,

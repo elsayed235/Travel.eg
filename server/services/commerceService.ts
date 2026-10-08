@@ -7,6 +7,7 @@ import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { distributedLockService } from './distributedLockService';
 import { supplierCalendarService } from './supplierCalendarService';
+import { assertCheckoutAllowed } from './fraudDetectionService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -585,6 +586,14 @@ export class CommerceService {
     });
 
     const totalAmountEGP = priced.reduce((acc, line) => acc + line.amountEGP, 0);
+
+    // Fraud gate, on the server-priced total — after the replay check above,
+    // so a retry is replayed rather than scored as a duplicate payment.
+    assertCheckoutAllowed({
+      userId: params.travelerUserId,
+      transactionId: params.paymentParams.idempotencyKey,
+      amountEGP: totalAmountEGP
+    });
 
     // 1. Process payment settlement with idempotency
     const paymentResult = paymentService.processCheckout({

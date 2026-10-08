@@ -8,6 +8,7 @@ import { distributedLockService } from './distributedLockService';
 import { assertSupplierBookable, InsufficientCapacityError, priceSkuLine } from './commerceService';
 import { assertTransition } from './bookingLifecycle';
 import { supplierService } from './supplierService';
+import { assertCheckoutAllowed } from './fraudDetectionService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -296,6 +297,18 @@ export class TransferService {
     const bookingRef = `DHB-TRF-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
     const confirmationCode = `DHB-SSH-${crypto.randomBytes(4).toString('hex').toUpperCase()}-OK`;
     const now = new Date().toISOString();
+
+    // Fraud gate — the same call multi-service and rental checkout make. This
+    // path never ran it. Skipped for a key that already settled: that is a
+    // retry, and scoring it would match duplicate_payment and block the user.
+    if (!existingPayment) {
+      assertCheckoutAllowed({
+        userId: hold.travelerId,
+        transactionId: params.paymentParams.idempotencyKey,
+        amountEGP: hold.amountEGP,
+        bookingId: bookingRef
+      });
+    }
 
     // 1. Process payment BEFORE the booking transaction — if payment fails,
     // no booking is created and no inventory is consumed.
