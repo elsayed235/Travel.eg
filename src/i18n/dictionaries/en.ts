@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 4076 keys. Loaded per language by
+ * Language: en. 4101 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~97,891 chars here instead of both languages).
+ * (~98,239 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -2972,6 +2972,31 @@ export const EN: Record<string, string> = {
   "meetingPoint": "Meeting Point: ",
   "memories.subtitle": "Your visual travel memory log, unlocked Dahab badges, and logged adventures.",
   "memories.title": "Your Dahab Story & Passport",
+  "menu.about": "About",
+  "menu.attractions": "Things to do",
+  "menu.bikes": "Bike rentals",
+  "menu.bookings": "My bookings",
+  "menu.daygi": "Ask DayGi",
+  "menu.earlyNote": "These pages cover Dahab for now. {place} is being added.",
+  "menu.explore": "Explore on the map",
+  "menu.faq": "Questions",
+  "menu.foodNow": "Eat now",
+  "menu.group.do": "Things to do",
+  "menu.group.info": "Help & info",
+  "menu.group.move": "Getting around",
+  "menu.group.stay": "Stay & eat",
+  "menu.group.trip": "Your trip",
+  "menu.guides": "Travel guides",
+  "menu.help": "Help & SOS",
+  "menu.hotels": "Hotels & camps",
+  "menu.live": "Live conditions",
+  "menu.myTrip": "My trip",
+  "menu.open": "Everything in REHLA",
+  "menu.plan": "Plan a trip",
+  "menu.restaurants": "Restaurants",
+  "menu.ridesIntercity": "Airport & intercity",
+  "menu.ridesLocal": "Rides in town",
+  "menu.title": "Everything in {place}",
   "mobile.addToTrip": "Add to Trip",
   "mobile.bookNow": "Book Now",
   "mobile.close": "Close",

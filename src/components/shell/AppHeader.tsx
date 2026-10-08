@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, Moon, Sun, ChevronDown, LogOut, Luggage, UserRound, LifeBuoy, Activity, Store, Ticket } from 'lucide-react';
+import { Search, LayoutGrid, Moon, Sun, ChevronDown, LogOut, Luggage, UserRound, LifeBuoy, Activity, Store, Ticket } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { useTrip } from '../../context/TripContext';
@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import type { AppRoute } from '../../types';
 import { RehlaLogo, RehlaMark } from '../brand/RehlaLogo';
 import { DestinationSwitcher } from './DestinationSwitcher';
+import { SiteMenu } from './SiteMenu';
 import { Button } from '../ui/button';
 import { tween } from '../../design/motion';
 
@@ -39,6 +40,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
   const { isDark, toggleTheme, themeId } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [siteMenuOpen, setSiteMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,6 +136,15 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
           <div className="ms-auto flex items-center gap-1">
             <button type="button" onClick={onOpenSearch} aria-label={t('shell.search')} className={iconBtn}>
               <Search className="h-[18px] w-[18px]" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSiteMenuOpen(true)}
+              aria-label={t('menu.open')}
+              aria-haspopup="dialog"
+              className={iconBtn}
+            >
+              <LayoutGrid className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -246,6 +257,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
           </div>
         </div>
       </header>
+      <SiteMenu open={siteMenuOpen} onClose={() => setSiteMenuOpen(false)} />
     </>
   );
 };

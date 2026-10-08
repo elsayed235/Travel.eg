@@ -16,7 +16,8 @@ import type { PlanVibe } from '../services/planMatcher';
 export type PictogramId =
   | 'dive' | 'kite' | 'camel' | 'mountain' | 'dome' | 'jeep'
   | 'hut' | 'snorkel' | 'canyon' | 'stars' | 'hammock'
-  | 'spring' | 'saltlake' | 'fortress' | 'palm' | 'lotus';
+  | 'spring' | 'saltlake' | 'fortress' | 'palm' | 'lotus'
+  | 'food' | 'bike' | 'sos';
 
 type Bi = { en: string; ar: string };
 
@@ -46,12 +47,16 @@ export interface StoryFrame {
 
 export const CATEGORY_DOORS: Record<DestinationId, CategoryDoor[]> = {
   dahab: [
-    { id: 'dive', pictogram: 'dive', label: { en: 'Dive', ar: 'غطس' }, route: '/attractions' },
-    { id: 'kite', pictogram: 'kite', label: { en: 'Kite', ar: 'كايت' }, route: '/attractions' },
-    { id: 'desert', pictogram: 'camel', label: { en: 'Desert', ar: 'صحرا' }, route: '/attractions' },
-    { id: 'sinai', pictogram: 'mountain', label: { en: 'Sinai', ar: 'سينا' }, route: '/attractions' },
+    // Every vertical Dahab can actually book has a door here; the old home's
+    // services (stay, eat, move, dive, explore, care) are all still reachable.
+    { id: 'dive', pictogram: 'dive', label: { en: 'Dive & snorkel', ar: 'غطس وسنوركل' }, route: '/attractions' },
+    { id: 'kite', pictogram: 'kite', label: { en: 'Kite & wind', ar: 'كايت' }, route: '/attractions' },
+    { id: 'desert', pictogram: 'camel', label: { en: 'Desert & Sinai', ar: 'صحرا وسينا' }, route: '/explore' },
     { id: 'stay', pictogram: 'dome', label: { en: 'Stay', ar: 'إقامة' }, route: '/hotels' },
-    { id: 'rides', pictogram: 'jeep', label: { en: 'Rides', ar: 'مشاوير' }, route: '/transfers/local' },
+    { id: 'food', pictogram: 'food', label: { en: 'Food', ar: 'أكل' }, route: '/food' },
+    { id: 'bike', pictogram: 'bike', label: { en: 'Bike rentals', ar: 'إيجار عجل' }, route: '/rentals' },
+    { id: 'rides', pictogram: 'jeep', label: { en: 'Rides & airport', ar: 'مشاوير ومطار' }, route: '/transfers/local' },
+    { id: 'help', pictogram: 'sos', label: { en: 'Help & SOS', ar: 'مساعدة وطوارئ' }, route: '/help' },
   ],
   nuweiba: [
     { id: 'camps', pictogram: 'hut', label: { en: 'Beach camps', ar: 'كامبات' }, planVibes: ['unplug', 'sea'] },

@@ -109,13 +109,13 @@ const Door: React.FC<{ door: CategoryDoor; index: number }> = ({ door, index }) 
       >
         <motion.span
           key={pulse}
-          className="block h-12 w-12 sm:h-14 sm:w-14"
+          className="block h-11 w-11 sm:h-14 sm:w-14"
           animate={pulse && !reduce ? { scale: [1, 0.82, 1.12, 1], rotate: [0, -6, 3, 0] } : undefined}
           transition={{ duration: 0.6, ease: [0.34, 1.3, 0.64, 1] }}
         >
           <Pictogram id={door.pictogram} className="h-full w-full transition-transform duration-300 group-hover:-translate-y-0.5" />
         </motion.span>
-        <span className="text-sm font-medium text-dg-ink">{door.label[language]}</span>
+        <span className="text-center text-[0.8125rem] font-medium leading-tight text-dg-ink">{door.label[language]}</span>
       </button>
     </motion.li>
   );
@@ -135,7 +135,10 @@ export const PlaceCategories: React.FC = () => {
         />
         <Conditions />
       </div>
-      <ul key={destinationId} className="mt-6 grid grid-cols-3 gap-2.5 sm:grid-cols-6 sm:gap-3">
+      <ul
+        key={destinationId}
+        className={cn('mt-6 grid gap-2.5 sm:gap-3', doors.length > 6 ? 'grid-cols-4 sm:grid-cols-8' : 'grid-cols-3 sm:grid-cols-6')}
+      >
         {doors.map((door, i) => (
           <Door key={door.id} door={door} index={i} />
         ))}

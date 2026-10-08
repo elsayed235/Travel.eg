@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 4076 keys. Loaded per language by
+ * Language: ar. 4101 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~89,213 chars here instead of both languages).
+ * (~89,527 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -2972,6 +2972,31 @@ export const AR: Record<string, string> = {
   "meetingPoint": "نقطة اللقاء: ",
   "memories.subtitle": "سجل ذكرياتك المصور، الشارات اللي جمعتها، وإحصائيات مغامراتك في سيناء.",
   "memories.title": "حكايتك في دهب وجواز السفر التذكاري",
+  "menu.about": "عن رحلة",
+  "menu.attractions": "أنشطة وتجارب",
+  "menu.bikes": "إيجار عجل",
+  "menu.bookings": "حجوزاتي",
+  "menu.daygi": "اسأل DayGi",
+  "menu.earlyNote": "الصفحات دي لدهب دلوقتي، و{place} بنضيفها.",
+  "menu.explore": "استكشف على الخريطة",
+  "menu.faq": "أسئلة شائعة",
+  "menu.foodNow": "تاكل فين دلوقتي",
+  "menu.group.do": "تعمل إيه",
+  "menu.group.info": "مساعدة ومعلومات",
+  "menu.group.move": "التنقّل",
+  "menu.group.stay": "إقامة وأكل",
+  "menu.group.trip": "رحلتك",
+  "menu.guides": "أدلة السفر",
+  "menu.help": "مساعدة وطوارئ",
+  "menu.hotels": "فنادق وكامبات",
+  "menu.live": "الجو والبحر دلوقتي",
+  "menu.myTrip": "رحلتي",
+  "menu.open": "كل حاجة في رحلة",
+  "menu.plan": "خطّط رحلة",
+  "menu.restaurants": "مطاعم",
+  "menu.ridesIntercity": "المطار وبين المدن",
+  "menu.ridesLocal": "مشاوير جوه البلد",
+  "menu.title": "كل حاجة في {place}",
   "mobile.addToTrip": "أضف إلى الرحلة",
   "mobile.bookNow": "احجز الآن",
   "mobile.close": "إغلاق",

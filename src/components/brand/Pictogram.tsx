@@ -151,6 +151,34 @@ export const Pictogram: React.FC<{ id: PictogramId; className?: string }> = ({ i
         <path d="M24 16q-12-2-16 8 8-6 16-8zM24 16q12-3 16 6-8-5-16-6zM24 16q-6-8-14-8 8 3 14 8zM24 16q6-9 14-8-9 2-14 8z" fill={g('palm')} />
       </>
     ),
+    food: (
+      <>
+        {shadow}
+        <ellipse cx="24" cy="30" rx="18" ry="8" fill={g('sand')} />
+        <ellipse cx="24" cy="28" rx="13" ry="5" fill="#FBFAF7" />
+        <path d="M15 27c3-5 15-5 18 0z" fill={g('coral')} />
+        <path d="M15 27c3-5 15-5 18 0z" fill={g('gloss')} />
+        <path d="M40 8v14M37 8v6c0 2 6 2 6 0V8" stroke="#BAC3C7" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      </>
+    ),
+    bike: (
+      <>
+        {shadow}
+        <circle cx="13" cy="31" r="8" fill="none" stroke="#14232B" strokeWidth="3" />
+        <circle cx="35" cy="31" r="8" fill="none" stroke="#14232B" strokeWidth="3" />
+        <path d="M13 31l7-12h10l5 12M20 19l5 12h-12M30 19l-2-5h-4" stroke={g('sea')} strokeWidth="3.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="25" cy="31" r="2" fill={g('coral')} />
+      </>
+    ),
+    sos: (
+      <>
+        {shadow}
+        <circle cx="24" cy="23" r="16" fill={g('coral')} />
+        <circle cx="24" cy="23" r="16" fill={g('gloss')} />
+        <circle cx="24" cy="23" r="7" fill="#FBFAF7" />
+        <path d="M24 7v9M24 30v9M8 23h9M31 23h9" stroke="#FBFAF7" strokeWidth="3.4" />
+      </>
+    ),
     lotus: (
       <>
         {shadow}
