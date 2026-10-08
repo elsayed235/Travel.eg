@@ -1,0 +1,10 @@
+{
+  "APP_ID": "system.stage",
+  "APP_BASE_URL": "stage/",
+  "APP_ENV_NAME": "stage",
+  "APP_API": "api/",
+  "APP_APP_NAME_EN": "Stage Name",
+  "APP_APP_NAME_AR": "تست",
+  "APP_LOCAL_LOGO": "assets/images/icon.png"
+
+}

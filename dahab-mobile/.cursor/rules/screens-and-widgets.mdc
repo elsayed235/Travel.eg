@@ -1,0 +1,45 @@
+---
+description: How to build Magr screens — core widgets, Gaps, padding, and clean widget splits.
+globs: lib/features/**/*.dart,lib/core/widgets/**/*.dart
+alwaysApply: false
+---
+
+# Screens and core widgets
+
+Reuse `lib/core/widgets/` before drawing a new box.
+
+| Need | Widget |
+|---|---|
+| Primary / secondary CTA | `AppTextButton.maxPrimary` / `maxWhite` or `LoadingButton` |
+| Text input | `GenericTextField` |
+| Display-only field | `AppField` |
+| Filter / status tag | `AppChip` |
+| إيجار / شراء | `AppSegmented` |
+| Product / person row | `AppListRow` |
+| Price | `AppPrice` |
+| Rating | `AppRating` |
+| App bar | `DefaultAppBar` |
+| Image | `CachedImage` (radius `AppRadius.imageAll`) |
+| Bottom sheet | `AppBottomSheets.*` — radius is `AppRadius.sheet` |
+
+## Screen skeleton
+
+```dart
+Scaffold(
+  backgroundColor: context.colors.bg,
+  appBar: DefaultAppBar(title: Translate.s.home),
+  body: ListView(
+    padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
+    children: [
+      Text(Translate.s.home, style: AppTextStyle.screenTitle(color: context.colors.text)),
+      Gaps.vGap13,
+      AppListRow(...),
+    ],
+  ),
+)
+```
+
+- Split UI into `Build*` widgets under `pages/<page>/widgets/`
+- Copy from `Translate.s.*` / arb — no hardcoded user-facing English on new screens
+- Hairline dividers: `Divider(color: context.colors.line)` or `AppListRow` (already has a bottom line)
+- Do not use `ListTile` or `Card` elevation

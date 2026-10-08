@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1041079975484",
+    "project_id": "base-ffada",
+    "storage_bucket": "base-ffada.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041079975484:android:67e25507c70737ddc18d39",
+        "android_client_info": {
+          "package_name": "system.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1cDjLf6239l4fpNlrWPHkIFFKR4dRNzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041079975484:android:5794d901febcfcb0c18d39",
+        "android_client_info": {
+          "package_name": "system.prod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1cDjLf6239l4fpNlrWPHkIFFKR4dRNzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041079975484:android:54176979f927418cc18d39",
+        "android_client_info": {
+          "package_name": "system.stage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1cDjLf6239l4fpNlrWPHkIFFKR4dRNzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,98 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+}
+
+def dartEnvironmentVariables = [
+        APP_APP_NAME_EN: "دبّرها",
+        APP_APP_NAME_AR: "دبّرها",
+        APP_ID         : "system.dev",
+]
+if (project.hasProperty("dart-defines")) {
+    dartEnvironmentVariables = dartEnvironmentVariables + project.property("dart-defines")
+            .split(",")
+            .collectEntries { entry ->
+                def pair = new String(entry.decodeBase64(), "UTF-8").split("=")
+                println "ENV VAR: ${pair.first()} = ${pair.last()}"
+                [(pair.first()): pair.last()]
+            }
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace = "system.dev"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    defaultConfig {
+        applicationId "system.dev"
+        minSdk = 25
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+            storeFile keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null
+            storePassword keystoreProperties["storePassword"]
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    def appName = "OSOS_V_"
+                    def newName = "${appName}${defaultConfig.versionName}_${defaultConfig.versionCode}.apk"
+                    outputFileName = newName
+                }
+            }
+        }
+    }
+
+    flavorDimensions += "app"
+    productFlavors {
+        dev {
+            dimension "app"
+            applicationId dartEnvironmentVariables.APP_ID
+        }
+        prod {
+            dimension "app"
+            applicationId dartEnvironmentVariables.APP_ID
+        }
+        stage {
+            dimension "app"
+            applicationId dartEnvironmentVariables.APP_ID
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
+}

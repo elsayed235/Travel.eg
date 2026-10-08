@@ -1,0 +1,44 @@
+---
+description: Magr feature-first architecture, clean layers, and file layout for this Flutter app.
+alwaysApply: true
+---
+
+# Magr architecture
+
+Keep this repo's Magr structure. Do not migrate to go_router, Riverpod, or a new `app/` folder.
+
+## Layers
+
+```
+lib/features/<feature>/
+  data/          models (Freezed JSON) + data sources + repository impl
+  domain/        entities + repository contract + Requester
+  presentation/  pages + widgets + cubits + AutoRoute pages
+lib/core/        theme, widgets, http, bloc, routes, helpers — shared only
+```
+
+A widget used by **two features** moves to `core/widgets/`. A widget used by one feature stays in that feature's `presentation/widgets/` or `pages/<page>/widgets/`.
+
+## Page files (mandatory Magr pattern)
+
+```
+pages/login/
+  login_imports.dart      # imports + `part` directives
+  login.dart              # part of imports; `@RoutePage()` widget
+  login_controller.dart   # part of imports; no BuildContext stored
+  widgets/
+    login_widgets_imports.dart
+    build_login_form.dart # `part of` widgets imports
+```
+
+- Screen is `StatefulWidget` only to own the controller. UI widgets are `StatelessWidget`.
+- Controller holds `ObsValue`, `TextEditingController`, `GlobalKey`, `Requester` — not `setState`.
+- Do not store `BuildContext` on the controller. Pass it into methods.
+
+## Data mapping
+
+API model (`*Model` + `toDomainModel()`) → domain entity. UI never reads JSON maps.
+
+## Fake data first
+
+Until the user asks for networking, screens use a fake repository returning static domain models. Keep `Requester` / repository contracts.

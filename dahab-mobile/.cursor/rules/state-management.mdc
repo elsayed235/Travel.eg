@@ -1,0 +1,42 @@
+---
+description: Magr state management — ObsValue, Controller, BaseBloc, Requester. No setState for business data.
+globs: lib/features/**/*.dart,lib/core/bloc/**/*.dart,lib/core/requester/**/*.dart
+alwaysApply: false
+---
+
+# State management
+
+Pick one tool per job. Do not introduce Riverpod, Provider, or GetX controllers.
+
+| Job | Tool | Rebuild |
+|---|---|---|
+| Page-local value (tab, counter, form flag) | `ObsValue<T>` on the page `Controller` | `ObsValueConsumer` |
+| Async fetch (API / fake repo) | `Requester<T>` in `domain/requesters/` | `RequesterConsumer` |
+| Shared session / device | `Cubit` via `BlocProvider` (`DeviceCubit`, `AuthCubit`) | `BlocBuilder` |
+| Generic load/success/fail | `BaseBloc<T>` | `BaseBlocBuilder` |
+
+```dart
+// Controller
+final ObsValue<int> tabObs = ObsValue.withInit(0);
+void onTab(int i) => tabObs.setValue(i);
+
+// UI
+ObsValueConsumer(
+  observable: controller.tabObs,
+  builder: (context, index) => AppSegmented(items: const ['إيجار', 'شراء'], index: index, onChanged: controller.onTab),
+)
+```
+
+```dart
+// Requester
+class HomeRequester extends Requester<List<Listing>> {
+  @override
+  Future<void> request({bool fromRemote = true}) async {
+    loadingState();
+    final result = await getIt<HomeRepository>().getFeed();
+    result.when(isSuccess: successState, isError: (e) => failedState(e, request));
+  }
+}
+```
+
+Do not call `setState` for business data. Do not put UI widgets inside the controller. Do not keep `BuildContext` as a field.

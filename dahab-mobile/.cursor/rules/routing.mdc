@@ -1,0 +1,38 @@
+---
+description: AutoRoute page registration, navigation, and Magr route files.
+globs: lib/**/routes*.dart,lib/core/routes/**/*.dart,lib/features/**/pages/**/*.dart
+alwaysApply: false
+---
+
+# Routes (AutoRoute)
+
+Use AutoRoute only. Do not add `go_router` or `Navigator.push(MaterialPageRoute(...))`.
+
+## Add a screen
+
+1. Annotate the page widget: `@RoutePage()`
+2. Page file is `part of '<page>_imports.dart'`
+3. Register in `lib/core/routes/router.dart` or the feature `presentation/manager/routes/routes.dart` list that `AppRouter` spreads
+4. Run `dart run build_runner build --delete-conflicting-outputs`
+
+```dart
+@AutoRouterConfig()
+class AppRouter extends $AppRouter {
+  @override
+  final List<AutoRoute> routes = [
+    AdaptiveRoute(page: Splash.page, initial: true),
+    AdaptiveRoute(page: Login.page),
+    AutoRoute(page: Home.page),
+    ...baseRoute,
+  ];
+}
+```
+
+```dart
+// Navigate
+AutoRouter.of(context).push(HomeRoute());
+AutoRouter.of(context).replace(LoginRoute());
+AutoRouter.of(context).pop();
+```
+
+Pass typed args through the generated `*Route` constructor — not `ModalRoute.of` extras.

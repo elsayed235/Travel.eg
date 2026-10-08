@@ -1,0 +1,28 @@
+---
+description: Arabic-first RTL layout, numerals, and directional padding.
+alwaysApply: true
+---
+
+# Arabic + RTL
+
+App default locale is `ar_EG`. Layout is RTL. Models keep `int` / `DateTime`; convert digits only in UI.
+
+```dart
+// BAD
+Alignment.centerLeft
+EdgeInsets.only(left: 18, right: 8)
+'25'
+Icons.arrow_back // without considering RTL
+
+// GOOD
+AlignmentDirectional.centerStart
+EdgeInsetsDirectional.only(start: AppSpacing.xl, end: AppSpacing.sm)
+25.toArabicDigits          // ٢٥
+'العدد 12'.toArabicDigits  // العدد ١٢
+```
+
+- Import `package:flutter_tdd/core/utils/arabic_numerals.dart`
+- Prices: `NumberFormat.decimalPattern('ar_EG')` or `AppPrice`
+- Back chevron: AutoRoute / `Navigator.pop` with a direction-aware icon (`matchTextDirection: true`)
+- Test long Arabic strings for overflow before finishing a screen
+- `Directionality` is applied in `MyApp`; do not wrap individual screens unless a sub-tree must be LTR (e.g. a phone field)

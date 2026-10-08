@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_tdd/core/constants/gaps.dart';
+import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
+import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:flutter_tdd/core/utils/arabic_numerals.dart';
+
+class AppRating extends StatelessWidget {
+  final double value;
+  final int count;
+
+  const AppRating({
+    super.key,
+    required this.value,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.star_rounded, size: 14, color: context.colors.amber),
+        Gaps.hGap4,
+        Text(
+          value.toStringAsFixed(1).toArabicDigits,
+          style: AppTextStyle.caption(color: context.colors.text),
+        ),
+        Gaps.hGap4,
+        Text(
+          '(${count.toArabicDigits})',
+          style: AppTextStyle.caption(color: context.colors.text2),
+        ),
+      ],
+    );
+  }
+}

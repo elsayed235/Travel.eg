@@ -1,0 +1,27 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_tdd/core/bloc/value_state_manager/value_state_manager_import.dart';
+import 'package:flutter_tdd/core/constants/gaps.dart';
+import 'package:flutter_tdd/core/localization/translate.dart';
+import 'package:flutter_tdd/core/requester/consumer/requester_consumer.dart';
+import 'package:flutter_tdd/core/theme/app_radius.dart';
+import 'package:flutter_tdd/core/theme/app_spacing.dart';
+import 'package:flutter_tdd/core/theme/colors/colors_extension.dart';
+import 'package:flutter_tdd/core/theme/text/app_text_style.dart';
+import 'package:flutter_tdd/core/utils/arabic_numerals.dart';
+import 'package:flutter_tdd/core/widgets/app_button.dart';
+import 'package:flutter_tdd/core/widgets/app_category_item.dart';
+import 'package:flutter_tdd/core/widgets/app_category_chips.dart';
+import 'package:flutter_tdd/core/widgets/app_request_card.dart';
+import 'package:flutter_tdd/core/widgets/app_search_field.dart';
+import 'package:flutter_tdd/core/widgets/shimmers/app_screen_shimmer.dart';
+import 'package:flutter_tdd/features/ai/domain/models/ai_domain_models.dart';
+import 'package:flutter_tdd/features/search/domain/models/explore_domain_model.dart';
+import 'package:flutter_tdd/features/search/presentation/pages/explore/explore_imports.dart';
+
+part 'build_explore_body.dart';
+part 'build_explore_header.dart';
+part 'build_explore_search.dart';
+part 'build_explore_categories.dart';
+part 'build_explore_toolbar.dart';
+part 'build_explore_empty.dart';
+part 'build_explore_smart_search.dart';

@@ -1,0 +1,69 @@
+---
+description: Design tokens, colors, radius, spacing, typography, and Gaps. No hardcoded styles outside core/theme.
+alwaysApply: true
+---
+
+# Design tokens
+
+Source of truth: `FLUTTER_SPEC.md` + `lib/core/theme/`. Hex, radius, and type sizes live only there.
+
+## Colors
+
+```dart
+context.colors.bg
+context.colors.surface1 // cards
+context.colors.surface2 // inputs
+context.colors.surface3
+context.colors.line / line2
+context.colors.text / text2 / text3
+context.colors.button / onButton
+context.colors.green / greenBg / amber / amberBg / red
+```
+
+Magr aliases still work (`primary` → `button`, `black` → `text`, `white` → `surface1`). Prefer the spec names in new code.
+
+```dart
+// BAD
+Color(0xFF101214)
+Colors.grey
+BorderRadius.circular(12)
+
+// GOOD
+context.colors.text
+AppRadius.buttonAll
+```
+
+## Radius (never above 14)
+
+`AppRadius.image` 6 · `chip` 6 · `button` 8 · `card` 10 · `sheet` 14
+
+## Spacing + Gaps
+
+`AppSpacing.xs` 4 · `sm` 6 · `md` 9 · `lg` 13 · `xl` 18 (screen pad) · `xxl` 24
+
+```dart
+// BAD
+SizedBox(height: 18)
+EdgeInsets.all(16)
+EdgeInsets.only(left: 18)
+
+// GOOD
+Gaps.vGap18
+padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.xl)
+```
+
+Use `Gaps.hGap*` / `Gaps.vGap*` between widgets. Use `AppSpacing` inside `EdgeInsetsDirectional`. Never `left` / `right`.
+
+## Text
+
+New UI uses named tokens + a color from `context.colors`:
+
+`AppTextStyle.screenTitle` · `sectionTitle` · `itemTitle` · `price` · `priceUnit` · `body` · `caption` · `micro`
+
+Magr `AppTextStyle.s14_w500(color: ...)` is allowed for existing screens. Never raw `TextStyle(fontSize: ...)`.
+
+Font is IBM Plex Sans Arabic via `AppTheme.fontFamily`. Do not set a different `fontFamily` in widgets.
+
+## Material look
+
+No ripple (`NoSplash`), no elevation/shadows, no `ListTile`, no `surfaceTint`. Hairline borders (`context.colors.line`) instead of shadows.
