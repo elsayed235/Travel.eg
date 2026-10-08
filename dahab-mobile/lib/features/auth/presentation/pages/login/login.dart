@@ -39,7 +39,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return BuildAuthScaffold(
-      showBack: false,
+      backLabel: Translate.s.auth_back_home,
+      onBack: () => controller.continueAsGuest(context),
       child: FadeTransition(
         opacity: _fade,
         child: SlideTransition(
@@ -61,8 +62,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               const BuildForgetPasswordView(),
               Gaps.vGap13,
               BuildLoginButton(controller: controller),
-              Gaps.vGap18,
-              BuildAuthDivider(label: Translate.s.auth_or),
               Gaps.vGap18,
               BuildLoginFooter(controller: controller),
               Gaps.vGap24,

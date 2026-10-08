@@ -8,14 +8,18 @@ class BuildAccountGuestBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.xl,
-        vertical: AppSpacing.lg,
+      padding: EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg + MediaQuery.paddingOf(context).bottom,
       ),
       children: [
+        RehlaMark(size: 36, color: context.colors.button, sunColor: context.colors.highlight),
+        Gaps.vGap13,
         Text(
           Translate.s.auth_guest_account_title,
-          style: AppTextStyle.screenTitle(color: context.colors.text),
+          style: AppTextStyle.screenTitle(color: context.colors.text).copyWith(fontFamily: AppFonts.display(context)),
         ),
         Gaps.vGap9,
         Text(
@@ -38,19 +42,12 @@ class BuildAccountGuestBody extends StatelessWidget {
         Gaps.vGap24,
         BuildAccountSection(
           title: Translate.s.account_section_preferences,
-          children: [
-            BuildAccountTile(
-              icon: Icons.language,
-              title: Translate.s.label_app_language,
-              subtitle: controller.languageLabel(
-                context.read<DeviceCubit>().state.model.locale,
-              ),
-              onTap: () => controller.openLanguageSheet(context),
-            ),
-            BuildAccountDarkModeRow(
-              isDark: DeviceSettings.isDark(
-                context,
-                context.read<DeviceCubit>().state.model.themeMode,
+          children: const [
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: BuildPreferenceSwitches(),
               ),
             ),
           ],

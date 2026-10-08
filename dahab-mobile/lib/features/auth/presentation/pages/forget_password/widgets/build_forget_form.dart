@@ -10,15 +10,15 @@ class BuildForgetForm extends StatelessWidget {
     return Form(
       key: controller.formKey,
       child: BuildAuthTextField(
-        label: Translate.s.label_phone,
-        icon: Icons.phone_iphone_rounded,
-        hint: Translate.s.auth_hint_phone,
-        controller: controller.phoneController,
+        label: Translate.s.label_email,
+        icon: Icons.mail_outline_rounded,
+        hint: Translate.s.auth_hint_email,
+        controller: controller.emailController,
         fieldTypes: FieldTypes.normal,
-        type: TextInputType.phone,
+        type: TextInputType.emailAddress,
         action: TextInputAction.done,
         textDirection: TextDirection.ltr,
-        validate: (value) => value?.validatePhone(),
+        validate: (value) => value?.validateEmail(),
         onSubmit: () => controller.onSubmit(context),
       ),
     );

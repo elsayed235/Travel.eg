@@ -25,13 +25,14 @@ class BuildAccountHeader extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: context.colors.surface3,
+              color: context.colors.actionWash,
               borderRadius: AppRadius.buttonAll,
+              border: Border.all(color: context.colors.line),
             ),
             alignment: Alignment.center,
             child: Text(
               profile.initials,
-              style: AppTextStyle.sectionTitle(color: context.colors.text),
+              style: AppTextStyle.s18_w600(color: context.colors.button).copyWith(fontFamily: AppFonts.display(context)),
             ),
           ),
           Gaps.hGap13,
@@ -44,7 +45,7 @@ class BuildAccountHeader extends StatelessWidget {
                     Flexible(
                       child: Text(
                         profile.fullName,
-                        style: AppTextStyle.sectionTitle(color: context.colors.text),
+                        style: AppTextStyle.s18_w600(color: context.colors.text).copyWith(fontFamily: AppFonts.display(context)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

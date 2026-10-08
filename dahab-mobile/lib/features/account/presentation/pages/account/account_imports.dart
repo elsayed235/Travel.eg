@@ -14,7 +14,6 @@ import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/utils/arabic_numerals.dart';
 import 'package:rehla/features/account/domain/models/account_domain_model.dart';
 import 'package:rehla/features/account/domain/requesters/account_requester.dart';
-import 'package:rehla/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 
 import 'widgets/account_widgets_imports.dart';
 

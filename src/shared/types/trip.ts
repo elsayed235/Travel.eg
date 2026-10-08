@@ -143,5 +143,8 @@ export interface TimelineDay {
  * the item rather than silently dropping it.
  */
 export interface TripItemWithSupplier extends TripItemEntity {
+  /** The booked SKU's Arabic title, when the catalogue has one. */
+  titleAr?: string;
+  durationMinutes?: number;
   supplier: import('./commerce').BookingSupplierSummary | null;
 }

@@ -33,6 +33,8 @@ export interface SeasonRow {
 
 export interface Experience {
   id: string;
+  /** The catalogue activity this outing is, which is what its card opens and books. */
+  activityId?: string;
   name: Bilingual;
   duration: Bilingual;
   priceEgp: string;
@@ -280,6 +282,7 @@ export const SEASONAL_MATRIX: SeasonRow[] = [
 export const MICRO_EXPERIENCES: Experience[] = [
   {
     id: 'act-try-dive',
+    activityId: 'ACT-INTRO-DISCOVER-DIVE',
     name: { en: 'Guided Try Scuba Dive', ar: 'تجربة غطس للمبتدئين' },
     duration: { en: '1.5–2 hr', ar: '1.5–2 ساعة' },
     priceEgp: '1,200–1,600',
@@ -289,6 +292,7 @@ export const MICRO_EXPERIENCES: Experience[] = [
   },
   {
     id: 'act-eel-snorkel',
+    activityId: 'act_eel_garden_sunset_snorkel',
     name: { en: 'Sunset Eel Garden Snorkel', ar: 'سنوركلينج حديقة ثعابين البحر' },
     duration: { en: '1–1.5 hr', ar: '1–1.5 ساعة' },
     priceEgp: '250–450',
@@ -298,6 +302,7 @@ export const MICRO_EXPERIENCES: Experience[] = [
   },
   {
     id: 'act-laguna-kitesurf',
+    activityId: 'ACT-LAGUNA-KITESURF',
     name: { en: 'Intro Kitesurf Lesson', ar: 'درس كايت سيرف تمهيدي' },
     duration: { en: '2 hr', ar: 'ساعتان' },
     priceEgp: '1,800–2,800',
@@ -316,6 +321,7 @@ export const MICRO_EXPERIENCES: Experience[] = [
   },
   {
     id: 'act-canyon-dive',
+    activityId: 'act_the_canyon_scuba_adventure',
     name: { en: 'Guided Dive at The Canyon', ar: 'غطسة الكانيون الاستكشافية' },
     duration: { en: '2.5 hr', ar: '2.5 ساعة' },
     priceEgp: '1,400–1,800',
@@ -325,6 +331,7 @@ export const MICRO_EXPERIENCES: Experience[] = [
   },
   {
     id: 'act-twilat-sunset',
+    activityId: 'act_mount_twilat_bedouin_stargazing',
     name: { en: 'Mount Twilat Sunset & Stargazing', ar: 'غروب وشاي بدوي في جبل الطويلات' },
     duration: { en: '2.5–3 hr', ar: '2.5–3 ساعات' },
     priceEgp: '350–650',

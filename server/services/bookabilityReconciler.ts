@@ -1,4 +1,6 @@
 import { db } from '../db/database';
+import { EXPERIENCE_SKU_BY_ACTIVITY } from '../db/seeds/experienceProducts';
+import { pricingBasisOf, type PricingBasis } from './commerceService';
 
 /**
  * Makes `skuId` on a catalogue activity mean what it says: a row that exists in
@@ -29,15 +31,16 @@ import { db } from '../db/database';
  * gear delivery once created a real dispatch to a dive centre that does not
  * sell it.
  *
- * Rejected on those grounds, and left unbookable instead:
+ * Rejected on those grounds:
  * - act_ras_abu_galum_boat_safari → SKU-SAF-002 is Wadi Qnai by quad bike, not
  *   Ras Abu Galum by boat. Different place, different vehicle.
  * - the stargazing and St. Catherine pairing → SKU-SAF-001 is a Mount Moses
  *   sunrise trek, a different expedition on a different mountain.
- * - Eel Garden / Three Pools snorkelling, Lagoon surfing, Wadi Gnai climbing —
- *   no commerce inventory exists for any of them at all.
+ * Those activities are sold by their own products instead, defined with them
+ * in seeds/experienceProducts.ts.
  */
 const RESOLVED_SKU_BY_ACTIVITY: Readonly<Record<string, string>> = {
+  ...EXPERIENCE_SKU_BY_ACTIVITY,
   // Blue Hole & Bells: both 240 minutes, both reached by 4x4, both a guided
   // two-dive day with a Bedouin lunch.
   act_blue_hole_safari_dive: 'SKU-DIV-002',
@@ -92,6 +95,8 @@ export function reconcileActivityBookability(): BookabilityReconciliationResult 
     const mapped = RESOLVED_SKU_BY_ACTIVITY[activity.id];
     if (mapped && sellable.has(mapped)) {
       activity.skuId = mapped;
+      // An earlier boot may have downgraded it before its product existed.
+      activity.bookingMode = 'BOOK_NOW';
       result.bookable += 1;
       continue;
     }
@@ -133,12 +138,26 @@ export interface ResolvedBookability {
   supplierId: string;
   maxCapacityPerSlot: number;
   cancellationPolicyHours?: number;
+  pricingBasis: PricingBasis;
+  durationMinutes?: number;
+  description?: string;
+  descriptionAr?: string;
+  includedItems?: string[];
+  includedItemsAr?: string[];
+  /** The departures run each day, when the product declares them. */
+  timeSlots?: string[];
+  /** Where the supplier meets the traveler. */
+  meetingPoint?: string;
+  meetingPointAr?: string;
+  supplierName?: string;
+  supplierNameAr?: string;
 }
 
 export function resolveBookability(skuId?: string): ResolvedBookability | null {
   if (!skuId) return null;
   const sku = db.productSkus.find(s => s.id === skuId && s.active);
   if (!sku) return null;
+  const supplier = db.suppliers.find(s => s.id === sku.supplierId);
 
   return {
     skuId: sku.id,
@@ -147,6 +166,17 @@ export function resolveBookability(skuId?: string): ResolvedBookability | null {
     currency: sku.currency,
     supplierId: sku.supplierId,
     maxCapacityPerSlot: sku.maxCapacityPerSlot,
-    cancellationPolicyHours: sku.cancellationPolicyHours
+    cancellationPolicyHours: sku.cancellationPolicyHours,
+    pricingBasis: pricingBasisOf(sku),
+    durationMinutes: sku.durationMinutes,
+    description: sku.description,
+    descriptionAr: sku.descriptionAr,
+    includedItems: sku.includedItems,
+    includedItemsAr: sku.includedItemsAr,
+    timeSlots: sku.timeSlots,
+    meetingPoint: sku.routeFrom,
+    meetingPointAr: sku.routeFromAr,
+    supplierName: supplier?.businessName,
+    supplierNameAr: supplier?.businessNameAr
   };
 }

@@ -120,7 +120,15 @@ import { catalogBindings } from './server/services/catalogContentService';
 import { dahabKnowledgeOs } from './server/services/dahabKnowledgeOs';
 import { rentalService } from './server/services/rentalService';
 import { reconcileActivityBookability, resolveBookability } from './server/services/bookabilityReconciler';
-import { reconcileTripStatus, reconcileTripsForUser } from './server/services/tripStatusReconciler';
+import { reconcileTripStatus, reconcileTripsForUser, dahabToday } from './server/services/tripStatusReconciler';
+import {
+  isBookingLive,
+  planTripDetailsUpdate,
+  TRIP_BUDGETS,
+  TRIP_DETAIL_FIELDS,
+  TRIP_PACES,
+  type PolicyBooking
+} from './src/shared/tripDetailsPolicy';
 import { marketFreshnessService } from './server/services/marketFreshnessService';
 import { autonomousDataOpsService } from './server/services/autonomousDataOpsService';
 import { enrichTripWithAvailability, resolveSkuPrice } from './server/services/availabilityJoinService';
@@ -1590,6 +1598,12 @@ app.post('/api/trips', (req: AuthenticatedRequest, res) => {
     if (requestedUserId && requestedUserId !== actor.userId && !canActForOthers) {
       return res.status(403).json({ error: 'You may only modify your own trips.' });
     }
+    // An existing id is an update: it must be a trip the caller may act on,
+    // or naming someone else's trip id would re-own it to the caller.
+    const existing = db.trips.find(t => t.id === req.body?.id);
+    if (existing && !mayActOnTripsOf(actor, existing.userId)) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
 
     const trip = tripService.createOrUpdateTrip({
       ...req.body,
@@ -1645,6 +1659,80 @@ app.patch('/api/trips/:tripId/status', (req: AuthenticatedRequest, res) => {
     to: status
   });
   res.json({ trip: updatedTrip });
+});
+
+/**
+ * PATCH /api/trips/:tripId
+ * The traveler's own edits to their trip: name, dates, length, party size,
+ * pace and budget. The rules live in src/shared/tripDetailsPolicy.ts so the
+ * edit sheet shows the same limits; a refused change answers 409/422 with a
+ * `code` and `details` the client renders in the traveler's language.
+ */
+app.patch('/api/trips/:tripId', (req: AuthenticatedRequest, res) => {
+  try {
+    const { tripId } = req.params;
+    const body = requiredObject(req.body, 'body');
+    const unknown = Object.keys(body).filter(k => !(TRIP_DETAIL_FIELDS as readonly string[]).includes(k));
+    if (unknown.length > 0) {
+      return res.status(400).json({ error: `Field "${unknown[0]}" cannot be changed here.` });
+    }
+    const patch = {
+      title: optionalString(body.title, 'title', 200),
+      travelersCount: optionalCount(body.travelersCount, 'travelersCount', 1, 100),
+      startDate: body.startDate === undefined ? undefined : requiredCalendarDate(body.startDate, 'startDate'),
+      lengthDays: optionalCount(body.lengthDays, 'lengthDays', 1, 365),
+      pace: optionalEnum(body.pace, TRIP_PACES, 'pace'),
+      budget: optionalEnum(body.budget, TRIP_BUDGETS, 'budget')
+    };
+
+    const { trip, items } = tripService.getTrip(tripId);
+    if (!trip || !mayActOnTripsOf(req.user!, trip.userId)) {
+      return res.status(404).json({ error: 'Trip not found' });
+    }
+
+    const bookings: PolicyBooking[] = db.bookings
+      .filter(b => b.tripId === tripId)
+      .map(b => ({
+        id: b.id,
+        bookingRef: b.bookingRef,
+        tripItemId: b.tripItemId,
+        passengersCount: b.passengersCount,
+        scheduledDate: b.scheduledDate,
+        active: isBookingLive(b.supplierState, b.paymentState)
+      }));
+
+    const plan = planTripDetailsUpdate(trip, items, bookings, patch, dahabToday());
+    if (!plan.ok) {
+      const status = plan.code === 'TRIP_CLOSED' || plan.code === 'DATES_LOCKED' ? 409 : 422;
+      return res.status(status).json({ error: plan.message, code: plan.code, details: { field: plan.field, ...plan.params } });
+    }
+
+    const fields = Object.keys(plan.changes);
+    if (fields.length > 0 || plan.itemDays.length > 0) {
+      const before = Object.fromEntries(fields.map(f => [f, (trip as unknown as Record<string, unknown>)[f]]));
+      const now = new Date().toISOString();
+      db.runInTransaction(() => {
+        Object.assign(trip, plan.changes, { updatedAt: now });
+        for (const move of plan.itemDays) {
+          const item = db.tripItems.find(i => i.id === move.id && i.tripId === tripId);
+          if (item) {
+            item.dayNumber = move.dayNumber;
+            item.updatedAt = now;
+          }
+        }
+        db.logAudit(req.user!.userId, req.user!.role || 'Traveler', 'TRIP_DETAILS_CHANGED', 'Trip', tripId, {
+          fields,
+          before,
+          after: plan.changes,
+          itemDays: plan.itemDays
+        });
+      });
+      db.saveToDisk();
+    }
+    res.json({ trip });
+  } catch (err: any) {
+    res.status(err.status || 400).json({ error: err.message });
+  }
 });
 
 /**
@@ -1732,6 +1820,8 @@ app.get('/api/trips/:tripId/bookings', (req: AuthenticatedRequest, res) => {
       const supplier = sku ? db.suppliers.find(s => s.id === sku.supplierId) : undefined;
       return {
         ...item,
+        titleAr: sku?.titleAr || undefined,
+        durationMinutes: sku?.durationMinutes,
         supplier: supplier
           ? {
               id: supplier.id,
@@ -4438,7 +4528,14 @@ app.get('/api/research/dahab-overview', (_req, res) => {
    * independent audits, "250+ interviews", invented UV/visibility). See
    * `server/data/researchHomepage.ts` for the honesty rules.
    */
-  res.json(RESEARCH_OVERVIEW);
+  // Each outing carries the price of the product its card books, so the card
+  // quotes what checkout will charge rather than a market range.
+  const experiences = RESEARCH_OVERVIEW.experiences.map(experience => {
+    const activity = experience.activityId ? db.activities.find(a => a.id === experience.activityId) : undefined;
+    const bookable = resolveBookability(activity?.skuId);
+    return { ...experience, fromPriceEGP: bookable?.basePriceEGP ?? null };
+  });
+  res.json({ ...RESEARCH_OVERVIEW, experiences });
 });
 
 // ---------------------------------------------------------------------------

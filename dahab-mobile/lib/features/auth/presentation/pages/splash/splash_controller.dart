@@ -1,8 +1,8 @@
 part of 'splash_imports.dart';
 
 class SplashController {
-  /// Premium pacing: long enough to land trust, short enough to feel sharp.
-  static const Duration sequenceDuration = Duration(milliseconds: 3800);
+  /// Once per process, same idea as the website's sessionStorage flag.
+  static var seen = false;
 
   bool _hasSession = false;
 
@@ -12,6 +12,7 @@ class SplashController {
   }
 
   Future<void> goNext(BuildContext context) async {
+    seen = true;
     if (!context.mounted) return;
     if (_hasSession || AuthSession.isAuthorized(context)) {
       await AutoRouter.of(context).replace(const HomeRoute());

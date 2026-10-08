@@ -1,8 +1,12 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
 import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/extensions/common_extension.dart';
+import 'package:rehla/core/helpers/rehla_dates.dart';
+import 'package:rehla/core/helpers/wind_label.dart';
 import 'package:rehla/core/localization/translate.dart';
 import 'package:rehla/core/requester/consumer/requester_consumer.dart';
 import 'package:rehla/core/theme/app_radius.dart';
@@ -11,12 +15,21 @@ import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/destination/rehla_destination.dart';
 import 'package:rehla/core/theme/text/app_fonts.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/constants/app_config.dart';
+import 'package:rehla/core/helpers/app_money.dart';
 import 'package:rehla/core/widgets/app_entrance.dart';
+import 'package:rehla/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
+import 'package:rehla/features/auth/presentation/manager/user_cubit/user_cubit.dart';
 import 'package:rehla/features/discover/domain/content/discover_content.dart';
 import 'package:rehla/features/discover/domain/models/conditions_domain_model.dart';
 import 'package:rehla/features/discover/domain/models/discover_door.dart';
-import 'package:rehla/features/discover/domain/models/editorial_pick.dart';
 import 'package:rehla/features/discover/domain/requesters/conditions_requester.dart';
+import 'package:rehla/features/experiences/domain/experience_catalogue.dart';
+import 'package:rehla/features/experiences/domain/models/experience.dart';
+import 'package:rehla/features/experiences/presentation/experiences_imports.dart';
+import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
+import 'package:rehla/features/plan/domain/requesters/programmes_requester.dart';
+import 'package:rehla/features/trip/domain/trip_store.dart';
 
 import '../discover_imports.dart';
 
@@ -25,5 +38,5 @@ part 'build_discover_hero.dart';
 part 'build_destination_switcher.dart';
 part 'build_conditions_strip.dart';
 part 'build_discover_doors.dart';
-part 'build_discover_picks.dart';
-part 'build_plan_prompt.dart';
+part 'build_discover_plans.dart';
+part 'build_today_rail.dart';

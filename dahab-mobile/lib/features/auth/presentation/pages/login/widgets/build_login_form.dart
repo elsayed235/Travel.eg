@@ -12,15 +12,15 @@ class BuildLoginForm extends StatelessWidget {
       child: Column(
         children: [
           BuildAuthTextField(
-            label: Translate.s.label_phone,
-            icon: Icons.phone_iphone_rounded,
-            hint: Translate.s.auth_hint_phone,
-            controller: controller.phoneController,
+            label: Translate.s.auth_identifier,
+            icon: Icons.alternate_email_rounded,
+            hint: Translate.s.auth_hint_identifier,
+            controller: controller.emailController,
             fieldTypes: FieldTypes.normal,
-            type: TextInputType.phone,
+            type: TextInputType.text,
             action: TextInputAction.next,
             textDirection: TextDirection.ltr,
-            validate: (value) => value?.validatePhone(),
+            validate: (value) => value?.validateEmailOrPhone(),
           ),
           Gaps.vGap16,
           BuildAuthTextField(
@@ -31,7 +31,7 @@ class BuildLoginForm extends StatelessWidget {
             fieldTypes: FieldTypes.password,
             type: TextInputType.visiblePassword,
             action: TextInputAction.done,
-            validate: (value) => value?.validatePassword(),
+            validate: (value) => value?.validateEmpty(),
             onSubmit: () => controller.onSubmit(context),
           ),
         ],

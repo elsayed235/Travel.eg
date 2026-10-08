@@ -1,20 +1,26 @@
 part of 'discover_widgets_imports.dart';
 
-/// The place, full-bleed. Switching destination dissolves the old photograph
-/// into the new one (fade + de-blur + settle from a slight zoom) at the new
-/// place's tempo, while a slow drift keeps the image alive.
+/// The place, full-bleed, with a greeting that knows the trip and one line
+/// to ask DayGi by typing or talking. Switching destination dissolves the
+/// old photograph into the new one at the new place's tempo, while a slow
+/// drift keeps the image alive.
 class BuildDiscoverHero extends StatelessWidget {
   final RehlaDestination destination;
   final ValueChanged<RehlaDestination> onSelect;
-  final VoidCallback onPlan;
+  final void Function(bool voice) onAsk;
 
-  const BuildDiscoverHero({super.key, required this.destination, required this.onSelect, required this.onPlan});
+  const BuildDiscoverHero({
+    super.key,
+    required this.destination,
+    required this.onSelect,
+    required this.onAsk,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final arabic = context.isArabic;
-    final height = (MediaQuery.sizeOf(context).height * 0.64).clamp(460.0, 680.0);
+    final height = (MediaQuery.sizeOf(context).height * 0.64).clamp(480.0, 640.0);
     final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return SizedBox(
@@ -33,7 +39,6 @@ class BuildDiscoverHero extends StatelessWidget {
               transitionBuilder: (child, animation) => _HeroReveal(animation: animation, child: child),
               child: _DriftingImage(key: ValueKey(destination), path: destination.heroImagePath),
             ),
-            // Legibility: a scrim under the copy, a lighter one under the switcher.
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -43,8 +48,8 @@ class BuildDiscoverHero extends StatelessWidget {
                   colors: [
                     colors.scrim.withValues(alpha: 0.42),
                     colors.scrim.withValues(alpha: 0),
-                    colors.scrim.withValues(alpha: 0.08),
-                    colors.scrim.withValues(alpha: 0.78),
+                    colors.scrim.withValues(alpha: 0.1),
+                    colors.scrim.withValues(alpha: 0.82),
                   ],
                 ),
               ),
@@ -69,61 +74,79 @@ class BuildDiscoverHero extends StatelessWidget {
             PositionedDirectional(
               start: AppSpacing.screenH,
               end: AppSpacing.screenH,
-              bottom: AppSpacing.xxl + AppSpacing.lg,
-              child: AnimatedSwitcher(
-                duration: reduce ? Duration.zero : destination.tempo,
-                switchInCurve: Curves.easeOutCubic,
-                layoutBuilder: (current, previous) =>
-                    Stack(alignment: AlignmentDirectional.bottomStart, children: [...previous, ?current]),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween(begin: const Offset(0, 0.08), end: Offset.zero).animate(animation),
-                    child: child,
+              bottom: AppSpacing.xxl + AppSpacing.md,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const _Greeting(),
+                  Gaps.vGap10,
+                  AnimatedSwitcher(
+                    duration: reduce ? Duration.zero : destination.tempo,
+                    switchInCurve: Curves.easeOutCubic,
+                    layoutBuilder: (current, previous) =>
+                        Stack(alignment: AlignmentDirectional.bottomStart, children: [...previous, ?current]),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween(begin: const Offset(0, 0.08), end: Offset.zero).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: Column(
+                      key: ValueKey(destination),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppEntrance(
+                          delay: const Duration(milliseconds: 120),
+                          duration: destination.tempo,
+                          offsetY: 22,
+                          child: Text(
+                            destination.titleA(arabic),
+                            style: AppTextStyle.h1(color: colors.onImage).copyWith(
+                              fontFamily: AppFonts.display(context),
+                              fontSize: 36,
+                              height: 1.05,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        AppEntrance(
+                          delay: const Duration(milliseconds: 220),
+                          duration: destination.tempo,
+                          offsetY: 22,
+                          child: Text(
+                            destination.titleB(arabic),
+                            style: AppTextStyle.h1(color: colors.highlight).copyWith(
+                              fontFamily: AppFonts.display(context),
+                              fontSize: 36,
+                              height: 1.05,
+                              fontWeight: FontWeight.w600,
+                              fontStyle: arabic ? FontStyle.normal : FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                        if (!destination.liveCatalogue) ...[
+                          Gaps.vGap8,
+                          Text(
+                            Translate.s.discover_early_note(destination.label(arabic)),
+                            style: AppTextStyle.caption(color: colors.onImage.withValues(alpha: 0.8)),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
-                child: Column(
-                  key: ValueKey(destination),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      destination.label(arabic),
-                      style: AppTextStyle.h1(
-                        color: colors.onImage,
-                      ).copyWith(fontFamily: AppFonts.display(context), fontSize: 46, height: 1.05),
-                    ),
-                    Gaps.vGap8,
-                    Text(
-                      destination.tagline(arabic),
-                      style: AppTextStyle.s16_w400(color: colors.onImage.withValues(alpha: 0.92)),
-                    ),
-                    if (!destination.liveCatalogue) ...[
-                      Gaps.vGap8,
-                      Text(
-                        Translate.s.discover_early_note(destination.label(arabic)),
-                        style: AppTextStyle.caption(color: colors.onImage.withValues(alpha: 0.8)),
-                      ),
-                    ],
-                    Gaps.vGap18,
-                    FilledButton.icon(
-                      onPressed: onPlan,
-                      icon: const Icon(Icons.route_outlined, size: 20),
-                      label: Text(Translate.s.discover_hero_cta),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.button,
-                        foregroundColor: colors.onButton,
-                        minimumSize: const Size(0, 50),
-                        padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.xxl),
-                        shape: const RoundedRectangleBorder(borderRadius: AppRadius.chipAll),
-                        textStyle: AppTextStyle.s16_w500(color: colors.onButton),
-                      ),
-                    ),
-                  ],
-                ),
+                  Gaps.vGap18,
+                  AppEntrance(
+                    delay: const Duration(milliseconds: 320),
+                    duration: destination.tempo,
+                    offsetY: 16,
+                    child: _AskLine(onAsk: onAsk),
+                  ),
+                ],
               ),
             ),
-            // Melt into the page so the hero has no hard bottom edge.
             PositionedDirectional(
               start: 0,
               end: 0,
@@ -140,6 +163,101 @@ class BuildDiscoverHero extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Good morning, Karim · 3 days to your trip": the name from the session,
+/// the countdown from the booked trip. Nothing is shown that is not known.
+class _Greeting extends StatelessWidget {
+  const _Greeting();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final authorized = context.select<AuthCubit, bool>((c) => c.state.authorized);
+    final name = context.select<UserCubit, String>((c) => c.state.model?.firstName.trim() ?? '');
+    final hour = DateTime.now().hour;
+    final hello = hour < 12
+        ? Translate.s.home_hello_morning
+        : hour < 17
+            ? Translate.s.home_hello_afternoon
+            : Translate.s.home_hello_evening;
+    final greeting = authorized && name.isNotEmpty ? Translate.s.home_hello_name(hello, name) : hello;
+    return ObsValueConsumer(
+      observable: TripStore.instance.bundleObs,
+      builder: (context, bundle) {
+        final now = DateTime.now();
+        final toGo = authorized ? TripStore.instance.daysToGo(now) : null;
+        final day = authorized ? TripStore.instance.dayToday(now) : null;
+        final tail = day != null
+            ? Translate.s.home_trip_day(day)
+            : toGo != null
+                ? Translate.s.home_days_to_trip(toGo)
+                : null;
+        return Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: greeting, style: AppTextStyle.s14_w600(color: colors.onImage)),
+              if (tail != null)
+                TextSpan(text: '  ·  $tail', style: AppTextStyle.s14_w500(color: colors.onImage.withValues(alpha: 0.85))),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// One line to DayGi. Tapping it opens DayGi; the mic opens it listening.
+class _AskLine extends StatelessWidget {
+  final void Function(bool voice) onAsk;
+
+  const _AskLine({required this.onAsk});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: () => onAsk(false),
+        child: Container(
+          height: 54,
+          padding: const EdgeInsetsDirectional.only(start: AppSpacing.lg, end: AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: colors.bg.withValues(alpha: 0.94),
+            borderRadius: AppRadius.chipAll,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome, size: 18, color: colors.button),
+              Gaps.hGap10,
+              Expanded(
+                child: Text(
+                  Translate.s.home_ask_hint,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.s14_w400(color: colors.text3),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: Translate.s.dg_voice,
+                child: GestureDetector(
+                  onTap: () => onAsk(true),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(color: colors.button, shape: BoxShape.circle),
+                    child: Icon(Icons.mic_none_rounded, size: 20, color: colors.onButton),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

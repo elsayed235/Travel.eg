@@ -1,4 +1,5 @@
 import { IN_DESTINATION_SKUS, IN_DESTINATION_SUPPLIERS } from './seeds/inDestinationServices';
+import { EXISTING_SKU_TIME_SLOTS, EXPERIENCE_SKUS, EXPERIENCE_SUPPLIERS, meetingPointArOf } from './seeds/experienceProducts';
 import crypto from 'crypto';
 import { db } from './database';
 import { SupplierEntity } from './schema';
@@ -334,6 +335,17 @@ export function runMigrationsAndSeed() {
       else db.productSkus.push(sku);
     }
 
+    // 2c. The products behind the catalogue activities (experienceProducts.ts).
+    // Same reconcile-every-boot rule as 2b.
+    for (const sup of EXPERIENCE_SUPPLIERS) {
+      if (!db.suppliers.some(s => s.id === sup.id)) db.suppliers.push(sup);
+    }
+    for (const sku of EXPERIENCE_SKUS) {
+      const idx = db.productSkus.findIndex(s => s.id === sku.id);
+      if (idx >= 0) db.productSkus[idx] = { ...db.productSkus[idx], ...sku };
+      else db.productSkus.push(sku);
+    }
+
     // 3. Seed Transfer SKUs (Reference Vertical) if the canonical transfer SKU
     // is missing. Keyed on identity, not on "collection empty": step 2b above
     // seeds the Book Now catalogue SKUs, so the collection is never empty on a
@@ -498,6 +510,12 @@ export function runMigrationsAndSeed() {
           cancellationPolicyHours: 12
         }
       );
+    }
+
+    for (const [skuId, timeSlots] of Object.entries(EXISTING_SKU_TIME_SLOTS)) {
+      const sku = db.productSkus.find(s => s.id === skuId);
+      if (sku && !sku.timeSlots?.length) sku.timeSlots = [...timeSlots];
+      if (sku && !sku.routeFromAr) sku.routeFromAr = meetingPointArOf(sku.routeFrom);
     }
 
     // 4. Seed Inventory Slots for the next 7 days if empty

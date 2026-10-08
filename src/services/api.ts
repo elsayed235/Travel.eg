@@ -3,6 +3,7 @@ import type { CommerceServiceType, TripBookingRecord, ProductSkuEntity } from '.
 import type { DahabCuratedStory, DahabGalleryPhoto, DahabActivity, DahabAttraction, DahabDiningVenue, DahabPlace, AttractionCategory } from '../shared/types/knowledge';
 import type { SupportMessage } from '../shared/types/user';
 import type { TripEntity, TripItemEntity, TripItemWithSupplier } from '../shared/types/trip';
+import type { TripDetailsPatch } from '../shared/tripDetailsPolicy';
 import type { TransferResolveGeoResponse } from '../shared/types/transfers';
 import type { FitWindowResponse, ParsedSearchIntent, PostActivityFoodResponse, RouteEstimate } from '../shared/types/context';
 import type { GroundedIntelligenceQueryResponse, ProductOpportunity } from '../types/intelligence';
@@ -794,6 +795,20 @@ export const api = {
    * DELETE /api/trips/:tripId — removes a planned trip and its unbooked
    * items. Blocked with 409 while anything on it is BOOKED/CONFIRMED.
    */
+  /**
+   * The traveler's own edits to their trip. A refusal throws an ApiError whose
+   * `code` is a TripDetailsErrorCode and whose `details` carry its values.
+   */
+  async updateTripDetails(tripId: string, patch: TripDetailsPatch): Promise<{ trip: TripEntity }> {
+    const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}`, {
+      method: 'PATCH',
+      headers: defaultHeaders(),
+      body: JSON.stringify(patch)
+    });
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not save the trip details.');
+    return await readJson<{ trip: TripEntity }>(res, 'Could not save the trip details.');
+  },
+
   async deleteTrip(tripId: string): Promise<{ deleted: boolean; itemsRemoved: number }> {
     const res = await fetchWithTimeout(`/api/trips/${encodeURIComponent(tripId)}`, {
       method: 'DELETE',

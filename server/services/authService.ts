@@ -110,8 +110,13 @@ export class AuthService {
     return { user: safeUser, session };
   }
 
+  /**
+   * Email, or a mobile number. The app offers both on one field. A number is
+   * matched on its digits (a leading 0 or 20 does not make it a different
+   * person). The failure sentence stays the same either way.
+   */
   public login(email: string, password: string): { user: Omit<UserEntity, 'passwordHash' | 'passwordSalt'>; session: SessionEntity } {
-    const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    const user = this.findByIdentifier(email);
     if (!user) {
       throw new Error('Invalid email or password credentials.');
     }
@@ -146,6 +151,17 @@ export class AuthService {
 
     const { passwordHash: _, passwordSalt: __, ...safeUser } = user;
     return { user: safeUser, session };
+  }
+
+  private findByIdentifier(raw: string): UserEntity | undefined {
+    const value = raw.trim();
+    if (!value) return undefined;
+    if (value.includes('@')) {
+      return db.users.find(u => u.email.toLowerCase() === value.toLowerCase());
+    }
+    const key = phoneKey(value);
+    if (key.length < 9) return undefined;
+    return db.users.find(u => phoneKey(u.phone || '') === key);
   }
 
   private createSession(userId: string, role: string): SessionEntity {
@@ -313,6 +329,14 @@ export class AuthService {
     });
     return count;
   }
+}
+
+/** Digits only, without a leading 0 or Egypt's 20, so 010… and +20 10… match. */
+function phoneKey(value: string): string {
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('20') && digits.length > 10) digits = digits.slice(2);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits;
 }
 
 export const authService = new AuthService();

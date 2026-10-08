@@ -15,9 +15,11 @@ class ApiNames {
   // Discovery (public)
   static const String conditions = "telemetry/conditions";
   static const String fxRates = "fx/rates";
+  static const String programmes = "dahab/content/programmes";
 
   // Planning and the concierge
   static const String daygiQuery = "daygi/query";
+  static const String supportMessages = "support/messages";
   static const String trips = "trips";
   /// Append the signed-in user id (`trips/user/<id>`); the server checks it.
   static const String tripsOfUser = "trips/user/";

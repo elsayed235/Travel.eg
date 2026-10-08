@@ -562,6 +562,14 @@ export interface ProductSkuEntity {
    * per vehicle (the car is the product, whoever rides in it).
    */
   pricingBasis?: 'per_person' | 'per_stay' | 'per_vehicle';
+  /**
+   * The departures this product runs each day. Absent: the service type's
+   * default times (commerceService.checkAvailability).
+   */
+  timeSlots?: string[];
+  descriptionAr?: string;
+  includedItemsAr?: string[];
+  routeFromAr?: string;
 }
 
 export interface InventorySlotEntity {

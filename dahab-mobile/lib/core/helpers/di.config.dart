@@ -43,6 +43,14 @@ import 'package:rehla/features/discover/data/repositories/impl_discover_reposito
     as _i73;
 import 'package:rehla/features/discover/domain/repositories/discover_repository.dart'
     as _i329;
+import 'package:rehla/features/plan/data/data_sources/impl_plan_remote_data_source.dart'
+    as _i1025;
+import 'package:rehla/features/plan/data/data_sources/plan_remote_data_source.dart'
+    as _i58;
+import 'package:rehla/features/plan/data/repositories/impl_plan_repository.dart'
+    as _i521;
+import 'package:rehla/features/plan/domain/repositories/plan_repository.dart'
+    as _i424;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -84,6 +92,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i130.DiscoverRemoteDataSource>(
       () => _i644.ImplDiscoverRemoteDataSource(),
     );
+    gh.factory<_i58.PlanRemoteDataSource>(
+      () => _i1025.ImplPlanRemoteDataSource(),
+    );
+    gh.factory<_i424.PlanRepository>(() => _i521.ImplPlanRepository());
     return this;
   }
 }

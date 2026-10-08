@@ -1,7 +1,7 @@
 part of 'discover_widgets_imports.dart';
 
-/// "Right now in {place}": only what was measured. No reading, no strip —
-/// never a number nobody measured.
+/// Wind, water and sunset as measured, then where the reading came from and
+/// when. No reading, no panel — never a number nobody measured.
 class BuildConditionsStrip extends StatelessWidget {
   final ConditionsRequester requester;
   final String place;
@@ -18,103 +18,138 @@ class BuildConditionsStrip extends StatelessWidget {
         requester: requester,
         loadingBuilder: (_) => const SizedBox(width: double.infinity),
         failureBuilder: (_, _, _) => const SizedBox(width: double.infinity),
-        successBuilder: (context, c, _) => AppEntrance(
-          child: _Strip(c: c, place: place),
-        ),
+        successBuilder: (context, c, _) => AppEntrance(child: _Panel(c: c, place: place)),
       ),
     );
   }
 }
 
-class _Strip extends StatelessWidget {
+class _Panel extends StatelessWidget {
   final ConditionsDomainModel c;
   final String place;
 
-  const _Strip({required this.c, required this.place});
+  const _Panel({required this.c, required this.place});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final sunset = c.sunsetClock;
     final observed = c.observedClock;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(Translate.s.discover_live(place), style: AppTextStyle.s13_w500(color: colors.text3)),
-        Gaps.vGap8,
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            _Chip(
-              icon: Icons.thermostat_outlined,
-              tint: colors.highlight,
-              label: Translate.s.discover_air,
-              value: '${c.airTemperatureC.round()}°',
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface1,
+        borderRadius: AppRadius.cardAll,
+        border: Border.all(color: colors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                _Reading(
+                  icon: Icons.air_rounded,
+                  tint: colors.button,
+                  label: Translate.s.discover_wind,
+                  value: '${c.windKnots.round()}',
+                  unit: Translate.s.unit_knots,
+                  detail: WindLabel.compass(c.windDirection, arabic: context.isArabic),
+                ),
+                VerticalDivider(width: 1, color: colors.line),
+                _Reading(
+                  icon: Icons.water_drop_outlined,
+                  tint: colors.button,
+                  label: Translate.s.discover_water,
+                  value: c.waterTemperatureC == null ? '—' : '${c.waterTemperatureC!.round()}',
+                  unit: c.waterTemperatureC == null ? '' : '°',
+                  detail: '${Translate.s.discover_air} ${c.airTemperatureC.round()}°',
+                ),
+                VerticalDivider(width: 1, color: colors.line),
+                _Reading(
+                  icon: Icons.wb_twilight_outlined,
+                  tint: colors.highlight,
+                  label: Translate.s.discover_sunset,
+                  value: sunset ?? '—',
+                  unit: '',
+                  detail: place,
+                ),
+              ],
             ),
-            _Chip(
-              icon: Icons.air_rounded,
-              tint: colors.button,
-              label: Translate.s.discover_wind,
-              value: '${c.windKnots.round()} kn ${c.windDirection}',
+          ),
+          if (c.source.isNotEmpty && observed != null) ...[
+            Divider(height: 1, color: colors.line),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              child: Row(
+                children: [
+                  Container(width: 6, height: 6, decoration: BoxDecoration(color: colors.green, shape: BoxShape.circle)),
+                  Gaps.hGap6,
+                  Expanded(
+                    child: Text(Translate.s.home_live_from(c.source, observed), style: AppTextStyle.micro(color: colors.text3)),
+                  ),
+                ],
+              ),
             ),
-            if (c.waterTemperatureC != null)
-              _Chip(
-                icon: Icons.water_drop_outlined,
-                tint: colors.button,
-                label: Translate.s.discover_water,
-                value: '${c.waterTemperatureC!.round()}°',
-              ),
-            if (sunset != null)
-              _Chip(
-                icon: Icons.wb_twilight_outlined,
-                tint: colors.highlight,
-                label: Translate.s.discover_sunset,
-                value: sunset,
-              ),
           ],
-        ),
-        if (c.source.isNotEmpty && observed != null) ...[
-          Gaps.vGap6,
-          Text(Translate.s.discover_source(c.source, observed), style: AppTextStyle.micro(color: colors.text3)),
         ],
-      ],
+      ),
     );
   }
 }
 
-class _Chip extends StatelessWidget {
+class _Reading extends StatelessWidget {
   final IconData icon;
   final Color tint;
   final String label;
   final String value;
+  final String unit;
+  final String detail;
 
-  const _Chip({required this.icon, required this.tint, required this.label, required this.value});
+  const _Reading({
+    required this.icon,
+    required this.tint,
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.detail,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colors.surface1,
-        borderRadius: AppRadius.buttonAll,
-        border: Border.all(color: colors.line),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: tint),
-          Gaps.hGap6,
-          Text(label, style: AppTextStyle.s13_w500(color: colors.text2)),
-          Gaps.hGap6,
-          // Numbers and units stay left-to-right inside Arabic text.
-          Text(
-            value,
-            textDirection: TextDirection.ltr,
-            style: AppTextStyle.s13_w500(color: colors.text).copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 14, color: tint),
+                Gaps.hGap4,
+                Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: AppTextStyle.caption(color: colors.text3))),
+              ],
+            ),
+            Gaps.vGap6,
+            // Numbers and units stay left-to-right inside Arabic text.
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: value,
+                    style: AppTextStyle.s24_w700(color: colors.text).copyWith(fontFamily: AppFonts.display(context), height: 1),
+                  ),
+                  if (unit.isNotEmpty) TextSpan(text: unit == '°' ? unit : ' $unit', style: AppTextStyle.s13_w500(color: colors.text2)),
+                ],
+              ),
+              textDirection: TextDirection.ltr,
+            ),
+            if (detail.isNotEmpty) ...[
+              Gaps.vGap4,
+              Text(detail, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.micro(color: colors.text3)),
+            ],
+          ],
+        ),
       ),
     );
   }

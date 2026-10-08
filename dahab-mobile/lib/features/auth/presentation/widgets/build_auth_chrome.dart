@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_fonts.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
 import 'package:rehla/core/utils/arabic_numerals.dart';
 import 'package:rehla/core/widgets/GenericTextField.dart';
-import 'package:rehla/core/widgets/app_brand_logo.dart';
-import 'package:rehla/core/widgets/app_reach_radar.dart';
+import 'package:rehla/core/widgets/rehla_mark.dart';
+import 'package:rehla/features/general/presentation/widgets/build_preference_switches.dart';
 
 /// Shared radii for the auth flow: fields and buttons match.
 class AuthRadius {
@@ -29,6 +31,9 @@ class BuildAuthScaffold extends StatelessWidget {
   /// Kept for existing callers; the hero decides its own branding now.
   final bool brandHero;
 
+  /// Spoken name for the back control. Login uses "Back to Dahab".
+  final String? backLabel;
+
   /// 1-based step in a multi-step flow (forgot → code → new password).
   final int? step;
   final int? totalSteps;
@@ -38,6 +43,7 @@ class BuildAuthScaffold extends StatelessWidget {
     required this.child,
     this.showBack = true,
     this.onBack,
+    this.backLabel,
     this.brandHero = true,
     this.step,
     this.totalSteps,
@@ -66,19 +72,29 @@ class BuildAuthScaffold extends StatelessWidget {
                       AppSpacing.xl,
                       0,
                     ),
-                    child: SizedBox(
-                      height: 44,
-                      child: Row(
-                        children: [
-                          if (showBack)
-                            _RoundBackButton(
-                              onTap: onBack ?? () => AutoRouter.of(context).maybePop(),
-                            ),
-                          const Spacer(),
-                          if (step != null && totalSteps != null)
-                            BuildAuthSteps(step: step!, total: totalSteps!),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          height: 44,
+                          child: Row(
+                            children: [
+                              if (showBack)
+                                _RoundBackButton(
+                                  label: backLabel,
+                                  onTap: onBack ?? () => AutoRouter.of(context).maybePop(),
+                                ),
+                              const Spacer(),
+                              if (step != null && totalSteps != null)
+                                BuildAuthSteps(step: step!, total: totalSteps!),
+                            ],
+                          ),
+                        ),
+                        const Align(
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: BuildPreferenceSwitches(),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
@@ -100,19 +116,21 @@ class BuildAuthScaffold extends StatelessWidget {
 
 class _RoundBackButton extends StatelessWidget {
   final VoidCallback onTap;
+  final String? label;
 
-  const _RoundBackButton({required this.onTap});
+  const _RoundBackButton({required this.onTap, this.label});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Tooltip(
-      message: MaterialLocalizations.of(context).backButtonTooltip,
+      message: label ?? MaterialLocalizations.of(context).backButtonTooltip,
       child: Material(
         color: colors.surface1,
         shape: CircleBorder(side: BorderSide(color: colors.line)),
         child: InkWell(
           onTap: onTap,
+          splashFactory: NoSplash.splashFactory,
           customBorder: const CircleBorder(),
           child: SizedBox.square(
             dimension: 42,
@@ -163,7 +181,7 @@ class BuildAuthSteps extends StatelessWidget {
   }
 }
 
-/// A single soft green glow at the top: the same light as the splash radar.
+/// Two quiet washes: lagoon and coral, the same pair the website uses.
 class BuildAuthAtmosphere extends StatelessWidget {
   const BuildAuthAtmosphere({super.key});
 
@@ -171,24 +189,40 @@ class BuildAuthAtmosphere extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return IgnorePointer(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0, -1.1),
-            radius: 1.1,
-            colors: [
-              colors.green.withValues(alpha: 0.09),
-              colors.green.withValues(alpha: 0.0),
-            ],
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(-0.85, -1.05),
+                radius: 1.15,
+                colors: [
+                  colors.button.withValues(alpha: 0.16),
+                  colors.button.withValues(alpha: 0),
+                ],
+              ),
+            ),
           ),
-        ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0.95, -0.55),
+                radius: 0.9,
+                colors: [
+                  colors.highlight.withValues(alpha: 0.12),
+                  colors.highlight.withValues(alpha: 0),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Login / register opener: the brand inside the live reach radar, as on
-/// the splash, then the page title.
+/// Login / register opener: a single destination mark, then the display title.
 class BuildAuthHero extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -198,37 +232,27 @@ class BuildAuthHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    const radar = 172.0;
-    const disc = radar * 0.40;
     return Column(
       children: [
-        AppReachRadar(
-          size: radar,
-          dotCount: 10,
-          sweepDuration: const Duration(seconds: 5),
-          center: Container(
-            width: disc,
-            height: disc,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: colors.surface1,
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.line),
-              boxShadow: [
-                BoxShadow(color: colors.green.withValues(alpha: 0.12), blurRadius: 22),
-              ],
-            ),
-            child: SizedBox.square(
-              dimension: disc * 0.68,
-              child: const FittedBox(child: AppBrandLogo(framed: false)),
-            ),
+        Container(
+          width: 72,
+          height: 72,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colors.surface1,
+            borderRadius: AppRadius.cardAll,
+            border: Border.all(color: colors.line),
           ),
+          child: RehlaMark(size: 44, color: colors.button, sunColor: colors.highlight),
         ),
         Gaps.vGap13,
         Text(
           title,
           textAlign: TextAlign.center,
-          style: AppTextStyle.h3(color: colors.text).copyWith(fontWeight: FontWeight.w700),
+          style: AppTextStyle.h3(color: colors.text).copyWith(
+            fontFamily: AppFonts.display(context),
+            fontWeight: FontWeight.w600,
+          ),
         ),
         Gaps.vGap6,
         ConstrainedBox(
@@ -268,15 +292,18 @@ class BuildAuthHeader extends StatelessWidget {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: colors.greenBg,
-            shape: BoxShape.circle,
+            color: colors.surface1,
+            borderRadius: AppRadius.buttonAll,
+            border: Border.all(color: colors.line),
           ),
-          child: Icon(icon, size: 26, color: colors.green),
+          child: Icon(icon, size: 26, color: colors.button),
         ),
         Gaps.vGap18,
         Text(
           title,
-          style: AppTextStyle.display(color: colors.text).copyWith(fontSize: 26),
+          style: AppTextStyle.display(color: colors.text).copyWith(
+            fontFamily: AppFonts.display(context),
+          ),
         ),
         Gaps.vGap8,
         Text(subtitle, style: AppTextStyle.body(color: colors.text2)),
@@ -518,35 +545,16 @@ class BuildAuthDivider extends StatelessWidget {
   }
 }
 
-/// The three guarantees of a deal, each with its own icon.
+/// The website's one identity line. Not a marketplace trust strip.
 class BuildAuthTrustRow extends StatelessWidget {
   const BuildAuthTrustRow({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final items = [
-      (Icons.qr_code_2_rounded, Translate.s.auth_trust_code),
-      (Icons.shield_outlined, Translate.s.auth_trust_payment),
-      (Icons.star_outline_rounded, Translate.s.auth_trust_reviews),
-    ];
-    return Row(
-      children: [
-        for (final (icon, label) in items)
-          Expanded(
-            child: Column(
-              children: [
-                Icon(icon, size: 18, color: colors.green),
-                Gaps.vGap4,
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.micro(color: colors.text2),
-                ),
-              ],
-            ),
-          ),
-      ],
+    return Text(
+      Translate.s.auth_trust_line,
+      textAlign: TextAlign.center,
+      style: AppTextStyle.caption(color: context.colors.text3),
     );
   }
 }

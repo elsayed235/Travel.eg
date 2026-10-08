@@ -99,6 +99,25 @@ describe('resolveHomeNextStep', () => {
     }
   });
 
+  it('does not call a trip "set" while an operator has yet to confirm', () => {
+    const settled = resolveHomeNextStep(snapshotFor('PRE_TRIP'), { pendingBookings: 0 });
+    expect(settled.titleKey).toBe('home.nextStep.preTrip.title');
+
+    const waiting = resolveHomeNextStep(snapshotFor('PRE_TRIP'), { pendingBookings: 2 });
+    expect(waiting.titleKey).toBe('home.nextStep.preTrip.titlePending');
+    expect(waiting.bodyKey).toBe('home.nextStep.preTrip.bodyPending');
+    expect(waiting.primaryRoute).toBe('/my-trip');
+    for (const key of [waiting.titleKey, waiting.bodyKey]) {
+      expect(TRANSLATIONS[key]?.en.trim()).toBeTruthy();
+      expect(TRANSLATIONS[key]?.ar.trim()).toBeTruthy();
+    }
+
+    // Other phases keep their own copy whatever is pending.
+    expect(resolveHomeNextStep(snapshotFor('IN_DAHAB'), { pendingBookings: 2 }).titleKey).toBe(
+      'home.nextStep.inDahab.title'
+    );
+  });
+
   it('omits liveValue when there is no real reading', () => {
     const step = resolveHomeNextStep(snapshotFor('DISCOVERY'), { activeTrip: null });
     expect(step.liveValue).toBeUndefined();

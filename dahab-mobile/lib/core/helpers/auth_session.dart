@@ -4,13 +4,16 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rehla/core/bloc/device_cubit/device_cubit.dart';
+import 'package:rehla/core/constants/app_constants.dart';
+import 'package:rehla/core/helpers/global_state.dart';
 import 'package:rehla/core/routes/router_imports.gr.dart';
 import 'package:rehla/features/auth/domain/models/user_domain_model.dart';
 import 'package:rehla/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'package:rehla/features/auth/presentation/manager/user_cubit/user_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Fake-first session: prefs + cubits. Networking can replace [signIn] later.
+/// Session the website already uses: the traveler record plus the bearer
+/// token native clients receive (`X-Dahab-Client: native`).
 abstract class AuthSession {
   static const userKey = 'user';
   static const tokenKey = 'token';
@@ -21,6 +24,7 @@ abstract class AuthSession {
     if (!context.mounted) return;
     final raw = prefs.getString(userKey);
     if (raw == null || raw.isEmpty) {
+      _publishToken(null);
       context.read<AuthCubit>().onUpdateAuth(false);
       context.read<DeviceCubit>().updateUserAuth(false);
       return;
@@ -37,6 +41,7 @@ abstract class AuthSession {
     context.read<UserCubit>().onUpdateUserData(user);
     context.read<AuthCubit>().onUpdateAuth(true);
     context.read<DeviceCubit>().updateUserAuth(true);
+    _publishToken(prefs.getString(tokenKey));
     await prefs.setBool(guestKey, false);
   }
 
@@ -58,6 +63,7 @@ abstract class AuthSession {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(userKey, _encode(user));
     await prefs.setString(tokenKey, token);
+    _publishToken(token);
     await prefs.setBool(guestKey, false);
     if (!context.mounted) return;
     context.read<UserCubit>().onUpdateUserData(user);
@@ -65,11 +71,12 @@ abstract class AuthSession {
     context.read<DeviceCubit>().updateUserAuth(true);
   }
 
-  /// Browse marketplace without an account.
+  /// Open the public home the way the website does before sign-in.
   static Future<void> continueAsGuest(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(userKey);
     await prefs.remove(tokenKey);
+    _publishToken(null);
     await prefs.setBool(guestKey, true);
     if (!context.mounted) return;
     context.read<AuthCubit>().onUpdateAuth(false);
@@ -87,7 +94,29 @@ abstract class AuthSession {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(userKey);
     await prefs.remove(tokenKey);
+    _publishToken(null);
     await prefs.setBool(guestKey, false);
+  }
+
+  static void _publishToken(String? token) {
+    GlobalState.instance.set(
+      ApplicationConstants.keyToken,
+      (token == null || token.isEmpty) ? null : token,
+    );
+  }
+
+  /// After sign-in or sign-up: back to whatever asked for it (a booking, the
+  /// account tab) when the app shell is underneath, otherwise into the shell.
+  static Future<void> leaveAuth(BuildContext context) async {
+    final router = AutoRouter.of(context);
+    final shellBelow = router.stack.any((page) => page.name == HomeRoute.name);
+    if (!shellBelow) {
+      await router.replaceAll([const HomeRoute()]);
+      return;
+    }
+    router.popUntil(
+      (route) => route.settings.name != LoginRoute.name && route.settings.name != RegisterRoute.name,
+    );
   }
 
   static Future<void> requireAuthThen(

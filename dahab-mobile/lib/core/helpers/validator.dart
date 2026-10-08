@@ -34,6 +34,13 @@ extension Validator on String {
     return null;
   }
 
+  /// One sign-in field: an address, or a mobile number.
+  String? validateEmailOrPhone() {
+    if (trim().isEmpty) return Translate.s.fillField;
+    if (contains('@')) return validateEmail();
+    return validatePhone();
+  }
+
   String? validateEmail({String? message}) {
     if (trim().isEmpty) {
       return message ??  Translate.s.fillField;

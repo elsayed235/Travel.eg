@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rehla/core/theme/destination/rehla_destination.dart';
 import 'package:rehla/features/discover/domain/models/discover_door.dart';
 import 'package:rehla/features/discover/domain/models/editorial_pick.dart';
+import 'package:rehla/features/discover/domain/models/story_frame.dart';
 import 'package:rehla/features/plan/domain/models/plan_vibe.dart';
 
 /// Editorial home content per destination, mirroring the website
@@ -253,6 +254,29 @@ class DiscoverContent {
         image: '$_img/story-campfire.webp',
         vibes: [PlanVibe.stars, PlanVibe.unplug],
       ),
+    ],
+  };
+
+  /// Frames we actually ship in the app bundle. Captions follow the website
+  /// where the photograph is the same subject.
+  static List<StoryFrame> stories(RehlaDestination d) => switch (d) {
+    RehlaDestination.dahab => const [
+      StoryFrame(image: '$_img/blue-hole-aerial.webp', captionEn: 'The Blue Hole', captionAr: 'البلو هول'),
+      StoryFrame(image: '$_img/house-reef.webp', captionEn: 'Morning reef light', captionAr: 'نور الشعاب الصبح'),
+      StoryFrame(image: '$_img/ras-abu-galum.webp', captionEn: 'The coast path', captionAr: 'الطريق على الساحل'),
+      StoryFrame(image: '$_img/st-catherine.webp', captionEn: 'Dawn on the mountain', captionAr: 'الشروق من الجبل'),
+      StoryFrame(image: '$_img/story-campfire.webp', captionEn: 'Fire after dark', captionAr: 'نار بعد المغرب'),
+    ],
+    RehlaDestination.nuweiba => const [
+      StoryFrame(image: '$_img/hero-nuweiba.webp', captionEn: 'Shade, sand and the gulf', captionAr: 'ضل ورملة والخليج'),
+      StoryFrame(image: '$_img/house-reef.webp', captionEn: 'First swim of the day', captionAr: 'أول عومة في اليوم'),
+      StoryFrame(image: '$_img/colored-canyon.webp', captionEn: 'Canyon colours', captionAr: 'ألوان الكانيون'),
+      StoryFrame(image: '$_img/story-campfire.webp', captionEn: 'Fire after dark', captionAr: 'نار بعد المغرب'),
+    ],
+    RehlaDestination.siwa => const [
+      StoryFrame(image: '$_img/hero-siwa.webp', captionEn: 'The sand sea begins', captionAr: 'هنا بيبدأ بحر الرمال'),
+      StoryFrame(image: '$_img/book-desert-camp-2.webp', captionEn: 'Camp in the dunes', captionAr: 'كامب وسط الكثبان'),
+      StoryFrame(image: '$_img/story-campfire.webp', captionEn: 'Tea on the coals', captionAr: 'شاي على الفحم'),
     ],
   };
 }

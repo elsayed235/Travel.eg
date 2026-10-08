@@ -169,6 +169,17 @@ export interface ResolvedBookability {
   supplierId: string;
   maxCapacityPerSlot: number;
   cancellationPolicyHours?: number;
+  pricingBasis?: 'per_person' | 'per_stay' | 'per_vehicle';
+  durationMinutes?: number;
+  description?: string;
+  descriptionAr?: string;
+  includedItems?: string[];
+  includedItemsAr?: string[];
+  timeSlots?: string[];
+  meetingPoint?: string;
+  meetingPointAr?: string;
+  supplierName?: string;
+  supplierNameAr?: string;
 }
 
 export interface DahabActivity {
@@ -195,6 +206,14 @@ export interface DahabActivity {
   bookingMode: BookNowEligibility;
   supplierId?: string;
   seasonalityMonths: number[];
+  environmentalSensitivities?: {
+    maxWindKnots?: number;
+    minWindKnots?: number;
+    minVisibilityMeters?: number;
+    requiresDaylight?: boolean;
+  };
+  dependencies?: string[];
+  travelerFitPersonas?: string[];
   preparationTips: string[];
   preparationTipsAr: string[];
 }

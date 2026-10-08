@@ -36,13 +36,16 @@ mixin _$ConditionsModel {
   /// Create a copy of ConditionsModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ConditionsModelCopyWith<ConditionsModel> get copyWith => throw _privateConstructorUsedError;
+  $ConditionsModelCopyWith<ConditionsModel> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $ConditionsModelCopyWith<$Res> {
-  factory $ConditionsModelCopyWith(ConditionsModel value, $Res Function(ConditionsModel) then) =
-      _$ConditionsModelCopyWithImpl<$Res, ConditionsModel>;
+  factory $ConditionsModelCopyWith(
+    ConditionsModel value,
+    $Res Function(ConditionsModel) then,
+  ) = _$ConditionsModelCopyWithImpl<$Res, ConditionsModel>;
   @useResult
   $Res call({
     String destination,
@@ -57,7 +60,8 @@ abstract class $ConditionsModelCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ConditionsModelCopyWithImpl<$Res, $Val extends ConditionsModel> implements $ConditionsModelCopyWith<$Res> {
+class _$ConditionsModelCopyWithImpl<$Res, $Val extends ConditionsModel>
+    implements $ConditionsModelCopyWith<$Res> {
   _$ConditionsModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -120,9 +124,12 @@ class _$ConditionsModelCopyWithImpl<$Res, $Val extends ConditionsModel> implemen
 }
 
 /// @nodoc
-abstract class _$$ConditionsModelImplCopyWith<$Res> implements $ConditionsModelCopyWith<$Res> {
-  factory _$$ConditionsModelImplCopyWith(_$ConditionsModelImpl value, $Res Function(_$ConditionsModelImpl) then) =
-      __$$ConditionsModelImplCopyWithImpl<$Res>;
+abstract class _$$ConditionsModelImplCopyWith<$Res>
+    implements $ConditionsModelCopyWith<$Res> {
+  factory _$$ConditionsModelImplCopyWith(
+    _$ConditionsModelImpl value,
+    $Res Function(_$ConditionsModelImpl) then,
+  ) = __$$ConditionsModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -138,10 +145,13 @@ abstract class _$$ConditionsModelImplCopyWith<$Res> implements $ConditionsModelC
 }
 
 /// @nodoc
-class __$$ConditionsModelImplCopyWithImpl<$Res> extends _$ConditionsModelCopyWithImpl<$Res, _$ConditionsModelImpl>
+class __$$ConditionsModelImplCopyWithImpl<$Res>
+    extends _$ConditionsModelCopyWithImpl<$Res, _$ConditionsModelImpl>
     implements _$$ConditionsModelImplCopyWith<$Res> {
-  __$$ConditionsModelImplCopyWithImpl(_$ConditionsModelImpl _value, $Res Function(_$ConditionsModelImpl) _then)
-    : super(_value, _then);
+  __$$ConditionsModelImplCopyWithImpl(
+    _$ConditionsModelImpl _value,
+    $Res Function(_$ConditionsModelImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ConditionsModel
   /// with the given fields replaced by the non-null parameter values.
@@ -211,7 +221,8 @@ class _$ConditionsModelImpl extends _ConditionsModel {
     this.sunset,
   }) : super._();
 
-  factory _$ConditionsModelImpl.fromJson(Map<String, dynamic> json) => _$$ConditionsModelImplFromJson(json);
+  factory _$ConditionsModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ConditionsModelImplFromJson(json);
 
   @override
   final String destination;
@@ -242,13 +253,19 @@ class _$ConditionsModelImpl extends _ConditionsModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ConditionsModelImpl &&
-            (identical(other.destination, destination) || other.destination == destination) &&
-            (identical(other.observedAt, observedAt) || other.observedAt == observedAt) &&
+            (identical(other.destination, destination) ||
+                other.destination == destination) &&
+            (identical(other.observedAt, observedAt) ||
+                other.observedAt == observedAt) &&
             (identical(other.source, source) || other.source == source) &&
-            (identical(other.airTemperatureC, airTemperatureC) || other.airTemperatureC == airTemperatureC) &&
-            (identical(other.waterTemperatureC, waterTemperatureC) || other.waterTemperatureC == waterTemperatureC) &&
-            (identical(other.windKnots, windKnots) || other.windKnots == windKnots) &&
-            (identical(other.windDirection, windDirection) || other.windDirection == windDirection) &&
+            (identical(other.airTemperatureC, airTemperatureC) ||
+                other.airTemperatureC == airTemperatureC) &&
+            (identical(other.waterTemperatureC, waterTemperatureC) ||
+                other.waterTemperatureC == waterTemperatureC) &&
+            (identical(other.windKnots, windKnots) ||
+                other.windKnots == windKnots) &&
+            (identical(other.windDirection, windDirection) ||
+                other.windDirection == windDirection) &&
             (identical(other.sunset, sunset) || other.sunset == sunset));
   }
 
@@ -272,7 +289,10 @@ class _$ConditionsModelImpl extends _ConditionsModel {
   @override
   @pragma('vm:prefer-inline')
   _$$ConditionsModelImplCopyWith<_$ConditionsModelImpl> get copyWith =>
-      __$$ConditionsModelImplCopyWithImpl<_$ConditionsModelImpl>(this, _$identity);
+      __$$ConditionsModelImplCopyWithImpl<_$ConditionsModelImpl>(
+        this,
+        _$identity,
+      );
 
   @override
   Map<String, dynamic> toJson() {
@@ -293,7 +313,8 @@ abstract class _ConditionsModel extends ConditionsModel {
   }) = _$ConditionsModelImpl;
   const _ConditionsModel._() : super._();
 
-  factory _ConditionsModel.fromJson(Map<String, dynamic> json) = _$ConditionsModelImpl.fromJson;
+  factory _ConditionsModel.fromJson(Map<String, dynamic> json) =
+      _$ConditionsModelImpl.fromJson;
 
   @override
   String get destination;
@@ -316,5 +337,6 @@ abstract class _ConditionsModel extends ConditionsModel {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ConditionsModelImplCopyWith<_$ConditionsModelImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ConditionsModelImplCopyWith<_$ConditionsModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

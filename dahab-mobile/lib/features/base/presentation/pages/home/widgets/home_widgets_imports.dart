@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/extensions/common_extension.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/destination/rehla_destination.dart';
+import 'package:rehla/core/theme/text/app_fonts.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/constants/app_config.dart';
+import 'package:rehla/core/helpers/app_money.dart';
+import 'package:rehla/features/plan/domain/models/kept_trip.dart';
+import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
 
 part 'build_home_tab_placeholder.dart';
+part 'build_trip_empty.dart';
+part 'build_trip_body.dart';

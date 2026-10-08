@@ -8,6 +8,7 @@ import { useDestination } from '../../../context/DestinationContext';
 import { useResearchOverview, pick } from '../../../hooks/useResearchOverview';
 import { useReadyProgrammes } from '../../../hooks/useReadyProgrammes';
 import { EDITORIAL_PICKS, STORY_FRAMES_BY_DESTINATION } from '../../../data/destinationEditorial';
+import { photoForActivity, experienceSlugForActivity } from '../../../data/activityPhotos';
 import { STORY_FRAMES } from '../concierge/conciergeData';
 import { presetPlan } from '../../../services/planPreset';
 import { DestinationScene } from '../../brand/DestinationScene';
@@ -66,21 +67,6 @@ const Media: React.FC<{ src?: string; destination: DestinationId; alt?: string }
 
 // --------------------------------------------------------------------- picks
 
-/**
- * A photo that shows the activity itself. The research ids do not line up
- * with a fixed id→photo map (a scuba outing used to show camels), so the
- * picture follows what the outing is.
- */
-const ACTIVITY_PHOTOS: [RegExp, string][] = [
-  [/scuba|dive|diving/i, '/images/hero/splash-underwater.webp'],
-  [/snorkel|reef|eel/i, '/images/attractions/attr-house-reef.webp'],
-  [/kite|wind|surf/i, '/images/hero/blue-lagoon-kitesurf.jpg'],
-  [/camel|desert|safari|quad|jeep/i, '/images/hero/camels-beach.jpg'],
-  [/sunset|mountain|hike|trek|climb|boulder/i, '/images/attractions/bouldering-wadi-gnai.jpg'],
-  [/boat|galum|cruise/i, '/images/attractions/ras-abu-galum-spit.jpg'],
-];
-const photoFor = (nameEn: string) => ACTIVITY_PHOTOS.find(([re]) => re.test(nameEn))?.[1] ?? '/images/attractions/blue-hole.jpg';
-
 export const PlacePicks: React.FC = () => {
   const { t, language } = useLanguage();
   const { navigateTo } = useTrip();
@@ -91,13 +77,18 @@ export const PlacePicks: React.FC = () => {
   const live = destination.catalogue === 'live';
   const items = useMemo(() => {
     if (live) {
-      return (overview?.experiences ?? []).slice(0, 3).map((e) => ({
+      return (overview?.experiences ?? []).slice(0, 6).map((e) => ({
         id: e.id,
         title: pick(e.name, language),
         meta: pick(e.duration, language),
-        price: e.priceEgp,
-        image: photoFor(pick(e.name, 'en')),
-        onOpen: () => navigateTo('/experiences'),
+        // The price checkout charges when the outing is bookable; the local
+        // market range otherwise.
+        price: e.fromPriceEGP != null ? e.fromPriceEGP.toLocaleString('en-US') : e.priceEgp,
+        image: photoForActivity(pick(e.name, 'en')),
+        onOpen: () =>
+          e.activityId
+            ? navigateTo('/experiences', { experienceSlug: experienceSlugForActivity(e.activityId) })
+            : navigateTo('/rentals'),
       }));
     }
     return (EDITORIAL_PICKS[destinationId] ?? []).map((p) => ({

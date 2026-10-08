@@ -59,120 +59,257 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m17(current, total) => "خطوة ${current} من ${total}";
 
-  static String m18(time) => "آخر ظهور ${time}";
+  static String m18(n) => "فاضل ${n}";
 
-  static String m19(count) => "${count} جديد";
+  static String m19(time) => "آخر ظهور ${time}";
 
-  static String m20(date) => "الطلب هيتقفل تلقائي يوم ${date} لو مفيش قبول.";
+  static String m20(count) => "${count} جديد";
 
-  static String m21(percent, amount) => "نسبة المنصة ${percent} · ${amount}";
+  static String m21(date) => "الطلب هيتقفل تلقائي يوم ${date} لو مفيش قبول.";
 
-  static String m22(payer, amount) => "يدفعه ${payer} · ${amount}";
+  static String m22(percent, amount) => "نسبة المنصة ${percent} · ${amount}";
 
-  static String m23(percent, amount) => "نسبة المنصة ${percent} · ${amount}";
+  static String m23(payer, amount) => "يدفعه ${payer} · ${amount}";
 
-  static String m24(amount) => "يساوي ${amount}";
+  static String m24(percent, amount) => "نسبة المنصة ${percent} · ${amount}";
 
-  static String m25(place, km) => "${place} - ${km} كم";
+  static String m25(amount) => "يساوي ${amount}";
 
-  static String m26(km) => "${km} كم";
+  static String m26(place, km) => "${place} - ${km} كم";
 
-  static String m27(count, date) =>
+  static String m27(km) => "${km} كم";
+
+  static String m28(count, date) =>
       "طلبك هيوصل لـ ${count} صاحب حاجة مطابقة، وهيتقفل تلقائي يوم ${date}.";
 
-  static String m28(current, total) => "${current} من ${total}";
+  static String m29(current, total) => "${current} من ${total}";
 
-  static String m29(qty, date) => "${qty} • ${date}";
+  static String m30(qty, date) => "${qty} • ${date}";
 
-  static String m30(place) => "إيه اللي جايبك ${place}؟";
+  static String m31(day) => "ضيف لليوم ${day}";
 
-  static String m31(place) =>
+  static String m32(n) => "اليوم ${n}";
+
+  static String m33(n) =>
+      "${Intl.plural(n, one: 'يوم', two: 'يومين', few: '${n} أيام', other: '${n} يوم')}";
+
+  static String m34(n) =>
+      "${Intl.plural(n, one: 'دي طلعة واحدة تتحجز ومناسبة.', two: 'دول طلعتين يتحجزوا ومناسبين.', few: 'دول ${n} طلعات يتحجزوا ومناسبين.', other: 'دول ${n} طلعة يتحجزوا ومناسبين.')}";
+
+  static String m35(day) => "خطتك · اليوم ${day}";
+
+  static String m36(source) =>
+      "الأسعار من الموردين مباشرة · الهوا من ${source}";
+
+  static String m37(place) => "إيه اللي جايبك ${place}؟";
+
+  static String m38(place) =>
       "${place} لسه بتفتح على رحلة: الخطط الأول، والحجز قريب.";
 
-  static String m32(place) => "دلوقتي في ${place}";
+  static String m39(place) => "استكشف ${place}";
 
-  static String m33(place) => "حاجات تستاهل في ${place}";
+  static String m40(place) => "دلوقتي في ${place}";
 
-  static String m34(source, time) => "${source} · الساعة ${time}";
+  static String m41(place) => "حاجات تستاهل في ${place}";
 
-  static String m35(km) => "مفيش طلبات في نطاق ${km} كم";
+  static String m42(place) => "رحلات جاهزة في ${place}";
 
-  static String m36(km) => "وسّع النطاق لـ ${km} كم";
+  static String m43(source, time) => "${source} · الساعة ${time}";
 
-  static String m37(count) => "${count} طلب";
+  static String m44(place) =>
+      "صور تقريبية لحد ما صورنا الخاصة بـ${place} تخلص.";
 
-  static String m38(place) => "حاجات قريبة من ${place}";
+  static String m45(place) => "${place} في كام صورة";
 
-  static String m39(time) => "صالح لمدة ${time}";
+  static String m46(km) => "مفيش طلبات في نطاق ${km} كم";
 
-  static String m40(date) => "متاح يوم ${date}";
+  static String m47(km) => "وسّع النطاق لـ ${km} كم";
 
-  static String m41(km) => "${km} كم";
+  static String m48(count) => "${count} طلب";
 
-  static String m42(days) => "خلال ${days} يوم";
+  static String m49(place) => "حاجات قريبة من ${place}";
 
-  static String m43(greeting, name) => "${greeting} يا ${name}";
+  static String m50(time) => "صالح لمدة ${time}";
 
-  static String m44(place, km) => "${place} ${km} كم";
+  static String m51(date) => "متاح يوم ${date}";
 
-  static String m45(date) => "محتاجها ${date}";
+  static String m52(n) =>
+      "${Intl.plural(n, one: 'فاضل يوم على رحلتك', two: 'فاضل يومين على رحلتك', few: 'فاضل ${n} أيام على رحلتك', other: 'فاضل ${n} يوم على رحلتك')}";
 
-  static String m46(km) => "${km} كم";
+  static String m53(km) => "${km} كم";
 
-  static String m47(count, km) =>
+  static String m54(days) => "خلال ${days} يوم";
+
+  static String m55(greeting, name) => "${greeting} يا ${name}";
+
+  static String m56(hello, name) => "${hello} يا ${name}";
+
+  static String m57(source, time) => "مباشر من ${source} · آخر تحديث ${time}";
+
+  static String m58(place, km) => "${place} ${km} كم";
+
+  static String m59(date) => "محتاجها ${date}";
+
+  static String m60(km) => "${km} كم";
+
+  static String m61(count, km) =>
       "${count} جار في نطاق ${km} كم ممكن يوفّرولك اللي محتاجه";
 
-  static String m48(count) => "يوصل لـ ${count} شخص في نطاقك";
+  static String m62(count) => "يوصل لـ ${count} شخص في نطاقك";
 
-  static String m49(count) => "عرض الكل (${count})";
+  static String m63(place) => "النهارده في ${place}";
 
-  static String m50(month) => "التوافر — ${month}";
+  static String m64(day) => "اليوم ${day} من رحلتك";
 
-  static String m51(count) => "احجز ${count} كرسي";
+  static String m65(count) => "عرض الكل (${count})";
 
-  static String m52(min, insurance) =>
+  static String m66(month) => "التوافر — ${month}";
+
+  static String m67(count) => "احجز ${count} كرسي";
+
+  static String m68(min, insurance) =>
       "الحد الأدنى للطلب ${min} · التأمين المتوقع ${insurance} ج";
 
-  static String m53(min) => "الكمية لازم تكون على الأقل ${min}";
+  static String m69(min) => "الكمية لازم تكون على الأقل ${min}";
 
-  static String m54(unit) => "الكمية (${unit})";
+  static String m70(unit) => "الكمية (${unit})";
 
-  static String m55(min, insurance) =>
+  static String m71(min, insurance) =>
       "الحد الأدنى ${min} · التأمين المتوقع ${insurance} ج";
 
-  static String m56(count) => "${count} كرسي";
+  static String m72(count) => "${count} كرسي";
 
-  static String m57(count) => "(${count} تقييم)";
+  static String m73(count) => "(${count} تقييم)";
 
-  static String m58(available, total) => "${available} من ${total}";
+  static String m74(available, total) => "${available} من ${total}";
 
-  static String m59(time) => "يلتزم بالتسليم قبل ${time}";
+  static String m75(n, day) =>
+      "${Intl.plural(n, zero: 'مفيش حاجة متاحة يوم ${day}', one: 'تجربة واحدة متاحة يوم ${day}', two: 'تجربتين متاحين يوم ${day}', few: '${n} تجارب متاحة يوم ${day}', other: '${n} تجربة متاحة يوم ${day}')}";
 
-  static String m60(count) => "قارن الـ${count}";
+  static String m76(n) =>
+      "${Intl.plural(n, zero: 'مفيش حاجة متاحة النهارده', one: 'تجربة واحدة متاحة النهارده', two: 'تجربتين متاحين النهارده', few: '${n} تجارب متاحة النهارده', other: '${n} تجربة متاحة النهارده')}";
 
-  static String m61(count) => "${count} صفقة";
+  static String m77(time) => "يلتزم بالتسليم قبل ${time}";
 
-  static String m62(km) => "${km} كم";
+  static String m78(count) => "قارن الـ${count}";
 
-  static String m63(minutes) => "آخر عرض منذ ${minutes} د";
+  static String m79(count) => "${count} صفقة";
 
-  static String m64(count) => "${count} عروض جديدة";
+  static String m80(km) => "${km} كم";
 
-  static String m65(qty, date, budget) =>
+  static String m81(minutes) => "آخر عرض منذ ${minutes} د";
+
+  static String m82(count) => "${count} عروض جديدة";
+
+  static String m83(qty, date, budget) =>
       "${qty} • ${date} • ميزانية ${budget} ج";
 
-  static String m66(minutes) => "${minutes} دقيقة";
+  static String m84(minutes) => "${minutes} دقيقة";
 
-  static String m67(count) => "${count} عروض على طلبك";
+  static String m85(count) => "${count} عروض على طلبك";
 
-  static String m68(date, qty) => "محتاجها ${date} · ${qty}";
+  static String m86(date, qty) => "محتاجها ${date} · ${qty}";
 
-  static String m69(count) => "${count} طلب مستني منك خطوة الاستلام";
+  static String m87(count) => "${count} طلب مستني منك خطوة الاستلام";
 
-  static String m70(provider, qty) => "${provider} · ${qty}";
+  static String m88(provider, qty) => "${provider} · ${qty}";
 
-  static String m71(MB, files) =>
+  static String m89(when) => "إلغاء مجاني لحد ${when}";
+
+  static String m90(supplier) =>
+      "هتدفع لـ${supplier} كاش يوم الطلعة. مفيش حاجة هتتخصم دلوقتي.";
+
+  static String m91(usd) => "حوالي ${usd}\$ · الدفع بالجنيه";
+
+  static String m92(n) =>
+      "${Intl.plural(n, one: 'فرد واحد', two: 'فردين', few: '${n} أفراد', other: '${n} فرد')}";
+
+  static String m93(amount) =>
+      "سعر المورّد بقى ${amount}. راجع الإجمالي وأكّد تاني.";
+
+  static String m94(ref) => "اتحجز · رقم ${ref}";
+
+  static String m95(supplier) => "مستنيين ${supplier} يأكّد";
+
+  static String m96(n) => "${n} أيام";
+
+  static String m97(n) => "${n}% وقت فاضي";
+
+  static String m98(n) => "اليوم ${n}";
+
+  static String m99(place) =>
+      "${place} لسه جديدة على رحلة. الأسعار تقديرية، اطلب الخطة وفريقنا هيأكدها مع أهل المكان.";
+
+  static String m100(days) => "مدتها مناسبة: ${days} أيام";
+
+  static String m101(matched, asked) =>
+      "فيها ${matched} من ${asked} حاجات بتحبها";
+
+  static String m102(place) => "كل الخطط في ${place}";
+
+  static String m103(score) => "الأنسب ليك · ${score}%";
+
+  static String m104(score) => "مناسبة ${score}%";
+
+  static String m105(count) => "لقيتلك ${count} خطط على مقاسك";
+
+  static String m106(n, total) => "خطوة ${n} من ${total}";
+
+  static String m107(n) => "${n} ليالي";
+
+  static String m108(MB, files) =>
       "يجب أن تكون حجم الملفات التالية أقل من ${MB} ميحابيت, ${files}";
+
+  static String m109(name) => "كلّم ${name}";
+
+  static String m110(day, days) => "اليوم ${day} من ${days}";
+
+  static String m111(h, m) => "بعد ${h} س ${m} د";
+
+  static String m112(m) => "بعد ${m} دقيقة";
+
+  static String m113(slot) =>
+      "اتنقلت للساعة ${slot}. المورّد عنده المعاد الجديد.";
+
+  static String m114(kn) => "هوا ${kn} عقدة";
+
+  static String m115(wind, title, max) =>
+      "الهوا ${wind} عقدة دلوقتي. ${title} بتشتغل تحت ${max} عقدة.";
+
+  static String m116(title) => "الدنيا هوا. أعمل إيه بدل ${title}؟";
+
+  static String m117(slot, day) =>
+      "أول طلعة للمورّد: الساعة ${slot} يوم ${day}.";
+
+  static String m118(n) =>
+      "${Intl.plural(n, one: 'فاضل يوم', two: 'فاضل يومين', few: 'فاضل ${n} أيام', other: 'فاضل ${n} يوم')}";
+
+  static String m119(usd) => "حوالي ${usd}\$";
+
+  static String m120(title) => "${title} مناسبة ليا؟";
+
+  static String m121(clock) => "المغرب النهارده الساعة ${clock}";
+
+  static String m122(wind, max) =>
+      "الهوا ${wind} عقدة النهارده، والمورّد بيشغّلها تحت ${max} عقدة";
+
+  static String m123(wind) => "الهوا ${wind} عقدة، جوه حدود المورّد";
+
+  static String m124(hours) => "إلغاء مجاني لحد ${hours} ساعة قبلها";
+
+  static String m125(h) => "${h} ساعات";
+
+  static String m126(m) => "${m} دقيقة";
+
+  static String m127(n) =>
+      "${Intl.plural(n, one: 'الالتزام محسوب من رحلة واحدة', two: 'الالتزام محسوب من رحلتين', few: 'الالتزام محسوب من ${n} رحلات', other: 'الالتزام محسوب من ${n} رحلة')}";
+
+  static String m128(count) =>
+      "${Intl.plural(count, one: 'من تقييم واحد موثّق', two: 'من تقييمين موثّقين', few: 'من ${count} تقييمات موثّقة', other: 'من ${count} تقييم موثّق')}";
+
+  static String m129(date) => " · آخر واحد ${date}";
+
+  static String m130(n) => "لحد ${n}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -503,53 +640,66 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "app_cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
     "app_confirm": MessageLookupByLibrary.simpleMessage("تأكيد"),
-    "auth_browse_guest": MessageLookupByLibrary.simpleMessage(
-      "تصفّح بدون حساب",
-    ),
-    "auth_create_account": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
+    "auth_back_home": MessageLookupByLibrary.simpleMessage("الرجوع إلى دهب"),
+    "auth_browse_guest": MessageLookupByLibrary.simpleMessage("الرجوع إلى دهب"),
+    "auth_create_account": MessageLookupByLibrary.simpleMessage("سجّل مجاناً"),
     "auth_default_name": MessageLookupByLibrary.simpleMessage("مستخدم"),
-    "auth_forget_cta": MessageLookupByLibrary.simpleMessage("إرسال الكود"),
+    "auth_forget_cta": MessageLookupByLibrary.simpleMessage(
+      "إرسال رابط الاستعادة",
+    ),
     "auth_forget_subtitle": MessageLookupByLibrary.simpleMessage(
-      "اكتب رقم موبايلك ونبعتلك كود التأكيد",
+      "أدخل بريدك الإلكتروني وسنرسل لك رابط الاستعادة",
     ),
     "auth_forget_title": MessageLookupByLibrary.simpleMessage(
-      "نسيت كلمة المرور؟",
+      "استعادة كلمة المرور",
     ),
     "auth_gate_subtitle": MessageLookupByLibrary.simpleMessage(
-      "الطلب والعروض والمحادثات محتاجين حساب",
+      "الخطط والحجوزات ودفتر الحساب محتاجين حساب",
     ),
     "auth_gate_title": MessageLookupByLibrary.simpleMessage(
       "سجّل دخول عشان تكمّل",
     ),
     "auth_guest_account_subtitle": MessageLookupByLibrary.simpleMessage(
-      "سجّل دخول عشان تشوف طلباتك وصفقاتك",
+      "سجّل دخول عشان تشوف رحلتك وحجوزاتك",
     ),
     "auth_guest_account_title": MessageLookupByLibrary.simpleMessage("حسابك"),
     "auth_guest_hint": MessageLookupByLibrary.simpleMessage(
-      "تقدر تتصفح الطلبات — عشان تطلب أو تعرض، سجّل دخول",
+      "تقدر تتفرج — سجّل دخولك عشان تحفظ الرحلة",
     ),
     "auth_guest_login_cta": MessageLookupByLibrary.simpleMessage(
       "تسجيل الدخول",
     ),
-    "auth_have_account": MessageLookupByLibrary.simpleMessage("عندك حساب؟"),
-    "auth_hint_name": MessageLookupByLibrary.simpleMessage(
-      "اسمك الأول والأخير",
+    "auth_have_account": MessageLookupByLibrary.simpleMessage(
+      "لديك حساب بالفعل؟",
     ),
+    "auth_hint_email": MessageLookupByLibrary.simpleMessage("you@email.com"),
+    "auth_hint_identifier": MessageLookupByLibrary.simpleMessage(
+      "you@email.com أو 01xxxxxxxxx",
+    ),
+    "auth_hint_name": MessageLookupByLibrary.simpleMessage("مثال: أحمد مصطفى"),
     "auth_hint_password": MessageLookupByLibrary.simpleMessage("••••••••"),
     "auth_hint_phone": MessageLookupByLibrary.simpleMessage("01xxxxxxxxx"),
+    "auth_hint_phone_optional": MessageLookupByLibrary.simpleMessage(
+      "الموبايل، لو حابب",
+    ),
+    "auth_identifier": MessageLookupByLibrary.simpleMessage(
+      "الإيميل أو الموبايل",
+    ),
     "auth_login_cta": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
     "auth_login_subtitle": MessageLookupByLibrary.simpleMessage(
-      "سجّل دخول عشان تطلب وتتابع صفقاتك بثقة",
+      "سجل دخولك لحفظ واسترجاع خططك وتجاربك",
     ),
-    "auth_login_success": MessageLookupByLibrary.simpleMessage(
-      "تم تسجيل الدخول",
-    ),
+    "auth_login_success": MessageLookupByLibrary.simpleMessage("أهلاً بيك"),
     "auth_login_success_hint": MessageLookupByLibrary.simpleMessage(
-      "جاهز تكمّل طلباتك",
+      "خططك وحجوزاتك هنا",
     ),
-    "auth_login_title": MessageLookupByLibrary.simpleMessage("أهلاً بيك"),
-    "auth_no_account": MessageLookupByLibrary.simpleMessage("مش عندك حساب؟"),
-    "auth_or": MessageLookupByLibrary.simpleMessage("أو"),
+    "auth_login_title": MessageLookupByLibrary.simpleMessage(
+      "أهلاً بيك تاني في دهب",
+    ),
+    "auth_no_account": MessageLookupByLibrary.simpleMessage(
+      "ليس لديك حساب بعد؟",
+    ),
+    "auth_or": MessageLookupByLibrary.simpleMessage("أو عبر البريد الإلكتروني"),
     "auth_otp_cta": MessageLookupByLibrary.simpleMessage("تأكيد"),
     "auth_otp_hint": MessageLookupByLibrary.simpleMessage(
       "للاختبار: أي ٦ أرقام",
@@ -570,17 +720,19 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "auth_pw_rule_number": MessageLookupByLibrary.simpleMessage("رقم"),
     "auth_pw_rule_symbol": MessageLookupByLibrary.simpleMessage("رمز زي ! @ #"),
-    "auth_register_cta": MessageLookupByLibrary.simpleMessage("متابعة"),
+    "auth_register_cta": MessageLookupByLibrary.simpleMessage("إنشاء الحساب"),
     "auth_register_subtitle": MessageLookupByLibrary.simpleMessage(
-      "حساب واحد تطلب منه وتعرض",
+      "احفظ رحلتك واستمتع بالمرافقة الذكية وتأكيد الحجوزات",
     ),
     "auth_register_success": MessageLookupByLibrary.simpleMessage(
-      "الحساب جاهز",
+      "أهلاً بيك في دهب",
     ),
     "auth_register_terms": MessageLookupByLibrary.simpleMessage(
-      "بالمتابعة، أنت موافق على الشروط والخصوصية",
+      "يتم إنشاء الحسابات كحساب مسافر. لو إنت شريك أو مورد، تواصل مع فريق التشغيل لتفعيل صلاحيات البوابة.",
     ),
-    "auth_register_title": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
+    "auth_register_title": MessageLookupByLibrary.simpleMessage(
+      "انضم إلى مجتمع دهب",
+    ),
     "auth_reset_cta": MessageLookupByLibrary.simpleMessage("حفظ كلمة المرور"),
     "auth_reset_subtitle": MessageLookupByLibrary.simpleMessage(
       "اختَر كلمة مرور قوية لحسابك",
@@ -592,15 +744,53 @@ class MessageLookup extends MessageLookupByLibrary {
       "سجّل دخول بكلمة المرور الجديدة",
     ),
     "auth_reset_title": MessageLookupByLibrary.simpleMessage("كلمة مرور جديدة"),
+    "auth_reset_unavailable": MessageLookupByLibrary.simpleMessage(
+      "النسخة دي مش بتبعث إيميل الاستعادة. استعيد كلمة المرور من الموقع، وبعدين ادخل من هنا.",
+    ),
+    "auth_server_missing": MessageLookupByLibrary.simpleMessage(
+      "سيرفر دهب مش متوصل في النسخة دي، فالدخول مش هيكمّل. تقدر تتفرج برضو.",
+    ),
     "auth_step": m17,
     "auth_trust_code": MessageLookupByLibrary.simpleMessage("تسليم بكود"),
     "auth_trust_line": MessageLookupByLibrary.simpleMessage(
-      "صفقات أوضح · تواصل أوثق · تسليم بكود",
+      "بياناتك ودفتر حساباتك مشفرة ومؤمّنة سحابياً",
     ),
     "auth_trust_payment": MessageLookupByLibrary.simpleMessage("دفع محمي"),
     "auth_trust_reviews": MessageLookupByLibrary.simpleMessage(
       "تقييمات حقيقية",
     ),
+    "book_continue": MessageLookupByLibrary.simpleMessage("احجزلي المعاد ده"),
+    "book_date": MessageLookupByLibrary.simpleMessage("اليوم"),
+    "book_departed": MessageLookupByLibrary.simpleMessage("فات"),
+    "book_failed": MessageLookupByLibrary.simpleMessage(
+      "معرفناش نمسك المعاد ده. جرّب طلعة تانية.",
+    ),
+    "book_guests": MessageLookupByLibrary.simpleMessage("عدد الأفراد"),
+    "book_hold_note": MessageLookupByLibrary.simpleMessage(
+      "بنمسكلك الأماكن ١٥ دقيقة لحد ما تأكد. مفيش أي فلوس هتتدفع.",
+    ),
+    "book_left": m18,
+    "book_phone": MessageLookupByLibrary.simpleMessage("رقم موبايل للمورّد"),
+    "book_phone_missing": MessageLookupByLibrary.simpleMessage(
+      "اكتب رقم موبايل عشان المورّد يقدر يكلّمك.",
+    ),
+    "book_retry": MessageLookupByLibrary.simpleMessage("جرّب تاني"),
+    "book_sign_in": MessageLookupByLibrary.simpleMessage("سجّل دخول عشان تحجز"),
+    "book_slots_error": MessageLookupByLibrary.simpleMessage(
+      "معرفناش نشوف الأماكن المتاحة.",
+    ),
+    "book_slots_loading": MessageLookupByLibrary.simpleMessage(
+      "بنشوف الأماكن المتاحة دلوقتي…",
+    ),
+    "book_slots_none": MessageLookupByLibrary.simpleMessage(
+      "مفيش طلعات اليوم ده. جرّب يوم تاني.",
+    ),
+    "book_sold_out": MessageLookupByLibrary.simpleMessage("كامل"),
+    "book_time": MessageLookupByLibrary.simpleMessage("معاد الطلعة"),
+    "book_title": MessageLookupByLibrary.simpleMessage("اختار معادك"),
+    "book_today": MessageLookupByLibrary.simpleMessage("النهارده"),
+    "book_tomorrow": MessageLookupByLibrary.simpleMessage("بكرة"),
+    "book_total": MessageLookupByLibrary.simpleMessage("الإجمالي"),
     "camera": MessageLookupByLibrary.simpleMessage("الكاميرا"),
     "cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
     "chat_action_confirm_time": MessageLookupByLibrary.simpleMessage(
@@ -637,7 +827,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "chat_copied": MessageLookupByLibrary.simpleMessage("تم نسخ الرسالة"),
     "chat_copy": MessageLookupByLibrary.simpleMessage("نسخ"),
     "chat_image_caption": MessageLookupByLibrary.simpleMessage("صورة"),
-    "chat_last_seen": m18,
+    "chat_last_seen": m19,
     "chat_online": MessageLookupByLibrary.simpleMessage("متصل"),
     "chat_open_code_enter": MessageLookupByLibrary.simpleMessage(
       "تأكيد الاستلام بالكود",
@@ -681,7 +871,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "chat_today": MessageLookupByLibrary.simpleMessage("اليوم"),
     "chat_typing": MessageLookupByLibrary.simpleMessage("يكتب…"),
-    "chat_unread": m19,
+    "chat_unread": m20,
     "chat_user_completed_deals": MessageLookupByLibrary.simpleMessage(
       "صفقات مكتملة",
     ),
@@ -700,6 +890,14 @@ class MessageLookup extends MessageLookupByLibrary {
       "حساب المستخدم",
     ),
     "chat_yesterday": MessageLookupByLibrary.simpleMessage("أمس"),
+    "compass_e": MessageLookupByLibrary.simpleMessage("شرق"),
+    "compass_n": MessageLookupByLibrary.simpleMessage("شمال"),
+    "compass_ne": MessageLookupByLibrary.simpleMessage("شمال شرقي"),
+    "compass_nw": MessageLookupByLibrary.simpleMessage("شمال غربي"),
+    "compass_s": MessageLookupByLibrary.simpleMessage("جنوب"),
+    "compass_se": MessageLookupByLibrary.simpleMessage("جنوب شرقي"),
+    "compass_sw": MessageLookupByLibrary.simpleMessage("جنوب غربي"),
+    "compass_w": MessageLookupByLibrary.simpleMessage("غرب"),
     "confirmValidation": MessageLookupByLibrary.simpleMessage(
       "من فضلك ادخل كلمة المرورمتطابق",
     ),
@@ -720,7 +918,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_change_photo": MessageLookupByLibrary.simpleMessage(
       "تغيير الصورة",
     ),
-    "create_request_close_note": m20,
+    "create_request_close_note": m21,
     "create_request_contacts_hint": MessageLookupByLibrary.simpleMessage(
       "اختار إيه اللي اليوزر التاني يشوفه بعد ما يبدأ التواصل على الطلب",
     ),
@@ -730,18 +928,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_cycle_deposit": MessageLookupByLibrary.simpleMessage(
       "العربون",
     ),
-    "create_request_cycle_deposit_sub": m21,
+    "create_request_cycle_deposit_sub": m22,
     "create_request_cycle_hint": MessageLookupByLibrary.simpleMessage(
       "التأمين، بعدين العربون، وبعدين غرامة التأخير لو حصلت",
     ),
     "create_request_cycle_insurance": MessageLookupByLibrary.simpleMessage(
       "التأمين",
     ),
-    "create_request_cycle_insurance_sub": m22,
+    "create_request_cycle_insurance_sub": m23,
     "create_request_cycle_late_fee": MessageLookupByLibrary.simpleMessage(
       "غرامة التأخير",
     ),
-    "create_request_cycle_late_fee_sub": m23,
+    "create_request_cycle_late_fee_sub": m24,
     "create_request_cycle_title": MessageLookupByLibrary.simpleMessage(
       "دورة المبالغ",
     ),
@@ -809,7 +1007,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_hashtag_hint": MessageLookupByLibrary.simpleMessage(
       "اكتب # لاختيار هاشتاج من التصنيفات",
     ),
-    "create_request_insurance_amount": m24,
+    "create_request_insurance_amount": m25,
     "create_request_insurance_buy": MessageLookupByLibrary.simpleMessage(
       "تأمين الشراء ٪",
     ),
@@ -829,7 +1027,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_location_hint": MessageLookupByLibrary.simpleMessage(
       "حدد المكان",
     ),
-    "create_request_location_value": m25,
+    "create_request_location_value": m26,
     "create_request_min_qty": MessageLookupByLibrary.simpleMessage(
       "الحد الأدنى",
     ),
@@ -874,11 +1072,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_radius_hint": MessageLookupByLibrary.simpleMessage(
       "اضغط لاختيار النطاق، واضغط تاني لإلغاء الاختيار — كل ما النطاق أكبر، هتوصل لناس أكتر",
     ),
-    "create_request_radius_km": m26,
+    "create_request_radius_km": m27,
     "create_request_radius_title": MessageLookupByLibrary.simpleMessage(
       "نطاق الوصول",
     ),
-    "create_request_reach": m27,
+    "create_request_reach": m28,
     "create_request_remove_photo": MessageLookupByLibrary.simpleMessage(
       "إزالة",
     ),
@@ -894,7 +1092,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_share_whatsapp_hint": MessageLookupByLibrary.simpleMessage(
       "يقدر يراسلك على واتساب مباشرة",
     ),
-    "create_request_step": m28,
+    "create_request_step": m29,
     "create_request_step2_subtitle": MessageLookupByLibrary.simpleMessage(
       "حدد النطاق والتوصيل قبل النشر",
     ),
@@ -905,7 +1103,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_submitted": MessageLookupByLibrary.simpleMessage(
       "تم نشر طلبك، هتوصلك العروض قريب",
     ),
-    "create_request_summary_line": m29,
+    "create_request_summary_line": m30,
     "create_request_summary_title": MessageLookupByLibrary.simpleMessage(
       "ملخص طلبك",
     ),
@@ -939,14 +1137,70 @@ class MessageLookup extends MessageLookupByLibrary {
     "create_request_whatsapp_same_hint": MessageLookupByLibrary.simpleMessage(
       "استخدم رقم الموبايل كواتساب",
     ),
+    "daygi_body": MessageLookupByLibrary.simpleMessage(
+      "قول محتاج إيه، ونبدأ خطة حواليه. التفاصيل بتتأكد مع أهل المكان.",
+    ),
+    "daygi_hint": MessageLookupByLibrary.simpleMessage(
+      "عايز حاجة هادية بعد الغطس",
+    ),
+    "daygi_send": MessageLookupByLibrary.simpleMessage("خطّط حواليها"),
+    "daygi_title": MessageLookupByLibrary.simpleMessage("اسأل DayGi"),
+    "daygi_try": MessageLookupByLibrary.simpleMessage("جرّب"),
+    "dg_add_to_day": m31,
+    "dg_added": MessageLookupByLibrary.simpleMessage("في خطتك"),
+    "dg_day_n": m32,
+    "dg_days": m33,
+    "dg_days_pick": MessageLookupByLibrary.simpleMessage("كام يوم"),
+    "dg_greeting": MessageLookupByLibrary.simpleMessage(
+      "أهلاً! قولّي عايز أيامك تبقى عاملة إزاي. هرد عليك بطلعات حقيقية تتحجز، وأبنيلك الخطة تحت.",
+    ),
+    "dg_hint": MessageLookupByLibrary.simpleMessage("اكتب أو اتكلم…"),
+    "dg_local_none": MessageLookupByLibrary.simpleMessage(
+      "مفيش حاجة تتحجز مطابقة لسه. جرّب نوع طلعة أو مكان أو ميزانية.",
+    ),
+    "dg_local_reply": m34,
+    "dg_plan_day": m35,
+    "dg_plan_empty": MessageLookupByLibrary.simpleMessage(
+      "مفيش حاجة في اليوم ده لسه. دوس \"ضيف لليوم\" على أي كارت فوق.",
+    ),
+    "dg_plan_empty_short": MessageLookupByLibrary.simpleMessage("فاضية"),
+    "dg_remove": MessageLookupByLibrary.simpleMessage("شيل"),
+    "dg_send": MessageLookupByLibrary.simpleMessage("ابعت"),
+    "dg_sign_in_note": MessageLookupByLibrary.simpleMessage(
+      "سجّل دخول وDayGi يقدر كمان يخطط حوالين رحلتك المحجوزة.",
+    ),
+    "dg_sources": m36,
+    "dg_sources_prices": MessageLookupByLibrary.simpleMessage(
+      "الأسعار من الموردين مباشرة",
+    ),
+    "dg_subtitle": MessageLookupByLibrary.simpleMessage("عارف دهب كويس"),
+    "dg_swap": MessageLookupByLibrary.simpleMessage("بدّل"),
+    "dg_try_1": MessageLookupByLibrary.simpleMessage(
+      "٣ أيام هادية لاتنين: سنوركل وغروب حلو",
+    ),
+    "dg_try_2": MessageLookupByLibrary.simpleMessage(
+      "أول غطسة ليا، من غير قلق",
+    ),
+    "dg_try_3": MessageLookupByLibrary.simpleMessage("يوم صحرا وعشا بدوي"),
+    "dg_voice": MessageLookupByLibrary.simpleMessage("كلّم DayGi"),
+    "dg_voice_unavailable": MessageLookupByLibrary.simpleMessage(
+      "الكلام بالصوت مش متاح على الجهاز ده.",
+    ),
+    "dg_why": MessageLookupByLibrary.simpleMessage("ليه:"),
     "discover_air": MessageLookupByLibrary.simpleMessage("الجو"),
     "discover_ask_daygi": MessageLookupByLibrary.simpleMessage("اسأل DayGi"),
-    "discover_doors_title": m30,
-    "discover_early_note": m31,
+    "discover_doors_title": m37,
+    "discover_early_note": m38,
     "discover_hero_cta": MessageLookupByLibrary.simpleMessage("خطّط رحلتي"),
-    "discover_live": m32,
+    "discover_hero_explore": m39,
+    "discover_hero_note": MessageLookupByLibrary.simpleMessage(
+      "حجز مباشر موثّق · إلغاء مرن · ترشيحات من أهل المكان",
+    ),
+    "discover_live": m40,
     "discover_pick_cta": MessageLookupByLibrary.simpleMessage("خطّط حواليها"),
-    "discover_picks_title": m33,
+    "discover_picks_title": m41,
+    "discover_plans_all": MessageLookupByLibrary.simpleMessage("قارن"),
+    "discover_plans_title": m42,
     "discover_prompt_body": MessageLookupByLibrary.simpleMessage(
       "قولنا مين جاي وبتحب إيه، ونقترح عليك خطط ونقولك كل واحدة مناسبة ليه.",
     ),
@@ -954,7 +1208,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "discover_prompt_title": MessageLookupByLibrary.simpleMessage(
       "مش عارف تبدأ منين؟",
     ),
-    "discover_source": m34,
+    "discover_source": m43,
+    "discover_stories_note": m44,
+    "discover_stories_title": m45,
     "discover_sunset": MessageLookupByLibrary.simpleMessage("المغرب"),
     "discover_switch_label": MessageLookupByLibrary.simpleMessage(
       "اختار المكان",
@@ -1005,10 +1261,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_empty_title": MessageLookupByLibrary.simpleMessage(
       "مفيش نتائج في النطاق ده",
     ),
-    "explore_empty_title_radius": m35,
+    "explore_empty_title_radius": m46,
     "explore_empty_widen": MessageLookupByLibrary.simpleMessage("وسّع النطاق"),
-    "explore_empty_widen_to": m36,
-    "explore_results_count": m37,
+    "explore_empty_widen_to": m47,
+    "explore_results_count": m48,
     "explore_search_hint": MessageLookupByLibrary.simpleMessage(
       "دور على كراسي، كوشة، إضاءة…",
     ),
@@ -1021,11 +1277,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "explore_sort_soonest": MessageLookupByLibrary.simpleMessage(
       "الأقرب موعدًا",
     ),
-    "explore_subtitle": m38,
+    "explore_subtitle": m49,
     "explore_title": MessageLookupByLibrary.simpleMessage("استكشف"),
     "failureActions": MessageLookupByLibrary.simpleMessage("إجراءات الفشل"),
     "fillField": MessageLookupByLibrary.simpleMessage("الرجاء ملء الحقل"),
-    "handover_countdown": m39,
+    "handover_countdown": m50,
     "handover_done": MessageLookupByLibrary.simpleMessage("تم العرض"),
     "handover_open_ritual": MessageLookupByLibrary.simpleMessage(
       "عرض بملء الشاشة",
@@ -1036,21 +1292,29 @@ class MessageLookup extends MessageLookupByLibrary {
     "handover_show_title": MessageLookupByLibrary.simpleMessage(
       "ورّي الكود للمزوّد",
     ),
+    "home_ask_hint": MessageLookupByLibrary.simpleMessage(
+      "اسأل DayGi — اكتب أو اتكلم",
+    ),
     "home_ask_placeholder": MessageLookupByLibrary.simpleMessage(
       "اكتب طلبك أو قوله، وإحنا نرتّبه",
     ),
-    "home_available_on": m40,
+    "home_available_on": m51,
+    "home_back": MessageLookupByLibrary.simpleMessage("رجوع"),
     "home_buy": MessageLookupByLibrary.simpleMessage("شراء"),
     "home_card_offer": MessageLookupByLibrary.simpleMessage("قدّم عرض"),
     "home_categories_title": MessageLookupByLibrary.simpleMessage("التصنيفات"),
-    "home_distance_km": m41,
-    "home_due_in_days": m42,
+    "home_days_to_trip": m52,
+    "home_distance_km": m53,
+    "home_door_ask": MessageLookupByLibrary.simpleMessage("اسأل DayGi"),
+    "home_door_browse": MessageLookupByLibrary.simpleMessage("شوف الطلعات"),
+    "home_door_plan": MessageLookupByLibrary.simpleMessage("ابدأ خطة"),
+    "home_due_in_days": m54,
     "home_due_today": MessageLookupByLibrary.simpleMessage("محتاجها النهارده"),
     "home_due_tomorrow": MessageLookupByLibrary.simpleMessage("محتاجها بكرة"),
     "home_featured_label": MessageLookupByLibrary.simpleMessage("أقرب موعد"),
     "home_greeting_evening": MessageLookupByLibrary.simpleMessage("مساء الخير"),
     "home_greeting_morning": MessageLookupByLibrary.simpleMessage("صباح الخير"),
-    "home_greeting_named": m43,
+    "home_greeting_named": m55,
     "home_headline": MessageLookupByLibrary.simpleMessage("محتاج إيه؟"),
     "home_headline_fulfiller": MessageLookupByLibrary.simpleMessage(
       "في طلبات قريبة تقدر تنفّذها",
@@ -1061,7 +1325,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_headline_sub": MessageLookupByLibrary.simpleMessage(
       "تصفّح الطلبات القريبة أو اطلب اللي محتاجه",
     ),
-    "home_location_km": m44,
+    "home_hello_afternoon": MessageLookupByLibrary.simpleMessage("نهارك سعيد"),
+    "home_hello_evening": MessageLookupByLibrary.simpleMessage("مساء الفل"),
+    "home_hello_morning": MessageLookupByLibrary.simpleMessage("صباح الفل"),
+    "home_hello_name": m56,
+    "home_live_from": m57,
+    "home_location_km": m58,
     "home_nav_account": MessageLookupByLibrary.simpleMessage("حسابي"),
     "home_nav_daygi": MessageLookupByLibrary.simpleMessage("DayGi"),
     "home_nav_discover": MessageLookupByLibrary.simpleMessage("اكتشف"),
@@ -1073,13 +1342,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_nav_today": MessageLookupByLibrary.simpleMessage("النهارده"),
     "home_nav_trip": MessageLookupByLibrary.simpleMessage("رحلتي"),
     "home_nearest": MessageLookupByLibrary.simpleMessage("الأقرب"),
-    "home_need_by_chip": m45,
+    "home_need_by_chip": m59,
     "home_notifications": MessageLookupByLibrary.simpleMessage("الإشعارات"),
     "home_price_unit_day": MessageLookupByLibrary.simpleMessage("/اليوم"),
-    "home_radius_label": m46,
-    "home_reach_line": m47,
+    "home_radius_label": m60,
+    "home_reach_line": m61,
     "home_rent": MessageLookupByLibrary.simpleMessage("إيجار"),
-    "home_request_subtitle": m48,
+    "home_request_subtitle": m62,
     "home_request_title": MessageLookupByLibrary.simpleMessage(
       "اطلبها ونلاقيها لك",
     ),
@@ -1089,10 +1358,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_search_hint": MessageLookupByLibrary.simpleMessage(
       "ملابس، إلكترونيات، مواد غذائية…",
     ),
+    "home_see_all": MessageLookupByLibrary.simpleMessage("شوف الكل"),
     "home_side_empty": MessageLookupByLibrary.simpleMessage(
       "مفيش طلبات في التصنيف ده دلوقتي",
     ),
-    "home_view_all": m49,
+    "home_today_in": m63,
+    "home_trip_day": m64,
+    "home_view_all": m65,
     "internet_connected": MessageLookupByLibrary.simpleMessage(
       "تم الاتصال بالانترنت",
     ),
@@ -1121,13 +1393,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "lifecycle_handover": MessageLookupByLibrary.simpleMessage("تسليم"),
     "lifecycle_offers": MessageLookupByLibrary.simpleMessage("عروض"),
     "lifecycle_published": MessageLookupByLibrary.simpleMessage("منشور"),
-    "listing_availability": m50,
-    "listing_book": m51,
+    "listing_availability": m66,
+    "listing_book": m67,
     "listing_buy": MessageLookupByLibrary.simpleMessage("شراء"),
     "listing_fulfill_cta": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك على الطلب",
     ),
-    "listing_fulfill_sheet_hint": m52,
+    "listing_fulfill_sheet_hint": m68,
     "listing_fulfill_sheet_title": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك للطالب ده",
     ),
@@ -1150,21 +1422,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_offer_err_price": MessageLookupByLibrary.simpleMessage(
       "اكتب سعر العرض",
     ),
-    "listing_offer_err_qty": m53,
+    "listing_offer_err_qty": m69,
     "listing_offer_price_label": MessageLookupByLibrary.simpleMessage(
       "سعرك في العرض",
     ),
-    "listing_offer_qty_label": m54,
+    "listing_offer_qty_label": m70,
     "listing_offer_sent": MessageLookupByLibrary.simpleMessage(
       "تم إرسال عرضك وفتحت المحادثة",
     ),
-    "listing_offer_sheet_hint": m55,
+    "listing_offer_sheet_hint": m71,
     "listing_offer_sheet_title": MessageLookupByLibrary.simpleMessage(
       "قدّم عرضك على الحاجة دي",
     ),
     "listing_offer_submit": MessageLookupByLibrary.simpleMessage("إرسال العرض"),
     "listing_owner_label": MessageLookupByLibrary.simpleMessage("صاحب العرض"),
-    "listing_qty": m56,
+    "listing_qty": m72,
     "listing_rent": MessageLookupByLibrary.simpleMessage("إيجار"),
     "listing_request_details_hint": MessageLookupByLibrary.simpleMessage(
       "طالب بيدور على الحاجة دي — الشروط والعربون والتأمين ظاهرة هنا",
@@ -1172,8 +1444,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "listing_request_details_title": MessageLookupByLibrary.simpleMessage(
       "تفاصيل الطلب المطلوب",
     ),
-    "listing_reviews": m57,
-    "listing_stock": m58,
+    "listing_reviews": m73,
+    "listing_stock": m74,
     "listing_total_one_day": MessageLookupByLibrary.simpleMessage(
       "إجمالي يوم واحد",
     ),
@@ -1181,6 +1453,35 @@ class MessageLookup extends MessageLookupByLibrary {
     "mailValidation": MessageLookupByLibrary.simpleMessage(
       "من فضلك ادخل البريد صحيحا",
     ),
+    "map_abu_galum": MessageLookupByLibrary.simpleMessage("أبو جالوم"),
+    "map_asala": MessageLookupByLibrary.simpleMessage("العصلة"),
+    "map_blue_hole": MessageLookupByLibrary.simpleMessage("البلو هول"),
+    "map_canyon": MessageLookupByLibrary.simpleMessage("الكانيون"),
+    "map_eel_garden": MessageLookupByLibrary.simpleMessage("إيل جاردن"),
+    "map_empty": MessageLookupByLibrary.simpleMessage(
+      "مفيش حاجة مطابقة. جرّب يوم تاني أو امسح البحث.",
+    ),
+    "map_failed": MessageLookupByLibrary.simpleMessage(
+      "معرفناش نحمّل التجارب. اسحب وجرّب تاني.",
+    ),
+    "map_gulf": MessageLookupByLibrary.simpleMessage("خليج العقبة"),
+    "map_kind_all": MessageLookupByLibrary.simpleMessage("الكل"),
+    "map_kind_culture": MessageLookupByLibrary.simpleMessage("بدوي وثقافة"),
+    "map_kind_desert": MessageLookupByLibrary.simpleMessage("صحرا"),
+    "map_kind_sea": MessageLookupByLibrary.simpleMessage("بحر"),
+    "map_lagoon": MessageLookupByLibrary.simpleMessage("اللاجون"),
+    "map_lighthouse": MessageLookupByLibrary.simpleMessage("الفنار"),
+    "map_loading": MessageLookupByLibrary.simpleMessage("بنحمّل المتاح…"),
+    "map_masbat": MessageLookupByLibrary.simpleMessage("المسبط"),
+    "map_offline": MessageLookupByLibrary.simpleMessage(
+      "من غير نت: بنعرض آخر أسعار متسجّلة على الموبايل",
+    ),
+    "map_open_on": m75,
+    "map_open_today": m76,
+    "map_search_hint": MessageLookupByLibrary.simpleMessage(
+      "غطس، أكل، مكان هادي…",
+    ),
+    "map_three_pools": MessageLookupByLibrary.simpleMessage("التلات بِرَك"),
     "market_mode_fulfiller": MessageLookupByLibrary.simpleMessage("أنا بعرض"),
     "market_mode_requester": MessageLookupByLibrary.simpleMessage("أنا طالب"),
     "market_side_all": MessageLookupByLibrary.simpleMessage("الكل"),
@@ -1238,31 +1539,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "offers_ask": MessageLookupByLibrary.simpleMessage("اسأله"),
     "offers_back": MessageLookupByLibrary.simpleMessage("طلباتي"),
     "offers_best": MessageLookupByLibrary.simpleMessage("الأفضل"),
-    "offers_commit_before": m59,
-    "offers_compare": m60,
+    "offers_commit_before": m77,
+    "offers_compare": m78,
     "offers_compare_subtitle": MessageLookupByLibrary.simpleMessage(
       "سعر · مسافة · تقييم · سرعة الرد",
     ),
     "offers_compare_title": MessageLookupByLibrary.simpleMessage("قارن العروض"),
     "offers_currency": MessageLookupByLibrary.simpleMessage("ج"),
-    "offers_deals_count": m61,
+    "offers_deals_count": m79,
     "offers_delivery_free": MessageLookupByLibrary.simpleMessage("مجاني"),
     "offers_delivery_on_renter": MessageLookupByLibrary.simpleMessage(
       "على المستأجر",
     ),
     "offers_delivery_pickup": MessageLookupByLibrary.simpleMessage("استلام"),
-    "offers_distance_km": m62,
+    "offers_distance_km": m80,
     "offers_field_deals": MessageLookupByLibrary.simpleMessage("الصفقات"),
     "offers_field_delivery": MessageLookupByLibrary.simpleMessage("التوصيل"),
     "offers_field_insurance": MessageLookupByLibrary.simpleMessage("التأمين"),
     "offers_field_response": MessageLookupByLibrary.simpleMessage("الرد"),
     "offers_late_risk": MessageLookupByLibrary.simpleMessage("وقت ضيق"),
     "offers_new": MessageLookupByLibrary.simpleMessage("جديد"),
-    "offers_nudge_last": m63,
-    "offers_nudge_new": m64,
-    "offers_request_summary": m65,
-    "offers_response_minutes": m66,
-    "offers_title": m67,
+    "offers_nudge_last": m81,
+    "offers_nudge_new": m82,
+    "offers_request_summary": m83,
+    "offers_response_minutes": m84,
+    "offers_title": m85,
     "offers_verified": MessageLookupByLibrary.simpleMessage("موثق"),
     "offers_why_cheapest": MessageLookupByLibrary.simpleMessage("أقل سعر"),
     "offers_why_fastest": MessageLookupByLibrary.simpleMessage("أسرع"),
@@ -1311,13 +1612,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "order_detail_enter_code_title": MessageLookupByLibrary.simpleMessage(
       "تأكيد الاستلام بالكود",
     ),
-    "order_detail_event": m68,
+    "order_detail_event": m86,
     "order_detail_status_updated": MessageLookupByLibrary.simpleMessage(
       "تم تحديث حالة الطلب",
     ),
     "order_detail_timeline": MessageLookupByLibrary.simpleMessage("مسار الطلب"),
     "order_detail_title": MessageLookupByLibrary.simpleMessage("تفاصيل الطلب"),
-    "orders_action_needed": m69,
+    "orders_action_needed": m87,
     "orders_awaiting_peer": MessageLookupByLibrary.simpleMessage(
       "بانتظار عروض",
     ),
@@ -1337,7 +1638,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "orders_filter_all": MessageLookupByLibrary.simpleMessage("الكل"),
     "orders_filter_cancelled": MessageLookupByLibrary.simpleMessage("ملغي"),
     "orders_filter_done": MessageLookupByLibrary.simpleMessage("مكتمل"),
-    "orders_meta": m70,
+    "orders_meta": m88,
     "orders_next_details": MessageLookupByLibrary.simpleMessage("التفاصيل"),
     "orders_next_enter_code": MessageLookupByLibrary.simpleMessage(
       "دخّل كود الاستلام",
@@ -1373,6 +1674,37 @@ class MessageLookup extends MessageLookupByLibrary {
     "passValidation": MessageLookupByLibrary.simpleMessage(
       "من فضلك ادخل على الاقل 6 حروف او ارقام",
     ),
+    "pay_cancel_until": m89,
+    "pay_cash": MessageLookupByLibrary.simpleMessage("الدفع عند الوصول"),
+    "pay_cash_hint": m90,
+    "pay_confirm": MessageLookupByLibrary.simpleMessage("أكّد الحجز"),
+    "pay_currency_note": m91,
+    "pay_currency_note_egp": MessageLookupByLibrary.simpleMessage(
+      "الدفع بالجنيه المصري",
+    ),
+    "pay_done_title": MessageLookupByLibrary.simpleMessage("اتحجز"),
+    "pay_expired": MessageLookupByLibrary.simpleMessage(
+      "وقت الحجز خلص والأماكن رجعت متاحة. اختار معاد تاني.",
+    ),
+    "pay_failed": MessageLookupByLibrary.simpleMessage(
+      "معرفناش نأكّد الحجز. المعاد لسه محجوزلك، جرّب تاني.",
+    ),
+    "pay_guests": m92,
+    "pay_held": MessageLookupByLibrary.simpleMessage("محجوزلك"),
+    "pay_method": MessageLookupByLibrary.simpleMessage("هتدفع إزاي"),
+    "pay_open_trip": MessageLookupByLibrary.simpleMessage("افتح رحلتي"),
+    "pay_pick_again": MessageLookupByLibrary.simpleMessage("اختار معاد تاني"),
+    "pay_price_changed": m93,
+    "pay_state_booked": m94,
+    "pay_state_note": MessageLookupByLibrary.simpleMessage(
+      "الحجز وتأكيد المورّد خطوتين منفصلين. أول ما المورّد يأكّد هتلاقيها في رحلتك.",
+    ),
+    "pay_state_payment": MessageLookupByLibrary.simpleMessage(
+      "الدفع: عند الوصول، مفيش حاجة اتخصمت",
+    ),
+    "pay_state_waiting": m95,
+    "pay_title": MessageLookupByLibrary.simpleMessage("راجع وأكّد"),
+    "pay_total": MessageLookupByLibrary.simpleMessage("الإجمالي"),
     "phoneValidation": MessageLookupByLibrary.simpleMessage(
       "من فضلك ادخل الجوال صحيحا",
     ),
@@ -1390,20 +1722,305 @@ class MessageLookup extends MessageLookupByLibrary {
       "بنجيب عنوان المكان…",
     ),
     "pick_location_title": MessageLookupByLibrary.simpleMessage("حدد المكان"),
+    "plan_back": MessageLookupByLibrary.simpleMessage("رجوع"),
+    "plan_budget_budget": MessageLookupByLibrary.simpleMessage("على قد الإيد"),
+    "plan_budget_moderate": MessageLookupByLibrary.simpleMessage("مريح"),
+    "plan_budget_perDay": MessageLookupByLibrary.simpleMessage("/ اليوم"),
+    "plan_budget_premium": MessageLookupByLibrary.simpleMessage("دلّع نفسك"),
+    "plan_building": MessageLookupByLibrary.simpleMessage("بنرتّبلك الخطط"),
+    "plan_card_book": MessageLookupByLibrary.simpleMessage("احجز الخطة دي"),
+    "plan_card_days": m96,
+    "plan_card_estimate": MessageLookupByLibrary.simpleMessage("سعر تقديري"),
+    "plan_card_freeTime": m97,
+    "plan_card_from": MessageLookupByLibrary.simpleMessage("يبدأ من"),
+    "plan_card_included": MessageLookupByLibrary.simpleMessage(
+      "الخطة فيها إيه",
+    ),
+    "plan_card_pace": MessageLookupByLibrary.simpleMessage("الإيقاع"),
+    "plan_card_perPerson": MessageLookupByLibrary.simpleMessage("للفرد"),
+    "plan_card_request": MessageLookupByLibrary.simpleMessage("اطلب الخطة دي"),
+    "plan_card_tweak": MessageLookupByLibrary.simpleMessage("عدّلها مع DayGi"),
+    "plan_card_viewDays": MessageLookupByLibrary.simpleMessage(
+      "شوفها يوم بيوم",
+    ),
+    "plan_detail_day": m98,
+    "plan_detail_dayByDay": MessageLookupByLibrary.simpleMessage("يوم بيوم"),
+    "plan_detail_highlights": MessageLookupByLibrary.simpleMessage(
+      "أحلى ما فيها",
+    ),
+    "plan_detail_included": MessageLookupByLibrary.simpleMessage(
+      "الخطة فيها إيه",
+    ),
+    "plan_early_note": m99,
+    "plan_loadFailed": MessageLookupByLibrary.simpleMessage(
+      "الخطط ماحمّلتش. اتأكد من النت وجرّب تاني.",
+    ),
+    "plan_next": MessageLookupByLibrary.simpleMessage("كمّل"),
+    "plan_noMatches": MessageLookupByLibrary.simpleMessage(
+      "لسه مفيش خطط هنا. جرّب مكان تاني أو شوف كل الخطط.",
+    ),
+    "plan_pace_active": MessageLookupByLibrary.simpleMessage("مليان"),
+    "plan_pace_activeSub": MessageLookupByLibrary.simpleMessage(
+      "كل يوم فيه حاجة",
+    ),
+    "plan_pace_balanced": MessageLookupByLibrary.simpleMessage("متوازن"),
+    "plan_pace_balancedSub": MessageLookupByLibrary.simpleMessage(
+      "برنامج وفيه مساحة",
+    ),
+    "plan_pace_relaxed": MessageLookupByLibrary.simpleMessage("على مهلك"),
+    "plan_pace_relaxedSub": MessageLookupByLibrary.simpleMessage(
+      "وقت فاضي كتير",
+    ),
+    "plan_party_couple": MessageLookupByLibrary.simpleMessage("إحنا الاتنين"),
+    "plan_party_coupleSub": MessageLookupByLibrary.simpleMessage(
+      "أماكن هادية وغروب حلو",
+    ),
+    "plan_party_family": MessageLookupByLibrary.simpleMessage("عيلة"),
+    "plan_party_familySub": MessageLookupByLibrary.simpleMessage(
+      "أيام مريحة ومناسبة للأطفال",
+    ),
+    "plan_party_friends": MessageLookupByLibrary.simpleMessage("أصحاب"),
+    "plan_party_friendsSub": MessageLookupByLibrary.simpleMessage(
+      "حاجات أكتر نعملها سوا",
+    ),
+    "plan_party_solo": MessageLookupByLibrary.simpleMessage("لوحدي"),
+    "plan_party_soloSub": MessageLookupByLibrary.simpleMessage("على مزاجك"),
+    "plan_q_budget": MessageLookupByLibrary.simpleMessage("الميزانية للفرد"),
+    "plan_q_destination": MessageLookupByLibrary.simpleMessage("رايح فين؟"),
+    "plan_q_pace": MessageLookupByLibrary.simpleMessage(
+      "تحب الإيقاع يبقى إزاي؟",
+    ),
+    "plan_q_party": MessageLookupByLibrary.simpleMessage("مين جاي معاك؟"),
+    "plan_q_vibes": MessageLookupByLibrary.simpleMessage("عايز تحس بإيه؟"),
+    "plan_q_vibesHint": MessageLookupByLibrary.simpleMessage(
+      "اختار اللي يعجبك، مش لازم واحد بس.",
+    ),
+    "plan_q_when": MessageLookupByLibrary.simpleMessage("قاعد قد إيه؟"),
+    "plan_q_whenHint": MessageLookupByLibrary.simpleMessage(
+      "عدد الليالي تقريباً، وتقدر تغيّره بعدين.",
+    ),
+    "plan_reason_budget": MessageLookupByLibrary.simpleMessage(
+      "على قد ميزانيتك",
+    ),
+    "plan_reason_couple": MessageLookupByLibrary.simpleMessage("معمولة لاتنين"),
+    "plan_reason_family": MessageLookupByLibrary.simpleMessage("مريحة للعيلة"),
+    "plan_reason_length": m100,
+    "plan_reason_pace": MessageLookupByLibrary.simpleMessage(
+      "نفس الإيقاع اللي تحبه",
+    ),
+    "plan_reason_vibes": m101,
+    "plan_request_failed": MessageLookupByLibrary.simpleMessage(
+      "الطلب ماوصلش. اتأكد من النت وجرّب تاني.",
+    ),
+    "plan_request_sent": MessageLookupByLibrary.simpleMessage(
+      "طلبك وصل، وفريقنا هيرد عليك على واتساب.",
+    ),
+    "plan_request_signIn": MessageLookupByLibrary.simpleMessage(
+      "ادخل الأول عشان نبعت طلبك",
+    ),
+    "plan_results_allTitle": m102,
+    "plan_results_best": m103,
+    "plan_results_edit": MessageLookupByLibrary.simpleMessage("غيّر إجاباتي"),
+    "plan_results_match": m104,
+    "plan_results_showAll": MessageLookupByLibrary.simpleMessage(
+      "اعرض كل الخطط",
+    ),
+    "plan_results_showMatches": MessageLookupByLibrary.simpleMessage(
+      "ارجع للخطط المناسبة",
+    ),
+    "plan_results_sort": MessageLookupByLibrary.simpleMessage("رتّب الخطط"),
+    "plan_results_title": m105,
+    "plan_results_titleOne": MessageLookupByLibrary.simpleMessage(
+      "لقيتلك خطة على مقاسك",
+    ),
+    "plan_showPlans": MessageLookupByLibrary.simpleMessage("وريني الخطط"),
+    "plan_skipToAll": MessageLookupByLibrary.simpleMessage(
+      "سيبك، وريني كل الخطط",
+    ),
+    "plan_sort_best": MessageLookupByLibrary.simpleMessage("الأنسب"),
+    "plan_sort_calm": MessageLookupByLibrary.simpleMessage("الأهدى"),
+    "plan_sort_price": MessageLookupByLibrary.simpleMessage("الأرخص"),
+    "plan_sort_short": MessageLookupByLibrary.simpleMessage("الأقصر"),
+    "plan_startOver": MessageLookupByLibrary.simpleMessage("ابدأ من الأول"),
+    "plan_step": m106,
+    "plan_subtitle": MessageLookupByLibrary.simpleMessage(
+      "كام سؤال سريع، وبعدها خطط على مقاسك. وتقدر تغيّر أي حاجة في أي وقت.",
+    ),
+    "plan_summary_empty": MessageLookupByLibrary.simpleMessage(
+      "إجاباتك هتظهر هنا واحدة واحدة.",
+    ),
+    "plan_summary_title": MessageLookupByLibrary.simpleMessage(
+      "رحلتك لحد دلوقتي",
+    ),
+    "plan_title": MessageLookupByLibrary.simpleMessage("يلا نظبط رحلتك"),
+    "plan_vibe_adventure": MessageLookupByLibrary.simpleMessage("مغامرة"),
+    "plan_vibe_culture": MessageLookupByLibrary.simpleMessage(
+      "تاريخ وناس البلد",
+    ),
+    "plan_vibe_desert": MessageLookupByLibrary.simpleMessage("صحرا"),
+    "plan_vibe_diving": MessageLookupByLibrary.simpleMessage("غطس"),
+    "plan_vibe_food": MessageLookupByLibrary.simpleMessage("أكل"),
+    "plan_vibe_nature": MessageLookupByLibrary.simpleMessage("مشي وطبيعة"),
+    "plan_vibe_sea": MessageLookupByLibrary.simpleMessage("بحر وسنوركل"),
+    "plan_vibe_stars": MessageLookupByLibrary.simpleMessage("نجوم بالليل"),
+    "plan_vibe_unplug": MessageLookupByLibrary.simpleMessage("فصل عن الدنيا"),
+    "plan_vibe_wellness": MessageLookupByLibrary.simpleMessage("استشفاء وراحة"),
+    "plan_when_flexible": MessageLookupByLibrary.simpleMessage("لسه مش متأكد"),
+    "plan_when_nights": m107,
+    "plan_when_nightsUnit": MessageLookupByLibrary.simpleMessage("ليالي"),
     "retry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
-    "size_more_than_mg_error": m71,
+    "size_more_than_mg_error": m108,
     "something_went_wrong": MessageLookupByLibrary.simpleMessage("حدث خطأ ما"),
-    "splash_brand": MessageLookupByLibrary.simpleMessage("دبّرها"),
+    "splash_brand": MessageLookupByLibrary.simpleMessage("دهب"),
+    "splash_enter": MessageLookupByLibrary.simpleMessage("ادخل دهب"),
+    "splash_eyebrow": MessageLookupByLibrary.simpleMessage(
+      "دهب · قبل ما تحجز، شوفها",
+    ),
+    "splash_scroll": MessageLookupByLibrary.simpleMessage("انزل للدخول"),
+    "splash_skip": MessageLookupByLibrary.simpleMessage("تخطي"),
     "splash_subtitle": MessageLookupByLibrary.simpleMessage(
-      "طلبك بيوصل لأصحاب الحاجة اللي في نطاقك",
+      "غوص وجبال صحراوية وأيام شاطئ هادية — منظمة حواليك.",
     ),
     "splash_tagline": MessageLookupByLibrary.simpleMessage(
-      "اطلب اللي محتاجه، واللي حواليك يوفّروه",
+      "حيث تلتقي الصحراء بالبحر",
+    ),
+    "splash_title": MessageLookupByLibrary.simpleMessage(
+      "حيث تلتقي الصحراء بالبحر",
     ),
     "splash_trust": MessageLookupByLibrary.simpleMessage(
-      "تسليم بكود، ودفع محمي جوّه التطبيق",
+      "بياناتك ودفتر حساباتك مشفرة ومؤمّنة سحابياً",
     ),
+    "today_call": m109,
+    "today_confirmed": MessageLookupByLibrary.simpleMessage("المورّد أكّد"),
+    "today_day_of": m110,
+    "today_done": MessageLookupByLibrary.simpleMessage("خلصت"),
+    "today_driver": MessageLookupByLibrary.simpleMessage("السوّاق"),
+    "today_em_hospital": MessageLookupByLibrary.simpleMessage(
+      "طوارئ مستشفى دهب",
+    ),
+    "today_em_hyperbaric": MessageLookupByLibrary.simpleMessage(
+      "طوارئ الغطس · غرفة الضغط",
+    ),
+    "today_em_police": MessageLookupByLibrary.simpleMessage("شرطة السياحة"),
+    "today_emergency": MessageLookupByLibrary.simpleMessage("طوارئ"),
+    "today_guide": MessageLookupByLibrary.simpleMessage("المرشد"),
+    "today_in_hm": m111,
+    "today_in_m": m112,
+    "today_later": MessageLookupByLibrary.simpleMessage("بعدين"),
+    "today_move_failed": MessageLookupByLibrary.simpleMessage(
+      "معرفناش ننقلها. جرّب تاني أو كلّم المورّد.",
+    ),
+    "today_move_it": MessageLookupByLibrary.simpleMessage("انقلها"),
+    "today_moved": m113,
+    "today_next": MessageLookupByLibrary.simpleMessage("اللي جاي"),
+    "today_no_person": MessageLookupByLibrary.simpleMessage(
+      "المورّد هيبعت مين جاي قبل اليوم.",
+    ),
+    "today_none_action": MessageLookupByLibrary.simpleMessage(
+      "دوّر على حاجة تحجزها",
+    ),
+    "today_none_body": MessageLookupByLibrary.simpleMessage(
+      "رحلتك متسجّلة. احجز طلعات وهتلاقيها هنا بالمواعيد والتوصيل والقسايم.",
+    ),
+    "today_none_title": MessageLookupByLibrary.simpleMessage("لسه محجزتش حاجة"),
+    "today_offline": MessageLookupByLibrary.simpleMessage(
+      "بنعرض آخر نسخة متسجّلة على الموبايل",
+    ),
+    "today_operator": MessageLookupByLibrary.simpleMessage("المورّد"),
+    "today_paid": MessageLookupByLibrary.simpleMessage("مدفوع"),
+    "today_pending": MessageLookupByLibrary.simpleMessage("مستني المورّد"),
+    "today_step_arrived": MessageLookupByLibrary.simpleMessage("وصل"),
+    "today_step_confirmed": MessageLookupByLibrary.simpleMessage("اتأكّد"),
+    "today_step_driver": MessageLookupByLibrary.simpleMessage("السوّاق"),
+    "today_step_way": MessageLookupByLibrary.simpleMessage("في الطريق"),
+    "today_title": MessageLookupByLibrary.simpleMessage("النهارده"),
+    "today_under_way": MessageLookupByLibrary.simpleMessage("شغّالة دلوقتي"),
+    "today_voucher": MessageLookupByLibrary.simpleMessage("القسيمة"),
+    "today_voucher_hint": MessageLookupByLibrary.simpleMessage(
+      "ورّيها للمورّد. شغّالة من غير شبكة.",
+    ),
+    "today_voucher_offline": MessageLookupByLibrary.simpleMessage(
+      "شغّالة من غير نت",
+    ),
+    "today_voucher_ref_hint": MessageLookupByLibrary.simpleMessage(
+      "ده رقم حجزك. كود المورّد بيظهر أول ما يأكّد.",
+    ),
+    "today_waiting_operator": MessageLookupByLibrary.simpleMessage(
+      "مستنيين المورّد يأكّد",
+    ),
+    "today_wind": m114,
+    "today_wind_alert": m115,
+    "today_wind_ask": m116,
+    "today_wind_offer": m117,
+    "today_wind_other": MessageLookupByLibrary.simpleMessage("حاجة تانية"),
+    "trip_change": MessageLookupByLibrary.simpleMessage("غيّر الخطة"),
+    "trip_days_title": MessageLookupByLibrary.simpleMessage("الأيام"),
+    "trip_days_to_go": m118,
+    "trip_empty_body": MessageLookupByLibrary.simpleMessage(
+      "لما الخطة تتأكد، التاب ده يبقى يومك: المواعيد، والحجوزات، واللي جاي.",
+    ),
+    "trip_empty_cta": MessageLookupByLibrary.simpleMessage("خطّط رحلتي"),
+    "trip_empty_title": MessageLookupByLibrary.simpleMessage("رحلتك هنا"),
+    "trip_keep": MessageLookupByLibrary.simpleMessage("دي رحلتي"),
+    "trip_send": MessageLookupByLibrary.simpleMessage("ابعت للفريق"),
+    "trip_sent_note": MessageLookupByLibrary.simpleMessage(
+      "الفريق معاه الخطة، وهيأكدها مع المضيفين المحليين.",
+    ),
+    "trip_status_draft": MessageLookupByLibrary.simpleMessage("خطتك"),
+    "trip_status_sent": MessageLookupByLibrary.simpleMessage("اتبعتت للفريق"),
+    "trip_title": MessageLookupByLibrary.simpleMessage("رحلتك"),
     "tryAgain": MessageLookupByLibrary.simpleMessage("حاول مجددا"),
+    "unit_knots": MessageLookupByLibrary.simpleMessage("عقدة"),
+    "xp_about_usd": m119,
+    "xp_ask_daygi": MessageLookupByLibrary.simpleMessage("اسأل DayGi عنها"),
+    "xp_ask_daygi_q": m120,
+    "xp_before": MessageLookupByLibrary.simpleMessage("قبل ما تروح"),
+    "xp_book": MessageLookupByLibrary.simpleMessage("اختار معاد"),
+    "xp_fact_duration": MessageLookupByLibrary.simpleMessage("المدة"),
+    "xp_fact_group": MessageLookupByLibrary.simpleMessage("الجروب"),
+    "xp_fact_level": MessageLookupByLibrary.simpleMessage("المستوى"),
+    "xp_fact_meet": MessageLookupByLibrary.simpleMessage("مكان التجمّع"),
+    "xp_fit_first_time": MessageLookupByLibrary.simpleMessage(
+      "مناسبة لو أول مرة",
+    ),
+    "xp_fit_morning": MessageLookupByLibrary.simpleMessage(
+      "طلعة الصبح، والميّة في أهدى وقت",
+    ),
+    "xp_fit_sunset": m121,
+    "xp_fit_wind_high": m122,
+    "xp_fit_wind_ok": m123,
+    "xp_for_you": MessageLookupByLibrary.simpleMessage("مناسبة ليك:"),
+    "xp_free_cancel": MessageLookupByLibrary.simpleMessage("إلغاء مجاني"),
+    "xp_free_cancel_hours": m124,
+    "xp_hour_half": MessageLookupByLibrary.simpleMessage("ساعة ونص"),
+    "xp_hour_one": MessageLookupByLibrary.simpleMessage("ساعة"),
+    "xp_hour_two": MessageLookupByLibrary.simpleMessage("ساعتين"),
+    "xp_hours": m125,
+    "xp_included": MessageLookupByLibrary.simpleMessage("إيه اللي متضمّن"),
+    "xp_level_advanced": MessageLookupByLibrary.simpleMessage("متقدّم"),
+    "xp_level_all": MessageLookupByLibrary.simpleMessage("كل المستويات"),
+    "xp_level_beginner": MessageLookupByLibrary.simpleMessage("مبتدئ"),
+    "xp_level_intermediate": MessageLookupByLibrary.simpleMessage("متوسط"),
+    "xp_minutes": m126,
+    "xp_operator_on": MessageLookupByLibrary.simpleMessage("مورّد على رحلة"),
+    "xp_pay_on_arrival": MessageLookupByLibrary.simpleMessage(
+      "الدفع عند الوصول",
+    ),
+    "xp_per_person": MessageLookupByLibrary.simpleMessage("للفرد"),
+    "xp_per_person_long": MessageLookupByLibrary.simpleMessage("للفرد"),
+    "xp_reliability": MessageLookupByLibrary.simpleMessage("التزام"),
+    "xp_reliability_basis": m127,
+    "xp_reliability_new": MessageLookupByLibrary.simpleMessage(
+      "جديد، لسه مفيش سجل",
+    ),
+    "xp_reviews_from": m128,
+    "xp_reviews_latest": m129,
+    "xp_reviews_none": MessageLookupByLibrary.simpleMessage("لسه مفيش تقييمات"),
+    "xp_reviews_none_hint": MessageLookupByLibrary.simpleMessage(
+      "التقييمات بتظهر هنا بس من ناس راحت فعلاً. مش بنعرض تقييمات متألفة.",
+    ),
+    "xp_reviews_title": MessageLookupByLibrary.simpleMessage("الناس بتقول إيه"),
+    "xp_up_to": m130,
   };
 }

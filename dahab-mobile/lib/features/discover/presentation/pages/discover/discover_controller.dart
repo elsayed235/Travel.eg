@@ -1,16 +1,18 @@
 part of 'discover_imports.dart';
 
-/// The Discover tab: the place on screen, what it is like right now, and the
-/// ways into it. Doors either start the planner or ask DayGi; the shell
-/// decides where those go.
+/// Home: the place on screen, what it is like right now, and the ways into
+/// it. The shell decides where a door, a question or "See all" goes.
 class DiscoverController {
-  DiscoverController({required this.onPlan, required this.onAskDaygi});
+  DiscoverController({required this.onDoor, required this.onAsk, required this.onSeeToday});
 
-  /// Open the planner with these vibes already picked (empty = from the start).
-  final void Function(List<PlanVibe> vibes) onPlan;
+  /// A door was tapped: the shell opens Discover filtered, or DayGi asking.
+  final void Function(DiscoverDoor door) onDoor;
 
-  /// Open DayGi, optionally with a question already asked.
-  final void Function(String? question) onAskDaygi;
+  /// Open DayGi, optionally with a question, optionally listening.
+  final void Function(String? question, bool voice) onAsk;
+
+  /// "See all" on today's rail.
+  final VoidCallback onSeeToday;
 
   final ConditionsRequester conditionsRequester = ConditionsRequester();
 
@@ -21,13 +23,7 @@ class DiscoverController {
   Future<void> selectDestination(BuildContext context, RehlaDestination next) =>
       context.read<DestinationCubit>().select(context, next);
 
-  void openDoor(BuildContext context, DiscoverDoor door) {
-    if (door.asksDaygi) {
-      onAskDaygi(door.ask(context.isArabic));
-    } else {
-      onPlan(door.planVibes);
-    }
-  }
+  void openDoor(BuildContext context, DiscoverDoor door) => onDoor(door);
 
   void dispose() => conditionsRequester.close();
 }

@@ -20,8 +20,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   @override
   Widget build(BuildContext context) {
     return BuildAuthScaffold(
-      step: 1,
-      totalSteps: 3,
       child: ListView(
         padding: const EdgeInsetsDirectional.fromSTEB(
           AppSpacing.xl,
@@ -33,11 +31,17 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           BuildAuthHeader(
             title: Translate.s.auth_forget_title,
             subtitle: Translate.s.auth_forget_subtitle,
-            icon: Icons.phone_iphone_rounded,
+            icon: Icons.mail_outline_rounded,
           ),
           BuildForgetForm(controller: controller),
           Gaps.vGap24,
           BuildForgetPasswordButton(controller: controller),
+          Gaps.vGap13,
+          Text(
+            Translate.s.auth_reset_unavailable,
+            textAlign: TextAlign.center,
+            style: AppTextStyle.caption(color: context.colors.text3),
+          ),
         ],
       ),
     );

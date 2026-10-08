@@ -136,6 +136,11 @@ export interface ProductSkuEntity {
   active: boolean;
   includedItems?: string[];
   cancellationPolicyHours?: number;
+  pricingBasis?: 'per_person' | 'per_stay' | 'per_vehicle';
+  timeSlots?: string[];
+  descriptionAr?: string;
+  includedItemsAr?: string[];
+  routeFromAr?: string;
 }
 
 export interface InventorySlotEntity {

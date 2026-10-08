@@ -23,7 +23,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-dg-action text-dg-action-ink hover:bg-dg-action-hover shadow-[0_8px_20px_-12px_var(--dg-action)]',
+        primary: 'bg-dg-action text-dg-action-ink hover:bg-dg-action-hover shadow-[inset_0_1px_0_rgb(255_255_255/0.22)]',
         secondary: 'bg-dg-sunken text-dg-ink hover:bg-[color-mix(in_oklab,var(--dg-surface-sunken)_80%,var(--dg-ink)_8%)]',
         outline: 'border border-dg-line-strong bg-transparent text-dg-ink hover:bg-dg-action-wash',
         ghost: 'bg-transparent text-dg-ink-2 hover:bg-dg-action-wash hover:text-dg-ink',

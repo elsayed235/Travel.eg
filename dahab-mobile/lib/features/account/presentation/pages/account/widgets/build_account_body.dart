@@ -30,17 +30,19 @@ class BuildAccountBody extends StatelessWidget {
           ),
           successBuilder: (context, profile, _) {
             controller.applyProfile(profile);
-            return BlocBuilder<DeviceCubit, DeviceState>(
-              builder: (context, deviceState) {
-                return ListView(
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.xl,
-                    vertical: AppSpacing.lg,
-                  ),
+            return ListView(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.lg + MediaQuery.paddingOf(context).bottom,
+      ),
                   children: [
+                RehlaMark(size: 36, color: context.colors.button, sunColor: context.colors.highlight),
+                Gaps.vGap13,
                 Text(
                   Translate.s.account_title,
-                  style: AppTextStyle.screenTitle(color: context.colors.text),
+                  style: AppTextStyle.screenTitle(color: context.colors.text).copyWith(fontFamily: AppFonts.display(context)),
                 ),
                 Gaps.vGap18,
                 BuildAccountHeader(
@@ -70,16 +72,16 @@ class BuildAccountBody extends StatelessWidget {
                 BuildAccountSection(
                   title: Translate.s.account_section_preferences,
                   children: [
-                    BuildAccountTile(
-                      icon: Icons.language,
-                      title: Translate.s.label_app_language,
-                      subtitle: controller.languageLabel(deviceState.model.locale),
-                      onTap: () => controller.openLanguageSheet(context),
-                    ),
-                    BuildAccountDarkModeRow(
-                      isDark: DeviceSettings.isDark(
-                        context,
-                        deviceState.model.themeMode,
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        AppSpacing.lg,
+                        AppSpacing.md,
+                        AppSpacing.lg,
+                        AppSpacing.md,
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: const BuildPreferenceSwitches(),
                       ),
                     ),
                   ],
@@ -107,19 +109,6 @@ class BuildAccountBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                Gaps.vGap18,
-                BuildAccountSection(
-                  title: Translate.s.account_section_about,
-                  children: [
-                    BuildAccountTile(
-                      icon: Icons.info_outline,
-                      title: Translate.s.account_version,
-                      subtitle: '1.0.0',
-                      showChevron: false,
-                      showDivider: false,
-                    ),
-                  ],
-                ),
                 Gaps.vGap24,
                 AppTextButton.maxWhite(
                   text: Translate.s.label_logout,
@@ -128,8 +117,6 @@ class BuildAccountBody extends StatelessWidget {
                 Gaps.vGap24,
               ],
             );
-          },
-        );
           },
         );
       },

@@ -11,6 +11,14 @@ enum RehlaDestination {
   dahab(
     nameEn: 'Dahab',
     nameAr: 'دهب',
+    eyebrowEn: 'Dahab · South Sinai',
+    eyebrowAr: 'دهب · جنوب سينا',
+    titleAEn: 'Where the desert',
+    titleAAr: 'هنا الصحرا',
+    titleBEn: 'meets the sea',
+    titleBAr: 'بتقابل البحر',
+    subtitleEn: 'Everything you need in Dahab — stays, tables, rides, reefs and desert — in one calm place.',
+    subtitleAr: 'كل اللي محتاجه في دهب في مكان واحد: إقامة، وأكل، ومشاوير، وشعاب، وصحرا.',
     taglineEn: 'Where the desert meets the sea',
     taglineAr: 'هنا الصحرا بتقابل البحر',
     heroImagePath: 'assets/images/places/hero-dahab.jpg',
@@ -21,6 +29,14 @@ enum RehlaDestination {
   nuweiba(
     nameEn: 'Nuweiba',
     nameAr: 'نويبع',
+    eyebrowEn: 'Nuweiba · Sinai',
+    eyebrowAr: 'نويبع · سينا',
+    titleAEn: 'A hut on the shore,',
+    titleAAr: 'عشة على البحر،',
+    titleBEn: 'and time is yours',
+    titleBAr: 'والوقت ملكك',
+    subtitleEn: 'Calm sea, soft mountains and days with nothing on the schedule: camps, shallow reefs and starry nights.',
+    subtitleAr: 'بحر رايق، وجبال هادية، وأيام من غير برنامج: كامبات، وشعاب قريبة، ونجوم بالليل.',
     taglineEn: 'A hut on the shore, and time is yours',
     taglineAr: 'عشة على البحر، والوقت ملكك',
     heroImagePath: 'assets/images/places/hero-nuweiba.webp',
@@ -31,6 +47,14 @@ enum RehlaDestination {
   siwa(
     nameEn: 'Siwa',
     nameAr: 'سيوة',
+    eyebrowEn: 'Siwa · Western Desert',
+    eyebrowAr: 'سيوة · الصحرا الغربية',
+    titleAEn: 'An oasis',
+    titleAAr: 'واحة',
+    titleBEn: 'that heals',
+    titleBAr: 'بتداوي',
+    subtitleEn: 'Salt lakes you float in, warm springs and palm groves at the edge of the Great Sand Sea.',
+    subtitleAr: 'بحيرات ملح بتطفو فيها، وعيون دافية، ونخل على حافة بحر الرمال الأعظم.',
     taglineEn: 'An oasis that heals',
     taglineAr: 'واحة بتداوي',
     heroImagePath: 'assets/images/places/hero-siwa.webp',
@@ -42,6 +66,14 @@ enum RehlaDestination {
   const RehlaDestination({
     required this.nameEn,
     required this.nameAr,
+    required this.eyebrowEn,
+    required this.eyebrowAr,
+    required this.titleAEn,
+    required this.titleAAr,
+    required this.titleBEn,
+    required this.titleBAr,
+    required this.subtitleEn,
+    required this.subtitleAr,
     required this.taglineEn,
     required this.taglineAr,
     required this.heroImagePath,
@@ -52,6 +84,14 @@ enum RehlaDestination {
 
   final String nameEn;
   final String nameAr;
+  final String eyebrowEn;
+  final String eyebrowAr;
+  final String titleAEn;
+  final String titleAAr;
+  final String titleBEn;
+  final String titleBAr;
+  final String subtitleEn;
+  final String subtitleAr;
   final String taglineEn;
   final String taglineAr;
 
@@ -64,6 +104,10 @@ enum RehlaDestination {
   final Curve curve;
 
   String label(bool arabic) => arabic ? nameAr : nameEn;
+  String eyebrow(bool arabic) => arabic ? eyebrowAr : eyebrowEn;
+  String titleA(bool arabic) => arabic ? titleAAr : titleAEn;
+  String titleB(bool arabic) => arabic ? titleBAr : titleBEn;
+  String subtitle(bool arabic) => arabic ? subtitleAr : subtitleEn;
   String tagline(bool arabic) => arabic ? taglineAr : taglineEn;
 
   static RehlaDestination fromName(String? value) =>

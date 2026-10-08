@@ -1,5 +1,6 @@
 import { NEAR_ME_DATA } from '../components/explore/ExploreView';
 import type { DahabActivity, DahabPlace, DahabDiningVenue, ResolvedBookability } from '../shared/types/knowledge';
+import { photoForActivity, experienceSlugForActivity } from '../data/activityPhotos';
 import { IMG_P1507525428034b723cf961d3e_CARD, IMG_P1507525428034b723cf961d3e_HERO, IMG_P1511671782779c97d3d27a1d4_HERO, IMG_P15172481354674c7edcad34c4_CARD, IMG_P15172481354674c7edcad34c4_HERO, IMG_P154455176346a013bb70d5_CARD, IMG_P154455176346a013bb70d5_HERO, IMG_P15541188111e0d58224f24_CARD, IMG_P15541188111e0d58224f24_HERO, IMG_P16826872200634742bd7fd538_CARD, IMG_P16826872200634742bd7fd538_HERO } from '../shared/placeholderImagery';
 
 export interface ExperienceDetailData {
@@ -68,6 +69,13 @@ export interface ExperienceDetailData {
     windCondition: string;
     bestTide: string;
   };
+  /**
+   * The conditions the operator runs this in, from the catalogue's own limits.
+   * When present they replace `environmentalSignals`, which on a catalogue
+   * activity would be the same made-up readings on every page.
+   */
+  conditionsEn?: string[];
+  conditionsAr?: string[];
 }
 
 // Curated high-res curated experiences database
@@ -85,7 +93,7 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'diving',
     categoryLabelEn: 'World Heritage Marine Sanctuary',
     categoryLabelAr: 'محمية بحرية عالمية',
-    heroImage: IMG_P16826872200634742bd7fd538_HERO,
+    heroImage: '/images/hero/blue-hole-signature.jpg',
     galleryImages: [
       IMG_P154455176346a013bb70d5_CARD,
       IMG_P1507525428034b723cf961d3e_CARD
@@ -173,7 +181,7 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Promenade Shore Reef',
     categoryLabelAr: 'شاطئ وشعاب الممشى السياحي',
-    heroImage: IMG_P154455176346a013bb70d5_HERO,
+    heroImage: '/images/attractions/lighthouse-reef.jpg',
     galleryImages: [
       IMG_P1507525428034b723cf961d3e_CARD,
       IMG_P15541188111e0d58224f24_CARD
@@ -479,6 +487,7 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
   {
     id: 'near-eel-garden',
     slug: 'eel-garden',
+    activityId: 'act_eel_garden_sunset_snorkel',
     titleEn: 'Eel Garden Marine Reserve & Sandy Slope',
     titleAr: 'شاطئ وحديقة ثعابين البحر (إيل جاردن)',
     taglineEn: 'Natural marine phenomenon with hundreds of garden eels swaying gracefully with sea currents.',
@@ -488,7 +497,7 @@ export const CURATED_EXPERIENCES: ExperienceDetailData[] = [
     category: 'beach',
     categoryLabelEn: 'Natural Marine Reserve',
     categoryLabelAr: 'محمية بحرية طبيعية',
-    heroImage: IMG_P154455176346a013bb70d5_HERO,
+    heroImage: '/images/attractions/attr-eel-garden.webp',
     galleryImages: [
       IMG_P16826872200634742bd7fd538_CARD
     ],
@@ -574,6 +583,224 @@ function withBookability(
   return { ...experience, bookable: activity?.bookable ?? null };
 }
 
+// ---------------------------------------------------------------------------
+// Catalogue activity → experience page
+// ---------------------------------------------------------------------------
+
+const CATEGORY_LABEL: Record<DahabActivity['category'], [string, string]> = {
+  diving: ['Scuba diving', 'غوص'],
+  water_sport: ['On the water', 'رياضات مائية'],
+  safari: ['Desert & mountains', 'صحراء وجبال'],
+  culture: ['Bedouin Sinai', 'سيناء البدوية'],
+  wellness: ['Wellness', 'استرخاء'],
+  food: ['Food', 'طعام'],
+};
+
+const DIFFICULTY_LABEL: Record<DahabActivity['difficulty'], [string, string]> = {
+  Beginner: ['Beginner', 'مبتدئ'],
+  Intermediate: ['Intermediate', 'متوسط'],
+  Advanced: ['Advanced', 'متقدم'],
+  'All Levels': ['All levels', 'كل المستويات'],
+};
+
+const ACCESS_LABEL: Record<string, [string, string]> = {
+  WALK: ['On foot from town', 'سيرًا من المدينة'],
+  SHORE: ['Shore entry', 'النزول من الشاطئ'],
+  BOAT: ['By boat', 'بالقارب'],
+  VEHICLE: ['By car', 'بالسيارة'],
+  '4X4': ['By 4x4', 'بسيارة دفع رباعي'],
+  CAMEL: ['By camel', 'على الجمال'],
+  HIKE: ['On foot, uphill', 'مشي جبلي'],
+  MIXED: ['Car, then on foot', 'بالسيارة ثم سيرًا'],
+};
+
+const PERSONA_AR: Record<string, string> = {
+  Beginners: 'المبتدئين',
+  Nomads: 'الرحالة',
+  'Relaxed Travelers': 'محبي الهدوء',
+  'Underwater Photographers': 'مصوري ما تحت الماء',
+  'Certified Divers': 'الغطاسين المعتمدين',
+  'Active Explorers': 'محبي الحركة',
+  Couples: 'الأزواج',
+  Adventurers: 'محبي المغامرة',
+  'Nature Lovers': 'محبي الطبيعة',
+  Kitesurfers: 'راكبي الكايت',
+  Athletes: 'الرياضيين',
+  Families: 'العائلات',
+  Hikers: 'محبي المشي الجبلي',
+  Foodies: 'محبي الأكل',
+  Stargazers: 'محبي النجوم',
+  'All Travelers': 'كل المسافرين',
+  'Adventure Seeker': 'محبي المغامرة',
+  'Cultural Explorer': 'محبي الثقافة',
+};
+
+const LEVEL_AR: Record<string, string> = {
+  'Open Water or Discover Scuba': 'رخصة Open Water أو تجربة غطس',
+  'Advanced Open Water / 20+ Logged Dives': 'رخصة Advanced Open Water أو أكثر من ٢٠ غطسة',
+  'Basic Swimming Ability': 'إجادة السباحة',
+  None: 'لا تحتاج إلى خبرة',
+  'Advanced Open Water (30m rating)': 'رخصة Advanced Open Water (لعمق ٣٠ مترًا)',
+  'Beginner to Expert': 'من المبتدئ إلى المحترف',
+  'None (Lifejackets provided)': 'لا تحتاج إلى خبرة (سترات النجاة متوفرة)',
+  'Basic Fitness (Harness & shoes provided)': 'لياقة بسيطة (الحزام والحذاء متوفران)',
+  'All Levels': 'كل المستويات',
+  Beginner: 'مبتدئ',
+  Intermediate: 'متوسط',
+  Advanced: 'متقدم',
+};
+
+const REQUIREMENT_AR: Record<string, string> = {
+  'CDWS Medical Declaration': 'إقرار طبي (CDWS)',
+  'Dive Certification / Instructor Briefing': 'رخصة غطس أو شرح من المدرب',
+  'EEAA National Park Ticket ($10 or EGP equivalent)': 'تذكرة المحمية الطبيعية (١٠ دولار أو ما يعادلها بالجنيه)',
+  'Advanced Scuba Certification': 'رخصة غطس متقدمة',
+  'Mask & Fins': 'نظارة وزعانف',
+  'EEAA Protectorates Permit': 'تصريح دخول المحمية',
+  'Wind below 16 knots': 'رياح أقل من ١٦ عقدة',
+  'CDWS Certification': 'رخصة CDWS',
+  'Good Buoyancy Control': 'تحكم جيد في الطفو',
+  'Basic Swimming': 'إجادة السباحة',
+  'Mask & Snorkel': 'نظارة وسنوركل',
+  'Sinai Climber Registration': 'تسجيل متسلق في سيناء',
+  'Closed-toe hiking shoes': 'حذاء مشي مغلق',
+  'Flight Number for Live Tracking': 'رقم الرحلة لمتابعتها',
+};
+
+function formatDuration(minutes: number): [string, string] {
+  if (minutes < 60) return [`${minutes} min`, `${minutes} دقيقة`];
+  const hours = Math.round((minutes / 60) * 2) / 2;
+  const en = hours === 1 ? '1 hour' : `${hours} hours`;
+  const ar = hours === 1 ? 'ساعة' : hours === 2 ? 'ساعتان' : hours <= 10 && Number.isInteger(hours) ? `${hours} ساعات` : `${hours} ساعة`;
+  return [en, ar];
+}
+
+/** The catalogue's own operating limits, in words. */
+function conditionsOf(activity: DahabActivity): [string[], string[]] {
+  const limits = activity.environmentalSensitivities ?? {};
+  const en: string[] = [];
+  const ar: string[] = [];
+  if (limits.maxWindKnots !== undefined) {
+    en.push(`Runs when the wind is below ${limits.maxWindKnots} knots`);
+    ar.push(`تُقام عندما تكون الرياح أقل من ${limits.maxWindKnots} عقدة`);
+  }
+  if (limits.minWindKnots !== undefined) {
+    en.push(`Needs at least ${limits.minWindKnots} knots of wind`);
+    ar.push(`تحتاج إلى رياح لا تقل عن ${limits.minWindKnots} عقدة`);
+  }
+  if (limits.minVisibilityMeters !== undefined) {
+    en.push(`Needs ${limits.minVisibilityMeters} m of visibility or more`);
+    ar.push(`تحتاج إلى رؤية تحت الماء لا تقل عن ${limits.minVisibilityMeters} مترًا`);
+  }
+  if (limits.requiresDaylight) {
+    en.push('Daylight only');
+    ar.push('في ضوء النهار فقط');
+  }
+  if (en.length === 0) {
+    en.push('Runs in most weather — the operator confirms the day before');
+    ar.push('تُقام في أغلب الأحوال الجوية، ويؤكد المنظم الموعد قبلها بيوم');
+  }
+  return [en, ar];
+}
+
+function experienceFromActivity(activity: DahabActivity, corpusPlaces: DahabPlace[]): ExperienceDetailData {
+  const place = corpusPlaces.find((p) => p.id === activity.placeId);
+  const bookable = activity.bookable ?? null;
+  const minutes = bookable?.durationMinutes ?? activity.durationMinutes;
+  const [durationEn, durationAr] = formatDuration(minutes);
+  const [categoryEn, categoryAr] = CATEGORY_LABEL[activity.category] ?? ['Experience', 'تجربة'];
+  const [difficultyEn, difficultyAr] = DIFFICULTY_LABEL[activity.difficulty] ?? [activity.difficulty, activity.difficulty];
+  const [accessEn, accessAr] = ACCESS_LABEL[activity.accessMethod] ?? ['Arranged by the operator', 'يرتّب المنظم طريقة الوصول'];
+  const [conditionsEn, conditionsAr] = conditionsOf(activity);
+  const personas = activity.travelerFitPersonas ?? [];
+  const requirements = activity.dependencies ?? [];
+  const price = bookable?.basePriceEGP ?? activity.basePriceEGP;
+  const departures = bookable?.timeSlots ?? [];
+
+  return {
+    id: activity.id,
+    slug: experienceSlugForActivity(activity.id),
+    activityId: activity.id,
+    bookable,
+    titleEn: activity.titleEn,
+    titleAr: activity.titleAr,
+    taglineEn: bookable?.description || place?.descriptionEn || '',
+    taglineAr: bookable?.descriptionAr || place?.descriptionAr || '',
+    descriptionEn: place?.descriptionEn || bookable?.description || '',
+    descriptionAr: place?.descriptionAr || bookable?.descriptionAr || '',
+    category: activity.category,
+    categoryLabelEn: categoryEn,
+    categoryLabelAr: categoryAr,
+    heroImage: photoForActivity(activity.titleEn),
+    galleryImages: [],
+    locationEn: place?.nameEn || activity.areaId.replace(/_/g, ' '),
+    locationAr: place?.nameAr || activity.areaId.replace(/_/g, ' '),
+    durationEn,
+    durationAr,
+    durationMinutes: minutes,
+    difficultyEn,
+    difficultyAr,
+    intensityScore: activity.difficulty === 'Advanced' ? 5 : activity.difficulty === 'Intermediate' ? 3 : 2,
+    accessMethodEn: accessEn,
+    accessMethodAr: accessAr,
+    openHoursEn: departures.length ? departures.join(', ') : 'Set with the operator',
+    openHoursAr: departures.length ? departures.join('، ') : 'بالاتفاق مع المنظم',
+    basePriceEGP: price,
+    priceLevel: price > 1500 ? '$$$' : price > 500 ? '$$' : '$',
+    verifiedBadgeEn: bookable?.supplierName ? `Run by ${bookable.supplierName}` : 'Local operator',
+    verifiedBadgeAr: bookable?.supplierNameAr ? `تنظيم ${bookable.supplierNameAr}` : 'منظم محلي',
+    localGuideInsightEn: activity.preparationTips[0] ?? '',
+    localGuideInsightAr: activity.preparationTipsAr[0] ?? '',
+    highlightsEn: [
+      ...(personas.length ? [`Good for ${personas.join(', ').toLowerCase()}`] : []),
+      `Experience needed: ${activity.experienceLevelRequired}`,
+      ...(bookable?.meetingPoint ? [`Meet at ${bookable.meetingPoint}`] : []),
+    ],
+    highlightsAr: [
+      ...(personas.length ? [`مناسبة لـ${personas.map((p) => PERSONA_AR[p] ?? p).join('، ')}`] : []),
+      `الخبرة المطلوبة: ${LEVEL_AR[activity.experienceLevelRequired] ?? activity.experienceLevelRequired}`,
+      ...(bookable?.meetingPoint ? [`نقطة التجمع: ${bookable.meetingPointAr || bookable.meetingPoint}`] : []),
+    ],
+    includedEn: bookable?.includedItems?.length ? bookable.includedItems : ['A licensed local guide'],
+    includedAr: bookable?.includedItemsAr?.length
+      ? bookable.includedItemsAr
+      : bookable?.includedItems?.length
+      ? bookable.includedItems
+      : ['مرشد محلي مرخص'],
+    notIncludedEn: requirements.length ? requirements : ['Personal spending'],
+    notIncludedAr: requirements.length ? requirements.map((r) => REQUIREMENT_AR[r] ?? r) : ['المصاريف الشخصية'],
+    preparationTipsEn: activity.preparationTips,
+    preparationTipsAr: activity.preparationTipsAr,
+    environmentalSignals: { waterTemp: '', visibility: '', windCondition: '', bestTide: '' },
+    conditionsEn,
+    conditionsAr,
+  };
+}
+
+/**
+ * Other things to do, from the live catalogue: bookable ones first, the same
+ * kind of outing first among those, never the one on screen.
+ */
+export function relatedActivityExperiences(
+  current: ExperienceDetailData,
+  corpusActivities: DahabActivity[],
+  corpusPlaces: DahabPlace[],
+  limit = 3
+): ExperienceDetailData[] {
+  // Two catalogue entries can be the same product; show each product once.
+  const seenSkus = new Set<string>(current.bookable ? [current.bookable.skuId] : []);
+  return corpusActivities
+    .filter((a) => a.id !== current.activityId && a.id !== current.id && a.bookable)
+    .sort((a, b) => Number(b.category === current.category) - Number(a.category === current.category))
+    .filter((a) => {
+      if (seenSkus.has(a.bookable!.skuId)) return false;
+      seenSkus.add(a.bookable!.skuId);
+      return true;
+    })
+    .slice(0, limit)
+    .map((a) => resolveExperience(a.id, corpusActivities, corpusPlaces) ?? experienceFromActivity(a, corpusPlaces));
+}
+
 /**
  * Resolves an experience by slug or ID across both curated experiences,
  * NearMe items, and backend activities/places corpus.
@@ -587,13 +814,15 @@ export function resolveExperience(
 
   const clean = slugOrId.toLowerCase().trim();
 
-  // 1. Check curated database first
+  // 1. Check curated database first — including by the activity it describes,
+  // so a link to the activity opens the richer editorial page.
   const curated = CURATED_EXPERIENCES.find(
     (exp) =>
       exp.id.toLowerCase() === clean ||
       exp.slug.toLowerCase() === clean ||
       exp.id.toLowerCase().replace(/^near-/, '') === clean ||
-      exp.slug.toLowerCase().replace(/-/g, '_') === clean
+      exp.slug.toLowerCase().replace(/-/g, '_') === clean ||
+      (exp.activityId !== undefined && experienceSlugForActivity(exp.activityId) === clean.replace(/_/g, '-'))
   );
   if (curated) return withBookability(curated, corpusActivities);
 
@@ -661,58 +890,7 @@ export function resolveExperience(
       a.id.toLowerCase().replace(/_/g, '-') === clean ||
       a.titleEn.toLowerCase().replace(/[^a-z0-9]/g, '-') === clean
   );
-  if (activity) {
-    const place = corpusPlaces.find((p) => p.id === activity.placeId);
-    return {
-      id: activity.id,
-      slug: activity.id.replace(/_/g, '-'),
-      activityId: activity.id,
-      bookable: activity.bookable ?? null,
-      titleEn: activity.titleEn,
-      titleAr: activity.titleAr,
-      taglineEn: `${activity.durationMinutes} min · ${activity.difficulty} · ${activity.category}`,
-      taglineAr: `${activity.durationMinutes} دقيقة · ${activity.difficulty} · ${activity.category}`,
-      descriptionEn: place?.descriptionEn || activity.experienceLevelRequired,
-      descriptionAr: place?.descriptionAr || activity.experienceLevelRequired,
-      category: (activity.category as any) || 'diving',
-      categoryLabelEn: activity.category.toUpperCase().replace('_', ' '),
-      categoryLabelAr: activity.category,
-      heroImage: IMG_P154455176346a013bb70d5_HERO,
-      galleryImages: [IMG_P16826872200634742bd7fd538_CARD],
-      locationEn: place?.nameEn || activity.areaId.replace(/_/g, ' '),
-      locationAr: place?.nameAr || activity.areaId.replace(/_/g, ' '),
-      durationEn: `${activity.durationMinutes} minutes`,
-      durationAr: `${activity.durationMinutes} دقيقة`,
-      durationMinutes: activity.durationMinutes,
-      difficultyEn: activity.difficulty,
-      difficultyAr: activity.difficulty,
-      intensityScore: activity.difficulty === 'Advanced' ? 5 : activity.difficulty === 'Intermediate' ? 3 : 2,
-      accessMethodEn: activity.accessMethod,
-      accessMethodAr: activity.accessMethod,
-      openHoursEn: '08:00 AM – 05:00 PM',
-      openHoursAr: '٠٨:٠٠ ص – ٠٥:٠٠ م',
-      basePriceEGP: activity.basePriceEGP,
-      priceLevel: activity.basePriceEGP > 1500 ? '$$$' : activity.basePriceEGP > 500 ? '$$' : '$',
-      verifiedBadgeEn: 'Verified Sinai Licensed Activity',
-      verifiedBadgeAr: 'نشاط سياحي مرخص وموثق في سيناء',
-      localGuideInsightEn: 'Always follow your certified guide instructions and stay hydrated under the Sinai sun.',
-      localGuideInsightAr: 'اتبع دائماً تعليمات دليلك المعتمد واشرب مياه كافية تحت شمس سيناء.',
-      highlightsEn: activity.preparationTips.slice(0, 3),
-      highlightsAr: activity.preparationTipsAr.slice(0, 3),
-      includedEn: ['Certified professional guide', 'Standard safety equipment', 'Local destination briefing'],
-      includedAr: ['مرشد محترف ومعتمد', 'معدات الأمان والسلامة الأساسية', 'شرح وإرشادات للموقع'],
-      notIncludedEn: ['Personal snacks & national park permits if applicable'],
-      notIncludedAr: ['المأكولات الشخصية ورسوم المحميات إن وُجدت'],
-      preparationTipsEn: activity.preparationTips,
-      preparationTipsAr: activity.preparationTipsAr,
-      environmentalSignals: {
-        waterTemp: '24°C – 27°C',
-        visibility: '30 meters',
-        windCondition: 'Live Sinai Conditions',
-        bestTide: 'High Tide Recommended'
-      }
-    };
-  }
+  if (activity) return experienceFromActivity(activity, corpusPlaces);
 
   // 4. Check API Corpus Places
   const placeMatch = corpusPlaces.find(

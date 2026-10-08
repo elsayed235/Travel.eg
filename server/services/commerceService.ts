@@ -8,6 +8,7 @@ import { notificationService } from './notificationService';
 import { distributedLockService } from './distributedLockService';
 import { supplierCalendarService } from './supplierCalendarService';
 import { assertCheckoutAllowed } from './fraudDetectionService';
+import { parseSlotClock } from './serviceTime';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -270,9 +271,47 @@ export class CommerceService {
     const primarySku = targetSkus[0];
     let slots = db.inventorySlots.filter(s => s.skuId === primarySku.id && s.date === params.date);
 
+    const projectSlot = (timeSlot: string, idx: number): InventorySlotEntity => ({
+      id: `SLOT-${primarySku.id}-${params.date}-${idx}`,
+      skuId: primarySku.id,
+      date: params.date,
+      timeSlot,
+      totalCapacity: primarySku.maxCapacityPerSlot || 10,
+      reservedCapacity: 0,
+      heldCapacity: 0,
+      priceEGP: primarySku.basePriceEGP,
+      status: 'AVAILABLE'
+    });
+
+    if (primarySku.timeSlots?.length) {
+      // Every declared departure, whether or not it has been booked yet: one
+      // booked departure materialises a slot, and that must not hide the rest
+      // of the day. Projected, not persisted — see below.
+      // Matched on clock time so a slot labelled '08:30 AM (Morning Dive)' is
+      // the declared '08:30 AM' departure, not a second one. Clockless slots
+      // ('ASAP' from Book Now) are not departures and stay out of the list.
+      const clockKey = (label: string) => {
+        const clock = parseSlotClock(label);
+        return clock ? clock.hours * 60 + clock.minutes : null;
+      };
+      const materialised = slots;
+      const declared = primarySku.timeSlots.map(clockKey);
+      slots = primarySku.timeSlots.map(
+        (time, idx) =>
+          materialised.find(s => s.timeSlot === time || (declared[idx] !== null && clockKey(s.timeSlot) === declared[idx])) ??
+          projectSlot(time, idx)
+      );
+      slots.push(
+        ...materialised.filter(s => {
+          const key = clockKey(s.timeSlot);
+          return key !== null && !slots.includes(s) && !declared.includes(key);
+        })
+      );
+    }
+
     // Auto-generate dynamic slots if date is new
     if (slots.length === 0) {
-      const defaultTimes = params.serviceType === 'hotel' 
+      const defaultTimes = params.serviceType === 'hotel'
         ? ['Standard Check-in 14:00']
         : params.serviceType === 'rental'
         ? ['FULL_DAY']
@@ -287,17 +326,7 @@ export class CommerceService {
       // rewrote the entire database file to disk — unbounded growth and write
       // amplification from an unauthenticated endpoint. createHold materialises
       // the slot for real when someone actually books it.
-      slots = defaultTimes.map((t, idx) => ({
-        id: `SLOT-${primarySku.id}-${params.date}-${idx}`,
-        skuId: primarySku.id,
-        date: params.date,
-        timeSlot: t,
-        totalCapacity: primarySku.maxCapacityPerSlot || 10,
-        reservedCapacity: 0,
-        heldCapacity: 0,
-        priceEGP: primarySku.basePriceEGP,
-        status: 'AVAILABLE'
-      }));
+      slots = defaultTimes.map(projectSlot);
     }
 
     const pax = params.passengers || 2;

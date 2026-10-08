@@ -794,36 +794,81 @@ class S {
     );
   }
 
-  /// `دبّرها`
+  /// `Dahab`
   String get splash_brand {
-    return Intl.message('دبّرها', name: 'splash_brand', desc: '', args: []);
+    return Intl.message('Dahab', name: 'splash_brand', desc: '', args: []);
   }
 
-  /// `Ask for what you need. People nearby have it.`
+  /// `Where the desert meets the sea`
   String get splash_tagline {
     return Intl.message(
-      'Ask for what you need. People nearby have it.',
+      'Where the desert meets the sea',
       name: 'splash_tagline',
       desc: '',
       args: [],
     );
   }
 
-  /// `Your request reaches owners in your area`
+  /// `Diving, desert mountains and slow beach days — planned around you.`
   String get splash_subtitle {
     return Intl.message(
-      'Your request reaches owners in your area',
+      'Diving, desert mountains and slow beach days — planned around you.',
       name: 'splash_subtitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `Code handover and protected payment in the app`
+  /// `End-to-end encrypted identity & double-entry ledger`
   String get splash_trust {
     return Intl.message(
-      'Code handover and protected payment in the app',
+      'End-to-end encrypted identity & double-entry ledger',
       name: 'splash_trust',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dahab · Before you book, see it`
+  String get splash_eyebrow {
+    return Intl.message(
+      'Dahab · Before you book, see it',
+      name: 'splash_eyebrow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where the desert meets the sea`
+  String get splash_title {
+    return Intl.message(
+      'Where the desert meets the sea',
+      name: 'splash_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter Dahab`
+  String get splash_enter {
+    return Intl.message(
+      'Enter Dahab',
+      name: 'splash_enter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip`
+  String get splash_skip {
+    return Intl.message('Skip', name: 'splash_skip', desc: '', args: []);
+  }
+
+  /// `Scroll to enter`
+  String get splash_scroll {
+    return Intl.message(
+      'Scroll to enter',
+      name: 'splash_scroll',
       desc: '',
       args: [],
     );
@@ -4829,20 +4874,20 @@ class S {
     );
   }
 
-  /// `Welcome back`
+  /// `Welcome Back to Dahab`
   String get auth_login_title {
     return Intl.message(
-      'Welcome back',
+      'Welcome Back to Dahab',
       name: 'auth_login_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Sign in to request and track deals with confidence`
+  /// `Sign in to access your itinerary, ledger, and bookings`
   String get auth_login_subtitle {
     return Intl.message(
-      'Sign in to request and track deals with confidence',
+      'Sign in to access your itinerary, ledger, and bookings',
       name: 'auth_login_subtitle',
       desc: '',
       args: [],
@@ -4854,40 +4899,40 @@ class S {
     return Intl.message('Sign in', name: 'auth_login_cta', desc: '', args: []);
   }
 
-  /// `You're signed in`
+  /// `Welcome back`
   String get auth_login_success {
     return Intl.message(
-      'You\'re signed in',
+      'Welcome back',
       name: 'auth_login_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `Ready to continue your requests`
+  /// `Your plans and bookings are here`
   String get auth_login_success_hint {
     return Intl.message(
-      'Ready to continue your requests',
+      'Your plans and bookings are here',
       name: 'auth_login_success_hint',
       desc: '',
       args: [],
     );
   }
 
-  /// `Don't have an account?`
+  /// `Don't have an account yet?`
   String get auth_no_account {
     return Intl.message(
-      'Don\'t have an account?',
+      'Don\'t have an account yet?',
       name: 'auth_no_account',
       desc: '',
       args: [],
     );
   }
 
-  /// `Create account`
+  /// `Sign up free`
   String get auth_create_account {
     return Intl.message(
-      'Create account',
+      'Sign up free',
       name: 'auth_create_account',
       desc: '',
       args: [],
@@ -4904,100 +4949,100 @@ class S {
     );
   }
 
-  /// `Browse without an account`
+  /// `Back to Dahab`
   String get auth_browse_guest {
     return Intl.message(
-      'Browse without an account',
+      'Back to Dahab',
       name: 'auth_browse_guest',
       desc: '',
       args: [],
     );
   }
 
-  /// `You can browse requests — sign in to request or fulfill`
+  /// `You can look around — sign in to keep a trip`
   String get auth_guest_hint {
     return Intl.message(
-      'You can browse requests — sign in to request or fulfill',
+      'You can look around — sign in to keep a trip',
       name: 'auth_guest_hint',
       desc: '',
       args: [],
     );
   }
 
-  /// `Create account`
+  /// `Join the Dahab Community`
   String get auth_register_title {
     return Intl.message(
-      'Create account',
+      'Join the Dahab Community',
       name: 'auth_register_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `One account to request and fulfill`
+  /// `Save your trip, and confirm bookings when you're ready`
   String get auth_register_subtitle {
     return Intl.message(
-      'One account to request and fulfill',
+      'Save your trip, and confirm bookings when you\'re ready',
       name: 'auth_register_subtitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `Continue`
+  /// `Create account`
   String get auth_register_cta {
     return Intl.message(
-      'Continue',
+      'Create account',
       name: 'auth_register_cta',
       desc: '',
       args: [],
     );
   }
 
-  /// `Account ready`
+  /// `Welcome to Dahab`
   String get auth_register_success {
     return Intl.message(
-      'Account ready',
+      'Welcome to Dahab',
       name: 'auth_register_success',
       desc: '',
       args: [],
     );
   }
 
-  /// `By continuing you agree to the terms and privacy`
+  /// `Accounts are created as Traveler. If you are a partner or supplier, contact the operations team to have portal access enabled.`
   String get auth_register_terms {
     return Intl.message(
-      'By continuing you agree to the terms and privacy',
+      'Accounts are created as Traveler. If you are a partner or supplier, contact the operations team to have portal access enabled.',
       name: 'auth_register_terms',
       desc: '',
       args: [],
     );
   }
 
-  /// `Forgot password?`
+  /// `Reset Password`
   String get auth_forget_title {
     return Intl.message(
-      'Forgot password?',
+      'Reset Password',
       name: 'auth_forget_title',
       desc: '',
       args: [],
     );
   }
 
-  /// `Enter your phone and we'll send a confirmation code`
+  /// `Enter your email address and we will send you a reset link`
   String get auth_forget_subtitle {
     return Intl.message(
-      'Enter your phone and we\'ll send a confirmation code',
+      'Enter your email address and we will send you a reset link',
       name: 'auth_forget_subtitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `Send code`
+  /// `Send Reset Link`
   String get auth_forget_cta {
     return Intl.message(
-      'Send code',
+      'Send Reset Link',
       name: 'auth_forget_cta',
       desc: '',
       args: [],
@@ -5114,10 +5159,10 @@ class S {
     );
   }
 
-  /// `Requests, offers, and chat need an account`
+  /// `Plans, bookings, and your ledger need an account`
   String get auth_gate_subtitle {
     return Intl.message(
-      'Requests, offers, and chat need an account',
+      'Plans, bookings, and your ledger need an account',
       name: 'auth_gate_subtitle',
       desc: '',
       args: [],
@@ -5134,10 +5179,10 @@ class S {
     );
   }
 
-  /// `Sign in to see your requests and deals`
+  /// `Sign in to see your trip and bookings`
   String get auth_guest_account_subtitle {
     return Intl.message(
-      'Sign in to see your requests and deals',
+      'Sign in to see your trip and bookings',
       name: 'auth_guest_account_subtitle',
       desc: '',
       args: [],
@@ -5154,16 +5199,86 @@ class S {
     );
   }
 
-  /// `or`
+  /// `or with email`
   String get auth_or {
-    return Intl.message('or', name: 'auth_or', desc: '', args: []);
+    return Intl.message('or with email', name: 'auth_or', desc: '', args: []);
   }
 
-  /// `Clearer deals · Trusted chat · Code handover`
+  /// `End-to-end encrypted identity & double-entry ledger`
   String get auth_trust_line {
     return Intl.message(
-      'Clearer deals · Trusted chat · Code handover',
+      'End-to-end encrypted identity & double-entry ledger',
       name: 'auth_trust_line',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back to Dahab`
+  String get auth_back_home {
+    return Intl.message(
+      'Back to Dahab',
+      name: 'auth_back_home',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `you@email.com`
+  String get auth_hint_email {
+    return Intl.message(
+      'you@email.com',
+      name: 'auth_hint_email',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email or mobile`
+  String get auth_identifier {
+    return Intl.message(
+      'Email or mobile',
+      name: 'auth_identifier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `you@email.com or 01xxxxxxxxx`
+  String get auth_hint_identifier {
+    return Intl.message(
+      'you@email.com or 01xxxxxxxxx',
+      name: 'auth_hint_identifier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone, if you want`
+  String get auth_hint_phone_optional {
+    return Intl.message(
+      'Phone, if you want',
+      name: 'auth_hint_phone_optional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dahab's server isn't connected on this build, so sign-in can't complete. You can still look around.`
+  String get auth_server_missing {
+    return Intl.message(
+      'Dahab\'s server isn\'t connected on this build, so sign-in can\'t complete. You can still look around.',
+      name: 'auth_server_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This phone build can't send the reset email yet. Reset on the website, then sign in here.`
+  String get auth_reset_unavailable {
+    return Intl.message(
+      'This phone build can\'t send the reset email yet. Reset on the website, then sign in here.',
+      name: 'auth_reset_unavailable',
       desc: '',
       args: [],
     );
@@ -5219,10 +5334,10 @@ class S {
     );
   }
 
-  /// `First and last name`
+  /// `e.g., Ahmed Mostafa`
   String get auth_hint_name {
     return Intl.message(
-      'First and last name',
+      'e.g., Ahmed Mostafa',
       name: 'auth_hint_name',
       desc: '',
       args: [],
@@ -5804,6 +5919,76 @@ class S {
     return Intl.message('Wind', name: 'discover_wind', desc: '', args: []);
   }
 
+  /// `Browse outings`
+  String get home_door_browse {
+    return Intl.message(
+      'Browse outings',
+      name: 'home_door_browse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start a plan`
+  String get home_door_plan {
+    return Intl.message(
+      'Start a plan',
+      name: 'home_door_plan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ask DayGi`
+  String get home_door_ask {
+    return Intl.message('Ask DayGi', name: 'home_door_ask', desc: '', args: []);
+  }
+
+  /// `kn`
+  String get unit_knots {
+    return Intl.message('kn', name: 'unit_knots', desc: '', args: []);
+  }
+
+  /// `N`
+  String get compass_n {
+    return Intl.message('N', name: 'compass_n', desc: '', args: []);
+  }
+
+  /// `NE`
+  String get compass_ne {
+    return Intl.message('NE', name: 'compass_ne', desc: '', args: []);
+  }
+
+  /// `E`
+  String get compass_e {
+    return Intl.message('E', name: 'compass_e', desc: '', args: []);
+  }
+
+  /// `SE`
+  String get compass_se {
+    return Intl.message('SE', name: 'compass_se', desc: '', args: []);
+  }
+
+  /// `S`
+  String get compass_s {
+    return Intl.message('S', name: 'compass_s', desc: '', args: []);
+  }
+
+  /// `SW`
+  String get compass_sw {
+    return Intl.message('SW', name: 'compass_sw', desc: '', args: []);
+  }
+
+  /// `W`
+  String get compass_w {
+    return Intl.message('W', name: 'compass_w', desc: '', args: []);
+  }
+
+  /// `NW`
+  String get compass_nw {
+    return Intl.message('NW', name: 'compass_nw', desc: '', args: []);
+  }
+
   /// `Sunset`
   String get discover_sunset {
     return Intl.message('Sunset', name: 'discover_sunset', desc: '', args: []);
@@ -5894,6 +6079,2556 @@ class S {
     return Intl.message(
       'Ask DayGi',
       name: 'discover_ask_daygi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Explore {place}`
+  String discover_hero_explore(Object place) {
+    return Intl.message(
+      'Explore $place',
+      name: 'discover_hero_explore',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Verified direct bookings · Flexible cancellation · Picks from people who live there`
+  String get discover_hero_note {
+    return Intl.message(
+      'Verified direct bookings · Flexible cancellation · Picks from people who live there',
+      name: 'discover_hero_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ready-made trips in {place}`
+  String discover_plans_title(Object place) {
+    return Intl.message(
+      'Ready-made trips in $place',
+      name: 'discover_plans_title',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Compare`
+  String get discover_plans_all {
+    return Intl.message(
+      'Compare',
+      name: 'discover_plans_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{place} in a few frames`
+  String discover_stories_title(Object place) {
+    return Intl.message(
+      '$place in a few frames',
+      name: 'discover_stories_title',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Representative photos until our own photography of {place} is in.`
+  String discover_stories_note(Object place) {
+    return Intl.message(
+      'Representative photos until our own photography of $place is in.',
+      name: 'discover_stories_note',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `This is my trip`
+  String get trip_keep {
+    return Intl.message(
+      'This is my trip',
+      name: 'trip_keep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The days`
+  String get trip_days_title {
+    return Intl.message(
+      'The days',
+      name: 'trip_days_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send to the team`
+  String get trip_send {
+    return Intl.message(
+      'Send to the team',
+      name: 'trip_send',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change plan`
+  String get trip_change {
+    return Intl.message('Change plan', name: 'trip_change', desc: '', args: []);
+  }
+
+  /// `Your plan`
+  String get trip_status_draft {
+    return Intl.message(
+      'Your plan',
+      name: 'trip_status_draft',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sent to the team`
+  String get trip_status_sent {
+    return Intl.message(
+      'Sent to the team',
+      name: 'trip_status_sent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The team has this plan and will confirm it with local hosts.`
+  String get trip_sent_note {
+    return Intl.message(
+      'The team has this plan and will confirm it with local hosts.',
+      name: 'trip_sent_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your trip lives here`
+  String get trip_empty_title {
+    return Intl.message(
+      'Your trip lives here',
+      name: 'trip_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Once a plan is confirmed, this tab becomes today: the day, the bookings, and what comes next.`
+  String get trip_empty_body {
+    return Intl.message(
+      'Once a plan is confirmed, this tab becomes today: the day, the bookings, and what comes next.',
+      name: 'trip_empty_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan my trip`
+  String get trip_empty_cta {
+    return Intl.message(
+      'Plan my trip',
+      name: 'trip_empty_cta',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ask DayGi`
+  String get daygi_title {
+    return Intl.message('Ask DayGi', name: 'daygi_title', desc: '', args: []);
+  }
+
+  /// `Say what you need. We'll start a plan around it, and the details get confirmed with people who live there.`
+  String get daygi_body {
+    return Intl.message(
+      'Say what you need. We\'ll start a plan around it, and the details get confirmed with people who live there.',
+      name: 'daygi_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Somewhere calm after the dive`
+  String get daygi_hint {
+    return Intl.message(
+      'Somewhere calm after the dive',
+      name: 'daygi_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan around this`
+  String get daygi_send {
+    return Intl.message(
+      'Plan around this',
+      name: 'daygi_send',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try`
+  String get daygi_try {
+    return Intl.message('Try', name: 'daygi_try', desc: '', args: []);
+  }
+
+  /// `Let's shape your trip`
+  String get plan_title {
+    return Intl.message(
+      'Let\'s shape your trip',
+      name: 'plan_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A few quick questions, then plans that fit you. Change anything, any time.`
+  String get plan_subtitle {
+    return Intl.message(
+      'A few quick questions, then plans that fit you. Change anything, any time.',
+      name: 'plan_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Step {n} of {total}`
+  String plan_step(Object n, Object total) {
+    return Intl.message(
+      'Step $n of $total',
+      name: 'plan_step',
+      desc: '',
+      args: [n, total],
+    );
+  }
+
+  /// `Back`
+  String get plan_back {
+    return Intl.message('Back', name: 'plan_back', desc: '', args: []);
+  }
+
+  /// `Next`
+  String get plan_next {
+    return Intl.message('Next', name: 'plan_next', desc: '', args: []);
+  }
+
+  /// `Show my plans`
+  String get plan_showPlans {
+    return Intl.message(
+      'Show my plans',
+      name: 'plan_showPlans',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip, show me every plan`
+  String get plan_skipToAll {
+    return Intl.message(
+      'Skip, show me every plan',
+      name: 'plan_skipToAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where are you headed?`
+  String get plan_q_destination {
+    return Intl.message(
+      'Where are you headed?',
+      name: 'plan_q_destination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How long are you staying?`
+  String get plan_q_when {
+    return Intl.message(
+      'How long are you staying?',
+      name: 'plan_q_when',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nights, roughly. You can change it later.`
+  String get plan_q_whenHint {
+    return Intl.message(
+      'Nights, roughly. You can change it later.',
+      name: 'plan_q_whenHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not sure yet`
+  String get plan_when_flexible {
+    return Intl.message(
+      'Not sure yet',
+      name: 'plan_when_flexible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n} nights`
+  String plan_when_nights(Object n) {
+    return Intl.message(
+      '$n nights',
+      name: 'plan_when_nights',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `nights`
+  String get plan_when_nightsUnit {
+    return Intl.message(
+      'nights',
+      name: 'plan_when_nightsUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `/ day`
+  String get plan_budget_perDay {
+    return Intl.message(
+      '/ day',
+      name: 'plan_budget_perDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Who's coming?`
+  String get plan_q_party {
+    return Intl.message(
+      'Who\'s coming?',
+      name: 'plan_q_party',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Just me`
+  String get plan_party_solo {
+    return Intl.message('Just me', name: 'plan_party_solo', desc: '', args: []);
+  }
+
+  /// `Your pace, your plan`
+  String get plan_party_soloSub {
+    return Intl.message(
+      'Your pace, your plan',
+      name: 'plan_party_soloSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The two of us`
+  String get plan_party_couple {
+    return Intl.message(
+      'The two of us',
+      name: 'plan_party_couple',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quiet spots and good sunsets`
+  String get plan_party_coupleSub {
+    return Intl.message(
+      'Quiet spots and good sunsets',
+      name: 'plan_party_coupleSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Friends`
+  String get plan_party_friends {
+    return Intl.message(
+      'Friends',
+      name: 'plan_party_friends',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `More to do, more to share`
+  String get plan_party_friendsSub {
+    return Intl.message(
+      'More to do, more to share',
+      name: 'plan_party_friendsSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Family`
+  String get plan_party_family {
+    return Intl.message(
+      'Family',
+      name: 'plan_party_family',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Easy days, safe for kids`
+  String get plan_party_familySub {
+    return Intl.message(
+      'Easy days, safe for kids',
+      name: 'plan_party_familySub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What do you want to feel?`
+  String get plan_q_vibes {
+    return Intl.message(
+      'What do you want to feel?',
+      name: 'plan_q_vibes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick as many as you like.`
+  String get plan_q_vibesHint {
+    return Intl.message(
+      'Pick as many as you like.',
+      name: 'plan_q_vibesHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sea & snorkel`
+  String get plan_vibe_sea {
+    return Intl.message(
+      'Sea & snorkel',
+      name: 'plan_vibe_sea',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diving`
+  String get plan_vibe_diving {
+    return Intl.message('Diving', name: 'plan_vibe_diving', desc: '', args: []);
+  }
+
+  /// `Adventure`
+  String get plan_vibe_adventure {
+    return Intl.message(
+      'Adventure',
+      name: 'plan_vibe_adventure',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Desert`
+  String get plan_vibe_desert {
+    return Intl.message('Desert', name: 'plan_vibe_desert', desc: '', args: []);
+  }
+
+  /// `Healing & rest`
+  String get plan_vibe_wellness {
+    return Intl.message(
+      'Healing & rest',
+      name: 'plan_vibe_wellness',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `History & local life`
+  String get plan_vibe_culture {
+    return Intl.message(
+      'History & local life',
+      name: 'plan_vibe_culture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Food`
+  String get plan_vibe_food {
+    return Intl.message('Food', name: 'plan_vibe_food', desc: '', args: []);
+  }
+
+  /// `Unplug`
+  String get plan_vibe_unplug {
+    return Intl.message('Unplug', name: 'plan_vibe_unplug', desc: '', args: []);
+  }
+
+  /// `Stars at night`
+  String get plan_vibe_stars {
+    return Intl.message(
+      'Stars at night',
+      name: 'plan_vibe_stars',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hiking & nature`
+  String get plan_vibe_nature {
+    return Intl.message(
+      'Hiking & nature',
+      name: 'plan_vibe_nature',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What pace suits you?`
+  String get plan_q_pace {
+    return Intl.message(
+      'What pace suits you?',
+      name: 'plan_q_pace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Slow`
+  String get plan_pace_relaxed {
+    return Intl.message('Slow', name: 'plan_pace_relaxed', desc: '', args: []);
+  }
+
+  /// `Lots of free time`
+  String get plan_pace_relaxedSub {
+    return Intl.message(
+      'Lots of free time',
+      name: 'plan_pace_relaxedSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Balanced`
+  String get plan_pace_balanced {
+    return Intl.message(
+      'Balanced',
+      name: 'plan_pace_balanced',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A plan with room to breathe`
+  String get plan_pace_balancedSub {
+    return Intl.message(
+      'A plan with room to breathe',
+      name: 'plan_pace_balancedSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Full`
+  String get plan_pace_active {
+    return Intl.message('Full', name: 'plan_pace_active', desc: '', args: []);
+  }
+
+  /// `Something every day`
+  String get plan_pace_activeSub {
+    return Intl.message(
+      'Something every day',
+      name: 'plan_pace_activeSub',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Budget per person`
+  String get plan_q_budget {
+    return Intl.message(
+      'Budget per person',
+      name: 'plan_q_budget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Easy on the pocket`
+  String get plan_budget_budget {
+    return Intl.message(
+      'Easy on the pocket',
+      name: 'plan_budget_budget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comfortable`
+  String get plan_budget_moderate {
+    return Intl.message(
+      'Comfortable',
+      name: 'plan_budget_moderate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Treat yourself`
+  String get plan_budget_premium {
+    return Intl.message(
+      'Treat yourself',
+      name: 'plan_budget_premium',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your trip so far`
+  String get plan_summary_title {
+    return Intl.message(
+      'Your trip so far',
+      name: 'plan_summary_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your answers show up here as you go.`
+  String get plan_summary_empty {
+    return Intl.message(
+      'Your answers show up here as you go.',
+      name: 'plan_summary_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shaping your plans`
+  String get plan_building {
+    return Intl.message(
+      'Shaping your plans',
+      name: 'plan_building',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} plans that fit you`
+  String plan_results_title(Object count) {
+    return Intl.message(
+      '$count plans that fit you',
+      name: 'plan_results_title',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `One plan that fits you`
+  String get plan_results_titleOne {
+    return Intl.message(
+      'One plan that fits you',
+      name: 'plan_results_titleOne',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best match · {score}%`
+  String plan_results_best(Object score) {
+    return Intl.message(
+      'Best match · $score%',
+      name: 'plan_results_best',
+      desc: '',
+      args: [score],
+    );
+  }
+
+  /// `{score}% match`
+  String plan_results_match(Object score) {
+    return Intl.message(
+      '$score% match',
+      name: 'plan_results_match',
+      desc: '',
+      args: [score],
+    );
+  }
+
+  /// `See all plans`
+  String get plan_results_showAll {
+    return Intl.message(
+      'See all plans',
+      name: 'plan_results_showAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Every plan in {place}`
+  String plan_results_allTitle(Object place) {
+    return Intl.message(
+      'Every plan in $place',
+      name: 'plan_results_allTitle',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Back to my matches`
+  String get plan_results_showMatches {
+    return Intl.message(
+      'Back to my matches',
+      name: 'plan_results_showMatches',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change my answers`
+  String get plan_results_edit {
+    return Intl.message(
+      'Change my answers',
+      name: 'plan_results_edit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort plans`
+  String get plan_results_sort {
+    return Intl.message(
+      'Sort plans',
+      name: 'plan_results_sort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Best match`
+  String get plan_sort_best {
+    return Intl.message(
+      'Best match',
+      name: 'plan_sort_best',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lowest price`
+  String get plan_sort_price {
+    return Intl.message(
+      'Lowest price',
+      name: 'plan_sort_price',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shortest`
+  String get plan_sort_short {
+    return Intl.message(
+      'Shortest',
+      name: 'plan_sort_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Calmest`
+  String get plan_sort_calm {
+    return Intl.message('Calmest', name: 'plan_sort_calm', desc: '', args: []);
+  }
+
+  /// `{n} days`
+  String plan_card_days(Object n) {
+    return Intl.message('$n days', name: 'plan_card_days', desc: '', args: [n]);
+  }
+
+  /// `Estimated price`
+  String get plan_card_estimate {
+    return Intl.message(
+      'Estimated price',
+      name: 'plan_card_estimate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n}% free time`
+  String plan_card_freeTime(Object n) {
+    return Intl.message(
+      '$n% free time',
+      name: 'plan_card_freeTime',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Pace`
+  String get plan_card_pace {
+    return Intl.message('Pace', name: 'plan_card_pace', desc: '', args: []);
+  }
+
+  /// `See it day by day`
+  String get plan_card_viewDays {
+    return Intl.message(
+      'See it day by day',
+      name: 'plan_card_viewDays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Book this plan`
+  String get plan_card_book {
+    return Intl.message(
+      'Book this plan',
+      name: 'plan_card_book',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Request this plan`
+  String get plan_card_request {
+    return Intl.message(
+      'Request this plan',
+      name: 'plan_card_request',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adjust with DayGi`
+  String get plan_card_tweak {
+    return Intl.message(
+      'Adjust with DayGi',
+      name: 'plan_card_tweak',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What's included`
+  String get plan_card_included {
+    return Intl.message(
+      'What\'s included',
+      name: 'plan_card_included',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Matches {matched} of {asked} things you want`
+  String plan_reason_vibes(Object matched, Object asked) {
+    return Intl.message(
+      'Matches $matched of $asked things you want',
+      name: 'plan_reason_vibes',
+      desc: '',
+      args: [matched, asked],
+    );
+  }
+
+  /// `Your pace`
+  String get plan_reason_pace {
+    return Intl.message(
+      'Your pace',
+      name: 'plan_reason_pace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Within your budget`
+  String get plan_reason_budget {
+    return Intl.message(
+      'Within your budget',
+      name: 'plan_reason_budget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Right length: {days} days`
+  String plan_reason_length(Object days) {
+    return Intl.message(
+      'Right length: $days days',
+      name: 'plan_reason_length',
+      desc: '',
+      args: [days],
+    );
+  }
+
+  /// `Easy for families`
+  String get plan_reason_family {
+    return Intl.message(
+      'Easy for families',
+      name: 'plan_reason_family',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Made for two`
+  String get plan_reason_couple {
+    return Intl.message(
+      'Made for two',
+      name: 'plan_reason_couple',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{place} is new on REHLA. Prices are estimates; request a plan and our team confirms it with local hosts.`
+  String plan_early_note(Object place) {
+    return Intl.message(
+      '$place is new on REHLA. Prices are estimates; request a plan and our team confirms it with local hosts.',
+      name: 'plan_early_note',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `Request sent. Our team will reply on WhatsApp.`
+  String get plan_request_sent {
+    return Intl.message(
+      'Request sent. Our team will reply on WhatsApp.',
+      name: 'plan_request_sent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't send your request. Check your connection and try again.`
+  String get plan_request_failed {
+    return Intl.message(
+      'We couldn\'t send your request. Check your connection and try again.',
+      name: 'plan_request_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in so we can send your request`
+  String get plan_request_signIn {
+    return Intl.message(
+      'Sign in so we can send your request',
+      name: 'plan_request_signIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No plans here yet. Try another place or see every plan.`
+  String get plan_noMatches {
+    return Intl.message(
+      'No plans here yet. Try another place or see every plan.',
+      name: 'plan_noMatches',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What's included`
+  String get plan_detail_included {
+    return Intl.message(
+      'What\'s included',
+      name: 'plan_detail_included',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Highlights`
+  String get plan_detail_highlights {
+    return Intl.message(
+      'Highlights',
+      name: 'plan_detail_highlights',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day by day`
+  String get plan_detail_dayByDay {
+    return Intl.message(
+      'Day by day',
+      name: 'plan_detail_dayByDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day {n}`
+  String plan_detail_day(Object n) {
+    return Intl.message('Day $n', name: 'plan_detail_day', desc: '', args: [n]);
+  }
+
+  /// `From`
+  String get plan_card_from {
+    return Intl.message('From', name: 'plan_card_from', desc: '', args: []);
+  }
+
+  /// `per person`
+  String get plan_card_perPerson {
+    return Intl.message(
+      'per person',
+      name: 'plan_card_perPerson',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't load the plans. Check your connection and try again.`
+  String get plan_loadFailed {
+    return Intl.message(
+      'We couldn\'t load the plans. Check your connection and try again.',
+      name: 'plan_loadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start over`
+  String get plan_startOver {
+    return Intl.message(
+      'Start over',
+      name: 'plan_startOver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Good morning`
+  String get home_hello_morning {
+    return Intl.message(
+      'Good morning',
+      name: 'home_hello_morning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Good afternoon`
+  String get home_hello_afternoon {
+    return Intl.message(
+      'Good afternoon',
+      name: 'home_hello_afternoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Good evening`
+  String get home_hello_evening {
+    return Intl.message(
+      'Good evening',
+      name: 'home_hello_evening',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{hello}, {name}`
+  String home_hello_name(Object hello, Object name) {
+    return Intl.message(
+      '$hello, $name',
+      name: 'home_hello_name',
+      desc: '',
+      args: [hello, name],
+    );
+  }
+
+  /// `{n, plural, =1{1 day to your trip} other{{n} days to your trip}}`
+  String home_days_to_trip(num n) {
+    return Intl.plural(
+      n,
+      one: '1 day to your trip',
+      other: '$n days to your trip',
+      name: 'home_days_to_trip',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Day {day} of your trip`
+  String home_trip_day(Object day) {
+    return Intl.message(
+      'Day $day of your trip',
+      name: 'home_trip_day',
+      desc: '',
+      args: [day],
+    );
+  }
+
+  /// `Ask DayGi — type or talk`
+  String get home_ask_hint {
+    return Intl.message(
+      'Ask DayGi — type or talk',
+      name: 'home_ask_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Live from {source} · updated {time}`
+  String home_live_from(Object source, Object time) {
+    return Intl.message(
+      'Live from $source · updated $time',
+      name: 'home_live_from',
+      desc: '',
+      args: [source, time],
+    );
+  }
+
+  /// `Today in {place}`
+  String home_today_in(Object place) {
+    return Intl.message(
+      'Today in $place',
+      name: 'home_today_in',
+      desc: '',
+      args: [place],
+    );
+  }
+
+  /// `See all`
+  String get home_see_all {
+    return Intl.message('See all', name: 'home_see_all', desc: '', args: []);
+  }
+
+  /// `Back`
+  String get home_back {
+    return Intl.message('Back', name: 'home_back', desc: '', args: []);
+  }
+
+  /// `Wind is {wind} kn today; the operator runs this below {max} kn`
+  String xp_fit_wind_high(Object wind, Object max) {
+    return Intl.message(
+      'Wind is $wind kn today; the operator runs this below $max kn',
+      name: 'xp_fit_wind_high',
+      desc: '',
+      args: [wind, max],
+    );
+  }
+
+  /// `Wind is {wind} kn, inside the operator's limit`
+  String xp_fit_wind_ok(Object wind) {
+    return Intl.message(
+      'Wind is $wind kn, inside the operator\'s limit',
+      name: 'xp_fit_wind_ok',
+      desc: '',
+      args: [wind],
+    );
+  }
+
+  /// `Sunset today is at {clock}`
+  String xp_fit_sunset(Object clock) {
+    return Intl.message(
+      'Sunset today is at $clock',
+      name: 'xp_fit_sunset',
+      desc: '',
+      args: [clock],
+    );
+  }
+
+  /// `Good for a first time`
+  String get xp_fit_first_time {
+    return Intl.message(
+      'Good for a first time',
+      name: 'xp_fit_first_time',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Morning departure, when the water is calmest`
+  String get xp_fit_morning {
+    return Intl.message(
+      'Morning departure, when the water is calmest',
+      name: 'xp_fit_morning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `For you:`
+  String get xp_for_you {
+    return Intl.message('For you:', name: 'xp_for_you', desc: '', args: []);
+  }
+
+  /// `{m} min`
+  String xp_minutes(Object m) {
+    return Intl.message('$m min', name: 'xp_minutes', desc: '', args: [m]);
+  }
+
+  /// `1 hour`
+  String get xp_hour_one {
+    return Intl.message('1 hour', name: 'xp_hour_one', desc: '', args: []);
+  }
+
+  /// `1.5 hours`
+  String get xp_hour_half {
+    return Intl.message('1.5 hours', name: 'xp_hour_half', desc: '', args: []);
+  }
+
+  /// `2 hours`
+  String get xp_hour_two {
+    return Intl.message('2 hours', name: 'xp_hour_two', desc: '', args: []);
+  }
+
+  /// `{h} hours`
+  String xp_hours(Object h) {
+    return Intl.message('$h hours', name: 'xp_hours', desc: '', args: [h]);
+  }
+
+  /// `Free cancellation up to {hours} h before`
+  String xp_free_cancel_hours(Object hours) {
+    return Intl.message(
+      'Free cancellation up to $hours h before',
+      name: 'xp_free_cancel_hours',
+      desc: '',
+      args: [hours],
+    );
+  }
+
+  /// `Free cancellation`
+  String get xp_free_cancel {
+    return Intl.message(
+      'Free cancellation',
+      name: 'xp_free_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `pp`
+  String get xp_per_person {
+    return Intl.message('pp', name: 'xp_per_person', desc: '', args: []);
+  }
+
+  /// `per person`
+  String get xp_per_person_long {
+    return Intl.message(
+      'per person',
+      name: 'xp_per_person_long',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `about ${usd}`
+  String xp_about_usd(Object usd) {
+    return Intl.message(
+      'about \$$usd',
+      name: 'xp_about_usd',
+      desc: '',
+      args: [usd],
+    );
+  }
+
+  /// `Pay on arrival`
+  String get xp_pay_on_arrival {
+    return Intl.message(
+      'Pay on arrival',
+      name: 'xp_pay_on_arrival',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No reviews yet`
+  String get xp_reviews_none {
+    return Intl.message(
+      'No reviews yet',
+      name: 'xp_reviews_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reviews appear here only from guests who actually went. We don't show made-up ratings.`
+  String get xp_reviews_none_hint {
+    return Intl.message(
+      'Reviews appear here only from guests who actually went. We don\'t show made-up ratings.',
+      name: 'xp_reviews_none_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What guests say`
+  String get xp_reviews_title {
+    return Intl.message(
+      'What guests say',
+      name: 'xp_reviews_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count, plural, =1{From 1 verified review} other{From {count} verified reviews}}`
+  String xp_reviews_from(num count) {
+    return Intl.plural(
+      count,
+      one: 'From 1 verified review',
+      other: 'From $count verified reviews',
+      name: 'xp_reviews_from',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// ` · latest {date}`
+  String xp_reviews_latest(Object date) {
+    return Intl.message(
+      ' · latest $date',
+      name: 'xp_reviews_latest',
+      desc: '',
+      args: [date],
+    );
+  }
+
+  /// `Operator on REHLA`
+  String get xp_operator_on {
+    return Intl.message(
+      'Operator on REHLA',
+      name: 'xp_operator_on',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n, plural, =1{reliability from 1 trip} other{reliability from {n} trips}}`
+  String xp_reliability_basis(num n) {
+    return Intl.plural(
+      n,
+      one: 'reliability from 1 trip',
+      other: 'reliability from $n trips',
+      name: 'xp_reliability_basis',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `new here, no track record yet`
+  String get xp_reliability_new {
+    return Intl.message(
+      'new here, no track record yet',
+      name: 'xp_reliability_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `reliable`
+  String get xp_reliability {
+    return Intl.message('reliable', name: 'xp_reliability', desc: '', args: []);
+  }
+
+  /// `What's included`
+  String get xp_included {
+    return Intl.message(
+      'What\'s included',
+      name: 'xp_included',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Before you go`
+  String get xp_before {
+    return Intl.message('Before you go', name: 'xp_before', desc: '', args: []);
+  }
+
+  /// `Duration`
+  String get xp_fact_duration {
+    return Intl.message(
+      'Duration',
+      name: 'xp_fact_duration',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meeting point`
+  String get xp_fact_meet {
+    return Intl.message(
+      'Meeting point',
+      name: 'xp_fact_meet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Group`
+  String get xp_fact_group {
+    return Intl.message('Group', name: 'xp_fact_group', desc: '', args: []);
+  }
+
+  /// `Up to {n}`
+  String xp_up_to(Object n) {
+    return Intl.message('Up to $n', name: 'xp_up_to', desc: '', args: [n]);
+  }
+
+  /// `Level`
+  String get xp_fact_level {
+    return Intl.message('Level', name: 'xp_fact_level', desc: '', args: []);
+  }
+
+  /// `Beginner`
+  String get xp_level_beginner {
+    return Intl.message(
+      'Beginner',
+      name: 'xp_level_beginner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Intermediate`
+  String get xp_level_intermediate {
+    return Intl.message(
+      'Intermediate',
+      name: 'xp_level_intermediate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Advanced`
+  String get xp_level_advanced {
+    return Intl.message(
+      'Advanced',
+      name: 'xp_level_advanced',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All levels`
+  String get xp_level_all {
+    return Intl.message('All levels', name: 'xp_level_all', desc: '', args: []);
+  }
+
+  /// `Choose a time`
+  String get xp_book {
+    return Intl.message('Choose a time', name: 'xp_book', desc: '', args: []);
+  }
+
+  /// `Ask DayGi about this`
+  String get xp_ask_daygi {
+    return Intl.message(
+      'Ask DayGi about this',
+      name: 'xp_ask_daygi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Is {title} a good fit for me?`
+  String xp_ask_daygi_q(Object title) {
+    return Intl.message(
+      'Is $title a good fit for me?',
+      name: 'xp_ask_daygi_q',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `Choose your time`
+  String get book_title {
+    return Intl.message(
+      'Choose your time',
+      name: 'book_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date`
+  String get book_date {
+    return Intl.message('Date', name: 'book_date', desc: '', args: []);
+  }
+
+  /// `Guests`
+  String get book_guests {
+    return Intl.message('Guests', name: 'book_guests', desc: '', args: []);
+  }
+
+  /// `Departure`
+  String get book_time {
+    return Intl.message('Departure', name: 'book_time', desc: '', args: []);
+  }
+
+  /// `Checking live availability…`
+  String get book_slots_loading {
+    return Intl.message(
+      'Checking live availability…',
+      name: 'book_slots_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't check availability.`
+  String get book_slots_error {
+    return Intl.message(
+      'We couldn\'t check availability.',
+      name: 'book_slots_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try again`
+  String get book_retry {
+    return Intl.message('Try again', name: 'book_retry', desc: '', args: []);
+  }
+
+  /// `No departures on this day. Try another date.`
+  String get book_slots_none {
+    return Intl.message(
+      'No departures on this day. Try another date.',
+      name: 'book_slots_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n} left`
+  String book_left(Object n) {
+    return Intl.message('$n left', name: 'book_left', desc: '', args: [n]);
+  }
+
+  /// `Full`
+  String get book_sold_out {
+    return Intl.message('Full', name: 'book_sold_out', desc: '', args: []);
+  }
+
+  /// `Gone`
+  String get book_departed {
+    return Intl.message('Gone', name: 'book_departed', desc: '', args: []);
+  }
+
+  /// `Mobile number for the operator`
+  String get book_phone {
+    return Intl.message(
+      'Mobile number for the operator',
+      name: 'book_phone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a mobile number so the operator can reach you.`
+  String get book_phone_missing {
+    return Intl.message(
+      'Add a mobile number so the operator can reach you.',
+      name: 'book_phone_missing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Total`
+  String get book_total {
+    return Intl.message('Total', name: 'book_total', desc: '', args: []);
+  }
+
+  /// `Hold this time`
+  String get book_continue {
+    return Intl.message(
+      'Hold this time',
+      name: 'book_continue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in to book`
+  String get book_sign_in {
+    return Intl.message(
+      'Sign in to book',
+      name: 'book_sign_in',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't hold this time. Try another departure.`
+  String get book_failed {
+    return Intl.message(
+      'We couldn\'t hold this time. Try another departure.',
+      name: 'book_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We hold your places for 15 minutes while you confirm. Nothing is charged.`
+  String get book_hold_note {
+    return Intl.message(
+      'We hold your places for 15 minutes while you confirm. Nothing is charged.',
+      name: 'book_hold_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Today`
+  String get book_today {
+    return Intl.message('Today', name: 'book_today', desc: '', args: []);
+  }
+
+  /// `Tomorrow`
+  String get book_tomorrow {
+    return Intl.message('Tomorrow', name: 'book_tomorrow', desc: '', args: []);
+  }
+
+  /// `Review and confirm`
+  String get pay_title {
+    return Intl.message(
+      'Review and confirm',
+      name: 'pay_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Held for you`
+  String get pay_held {
+    return Intl.message('Held for you', name: 'pay_held', desc: '', args: []);
+  }
+
+  /// `The hold ran out, so the places went back on sale. Pick a time again.`
+  String get pay_expired {
+    return Intl.message(
+      'The hold ran out, so the places went back on sale. Pick a time again.',
+      name: 'pay_expired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick a time again`
+  String get pay_pick_again {
+    return Intl.message(
+      'Pick a time again',
+      name: 'pay_pick_again',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n, plural, =1{1 guest} other{{n} guests}}`
+  String pay_guests(num n) {
+    return Intl.plural(
+      n,
+      one: '1 guest',
+      other: '$n guests',
+      name: 'pay_guests',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Total`
+  String get pay_total {
+    return Intl.message('Total', name: 'pay_total', desc: '', args: []);
+  }
+
+  /// `about ${usd} · charged in EGP`
+  String pay_currency_note(Object usd) {
+    return Intl.message(
+      'about \$$usd · charged in EGP',
+      name: 'pay_currency_note',
+      desc: '',
+      args: [usd],
+    );
+  }
+
+  /// `Charged in EGP`
+  String get pay_currency_note_egp {
+    return Intl.message(
+      'Charged in EGP',
+      name: 'pay_currency_note_egp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Free cancellation until {when}`
+  String pay_cancel_until(Object when) {
+    return Intl.message(
+      'Free cancellation until $when',
+      name: 'pay_cancel_until',
+      desc: '',
+      args: [when],
+    );
+  }
+
+  /// `How you pay`
+  String get pay_method {
+    return Intl.message('How you pay', name: 'pay_method', desc: '', args: []);
+  }
+
+  /// `Pay on arrival`
+  String get pay_cash {
+    return Intl.message('Pay on arrival', name: 'pay_cash', desc: '', args: []);
+  }
+
+  /// `Pay {supplier} in cash on the day. Nothing is charged now.`
+  String pay_cash_hint(Object supplier) {
+    return Intl.message(
+      'Pay $supplier in cash on the day. Nothing is charged now.',
+      name: 'pay_cash_hint',
+      desc: '',
+      args: [supplier],
+    );
+  }
+
+  /// `Confirm booking`
+  String get pay_confirm {
+    return Intl.message(
+      'Confirm booking',
+      name: 'pay_confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The operator's price is now {amount}. Check the total and confirm again.`
+  String pay_price_changed(Object amount) {
+    return Intl.message(
+      'The operator\'s price is now $amount. Check the total and confirm again.',
+      name: 'pay_price_changed',
+      desc: '',
+      args: [amount],
+    );
+  }
+
+  /// `Booked`
+  String get pay_done_title {
+    return Intl.message('Booked', name: 'pay_done_title', desc: '', args: []);
+  }
+
+  /// `Booked · ref {ref}`
+  String pay_state_booked(Object ref) {
+    return Intl.message(
+      'Booked · ref $ref',
+      name: 'pay_state_booked',
+      desc: '',
+      args: [ref],
+    );
+  }
+
+  /// `Payment: on arrival, nothing charged yet`
+  String get pay_state_payment {
+    return Intl.message(
+      'Payment: on arrival, nothing charged yet',
+      name: 'pay_state_payment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for {supplier} to confirm`
+  String pay_state_waiting(Object supplier) {
+    return Intl.message(
+      'Waiting for $supplier to confirm',
+      name: 'pay_state_waiting',
+      desc: '',
+      args: [supplier],
+    );
+  }
+
+  /// `Booked and operator-confirmed are separate steps. We'll show it in your trip the moment the operator confirms.`
+  String get pay_state_note {
+    return Intl.message(
+      'Booked and operator-confirmed are separate steps. We\'ll show it in your trip the moment the operator confirms.',
+      name: 'pay_state_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open my trip`
+  String get pay_open_trip {
+    return Intl.message(
+      'Open my trip',
+      name: 'pay_open_trip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't confirm the booking. Your hold is still on; try again.`
+  String get pay_failed {
+    return Intl.message(
+      'We couldn\'t confirm the booking. Your hold is still on; try again.',
+      name: 'pay_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `BLUE HOLE`
+  String get map_blue_hole {
+    return Intl.message('BLUE HOLE', name: 'map_blue_hole', desc: '', args: []);
+  }
+
+  /// `EEL GARDEN`
+  String get map_eel_garden {
+    return Intl.message(
+      'EEL GARDEN',
+      name: 'map_eel_garden',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `LIGHTHOUSE`
+  String get map_lighthouse {
+    return Intl.message(
+      'LIGHTHOUSE',
+      name: 'map_lighthouse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `MASBAT`
+  String get map_masbat {
+    return Intl.message('MASBAT', name: 'map_masbat', desc: '', args: []);
+  }
+
+  /// `LAGOON`
+  String get map_lagoon {
+    return Intl.message('LAGOON', name: 'map_lagoon', desc: '', args: []);
+  }
+
+  /// `ASALA`
+  String get map_asala {
+    return Intl.message('ASALA', name: 'map_asala', desc: '', args: []);
+  }
+
+  /// `ABU GALUM`
+  String get map_abu_galum {
+    return Intl.message('ABU GALUM', name: 'map_abu_galum', desc: '', args: []);
+  }
+
+  /// `THREE POOLS`
+  String get map_three_pools {
+    return Intl.message(
+      'THREE POOLS',
+      name: 'map_three_pools',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `CANYON`
+  String get map_canyon {
+    return Intl.message('CANYON', name: 'map_canyon', desc: '', args: []);
+  }
+
+  /// `GULF OF AQABA`
+  String get map_gulf {
+    return Intl.message('GULF OF AQABA', name: 'map_gulf', desc: '', args: []);
+  }
+
+  /// `Dives, food, somewhere quiet…`
+  String get map_search_hint {
+    return Intl.message(
+      'Dives, food, somewhere quiet…',
+      name: 'map_search_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n, plural, =0{Nothing open today} =1{1 experience open today} other{{n} experiences open today}}`
+  String map_open_today(num n) {
+    return Intl.plural(
+      n,
+      zero: 'Nothing open today',
+      one: '1 experience open today',
+      other: '$n experiences open today',
+      name: 'map_open_today',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `{n, plural, =0{Nothing open on {day}} =1{1 experience open on {day}} other{{n} experiences open on {day}}}`
+  String map_open_on(num n, Object day) {
+    return Intl.plural(
+      n,
+      zero: 'Nothing open on $day',
+      one: '1 experience open on $day',
+      other: '$n experiences open on $day',
+      name: 'map_open_on',
+      desc: '',
+      args: [n, day],
+    );
+  }
+
+  /// `All`
+  String get map_kind_all {
+    return Intl.message('All', name: 'map_kind_all', desc: '', args: []);
+  }
+
+  /// `Sea`
+  String get map_kind_sea {
+    return Intl.message('Sea', name: 'map_kind_sea', desc: '', args: []);
+  }
+
+  /// `Desert`
+  String get map_kind_desert {
+    return Intl.message('Desert', name: 'map_kind_desert', desc: '', args: []);
+  }
+
+  /// `Bedouin & culture`
+  String get map_kind_culture {
+    return Intl.message(
+      'Bedouin & culture',
+      name: 'map_kind_culture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing matches. Try another day or clear the search.`
+  String get map_empty {
+    return Intl.message(
+      'Nothing matches. Try another day or clear the search.',
+      name: 'map_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading what's open…`
+  String get map_loading {
+    return Intl.message(
+      'Loading what\'s open…',
+      name: 'map_loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We couldn't load experiences. Pull to try again.`
+  String get map_failed {
+    return Intl.message(
+      'We couldn\'t load experiences. Pull to try again.',
+      name: 'map_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline: showing the last prices saved on this phone`
+  String get map_offline {
+    return Intl.message(
+      'Offline: showing the last prices saved on this phone',
+      name: 'map_offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Knows Dahab well`
+  String get dg_subtitle {
+    return Intl.message(
+      'Knows Dahab well',
+      name: 'dg_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{n, plural, =1{1 day} other{{n} days}}`
+  String dg_days(num n) {
+    return Intl.plural(
+      n,
+      one: '1 day',
+      other: '$n days',
+      name: 'dg_days',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `How many days`
+  String get dg_days_pick {
+    return Intl.message(
+      'How many days',
+      name: 'dg_days_pick',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ahlan! Tell me what you want your days to feel like. I answer with real outings you can book, and build your plan underneath.`
+  String get dg_greeting {
+    return Intl.message(
+      'Ahlan! Tell me what you want your days to feel like. I answer with real outings you can book, and build your plan underneath.',
+      name: 'dg_greeting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3 quiet days for two: snorkelling and a good sunset`
+  String get dg_try_1 {
+    return Intl.message(
+      '3 quiet days for two: snorkelling and a good sunset',
+      name: 'dg_try_1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My first dive, nothing scary`
+  String get dg_try_2 {
+    return Intl.message(
+      'My first dive, nothing scary',
+      name: 'dg_try_2',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A desert day with a Bedouin dinner`
+  String get dg_try_3 {
+    return Intl.message(
+      'A desert day with a Bedouin dinner',
+      name: 'dg_try_3',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type or talk…`
+  String get dg_hint {
+    return Intl.message('Type or talk…', name: 'dg_hint', desc: '', args: []);
+  }
+
+  /// `Talk to DayGi`
+  String get dg_voice {
+    return Intl.message('Talk to DayGi', name: 'dg_voice', desc: '', args: []);
+  }
+
+  /// `Voice input isn't available on this device.`
+  String get dg_voice_unavailable {
+    return Intl.message(
+      'Voice input isn\'t available on this device.',
+      name: 'dg_voice_unavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send`
+  String get dg_send {
+    return Intl.message('Send', name: 'dg_send', desc: '', args: []);
+  }
+
+  /// `{n, plural, =1{Here's 1 bookable outing that fits.} other{Here are {n} bookable outings that fit.}}`
+  String dg_local_reply(num n) {
+    return Intl.plural(
+      n,
+      one: 'Here\'s 1 bookable outing that fits.',
+      other: 'Here are $n bookable outings that fit.',
+      name: 'dg_local_reply',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Nothing bookable matches that yet. Try a kind of outing, a place, or a budget.`
+  String get dg_local_none {
+    return Intl.message(
+      'Nothing bookable matches that yet. Try a kind of outing, a place, or a budget.',
+      name: 'dg_local_none',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in and DayGi can also plan around your booked trip.`
+  String get dg_sign_in_note {
+    return Intl.message(
+      'Sign in and DayGi can also plan around your booked trip.',
+      name: 'dg_sign_in_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Prices straight from operators · wind from {source}`
+  String dg_sources(Object source) {
+    return Intl.message(
+      'Prices straight from operators · wind from $source',
+      name: 'dg_sources',
+      desc: '',
+      args: [source],
+    );
+  }
+
+  /// `Prices straight from operators`
+  String get dg_sources_prices {
+    return Intl.message(
+      'Prices straight from operators',
+      name: 'dg_sources_prices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to day {day}`
+  String dg_add_to_day(Object day) {
+    return Intl.message(
+      'Add to day $day',
+      name: 'dg_add_to_day',
+      desc: '',
+      args: [day],
+    );
+  }
+
+  /// `In your plan`
+  String get dg_added {
+    return Intl.message('In your plan', name: 'dg_added', desc: '', args: []);
+  }
+
+  /// `Your plan · Day {day}`
+  String dg_plan_day(Object day) {
+    return Intl.message(
+      'Your plan · Day $day',
+      name: 'dg_plan_day',
+      desc: '',
+      args: [day],
+    );
+  }
+
+  /// `Day {n}`
+  String dg_day_n(Object n) {
+    return Intl.message('Day $n', name: 'dg_day_n', desc: '', args: [n]);
+  }
+
+  /// `Nothing on this day yet. Tap "Add to day" on any card above.`
+  String get dg_plan_empty {
+    return Intl.message(
+      'Nothing on this day yet. Tap "Add to day" on any card above.',
+      name: 'dg_plan_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Empty`
+  String get dg_plan_empty_short {
+    return Intl.message(
+      'Empty',
+      name: 'dg_plan_empty_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Why:`
+  String get dg_why {
+    return Intl.message('Why:', name: 'dg_why', desc: '', args: []);
+  }
+
+  /// `Swap`
+  String get dg_swap {
+    return Intl.message('Swap', name: 'dg_swap', desc: '', args: []);
+  }
+
+  /// `Remove`
+  String get dg_remove {
+    return Intl.message('Remove', name: 'dg_remove', desc: '', args: []);
+  }
+
+  /// `Your trip`
+  String get trip_title {
+    return Intl.message('Your trip', name: 'trip_title', desc: '', args: []);
+  }
+
+  /// `{n, plural, =1{1 day to go} other{{n} days to go}}`
+  String trip_days_to_go(num n) {
+    return Intl.plural(
+      n,
+      one: '1 day to go',
+      other: '$n days to go',
+      name: 'trip_days_to_go',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Today`
+  String get today_title {
+    return Intl.message('Today', name: 'today_title', desc: '', args: []);
+  }
+
+  /// `Day {day} of {days}`
+  String today_day_of(Object day, Object days) {
+    return Intl.message(
+      'Day $day of $days',
+      name: 'today_day_of',
+      desc: '',
+      args: [day, days],
+    );
+  }
+
+  /// `wind {kn} kn`
+  String today_wind(Object kn) {
+    return Intl.message(
+      'wind $kn kn',
+      name: 'today_wind',
+      desc: '',
+      args: [kn],
+    );
+  }
+
+  /// `Showing the last copy saved on this phone`
+  String get today_offline {
+    return Intl.message(
+      'Showing the last copy saved on this phone',
+      name: 'today_offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get today_next {
+    return Intl.message('Next', name: 'today_next', desc: '', args: []);
+  }
+
+  /// `Under way`
+  String get today_under_way {
+    return Intl.message(
+      'Under way',
+      name: 'today_under_way',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `in {m} min`
+  String today_in_m(Object m) {
+    return Intl.message('in $m min', name: 'today_in_m', desc: '', args: [m]);
+  }
+
+  /// `in {h} h {m} min`
+  String today_in_hm(Object h, Object m) {
+    return Intl.message(
+      'in $h h $m min',
+      name: 'today_in_hm',
+      desc: '',
+      args: [h, m],
+    );
+  }
+
+  /// `Driver`
+  String get today_driver {
+    return Intl.message('Driver', name: 'today_driver', desc: '', args: []);
+  }
+
+  /// `Guide`
+  String get today_guide {
+    return Intl.message('Guide', name: 'today_guide', desc: '', args: []);
+  }
+
+  /// `Operator`
+  String get today_operator {
+    return Intl.message('Operator', name: 'today_operator', desc: '', args: []);
+  }
+
+  /// `The operator will share who's coming before the day.`
+  String get today_no_person {
+    return Intl.message(
+      'The operator will share who\'s coming before the day.',
+      name: 'today_no_person',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Call {name}`
+  String today_call(Object name) {
+    return Intl.message(
+      'Call $name',
+      name: 'today_call',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Waiting for the operator to confirm`
+  String get today_waiting_operator {
+    return Intl.message(
+      'Waiting for the operator to confirm',
+      name: 'today_waiting_operator',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirmed`
+  String get today_step_confirmed {
+    return Intl.message(
+      'Confirmed',
+      name: 'today_step_confirmed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Driver`
+  String get today_step_driver {
+    return Intl.message(
+      'Driver',
+      name: 'today_step_driver',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On the way`
+  String get today_step_way {
+    return Intl.message(
+      'On the way',
+      name: 'today_step_way',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Arrived`
+  String get today_step_arrived {
+    return Intl.message(
+      'Arrived',
+      name: 'today_step_arrived',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Voucher`
+  String get today_voucher {
+    return Intl.message('Voucher', name: 'today_voucher', desc: '', args: []);
+  }
+
+  /// `Works offline`
+  String get today_voucher_offline {
+    return Intl.message(
+      'Works offline',
+      name: 'today_voucher_offline',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show this to the operator. It works without signal.`
+  String get today_voucher_hint {
+    return Intl.message(
+      'Show this to the operator. It works without signal.',
+      name: 'today_voucher_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your booking reference. The operator's code appears once they confirm.`
+  String get today_voucher_ref_hint {
+    return Intl.message(
+      'Your booking reference. The operator\'s code appears once they confirm.',
+      name: 'today_voucher_ref_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paid`
+  String get today_paid {
+    return Intl.message('Paid', name: 'today_paid', desc: '', args: []);
+  }
+
+  /// `Operator confirmed`
+  String get today_confirmed {
+    return Intl.message(
+      'Operator confirmed',
+      name: 'today_confirmed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for operator`
+  String get today_pending {
+    return Intl.message(
+      'Waiting for operator',
+      name: 'today_pending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Later`
+  String get today_later {
+    return Intl.message('Later', name: 'today_later', desc: '', args: []);
+  }
+
+  /// `Done`
+  String get today_done {
+    return Intl.message('Done', name: 'today_done', desc: '', args: []);
+  }
+
+  /// `Nothing booked yet`
+  String get today_none_title {
+    return Intl.message(
+      'Nothing booked yet',
+      name: 'today_none_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your trip is set. Book outings and they show up here with times, pickup and vouchers.`
+  String get today_none_body {
+    return Intl.message(
+      'Your trip is set. Book outings and they show up here with times, pickup and vouchers.',
+      name: 'today_none_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find something to book`
+  String get today_none_action {
+    return Intl.message(
+      'Find something to book',
+      name: 'today_none_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wind is {wind} kn now. {title} runs below {max} kn.`
+  String today_wind_alert(Object wind, Object title, Object max) {
+    return Intl.message(
+      'Wind is $wind kn now. $title runs below $max kn.',
+      name: 'today_wind_alert',
+      desc: '',
+      args: [wind, title, max],
+    );
+  }
+
+  /// `First departure the operator runs: {slot} on {day}.`
+  String today_wind_offer(Object slot, Object day) {
+    return Intl.message(
+      'First departure the operator runs: $slot on $day.',
+      name: 'today_wind_offer',
+      desc: '',
+      args: [slot, day],
+    );
+  }
+
+  /// `Move it`
+  String get today_move_it {
+    return Intl.message('Move it', name: 'today_move_it', desc: '', args: []);
+  }
+
+  /// `Moved to {slot}. The operator has the new time.`
+  String today_moved(Object slot) {
+    return Intl.message(
+      'Moved to $slot. The operator has the new time.',
+      name: 'today_moved',
+      desc: '',
+      args: [slot],
+    );
+  }
+
+  /// `We couldn't move it. Try again or ask the operator.`
+  String get today_move_failed {
+    return Intl.message(
+      'We couldn\'t move it. Try again or ask the operator.',
+      name: 'today_move_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Something else`
+  String get today_wind_other {
+    return Intl.message(
+      'Something else',
+      name: 'today_wind_other',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `It's windy. What can I do instead of {title}?`
+  String today_wind_ask(Object title) {
+    return Intl.message(
+      'It\'s windy. What can I do instead of $title?',
+      name: 'today_wind_ask',
+      desc: '',
+      args: [title],
+    );
+  }
+
+  /// `Emergency`
+  String get today_emergency {
+    return Intl.message(
+      'Emergency',
+      name: 'today_emergency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dive emergency · hyperbaric chamber`
+  String get today_em_hyperbaric {
+    return Intl.message(
+      'Dive emergency · hyperbaric chamber',
+      name: 'today_em_hyperbaric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dahab hospital ER`
+  String get today_em_hospital {
+    return Intl.message(
+      'Dahab hospital ER',
+      name: 'today_em_hospital',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tourist police`
+  String get today_em_police {
+    return Intl.message(
+      'Tourist police',
+      name: 'today_em_police',
       desc: '',
       args: [],
     );

@@ -9,6 +9,17 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+// Older plugins (e.g. flutter_keyboard_visibility, fluttertoast) pin a compileSdk
+// below what their androidx deps require in checkAarMetadata.
+subprojects {
+    pluginManager.withPlugin("com.android.library") {
+        androidComponents.finalizeDsl { android ->
+            if ((android.compileSdk ?: 0) < 36) {
+                android.compileSdk = 36
+            }
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(":app")
 }

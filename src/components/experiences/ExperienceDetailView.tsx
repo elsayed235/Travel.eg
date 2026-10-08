@@ -7,9 +7,11 @@ import { analytics } from '../../services/analytics';
 import { useApiResource } from '../../hooks/useApiResource';
 import {
   resolveExperience,
+  relatedActivityExperiences,
   CURATED_EXPERIENCES,
   ExperienceDetailData
 } from '../../services/experienceService';
+import { ExperienceBookingSheet, readBookingDraft, type ExperienceBookingDraft } from './ExperienceBookingSheet';
 import {
   ArrowLeft,
   ArrowRight,
@@ -55,8 +57,7 @@ export const ExperienceDetailView: React.FC = () => {
     navigateTo,
     addActivityToDay,
     showToast,
-    isSignedIn,
-    setIntendedRoute
+    isSignedIn
   } = useTrip();
 
   const { language, t, isRTL } = useLanguage();
@@ -78,6 +79,18 @@ export const ExperienceDetailView: React.FC = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<'morning' | 'afternoon' | 'sunset' | 'evening'>('morning');
   const [isSavedFavorite, setIsSavedFavorite] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [bookingOpen, setBookingOpen] = useState<boolean>(false);
+  const [bookingDraft, setBookingDraft] = useState<ExperienceBookingDraft | null>(null);
+
+  // Back from signing in mid-booking: reopen the sheet with what was chosen.
+  useEffect(() => {
+    if (!activeExperience?.bookable || !isSignedIn) return;
+    const draft = readBookingDraft(activeExperience.slug);
+    if (draft) {
+      setBookingDraft(draft);
+      setBookingOpen(true);
+    }
+  }, [activeExperience?.slug, Boolean(activeExperience?.bookable), isSignedIn]);
 
   // Scroll to top on slug change
   useEffect(() => {
@@ -144,30 +157,15 @@ export const ExperienceDetailView: React.FC = () => {
   };
 
   /**
-   * Books this experience.
-   *
-   * There was no path at all from an experience to a booking: this page's three
-   * buttons were all the same "Add to Trip", and checkout was reachable only
-   * from a generic nav CTA selling a different catalogue entirely.
+   * Books this experience in place: day, departure, party and contact in one
+   * sheet, settled through the same held checkout as Book Now. It used to hand
+   * off to Book Now, which only sells for today and forgot the product across
+   * a sign-in.
    */
   const handleBookNow = () => {
     if (!activeExperience || !bookable) return;
-
-    analytics.track('booking_started', {
-      sourceMode: `experience_detail:${activeExperience.slug}`,
-      metadata: { skuId: bookable.skuId, serviceType: bookable.serviceType }
-    } as any);
-
-    if (!isSignedIn) {
-      setIntendedRoute('/book-now');
-      showToast(
-        t('experiences.signInToComplete')
-      );
-      navigateTo('/auth/sign-in');
-      return;
-    }
-
-    navigateTo('/book-now', { skuId: bookable.skuId });
+    setBookingDraft(null);
+    setBookingOpen(true);
   };
 
   // Handle Share URL
@@ -190,11 +188,30 @@ export const ExperienceDetailView: React.FC = () => {
     );
   };
 
-  // Related experiences
+  // Related experiences: bookable ones from the live catalogue, falling back
+  // to the editorial picks while it loads or if it is unavailable.
   const relatedExperiences = useMemo(() => {
     if (!activeExperience) return [];
+    const fromCatalogue = relatedActivityExperiences(
+      activeExperience,
+      corpus.data?.activities || [],
+      corpus.data?.places || []
+    );
+    if (fromCatalogue.length > 0) return fromCatalogue;
     return CURATED_EXPERIENCES.filter((exp) => exp.id !== activeExperience.id).slice(0, 3);
-  }, [activeExperience?.id]);
+  }, [activeExperience, corpus.data]);
+
+  if (!activeExperience && (corpus.status === 'loading' || corpus.status === 'idle')) {
+    return (
+      <div className="min-h-screen bg-[var(--surface-card)]" aria-busy="true">
+        <div className="h-[460px] sm:h-[520px] w-full animate-pulse bg-stone-900" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 space-y-4">
+          <div className="h-6 w-1/3 animate-pulse rounded-full bg-[var(--surface-container)]" />
+          <div className="h-24 w-full animate-pulse rounded-3xl bg-[var(--surface-container)]" />
+        </div>
+      </div>
+    );
+  }
 
   // =========================================================================
   // NOT FOUND STATE (Never silently load random items)
@@ -399,8 +416,12 @@ export const ExperienceDetailView: React.FC = () => {
               
               {/* Pricing Box */}
               <div className="bg-black/50 backdrop-blur-md px-5 py-3 rounded-2xl border border-[var(--border-subtle)] inline-block self-start">
-                <span className="text-[11px] font-bold text-[var(--text-secondary)]/80 block">
-                  {t('experienceDetail.startingPrice')}
+                <span className="text-[11px] font-bold text-white/70 block">
+                  {!bookable
+                    ? t('experienceDetail.startingPrice')
+                    : (bookable.pricingBasis ?? 'per_person') === 'per_person'
+                    ? t('experienceDetail.pricePerPerson')
+                    : t('experienceDetail.pricePerGroup')}
                 </span>
                 <div className="text-2xl sm:text-3xl font-bold chart-heading text-[var(--accent-secondary)]">
                   {displayPriceEGP.toLocaleString()}{' '}
@@ -545,7 +566,25 @@ export const ExperienceDetailView: React.FC = () => {
               </p>
             </div>
 
+            {activeExperience.conditionsEn && (
+              <div className="p-6 sm:p-7 rounded-3xl border shadow-md space-y-4 bg-[var(--surface-card)] border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-[var(--accent-primary)]">
+                  <Wind className="w-4 h-4" />
+                  <h3 className="text-xs font-extrabold">{t('experienceDetail.conditionsTitle')}</h3>
+                </div>
+                <ul className="space-y-2.5 text-xs sm:text-sm">
+                  {(language === 'ar' ? activeExperience.conditionsAr ?? [] : activeExperience.conditionsEn).map((line) => (
+                    <li key={line} className="flex items-start gap-2.5 text-[var(--text-secondary)]">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-primary)]" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Environmental Signals Card */}
+            {!activeExperience.conditionsEn && (
             <div className={`p-6 sm:p-7 rounded-3xl border shadow-md space-y-4 ${
               'bg-[var(--surface-card)] border-[var(--border-subtle)]'
             }`}>
@@ -579,6 +618,7 @@ export const ExperienceDetailView: React.FC = () => {
                 </div>
               </div>
             </div>
+            )}
 
           </div>
 
@@ -861,7 +901,7 @@ export const ExperienceDetailView: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3 text-white">
                       <span className="text-[11px] font-semibold text-[var(--accent-primary)]">
-                        {rel.durationEn} · {rel.priceLevel}
+                        {language === 'ar' ? rel.durationAr : rel.durationEn}
                       </span>
                       <h4 className="text-base chart-heading font-bold text-white leading-tight truncate mt-0.5">
                         {language === 'ar' ? rel.titleAr : rel.titleEn}
@@ -879,8 +919,8 @@ export const ExperienceDetailView: React.FC = () => {
                         <span className={`text-[10px] font-bold block ${'text-[var(--text-secondary)]'}`}>
                           {t('experienceDetail.startingPrice')}
                         </span>
-                        <span className={`text-sm font-bold chart-heading ${isDark ? 'text-[var(--accent-secondary)]' : 'text-[var(--surface-card)]'}`}>
-                          {rel.basePriceEGP.toLocaleString()} EGP
+                        <span className="text-sm font-bold chart-heading text-[var(--accent-secondary)]">
+                          {(rel.bookable?.basePriceEGP ?? rel.basePriceEGP).toLocaleString()} EGP
                         </span>
                       </div>
 
@@ -952,6 +992,18 @@ export const ExperienceDetailView: React.FC = () => {
         </div>
       </div>
 
+      {bookable && (
+        <ExperienceBookingSheet
+          key={`${activeExperience.slug}:${bookingDraft ? 'draft' : 'fresh'}`}
+          experience={activeExperience}
+          open={bookingOpen}
+          onClose={() => {
+            setBookingOpen(false);
+            setBookingDraft(null);
+          }}
+          initialDraft={bookingDraft}
+        />
+      )}
     </div>
   );
 };

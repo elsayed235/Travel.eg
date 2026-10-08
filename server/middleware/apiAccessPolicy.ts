@@ -57,6 +57,9 @@ const PUBLIC_RULES: Rule[] = [
   // Browsing the catalogue and checking prices before signing up.
   { pattern: /^\/inventory\/[^/]+$/, methods: ['GET'] },
   { pattern: /^\/commerce\/availability$/, methods: ['POST'] },
+  // Same projection with per-slot capacity: SKU catalogue + slot counts, no
+  // bookings or traveler data. Lets a visitor pick a departure before sign-in.
+  { pattern: /^\/commerce\/availability\/rich$/, methods: ['POST'] },
 
   // Spatial helpers used by the anonymous homepage ("I have two hours").
   { pattern: /^\/context\//, methods: ['GET', 'POST'] },

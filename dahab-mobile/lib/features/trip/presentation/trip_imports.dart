@@ -1,0 +1,29 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
+import 'package:rehla/core/constants/gaps.dart';
+import 'package:rehla/core/extensions/common_extension.dart';
+import 'package:rehla/core/helpers/app_money.dart';
+import 'package:rehla/core/helpers/rehla_dates.dart';
+import 'package:rehla/core/localization/translate.dart';
+import 'package:rehla/core/theme/app_radius.dart';
+import 'package:rehla/core/theme/app_spacing.dart';
+import 'package:rehla/core/theme/colors/colors_extension.dart';
+import 'package:rehla/core/theme/text/app_fonts.dart';
+import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/features/base/presentation/shell_actions.dart';
+import 'package:rehla/features/experiences/domain/experience_catalogue.dart';
+import 'package:rehla/features/experiences/domain/models/experience.dart';
+import 'package:rehla/features/trip/data/trip_remote.dart';
+import 'package:rehla/features/trip/domain/models/trip_booking.dart';
+import 'package:rehla/features/trip/domain/trip_store.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+part 'today_controller.dart';
+part 'trip_tab.dart';
+part 'widgets/build_booking_tile.dart';
+part 'widgets/build_today_next.dart';
+part 'widgets/build_today_alerts.dart';
+part 'widgets/build_voucher.dart';

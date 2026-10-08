@@ -19,6 +19,10 @@ export interface SeasonRow {
 
 export interface Experience {
   id: string;
+  /** The catalogue activity the card opens; absent for walk-in outings with no page of their own. */
+  activityId?: string;
+  /** What checkout charges per person, when the outing can be booked. */
+  fromPriceEGP?: number | null;
   name: Bilingual;
   duration: Bilingual;
   priceEgp: string;

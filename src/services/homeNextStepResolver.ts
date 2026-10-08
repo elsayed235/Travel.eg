@@ -49,6 +49,8 @@ export interface HomeNextStep {
 export interface HomeNextStepContext {
   /** The traveler's real trip, when they have one. Read-only here. */
   activeTrip?: { title?: string | null } | null;
+  /** Bookings the operator has not confirmed yet. */
+  pendingBookings?: number;
 }
 
 interface PhaseCopy {
@@ -167,7 +169,12 @@ export function resolveHomeNextStep(
   lifecycle: TravelerLifecycleSnapshot,
   context: HomeNextStepContext = {}
 ): HomeNextStep {
-  const copy = COPY[lifecycle.lifecyclePhase];
+  const base = COPY[lifecycle.lifecyclePhase];
+  // "Everything is set" is only true once every operator has confirmed.
+  const copy =
+    lifecycle.lifecyclePhase === 'PRE_TRIP' && (context.pendingBookings ?? 0) > 0
+      ? { ...base, titleKey: 'home.nextStep.preTrip.titlePending', bodyKey: 'home.nextStep.preTrip.bodyPending' }
+      : base;
 
   // The traveler's running/next activity outranks the trip title: it is the
   // more specific fact, and both come from data the app already holds.

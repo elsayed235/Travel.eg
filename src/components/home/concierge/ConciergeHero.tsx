@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, Compass } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
 import { useDestination } from '../../../context/DestinationContext';
 import { DESTINATIONS, type DestinationId } from '../../../design/destinations';
@@ -158,21 +158,25 @@ export const ConciergeHero: React.FC<{
             </motion.div>
           </AnimatePresence>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={onPlan}
-              className="inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-dg-lg bg-dg-action px-7 text-[0.9375rem] font-semibold text-dg-action-ink shadow-[0_14px_30px_-14px_var(--dg-action)] transition-[transform,background-color] duration-200 hover:bg-dg-action-hover active:scale-[0.98]"
+              className="group inline-flex h-[52px] items-center justify-between gap-5 rounded-full bg-dg-action ps-7 pe-2 text-[0.9375rem] font-semibold text-dg-action-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] transition-[transform,background-color] duration-300 ease-out hover:bg-dg-action-hover focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-dg-action active:scale-[0.985] sm:justify-center"
             >
               {t('concierge.hero.plan')}
-              <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
+              <span
+                className="grid h-9 w-9 place-items-center rounded-full bg-dg-action-ink/10 transition-transform duration-300 ease-out group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5"
+                aria-hidden="true"
+              >
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </span>
             </button>
             <button
               type="button"
               onClick={onExplore}
-              className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-dg-lg border border-dg-line-strong bg-dg-chrome px-7 text-[0.9375rem] font-semibold text-dg-ink backdrop-blur-md transition-colors duration-200 hover:bg-dg-action-wash"
+              className="inline-flex h-[52px] items-center justify-center rounded-full border border-dg-ink/25 bg-dg-bg/20 px-7 text-[0.9375rem] font-medium text-dg-ink backdrop-blur-md transition-[border-color,background-color] duration-300 ease-out hover:border-dg-ink/50 hover:bg-dg-bg/35 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-dg-ink active:scale-[0.985]"
             >
-              <Compass className="h-4 w-4" aria-hidden="true" />
               {t('hero.explore', { place: d.name[language] })}
             </button>
           </div>

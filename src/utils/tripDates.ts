@@ -18,11 +18,15 @@ export function formatTripDateRange(
   const end = new Date(endDate);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
 
-  const tag = locale === 'ar' ? 'ar-EG' : 'en-GB';
-  const dayMonth = (date: Date) => date.toLocaleDateString(tag, { day: 'numeric', month: 'short' });
-  const sameYear = start.getFullYear() === end.getFullYear();
+  const tag = locale === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB';
+  const comma = locale === 'ar' ? '،' : ',';
+  const dayMonth = (date: Date) =>
+    date.toLocaleDateString(tag, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const startYear = start.getUTCFullYear();
+  const endYear = end.getUTCFullYear();
 
-  return sameYear
-    ? `${dayMonth(start)} – ${dayMonth(end)}, ${end.getFullYear()}`
-    : `${dayMonth(start)}, ${start.getFullYear()} – ${dayMonth(end)}, ${end.getFullYear()}`;
+  if (startDate.slice(0, 10) === endDate.slice(0, 10)) return `${dayMonth(start)}${comma} ${endYear}`;
+  return startYear === endYear
+    ? `${dayMonth(start)} – ${dayMonth(end)}${comma} ${endYear}`
+    : `${dayMonth(start)}${comma} ${startYear} – ${dayMonth(end)}${comma} ${endYear}`;
 }

@@ -6,7 +6,9 @@ part of 'conditions_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ConditionsModelImpl _$$ConditionsModelImplFromJson(Map<String, dynamic> json) => _$ConditionsModelImpl(
+_$ConditionsModelImpl _$$ConditionsModelImplFromJson(
+  Map<String, dynamic> json,
+) => _$ConditionsModelImpl(
   destination: json['destination'] as String,
   observedAt: json['observedAt'] as String?,
   source: json['source'] as String? ?? '',
@@ -17,7 +19,9 @@ _$ConditionsModelImpl _$$ConditionsModelImplFromJson(Map<String, dynamic> json) 
   sunset: json['sunset'] as String?,
 );
 
-Map<String, dynamic> _$$ConditionsModelImplToJson(_$ConditionsModelImpl instance) => <String, dynamic>{
+Map<String, dynamic> _$$ConditionsModelImplToJson(
+  _$ConditionsModelImpl instance,
+) => <String, dynamic>{
   'destination': instance.destination,
   'observedAt': instance.observedAt,
   'source': instance.source,

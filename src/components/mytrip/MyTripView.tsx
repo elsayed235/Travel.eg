@@ -7,6 +7,7 @@ import { useApiResource } from '../../hooks/useApiResource';
 import { api } from '../../services/api';
 import type { ConfirmedBookingItem } from './myTripData';
 import { ManageTripModal } from './ManageTripModal';
+import { EditTripDetailsSheet } from './EditTripDetailsSheet';
 import { BookingDetailModal } from './BookingDetailModal';
 import { OfflineTripPackModal } from '../expedition/OfflineTripPackModal';
 
@@ -61,6 +62,7 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
     activeTrip,
     activeTripItems,
     tripDays,
+    bookings,
     navigateTo,
     showToast,
     reloadTrip
@@ -89,6 +91,7 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
 
   // Modals
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [isEditDetailsOpen, setIsEditDetailsOpen] = useState(false);
   const [isOfflinePackOpen, setIsOfflinePackOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<ConfirmedBookingItem | null>(null);
   const [rentalCancellingId, setRentalCancellingId] = useState<string | null>(null);
@@ -223,10 +226,12 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
           dateRange={dateRange}
           tripTitle={activeTrip?.title ?? null}
           tripStatus={activeTrip?.status ?? null}
+          pendingBookings={bookings.filter(b => b.status === 'Pending').length}
           weather={weather}
           onShare={handleShareTrip}
           onManageTrip={() => setIsManageModalOpen(true)}
           onAddActivity={() => navigateTo('/explore')}
+          onEditDetails={() => setIsEditDetailsOpen(true)}
         />
 
         {/* 3. NEXT UP LIVE COMPANION BANNER */}
@@ -331,6 +336,8 @@ export const MyTripView: React.FC<MyTripViewProps> = ({
           cancelling={rentalCancellingId === selectedBooking.id}
         />
       )}
+
+      <EditTripDetailsSheet open={isEditDetailsOpen} onClose={() => setIsEditDetailsOpen(false)} />
 
       {isOfflinePackOpen && (
         <OfflineTripPackModal

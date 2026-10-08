@@ -18,7 +18,7 @@ import {
   Building2,
   AlertTriangle
 } from 'lucide-react';
-import { AppRoute } from '../../types';
+import { routeFromUrl } from '../../lib/routeUrl';
 
 interface AuthViewProps {
   initialMode?: 'sign-in' | 'sign-up' | 'forgot-password' | 'verify';
@@ -79,7 +79,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
     } else if (selectedRole === 'Operations') {
       navigateTo('/ops-console');
     } else if (intendedRoute && intendedRoute !== '/auth/sign-in' && intendedRoute !== '/auth/sign-up') {
-      navigateTo(intendedRoute as AppRoute);
+      // A full path (e.g. /experiences/eel-garden) carries the page's params.
+      const [pathname, search = ''] = intendedRoute.split('?');
+      const { route, params } = routeFromUrl(pathname, search ? `?${search}` : '');
+      navigateTo(route, params);
     } else {
       navigateTo('/my-trip');
     }
@@ -166,7 +169,12 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode = 'sign-in' }) =
         {/* Top Header / Language Switch & Back */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => navigateTo(intendedRoute ? (intendedRoute as AppRoute) : '/home')}
+            onClick={() => {
+              if (!intendedRoute) return navigateTo('/home');
+              const [pathname, search = ''] = intendedRoute.split('?');
+              const { route, params } = routeFromUrl(pathname, search ? `?${search}` : '');
+              navigateTo(route, params);
+            }}
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-[var(--text-primary)] transition-colors bg-[var(--btn-util-bg)] border border-[var(--border-subtle)] px-3 py-1.5 rounded-full"
           >
             <ArrowLeft className={`w-3.5 h-3.5 ${siteLanguage === 'ar' ? 'rotate-180' : ''}`} />
