@@ -124,6 +124,9 @@ tests/ui/*
 # proof (a non-anonymous lifecycle cannot be produced without a session), and
 # an ignored test is a test CI never runs.
 !tests/ui/ConciergeNextStep.test.tsx
+# ...and the checkout-contract panel: its price re-confirm, re-hold and
+# alternatives flows are the UI half of the hold-then-pay contract.
+!tests/ui/CheckoutIssuePanel.test.tsx
 # themeTokenContrast is a known pre-existing failure (18 ink-as-surface
 # offenders in tracked files) — keep local until design tokens are fixed.
 # The committed domain tests (moduleAliasResolution, splashGate,

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 /**
@@ -19,6 +20,15 @@ import { defineConfig } from 'vitest/config';
  *   i18n codemod moving markup and strings, snapshots would be churn.
  */
 export default defineConfig({
+  // The design primitives in src/components/ui import '@/lib/cn'. Same
+  // subpath aliases as vite.config.ts (specific before bare '@'), so a test
+  // can render a component built from them.
+  resolve: {
+    alias: {
+      '@/lib': path.resolve(__dirname, 'src', 'lib'),
+      '@/components': path.resolve(__dirname, 'src', 'components'),
+    },
+  },
   test: {
     environment: 'jsdom',
     include: ['tests/ui/**/*.test.tsx'],

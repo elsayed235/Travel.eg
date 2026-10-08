@@ -24,10 +24,11 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { api, type CommerceHold } from '../../services/api';
+import { api, type CommerceHold, type TransferTelemetry } from '../../services/api';
 import { checkoutIssueFrom, type CheckoutIssue } from '../../services/checkoutError';
 import { localCalendarDate } from '../../services/heldCheckout';
 import { CheckoutIssuePanel } from '../commerce/CheckoutIssuePanel';
+import { DriverAssignmentStatus } from './DriverAssignmentStatus';
 import type { TransferDetectedPlace, TransferOriginOption, TransferRouteQuote, TransferType } from '../../shared/types/transfers';
 
 type TabId = 'within_dahab' | 'anywhere';
@@ -137,6 +138,8 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
     timeSlot: string;
     idempotencyKey: string;
   } | null>(null);
+  /** The driver assignment as the server reported it at booking time. */
+  const [bookedTelemetry, setBookedTelemetry] = useState<TransferTelemetry | null>(null);
   const [bookedRef, setBookedRef] = useState<string>('');
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -305,6 +308,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
 
       setPendingRide(null);
       setBookedRef(settle.booking?.bookingRef || ride.hold.holdToken);
+      setBookedTelemetry(settle.telemetry ?? null);
       setBooking('done');
       showToast(t('transfers.bookedMessage'));
     } catch (e: unknown) {
@@ -710,6 +714,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
                 </div>
                 <div className="chart-heading font-bold text-lg">{t('transfers.bookedTitle', 'Ride on the way')}</div>
                 <p className="text-xs text-[var(--text-secondary)]/70 mt-1">{bookedRef}</p>
+                <DriverAssignmentStatus telemetry={bookedTelemetry} className="mt-4 text-start" />
                 <div className="mt-4 flex gap-2">
                   <button
                     type="button"
