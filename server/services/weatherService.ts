@@ -15,14 +15,28 @@
  * presented as current is the problem being fixed.
  */
 
-const DAHAB = { lat: 28.5097, lng: 34.5136 };
-const ENDPOINT =
-  'https://api.open-meteo.com/v1/forecast' +
-  `?latitude=${DAHAB.lat}&longitude=${DAHAB.lng}` +
-  '&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,weather_code' +
-  '&hourly=sea_surface_temperature' +
-  '&daily=sunrise,sunset' +
-  '&timezone=Africa%2FCairo&forecast_days=1';
+/**
+ * Where each destination's conditions are read. Siwa is inland, so its sea
+ * temperature comes back null and the UI shows air, wind and sunset only.
+ */
+export const WEATHER_LOCATIONS = {
+  dahab: { lat: 28.5097, lng: 34.5136 },
+  nuweiba: { lat: 28.98, lng: 34.66 },
+  siwa: { lat: 29.2032, lng: 25.5195 },
+} as const;
+export type WeatherLocation = keyof typeof WEATHER_LOCATIONS;
+
+const endpointFor = (where: WeatherLocation) => {
+  const { lat, lng } = WEATHER_LOCATIONS[where];
+  return (
+    'https://api.open-meteo.com/v1/forecast' +
+    `?latitude=${lat}&longitude=${lng}` +
+    '&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,weather_code' +
+    '&hourly=sea_surface_temperature' +
+    '&daily=sunrise,sunset' +
+    '&timezone=Africa%2FCairo&forecast_days=1'
+  );
+};
 
 /** Long enough for a slow upstream, short enough not to hold a page load. */
 const REQUEST_TIMEOUT_MS = 6000;
@@ -52,7 +66,7 @@ interface CacheEntry {
   value: DahabConditions;
 }
 
-let cache: CacheEntry | null = null;
+const cache = new Map<WeatherLocation, CacheEntry>();
 
 /** 350° is N, not "NNW" — sixteen points, so the label matches the degrees. */
 export function compassPoint(degrees: number): string {
@@ -118,13 +132,14 @@ export class WeatherService {
    * Null rather than a fallback object on purpose: the caller must decide what
    * to tell the traveler, and the one thing it must not say is a number.
    */
-  public async getCurrentConditions(): Promise<DahabConditions | null> {
-    if (cache && Date.now() - cache.at < CACHE_TTL_MS) return cache.value;
+  public async getCurrentConditions(where: WeatherLocation = 'dahab'): Promise<DahabConditions | null> {
+    const hit = cache.get(where);
+    if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
-      const response = await fetch(ENDPOINT, { signal: controller.signal });
+      const response = await fetch(endpointFor(where), { signal: controller.signal });
       if (!response.ok) return null;
 
       const payload = (await response.json()) as OpenMeteoResponse;
@@ -160,7 +175,7 @@ export class WeatherService {
         sunset: payload.daily?.sunset?.[0] ?? null
       };
 
-      cache = { at: Date.now(), value };
+      cache.set(where, { at: Date.now(), value });
       return value;
     } catch {
       return null;
@@ -171,7 +186,7 @@ export class WeatherService {
 
   /** Test seam. */
   public clearCache(): void {
-    cache = null;
+    cache.clear();
   }
 }
 

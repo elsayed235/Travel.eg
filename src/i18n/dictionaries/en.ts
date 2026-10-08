@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 4057 keys. Loaded per language by
+ * Language: en. 4076 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~97,388 chars here instead of both languages).
+ * (~97,891 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -2437,6 +2437,25 @@ export const EN: Record<string, string> = {
   "home.nothingIsChargedHere": "Nothing is charged here. You will see the whole schedule and can change or drop anything before booking.",
   "home.pace": "Pace",
   "home.pageSections": "Page sections",
+  "home.place.air": "Air",
+  "home.place.categories.title": "What brings you to {place}?",
+  "home.place.live": "Live in {place}",
+  "home.place.picks.early": "New on REHLA: tell us what you like and we arrange it with local hosts.",
+  "home.place.picks.live": "Real outings with local prices. Details are confirmed when you book.",
+  "home.place.picks.plan": "Plan around this",
+  "home.place.picks.title": "Worth your time in {place}",
+  "home.place.picks.view": "See details",
+  "home.place.plans.all": "See all and compare",
+  "home.place.plans.title": "Ready-made trips in {place}",
+  "home.place.prompt.body": "Six quick questions and we suggest plans that fit you.",
+  "home.place.prompt.cta": "Find my plan",
+  "home.place.prompt.title": "Not sure where to start?",
+  "home.place.source": "Live from {source} · {time}",
+  "home.place.stories.note": "Representative photos until our own photography of {place} is in.",
+  "home.place.stories.title": "{place} in a few frames",
+  "home.place.sunset": "Sunset",
+  "home.place.water": "Water",
+  "home.place.wind": "Wind",
   "home.planningProgress": "Planning progress",
   "home.planningSteps": "Planning steps",
   "home.previewStartTrip": "Preview & Start Trip",

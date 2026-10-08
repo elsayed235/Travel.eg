@@ -138,6 +138,20 @@ describe('reading the current conditions', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('reads each destination at its own coordinates and caches them separately', async () => {
+    const fetchMock = vi.fn(async (_url: string) => ({ ok: true, json: async () => payload }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await weatherService.getCurrentConditions('dahab');
+    await weatherService.getCurrentConditions('siwa');
+    await weatherService.getCurrentConditions('siwa');
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[0][0])).toContain('latitude=28.5097');
+    // Siwa is in the Western Desert, ~900 km west of Dahab.
+    expect(String(fetchMock.mock.calls[1][0])).toContain('longitude=25.5195');
+  });
+
   it('does not cache a failure, so recovery is immediate', async () => {
     let attempt = 0;
     vi.stubGlobal(

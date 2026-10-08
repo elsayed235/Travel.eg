@@ -80,7 +80,9 @@ export const AppTabBar: React.FC = () => {
                 type="button"
                 onClick={() => {
                   haptic('tap');
-                  navigateTo(tab.route);
+                  // Re-tapping the tab you are on returns to the top, as in native apps.
+                  if (isActive) window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+                  else navigateTo(tab.route);
                 }}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(

@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 4057 keys. Loaded per language by
+ * Language: ar. 4076 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~88,799 chars here instead of both languages).
+ * (~89,213 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -2437,6 +2437,25 @@ export const AR: Record<string, string> = {
   "home.nothingIsChargedHere": "مفيش أي دفع في الخطوة دي. هتشوف الجدول كامل وتقدر تعدّل أو تشيل أي حاجة قبل ما تحجز.",
   "home.pace": "الريتم",
   "home.pageSections": "أقسام الصفحة",
+  "home.place.air": "الجو",
+  "home.place.categories.title": "جاي {place} تعمل إيه؟",
+  "home.place.live": "دلوقتي في {place}",
+  "home.place.picks.early": "جديدة على رحلة: قولنا بتحب إيه ونرتّبهالك مع أهل المكان.",
+  "home.place.picks.live": "خروجات حقيقية بأسعار أهل البلد، والتفاصيل بتتأكد وقت الحجز.",
+  "home.place.picks.plan": "خطّط حواليها",
+  "home.place.picks.title": "حاجات تستاهل في {place}",
+  "home.place.picks.view": "شوف التفاصيل",
+  "home.place.plans.all": "شوف الكل وقارن",
+  "home.place.plans.title": "رحلات جاهزة في {place}",
+  "home.place.prompt.body": "٦ أسئلة سريعة ونقترحلك خطط على مقاسك.",
+  "home.place.prompt.cta": "لاقيلي خطة",
+  "home.place.prompt.title": "مش عارف تبدأ منين؟",
+  "home.place.source": "مباشر من {source} · {time}",
+  "home.place.stories.note": "صور تقريبية لحد ما صورنا الخاصة بـ{place} تخلص.",
+  "home.place.stories.title": "{place} في كام صورة",
+  "home.place.sunset": "الغروب",
+  "home.place.water": "المية",
+  "home.place.wind": "الرياح",
   "home.planningProgress": "تقدّم التخطيط",
   "home.planningSteps": "خطوات التخطيط",
   "home.previewStartTrip": "تصفح وحجز الرحلة",

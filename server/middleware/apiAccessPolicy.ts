@@ -46,7 +46,7 @@ const PUBLIC_RULES: Rule[] = [
   { pattern: /^\/dahab\/(?!admin)/, methods: ['GET'] },
 
   // Ambient conditions shown on the public homepage.
-  { pattern: /^\/telemetry\/(weather|cameras)$/, methods: ['GET'] },
+  { pattern: /^\/telemetry\/(weather|cameras|conditions)$/, methods: ['GET'] },
   // Modeled sea state — same ambient class as weather/cameras (no PII, read-only,
   // 503 when the model run is missing). Powers the public discovery conditions strip.
   { pattern: /^\/telemetry\/marine$/, methods: ['GET'] },

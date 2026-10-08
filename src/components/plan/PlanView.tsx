@@ -12,6 +12,7 @@ import { JourneyProgress } from './JourneyProgress';
 import { PLAN_STEPS, StepBody, type PlanStepId } from './PlanSteps';
 import { PlanResults } from './PlanResults';
 import { haptic } from '../../design/feedback';
+import { PLAN_STORAGE_KEY } from '../../services/planPreset';
 
 /**
  * The guided planner (/plan). Not a chatbot (brand decision): six short
@@ -24,7 +25,7 @@ import { haptic } from '../../design/feedback';
  * the session, so "Change my answers" and Back never start over.
  */
 
-const STORAGE_KEY = 'rehla_plan_v1';
+const STORAGE_KEY = PLAN_STORAGE_KEY;
 type Phase = 'compose' | 'building' | 'results';
 
 interface Saved {

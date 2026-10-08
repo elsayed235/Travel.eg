@@ -6,11 +6,10 @@ import type { HomeSectionId } from '../../../shared/homeSections';
 import { resolveHomeLayout, resolveHeroContent } from './homeLayout';
 import { ConciergeHero } from './ConciergeHero';
 import { ConciergeNextStep } from './ConciergeNextStep';
-import { ServiceExplorer } from './ServiceExplorer';
-import { FeaturedExperiences } from './FeaturedExperiences';
-import { IntentSelector } from './IntentSelector';
-import { ItineraryEditorial } from './ItineraryEditorial';
-import { StoriesMasonry } from './StoriesMasonry';
+import { PlaceCategories } from '../place/PlaceCategories';
+import { PlacePicks, PlanPrompt, PlacePlans, PlaceStories } from '../place/PlaceSections';
+import { useDestination } from '../../../context/DestinationContext';
+import { presetPlan } from '../../../services/planPreset';
 import { FinalCTA } from '../../FinalCTA';
 import { DahabFooter } from '../DahabFooter';
 
@@ -30,7 +29,12 @@ import { DahabFooter } from '../DahabFooter';
  * missing block.
  */
 export const ConciergeHome: React.FC = () => {
-  const { navigateTo } = useTrip();
+  const { navigateTo, lifecycle } = useTrip();
+  const { destinationId } = useDestination();
+  const planTrip = () => {
+    presetPlan(destinationId);
+    navigateTo('/plan');
+  };
   const { language, isRTL } = useLanguage();
   const { data } = useHomepageContent();
 
@@ -41,19 +45,23 @@ export const ConciergeHome: React.FC = () => {
     hero: (
       <ConciergeHero
         hero={hero}
-        onPlan={() => navigateTo('/trip-builder')}
+        onPlan={planTrip}
         onExplore={() => navigateTo('/explore')}
       />
     ),
-    next_step: <ConciergeNextStep />,
-    services: <ServiceExplorer />,
-    experiences: <FeaturedExperiences />,
-    intent: <IntentSelector />,
-    itineraries: <ItineraryEditorial />,
-    stories: <StoriesMasonry />,
+    // While someone is still discovering, the hero already asks the one
+    // question this card would; it earns its place once a trip exists.
+    next_step: lifecycle?.lifecyclePhase && lifecycle.lifecyclePhase !== 'DISCOVERY' ? <ConciergeNextStep /> : null,
+    // Destination-aware sections (components/home/place): the section ids
+    // stay the CMS vocabulary, so operator ordering keeps working.
+    services: <PlaceCategories />,
+    experiences: <PlacePicks />,
+    intent: <PlanPrompt />,
+    itineraries: <PlacePlans />,
+    stories: <PlaceStories />,
     final_cta: (
       <FinalCTA
-        onPlanTripClick={() => navigateTo('/trip-builder')}
+        onPlanTripClick={planTrip}
         onExploreClick={() => navigateTo('/explore')}
       />
     ),
@@ -70,7 +78,7 @@ export const ConciergeHome: React.FC = () => {
     <div
       id="concierge-main"
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="w-full bg-[var(--bg-canvas)] text-[var(--text-primary)]"
+      className="w-full bg-dg-bg text-dg-ink"
     >
       {layout.map(id => (
         <React.Fragment key={id}>{sections[id]}</React.Fragment>

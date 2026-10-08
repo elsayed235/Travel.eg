@@ -27,7 +27,7 @@ import { transferRouteService } from './server/services/transferRouteService';
 import { locationIqService } from './server/services/locationIqService';
 import { commerceService } from './server/services/commerceService';
 import * as bookingService from './server/services/bookingService';
-import { weatherService } from './server/services/weatherService';
+import { weatherService, WEATHER_LOCATIONS, type WeatherLocation } from './server/services/weatherService';
 import { marineService, assessActivity, isWaterActivity } from './server/services/marineService';
 import {
   RESEARCH_OVERVIEW,
@@ -4206,6 +4206,35 @@ Return ONLY valid JSON matching this schema:
 // ---------------------------------------------------------------------------
 // 4.1. Live Environmental Telemetry & Marine Radar
 // ---------------------------------------------------------------------------
+/**
+ * Compact live conditions for any destination (?d=dahab|nuweiba|siwa), for the
+ * home strip once the visitor switches place. Same source and the same
+ * honesty rule as /api/telemetry/weather below: a reading or a 503, never a
+ * made-up number. Water temperature is null inland (Siwa).
+ */
+app.get('/api/telemetry/conditions', async (req, res) => {
+  const raw = typeof req.query.d === 'string' ? req.query.d : 'dahab';
+  const where = (Object.keys(WEATHER_LOCATIONS) as WeatherLocation[]).includes(raw as WeatherLocation)
+    ? (raw as WeatherLocation)
+    : null;
+  if (!where) return res.status(400).json({ error: 'Unknown destination.', code: 'UNKNOWN_DESTINATION' });
+  const c = await weatherService.getCurrentConditions(where);
+  if (!c) return res.status(503).json({ destination: where, available: false });
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.json({
+    destination: where,
+    available: true,
+    observedAt: c.observedAt,
+    source: c.source,
+    airTemperatureC: c.airTemperatureC,
+    waterTemperatureC: c.waterTemperatureC,
+    windKnots: c.windKnots,
+    windDirection: c.windDirection,
+    condition: { en: c.condition, ar: c.conditionAr },
+    sunset: c.sunset,
+  });
+});
+
 app.get('/api/telemetry/weather', async (_req, res) => {
   /**
    * Real conditions, or an honest absence.

@@ -430,6 +430,19 @@ export const AI_TIMEOUT_MS = 30000;
  * Sinai / desert connectivity gracefully.
  * Automatically transmits HttpOnly SameSite session cookies via credentials: 'include'.
  */
+export interface DestinationConditionsWire {
+  destination: string;
+  available: boolean;
+  observedAt: string;
+  source: string;
+  airTemperatureC: number;
+  waterTemperatureC: number | null;
+  windKnots: number;
+  windDirection: string;
+  condition: { en: string; ar: string };
+  sunset: string | null;
+}
+
 export interface FxRatesWire {
   base: 'EGP';
   egpPerUnit: Record<string, number>;
@@ -2421,6 +2434,14 @@ export const api = {
     if (!res.ok) throw new Error('Currency rates unavailable');
     const body = await readJson<{ data: FxRatesWire }>(res, 'Currency rates');
     return body.data;
+  },
+
+  /** Live conditions for one destination (GET /api/telemetry/conditions); null when the source is down. */
+  async getDestinationConditions(destination: string, signal?: AbortSignal): Promise<DestinationConditionsWire | null> {
+    const res = await fetchWithTimeout(`/api/telemetry/conditions?d=${encodeURIComponent(destination)}`, { headers: defaultHeaders(), signal });
+    if (!res.ok) return null;
+    const body = await readJson<DestinationConditionsWire>(res, 'Conditions');
+    return body.available ? body : null;
   },
 
   async getCmsTripPreview(signal?: AbortSignal): Promise<{ blocks?: CmsPageBlockWire[] }> {
