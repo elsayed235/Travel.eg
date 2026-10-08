@@ -11,12 +11,27 @@ export class ApiError extends Error {
   public readonly status: number;
   /** The problem-detail `type` when the server sent one, for logging. */
   public readonly type?: string;
+  /**
+   * The machine-readable reason, when the route sends one (`{ error, code,
+   * details }`): PRICE_CHANGED, HOLD_EXPIRED, SUPPLIER_UNAVAILABLE, … This is
+   * what callers branch on — never the human sentence in `message`.
+   */
+  public readonly code?: string;
+  /** Structured context for `code`, e.g. PRICE_CHANGED's currentAmountEGP. */
+  public readonly details: Record<string, unknown>;
 
-  constructor(message: string, status: number, type?: string) {
+  constructor(
+    message: string,
+    status: number,
+    type?: string,
+    extra: { code?: string; details?: Record<string, unknown> } = {}
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.type = type;
+    this.code = extra.code;
+    this.details = extra.details ?? {};
   }
 
   /** The session is missing or expired: the caller should prompt for sign-in. */
@@ -36,14 +51,16 @@ export class ApiError extends Error {
 
 /**
  * Builds an ApiError from a failed Response, preferring the server's own
- * wording. The backend returns two shapes — `{ error }` from the older handlers
- * and RFC 7807 `{ title, detail, type }` from the validation middleware — so
- * both are read rather than assuming one.
+ * wording. The backend returns two shapes — `{ error, code?, details? }` from
+ * the route handlers and RFC 7807 `{ title, detail, type }` from the
+ * validation middleware — so both are read rather than assuming one.
  */
 export async function apiErrorFrom(res: Response, fallback: string): Promise<ApiError> {
   const body: unknown = await res.json().catch(() => null);
   let message = fallback;
   let type: string | undefined;
+  let code: string | undefined;
+  let details: Record<string, unknown> | undefined;
 
   if (body && typeof body === 'object') {
     const record = body as Record<string, unknown>;
@@ -51,9 +68,13 @@ export async function apiErrorFrom(res: Response, fallback: string): Promise<Api
     const error = typeof record.error === 'string' ? record.error : undefined;
     message = detail || error || fallback;
     if (typeof record.type === 'string') type = record.type;
+    if (typeof record.code === 'string') code = record.code;
+    if (record.details && typeof record.details === 'object' && !Array.isArray(record.details)) {
+      details = record.details as Record<string, unknown>;
+    }
   }
 
-  return new ApiError(message, res.status, type);
+  return new ApiError(message, res.status, type, { code, details });
 }
 
 
