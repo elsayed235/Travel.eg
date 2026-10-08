@@ -7,7 +7,7 @@ import { haptic } from '../../design/feedback';
 
 /**
  * The one way into DayGi from anywhere: a small orb in the destination's
- * colours that turns very slowly, with "Ask DayGi" beside it from `sm` up.
+ * colours that turns very slowly, with "Ask DayGi" beside it once the header has room (xl).
  * Quiet on purpose — a single moving element in the header, no glow, no
  * badge — so it reads as a companion that is there, not an ad for itself.
  * Over the home hero it sits on white glass like the other media controls.
@@ -15,7 +15,7 @@ import { haptic } from '../../design/feedback';
 export const DaygiOrb: React.FC<{ className?: string }> = ({ className }) => {
   const reduce = useReducedMotion();
   return (
-    <span aria-hidden="true" className={cn('relative block h-6 w-6 shrink-0', className)}>
+    <span aria-hidden="true" className={cn('relative block h-[22px] w-[22px] shrink-0', className)}>
       <motion.span
         className="absolute inset-0 rounded-full"
         style={{
@@ -46,7 +46,8 @@ export const AskDaygiButton: React.FC<{ overlay: boolean }> = ({ overlay }) => {
       aria-label={t('shell.askDaygiLabel')}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'group inline-flex h-10 items-center gap-2 rounded-full ps-2 pe-2 sm:pe-3.5 text-sm font-semibold',
+        // Orb only until there is real room (xl); then a compact pill. Never wraps.
+        'group inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full ps-1.5 pe-1.5 xl:pe-3 text-[0.8125rem] font-semibold',
         'transition-[background-color,border-color,transform] duration-200 ease-dg-out active:scale-[0.97]',
         overlay
           ? 'border border-white/30 bg-white/15 text-white backdrop-blur-md hover:bg-white/25'
@@ -56,7 +57,7 @@ export const AskDaygiButton: React.FC<{ overlay: boolean }> = ({ overlay }) => {
       )}
     >
       <DaygiOrb className="transition-transform duration-300 group-hover:scale-110" />
-      <span className="hidden sm:inline">{t('shell.askDaygi')}</span>
+      <span className="hidden xl:inline">{t('shell.askDaygi')}</span>
     </button>
   );
 };

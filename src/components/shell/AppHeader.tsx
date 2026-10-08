@@ -105,7 +105,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
 
           <DestinationSwitcher tone={overlay ? 'media' : 'chrome'} className="ms-1" />
 
-          <nav aria-label={t('shell.tabsLabel')} className="hidden lg:flex items-center gap-1 ms-4">
+          <nav aria-label={t('shell.tabsLabel')} className="hidden lg:flex items-center gap-0.5 xl:gap-1 ms-2 xl:ms-4 min-w-0">
             {PRIMARY.map((item) => {
               const isActive = item.match.includes(currentRoute);
               return (
@@ -115,7 +115,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
                   onClick={() => navigateTo(item.route)}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'relative h-10 px-3.5 rounded-full text-sm font-medium transition-colors',
+                    'relative h-10 px-2.5 xl:px-3.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                     overlay
                       ? isActive ? 'text-white' : 'text-white/80 hover:text-white'
                       : isActive ? 'text-dg-ink' : 'text-dg-ink-2 hover:text-dg-ink',
@@ -134,7 +134,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
             })}
           </nav>
 
-          <div className="ms-auto flex items-center gap-1">
+          <div className="ms-auto flex shrink-0 items-center gap-0.5 xl:gap-1">
             <AskDaygiButton overlay={overlay} />
             <button type="button" onClick={onOpenSearch} aria-label={t('shell.search')} className={iconBtn}>
               <Search className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -161,7 +161,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
                 type="button"
                 onClick={toggleTheme}
                 aria-label={isDark ? t('shell.theme.toLight') : t('shell.theme.toDark')}
-                className={cn(iconBtn, 'hidden sm:grid')}
+                className={cn(iconBtn, 'hidden xl:grid')}
               >
                 {isDark ? <Sun className="h-[18px] w-[18px]" aria-hidden="true" /> : <Moon className="h-[18px] w-[18px]" aria-hidden="true" />}
               </button>
@@ -242,7 +242,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
               <button
                 type="button"
                 onClick={() => navigateTo('/auth/sign-in')}
-                className={cn('hidden lg:inline-flex h-10 items-center px-3.5 rounded-full text-sm font-semibold', overlay ? 'text-white hover:bg-white/15' : 'text-dg-ink hover:bg-dg-action-wash')}
+                className={cn('hidden lg:inline-flex h-10 items-center whitespace-nowrap px-3 rounded-full text-sm font-semibold', overlay ? 'text-white hover:bg-white/15' : 'text-dg-ink hover:bg-dg-action-wash')}
               >
                 {t('shell.signIn')}
               </button>
@@ -251,7 +251,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
             <Button
               size="sm"
               variant={overlay ? 'onMedia' : 'primary'}
-              className="hidden lg:inline-flex ms-1"
+              className="hidden lg:inline-flex ms-1 shrink-0 whitespace-nowrap"
               onClick={() => navigateTo('/plan')}
             >
               {t('shell.cta.plan')}
