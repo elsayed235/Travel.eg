@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Luggage, Sun, UserRound } from 'lucide-react';
+import { Compass, Luggage, Route, Sun, UserRound } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/cn';
 import { useTrip } from '../../context/TripContext';
@@ -21,7 +21,7 @@ import { haptic } from '../../design/feedback';
 type TabId = 'discover' | 'plan' | 'trip' | 'account';
 
 const DISCOVER_ROUTES: string[] = ['/', '/home', '/discover', '/explore', '/attractions', '/experiences', '/programs', '/hotels', '/accommodations', '/food', '/restaurants', '/rentals', '/transfers', '/transfers/local', '/transfers/intercity', '/live', '/listings'];
-const PLAN_ROUTES: string[] = ['/plan', '/plan-for-me', '/trip-builder', '/trip-preview', '/daygi', '/ai-director'];
+const PLAN_ROUTES: string[] = ['/plan', '/plan-for-me', '/trip-builder', '/trip-preview'];
 const TRIP_ROUTES: string[] = ['/my-trip', '/my-trip/day', '/my-trip/activity', '/bookings', '/arrive', '/first-two-hours', '/help', '/change-recovery', '/departure', '/post-trip', '/memories'];
 
 export function activeTabFor(route: string): TabId | null {
@@ -31,15 +31,6 @@ export function activeTabFor(route: string): TabId | null {
   if (route === '/profile' || route.startsWith('/auth')) return 'account';
   return null;
 }
-
-/** Plan tab glyph: the DayGi orb, so the AI entry point reads as one thing everywhere. */
-const PlanOrb: React.FC<{ active: boolean }> = ({ active }) => (
-  <span
-    aria-hidden="true"
-    className={cn('block h-[22px] w-[22px] rounded-full transition-transform duration-300', active && 'scale-110')}
-    style={{ background: 'conic-gradient(from 200deg, var(--dg-action), color-mix(in oklab, var(--dg-action) 35%, white), var(--dg-highlight), var(--dg-action))' }}
-  />
-);
 
 export const AppTabBar: React.FC = () => {
   const { currentRoute, navigateTo, activeTrip, isSignedIn } = useTrip();
@@ -51,7 +42,8 @@ export const AppTabBar: React.FC = () => {
 
   const tabs: { id: TabId; label: string; route: AppRoute; icon: React.ReactNode }[] = [
     { id: 'discover', label: t('shell.tab.discover'), route: '/home', icon: <Compass className="h-[22px] w-[22px]" strokeWidth={1.7} /> },
-    { id: 'plan', label: t('shell.tab.plan'), route: '/plan', icon: <PlanOrb active={active === 'plan'} /> },
+    // The orb belongs to DayGi (header); planning is a route being drawn.
+    { id: 'plan', label: t('shell.tab.plan'), route: '/plan', icon: <Route className="h-[22px] w-[22px]" strokeWidth={1.7} /> },
     {
       id: 'trip',
       label: inDestination ? t('shell.tab.today') : t('shell.tab.trip'),

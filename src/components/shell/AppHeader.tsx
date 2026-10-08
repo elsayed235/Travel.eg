@@ -9,6 +9,7 @@ import type { AppRoute } from '../../types';
 import { RehlaLogo, RehlaMark } from '../brand/RehlaLogo';
 import { DestinationSwitcher } from './DestinationSwitcher';
 import { SiteMenu } from './SiteMenu';
+import { AskDaygiButton } from './AskDaygiButton';
 import { Button } from '../ui/button';
 import { tween } from '../../design/motion';
 
@@ -134,6 +135,7 @@ export const AppHeader: React.FC<{ onOpenSearch: () => void }> = ({ onOpenSearch
           </nav>
 
           <div className="ms-auto flex items-center gap-1">
+            <AskDaygiButton overlay={overlay} />
             <button type="button" onClick={onOpenSearch} aria-label={t('shell.search')} className={iconBtn}>
               <Search className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>

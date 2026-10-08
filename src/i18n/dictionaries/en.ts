@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 4101 keys. Loaded per language by
+ * Language: en. 4102 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~98,239 chars here instead of both languages).
+ * (~98,264 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3755,7 +3755,8 @@ export const EN: Record<string, string> = {
   "saveThisDocumentOr": "Save this document or download JSON to access in Blue Lagoon & Ras Abu Galum.",
   "seaState": "Sea State",
   "searchRestaurantsSeafoodBrunch": "Search restaurants, seafood, brunch...",
-  "shell.askDaygi": "Plan with DayGi",
+  "shell.askDaygi": "Ask DayGi",
+  "shell.askDaygiLabel": "Ask DayGi, your REHLA concierge",
   "shell.askPlaceholder": "Ask DayGi anything…",
   "shell.brand": "REHLA home",
   "shell.close": "Close",
