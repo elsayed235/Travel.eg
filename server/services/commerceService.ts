@@ -98,6 +98,96 @@ export class UnknownTripError extends Error {
   }
 }
 
+/**
+ * A checkout broke a commerce rule the client can act on (re-hold, re-confirm
+ * the price). `code` is the machine-readable reason the UI branches on; the
+ * message is for humans.
+ */
+export class CheckoutRuleError extends Error {
+  public readonly status: number;
+  public readonly code: string;
+  public readonly details: Record<string, unknown>;
+
+  constructor(message: string, status: number, code: string, details: Record<string, unknown> = {}) {
+    super(message);
+    this.name = 'CheckoutRuleError';
+    this.status = status;
+    this.code = code;
+    this.details = details;
+  }
+}
+
+/**
+ * The catalogue price is not what the client showed the traveller. A 409, not
+ * a silent correction: charging a different amount than the one confirmed is
+ * exactly what checkout must never do, so the UI re-confirms at the new price.
+ */
+export class PriceChangedError extends CheckoutRuleError {
+  constructor(details: { skuId: string; quotedAmountEGP: number; currentAmountEGP: number }) {
+    super(
+      `The price for "${details.skuId}" is ${details.currentAmountEGP} EGP, not ${details.quotedAmountEGP} EGP. Please review and confirm again.`,
+      409,
+      'PRICE_CHANGED',
+      details
+    );
+    this.name = 'PriceChangedError';
+  }
+}
+
+/**
+ * The SKU's supplier is not Active (Suspended by Operations, or not yet
+ * verified). Holds and checkouts used to ignore supplier status entirely, so a
+ * supplier Ops had suspended kept taking bookings — and payouts.
+ */
+export class SupplierUnavailableError extends CheckoutRuleError {
+  constructor(supplierId: string, status: string, skuId?: string) {
+    super(
+      'This provider is not accepting bookings right now. Please choose another option.',
+      409,
+      'SUPPLIER_UNAVAILABLE',
+      { supplierId, supplierStatus: status, ...(skuId ? { skuId } : {}) }
+    );
+    this.name = 'SupplierUnavailableError';
+  }
+}
+
+/**
+ * Refuses a booking against a supplier whose record says they cannot serve.
+ *
+ * Mirrors dahabKnowledgeOs.validateSupplierGovernanceGate's statuses
+ * (Suspended / Pending_Verification) but only for suppliers that exist: a SKU
+ * whose supplier row is missing is a catalogue-integrity problem, not a
+ * governance decision, and refusing it here would take down every SKU seeded
+ * ahead of its supplier record.
+ */
+export function assertSupplierBookable(supplierId: string, skuId?: string): void {
+  const supplier = db.suppliers.find(s => s.id === supplierId);
+  if (supplier && supplier.status !== 'Active') {
+    throw new SupplierUnavailableError(supplierId, supplier.status, skuId);
+  }
+}
+
+/**
+ * The one pricing rule for a SKU line. Hotels are per stay (basePriceEGP is
+ * the block price); every other service type is per person.
+ *
+ * Holds, checkout and the price explainer all call this. They used to price
+ * independently — the hold at basePriceEGP whatever the party size, checkout at
+ * whatever the client sent — so the explainer's "same numbers checkout will
+ * charge" was true of none of them.
+ */
+export function priceSkuLine(sku: ProductSkuEntity, passengersCount?: number): {
+  basis: 'per_person' | 'per_stay';
+  passengersCount: number;
+  unitPriceEGP: number;
+  amountEGP: number;
+} {
+  const passengers = Math.max(1, Math.floor(passengersCount ?? 1));
+  const basis: 'per_person' | 'per_stay' = sku.serviceType === 'hotel' ? 'per_stay' : 'per_person';
+  const amountEGP = basis === 'per_stay' ? sku.basePriceEGP : sku.basePriceEGP * passengers;
+  return { basis, passengersCount: passengers, unitPriceEGP: sku.basePriceEGP, amountEGP };
+}
+
 export class CommerceService {
   // Release holds that have exceeded their TTL
   public releaseExpiredHolds() {
@@ -249,7 +339,10 @@ export class CommerceService {
         let slot = db.inventorySlots.find(s => s.skuId === params.skuId && s.date === params.date && s.timeSlot === params.timeSlot);
         if (!slot) {
           slot = {
-            id: `SLOT-${params.skuId}-${params.date}-${Date.now()}`,
+            // Random suffix: two time slots of one SKU and date materialised in
+            // the same millisecond used to share an id, so a hold's slotId
+            // resolved to the wrong slot and checkout reserved capacity there.
+            id: `SLOT-${params.skuId}-${params.date}-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
             skuId: params.skuId,
             date: params.date,
             timeSlot: params.timeSlot,
@@ -291,7 +384,10 @@ export class CommerceService {
           travelerId: params.travelerId,
           serviceType: sku.serviceType,
           passengersCount: params.passengersCount,
-          amountEGP: sku.basePriceEGP,
+          // The whole party's price, from the same rule checkout charges. This
+          // was sku.basePriceEGP, so a party of four held four seats for the
+          // price of one — and /api/commerce/checkout settles hold.amountEGP.
+          amountEGP: priceSkuLine(sku, params.passengersCount).amountEGP,
           expiresAt: expires.toISOString(),
           status: 'ACTIVE',
           idempotencyKey: params.idempotencyKey,
@@ -330,8 +426,12 @@ export class CommerceService {
      * The confirmation notification used to be addressed to a literal
      * 'USR-AHMED-01' — so every booking notification the platform has ever
      * produced was filed against the demo user, whoever actually booked.
+     *
+     * Also the identity every item's hold must belong to: a hold is the
+     * caller's reservation, and settling someone else's would book capacity
+     * they reserved.
      */
-    travelerUserId?: string;
+    travelerUserId: string;
     travelerName: string;
     travelerPhone: string;
     travelerEmail: string;
@@ -427,7 +527,57 @@ export class CommerceService {
       }
     }
 
-    const totalAmountEGP = params.items.reduce((acc, item) => acc + item.amountEGP, 0);
+    // Every line settles an ACTIVE hold the caller owns, and is charged the
+    // catalogue price for the held party — never the client's amountEGP.
+    //
+    // The hold was optional and the amount was the body's, so a crafted
+    // request could book capacity nobody had reserved (every SKU carries
+    // maxCapacityPerSlot) and pay any price it liked for it. Checked here, still
+    // before processCheckout, so a rejected line costs the traveller nothing.
+    this.releaseExpiredHolds();
+    const seenHolds = new Set<string>();
+    const priced = params.items.map((item, index) => {
+      const sku = resolvedSkus[index];
+      if (!item.holdToken) {
+        throw new CheckoutRuleError(
+          `"${sku.title || sku.id}" has no reservation. Please select your slot again.`,
+          400, 'HOLD_REQUIRED', { skuId: sku.id }
+        );
+      }
+      const hold = db.holds.find(h => h.holdToken === item.holdToken);
+      if (!hold || hold.status !== 'ACTIVE' || seenHolds.has(hold.holdToken)) {
+        throw new CheckoutRuleError(
+          'Your reservation has expired or is invalid. Please select your slot again.',
+          409, 'HOLD_EXPIRED', { skuId: sku.id, holdToken: item.holdToken }
+        );
+      }
+      seenHolds.add(hold.holdToken);
+      if (hold.travelerId !== params.travelerUserId) {
+        throw new CheckoutRuleError('You may only settle your own reservation.', 403, 'HOLD_NOT_OWNED', { holdToken: item.holdToken });
+      }
+      // The booking is filed at the line's date/time, and cancel/reschedule
+      // release the slot at the booking's date/time — so the line must be the
+      // slot the hold actually reserved, for the party it reserved.
+      const slot = db.inventorySlots.find(s => s.id === hold.slotId);
+      if (
+        hold.skuId !== sku.id ||
+        hold.tripId !== params.tripId ||
+        (slot && (slot.date !== item.scheduledDate || slot.timeSlot !== item.scheduledTime)) ||
+        (item.passengersCount !== undefined && item.passengersCount !== hold.passengersCount)
+      ) {
+        throw new CheckoutRuleError(
+          'This reservation does not match the booking details. Please select your slot again.',
+          400, 'HOLD_MISMATCH', { skuId: sku.id, holdToken: item.holdToken }
+        );
+      }
+      const amountEGP = priceSkuLine(sku, hold.passengersCount).amountEGP;
+      if (item.amountEGP !== amountEGP) {
+        throw new PriceChangedError({ skuId: sku.id, quotedAmountEGP: item.amountEGP, currentAmountEGP: amountEGP });
+      }
+      return { amountEGP, passengersCount: hold.passengersCount };
+    });
+
+    const totalAmountEGP = priced.reduce((acc, line) => acc + line.amountEGP, 0);
 
     // 1. Process payment settlement with idempotency
     const paymentResult = paymentService.processCheckout({
@@ -448,8 +598,6 @@ export class CommerceService {
       params.travelerUserId ||
       db.trips.find(t => t.id === params.tripId)?.userId ||
       'UNATTRIBUTED';
-
-    const tripPartySize = db.trips.find(t => t.id === params.tripId)?.travelersCount ?? 1;
 
     const confirmedBookings: BookingEntity[] = [];
     const now = new Date().toISOString();
@@ -501,7 +649,7 @@ export class CommerceService {
           supplierId,
           skuId: sku?.id || item.skuId,
           serviceType: item.serviceType,
-          amountEGP: item.amountEGP,
+          amountEGP: priced[index].amountEGP,
           // The booking's payment state must mirror the payment that settled
           // it. Cash-on-arrival never captured anything — it is PENDING until
           // the traveler pays on site.
@@ -520,8 +668,9 @@ export class CommerceService {
           travelerPhone: params.travelerPhone,
           travelerEmail: params.travelerEmail,
           // Was a hardcoded 2 for every booking, so a solo traveler and a
-          // party of six were dispatched to the supplier identically.
-          passengersCount: item.passengersCount ?? tripPartySize,
+          // party of six were dispatched to the supplier identically. The held
+          // party is the one that was reserved and priced.
+          passengersCount: priced[index].passengersCount,
           pickupLocation: item.pickupLocation,
           dropoffLocation: item.dropoffLocation,
           specialRequests: item.specialRequests,
@@ -571,7 +720,7 @@ export class CommerceService {
           tripItem.bookingId = booking.id;
           // Keep the line's price as the amount actually charged, so the
           // itinerary and the ledger cannot disagree.
-          tripItem.priceEGP = item.amountEGP;
+          tripItem.priceEGP = priced[index].amountEGP;
           tripItem.updatedAt = now;
         } else {
           tripItem = {
@@ -582,7 +731,7 @@ export class CommerceService {
             title: sku?.title || `${item.serviceType.toUpperCase()} Booking`,
             dayNumber: item.serviceType === 'hotel' ? 1 : item.serviceType === 'transfer' ? 1 : 2,
             timeSlot: item.scheduledTime,
-            priceEGP: item.amountEGP,
+            priceEGP: priced[index].amountEGP,
             status: 'CONFIRMED',
             bookingId: booking.id,
             createdAt: now,
@@ -753,13 +902,10 @@ export class CommerceService {
     const lines = params.items.map(item => {
       const sku = db.productSkus.find(s => s.id === item.skuId);
       if (!sku) throw new UnknownSkuError(item.skuId);
-      const passengers = Math.max(1, Math.floor(item.passengersCount ?? 1));
       const nights = item.nights === undefined ? null : Math.max(1, Math.floor(item.nights));
-      // Hotels are per-stay: basePriceEGP is the block price. Everything else
-      // is per person. No fees are invented here — the explainer shows exactly
-      // what checkout charges.
-      const basis: 'per_person' | 'per_stay' = sku.serviceType === 'hotel' ? 'per_stay' : 'per_person';
-      const amountEGP = basis === 'per_stay' ? sku.basePriceEGP : sku.basePriceEGP * passengers;
+      // No fees are invented here — priceSkuLine is the rule holds and
+      // checkout charge by, so the explainer shows exactly what is charged.
+      const { basis, passengersCount: passengers, amountEGP } = priceSkuLine(sku, item.passengersCount);
       return {
         skuId: sku.id,
         title: sku.title,

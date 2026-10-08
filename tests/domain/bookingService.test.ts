@@ -286,17 +286,19 @@ describe('bookingService — cancellation', () => {
   });
 
   it('cancels a legacy booking that never touched inventory without corrupting it', () => {
-    // Direct checkout with no holdToken — no slot row, no hold. Cancelling must
-    // be a no-op on inventory, not a crash.
-    const res = commerceService.completeMultiServiceCheckout({
-      tripId: 'TRIP-TEST',
-      travelerName: 'Test Traveler',
-      travelerPhone: '+20 100 000 0000',
-      travelerEmail: 'traveler@test.test',
-      items: [{ serviceType: 'diving', skuId: 'SKU-DIVE-TEST', scheduledDate: DATE, scheduledTime: MORNING, amountEGP: 2400 }],
-      paymentParams: { idempotencyKey: IDK(), provider: 'CASH_ON_ARRIVAL' }
-    });
-    const b = res.bookings[0];
+    // A booking from the old direct checkout (no holdToken) — no slot row, no
+    // hold. Checkout now refuses to create these, but the store still holds
+    // them, so the row is seeded as it was written. Cancelling must be a no-op
+    // on inventory, not a crash.
+    const now = new Date().toISOString();
+    const b = {
+      id: 'DHB-DIV-LEGACY-1', bookingRef: 'DHB-DIV-LEGACY-1', tripId: 'TRIP-TEST', supplierId: 'SUP-TEST',
+      skuId: 'SKU-DIVE-TEST', serviceType: 'diving' as const, amountEGP: 2400, paymentState: 'PENDING' as const,
+      supplierState: 'PENDING_CONFIRMATION' as const, travelerName: 'Test Traveler', travelerPhone: '+20 100 000 0000',
+      travelerEmail: 'traveler@test.test', passengersCount: 2, scheduledDate: DATE, scheduledTime: MORNING,
+      confirmationCode: 'DHB-DIV-LEGACY', createdAt: now, updatedAt: now
+    };
+    db.bookings.push(b);
     const out = cancelBooking({
       bookingId: b.id, tripId: b.tripId, userId: 'USR-TEST', userRole: 'Traveler',
       reason: 'legacy', cancellationKey: b.confirmationCode

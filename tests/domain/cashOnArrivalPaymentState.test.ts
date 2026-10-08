@@ -5,7 +5,7 @@ import { commerceService } from '../../server/services/commerceService';
 import { ledgerService } from '../../server/services/ledgerService';
 import { rentalService } from '../../server/services/rentalService';
 import { cancelBooking } from '../../server/services/bookingService';
-import { resetDb, seedSku, seedTrip, seedRentalListing, nextIdempotencyKey } from '../helpers/fixtures';
+import { futureDate, heldItem, resetDb, seedSku, seedTrip, seedRentalListing, nextIdempotencyKey } from '../helpers/fixtures';
 
 /**
  * CASH_ON_ARRIVAL payment-state regression tests.
@@ -34,18 +34,11 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
   it('checkout: booking CONFIRMED, payment ≠ CAPTURED, ledger ≠ PAYMENT_CAPTURED', () => {
     const result = commerceService.completeMultiServiceCheckout({
       tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
       travelerName: 'Test Traveler',
       travelerPhone: '+201000000000',
       travelerEmail: 'cash@traveler.test',
-      items: [
-        {
-          serviceType: 'diving',
-          skuId: 'SKU-DIVE-TEST',
-          scheduledDate: '2026-10-01',
-          scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 1200,
-        },
-      ],
+      items: [heldItem()],
       paymentParams: {
         idempotencyKey: nextIdempotencyKey(),
         provider: 'CASH_ON_ARRIVAL',
@@ -95,18 +88,11 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
   it('cancel: does not attempt to refund money that was never captured', () => {
     const result = commerceService.completeMultiServiceCheckout({
       tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
       travelerName: 'Test Traveler',
       travelerPhone: '+201000000000',
       travelerEmail: 'cash@traveler.test',
-      items: [
-        {
-          serviceType: 'diving',
-          skuId: 'SKU-DIVE-TEST',
-          scheduledDate: '2026-10-01',
-          scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 1200,
-        },
-      ],
+      items: [heldItem()],
       paymentParams: {
         idempotencyKey: nextIdempotencyKey(),
         provider: 'CASH_ON_ARRIVAL',
@@ -153,18 +139,11 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
   it('refundableAmountEGP reports zero for a trip paid with CASH_ON_ARRIVAL', () => {
     commerceService.completeMultiServiceCheckout({
       tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
       travelerName: 'Test Traveler',
       travelerPhone: '+201000000000',
       travelerEmail: 'cash@traveler.test',
-      items: [
-        {
-          serviceType: 'diving',
-          skuId: 'SKU-DIVE-TEST',
-          scheduledDate: '2026-10-01',
-          scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 1200,
-        },
-      ],
+      items: [heldItem()],
       paymentParams: {
         idempotencyKey: nextIdempotencyKey(),
         provider: 'CASH_ON_ARRIVAL',
@@ -177,18 +156,11 @@ describe('CASH_ON_ARRIVAL — commerce checkout', () => {
   it('processRefund rejects a refund against a CASH_ON_ARRIVAL trip (nothing to refund)', () => {
     commerceService.completeMultiServiceCheckout({
       tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
       travelerName: 'Test Traveler',
       travelerPhone: '+201000000000',
       travelerEmail: 'cash@traveler.test',
-      items: [
-        {
-          serviceType: 'diving',
-          skuId: 'SKU-DIVE-TEST',
-          scheduledDate: '2026-10-01',
-          scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 1200,
-        },
-      ],
+      items: [heldItem()],
       paymentParams: {
         idempotencyKey: nextIdempotencyKey(),
         provider: 'CASH_ON_ARRIVAL',
@@ -220,18 +192,11 @@ describe('SIMULATED CARD — settlement is simulated, not real', () => {
   it('PAYMOB checkout marks payment as CAPTURED and simulated: true', () => {
     const result = commerceService.completeMultiServiceCheckout({
       tripId: 'TRIP-TEST',
+      travelerUserId: 'USR-TEST',
       travelerName: 'Card User',
       travelerPhone: '+201000000001',
       travelerEmail: 'card@traveler.test',
-      items: [
-        {
-          serviceType: 'diving',
-          skuId: 'SKU-DIVE-TEST',
-          scheduledDate: '2026-10-01',
-          scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 1200,
-        },
-      ],
+      items: [heldItem()],
       paymentParams: {
         idempotencyKey: nextIdempotencyKey(),
         provider: 'PAYMOB',
@@ -288,8 +253,8 @@ describe('CASH_ON_ARRIVAL — rental checkout (original regression)', () => {
       travelerName: 'Cash Renter',
       travelerPhone: '+201000000002',
       travelerEmail: 'cash.renter@test',
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: futureDate(30),
+      endDate: futureDate(32),
       quantity: 2,
       idempotencyKey: nextIdempotencyKey(),
     });
@@ -362,8 +327,8 @@ describe('CASH_ON_ARRIVAL — rental checkout (original regression)', () => {
       travelerName: 'Cash Renter',
       travelerPhone: '+201000000002',
       travelerEmail: 'cash.renter@test',
-      startDate: '2026-10-01',
-      endDate: '2026-10-03',
+      startDate: futureDate(30),
+      endDate: futureDate(32),
       quantity: 2,
       idempotencyKey: nextIdempotencyKey(),
     });

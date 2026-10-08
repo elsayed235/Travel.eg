@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../../server/db/database';
 import { commerceService, UnknownTripError } from '../../server/services/commerceService';
-import { nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
+import { heldItem, nextIdempotencyKey, resetDb, seedSku, seedTrip } from '../helpers/fixtures';
 import { retentionService } from '../../server/services/retentionService';
 
 /**
@@ -16,18 +16,13 @@ import { retentionService } from '../../server/services/retentionService';
 const checkout = (tripId: string) =>
   commerceService.completeMultiServiceCheckout({
     tripId,
+    travelerUserId: 'USR-TEST',
     travelerName: 'Test Traveler',
     travelerPhone: '+20 100 000 0000',
     travelerEmail: 'test@example.com',
-    items: [
-      {
-        serviceType: 'diving',
-        skuId: 'SKU-DIVE-TEST',
-        scheduledDate: '2026-09-10',
-        scheduledTime: '09:00 AM',
-        amountEGP: 1200
-      }
-    ],
+    // Held against the real trip: the unknown-trip check runs before any hold
+    // is looked at, so the hold only matters for the trip that exists.
+    items: [heldItem({ time: '09:00 AM' })],
     paymentParams: { idempotencyKey: nextIdempotencyKey(), provider: 'CASH_ON_ARRIVAL' }
   });
 

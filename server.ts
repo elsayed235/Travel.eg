@@ -2167,6 +2167,8 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
         holdToken: optionalString(item.holdToken, `items[${index}].holdToken`, 128),
         scheduledDate: requiredCalendarDate(item.scheduledDate, `items[${index}].scheduledDate`),
         scheduledTime: requiredString(item.scheduledTime, `items[${index}].scheduledTime`, 64),
+        // The price the client showed. Checkout charges the catalogue price and
+        // rejects this with 409 PRICE_CHANGED when they differ.
         amountEGP: requiredAmountEGP(item.amountEGP, `items[${index}].amountEGP`),
         // Every booking used to be written with a hardcoded passengersCount of
         // 2, so a solo traveler and a party of six were dispatched to the
@@ -2210,7 +2212,7 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
 
     const result = commerceService.completeMultiServiceCheckout({
       tripId,
-      travelerUserId: req.user?.userId,
+      travelerUserId: req.user!.userId,
       travelerName: requiredString(req.body?.travelerName, 'travelerName', 120),
       travelerPhone: requiredString(req.body?.travelerPhone, 'travelerPhone', 32),
       travelerEmail: requiredString(req.body?.travelerEmail, 'travelerEmail', 254),
@@ -2225,7 +2227,9 @@ app.post('/api/commerce/checkout/multi', (req: AuthenticatedRequest, res) => {
     });
     res.json(result);
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message });
+    // code (PRICE_CHANGED, HOLD_EXPIRED, SUPPLIER_UNAVAILABLE, ...) is what the
+    // client branches on — e.g. PRICE_CHANGED re-confirms at details.currentAmountEGP.
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -3641,6 +3645,26 @@ app.post('/api/testing/golden-journey', async (req, res) => {
       passengersCount: 2,
       idempotencyKey: `HLD-DIV-${idempotencyKey}`
     });
+    // Checkout settles only held lines, at the catalogue price — so the hotel
+    // and safari are held too, and every amount below is the hold's.
+    const holdHotel = commerceService.createHold({
+      skuId: 'SKU-HTL-001',
+      tripId: testTripId,
+      travelerId: 'USR-AHMED-01',
+      date: todayStr,
+      timeSlot: 'Check-in 14:00',
+      passengersCount: 2,
+      idempotencyKey: `HLD-HTL-${idempotencyKey}`
+    });
+    const holdSafari = commerceService.createHold({
+      skuId: 'SKU-SAF-001',
+      tripId: testTripId,
+      travelerId: 'USR-AHMED-01',
+      date: todayStr,
+      timeSlot: '02:00 AM (Sunrise Trek)',
+      passengersCount: 2,
+      idempotencyKey: `HLD-SAF-${idempotencyKey}`
+    });
     results.push({
       step: '2_CONCURRENCY_HOLD_LOCKING',
       status: holdTransfer.status === 'ACTIVE' && holdDiving.status === 'ACTIVE' ? 'PASSED' : 'FAILED',
@@ -3653,6 +3677,7 @@ app.post('/api/testing/golden-journey', async (req, res) => {
     // Milestone 3: Multi-Vertical Atomic Checkout & Paymob Settlement
     const multiCheckoutResult = commerceService.completeMultiServiceCheckout({
       tripId: testTripId,
+      travelerUserId: 'USR-AHMED-01',
       travelerName: 'Test Traveler (Golden 100%)',
       travelerPhone: '+20 100 999 8888',
       travelerEmail: 'golden.100@dahab.travel',
@@ -3660,9 +3685,10 @@ app.post('/api/testing/golden-journey', async (req, res) => {
         {
           serviceType: 'hotel',
           skuId: 'SKU-HTL-001',
+          holdToken: holdHotel.holdToken,
           scheduledDate: todayStr,
           scheduledTime: 'Check-in 14:00',
-          amountEGP: 12500,
+          amountEGP: holdHotel.amountEGP,
           dropoffLocation: 'Ali Baba Boutique Hotel, Lighthouse'
         },
         {
@@ -3671,7 +3697,7 @@ app.post('/api/testing/golden-journey', async (req, res) => {
           holdToken: holdTransfer.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '10:30 AM',
-          amountEGP: 1400,
+          amountEGP: holdTransfer.amountEGP,
           pickupLocation: 'SSH Airport Terminal 1',
           dropoffLocation: 'Ali Baba Hotel'
         },
@@ -3681,14 +3707,15 @@ app.post('/api/testing/golden-journey', async (req, res) => {
           holdToken: holdDiving.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '08:30 AM (Morning Dive)',
-          amountEGP: 2700
+          amountEGP: holdDiving.amountEGP
         },
         {
           serviceType: 'safari',
           skuId: 'SKU-SAF-001',
+          holdToken: holdSafari.holdToken,
           scheduledDate: todayStr,
           scheduledTime: '02:00 AM (Sunrise Trek)',
-          amountEGP: 4200
+          amountEGP: holdSafari.amountEGP
         }
       ],
       paymentParams: {
