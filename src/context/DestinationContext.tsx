@@ -51,6 +51,12 @@ export const DestinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     root.setAttribute('data-destination', destinationId);
     try {
       localStorage.setItem(STORAGE_KEY, destinationId);
+      // Keep a shared ?d= link honest: it should reopen where you are now.
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('d') && url.searchParams.get('d') !== destinationId) {
+        url.searchParams.set('d', destinationId);
+        window.history.replaceState(window.history.state, '', url);
+      }
     } catch {
       // per-run only
     }
@@ -63,9 +69,14 @@ export const DestinationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     (id: DestinationId) => {
       if (id === destinationId) return;
       const apply = () => flushSync(() => setDestinationId(id));
-      const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+      type VT = { ready?: Promise<unknown>; finished?: Promise<unknown> };
+      const doc = document as Document & { startViewTransition?: (cb: () => void) => VT };
       if (!reducedMotion && typeof doc.startViewTransition === 'function') {
-        doc.startViewTransition(apply);
+        const vt = doc.startViewTransition(apply);
+        // A newer switch (or navigation) can abort this one; the state update
+        // still lands, so the rejection is expected and not an error.
+        vt?.ready?.catch(() => {});
+        vt?.finished?.catch(() => {});
       } else {
         apply();
       }

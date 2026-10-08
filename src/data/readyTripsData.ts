@@ -1,7 +1,12 @@
 import { DayPlanItem } from '../types';
+import { DESTINATION_PROGRAMMES } from './destinationProgrammes';
 
 export interface ReadyTripProgram {
   id: string;
+  /** Which destination the programme belongs to; absent means Dahab. */
+  destination?: 'dahab' | 'nuweiba' | 'siwa';
+  /** True while no supplier quotes it yet: the price is an editorial estimate. */
+  priceIsEstimate?: boolean;
   title: string;
   titleAr: string;
   tagline: string;
@@ -37,7 +42,7 @@ export interface ReadyTripProgram {
  * so a price change meant a rebuild and a deploy. Kept here so a failed request
  * degrades the page rather than emptying it.
  */
-export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
+const DAHAB_PROGRAMS: ReadyTripProgram[] = [
   {
     id: 'dahab-first-timer',
     title: 'Dahab First Timer',
@@ -572,3 +577,5 @@ export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [
     ]
   }
 ];
+
+export const READY_TRIP_PROGRAMS: ReadyTripProgram[] = [...DAHAB_PROGRAMS, ...DESTINATION_PROGRAMMES];

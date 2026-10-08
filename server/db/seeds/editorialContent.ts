@@ -1,3 +1,4 @@
+import { DESTINATION_PROGRAMMES } from '../../../src/data/destinationProgrammes';
 /**
  * Editorial content, served from the API rather than compiled into the bundle.
  *
@@ -355,10 +356,18 @@ export interface DayPlanItem {
   tag: string;
   timeEstimate: string;
   accentColor?: string;
+  /** Arabic copy for the day; older Dahab programmes carry English only. */
+  titleAr?: string;
+  subtitleAr?: string;
+  highlightsAr?: string[];
 }
 
 export interface ReadyTripProgram {
   id: string;
+  /** Which destination the programme belongs to; absent means Dahab. */
+  destination?: 'dahab' | 'nuweiba' | 'siwa';
+  /** True while no supplier quotes it yet: the price is an editorial estimate. */
+  priceIsEstimate?: boolean;
   title: string;
   titleAr: string;
   tagline: string;
@@ -385,7 +394,7 @@ export interface ReadyTripProgram {
   dayByDay: DayPlanItem[];
 }
 
-export const READY_TRIP_PROGRAMMES: ReadyTripProgram[] = [
+const DAHAB_PROGRAMMES: ReadyTripProgram[] = [
   {
     id: 'dahab-first-timer',
     title: 'Dahab First Timer',
@@ -920,3 +929,6 @@ export const READY_TRIP_PROGRAMMES: ReadyTripProgram[] = [
     ]
   }
 ];
+
+/** Every destination's programmes; Nuweiba and Siwa live in src/data/destinationProgrammes.ts (shared with the client fallback). */
+export const READY_TRIP_PROGRAMMES: ReadyTripProgram[] = [...DAHAB_PROGRAMMES, ...DESTINATION_PROGRAMMES];

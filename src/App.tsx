@@ -35,6 +35,7 @@ import { RequireRole } from './components/auth/RequireRole';
  */
 const BookNowCommerceModal = lazy(() => import('./components/commerce/BookNowCommerceModal').then(m => ({ default: m.BookNowCommerceModal })));
 const BookNowCommerceView = lazy(() => import('./components/commerce/BookNowCommerceView').then(m => ({ default: m.BookNowCommerceView })));
+const PlanView = lazy(() => import('./components/plan/PlanView').then(m => ({ default: m.PlanView })));
 const PlanForMeView = lazy(() => import('./components/home/PlanForMeView').then(m => ({ default: m.PlanForMeView })));
 const TripPlanner = lazy(() => import('./components/planner/TripPlanner').then(m => ({ default: m.TripPlanner })));
 const MyTripView = lazy(() => import('./components/mytrip/MyTripView').then(m => ({ default: m.MyTripView })));
@@ -399,6 +400,8 @@ function MainAppContent() {
         );
 
       case '/plan':
+        return <PlanView />;
+
       case '/plan-for-me':
         return <PlanForMeView />;
 

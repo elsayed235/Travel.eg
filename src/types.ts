@@ -63,6 +63,10 @@ export interface DayPlanItem {
   tag: string;
   timeEstimate: string;
   accentColor?: string;
+  /** Arabic copy for the day; older Dahab programmes carry English only. */
+  titleAr?: string;
+  subtitleAr?: string;
+  highlightsAr?: string[];
 }
 
 export type { TravelerProfile } from './shared/types/user';

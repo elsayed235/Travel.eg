@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import { useApiResource } from './useApiResource';
 import { READY_TRIP_PROGRAMS, type ReadyTripProgram } from '../data/readyTripsData';
 import { useTripProgrammes } from './useCMSContent';
+import { useDestination } from '../context/DestinationContext';
 
 /**
  * The ready-made programmes, from the API.
@@ -38,15 +39,22 @@ export function canonicalProgrammeKey(value: string | null | undefined): string 
   return match ? match[1] : null;
 }
 
-export function useReadyProgrammes(): ReadyTripProgram[] {
+/**
+ * Programmes for the destination being explored (`scope: 'current'`, the
+ * default) or every destination (`'all'`, e.g. the planner's compare view).
+ * A programme without `destination` belongs to Dahab.
+ */
+export function useReadyProgrammes(scope: 'current' | 'all' = 'current'): ReadyTripProgram[] {
   const remote = useApiResource(fetchProgrammes);
   const cmsProgrammes = useTripProgrammes();
+  const { destinationId } = useDestination();
 
   return useMemo(() => {
     const served = remote.data?.programmes;
-    const programmes = (Array.isArray(served) && served.length > 0)
+    const all = (Array.isArray(served) && served.length > 0)
       ? served as ReadyTripProgram[]
       : READY_TRIP_PROGRAMS;
+    const programmes = scope === 'all' ? all : all.filter(p => (p.destination ?? 'dahab') === destinationId);
 
     // If CMS returned programmes, use their featured status to reorder
     const cmsData = cmsProgrammes.data;
@@ -72,5 +80,5 @@ export function useReadyProgrammes(): ReadyTripProgram[] {
     }
 
     return programmes;
-  }, [remote.data, cmsProgrammes.data, cmsProgrammes.fromCMS]);
+  }, [remote.data, cmsProgrammes.data, cmsProgrammes.fromCMS, scope, destinationId]);
 }

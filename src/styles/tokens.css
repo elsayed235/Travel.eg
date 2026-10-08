@@ -379,6 +379,13 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Sliding steps and sheets never widen the page on a phone. `clip` (not
+   `hidden`) keeps position: sticky working. */
+html,
+body {
+  overflow-x: clip;
+}
+
 /* Arabic: taller leading, never tracked, never uppercased (index.css owns the
    tracking/uppercase guards). Display headings take Alexandria; running text
    takes Plex Sans Arabic so long copy stays calm. */
@@ -530,7 +537,9 @@ canvas {
    destination's own tempo. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: var(--dg-dur-slow);
+  /* Long enough to feel the change, short enough never to look blank:
+     Siwa's own tempo (1100ms) is for small elements, not the whole page. */
+  animation-duration: 520ms;
   animation-timing-function: var(--dg-ease-out);
 }
 
