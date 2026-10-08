@@ -17,6 +17,8 @@ export default defineConfig(() => {
         '@/pages': path.resolve(__dirname, 'src', 'pages'),
         '@/context': path.resolve(__dirname, 'src', 'context'),
         '@/data': path.resolve(__dirname, 'src', 'data'),
+        '@/design': path.resolve(__dirname, 'src', 'design'),
+        '@/styles': path.resolve(__dirname, 'src', 'styles'),
         '@/hooks': path.resolve(__dirname, 'src', 'hooks'),
         '@/services': path.resolve(__dirname, 'src', 'services'),
         '@/shared': path.resolve(__dirname, 'src', 'shared'),

@@ -29,6 +29,7 @@ const ROUTER_FILES = [
   'adminSiteRoutes',
   'contentRoutes',
   'dahabRoutes',
+  'fxRoutes',
   'hotelRoutes',
   'marketRoutes',
   'rentalRoutes',
