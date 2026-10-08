@@ -139,6 +139,39 @@ export function cancelPayout(bookingRef: string): boolean {
   return true;
 }
 
+/**
+ * Brings a booking's PENDING payout in line with a refund: cancelled when
+ * nothing captured remains, otherwise capped at `supplierShareEGP` (the
+ * supplier's share of what is left). Called by paymentService.processRefund.
+ *
+ * A SETTLED payout is left alone — that money has already left escrow, and
+ * recovering it from the supplier is an ops clawback, not something to
+ * rewrite here. Returns the payout it changed, if any.
+ */
+export function adjustPayoutForRefund(bookingRef: string, supplierShareEGP: number, refundId: string): PayoutScheduleEntity | undefined {
+  const payout = db.payoutSchedule.find(
+    p => p.bookingRef === bookingRef && p.payoutState === 'PENDING'
+  );
+  if (!payout) return undefined;
+  const previousEGP = payout.amountEGP;
+  if (supplierShareEGP <= 0) {
+    payout.payoutState = 'CANCELLED';
+  } else if (supplierShareEGP < payout.amountEGP) {
+    payout.amountEGP = supplierShareEGP;
+  } else {
+    return undefined;
+  }
+  // The audit row is the payout's note: there is no notes column on it.
+  db.logAudit('PayoutEngine', 'System', 'PAYOUT_ADJUSTED_FOR_REFUND', 'PayoutSchedule', payout.id, {
+    bookingRef,
+    refundId,
+    previousEGP,
+    amountEGP: payout.amountEGP,
+    payoutState: payout.payoutState
+  });
+  return payout;
+}
+
 // ----- Sweep -----
 
 function sweep(): void {
@@ -178,6 +211,7 @@ export const payoutService = {
   eligiblePayouts,
   settlePayout,
   cancelPayout,
+  adjustPayoutForRefund,
   startPayoutSweep,
   stopPayoutSweep,
 };

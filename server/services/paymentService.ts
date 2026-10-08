@@ -3,6 +3,7 @@ import { db } from '../db/database';
 import { PaymentEntity } from '../db/schema';
 import { ledgerService } from './ledgerService';
 import { canTransition } from './bookingLifecycle';
+import { adjustPayoutForRefund } from './payoutService';
 import { PaymentState } from '../../src/shared';
 
 // No fallback: a hardcoded secret in source lets anyone who can read this repo
@@ -410,6 +411,19 @@ export class PaymentService {
             booking.supplierState = 'CANCELLED';
           }
           booking.updatedAt = now;
+
+          // The supplier's pending payout must shrink with the refund. It was
+          // never touched (cancelPayout had no caller), so a booking refunded
+          // inside the 24h hold still had its full 85% settle from escrow —
+          // paying the supplier with the money just returned. Cancelled on a
+          // full refund, cut to the supplier share of the remainder on a
+          // partial one.
+          const remainingEGP = refundable - params.amountEGP;
+          adjustPayoutForRefund(
+            booking.bookingRef,
+            remainingEGP - Math.round(remainingEGP * PaymentService.COMMISSION_RATE),
+            refundId
+          );
         }
       }
 
