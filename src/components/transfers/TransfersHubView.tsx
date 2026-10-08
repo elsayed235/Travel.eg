@@ -24,7 +24,11 @@ import {
 } from 'lucide-react';
 import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
-import { api } from '../../services/api';
+import { api, type CommerceHold, type TransferTelemetry } from '../../services/api';
+import { checkoutIssueFrom, type CheckoutIssue } from '../../services/checkoutError';
+import { localCalendarDate } from '../../services/heldCheckout';
+import { CheckoutIssuePanel } from '../commerce/CheckoutIssuePanel';
+import { DriverAssignmentStatus } from './DriverAssignmentStatus';
 import type { TransferDetectedPlace, TransferOriginOption, TransferRouteQuote, TransferType } from '../../shared/types/transfers';
 
 type TabId = 'within_dahab' | 'anywhere';
@@ -77,7 +81,7 @@ const TabButton = ({
   );
 };
 type GeoState = 'idle' | 'detecting' | 'detected' | 'failed' | 'denied';
-type BookingState = 'idle' | 'preparing' | 'settling' | 'done';
+type BookingState = 'idle' | 'preparing' | 'confirmPrice' | 'settling' | 'done';
 
 const PRESET_TIMES = ['08:00 AM', '10:30 AM', '01:00 PM', '04:30 PM', '08:00 PM', '11:30 PM'];
 const TIER_ICONS: Record<string, typeof Car> = { shared: Bus, private: Car, premium: Crown };
@@ -124,6 +128,18 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
   const [selectedTier, setSelectedTier] = useState('private');
   const [booking, setBooking] = useState<BookingState>('idle');
   const [error, setError] = useState<string | null>(null);
+  /** Why the hold or settlement failed, mapped from the server's code. */
+  const [bookingIssue, setBookingIssue] = useState<CheckoutIssue | null>(null);
+  /** A held ride whose price differs from the quote shown, awaiting the traveller's OK. */
+  const [pendingRide, setPendingRide] = useState<{
+    hold: CommerceHold;
+    shownEGP: number;
+    dateISO: string;
+    timeSlot: string;
+    idempotencyKey: string;
+  } | null>(null);
+  /** The driver assignment as the server reported it at booking time. */
+  const [bookedTelemetry, setBookedTelemetry] = useState<TransferTelemetry | null>(null);
   const [bookedRef, setBookedRef] = useState<string>('');
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -202,7 +218,6 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
   }, [selectedOriginId]);
 
   const activeQ = useMemo(() => quotes.find((q) => q.tier.id === selectedTier) || quotes[0], [quotes, selectedTier]);
-  const bookingIdle = booking === 'idle';
   const bookingPreparing = booking === 'preparing';
   const bookingSettling = booking === 'settling';
   const bookingBusy = bookingPreparing || bookingSettling;
@@ -217,6 +232,8 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
   // ------------------------------------------------------------------ book
   const handleBook = async () => {
     setError(null);
+    setBookingIssue(null);
+    setPendingRide(null);
     if (!isSignedIn || !sessionUser) {
       showToast(t('transfers.signInToBook', 'سجّل دخولك عشان تحجز انتقالتك'));
       navigateTo('/auth/sign-in');
@@ -233,12 +250,16 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
     }
 
     setBooking('preparing');
-    const dateISO = mode === 'asap' ? new Date().toISOString().split('T')[0] : date;
+    // The traveller's calendar day, not the UTC one (which is still
+    // yesterday in Dahab until 02:00/03:00).
+    const dateISO = mode === 'asap' ? localCalendarDate() : date;
     const timeSlot = mode === 'asap' ? 'ASAP' : time;
     const idempotencyKey = `IDEMP-TRF-${selectedOriginId}-${selectedTier}-${Date.now()}`;
 
+    let prep: Awaited<ReturnType<typeof api.prepareTransferBooking>>;
     try {
-      const prep = await api.prepareTransferBooking({
+      // The hold, priced by the server for this party.
+      prep = await api.prepareTransferBooking({
         tripId: activeTrip.id,
         originId: selectedOriginId,
         tierId: selectedTier as any,
@@ -247,35 +268,52 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
         passengersCount: passengers,
         idempotencyKey
       });
+    } catch (e: unknown) {
+      setBooking('idle');
+      setBookingIssue(checkoutIssueFrom(e));
+      return;
+    }
 
-      setBooking('settling');
+    // The seat is charged at the hold's amount. When that is not what the
+    // button said, the traveller agrees to the new number before paying.
+    if (prep.hold.amountEGP !== activeQ.priceEGP) {
+      setPendingRide({ hold: prep.hold, shownEGP: activeQ.priceEGP, dateISO, timeSlot, idempotencyKey });
+      setBooking('confirmPrice');
+      return;
+    }
+    await settleRide({ hold: prep.hold, dateISO, timeSlot, idempotencyKey });
+  };
+
+  /** Settles a held ride; the hold's own amount is what is charged. */
+  const settleRide = async (ride: { hold: CommerceHold; dateISO: string; timeSlot: string; idempotencyKey: string }) => {
+    if (!activeTrip || !sessionUser) return;
+    setBooking('settling');
+    setBookingIssue(null);
+    try {
       const settle = await api.completeTransferBooking({
-        holdToken: prep.hold.holdToken,
+        holdToken: ride.hold.holdToken,
         tripId: activeTrip.id,
         travelerName: sessionUser.name || sessionUser.email?.split('@')[0] || 'Traveler',
         travelerPhone: sessionUser.phone || '',
         travelerEmail: sessionUser.email || '',
-        pickupLocation: selectedRoute?.originEn || selectedOriginId,
+        pickupLocation: selectedRoute?.originEn || selectedOriginId || '',
         dropoffLocation: 'Dahab',
         flightNumber: isAirport ? flightNumber : undefined,
         specialRequests: roundTrip ? 'Round trip (return leg arranged separately)' : undefined,
-        scheduledDate: dateISO,
-        scheduledTime: timeSlot,
-        idempotencyKey: `${idempotencyKey}-SETTLE`,
+        scheduledDate: ride.dateISO,
+        scheduledTime: ride.timeSlot,
+        idempotencyKey: `${ride.idempotencyKey}-SETTLE`,
         provider: 'CASH_ON_ARRIVAL'
       });
 
-      setBookedRef(settle.booking?.bookingRef || prep.hold.holdToken);
+      setPendingRide(null);
+      setBookedRef(settle.booking?.bookingRef || ride.hold.holdToken);
+      setBookedTelemetry(settle.telemetry ?? null);
       setBooking('done');
-      showToast(t('transfers.bookedMessage', 'حجز انتقالتك اتأكد. هتلاقي تتبع السواق في رحلتي.'));
-    } catch (e: any) {
-      setBooking('idle');
-      const msg = String(e?.message || '');
-      setError(
-        /Sign in|401/i.test(msg)
-          ? t('transfers.signInToBook', 'سجّل دخولك عشان تحجز انتقالتك')
-          : msg
-      );
+      showToast(t('transfers.bookedMessage'));
+    } catch (e: unknown) {
+      setBooking(pendingRide ? 'confirmPrice' : 'idle');
+      setBookingIssue(checkoutIssueFrom(e));
     }
   };
 
@@ -574,7 +612,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
               </div>
             )}
 
-            {selectedRoute && bookingIdle && (
+            {selectedRoute && booking !== 'done' && (
               <>
                 {/* route summary */}
                 <div className="rounded-3xl bg-[var(--surface-card)] border border-[var(--border-subtle)] p-5">
@@ -630,7 +668,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
                 <button
                   type="button"
                   onClick={handleBook}
-                  disabled={bookingBusy}
+                  disabled={bookingBusy || booking === 'confirmPrice'}
                   className={`w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-sm font-bold text-[var(--accent-primary-ink)] shadow-lg transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer disabled:opacity-60 ${
                     bookingBusy
                       ? 'bg-[var(--text-secondary)]/40'
@@ -645,6 +683,26 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
                 </button>
 
                 {error && <div className="rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs px-4 py-3">{error}</div>}
+
+                {pendingRide && booking === 'confirmPrice' && (
+                  <CheckoutIssuePanel
+                    priceChange={{ shownTotalEGP: pendingRide.shownEGP, currentTotalEGP: pendingRide.hold.amountEGP }}
+                    busy={bookingSettling}
+                    onConfirmPrice={() => { void settleRide(pendingRide); }}
+                    onDismiss={() => { setPendingRide(null); setBooking('idle'); }}
+                  />
+                )}
+                {bookingIssue && (
+                  <CheckoutIssuePanel
+                    issue={bookingIssue}
+                    busy={bookingBusy}
+                    onRehold={() => { void handleBook(); }}
+                    onRetry={() => { void handleBook(); }}
+                    onSignIn={() => navigateTo('/auth/sign-in')}
+                    onContactSupport={() => navigateTo('/help')}
+                    onDismiss={() => setBookingIssue(null)}
+                  />
+                )}
               </>
             )}
 
@@ -656,6 +714,7 @@ export const TransfersHubView: React.FC<{ transferType: TabId }> = ({ transferTy
                 </div>
                 <div className="chart-heading font-bold text-lg">{t('transfers.bookedTitle', 'Ride on the way')}</div>
                 <p className="text-xs text-[var(--text-secondary)]/70 mt-1">{bookedRef}</p>
+                <DriverAssignmentStatus telemetry={bookedTelemetry} className="mt-4 text-start" />
                 <div className="mt-4 flex gap-2">
                   <button
                     type="button"

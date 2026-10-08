@@ -4,6 +4,7 @@ import { useTrip } from '../../context/TripContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../services/api';
+import { checkoutIssueFrom, checkoutIssueMessage } from '../../services/checkoutError';
 import { useApiResource } from '../../hooks/useApiResource';
 import { humanizeSpecKey } from '../../lib/humanizeSpecKey';
 import type {
@@ -163,8 +164,13 @@ export const RentalDetail: React.FC<RentalDetailProps> = ({ rentalSlug, onBackTo
       setBooking(prev => (prev ? { ...prev, bookingRef: checkout.bookingRef } : prev));
       setBookingMsg('success');
       setBookingError(null);
-    } catch (e: any) {
-      setBookingError(String(e?.message || e || ''));
+    } catch (e: unknown) {
+      // Checkout-wide codes (fraud gate, suspended provider, session,
+      // network) read the same here as on every other checkout; anything else
+      // is the rental service's own sentence about these dates.
+      const issue = checkoutIssueFrom(e);
+      const rentalSpecific = issue.code === 'UNKNOWN' || issue.code === 'SOLD_OUT' || issue.code === 'DATE_BLOCKED';
+      setBookingError(rentalSpecific ? String(e instanceof Error ? e.message : e || '') : checkoutIssueMessage(issue, t));
     }
   };
 

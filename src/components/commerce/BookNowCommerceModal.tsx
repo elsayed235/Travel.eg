@@ -1,5 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { api } from '../../services/api';
+import React, { useState, useMemo, useRef } from 'react';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useHeldCheckout } from '../../hooks/useHeldCheckout';
+import { localCalendarDate, newAttemptKey, type HeldCheckoutOutcome } from '../../services/heldCheckout';
+import { checkoutIssueFrom, checkoutIssueMessage } from '../../services/checkoutError';
+import { createPlanningTrip } from '../../services/tripLifecycle';
+import { CheckoutIssuePanel } from './CheckoutIssuePanel';
 import {
   X,
   CheckCircle2,
@@ -420,6 +425,22 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
 
   const totalPriceEGP = selectedService.basePriceEGP * travelersCount;
 
+  const { formatEGP } = useCurrency();
+  /** A trip created for this order, kept so a retry does not create another. */
+  const createdTripIdRef = useRef<string | null>(null);
+  /** What the traveller ordered, kept for recording once the server confirms (possibly after a re-confirmed price). */
+  const orderContextRef = useRef<{
+    service: InDestinationServiceOption;
+    travelersCount: number;
+    cleanHotel: string;
+    cleanNote: string;
+    currentTimeStr: string;
+  } | null>(null);
+  const checkout = useHeldCheckout({
+    keyPrefix: 'NOW',
+    onConfirmed: outcome => recordConfirmedOrder(outcome),
+  });
+
   // Currency Conversions
   const convertedPrice = useMemo(() => {
     if (currencyMode === 'USD') {
@@ -451,142 +472,169 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
       navigateTo('/auth/sign-in');
       return;
     }
+    if (isProcessing || checkout.busy) return;
 
-    setBookingError(null);
-    setIsProcessing(true);
-    const cleanHotel = sanitizeText(pickupHotel) || 'Dahab Base';
-    const cleanNote = sanitizeText(specialNote);
-    const currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    // The catalogue's own categories are not the commerce service types.
-    // watersports -> diving, transport -> transfer; the rest (tonight,
-    // wellness, dining) are in-destination experiences and settle as safari,
-    // which is the catalogue's category for them.
-    const serviceType: 'diving' | 'transfer' | 'safari' | 'hotel' =
-      selectedService.category === 'watersports' ? 'diving'
-      : selectedService.category === 'transport' ? 'transfer'
-      : 'safari';
-
-    let code: string;
-    try {
-      const result = await api.completeMultiCheckout({
-        tripId: bookingTripId,
-        // These used to be 'Dahab Traveler', '+20 100 000 0000' and
-        // 'traveler@dahab.travel' — placeholders written into the booking
-        // record and handed to a supplier who has to meet this traveler.
-        travelerName: sessionUser?.name || profile.name,
-        travelerPhone: profile.phone || sessionUser?.phone || '',
-        travelerEmail: sessionUser?.email || profile.email,
-        items: [{
-          serviceType,
-          skuId: selectedService.id,
-          scheduledDate: new Date().toISOString().split('T')[0],
-          scheduledTime: currentTimeStr,
-          amountEGP: sanitizeAmount(totalPriceEGP),
-          pickupLocation: cleanHotel,
-          specialRequests: cleanNote || undefined
-        }],
-        paymentParams: {
-          idempotencyKey: `IDEMP-NOW-${selectedService.id}-${Date.now()}`,
-          // No gateway is integrated: the booking settles when the traveler
-          // pays the provider on arrival. Claiming PAYMOB made the ledger say
-          // a card was captured when nothing was charged.
-          provider: 'CASH_ON_ARRIVAL'
-        }
-      });
-      code = result?.bookings?.[0]?.bookingRef || result?.transactionId || 'DHB-NOW';
-    } catch (err: any) {
-      setIsProcessing(false);
-      const message = String(err?.message || '');
+    // The SKU and vertical the card was catalogued under. This sent the
+    // card's own id ('now-gear-delivery') as the skuId and derived the type
+    // from the browse category, so the server refused every order as an
+    // unknown product.
+    if (!selectedService.skuId || !selectedService.serviceType) {
       setBookingError(
-        t('commerce.theBookingWasNot', { message })
+        t('commerce.notBookableOnlineYet', {
+          supplierName: language === 'ar' ? selectedService.supplierNameAr : selectedService.supplierName,
+          supplierPhone: selectedService.supplierPhone,
+        })
       );
       return;
     }
 
-    {
-      // 1. Record in-destination ledger entry. The booking is pay-on-arrival,
-      // so this is a pending escrow hold — never a captured payment. It used
-      // to be recorded as PAYMENT_CAPTURED / SETTLED against a made-up card
-      // token ('TRAVELER_CC_TOKEN_4910'), which is how the books said money
-      // moved when none did.
-      const ledger = recordLedgerEntry({
-        transactionId: `TXN-NOW-${Date.now()}`,
-        idempotencyKey: `IDEMP-NOW-${code}-${Date.now()}`,
-        bookingRef: code,
-        tripId: bookingTripId,
-        type: 'HOLD_ESCROW',
-        amountEGP: sanitizeAmount(totalPriceEGP),
-        debitAccount: 'TRAVELER_CASH_ON_ARRIVAL',
-        creditAccount: 'PLATFORM_ESCROW_MAIN',
-        currency: 'EGP',
-        status: 'PENDING',
-        metadata: {
-          serviceType: selectedService.category,
-          supplierName: selectedService.supplierName,
+    setBookingError(null);
+    checkout.reset();
+    setIsProcessing(true);
+    const cleanHotel = sanitizeText(pickupHotel) || 'Dahab Base';
+    const cleanNote = sanitizeText(specialNote);
+    const currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    orderContextRef.current = { service: selectedService, travelersCount, cleanHotel, cleanNote, currentTimeStr };
+
+    // A booking needs a real trip. Without one this sent an empty tripId and
+    // the server refused it; now the traveller gets a one-day plan first.
+    let tripId = bookingTripId || createdTripIdRef.current;
+    if (!tripId) {
+      try {
+        const trip = await createPlanningTrip({
+          title: language === 'ar' ? selectedService.titleAr : selectedService.title,
+          lengthDays: 1,
           travelersCount,
-          pickupLocation: cleanHotel,
-          serviceTitle: selectedService.title,
-          reason: 'Instant in-destination booking. Pay upon arrival.'
-        }
-      });
-
-      // 2. Add to Trip Bookings
-      const newBooking: ConfirmedBookingItem = {
-        id: `book-${Date.now()}`,
-        serviceType: selectedService.category === 'watersports' ? 'diving' : selectedService.category === 'transport' ? 'transfer' : 'safari',
-        title: selectedService.title,
-        subtitle: `${travelersCount} Guests · ${selectedService.subtitle}`,
-        details: `Pickup: ${cleanHotel} · Note: ${cleanNote || 'Standard instant dispatch'}`,
-        datesOrTime: `Booked Now (${currentTimeStr}) · ${selectedService.durationStr}`,
-        priceEGP: sanitizeAmount(totalPriceEGP),
-        provider: selectedService.supplierName,
-        confirmationCode: code,
-        status: 'Confirmed ✓',
-        location: selectedService.locationArea,
-        iconType: selectedService.category === 'watersports' ? 'waves' : selectedService.category === 'transport' ? 'car' : 'compass',
-        phone: selectedService.supplierPhone,
-        included: selectedService.whatToBring,
-        cancellationPolicy: 'Free cancellation up to 30 minutes before fulfillment'
-      };
-
-      setBookings((prev) => [newBooking, ...prev]);
-
-      // 3. Optionally add to active Day 2 schedule
-      if (insertToTripSchedule) {
-        const newActivity: TimelineActivity = {
-          id: `act-now-${Date.now()}`,
-          time: '03:30 PM',
-          title: selectedService.title,
-          type: 'Activity',
-          status: 'Booked ✓',
-          location: selectedService.locationArea,
-          duration: selectedService.durationStr,
-          priceEGP: sanitizeAmount(totalPriceEGP),
-          meetingPoint: selectedService.meetingPoint,
-          whatToBring: selectedService.whatToBring,
-          guideName: selectedService.supplierName,
-          notes: `Instant In-Destination Booking (${code}). Pickup at ${cleanHotel}.`
-        };
-        addActivityToDay(2, newActivity);
+          startsInDays: 0,
+          idPrefix: 'TRIP-NOW',
+        });
+        tripId = trip.id;
+        createdTripIdRef.current = trip.id;
+      } catch (err) {
+        setIsProcessing(false);
+        setBookingError(checkoutIssueMessage(checkoutIssueFrom(err), t, formatEGP));
+        return;
       }
-
-      setConfirmedBooking({
-        code,
-        service: selectedService,
-        totalPriceEGP,
-        confirmedTime: currentTimeStr,
-        ledgerRef: ledger.transactionId
-      });
-
-      setIsProcessing(false);
-      setIsSuccess(true);
-      showToast(
-        t('commerce.instantBookingConfirmedReference', { code })
-      );
-      onBookingSuccess?.({ id: code, code, totalPriceEGP });
     }
+    setIsProcessing(false);
+
+    // Hold for the party first, then settle: checkout only settles a hold.
+    await checkout.submit({
+      tripId,
+      // These used to be 'Dahab Traveler', '+20 100 000 0000' and
+      // 'traveler@dahab.travel' — placeholders written into the booking
+      // record and handed to a supplier who has to meet this traveler.
+      traveler: {
+        name: sessionUser?.name || profile.name,
+        phone: profile.phone || sessionUser?.phone || '',
+        email: sessionUser?.email || profile.email,
+      },
+      lines: [{
+        serviceType: selectedService.serviceType,
+        skuId: selectedService.skuId,
+        scheduledDate: localCalendarDate(),
+        scheduledTime: 'ASAP',
+        passengersCount: travelersCount,
+        amountEGP: sanitizeAmount(totalPriceEGP),
+        pickupLocation: cleanHotel,
+        specialRequests: cleanNote || undefined,
+      }],
+      // No gateway is integrated: the booking settles when the traveler pays
+      // the provider on arrival.
+      payment: { provider: 'CASH_ON_ARRIVAL' },
+      attemptKey: newAttemptKey('NOW'),
+    });
   };
+
+  /** The server settled the order: record it with the server's reference and the charged amount. */
+  function recordConfirmedOrder(outcome: Extract<HeldCheckoutOutcome, { kind: 'confirmed' }>) {
+    const context = orderContextRef.current;
+    if (!context) return;
+    const { service, travelersCount, cleanHotel, cleanNote, currentTimeStr } = context;
+    const code = outcome.result.bookings?.[0]?.bookingRef || outcome.result.transactionId;
+    const chargedEGP = outcome.held.reduce((sum, line) => sum + line.amountEGP, 0);
+
+    // 1. Record in-destination ledger entry. The booking is pay-on-arrival,
+    // so this is a pending escrow hold — never a captured payment. It used
+    // to be recorded as PAYMENT_CAPTURED / SETTLED against a made-up card
+    // token ('TRAVELER_CC_TOKEN_4910'), which is how the books said money
+    // moved when none did.
+    const ledger = recordLedgerEntry({
+      transactionId: `TXN-NOW-${Date.now()}`,
+      idempotencyKey: `IDEMP-NOW-${code}-${Date.now()}`,
+      bookingRef: code,
+      tripId: outcome.tripId,
+      type: 'HOLD_ESCROW',
+      amountEGP: chargedEGP,
+      debitAccount: 'TRAVELER_CASH_ON_ARRIVAL',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      status: 'PENDING',
+      metadata: {
+        serviceType: service.category,
+        supplierName: service.supplierName,
+        travelersCount,
+        pickupLocation: cleanHotel,
+        serviceTitle: service.title,
+        reason: 'Instant in-destination booking. Pay upon arrival.'
+      }
+    });
+
+    // 2. Add to Trip Bookings
+    const newBooking: ConfirmedBookingItem = {
+      id: `book-${Date.now()}`,
+      serviceType: service.category === 'watersports' ? 'diving' : service.category === 'transport' ? 'transfer' : 'safari',
+      title: service.title,
+      subtitle: `${travelersCount} Guests · ${service.subtitle}`,
+      details: `Pickup: ${cleanHotel} · Note: ${cleanNote || 'Standard instant dispatch'}`,
+      datesOrTime: `Booked Now (${currentTimeStr}) · ${service.durationStr}`,
+      priceEGP: chargedEGP,
+      provider: service.supplierName,
+      confirmationCode: code,
+      status: 'Confirmed ✓',
+      location: service.locationArea,
+      iconType: service.category === 'watersports' ? 'waves' : service.category === 'transport' ? 'car' : 'compass',
+      phone: service.supplierPhone,
+      included: service.whatToBring,
+      cancellationPolicy: 'Free cancellation up to 30 minutes before fulfillment'
+    };
+
+    setBookings((prev) => [newBooking, ...prev]);
+
+    // 3. Optionally add to active Day 2 schedule
+    if (insertToTripSchedule) {
+      const newActivity: TimelineActivity = {
+        id: `act-now-${Date.now()}`,
+        time: '03:30 PM',
+        title: service.title,
+        type: 'Activity',
+        status: 'Booked ✓',
+        location: service.locationArea,
+        duration: service.durationStr,
+        priceEGP: chargedEGP,
+        meetingPoint: service.meetingPoint,
+        whatToBring: service.whatToBring,
+        guideName: service.supplierName,
+        notes: `Instant In-Destination Booking (${code}). Pickup at ${cleanHotel}.`
+      };
+      addActivityToDay(2, newActivity);
+    }
+
+    setConfirmedBooking({
+      code,
+      service: service,
+      totalPriceEGP: chargedEGP,
+      confirmedTime: currentTimeStr,
+      ledgerRef: ledger.transactionId
+    });
+
+    setIsProcessing(false);
+    setIsSuccess(true);
+    showToast(
+      t('commerce.instantBookingConfirmedReference', { code })
+    );
+    onBookingSuccess?.({ id: code, code, totalPriceEGP: chargedEGP });
+  }
 
   const handleReset = () => {
     setIsSuccess(false);
@@ -912,12 +960,44 @@ export const BookNowCommerceModal: React.FC<BookNowCommerceModalProps> = ({
                     </div>
                   </div>
 
+                  {(checkout.phase === 'priceChanged' || checkout.phase === 'failed') && checkout.outcome && checkout.outcome.kind !== 'confirmed' && (
+                    <CheckoutIssuePanel
+                      className="text-start"
+                      priceChange={checkout.outcome.kind === 'priceChanged' ? checkout.outcome : null}
+                      issue={checkout.outcome.kind === 'failed' ? checkout.outcome.issue : null}
+                      busy={checkout.busy}
+                      onConfirmPrice={() => { void checkout.confirmPrice(); }}
+                      onRehold={() => { void checkout.rehold(); }}
+                      onRetry={() => { void handleConfirmOrder(); }}
+                      onSignIn={() => { setIntendedRoute('/book-now'); navigateTo('/auth/sign-in'); }}
+                      onContactSupport={() => { onClose(); navigateTo('/help'); }}
+                      onDismiss={checkout.reset}
+                      alternativesQuery={
+                        selectedService.skuId && checkout.lastRequest
+                          ? {
+                              tripId: checkout.lastRequest.tripId,
+                              skuId: selectedService.skuId,
+                              date: localCalendarDate(),
+                              timeSlot: 'ASAP',
+                              passengersCount: travelersCount,
+                            }
+                          : null
+                      }
+                      onPickAlternative={alt => {
+                        checkout.reset();
+                        const card = IN_DESTINATION_SERVICES.find(svc => svc.skuId === alt.skuId);
+                        if (card) setSelectedServiceId(card.id);
+                        else { onClose(); navigateTo('/book-now', { skuId: alt.skuId }); }
+                      }}
+                    />
+                  )}
+
                   <button
-                    disabled={isProcessing}
+                    disabled={isProcessing || checkout.busy || checkout.phase === 'priceChanged'}
                     onClick={handleConfirmOrder}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-[var(--accent-secondary)] via-[var(--accent-primary)] to-[var(--accent-primary)] text-[var(--accent-primary-ink)] font-black text-sm hover:brightness-110 disabled:opacity-50 transition-[background-color,border-color,color,box-shadow,transform,opacity] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    {isProcessing ? (
+                    {isProcessing || checkout.busy ? (
                       <span>{t('commerce.securingEscrowHold')}</span>
                     ) : (
                       <>

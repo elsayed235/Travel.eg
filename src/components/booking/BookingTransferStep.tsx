@@ -26,6 +26,8 @@ import { api } from '../../services/api';
 import { analytics } from '../../services/analytics';
 import { useLanguage } from '../../i18n/LanguageContext';
 import type { CommerceAlternative } from '../../services/api';
+import { checkoutIssueFrom, checkoutIssueMessage } from '../../services/checkoutError';
+import { PLANNER_TRANSFER_SLOT, storeTransferHold, transferSkuFor, tripDayDate } from '../../services/plannerCheckout';
 
 interface BookingTransferStepProps {
   selectedHotelId: string;
@@ -46,11 +48,13 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
   onReturnHome,
   onContinueToDiving,
 }) => {
-  const { showToast, recordLedgerEntry, navigateTo, sessionUser, activeTrip } = useTrip();
+  const { showToast, recordLedgerEntry, navigateTo, sessionUser, activeTrip, profile } = useTrip();
+  /** The party the trip was planned for — the same count the payment step books. */
+  const travelers = activeTrip?.travelersCount ?? profile.travelersCount ?? 1;
   // Was the literal 'DHB-TRIP-894' on both the hold and its ledger entry, so a
   // seat was held against the seeded demo trip whoever booked it.
   const bookingTripId = activeTrip?.id || '';
-  const { language, isRTL } = useLanguage();
+  const { language, isRTL, t } = useLanguage();
   const isAr = language === 'ar';
 
   // Transfer selection state - defaults to recommended 'private-car' for Ahmed's trip
@@ -101,63 +105,42 @@ export const BookingTransferStep: React.FC<BookingTransferStepProps> = ({
     setAlternatives([]);
     setAlternativesEmpty(false);
     setBlockedInfo(null);
+
+    // The hold the payment step settles. It was taken for a hardcoded party of
+    // 2 on the UTC date; checkout now requires the line to match the hold's
+    // party size and slot, so it is taken for the trip's real party on the
+    // trip's arrival day — the same values the payment step books with.
+    const holdLine = {
+      skuId: transferSkuFor(selectedTransfer.id),
+      tripId: bookingTripId,
+      date: tripDayDate(activeTrip, 1),
+      timeSlot: PLANNER_TRANSFER_SLOT,
+      passengersCount: travelers,
+    };
     try {
-      // A real inventory hold on the backend. This previously ran without an
-      // idempotencyKey (so a double submit produced two holds) and with a
-      // hardcoded travelerId, and its failure was swallowed with
-      // "Hold created in local mode" — the flow carried on to payment with no
-      // seat actually reserved.
+      // A real inventory hold on the backend, with an idempotency key so a
+      // double submit returns the same hold.
       const hold = await api.createHold({
-        skuId: selectedTransfer.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002',
-        tripId: bookingTripId,
-        travelerId: sessionUser?.id || 'ANONYMOUS',
-        date: new Date().toISOString().split('T')[0],
-        timeSlot: '10:30 AM',
-        passengersCount: 2,
+        ...holdLine,
         idempotencyKey: `IDEMP-TRF-HOLD-${selectedTransfer.id}-${Date.now()}`
       });
-      sessionStorage.setItem('current_transfer_hold', JSON.stringify(hold));
-      // P4 trust: surface the hold's real deadline — the countdown that was
-      // previously invisible to the traveler.
+      storeTransferHold(hold, holdLine);
+      // P4 trust: surface the hold's real deadline.
       if (hold?.expiresAt) setHoldExpiresAt(hold.expiresAt);
-    } catch (e: any) {
-      const message = String(e?.message || '');
-      // Supplier calendar gate (409 supplier-date-blocked): the supplier is
-      // closed on the requested date. Show the reason and the path forward
-      // (another date) instead of framing it as sold out.
-      if (e?.status === 409 && /not accepting bookings/i.test(message)) {
-        const details = (e?.details ?? {}) as { date?: string; reason?: string };
-        setBlockedInfo({ date: String(details.date || ''), reason: String(details.reason || '') });
-        setHoldError(
-          isRTL
-            ? 'المزود مغلق في هذا التاريخ — جرّب تاريخًا آخر.'
-            : 'The supplier is closed on this date — try another one.'
-        );
-        return;
+    } catch (e: unknown) {
+      const issue = checkoutIssueFrom(e);
+      // Supplier calendar gate: the supplier is closed on the requested date.
+      // Show the reason and the path forward (another date) instead of
+      // framing it as sold out.
+      if (issue.code === 'DATE_BLOCKED') {
+        setBlockedInfo({ date: issue.date || '', reason: String(issue.details.reason || '') });
       }
-      setHoldError(
-        /401|Sign in|Authentication/i.test(message)
-          ? (isRTL
-              ? 'محتاج تسجّل دخولك عشان نحجزلك المقعد.'
-              : 'Sign in so we can hold your seat.')
-          : /Only \d+ place|remain/i.test(message)
-            ? message
-            : (isRTL
-                ? `تعذّر حجز المقعد: ${message}`
-                : `Could not hold your seat: ${message}`)
-      );
-      // P4 trust: on a sold-out hold (409), fetch honest alternatives from
-      // the same inventory truth — never a guessed list.
-      if (/409|Only \d+ place|remain|sold/i.test(message)) {
+      setHoldError(checkoutIssueMessage(issue, t));
+      // P4 trust: sold out or the supplier is not taking bookings — fetch
+      // honest alternatives from the same inventory truth, never a guess.
+      if (issue.recovery === 'alternatives' && bookingTripId) {
         setAlternativesLoading(true);
-        api.findAlternatives({
-          tripId: bookingTripId,
-          skuId: selectedTransfer.id === 'private-car' ? 'SKU-TRF-001' : 'SKU-TRF-002',
-          date: new Date().toISOString().split('T')[0],
-          timeSlot: '10:30 AM',
-          passengersCount: 2,
-          limit: 3,
-        })
+        api.findAlternatives({ ...holdLine, limit: 3 })
           .then(res => {
             setAlternatives(res.alternatives || []);
             // A successful search with nothing servable is honest information:

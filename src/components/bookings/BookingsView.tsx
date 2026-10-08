@@ -34,6 +34,9 @@ import { DahabEmptyState } from '../common/DahabEmptyState';
 import { offlineStorage } from '../../utils/offlineStorage';
 import { BookingManageModal } from './BookingManageModal';
 import { ReviewInvitations } from './ReviewInvitations';
+import { Badge } from '../ui/badge';
+import { api } from '../../services/api';
+import { freeCancellationView } from '../../services/bookingManage';
 
 export const BookingsView: React.FC = () => {
   const { profile, user, bookings, activeTrip, isTripLoading, tripLoadError, reloadTrip, selectedBookingId, setSelectedBookingId, navigateTo, showToast } = useTrip();
@@ -66,6 +69,47 @@ export const BookingsView: React.FC = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  /**
+   * Free-cancellation deadlines by booking id, from the detailed bookings
+   * read (the trip bookings feed behind these cards does not carry them).
+   * A failed read just leaves the line off — nothing is promised.
+   */
+  const [cancellationDeadlines, setCancellationDeadlines] = useState<Record<string, string | null>>({});
+  useEffect(() => {
+    const tripId = activeTrip?.id;
+    if (!tripId) {
+      setCancellationDeadlines({});
+      return;
+    }
+    let cancelled = false;
+    api.getTripBookingsDetailed(tripId)
+      .then(({ bookings: detailed }) => {
+        if (cancelled) return;
+        setCancellationDeadlines(
+          Object.fromEntries((detailed || []).map(d => [d.id, d.freeCancellationUntil ?? null]))
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCancellationDeadlines({});
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTrip?.id, bookings]);
+
+  /** "Free cancellation until Thu 12 Nov, 09:30", or null when the server gave no deadline. */
+  const freeCancellationBadge = (bookingId: string) => {
+    const view = freeCancellationView(cancellationDeadlines[bookingId], language === 'ar' ? 'ar' : 'en');
+    if (!view) return null;
+    return (
+      <Badge tone={view.kind === 'until' ? 'positive' : 'neutral'}>
+        {view.kind === 'until'
+          ? t('bookings.freeCancellation.until', { when: view.when })
+          : t('bookings.freeCancellation.ended', { when: view.when })}
+      </Badge>
+    );
+  };
 
   // Save vouchers to offline storage whenever bookings change
   useEffect(() => {
@@ -305,6 +349,9 @@ export const BookingsView: React.FC = () => {
                     <span className="text-[var(--text-secondary)]/60">Dates / Schedule:</span>
                     <span className="font-bold text-[var(--text-primary)]">{b.datesOrTime}</span>
                   </div>
+                  {freeCancellationBadge(b.id) && (
+                    <div className="flex justify-end">{freeCancellationBadge(b.id)}</div>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--text-secondary)]/60">Provider:</span>
                     <span className="font-semibold text-[var(--text-primary)]">{b.provider}</span>
@@ -462,6 +509,9 @@ export const BookingsView: React.FC = () => {
                 <span className="text-[var(--text-secondary)]/60">Schedule:</span>
                 <span className="font-bold text-[var(--text-primary)]">{selectedBooking.datesOrTime}</span>
               </div>
+              {freeCancellationBadge(selectedBooking.id) && (
+                <div className="flex justify-end">{freeCancellationBadge(selectedBooking.id)}</div>
+              )}
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-container)] border border-[var(--border-subtle)]">
                 <span className="text-[var(--text-secondary)]/60">Location:</span>
                 <span className="font-bold text-[var(--text-primary)]">{selectedBooking.location}</span>

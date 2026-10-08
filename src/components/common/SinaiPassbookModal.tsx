@@ -66,6 +66,8 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
     vehicle: transferTracking.vehicleModel || '',
     plate: transferTracking.vehiclePlate || ''
   };
+  /** NOT_ASSIGNED / no name or phone on record: say so instead of showing blanks. */
+  const driverAssigned = Boolean(driver.name || driver.nameAr || driver.phone);
 
   // Auto-persist passbook to offline storage on mount or change
   useEffect(() => {
@@ -266,30 +268,42 @@ export const SinaiPassbookModal: React.FC<SinaiPassbookModalProps> = ({ isOpen, 
                   <Car className="w-4 h-4" />
                   <span>{t('common.verifiedBedouinDriverCard')}</span>
                 </div>
-                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                  {t('common.authorized')}
-                </span>
+                {driverAssigned && (
+                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                    {t('common.authorized')}
+                  </span>
+                )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-muted)] pt-1">
-                <div>
-                  <span className="text-[var(--text-muted)] block text-[11px]">{t('common.driver')}</span>
-                  <span className="font-bold">{language === 'ar' ? driver.nameAr : driver.name}</span>
+              {driverAssigned ? (
+                <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[var(--text-muted)] pt-1">
+                  <div>
+                    <span className="text-[var(--text-muted)] block text-[11px]">{t('common.driver')}</span>
+                    <span className="font-bold">{language === 'ar' ? driver.nameAr : driver.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-muted)] block text-[11px]">{t('common.vehiclePlate')}</span>
+                    <span className="font-mono text-amber-200">{driver.vehicle} · {driver.plate}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[var(--text-muted)] block text-[11px]">{t('common.vehiclePlate')}</span>
-                  <span className="font-mono text-amber-200">{driver.vehicle} · {driver.plate}</span>
+                <div className="pt-1 flex items-center justify-between text-xs">
+                  <a 
+                    href={`tel:${driver.phone.replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 font-bold transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>{driver.phone}</span>
+                  </a>
+                  <span className="text-[11px] text-[var(--text-muted)]">{t('common.accessible100Offline')}</span>
                 </div>
-              </div>
-              <div className="pt-1 flex items-center justify-between text-xs">
-                <a 
-                  href={`tel:${driver.phone.replace(/\s+/g, '')}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-primary)]/20 hover:bg-[var(--accent-primary)]/30 text-[var(--accent-primary)] border border-[var(--accent-primary)]/40 font-bold transition-colors"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>{driver.phone}</span>
-                </a>
-                <span className="text-[11px] text-[var(--text-muted)]">{t('common.accessible100Offline')}</span>
-              </div>
+                </>
+              ) : (
+                // No supplier has assigned a driver yet. This card used to
+                // render empty fields and a "call" link to nobody.
+                <p role="status" className="pt-1 text-xs text-[var(--text-muted)]">
+                  {t('transfers.driver.notAssigned')}
+                </p>
+              )}
             </div>
 
             {/* Integrated Components Included */}

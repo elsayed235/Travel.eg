@@ -28,6 +28,53 @@ export interface CommerceAlternative {
   reasonAr: string;
 }
 
+/**
+ * An inventory hold (POST /api/commerce/hold). `amountEGP` is the catalogue
+ * price for the held party — the amount checkout will charge.
+ */
+export interface CommerceHold {
+  holdToken: string;
+  skuId: string;
+  tripId: string;
+  slotId: string;
+  serviceType: CommerceServiceType;
+  passengersCount: number;
+  amountEGP: number;
+  expiresAt: string;
+  status: 'ACTIVE' | 'CONSUMED' | 'EXPIRED' | 'RELEASED';
+}
+
+/** What /api/commerce/checkout/multi returns on success. */
+export interface MultiCheckoutResult {
+  bookings: Array<{ id: string; bookingRef: string; confirmationCode: string; amountEGP: number; skuId: string }>;
+  totalAmountEGP: number;
+  paymentState: string;
+  transactionId: string;
+}
+
+/**
+ * Transfer telemetry. Until a supplier assigns a driver the server says so —
+ * `assigned: false`, status NOT_ASSIGNED and null driver/vehicle fields —
+ * rather than naming one.
+ */
+export interface TransferTelemetry {
+  bookingId: string;
+  referenceCode: string;
+  assigned: boolean;
+  status: 'NOT_ASSIGNED' | 'ASSIGNED' | 'DISPATCHED' | 'AT_AIRPORT' | 'PASSENGER_PICKED_UP' | 'COMPLETED';
+  driverName: string | null;
+  driverNameAr?: string;
+  driverPhone: string | null;
+  vehicleModel: string | null;
+  vehiclePlate: string | null;
+  pickupLocation: string | null;
+  dropoffLocation: string | null;
+  scheduledTime: string | null;
+  flightNumber?: string;
+  flightStatus: 'ON_TIME' | 'DELAYED' | 'LANDED' | null;
+  lastGpsUpdate: string | null;
+}
+
 export interface PriceExplanation {
   currency: 'EGP';
   lines: Array<{
@@ -98,6 +145,12 @@ export interface BookingDetail {
   scheduledDate: string;
   scheduledTime: string;
   confirmationCode: string;
+  /**
+   * ISO instant until which cancelling refunds in full (service start in
+   * Africa/Cairo minus the SKU's policy hours); null when the booking has no
+   * usable date.
+   */
+  freeCancellationUntil?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1404,11 +1457,14 @@ export const api = {
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to prepare transfer booking');
-    }
-    return await res.json();
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not hold this transfer.');
+    return await readJson<{
+      skuId: string;
+      originId: string;
+      tierId: 'private' | 'shared' | 'premium';
+      quote: { priceEGP: number; route?: string; destination?: string };
+      hold: CommerceHold;
+    }>(res, 'Could not hold this transfer.');
   },
 
   async completeTransferBooking(params: {
@@ -1434,40 +1490,38 @@ export const api = {
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Checkout failed');
-    }
-    return await res.json();
+    if (!res.ok) throw await apiErrorFrom(res, 'The transfer could not be booked.');
+    return await readJson<{
+      status: 'CONFIRMED';
+      booking: { id: string; bookingRef: string; confirmationCode: string; amountEGP: number };
+      telemetry: TransferTelemetry | null;
+      ledgerVerified: boolean;
+    }>(res, 'The transfer could not be booked.');
   },
 
+  /**
+   * Reserves a slot for the party. Every checkout settles holds, so this runs
+   * first. The holder is the session user — the server never takes it from
+   * the body — and the key makes a double submit return the same hold.
+   */
   async createHold(params: {
     skuId: string;
     tripId: string;
-    travelerId: string;
     date: string;
     timeSlot: string;
     passengersCount: number;
-    idempotencyKey?: string;
-  }) {
+    idempotencyKey: string;
+  }): Promise<CommerceHold> {
     const res = await fetchWithTimeout('/api/commerce/hold', {
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      // Carry the server's structured details (status, skuId/supplierId/date,
-      // reason) on the thrown error — the blocked-date 409 renders its own
-      // honest state from these instead of regex-parsing the message.
-      const failure = new Error(err.error || 'Failed to create inventory hold') as Error & {
-        status?: number; details?: Record<string, unknown>;
-      };
-      if (res.status) failure.status = res.status;
-      if (err.details) failure.details = err.details;
-      throw failure;
-    }
-    return await res.json();
+    // ApiError carries the server's status, code and details (skuId,
+    // supplierId/date, reason) — the blocked-date 409 renders its own honest
+    // state from these instead of regex-parsing the message.
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not hold your spot.');
+    return await readJson<CommerceHold>(res, 'Could not hold your spot.');
   },
 
   /** P4 trust: honest alternatives when a hold fails (409 sold out). */
@@ -1484,11 +1538,8 @@ export const api = {
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Failed to find alternatives');
-    }
-    return await res.json();
+    if (!res.ok) throw await apiErrorFrom(res, 'Could not look for alternatives.');
+    return await readJson<{ alternatives: CommerceAlternative[] }>(res, 'Could not look for alternatives.');
   },
 
   /** P4 trust: backend-authoritative price explainer (basis + totals). */
@@ -1516,10 +1567,17 @@ export const api = {
     items: Array<{
       serviceType: CommerceServiceType;
       skuId: string;
-      holdToken?: string;
+      /** Required: every line settles an ACTIVE hold the caller owns. */
+      holdToken: string;
       scheduledDate: string;
       scheduledTime: string;
+      /**
+       * The price the traveller was shown. The server charges the catalogue
+       * price and answers 409 PRICE_CHANGED when they differ.
+       */
       amountEGP: number;
+      /** Must equal the hold's party size (else 400 HOLD_MISMATCH). */
+      passengersCount?: number;
       pickupLocation?: string;
       dropoffLocation?: string;
       specialRequests?: string;
@@ -1543,11 +1601,10 @@ export const api = {
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Multi-service checkout failed');
-    }
-    return await res.json();
+    // { error, code, details } — PRICE_CHANGED, HOLD_EXPIRED, … — arrives on
+    // the ApiError; see src/services/checkoutError.ts for what each means.
+    if (!res.ok) throw await apiErrorFrom(res, 'The booking could not be completed.');
+    return await readJson<MultiCheckoutResult>(res, 'The booking could not be completed.');
   },
 
   async processRefund(params: {
@@ -1587,20 +1644,14 @@ export const api = {
     cardLast4?: string;
     cardBrand?: string;
     cardHolderName?: string;
-    provider?: string;
-    amountEGP?: number;
-    serviceType?: string;
-    supplierId?: string;
+    provider?: 'PAYMOB' | 'STRIPE' | 'CASH_ON_ARRIVAL';
   }) {
     const res = await fetchWithTimeout('/api/commerce/checkout', {
       method: 'POST',
       headers: defaultHeaders(),
       body: JSON.stringify(params)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Payment checkout settlement failed');
-    }
+    if (!res.ok) throw await apiErrorFrom(res, 'The payment could not be completed.');
     return await res.json();
   },
 

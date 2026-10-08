@@ -30,6 +30,12 @@ import { IN_DESTINATION_SERVICES, InDestinationServiceOption, BookNowCategory } 
 import { INITIAL_LIVE_DAHAB_CONDITIONS } from '../../data/dahabGeography';
 import { analytics } from '../../services/analytics';
 import type { ProductSkuEntity } from '../../shared/types/commerce';
+import { useCurrency } from '../../context/CurrencyContext';
+import { useHeldCheckout } from '../../hooks/useHeldCheckout';
+import { newAttemptKey, type HeldCheckoutOutcome } from '../../services/heldCheckout';
+import { checkoutIssueFrom, checkoutIssueMessage } from '../../services/checkoutError';
+import { createPlanningTrip } from '../../services/tripLifecycle';
+import { CheckoutIssuePanel } from './CheckoutIssuePanel';
 
 /** YYYY-MM-DD in the traveler's local timezone — how the UI labels dates. */
 function localToday(): string {
@@ -68,9 +74,17 @@ export const BookNowCommerceView: React.FC = () => {
     activeTrip,
     setIntendedRoute,
     selectedSkuId,
-    reloadTrip
+    reloadTrip,
+    openTrip
   } = useTrip();
   const { language, isRTL , t} = useLanguage();
+  const { formatEGP } = useCurrency();
+  /** A trip created for this booking, kept so a retry does not create another. */
+  const createdTripIdRef = useRef<string | null>(null);
+  const checkout = useHeldCheckout({
+    keyPrefix: 'BOOKNOW',
+    onConfirmed: outcome => recordConfirmedBooking(outcome),
+  });
   /** Why the instant booking failed, if it did. Shown instead of a voucher. */
   const [instantBookingError, setInstantBookingError] = useState<string | null>(null);
   const instantBookingErrorRef = useRef<HTMLParagraphElement>(null);
@@ -94,7 +108,6 @@ export const BookNowCommerceView: React.FC = () => {
   // Booking configuration options
   const [guestsCount, setGuestsCount] = useState<number>(1);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('immediate');
-  const [selectedDate, setSelectedDate] = useState<string>('today');
   const [pickupLocation, setPickupLocation] = useState<string>('');
   const [shoeSize, setShoeSize] = useState<string>('42 EU');
   const [specialNotes, setSpecialNotes] = useState<string>('');
@@ -309,6 +322,7 @@ export const BookNowCommerceView: React.FC = () => {
   const handleSelectService = (svc: InDestinationServiceOption) => {
     setActiveService(svc);
     setConfirmedBooking(null);
+    checkout.reset();
     setPickupLocation(profile?.savedPlaces?.[0] || 'Lighthouse Promenade / My Hotel');
     // Smooth scroll to booking details drawer if on mobile
     if (window.innerWidth < 1024) {
@@ -325,6 +339,24 @@ export const BookNowCommerceView: React.FC = () => {
     return activeService.basePriceEGP * guestsCount;
   }, [activeService, guestsCount]);
 
+  /**
+   * The slot the hold is taken on: a live server slot when the traveller
+   * picked one (so the hold lands on that exact inventory), otherwise today's
+   * "right now" or evening request.
+   */
+  const instantSlot = useMemo(() => {
+    const live = pickedLiveSlot ? liveAvailability?.views.find(v => v.id === pickedLiveSlot) : undefined;
+    return {
+      date: localToday(),
+      timeSlot: live?.timeSlot ?? (selectedTimeSlot === 'sunset' ? '05:00 PM' : 'ASAP'),
+    };
+  }, [pickedLiveSlot, liveAvailability, selectedTimeSlot]);
+
+  const instantSlotLabel = () =>
+    instantSlot.timeSlot === 'ASAP'
+      ? t('commerce.slot.todayAsap')
+      : t('commerce.slot.todayAt', { time: instantSlot.timeSlot });
+
   // Execute instant escrow booking
   /**
    * Books for real.
@@ -336,7 +368,8 @@ export const BookNowCommerceView: React.FC = () => {
    * the planner uses, and the reference shown is the server's.
    */
   const handleConfirmInstantBooking = async () => {
-    if (!activeService || isSubmitting) return;
+    if (!activeService || isSubmitting || checkout.busy) return;
+    checkout.reset();
 
     if (!isSignedIn) {
       setIntendedRoute('/book-now');
@@ -397,118 +430,139 @@ export const BookNowCommerceView: React.FC = () => {
       // still refuses a genuinely unavailable slot at checkout.
     }
 
-    let bookingId: string;
-    let confirmationCode: string;
-    try {
-      const result = await api.completeMultiCheckout({
-        // Was hardcoded to 'DHB-TRIP-894' — the demo trip — so an instant
-        // booking by any traveler was filed against somebody else's trip.
-        tripId: activeTrip?.id || `TRIP-INSTANT-${sessionUser?.id}`,
-        // These three used to fall back to 'Dahab Traveler',
-        // '+20 100 000 0000' and 'traveler@dahab.travel'. They are written
-        // into the booking record and sent to the supplier who has to meet
-        // this traveler, so a placeholder phone number here is a driver
-        // waiting at an airport with no way to call anyone.
-        travelerName: sessionUser?.name || profile.name,
-        travelerPhone: profile.phone || sessionUser?.phone || '',
-        travelerEmail: sessionUser?.email || profile.email,
-        items: [{
-          serviceType,
-          skuId: activeService.skuId,
-          scheduledDate: new Date().toISOString().split('T')[0],
-          scheduledTime: selectedDate === 'today' ? 'Today · Within 30 Mins' : 'Tomorrow · 05:00 PM',
-          amountEGP: calculatedPrice,
-          pickupLocation: pickupLocation || undefined,
-          specialRequests: specialNotes || undefined
-        }],
-        paymentParams: {
-          idempotencyKey: `IDEMP-INST-${activeService.id}-${Date.now()}`,
-          provider: 'CASH_ON_ARRIVAL'
-        }
-      });
-      const booked = result?.bookings?.[0];
-      bookingId = booked?.bookingRef || booked?.id || `DHB-INST-${Date.now()}`;
-      confirmationCode = booked?.confirmationCode || bookingId;
-    } catch (err: any) {
-      setIsSubmitting(false);
-      // The traveler is told what went wrong in their own language and never
-      // shown the backend's raw error sentence.
-      setInstantBookingError(liveErrorText(err, t));
-      return;
-    }
-
-    {
-      const newBooking: ConfirmedBookingItem = {
-        id: bookingId,
-        serviceType: activeService.category === 'transport' ? 'transfer' : activeService.category === 'watersports' ? 'diving' : 'safari',
-        title: language === 'ar' ? activeService.titleAr : activeService.title,
-        subtitle: language === 'ar' ? activeService.locationAreaAr : activeService.locationArea,
-        details: `Instant In-Destination: ${guestsCount} pax. Pickup: ${pickupLocation}. ${specialNotes}`,
-        datesOrTime: selectedDate === 'today' ? 'Today · Within 30 Mins' : 'Tomorrow · 05:00 PM',
-        priceEGP: calculatedPrice,
-        provider: language === 'ar' ? activeService.supplierNameAr : activeService.supplierName,
-        confirmationCode: confirmationCode,
-        status: 'Confirmed ✓',
-        location: language === 'ar' ? activeService.locationAreaAr : activeService.locationArea,
-        iconType: activeService.category === 'transport' ? 'car' : activeService.category === 'watersports' ? 'waves' : 'compass',
-        phone: activeService.supplierPhone,
-      };
-
-      // 1. Save to trip context
-      recordBooking(newBooking);
-
-      // 2. Record in the double-entry ledger.
-      //
-      // This call previously used a flat expense-tracker shape (category,
-      // paymentStatus, dateString, notes...) that no version of LedgerEntry has
-      // defined. Every field was dropped, so instant bookings produced a ledger
-      // entry with no amount, no accounts and no transaction id. The booking is
-      // pay-on-arrival, so it is recorded as a pending escrow hold rather than a
-      // captured payment.
-      recordLedgerEntry({
-        transactionId: `TXN-INST-${Date.now()}`,
-        idempotencyKey: `IDEMP-INST-${bookingId}`,
-        bookingRef: bookingId,
-        // Was the seeded demo trip, so an instant booking's ledger row was
-        // filed against somebody else's itinerary.
-        tripId: activeTrip?.id || '',
-        type: 'HOLD_ESCROW',
-        amountEGP: calculatedPrice,
-        debitAccount: 'TRAVELER_CASH_ON_ARRIVAL',
-        creditAccount: 'PLATFORM_ESCROW_MAIN',
-        currency: 'EGP',
-        status: 'PENDING',
-        metadata: {
-          serviceType: activeService.category,
-          supplierId: activeService.id,
-          reason: `Instant in-destination booking (${guestsCount} guests). Pay upon arrival.`,
-          supplierName: language === 'ar' ? activeService.supplierNameAr : activeService.supplierName,
-          supplierPhone: activeService.supplierPhone,
-          serviceTitle: language === 'ar' ? activeService.titleAr : activeService.title
-        }
-      });
-
-      setIsSubmitting(false);
-      setConfirmedBooking(newBooking);
-
-      analytics.track('booking_completed', {
-        sourceMode: selectedSkuId ? 'sku_deeplink' : 'book_now_grid',
-        metadata: { skuId: activeService.skuId, bookingRef: bookingId }
-      } as any);
-
-      // The itinerary line this booking fulfils was flipped to CONFIRMED
-      // server-side; without re-reading the trip, My Trip keeps showing it as
-      // merely suggested until the traveler reloads the page by hand.
-      reloadTrip();
-
-      showToast(
-        t('commerce.bookingConfirmedVoucher', {
+    // The trip this booking is filed against. It used to fall back to an
+    // invented `TRIP-INSTANT-<userId>` that no trip record carried, so the
+    // server refused it ("Trip not found") — or, worse, an older build filed
+    // money against a trip that did not exist. A traveller without a trip now
+    // gets a real one-day plan, created through the same path as every other
+    // "start a trip" button, and the booking lands in it.
+    let tripId = activeTrip?.id || createdTripIdRef.current;
+    if (!tripId) {
+      try {
+        const trip = await createPlanningTrip({
           title: language === 'ar' ? activeService.titleAr : activeService.title,
-          code: confirmationCode,
-        })
-      );
+          lengthDays: 1,
+          travelersCount: guestsCount,
+          startsInDays: 0,
+          idPrefix: 'TRIP-NOW',
+        });
+        tripId = trip.id;
+        createdTripIdRef.current = trip.id;
+      } catch (err) {
+        setIsSubmitting(false);
+        setInstantBookingError(checkoutIssueMessage(checkoutIssueFrom(err), t, formatEGP));
+        return;
+      }
     }
+
+    setIsSubmitting(false);
+    await checkout.submit({
+      tripId,
+      // These three used to fall back to 'Dahab Traveler',
+      // '+20 100 000 0000' and 'traveler@dahab.travel'. They are written
+      // into the booking record and sent to the supplier who has to meet
+      // this traveler, so a placeholder phone number here is a driver
+      // waiting at an airport with no way to call anyone.
+      traveler: {
+        name: sessionUser?.name || profile.name,
+        phone: profile.phone || sessionUser?.phone || '',
+        email: sessionUser?.email || profile.email,
+      },
+      // Held first, then settled: checkout only settles a hold, for the
+      // party size and slot the hold reserved.
+      lines: [{
+        serviceType,
+        skuId: activeService.skuId,
+        scheduledDate: instantSlot.date,
+        scheduledTime: instantSlot.timeSlot,
+        passengersCount: guestsCount,
+        amountEGP: calculatedPrice,
+        pickupLocation: pickupLocation || undefined,
+        specialRequests: specialNotes || undefined,
+      }],
+      payment: { provider: 'CASH_ON_ARRIVAL' },
+      attemptKey: newAttemptKey('BOOKNOW'),
+    });
   };
+
+  /**
+   * The server settled the booking. Everything recorded here uses the
+   * server's reference and the amount actually charged — after a price
+   * re-confirmation that is the new price, not the card's.
+   */
+  function recordConfirmedBooking(outcome: Extract<HeldCheckoutOutcome, { kind: 'confirmed' }>) {
+    if (!activeService) return;
+    const booked = outcome.result.bookings?.[0];
+    const bookingId = booked?.bookingRef || booked?.id || outcome.result.transactionId;
+    const confirmationCode = booked?.confirmationCode || bookingId;
+    const chargedEGP = outcome.held.reduce((sum, line) => sum + line.amountEGP, 0);
+    const whenLabel = instantSlotLabel();
+
+    const newBooking: ConfirmedBookingItem = {
+      id: bookingId,
+      serviceType: activeService.serviceType ?? 'safari',
+      title: language === 'ar' ? activeService.titleAr : activeService.title,
+      subtitle: language === 'ar' ? activeService.locationAreaAr : activeService.locationArea,
+      details: `Instant In-Destination: ${guestsCount} pax. Pickup: ${pickupLocation}. ${specialNotes}`,
+      datesOrTime: whenLabel,
+      priceEGP: chargedEGP,
+      provider: language === 'ar' ? activeService.supplierNameAr : activeService.supplierName,
+      confirmationCode,
+      status: 'Confirmed ✓',
+      location: language === 'ar' ? activeService.locationAreaAr : activeService.locationArea,
+      iconType: activeService.category === 'transport' ? 'car' : activeService.category === 'watersports' ? 'waves' : 'compass',
+      phone: activeService.supplierPhone,
+    };
+
+    // 1. Save to trip context
+    recordBooking(newBooking);
+
+    // 2. Record in the double-entry ledger. The booking is pay-on-arrival, so
+    // it is a pending escrow hold rather than a captured payment.
+    recordLedgerEntry({
+      transactionId: outcome.result.transactionId || `TXN-INST-${Date.now()}`,
+      idempotencyKey: `IDEMP-INST-${bookingId}`,
+      bookingRef: bookingId,
+      tripId: outcome.tripId,
+      type: 'HOLD_ESCROW',
+      amountEGP: chargedEGP,
+      debitAccount: 'TRAVELER_CASH_ON_ARRIVAL',
+      creditAccount: 'PLATFORM_ESCROW_MAIN',
+      currency: 'EGP',
+      status: 'PENDING',
+      metadata: {
+        serviceType: activeService.category,
+        supplierId: activeService.id,
+        reason: `Instant in-destination booking (${guestsCount} guests). Pay upon arrival.`,
+        supplierName: language === 'ar' ? activeService.supplierNameAr : activeService.supplierName,
+        supplierPhone: activeService.supplierPhone,
+        serviceTitle: language === 'ar' ? activeService.titleAr : activeService.title
+      }
+    });
+
+    setConfirmedBooking(newBooking);
+
+    analytics.track('booking_completed', {
+      sourceMode: selectedSkuId ? 'sku_deeplink' : 'book_now_grid',
+      metadata: { skuId: activeService.skuId, bookingRef: bookingId }
+    } as any);
+
+    // The itinerary line this booking fulfils was flipped to CONFIRMED
+    // server-side; re-read the trip so My Trip shows it. A trip created for
+    // this booking becomes the one the app is about.
+    if (createdTripIdRef.current && !activeTrip) {
+      openTrip(createdTripIdRef.current);
+    } else {
+      reloadTrip();
+    }
+
+    showToast(
+      t('commerce.bookingConfirmedVoucher', {
+        title: language === 'ar' ? activeService.titleAr : activeService.title,
+        code: confirmationCode,
+      })
+    );
+  }
 
   /**
    * On a phone the checkout panel sits below eight cards, so tapping "Book"
@@ -1280,13 +1334,39 @@ export const BookNowCommerceView: React.FC = () => {
                     </p>
                   )}
 
+                  {(checkout.phase === 'priceChanged' || checkout.phase === 'failed') && checkout.outcome && checkout.outcome.kind !== 'confirmed' && (
+                    <CheckoutIssuePanel
+                      priceChange={checkout.outcome.kind === 'priceChanged' ? checkout.outcome : null}
+                      issue={checkout.outcome.kind === 'failed' ? checkout.outcome.issue : null}
+                      busy={checkout.busy}
+                      onConfirmPrice={() => { void checkout.confirmPrice(); }}
+                      onRehold={() => { void checkout.rehold(); }}
+                      onRetry={() => { void handleConfirmInstantBooking(); }}
+                      onSignIn={() => { setIntendedRoute('/book-now'); navigateTo('/auth/sign-in'); }}
+                      onContactSupport={() => navigateTo('/help')}
+                      onDismiss={checkout.reset}
+                      alternativesQuery={
+                        activeService.skuId && checkout.lastRequest
+                          ? {
+                              tripId: checkout.lastRequest.tripId,
+                              skuId: activeService.skuId,
+                              date: instantSlot.date,
+                              timeSlot: instantSlot.timeSlot,
+                              passengersCount: guestsCount,
+                            }
+                          : null
+                      }
+                      onPickAlternative={alt => { checkout.reset(); navigateTo('/book-now', { skuId: alt.skuId }); }}
+                    />
+                  )}
+
                   <button
                     type="button"
                     onClick={handleConfirmInstantBooking}
-                    disabled={isSubmitting || liveNoFitToday}
+                    disabled={isSubmitting || checkout.busy || checkout.phase === 'priceChanged' || liveNoFitToday}
                     className="w-full py-3.5 px-4 rounded-2xl bg-[var(--btn-book-bg)] hover:bg-[var(--btn-book-hover)] text-[var(--btn-book-text)] font-extrabold text-xs transition-[background-color,border-color,color,box-shadow,transform,opacity] cursor-pointer flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-card)]"
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || checkout.busy ? (
                       <span className="animate-pulse">
                         {t('commerce.confirming')}
                       </span>
