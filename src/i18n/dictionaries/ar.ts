@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: ar. 3956 keys. Loaded per language by
+ * Language: ar. 3965 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~87,095 chars here instead of both languages).
+ * (~87,243 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3621,7 +3621,14 @@ export const AR: Record<string, string> = {
   "searchRestaurantsSeafoodBrunch": "ابحث عن مطعم، سي فود، برانش...",
   "shell.askDaygi": "خطّط مع DayGi",
   "shell.askPlaceholder": "قول لـ DayGi عايز إيه…",
+  "shell.brand": "الرئيسية",
   "shell.close": "اقفل",
+  "shell.cta.plan": "خطّط رحلتي",
+  "shell.destination.choose": "رايح فين؟",
+  "shell.destination.chooseHint": "كل مكان ليه مزاجه، والتطبيق كله بيتغيّر معاه.",
+  "shell.destination.current": "إنت هنا",
+  "shell.destination.early": "جديد · بنضيف أماكن",
+  "shell.destination.trigger": "المكان: {name}. غيّر",
   "shell.home": "الرئيسية",
   "shell.nav.bookings": "حجوزاتي",
   "shell.nav.experiences": "تجارب",
@@ -3643,6 +3650,8 @@ export const AR: Record<string, string> = {
   "shell.tab.today": "النهارده",
   "shell.tab.trip": "رحلتي",
   "shell.tabsLabel": "الأقسام الرئيسية",
+  "shell.theme.toDark": "غيّر لوضع الليل",
+  "shell.theme.toLight": "غيّر لوضع النهار",
   "signalConnectivity": "تغطية الاتصالات:",
   "splash.enter": "ادخل دهب",
   "splash.eyebrow": "دهب · قبل ما تحجز، شوفها",

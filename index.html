@@ -8,10 +8,10 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="DAHAB" />
+    <meta name="apple-mobile-web-app-title" content="REHLA" />
     <meta name="format-detection" content="telephone=no" />
-    <title>DAHAB — Your Dahab trip, built around you</title>
-    <meta name="description" content="A premium digital travel platform for Dahab, Egypt. Personalized planning, local experiences, and authentic adventures." />
+    <title>REHLA — Dahab, Nuweiba & Siwa, planned around you</title>
+    <meta name="description" content="REHLA plans and books your trip to Dahab, Nuweiba and Siwa: real local experiences, stays and rides, with an AI concierge that knows each place." />
     <meta name="theme-color" content="#0B151C" />
     <meta name="robots" content="index, follow" />
 
@@ -19,15 +19,15 @@
          server (metaInjection) and by the pre-hydration script below using
          the real origin; the static fallback keeps relative hrefs valid. -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="DAHAB" />
-    <meta property="og:title" content="DAHAB — Your Dahab trip, built around you" />
-    <meta property="og:description" content="Personalized Dahab planning, local experiences, and authentic Sinai adventures — built with the people who live here." />
+    <meta property="og:site_name" content="REHLA" />
+    <meta property="og:title" content="REHLA — Dahab, Nuweiba & Siwa, planned around you" />
+    <meta property="og:description" content="Dahab, Nuweiba and Siwa, planned around you: local experiences, stays and rides, built with the people who live there." />
     <meta property="og:image" content="/images/hero/coral-reef-split.jpg" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="ar_EG" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="DAHAB — Your Dahab trip, built around you" />
-    <meta name="twitter:description" content="Personalized Dahab planning, local experiences, and authentic Sinai adventures." />
+    <meta name="twitter:title" content="REHLA — Dahab, Nuweiba & Siwa, planned around you" />
+    <meta name="twitter:description" content="Dahab, Nuweiba and Siwa, planned around you." />
     <meta name="twitter:image" content="/images/hero/coral-reef-split.jpg" />
 
     <link rel="canonical" href="/" />
@@ -76,6 +76,11 @@
           var light = { 'salt': 1, 'editorial-sand': 1, 'lagoon-breeze': 1 };
           var theme = tid === 'high-contrast-pro' ? 'high-contrast-pro' : (tid && light[tid] ? 'salt' : 'abyss');
           root.setAttribute('data-theme-id', theme);
+          // Destination before first paint (DestinationContext owns it after
+          // mount): ?d= for shared links, then the saved choice, then Dahab.
+          var dests = { dahab: 1, nuweiba: 1, siwa: 1 };
+          var d = new URLSearchParams(location.search).get('d') || localStorage.getItem('rehla_destination');
+          root.setAttribute('data-destination', d && dests[d] ? d : 'dahab');
           root.setAttribute('data-theme', theme === 'salt' ? 'light' : 'dark');
           root.classList.toggle('dark', theme !== 'salt');
           root.classList.toggle('light', theme === 'salt');

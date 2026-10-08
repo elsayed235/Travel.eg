@@ -69,6 +69,7 @@ export type { TravelerProfile } from './shared/types/user';
 
 export type AppRoute =
   | '/'
+  | '/plan'
   | '/home'
   | '/discover'
   | '/memories'

@@ -117,8 +117,7 @@
    ABYSS (dark) — also the pre-hydration default on bare :root
    -------------------------------------------------------------------------- */
 :root,
-:root[data-theme-id="abyss"],
-[data-theme-id="abyss"] {
+:root[data-theme-id="abyss"] {
   color-scheme: dark;
 
   --dg-bg: var(--dg-abyss-900);
@@ -202,8 +201,7 @@
 /* --------------------------------------------------------------------------
    SALT (light)
    -------------------------------------------------------------------------- */
-:root[data-theme-id="salt"],
-[data-theme-id="salt"] {
+:root[data-theme-id="salt"] {
   color-scheme: light;
 
   --dg-bg: var(--dg-salt-100);
@@ -286,8 +284,7 @@
 /* --------------------------------------------------------------------------
    HIGH CONTRAST (accessibility) — zero transparency, 21:1 ink
    -------------------------------------------------------------------------- */
-:root[data-theme-id="high-contrast-pro"],
-[data-theme-id="high-contrast-pro"] {
+:root[data-theme-id="high-contrast-pro"] {
   color-scheme: dark;
 
   --dg-bg: #000000;
@@ -421,3 +418,126 @@ canvas {
 @keyframes dg-shimmer {
   to { transform: translateX(100%); }
 }
+
+/* ==========================================================================
+   DESTINATIONS — one brand, a mood per place (brand board §03,
+   docs/premium-plan/brand/rehla-brand.html).
+
+   `data-destination` on <html> (DestinationContext; index.html sets it before
+   paint) re-tints the brand colours and re-paces motion. Dahab is the base
+   palette above, so it needs no block. Type, layout and the logo never change,
+   so people always know where they are. High contrast ignores destinations:
+   legibility wins over mood.
+   ========================================================================== */
+
+/* Tempo — theme-independent */
+:root[data-destination="nuweiba"] {
+  --dg-dur-quick: 260ms;
+  --dg-dur-base: 480ms;
+  --dg-dur-slow: 800ms;
+  --dg-ease-spring: cubic-bezier(0.45, 0, 0.2, 1);
+}
+:root[data-destination="siwa"] {
+  --dg-dur-quick: 320ms;
+  --dg-dur-base: 600ms;
+  --dg-dur-slow: 1100ms;
+  --dg-ease-out: cubic-bezier(0.37, 0, 0.2, 1);
+  --dg-ease-spring: cubic-bezier(0.37, 0, 0.2, 1);
+}
+
+/* NUWEIBA · Driftwood & Shallows — still, simple, unplugged */
+:root[data-destination="nuweiba"][data-theme-id="abyss"] {
+  --dg-bg: #0F1A1E;
+  --dg-bg-sunken: #0B1518;
+  --dg-surface: #14242A;
+  --dg-surface-raised: #182B32;
+  --dg-surface-sunken: #0C171B;
+  --dg-ink: #E8EAE6;
+  --dg-ink-2: #B3BDBE;
+  --dg-ink-3: #8A9799;
+  --dg-action: #86C6D2;
+  --dg-action-hover: #9DD3DD;
+  --dg-action-ink: #062026;
+  --dg-action-wash: rgba(134, 198, 210, 0.14);
+  --dg-highlight: #E0AE83;
+  --dg-highlight-ink: #2A1608;
+  --dg-highlight-wash: rgba(224, 174, 131, 0.14);
+  --dg-chrome-bg: rgba(15, 26, 30, 0.84);
+  --dg-focus: #86C6D2;
+}
+:root[data-destination="nuweiba"][data-theme-id="salt"] {
+  --dg-bg: #F2F1EB;
+  --dg-bg-sunken: #E9E7DE;
+  --dg-surface: #FFFFFF;
+  --dg-surface-raised: #FFFFFF;
+  --dg-surface-sunken: #E9E7DE;
+  --dg-ink: #1D2A2E;
+  --dg-ink-2: #4F5A5C;
+  --dg-ink-3: #6E7779;
+  --dg-action: #2D7787;
+  --dg-action-hover: #24626F;
+  --dg-action-ink: #FFFFFF;
+  --dg-action-wash: rgba(45, 119, 135, 0.10);
+  --dg-highlight: #9A6638;
+  --dg-highlight-ink: #FFFFFF;
+  --dg-highlight-wash: rgba(169, 116, 71, 0.11);
+  --dg-chrome-bg: rgba(242, 241, 235, 0.86);
+  --dg-focus: #2D7787;
+}
+
+/* SIWA · Salt & Palm — warm, grounding, healing */
+:root[data-destination="siwa"][data-theme-id="abyss"] {
+  --dg-bg: #16130F;
+  --dg-bg-sunken: #110E0B;
+  --dg-surface: #1F1B16;
+  --dg-surface-raised: #26211B;
+  --dg-surface-sunken: #120F0C;
+  --dg-ink: #F1EBDF;
+  --dg-ink-2: #C6BAA8;
+  --dg-ink-3: #9A8E7E;
+  --dg-action: #A8C99A;
+  --dg-action-hover: #BBD6AF;
+  --dg-action-ink: #14230F;
+  --dg-action-wash: rgba(168, 201, 154, 0.14);
+  --dg-highlight: #E7A07D;
+  --dg-highlight-ink: #2A1208;
+  --dg-highlight-wash: rgba(231, 160, 125, 0.14);
+  --dg-chrome-bg: rgba(22, 19, 15, 0.86);
+  --dg-focus: #A8C99A;
+}
+:root[data-destination="siwa"][data-theme-id="salt"] {
+  --dg-bg: #F6F2EA;
+  --dg-bg-sunken: #EDE6D9;
+  --dg-surface: #FFFDF8;
+  --dg-surface-raised: #FFFDF8;
+  --dg-surface-sunken: #EDE6D9;
+  --dg-ink: #2A2520;
+  --dg-ink-2: #5A5047;
+  --dg-ink-3: #7A6E62;
+  --dg-action: #4A7445;
+  --dg-action-hover: #3C5F38;
+  --dg-action-ink: #FFFFFF;
+  --dg-action-wash: rgba(74, 116, 69, 0.10);
+  --dg-highlight: #A9573A;
+  --dg-highlight-ink: #FFFFFF;
+  --dg-highlight-wash: rgba(169, 87, 58, 0.10);
+  --dg-chrome-bg: rgba(246, 242, 234, 0.88);
+  --dg-focus: #4A7445;
+}
+
+/* Destination switches cross-fade the whole document (DestinationContext uses
+   the View Transitions API where available). The old page dissolves at the
+   destination's own tempo. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dg-dur-slow);
+  animation-timing-function: var(--dg-ease-out);
+}
+
+/* Toasts rise in at the destination's tempo (App.tsx). */
+@keyframes dg-toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.dg-toast { animation: dg-toast-in var(--dg-dur-base) var(--dg-ease-spring) both; }
+@media (prefers-reduced-motion: reduce) { .dg-toast { animation: none; } }

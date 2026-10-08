@@ -80,7 +80,7 @@ export function useSEO(data: SEOData): void {
 
     // Set new values
     if (data.title) {
-      document.title = `${data.title} | DAHAB Travel OS`;
+      document.title = `${data.title} · REHLA`;
     }
     
     if (data.description) {

@@ -64,6 +64,7 @@ export const ROUTES = [
   '/live',
   '/daygi',
   '/ai-director',
+  '/plan',
   '/explore',
   '/plan-for-me',
   '/trip-builder',

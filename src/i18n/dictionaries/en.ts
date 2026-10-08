@@ -7,9 +7,9 @@
  * when this file is stale, and tests/domain/i18nDictionarySync.test.ts
  * re-checks the same invariant inside the unit suite.
  *
- * Language: en. 3956 keys. Loaded per language by
+ * Language: en. 3965 keys. Loaded per language by
  * src/i18n/translator.ts so first paint downloads only the active language
- * (~95,313 chars here instead of both languages).
+ * (~95,498 chars here instead of both languages).
  *
  * Importing this module IS installing it: the setDictionary call below runs
  * as a module side effect, so translator.ts's dynamic import both downloads
@@ -3621,7 +3621,14 @@ export const EN: Record<string, string> = {
   "searchRestaurantsSeafoodBrunch": "Search restaurants, seafood, brunch...",
   "shell.askDaygi": "Plan with DayGi",
   "shell.askPlaceholder": "Ask DayGi anything…",
+  "shell.brand": "REHLA home",
   "shell.close": "Close",
+  "shell.cta.plan": "Plan my trip",
+  "shell.destination.choose": "Where to?",
+  "shell.destination.chooseHint": "Each place has its own pace. The whole app changes with it.",
+  "shell.destination.current": "You are here",
+  "shell.destination.early": "New · list growing",
+  "shell.destination.trigger": "Destination: {name}. Change",
   "shell.home": "DAHAB home",
   "shell.nav.bookings": "My bookings",
   "shell.nav.experiences": "Experiences",
@@ -3643,6 +3650,8 @@ export const EN: Record<string, string> = {
   "shell.tab.today": "Today",
   "shell.tab.trip": "Trip",
   "shell.tabsLabel": "Main sections",
+  "shell.theme.toDark": "Switch to night mode",
+  "shell.theme.toLight": "Switch to day mode",
   "signalConnectivity": "Signal & Connectivity:",
   "splash.enter": "Enter Dahab",
   "splash.eyebrow": "Dahab · Before you book, see it",

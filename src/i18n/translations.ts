@@ -4546,6 +4546,15 @@ export const TRANSLATIONS: Translations = {
   'ui.price.about': { en: 'about {amount}', ar: 'تقريباً {amount}' },
   'ui.price.chargedInEgp': { en: 'Charged in Egyptian pounds', ar: 'هيتخصم منك بالجنيه المصري' },
   'ui.currency.label': { en: 'Show prices in', ar: 'اعرض الأسعار بـ' },
+  'shell.destination.choose': { en: 'Where to?', ar: 'رايح فين؟' },
+  'shell.destination.chooseHint': { en: 'Each place has its own pace. The whole app changes with it.', ar: 'كل مكان ليه مزاجه، والتطبيق كله بيتغيّر معاه.' },
+  'shell.destination.trigger': { en: 'Destination: {name}. Change', ar: 'المكان: {name}. غيّر' },
+  'shell.destination.current': { en: 'You are here', ar: 'إنت هنا' },
+  'shell.destination.early': { en: 'New · list growing', ar: 'جديد · بنضيف أماكن' },
+  'shell.brand': { en: 'REHLA home', ar: 'الرئيسية' },
+  'shell.cta.plan': { en: 'Plan my trip', ar: 'خطّط رحلتي' },
+  'shell.theme.toLight': { en: 'Switch to day mode', ar: 'غيّر لوضع النهار' },
+  'shell.theme.toDark': { en: 'Switch to night mode', ar: 'غيّر لوضع الليل' },
 
 };
 

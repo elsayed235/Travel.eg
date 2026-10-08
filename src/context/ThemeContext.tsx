@@ -231,11 +231,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = document.documentElement;
     const body = document.body;
 
-    // Apply data attributes for global CSS cascade
+    // Theme attributes live on <html> only: a copy on <body> re-declared the
+    // tokens one level down and hid the destination palette (tokens.css).
     root.setAttribute('data-theme-id', themeId);
-    body.setAttribute('data-theme-id', themeId);
     root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    body.setAttribute('data-theme', isDark ? 'dark' : 'light');
 
     // Accessibility attributes
     root.setAttribute('data-high-contrast', String(highContrastMode));

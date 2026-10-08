@@ -1,13 +1,15 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AppStateProvider, useTrip } from './context';
-import { V2Navbar } from './components/navigation/V2Navbar';
+import { AppHeader } from './components/shell/AppHeader';
+import { AppTabBar } from './components/shell/AppTabBar';
+import { DestinationProvider } from './context/DestinationContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import { V2HomeCockpit } from './components/home/V2HomeCockpit';
 import { JourneyStage, AppRoute } from './types';
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
 import { useSiteTheme } from './hooks/useSiteTheme';
 import { DahabTimeProvider } from './context/DahabTimeContext';
-import { SinaiFloatingQuickDock } from './components/common/SinaiFloatingQuickDock';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { useUI, type UiToast } from './context/UIContext';
 import { api } from './services/api';
@@ -396,6 +398,7 @@ function MainAppContent() {
           />
         );
 
+      case '/plan':
       case '/plan-for-me':
         return <PlanForMeView />;
 
@@ -572,13 +575,9 @@ function MainAppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-['Plus_Jakarta_Sans',sans-serif] relative antialiased selection:bg-[var(--accent-primary)]/30 selection:text-[var(--accent-primary)]">
-      
-      {/* 1. Global Floating OS Navbar */}
-      <V2Navbar
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onOpenQuickBook={() => navigateTo('/quick-book')}
-      />
+    <div className="min-h-dvh bg-dg-bg text-dg-ink flex flex-col relative antialiased">
+      {/* 1. Shell: top bar everywhere, tab bar on phones (plan §04). */}
+      <AppHeader onOpenSearch={() => setIsSearchOpen(true)} />
 
       {/* 2. Main Viewport Content */}
       <main
@@ -586,10 +585,10 @@ function MainAppContent() {
         tabIndex={-1}
         role="main"
         aria-label="Dahab Sinai Travel Platform"
-        className={`flex-1 w-full focus:outline-none relative z-10 ${
+        className={`flex-1 w-full focus:outline-none relative z-10 pb-[calc(var(--dg-tabbar-h)+var(--dg-safe-bottom))] lg:pb-0 ${
           currentRoute === '/home' || currentRoute === '/discover' || currentRoute === '/'
             ? 'pt-0'
-            : 'pt-16 sm:pt-20'
+            : 'pt-[calc(var(--dg-topbar-h)+var(--dg-safe-top))]'
         }`}
       >
         {/* Scoped so one failing view does not take the navbar and global
@@ -630,15 +629,15 @@ function MainAppContent() {
       {toasts.length > 0 && (
         <div
           aria-hidden="true"
-          className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end gap-2 max-w-md"
+          className="fixed inset-x-4 sm:inset-x-auto sm:end-6 bottom-[calc(var(--dg-tabbar-h)+var(--dg-safe-bottom)+12px)] lg:bottom-6 z-[80] flex flex-col items-stretch sm:items-end gap-2 sm:max-w-sm"
         >
           {toasts.map(t => (
             <div
               key={t.id}
-              className="bg-[var(--surface-card)] text-[var(--text-primary)] px-5 py-3.5 rounded-2xl shadow-2xl border border-[var(--border-subtle)] text-xs font-semibold animate-in fade-in slide-in-from-bottom-3 duration-200 flex items-center gap-3 backdrop-blur-xl"
+              className="dg-toast bg-dg-ink text-dg-bg px-4 py-3 rounded-dg-md shadow-dg-modal text-sm font-medium flex items-center gap-3"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-primary)] animate-pulse flex-shrink-0" />
-              <span className="font-medium">{t.message}</span>
+              <span className="w-2 h-2 rounded-full bg-dg-action flex-shrink-0" />
+              <span>{t.message}</span>
             </div>
           ))}
         </div>
@@ -652,8 +651,9 @@ function MainAppContent() {
         </Suspense>
       )}
 
-      {/* 9. Sinai Global Rapid Quick-Action Dock (Emergency & Offline Pass) */}
-      <SinaiFloatingQuickDock />
+      {/* 9. Phone navigation (hidden from lg). Emergency help lives in Trip
+      and the account menu rather than a floating button over content. */}
+      <AppTabBar />
 
 
     </div>
@@ -666,13 +666,17 @@ export default function App() {
     // inner per-view boundary sits below and therefore cannot see.
     <ErrorBoundary label="app-root">
       <ThemeProvider>
-        <LanguageProvider>
-          <AppStateProvider>
-            <DahabTimeProvider>
-              <MainAppContent />
-            </DahabTimeProvider>
-          </AppStateProvider>
-        </LanguageProvider>
+        <DestinationProvider>
+          <LanguageProvider>
+            <CurrencyProvider>
+              <AppStateProvider>
+                <DahabTimeProvider>
+                  <MainAppContent />
+                </DahabTimeProvider>
+              </AppStateProvider>
+            </CurrencyProvider>
+          </LanguageProvider>
+        </DestinationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
