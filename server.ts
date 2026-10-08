@@ -2090,7 +2090,7 @@ app.post('/api/commerce/hold', (req: AuthenticatedRequest, res) => {
   } catch (err: any) {
     // 409 for InsufficientCapacityError so the client can show "sold out"
     // rather than treating it as a malformed request.
-    res.status(err.status || 400).json({ error: err.message, details: err.details });
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -2894,7 +2894,9 @@ app.post('/api/commerce/checkout', (req: AuthenticatedRequest, res) => {
       ledgerVerified: true
     });
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    // Status and code pass through, so SUPPLIER_UNAVAILABLE is a 409 the
+    // client can act on rather than a generic 400.
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 
@@ -3009,7 +3011,7 @@ app.post('/api/transfers/prepare-booking', (req: AuthenticatedRequest, res) => {
       hold
     });
   } catch (err: any) {
-    res.status(err.status || 400).json({ error: err.message, details: err.details });
+    res.status(err.status || 400).json({ error: err.message, code: err.code, details: err.details });
   }
 });
 

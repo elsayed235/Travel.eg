@@ -317,6 +317,9 @@ export class CommerceService {
     const sku = db.productSkus.find(s => s.id === params.skuId);
     if (!sku) throw new Error(`SKU does not exist: ${params.skuId}`);
 
+    // A Suspended / unverified supplier cannot be reserved against.
+    assertSupplierBookable(sku.supplierId, sku.id);
+
     // Supplier calendar gate (blueprint row #12). A supplier who blocked a date
     // refused to serve it — a hold must not succeed for inventory they will
     // not deliver, regardless of what the slot math says.
@@ -510,6 +513,10 @@ export class CommerceService {
       }
       return sku;
     });
+
+    // Supplier status gate. Re-checked here, not only at hold time: Operations
+    // may suspend a supplier while a traveller's hold is still open.
+    resolvedSkus.forEach(sku => assertSupplierBookable(sku.supplierId, sku.id));
 
     // Supplier calendar gate — runs BEFORE processCheckout for the same reason
     // the SKU resolution does: the payment step writes money rows outside the

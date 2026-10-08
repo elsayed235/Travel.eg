@@ -11,7 +11,7 @@ import {
   RentalMaintenanceBlockEntity,
   RentalPriceBreakdown
 } from '../db/schema';
-import { InsufficientCapacityError } from './commerceService';
+import { assertSupplierBookable, InsufficientCapacityError } from './commerceService';
 import { distributedLockService } from './distributedLockService';
 import { paymentService } from './paymentService';
 import { supplierService } from './supplierService';
@@ -517,6 +517,8 @@ export class RentalService {
     if (listing.status !== 'APPROVED' || !listing.active) {
       throw domainError('This rental is not currently bookable.', 409);
     }
+    // A Suspended / unverified provider cannot be booked, whatever the listing says.
+    assertSupplierBookable(listing.supplierId, listing.skuId);
     const days = daysInRange(params.startDate, params.endDate);
     if (days < 1 || days > MAX_RENTAL_DAYS) {
       throw domainError(`Rental windows must be between 1 and ${MAX_RENTAL_DAYS} days.`, 400);
@@ -678,6 +680,9 @@ export class RentalService {
     if (rentalBooking.expiresAt && rentalBooking.expiresAt < new Date().toISOString()) {
       throw domainError('This rental hold has expired. Please book again.', 409);
     }
+
+    // Before payment: the provider may have been suspended since the hold.
+    assertSupplierBookable(rentalBooking.supplierId, rentalBooking.skuId);
 
     // Price comes from the hold's server-computed snapshot — never the body.
     const totalAmountEGP = rentalBooking.priceBreakdown.totalEGP;

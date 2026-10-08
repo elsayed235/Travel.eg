@@ -5,7 +5,7 @@ import { paymentService } from './paymentService';
 import { notificationService } from './notificationService';
 import { transferRouteService } from './transferRouteService';
 import { distributedLockService } from './distributedLockService';
-import { InsufficientCapacityError } from './commerceService';
+import { assertSupplierBookable, InsufficientCapacityError, priceSkuLine } from './commerceService';
 
 const HOLD_TTL_MINUTES = 15;
 
@@ -153,6 +153,9 @@ export class TransferService {
 
     const sku = db.productSkus.find(s => s.id === params.skuId);
     if (!sku) throw new Error('Transfer SKU does not exist');
+    // Same gates as commerceService.createHold: no holds against a supplier
+    // that is not Active.
+    assertSupplierBookable(sku.supplierId, sku.id);
 
     const lockKey = `lock:slot:${params.skuId}:${params.date}:${params.timeSlot}`;
     const lease = distributedLockService.tryAcquire(lockKey, 5000);
@@ -205,7 +208,8 @@ export class TransferService {
           travelerId: params.travelerId,
           serviceType: 'transfer',
           passengersCount: params.passengersCount,
-          amountEGP: sku.basePriceEGP,
+          // The party's price under the one pricing rule, as commerceService.createHold.
+          amountEGP: priceSkuLine(sku, params.passengersCount).amountEGP,
           expiresAt: expires.toISOString(),
           status: 'ACTIVE',
           idempotencyKey: params.idempotencyKey,
@@ -284,6 +288,8 @@ export class TransferService {
 
     const sku = db.productSkus.find(s => s.id === hold.skuId);
     if (!sku) throw new Error('Product SKU not found');
+    // Before payment: the supplier may have been suspended since the hold.
+    assertSupplierBookable(sku.supplierId, sku.id);
 
     const bookingRef = `DHB-TRF-${new Date().getFullYear()}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
     const confirmationCode = `DHB-SSH-${crypto.randomBytes(4).toString('hex').toUpperCase()}-OK`;
