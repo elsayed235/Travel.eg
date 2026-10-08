@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { db } from '../db/database';
 import { BookingEntity, ReviewEntity } from '../db/schema';
 import { notificationService } from './notificationService';
+import { serviceEndAt } from './serviceTime';
 
 /**
  * Machine-readable rejection used by the route layer to map to a 4xx.
@@ -23,8 +24,8 @@ export class ReviewRejectedError extends Error {
  *
  * The core rule: only a traveler who completed a real booking may review the
  * supplier they booked. The bookingRef is the proof — the service verifies
- * the booking exists, belongs to the reviewer, and is in a terminal state
- * (CAPTURED or COMPLETED) before accepting the review. One review per
+ * the booking exists, belongs to the reviewer, and the service happened
+ * (COMPLETED, or accepted and past its scheduled end) before accepting it. One review per
  * booking; duplicate submissions replace the previous review.
  *
  * Moderation: every new review starts as `pending`. Operations approves,
@@ -45,6 +46,17 @@ export interface SubmitReviewInput {
 // Verification
 // ---------------------------------------------------------------------------
 
+/**
+ * States in which the supplier accepted the booking and it was not called
+ * off. Once the service end passes, a booking still in one of these was
+ * delivered as far as the platform can tell. PENDING_CONFIRMATION (never
+ * accepted) and CANCELLED / REJECTED / EXPIRED / FAILED never qualify.
+ */
+const ACCEPTED_LIVE_STATES: ReadonlyArray<BookingEntity['supplierState']> = [
+  'CONFIRMED', 'ASSIGNED', 'DISPATCHED', 'EN_ROUTE', 'IN_PROGRESS', 'ARRIVED',
+  'READY_FOR_PICKUP', 'ACTIVE', 'RETURNED'
+];
+
 function findBooking(bookingRef: string) {
   return db.bookings.find(b => b.bookingRef === bookingRef);
 }
@@ -62,10 +74,20 @@ function verifyStay(
   // trip is the ownership boundary every other service asserts through.
   const trip = db.trips.find(t => t.id === booking.tripId);
   if (!trip || trip.userId !== userId) return { ok: false, status: 403, reason: 'Booking does not belong to this user.' };
-  // Must be a completed or captured booking — in-progress bookings don't
-  // qualify (the traveler hasn't experienced the service yet).
-  const terminal = booking.paymentState === 'CAPTURED' || booking.supplierState === 'COMPLETED';
-  if (!terminal) return { ok: false, status: 409, reason: 'Booking is not yet completed — reviews require a finished stay.' };
+  // The service must actually have happened: the supplier marked it
+  // COMPLETED, or the supplier accepted it and its scheduled end has passed
+  // (suppliers do not always close bookings out).
+  //
+  // This accepted `paymentState === 'CAPTURED'` too, and card checkout
+  // captures at purchase — so a traveller could review a dive the moment they
+  // paid for it, weeks before getting in the water.
+  const completed = booking.supplierState === 'COMPLETED';
+  const ended = ACCEPTED_LIVE_STATES.includes(booking.supplierState) && (() => {
+    const sku = db.productSkus.find(s => s.id === booking.skuId);
+    const end = serviceEndAt(booking, sku?.durationMinutes);
+    return end !== null && end.getTime() <= Date.now();
+  })();
+  if (!completed && !ended) return { ok: false, status: 409, reason: 'Booking is not yet completed — reviews require a finished stay.' };
   return { ok: true, booking };
 }
 

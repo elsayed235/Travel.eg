@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '../../server/db/database';
-import { resetDb, seedTrip } from '../helpers/fixtures';
+import { futureDate, resetDb, seedTrip } from '../helpers/fixtures';
 import {
   submitReview,
   moderateReview,
@@ -32,6 +32,7 @@ function seedCompletedBooking(over: {
   supplierId?: string;
   supplierState?: BookingEntity['supplierState'];
   paymentState?: BookingEntity['paymentState'];
+  scheduledDate?: string;
 } = {}): BookingEntity {
   bookingSeq += 1;
   const booking: BookingEntity = {
@@ -48,7 +49,7 @@ function seedCompletedBooking(over: {
     travelerPhone: '+20 100 000 0000',
     travelerEmail: 'reviewer@test.test',
     passengersCount: 2,
-    scheduledDate: '2026-09-10',
+    scheduledDate: over.scheduledDate ?? '2026-09-10',
     scheduledTime: '08:30',
     confirmationCode: `CC-${bookingSeq}`,
     createdAt: new Date().toISOString(),
@@ -110,7 +111,7 @@ describe('verified-stay review gate', () => {
   });
 
   it('rejects an in-progress booking with 409', () => {
-    const booking = seedCompletedBooking({ supplierState: 'CONFIRMED', paymentState: 'PENDING' });
+    const booking = seedCompletedBooking({ supplierState: 'CONFIRMED', paymentState: 'PENDING', scheduledDate: futureDate(10) });
 
     try {
       submitReview({ bookingRef: booking.bookingRef, userId: OWNER, rating: 4, body: 'too early' });
@@ -122,8 +123,14 @@ describe('verified-stay review gate', () => {
     expect(db.reviews).toHaveLength(0);
   });
 
-  it('accepts a captured-but-not-yet-completed booking (the experience was paid for)', () => {
-    const booking = seedCompletedBooking({ supplierState: 'CONFIRMED', paymentState: 'CAPTURED' });
+  it('rejects a captured booking whose service has not happened yet (paying is not experiencing)', () => {
+    const booking = seedCompletedBooking({ supplierState: 'CONFIRMED', paymentState: 'CAPTURED', scheduledDate: futureDate(10) });
+    expect(() => submitReview({ bookingRef: booking.bookingRef, userId: OWNER, rating: 4, body: 'Too early.' }))
+      .toThrow(ReviewRejectedError);
+  });
+
+  it('accepts an accepted, not-yet-closed booking once its service date has passed', () => {
+    const booking = seedCompletedBooking({ supplierState: 'CONFIRMED', paymentState: 'CAPTURED', scheduledDate: futureDate(-3) });
 
     const review = submitReview({ bookingRef: booking.bookingRef, userId: OWNER, rating: 4, body: 'Solid day out.' });
     expect(review.rating).toBe(4);
