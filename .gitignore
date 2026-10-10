@@ -30,7 +30,6 @@ coverage/
 !/data/dahab_rentals.json
 !/data/instagram/
 
-
 # Locally generated secrets (rotated seed credentials).
 *.local.md
 *.local.json
@@ -163,3 +162,6 @@ docs/Untitled-1.json
 
 # Built concept page (node docs/premium-plan/concept/build.mjs); the source is committed.
 /docs/premium-plan/concept/concept.html
+
+# FVM Version Cache
+.fvm/
