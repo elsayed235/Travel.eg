@@ -623,7 +623,7 @@
   "compass_nw": "شمال غربي",
   "discover_sunset": "المغرب",
   "discover_source": "{source} · الساعة {time}",
-  "discover_doors_title": "إيه اللي جايبك {place}؟",
+  "discover_doors_title": "نساعدك في إيه في {place}؟",
   "discover_picks_title": "حاجات تستاهل في {place}",
   "discover_pick_cta": "خطّط حواليها",
   "discover_prompt_title": "مش عارف تبدأ منين؟",

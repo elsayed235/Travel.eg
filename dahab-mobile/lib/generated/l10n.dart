@@ -5874,10 +5874,10 @@ class S {
     );
   }
 
-  /// `What brings you to {place}?`
+  /// `How can we help in {place}?`
   String discover_doors_title(Object place) {
     return Intl.message(
-      'What brings you to $place?',
+      'How can we help in $place?',
       name: 'discover_doors_title',
       desc: '',
       args: [place],

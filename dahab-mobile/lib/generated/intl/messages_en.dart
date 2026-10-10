@@ -102,7 +102,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m36(source) =>
       "Prices straight from operators · wind from ${source}";
 
-  static String m37(place) => "What brings you to ${place}?";
+  static String m37(place) => "How can we help in ${place}?";
 
   static String m38(place) =>
       "${place} is just opening on REHLA: plans first, bookings soon.";

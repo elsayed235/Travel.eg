@@ -35,7 +35,6 @@ import 'package:rehla/features/experiences/presentation/experiences_imports.dart
 import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
 import 'package:rehla/features/plan/domain/requesters/programmes_requester.dart';
 import 'package:rehla/features/trip/domain/trip_store.dart';
-import 'package:video_player/video_player.dart';
 
 import '../discover_imports.dart';
 

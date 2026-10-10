@@ -31,6 +31,7 @@ class BuildDiscoverBody extends StatelessWidget {
             destination: destination,
             conditions: controller.conditionsRequester,
             onSelect: (d) => controller.selectDestination(context, d),
+            search: BuildDiscoverAskLine(onAsk: (voice) => controller.onAsk(null, voice)),
           ),
         ),
         SliverList.list(
@@ -42,8 +43,6 @@ class BuildDiscoverBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Gaps.vGap16,
-                  BuildDiscoverAskLine(onAsk: (voice) => controller.onAsk(null, voice)),
                   Gaps.vGap24,
                   BuildDiscoverDoors(
                     destination: destination,

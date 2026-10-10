@@ -623,7 +623,7 @@
   "compass_nw": "NW",
   "discover_sunset": "Sunset",
   "discover_source": "{source} · {time}",
-  "discover_doors_title": "What brings you to {place}?",
+  "discover_doors_title": "How can we help in {place}?",
   "discover_picks_title": "Worth your time in {place}",
   "discover_pick_cta": "Plan around this",
   "discover_prompt_title": "Not sure where to start?",

@@ -1,6 +1,6 @@
 part of 'discover_widgets_imports.dart';
 
-/// "What brings you to {place}?": the doors into the place as the website
+/// "How can we help in {place}?": the doors into the place as the website
 /// draws them — a card with a dimensional pictogram over its name that
 /// answers a tap with a one-shot spring. Things to do open the outings (or
 /// the planner where the catalogue is not live); services, marked with
@@ -65,7 +65,7 @@ class BuildDiscoverDoors extends StatelessWidget {
                 crossAxisCount: columns,
                 mainAxisSpacing: AppSpacing.sm + 2,
                 crossAxisSpacing: AppSpacing.sm + 2,
-                mainAxisExtent: 108,
+                mainAxisExtent: 86,
               ),
               children: [
                 for (var i = 0; i < doors.length; i++)
@@ -176,14 +176,14 @@ class _DoorState extends State<_Door> with SingleTickerProviderStateMixin {
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.xs, AppSpacing.md + 2, AppSpacing.xs, AppSpacing.sm),
+                  padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.xs, AppSpacing.sm + 2, AppSpacing.xs, AppSpacing.sm - 1),
                   child: Column(
                     children: [
                       RotationTransition(
                         turns: _turn,
                         child: ScaleTransition(
                           scale: _scale,
-                          child: SvgPicture.asset(widget.door.pictogram, width: 46, height: 46, excludeFromSemantics: true),
+                          child: SvgPicture.asset(widget.door.pictogram, width: 36, height: 36, excludeFromSemantics: true),
                         ),
                       ),
                       const Spacer(),

@@ -89,7 +89,6 @@ dependencies:
   geolocator: ^14.0.2
   speech_to_text: ^7.5.0
   qr_flutter: ^4.1.0
-  video_player: ^2.14.1
 
 
 dependency_overrides:
@@ -146,7 +145,6 @@ flutter:
     - assets/icons/ui/
     - assets/icons/doors/
     - assets/pictograms/
-    - assets/video/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

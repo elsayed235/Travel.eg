@@ -101,7 +101,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m36(source) =>
       "الأسعار من الموردين مباشرة · الهوا من ${source}";
 
-  static String m37(place) => "إيه اللي جايبك ${place}؟";
+  static String m37(place) => "نساعدك في إيه في ${place}؟";
 
   static String m38(place) =>
       "${place} لسه بتفتح على رحلة: الخطط الأول، والحجز قريب.";
