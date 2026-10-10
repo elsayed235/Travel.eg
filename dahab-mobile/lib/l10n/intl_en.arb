@@ -641,7 +641,7 @@
   "trip_days_title": "The days",
   "trip_send": "Send to the team",
   "trip_change": "Change plan",
-  "trip_status_draft": "Your plan",
+  "trip_status_draft": "Not sent yet",
   "trip_status_sent": "Sent to the team",
   "trip_sent_note": "The team has this plan and will confirm it with local hosts.",
   "trip_empty_title": "Your trip lives here",
@@ -1031,5 +1031,16 @@
   "search_empty_body": "Try another day or fewer filters.",
   "search_clear": "Clear filters",
   "search_ask_daygi": "Ask DayGi about “{query}”",
-  "search_services": "DayGi can help with"
+  "search_services": "DayGi can help with",
+  "plan_save": "Save plan",
+  "plan_saved": "Saved",
+  "plans_saved_toast": "Saved to your plans",
+  "plans_see": "See plans",
+  "plans_title": "Your plans",
+  "plans_subtitle": "Kept on this phone. Compare them, then send the one you like and the team confirms it with local hosts.",
+  "plans_count": "Your plans ({n})",
+  "plans_new": "Plan another trip",
+  "plans_remove": "Remove",
+  "plans_detail_title": "Your plan",
+  "home_live": "Live"
 }

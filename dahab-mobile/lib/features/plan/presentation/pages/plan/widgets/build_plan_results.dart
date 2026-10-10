@@ -112,6 +112,17 @@ class _ResultsList extends StatelessWidget {
               label: Text(showAll ? Translate.s.plan_results_showMatches : Translate.s.plan_results_showAll),
               style: _pill(colors.button, colors.button),
             ),
+            ObsValueConsumer(
+              observable: controller.savedObs,
+              builder: (context, saved) => saved.isEmpty
+                  ? const SizedBox.shrink()
+                  : OutlinedButton.icon(
+                      onPressed: controller.seePlans,
+                      icon: AppIcon.ui(AppIcons.check, size: 14, color: colors.green),
+                      label: Text(Translate.s.plans_count('${saved.length}')),
+                      style: _pill(colors.green, colors.green.withValues(alpha: 0.5)),
+                    ),
+            ),
           ],
         ),
         if (!destination.liveCatalogue) ...[
@@ -177,13 +188,17 @@ class _ResultsList extends StatelessWidget {
                 duration: destination.tempo,
                 child: ObsValueConsumer(
                   observable: controller.busyIdObs,
-                  builder: (context, busyId) => BuildPlanCard(
-                    match: list[i],
-                    emphasise: !showAll && i == 0,
-                    busy: busyId == list[i].programme.id,
-                    onOpen: () => controller.openProgramme(context, list[i]),
-                    onKeep: () => controller.keepTrip(list[i].programme),
-                    onRequest: () => controller.requestPlan(context, list[i].programme),
+                  builder: (context, busyId) => ObsValueConsumer(
+                    observable: controller.savedObs,
+                    builder: (context, _) => BuildPlanCard(
+                      match: list[i],
+                      emphasise: !showAll && i == 0,
+                      busy: busyId == list[i].programme.id,
+                      saved: controller.isSaved(list[i].programme.id),
+                      onOpen: () => controller.openProgramme(context, list[i]),
+                      onSave: () => controller.toggleSaved(list[i].programme),
+                      onRequest: () => controller.requestPlan(context, list[i].programme),
+                    ),
                   ),
                 ),
               ),

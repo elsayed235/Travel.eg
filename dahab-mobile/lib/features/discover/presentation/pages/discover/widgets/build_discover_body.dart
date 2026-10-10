@@ -1,7 +1,7 @@
 part of 'discover_widgets_imports.dart';
 
-/// Home before the trip: greeting and the place, one line to DayGi, what
-/// it is like right now, six ways in, what is on today, ready-made trips.
+/// Home before the trip: the place and what it is like right now, one line
+/// to DayGi, the ways in, what is on today, ready-made trips.
 class BuildDiscoverBody extends StatelessWidget {
   final DiscoverController controller;
   final RehlaDestination destination;
@@ -29,8 +29,8 @@ class BuildDiscoverBody extends StatelessWidget {
         SliverToBoxAdapter(
           child: BuildDiscoverHero(
             destination: destination,
+            conditions: controller.conditionsRequester,
             onSelect: (d) => controller.selectDestination(context, d),
-            onAsk: (voice) => controller.onAsk(null, voice),
           ),
         ),
         SliverList.list(
@@ -42,8 +42,8 @@ class BuildDiscoverBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Gaps.vGap8,
-                  BuildConditionsStrip(requester: controller.conditionsRequester, place: place),
+                  Gaps.vGap16,
+                  BuildDiscoverAskLine(onAsk: (voice) => controller.onAsk(null, voice)),
                   Gaps.vGap24,
                   BuildDiscoverDoors(
                     destination: destination,

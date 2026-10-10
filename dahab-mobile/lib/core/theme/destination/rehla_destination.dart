@@ -97,6 +97,13 @@ enum RehlaDestination {
 
   /// Bundled asset: the hero must paint offline and on the first frame.
   final String heroImagePath;
+
+  /// A muted loop behind Home's hero, where the place has one. The photo
+  /// above stays its poster and its stand-in under reduced motion.
+  String? get heroVideoPath => switch (this) {
+    RehlaDestination.dahab => 'assets/video/dahab-reef.mp4',
+    _ => null,
+  };
   final bool liveCatalogue;
 
   /// How motion feels here: Dahab lively, Nuweiba still, Siwa like a breath.

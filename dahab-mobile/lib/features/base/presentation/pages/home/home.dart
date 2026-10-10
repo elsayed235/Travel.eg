@@ -84,18 +84,19 @@ class _HomeState extends State<Home> {
                           child: TripTab(
                             controller: controller.todayController,
                             fallback: ObsValueConsumer(
-                              observable: controller.planController.keptObs,
-                              builder: (context, trip) {
-                                if (trip == null) {
+                              observable: controller.planController.savedObs,
+                              builder: (context, plans) {
+                                if (plans.isEmpty) {
                                   return BuildTripEmpty(
                                     destination: context.destination,
                                     onPlan: () => controller.openPlan(const []),
                                   );
                                 }
-                                return BuildTripBody(
-                                  trip: trip,
-                                  onChange: () => controller.openPlan(const []),
-                                  onSend: () => controller.planController.requestPlan(context, trip.toProgramme()),
+                                return BuildSavedPlans(
+                                  plans: plans,
+                                  onOpen: (plan) => controller.openSavedPlan(context, plan),
+                                  onRemove: (plan) => controller.planController.removePlan(plan.id),
+                                  onNew: () => controller.openPlan(const []),
                                 );
                               },
                             ),
@@ -151,6 +152,16 @@ class _HomeState extends State<Home> {
                       observable: controller.exitHintObs,
                       builder: (context, show) => BuildExitHint(visible: show),
                     ),
+                  ),
+                ),
+              if (!keyboard)
+                PositionedDirectional(
+                  start: 0,
+                  end: 0,
+                  bottom: AppBottomNav.overlap(context) + AppSpacing.sm,
+                  child: ObsValueConsumer(
+                    observable: controller.planController.justSavedObs,
+                    builder: (context, trip) => BuildSavedToast(trip: trip, onSee: controller.planController.seePlans),
                   ),
                 ),
               if (!keyboard)

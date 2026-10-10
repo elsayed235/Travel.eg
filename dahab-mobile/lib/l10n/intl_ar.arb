@@ -641,7 +641,7 @@
   "trip_days_title": "الأيام",
   "trip_send": "ابعت للفريق",
   "trip_change": "غيّر الخطة",
-  "trip_status_draft": "خطتك",
+  "trip_status_draft": "لسه ما اتبعتتش",
   "trip_status_sent": "اتبعتت للفريق",
   "trip_sent_note": "الفريق معاه الخطة، وهيأكدها مع المضيفين المحليين.",
   "trip_empty_title": "رحلتك هنا",
@@ -1031,5 +1031,16 @@
   "search_empty_body": "جرّب يوم تاني أو قلّل الفلاتر.",
   "search_clear": "امسح الفلاتر",
   "search_ask_daygi": "اسأل DayGi عن «{query}»",
-  "search_services": "DayGi يقدر يساعدك في"
+  "search_services": "DayGi يقدر يساعدك في",
+  "plan_save": "احفظ الخطة",
+  "plan_saved": "اتحفظت",
+  "plans_saved_toast": "اتحفظت في خططك",
+  "plans_see": "شوف خططك",
+  "plans_title": "خططك",
+  "plans_subtitle": "محفوظة على موبايلك. قارن بينهم، وابعت اللي عاجبك والفريق يأكدها مع أهل المكان.",
+  "plans_count": "خططك ({n})",
+  "plans_new": "خطّط رحلة تانية",
+  "plans_remove": "شيلها",
+  "plans_detail_title": "خطتك",
+  "home_live": "مباشر"
 }

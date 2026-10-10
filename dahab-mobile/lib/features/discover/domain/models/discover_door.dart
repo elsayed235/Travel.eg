@@ -23,6 +23,10 @@ class DiscoverDoor {
   /// Line icon in assets/icons/doors, named after the door.
   String get icon => 'assets/icons/doors/$id.svg';
 
+  /// The website's dimensional pictogram for the door (assets/pictograms),
+  /// rendered from the same artwork so both read as one brand.
+  String get pictogram => 'assets/pictograms/$id.svg';
+
   String label(bool arabic) => arabic ? labelAr : labelEn;
   String? ask(bool arabic) => arabic ? askAr : askEn;
   bool get asksDaygi => askEn != null;

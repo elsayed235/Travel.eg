@@ -3,10 +3,11 @@ part of 'plan_widgets_imports.dart';
 /// A plan up close: photo, what it holds, and each day.
 class BuildProgrammeSheet extends StatelessWidget {
   final PlanMatch match;
-  final VoidCallback onKeep;
+  final ObsValue<List<KeptTrip>> saved;
+  final VoidCallback onSave;
   final VoidCallback onRequest;
 
-  const BuildProgrammeSheet({super.key, required this.match, required this.onKeep, required this.onRequest});
+  const BuildProgrammeSheet({super.key, required this.match, required this.saved, required this.onSave, required this.onRequest});
 
   @override
   Widget build(BuildContext context) {
@@ -129,19 +130,21 @@ class BuildProgrammeSheet extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: BuildPlanPrice(programme: p)),
-                      FilledButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          onKeep();
+                      ObsValueConsumer(
+                        observable: saved,
+                        builder: (context, list) {
+                          final isSaved = list.any((t) => t.id == p.id);
+                          return BuildSavePlanButton(
+                            saved: isSaved,
+                            height: 44,
+                            onTap: () {
+                              // Saving closes the sheet so the confirmation, and the way
+                              // to the list, are in view; un-saving stays put.
+                              if (!isSaved) Navigator.of(context).pop();
+                              onSave();
+                            },
+                          );
                         },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colors.button,
-                          foregroundColor: colors.onButton,
-                          minimumSize: const Size(0, 44),
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.xl),
-                          shape: const RoundedRectangleBorder(borderRadius: AppRadius.chipAll),
-                        ),
-                        child: Text(Translate.s.trip_keep, style: AppTextStyle.s14_w600(color: colors.onButton)),
                       ),
                     ],
                   ),
@@ -204,6 +207,7 @@ class _Bullet extends StatelessWidget {
           Expanded(
             child: Text(
               text,
+              textDirection: CopyDirection.of(text),
               style: AppTextStyle.s13_w500(color: colors.text).copyWith(fontWeight: FontWeight.w400),
             ),
           ),
@@ -251,11 +255,16 @@ class _DayRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(Translate.s.plan_detail_day(day.day), style: AppTextStyle.micro(color: colors.text3)),
-                  Text(day.title(arabic), style: AppTextStyle.s14_w600(color: colors.text)),
+                  Text(
+                    day.title(arabic),
+                    textDirection: CopyDirection.of(day.title(arabic)),
+                    style: AppTextStyle.s14_w600(color: colors.text),
+                  ),
                   if (day.subtitle(arabic).isNotEmpty) ...[
                     Gaps.vGap4,
                     Text(
                       day.subtitle(arabic),
+                      textDirection: CopyDirection.of(day.subtitle(arabic)),
                       style: AppTextStyle.s13_w500(color: colors.text2).copyWith(fontWeight: FontWeight.w400),
                     ),
                   ],
@@ -264,6 +273,7 @@ class _DayRow extends StatelessWidget {
                       padding: const EdgeInsetsDirectional.only(top: AppSpacing.xs),
                       child: Text(
                         '• $h',
+                        textDirection: CopyDirection.of(h),
                         style: AppTextStyle.s13_w500(color: colors.text2).copyWith(fontWeight: FontWeight.w400),
                       ),
                     ),

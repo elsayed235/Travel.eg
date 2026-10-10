@@ -85,9 +85,10 @@ class _BuildDiscoverAskLineState extends State<BuildDiscoverAskLine> with Ticker
             height: 54,
             padding: const EdgeInsetsDirectional.only(start: AppSpacing.lg, end: AppSpacing.xs),
             decoration: BoxDecoration(
-              color: colors.bg.withValues(alpha: 0.94),
+              color: colors.surface1,
               borderRadius: AppRadius.chipAll,
-              boxShadow: [BoxShadow(color: colors.scrim.withValues(alpha: 0.18), blurRadius: 24, offset: const Offset(0, 8))],
+              border: Border.all(color: colors.line),
+              boxShadow: [BoxShadow(color: colors.scrim.withValues(alpha: 0.08), blurRadius: 18, offset: const Offset(0, 6))],
             ),
             child: Row(
               children: [

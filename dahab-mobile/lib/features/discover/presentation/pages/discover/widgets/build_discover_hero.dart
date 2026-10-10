@@ -1,170 +1,245 @@
 part of 'discover_widgets_imports.dart';
 
-/// The place, full-bleed, with a greeting that knows the trip and one line
-/// to ask DayGi by typing or talking. Switching destination dissolves the
-/// old photograph into the new one at the new place's tempo, while a slow
-/// drift keeps the image alive.
+/// The place in a compact card under the status bar: the photograph (or the
+/// place's own film, muted and looping), a greeting, the line that names
+/// the place, and what it is like there right now. Switching destination
+/// dissolves the old picture into the new one at the new place's tempo.
 class BuildDiscoverHero extends StatelessWidget {
   final RehlaDestination destination;
+  final ConditionsRequester conditions;
   final ValueChanged<RehlaDestination> onSelect;
-  final void Function(bool voice) onAsk;
 
   const BuildDiscoverHero({
     super.key,
     required this.destination,
+    required this.conditions,
     required this.onSelect,
-    required this.onAsk,
   });
+
+  static const _corner = Radius.circular(AppRadius.sheet);
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final arabic = context.isArabic;
-    final height = (MediaQuery.sizeOf(context).height * 0.64).clamp(480.0, 640.0);
+    final top = MediaQuery.paddingOf(context).top;
     final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final titleStyle = AppTextStyle.h1(color: colors.onImage).copyWith(
+      fontFamily: AppFonts.display(context),
+      fontSize: 27,
+      height: 1.12,
+      fontWeight: FontWeight.w600,
+    );
 
-    return SizedBox(
-      height: height,
-      // The drifting photo paints past its box (a transform, not layout
-      // overflow, so Stack would not clip it).
-      child: ClipRect(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            AnimatedSwitcher(
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: _corner),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: AnimatedSwitcher(
               duration: reduce ? Duration.zero : destination.tempo * 1.6,
               switchInCurve: Curves.easeOutCubic,
               switchOutCurve: Curves.easeInCubic,
               layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, children: [...previous, ?current]),
               transitionBuilder: (child, animation) => _HeroReveal(animation: animation, child: child),
-              child: _DriftingImage(key: ValueKey(destination), path: destination.heroImagePath),
+              child: _HeroBackdrop(key: ValueKey(destination), destination: destination),
             ),
-            DecoratedBox(
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0, 0.22, 0.45, 1],
+                  stops: const [0, 0.3, 0.55, 1],
                   colors: [
-                    colors.scrim.withValues(alpha: 0.42),
-                    colors.scrim.withValues(alpha: 0),
-                    colors.scrim.withValues(alpha: 0.1),
-                    colors.scrim.withValues(alpha: 0.82),
+                    colors.scrim.withValues(alpha: 0.5),
+                    colors.scrim.withValues(alpha: 0.05),
+                    colors.scrim.withValues(alpha: 0.2),
+                    colors.scrim.withValues(alpha: 0.78),
                   ],
                 ),
               ),
             ),
-            PositionedDirectional(
-              top: MediaQuery.paddingOf(context).top + AppSpacing.lg,
-              start: AppSpacing.screenH,
-              end: AppSpacing.screenH,
-              child: Row(
-                children: [
-                  Text(
-                    arabic ? 'رحلة' : 'REHLA',
-                    style: AppTextStyle.s20_w600(
-                      color: colors.onImage,
-                    ).copyWith(fontFamily: AppFonts.display(context), letterSpacing: arabic ? 0 : 3),
-                  ),
-                  const Spacer(),
-                  BuildDestinationSwitcher(current: destination, onSelect: onSelect),
-                ],
-              ),
+          ),
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.screenH,
+              top + AppSpacing.md,
+              AppSpacing.screenH,
+              AppSpacing.lg,
             ),
-            PositionedDirectional(
-              start: AppSpacing.screenH,
-              end: AppSpacing.screenH,
-              bottom: AppSpacing.xxl + AppSpacing.md,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const _Greeting(),
-                  Gaps.vGap10,
-                  AnimatedSwitcher(
-                    duration: reduce ? Duration.zero : destination.tempo,
-                    switchInCurve: Curves.easeOutCubic,
-                    layoutBuilder: (current, previous) =>
-                        Stack(alignment: AlignmentDirectional.bottomStart, children: [...previous, ?current]),
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween(begin: const Offset(0, 0.08), end: Offset.zero).animate(animation),
-                        child: child,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      arabic ? 'رحلة' : 'REHLA',
+                      style: AppTextStyle.s20_w600(
+                        color: colors.onImage,
+                      ).copyWith(fontFamily: AppFonts.display(context), letterSpacing: arabic ? 0 : 3),
+                    ),
+                    const Spacer(),
+                    BuildDestinationSwitcher(current: destination, onSelect: onSelect),
+                  ],
+                ),
+                const SizedBox(height: 56),
+                const _Greeting(),
+                Gaps.vGap6,
+                AnimatedSwitcher(
+                  duration: reduce ? Duration.zero : destination.tempo,
+                  switchInCurve: Curves.easeOutCubic,
+                  layoutBuilder: (current, previous) =>
+                      Stack(alignment: AlignmentDirectional.bottomStart, children: [...previous, ?current]),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween(begin: const Offset(0, 0.1), end: Offset.zero).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: Column(
+                    key: ValueKey(destination),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: '${destination.titleA(arabic)} '),
+                            TextSpan(
+                              text: destination.titleB(arabic),
+                              style: TextStyle(
+                                color: colors.highlight,
+                                fontStyle: arabic ? FontStyle.normal : FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                        maxLines: 2,
+                        style: titleStyle,
                       ),
-                    ),
-                    child: Column(
-                      key: ValueKey(destination),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AppEntrance(
-                          delay: const Duration(milliseconds: 120),
-                          duration: destination.tempo,
-                          offsetY: 22,
-                          child: Text(
-                            destination.titleA(arabic),
-                            style: AppTextStyle.h1(color: colors.onImage).copyWith(
-                              fontFamily: AppFonts.display(context),
-                              fontSize: 36,
-                              height: 1.05,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      if (!destination.liveCatalogue) ...[
+                        Gaps.vGap6,
+                        Text(
+                          Translate.s.discover_early_note(destination.label(arabic)),
+                          style: AppTextStyle.caption(color: colors.onImage.withValues(alpha: 0.8)),
                         ),
-                        AppEntrance(
-                          delay: const Duration(milliseconds: 220),
-                          duration: destination.tempo,
-                          offsetY: 22,
-                          child: Text(
-                            destination.titleB(arabic),
-                            style: AppTextStyle.h1(color: colors.highlight).copyWith(
-                              fontFamily: AppFonts.display(context),
-                              fontSize: 36,
-                              height: 1.05,
-                              fontWeight: FontWeight.w600,
-                              fontStyle: arabic ? FontStyle.normal : FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                        if (!destination.liveCatalogue) ...[
-                          Gaps.vGap8,
-                          Text(
-                            Translate.s.discover_early_note(destination.label(arabic)),
-                            style: AppTextStyle.caption(color: colors.onImage.withValues(alpha: 0.8)),
-                          ),
-                        ],
                       ],
-                    ),
-                  ),
-                  Gaps.vGap18,
-                  AppEntrance(
-                    delay: const Duration(milliseconds: 320),
-                    duration: destination.tempo,
-                    offsetY: 16,
-                    child: BuildDiscoverAskLine(onAsk: onAsk),
-                  ),
-                ],
-              ),
-            ),
-            PositionedDirectional(
-              start: 0,
-              end: 0,
-              bottom: 0,
-              height: AppSpacing.xxl,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [colors.bg.withValues(alpha: 0), colors.bg],
+                    ],
                   ),
                 ),
-              ),
+                Gaps.vGap14,
+                BuildHeroConditions(requester: conditions, place: destination.label(arabic)),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+/// The picture behind the hero: the place's photograph, slowly drifting,
+/// and where the place has a film, that film fading in over it once it can
+/// play. It plays only while Home is on screen and the app is in front,
+/// and never under reduced motion.
+class _HeroBackdrop extends StatefulWidget {
+  final RehlaDestination destination;
+
+  const _HeroBackdrop({super.key, required this.destination});
+
+  @override
+  State<_HeroBackdrop> createState() => _HeroBackdropState();
+}
+
+class _HeroBackdropState extends State<_HeroBackdrop> with WidgetsBindingObserver {
+  VideoPlayerController? _video;
+  bool _ready = false;
+  bool _visible = true;
+  bool _foreground = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    _visible = TickerMode.valuesOf(context).enabled;
+    final path = widget.destination.heroVideoPath;
+    if (_video == null && path != null && !reduce) _load(path);
+    if (reduce && _ready) setState(() => _ready = false);
+    _sync();
+  }
+
+  Future<void> _load(String path) async {
+    final video = VideoPlayerController.asset(path, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
+    _video = video;
+    try {
+      await video.initialize();
+      await video.setLooping(true);
+      await video.setVolume(0);
+      if (!mounted) return;
+      setState(() => _ready = true);
+      _sync();
+    } catch (_) {
+      // No film, no problem: the photograph is already there.
+    }
+  }
+
+  void _sync() {
+    final video = _video;
+    if (video == null || !video.value.isInitialized) return;
+    if (_ready && _visible && _foreground) {
+      video.play();
+    } else {
+      video.pause();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    _sync();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _video?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final video = _video;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _DriftingImage(path: widget.destination.heroImagePath),
+        if (video != null)
+          AnimatedOpacity(
+            opacity: _ready ? 1 : 0,
+            duration: const Duration(milliseconds: 900),
+            curve: Curves.easeOut,
+            child: _ready
+                ? FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                    child: SizedBox(
+                      width: video.value.size.width,
+                      height: video.value.size.height,
+                      child: VideoPlayer(video),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+      ],
     );
   }
 }
@@ -240,7 +315,7 @@ class _HeroReveal extends AnimatedWidget {
 class _DriftingImage extends StatefulWidget {
   final String path;
 
-  const _DriftingImage({super.key, required this.path});
+  const _DriftingImage({required this.path});
 
   @override
   State<_DriftingImage> createState() => _DriftingImageState();

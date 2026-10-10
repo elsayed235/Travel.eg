@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
 import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/extensions/common_extension.dart';
@@ -34,6 +35,7 @@ import 'package:rehla/features/experiences/presentation/experiences_imports.dart
 import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
 import 'package:rehla/features/plan/domain/requesters/programmes_requester.dart';
 import 'package:rehla/features/trip/domain/trip_store.dart';
+import 'package:video_player/video_player.dart';
 
 import '../discover_imports.dart';
 

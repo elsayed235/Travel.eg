@@ -6049,10 +6049,10 @@ class S {
     return Intl.message('Change plan', name: 'trip_change', desc: '', args: []);
   }
 
-  /// `Your plan`
+  /// `Not sent yet`
   String get trip_status_draft {
     return Intl.message(
-      'Your plan',
+      'Not sent yet',
       name: 'trip_status_draft',
       desc: '',
       args: [],
@@ -9502,6 +9502,86 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Save plan`
+  String get plan_save {
+    return Intl.message('Save plan', name: 'plan_save', desc: '', args: []);
+  }
+
+  /// `Saved`
+  String get plan_saved {
+    return Intl.message('Saved', name: 'plan_saved', desc: '', args: []);
+  }
+
+  /// `Saved to your plans`
+  String get plans_saved_toast {
+    return Intl.message(
+      'Saved to your plans',
+      name: 'plans_saved_toast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `See plans`
+  String get plans_see {
+    return Intl.message('See plans', name: 'plans_see', desc: '', args: []);
+  }
+
+  /// `Your plans`
+  String get plans_title {
+    return Intl.message('Your plans', name: 'plans_title', desc: '', args: []);
+  }
+
+  /// `Kept on this phone. Compare them, then send the one you like and the team confirms it with local hosts.`
+  String get plans_subtitle {
+    return Intl.message(
+      'Kept on this phone. Compare them, then send the one you like and the team confirms it with local hosts.',
+      name: 'plans_subtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your plans ({n})`
+  String plans_count(Object n) {
+    return Intl.message(
+      'Your plans ($n)',
+      name: 'plans_count',
+      desc: '',
+      args: [n],
+    );
+  }
+
+  /// `Plan another trip`
+  String get plans_new {
+    return Intl.message(
+      'Plan another trip',
+      name: 'plans_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove`
+  String get plans_remove {
+    return Intl.message('Remove', name: 'plans_remove', desc: '', args: []);
+  }
+
+  /// `Your plan`
+  String get plans_detail_title {
+    return Intl.message(
+      'Your plan',
+      name: 'plans_detail_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Live`
+  String get home_live {
+    return Intl.message('Live', name: 'home_live', desc: '', args: []);
   }
 }
 

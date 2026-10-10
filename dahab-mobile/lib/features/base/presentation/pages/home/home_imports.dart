@@ -24,6 +24,7 @@ import 'package:rehla/features/discover/presentation/pages/discover/discover_imp
 import 'package:rehla/features/experiences/domain/experience_catalogue.dart';
 import 'package:rehla/features/explore/presentation/explore_imports.dart';
 import 'package:rehla/features/plan/domain/matching/plan_matcher.dart';
+import 'package:rehla/features/plan/domain/models/kept_trip.dart';
 import 'package:rehla/features/plan/domain/models/plan_vibe.dart';
 import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
 import 'package:rehla/features/plan/presentation/pages/plan/plan_imports.dart';

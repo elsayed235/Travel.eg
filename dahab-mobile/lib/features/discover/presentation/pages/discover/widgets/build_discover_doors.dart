@@ -1,9 +1,10 @@
 part of 'discover_widgets_imports.dart';
 
-/// "What brings you to {place}?": the doors into the place as an app-style
-/// grid, an icon tile over its name. Things to do carry a lit tile and open
-/// the outings (or the planner where the catalogue is not live); services
-/// carry a soft tile with DayGi's sparkle and ask DayGi.
+/// "What brings you to {place}?": the doors into the place as the website
+/// draws them — a card with a dimensional pictogram over its name that
+/// answers a tap with a one-shot spring. Things to do open the outings (or
+/// the planner where the catalogue is not live); services, marked with
+/// DayGi's sparkle, ask DayGi.
 class BuildDiscoverDoors extends StatelessWidget {
   final RehlaDestination destination;
   final String title;
@@ -62,9 +63,9 @@ class BuildDiscoverDoors extends StatelessWidget {
               padding: EdgeInsets.zero,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,
-                mainAxisSpacing: AppSpacing.lg,
-                crossAxisSpacing: AppSpacing.sm,
-                mainAxisExtent: 96,
+                mainAxisSpacing: AppSpacing.sm + 2,
+                crossAxisSpacing: AppSpacing.sm + 2,
+                mainAxisExtent: 108,
               ),
               children: [
                 for (var i = 0; i < doors.length; i++)
@@ -102,14 +103,20 @@ class _Door extends StatefulWidget {
 }
 
 class _DoorState extends State<_Door> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 480));
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
   bool _pressed = false;
 
-  // The icon's squeeze, overshoot and settle: the website's door pulse, softened.
-  late final Animation<double> _pulse = TweenSequence<double>([
-    TweenSequenceItem(tween: Tween(begin: 1, end: 0.86), weight: 25),
-    TweenSequenceItem(tween: Tween(begin: 0.86, end: 1.08), weight: 40),
-    TweenSequenceItem(tween: Tween(begin: 1.08, end: 1), weight: 35),
+  // The website's door spring: squeeze, overshoot with a little tilt, settle.
+  static const _spring = Cubic(0.34, 1.3, 0.64, 1);
+  late final Animation<double> _scale = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 1, end: 0.82), weight: 30),
+    TweenSequenceItem(tween: Tween(begin: 0.82, end: 1.12), weight: 35),
+    TweenSequenceItem(tween: Tween(begin: 1.12, end: 1), weight: 35),
+  ]).animate(CurvedAnimation(parent: _c, curve: _spring));
+  late final Animation<double> _turn = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 0, end: -6 / 360), weight: 30),
+    TweenSequenceItem(tween: Tween(begin: -6 / 360, end: 3 / 360), weight: 35),
+    TweenSequenceItem(tween: Tween(begin: 3 / 360, end: 0), weight: 35),
   ]).animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
 
   @override
@@ -123,7 +130,7 @@ class _DoorState extends State<_Door> with SingleTickerProviderStateMixin {
     final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     if (!reduce) {
       _c.forward(from: 0);
-      await Future.delayed(const Duration(milliseconds: 220));
+      await Future.delayed(const Duration(milliseconds: 320));
     }
     if (mounted) widget.onOpen(widget.door);
   }
@@ -149,86 +156,57 @@ class _DoorState extends State<_Door> with SingleTickerProviderStateMixin {
         onTapUp: (_) => _press(false),
         onTap: _tap,
         child: AnimatedScale(
-          scale: _pressed ? 0.94 : 1,
+          scale: _pressed ? 0.97 : 1,
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOut,
-          child: Column(
-            children: [
-              ScaleTransition(
-                scale: _pulse,
-                child: _DoorIcon(icon: widget.door.icon, soft: asks),
-              ),
-              Gaps.vGap8,
-              Text(
-                label,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.s12_w500(color: colors.text).copyWith(height: 1.25),
-              ),
-            ],
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: colors.surface1,
+              borderRadius: const BorderRadius.all(Radius.circular(18)),
+              border: Border.all(color: _pressed ? colors.line2 : colors.line),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.scrim.withValues(alpha: _pressed ? 0.1 : 0.05),
+                  blurRadius: _pressed ? 14 : 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.xs, AppSpacing.md + 2, AppSpacing.xs, AppSpacing.sm),
+                  child: Column(
+                    children: [
+                      RotationTransition(
+                        turns: _turn,
+                        child: ScaleTransition(
+                          scale: _scale,
+                          child: SvgPicture.asset(widget.door.pictogram, width: 46, height: 46, excludeFromSemantics: true),
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        label,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.s12_w500(color: colors.text).copyWith(height: 1.2),
+                      ),
+                    ],
+                  ),
+                ),
+                if (asks)
+                  PositionedDirectional(
+                    top: AppSpacing.sm,
+                    end: AppSpacing.sm,
+                    child: AppIcon.ui(AppIcons.sparkle, size: 12, color: colors.button),
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// A squircle: lit lagoon for things to do, a soft wash plus DayGi's
-/// sparkle for the questions DayGi answers.
-class _DoorIcon extends StatelessWidget {
-  final String icon;
-  final bool soft;
-
-  const _DoorIcon({required this.icon, required this.soft});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return SizedBox(
-      width: 58,
-      height: 58,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(18)),
-              color: soft ? colors.surface1 : null,
-              border: soft ? Border.all(color: colors.line) : null,
-              gradient: soft
-                  ? null
-                  : LinearGradient(
-                      begin: AlignmentDirectional.topStart,
-                      end: AlignmentDirectional.bottomEnd,
-                      colors: [Color.lerp(colors.button, colors.onImage, 0.22)!, colors.button],
-                    ),
-              boxShadow: soft
-                  ? null
-                  : [BoxShadow(color: colors.button.withValues(alpha: 0.28), blurRadius: 14, offset: const Offset(0, 6))],
-            ),
-            alignment: Alignment.center,
-            child: AppIcon(icon, size: 26, color: soft ? colors.button : colors.onButton),
-          ),
-          if (soft)
-            PositionedDirectional(
-              top: -4,
-              end: -4,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: colors.button,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: colors.bg, width: 2),
-                ),
-                alignment: Alignment.center,
-                child: AppIcon.ui(AppIcons.sparkle, size: 10, color: colors.onButton),
-              ),
-            ),
-        ],
       ),
     );
   }

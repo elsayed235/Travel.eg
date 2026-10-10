@@ -28,7 +28,7 @@ class BuildTripBody extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                _TripPhoto(trip: trip),
+                BuildTripPhoto(trip: trip),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -45,7 +45,7 @@ class BuildTripBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _Status(sent: trip.sent),
+                      BuildTripStatus(sent: trip.sent),
                       Gaps.vGap6,
                       Text(
                         trip.title(arabic),
@@ -116,10 +116,12 @@ class BuildTripBody extends StatelessWidget {
   }
 }
 
-class _Status extends StatelessWidget {
+/// Draft or sent: a chip over the photo, or a quiet one on a card.
+class BuildTripStatus extends StatelessWidget {
   final bool sent;
+  final bool onImage;
 
-  const _Status({required this.sent});
+  const BuildTripStatus({super.key, required this.sent, this.onImage = true});
 
   @override
   Widget build(BuildContext context) {
@@ -127,21 +129,23 @@ class _Status extends StatelessWidget {
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: sent ? colors.button : colors.scrim.withValues(alpha: 0.45),
+        color: sent
+            ? (onImage ? colors.button : colors.greenBg)
+            : (onImage ? colors.scrim.withValues(alpha: 0.45) : colors.actionWash),
         borderRadius: AppRadius.chipAll,
       ),
       child: Text(
         sent ? Translate.s.trip_status_sent : Translate.s.trip_status_draft,
-        style: AppTextStyle.s12_w600(color: colors.onImage),
+        style: AppTextStyle.s12_w600(color: onImage ? colors.onImage : (sent ? colors.green : colors.button)),
       ),
     );
   }
 }
 
-class _TripPhoto extends StatelessWidget {
+class BuildTripPhoto extends StatelessWidget {
   final KeptTrip trip;
 
-  const _TripPhoto({required this.trip});
+  const BuildTripPhoto({super.key, required this.trip});
 
   @override
   Widget build(BuildContext context) {
@@ -194,10 +198,18 @@ class _TripDay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(day.title(arabic), style: AppTextStyle.s14_w600(color: colors.text)),
+                  Text(
+                    day.title(arabic),
+                    textDirection: CopyDirection.of(day.title(arabic)),
+                    style: AppTextStyle.s14_w600(color: colors.text),
+                  ),
                   if (day.subtitle(arabic).isNotEmpty) ...[
                     Gaps.vGap4,
-                    Text(day.subtitle(arabic), style: AppTextStyle.caption(color: colors.text2)),
+                    Text(
+                      day.subtitle(arabic),
+                      textDirection: CopyDirection.of(day.subtitle(arabic)),
+                      style: AppTextStyle.caption(color: colors.text2),
+                    ),
                   ],
                 ],
               ),

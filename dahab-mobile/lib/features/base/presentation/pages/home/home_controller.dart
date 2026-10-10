@@ -33,7 +33,7 @@ class HomeController {
     daygiController.init();
     todayController.init();
     ExperienceCatalogue.instance.ensureLoaded();
-    planController.onTripKept = () => _go(ShellActions.trip);
+    planController.onSeePlans = () => _go(ShellActions.trip);
     ShellActions.install(openTab: _go, askDaygi: (q) => askDaygi(q, false));
 
     final auth = context.read<AuthCubit>();
@@ -84,6 +84,21 @@ class HomeController {
   /// A ready-made trip, opened the same way the planner opens one.
   void openProgramme(BuildContext context, ProgrammeDomainModel programme) {
     planController.openProgramme(context, PlanMatch(programme, 0, const []));
+  }
+
+  /// A saved plan, day by day, over the shell.
+  void openSavedPlan(BuildContext context, KeptTrip plan) {
+    Navigator.of(context).push(
+      RehlaPageRoute<void>(
+        builder: (_) => SavedPlanPage(
+          id: plan.id,
+          plans: planController.savedObs,
+          onSend: (p) => planController.requestPlan(_context, p.toProgramme()),
+          onRemove: (p) => planController.removePlan(p.id),
+          onChange: () => openPlan(const []),
+        ),
+      ),
+    );
   }
 
   /// "Compare" lands on every plan, not a new questionnaire.

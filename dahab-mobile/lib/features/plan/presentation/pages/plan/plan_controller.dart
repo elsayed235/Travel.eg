@@ -8,7 +8,10 @@ enum PlanPhase { compose, building, results }
 /// the app — never loses them.
 class PlanController {
   static const _storageKey = 'rehla_plan_v1';
-  static const _tripKey = 'rehla_trip_v1';
+  static const _plansKey = 'rehla_plans_v1';
+
+  /// The single kept plan of earlier builds; folded into [_plansKey] once.
+  static const _legacyTripKey = 'rehla_trip_v1';
 
   final ProgrammesRequester programmesRequester = ProgrammesRequester();
 
@@ -22,10 +25,15 @@ class PlanController {
   final ObsValue<bool> showAllObs = ObsValue.withInit(false);
   final ObsValue<PlanSort> sortObs = ObsValue.withInit(PlanSort.best);
   final ObsValue<String?> busyIdObs = ObsValue.withInit(null);
-  final ObsValue<KeptTrip?> keptObs = ObsValue.withInit(null);
+  /// Every plan the traveler saved, newest first. The Trip tab lists them.
+  final ObsValue<List<KeptTrip>> savedObs = ObsValue.withInit(const []);
 
-  /// The shell switches to the Trip tab when a plan is kept.
-  void Function()? onTripKept;
+  /// The plan just saved: the shell shows "Saved · See your plans" for it.
+  final ObsValue<KeptTrip?> justSavedObs = ObsValue.withInit(null);
+  Timer? _justSavedTimer;
+
+  /// The shell opens the saved plans (the Trip tab).
+  void Function()? onSeePlans;
 
   PlanAnswers get answers => answersObs.getValue();
   PlanStep get step => PlanStep.values[stepObs.getValue()];
@@ -33,7 +41,7 @@ class PlanController {
   Future<void> init(RehlaDestination destination) async {
     programmesRequester.request();
     answersObs.setValue(PlanAnswers(destination: destination));
-    await _loadTrip();
+    await loadPlans();
     try {
       final raw = (await SharedPreferences.getInstance()).getString(_storageKey);
       if (raw == null) return;
@@ -166,37 +174,67 @@ class PlanController {
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetTop),
       builder: (_) => BuildProgrammeSheet(
         match: match,
-        onKeep: () => keepTrip(match.programme),
+        saved: savedObs,
+        onSave: () => toggleSaved(match.programme),
         onRequest: () => requestPlan(context, match.programme),
       ),
     );
   }
 
-  /// The chosen plan becomes the trip. Nothing is sent until [requestPlan].
-  Future<void> keepTrip(ProgrammeDomainModel programme) async {
-    final current = keptObs.getValue();
-    final sent = current != null && current.id == programme.id && current.sent;
-    keptObs.setValue(KeptTrip.fromProgramme(programme, sent: sent));
-    await _persistTrip();
-    onTripKept?.call();
+  bool isSaved(String id) => savedObs.getValue().any((t) => t.id == id);
+
+  /// Saving is one tap and stays where you are: the plan joins the list and
+  /// a short confirmation offers the way to it. Tapping again un-saves.
+  Future<void> toggleSaved(ProgrammeDomainModel programme) async {
+    if (isSaved(programme.id)) {
+      await removePlan(programme.id);
+      return;
+    }
+    HapticFeedback.mediumImpact();
+    final trip = KeptTrip.fromProgramme(programme);
+    savedObs.setValue([trip, ...savedObs.getValue()]);
+    await _persistPlans();
+    justSavedObs.setValue(trip);
+    _justSavedTimer?.cancel();
+    _justSavedTimer = Timer(const Duration(seconds: 4), () => justSavedObs.setValue(null));
   }
 
-  Future<void> _loadTrip() async {
+  Future<void> removePlan(String id) async {
+    savedObs.setValue(savedObs.getValue().where((t) => t.id != id).toList());
+    if (justSavedObs.getValue()?.id == id) justSavedObs.setValue(null);
+    await _persistPlans();
+  }
+
+  void seePlans() {
+    _justSavedTimer?.cancel();
+    justSavedObs.setValue(null);
+    onSeePlans?.call();
+  }
+
+  /// The saved plans from this phone (and the one plan earlier builds kept).
+  Future<void> loadPlans() async {
     try {
-      final raw = (await SharedPreferences.getInstance()).getString(_tripKey);
-      if (raw == null) return;
-      keptObs.setValue(KeptTrip.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_plansKey);
+      if (raw != null) {
+        savedObs.setValue([
+          for (final item in jsonDecode(raw) as List)
+            if (item is Map) ?KeptTrip.fromJson(Map<String, dynamic>.from(item)),
+        ]);
+        return;
+      }
+      final legacy = prefs.getString(_legacyTripKey);
+      if (legacy == null) return;
+      final trip = KeptTrip.fromJson(jsonDecode(legacy) as Map<String, dynamic>);
+      if (trip != null) savedObs.setValue([trip]);
+      await _persistPlans();
+      await prefs.remove(_legacyTripKey);
     } catch (_) {}
   }
 
-  Future<void> _persistTrip() async {
+  Future<void> _persistPlans() async {
     final prefs = await SharedPreferences.getInstance();
-    final trip = keptObs.getValue();
-    if (trip == null) {
-      await prefs.remove(_tripKey);
-      return;
-    }
-    await prefs.setString(_tripKey, jsonEncode(trip.toJson()));
+    await prefs.setString(_plansKey, jsonEncode([for (final t in savedObs.getValue()) t.toJson()]));
   }
 
   /// Sends the plan to the operations team, who confirm it with local hosts
@@ -211,18 +249,22 @@ class PlanController {
     final result = await getIt<PlanRepository>().requestPlan(programme, answers);
     busyIdObs.setValue(null);
     if (result.isSuccess) {
-      final current = keptObs.getValue();
-      if (current != null && current.id == programme.id) {
-        keptObs.setValue(current.copyWith(sent: true));
-      } else {
-        keptObs.setValue(KeptTrip.fromProgramme(programme, sent: true));
-      }
-      await _persistTrip();
+      // A sent plan is kept too, marked sent, so it never goes missing.
+      final saved = savedObs.getValue();
+      savedObs.setValue(
+        isSaved(programme.id)
+            ? [for (final t in saved) t.id == programme.id ? t.copyWith(sent: true) : t]
+            : [KeptTrip.fromProgramme(programme, sent: true), ...saved],
+      );
+      await _persistPlans();
     }
     AppSnackBar.showSimpleToast(
       msg: result.isSuccess ? Translate.s.plan_request_sent : Translate.s.plan_request_failed,
     );
   }
 
-  void dispose() => programmesRequester.close();
+  void dispose() {
+    _justSavedTimer?.cancel();
+    programmesRequester.close();
+  }
 }

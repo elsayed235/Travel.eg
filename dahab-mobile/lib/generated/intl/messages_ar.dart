@@ -259,71 +259,73 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m108(n) => "${n} ليالي";
 
-  static String m109(language) => "اللغة والعرض، ${language}";
+  static String m109(n) => "خططك (${n})";
 
-  static String m110(query) => "اسأل DayGi عن «${query}»";
+  static String m110(language) => "اللغة والعرض، ${language}";
 
-  static String m111(count) => "الفلاتر · ${count}";
+  static String m111(query) => "اسأل DayGi عن «${query}»";
 
-  static String m112(price) => "لحد ${price}";
+  static String m112(count) => "الفلاتر · ${count}";
 
-  static String m113(count) => "${count} طلعة";
+  static String m113(price) => "لحد ${price}";
 
-  static String m114(count) => "اعرض ${count} طلعة";
+  static String m114(count) => "${count} طلعة";
 
-  static String m115(MB, files) =>
+  static String m115(count) => "اعرض ${count} طلعة";
+
+  static String m116(MB, files) =>
       "يجب أن تكون حجم الملفات التالية أقل من ${MB} ميحابيت, ${files}";
 
-  static String m116(name) => "كلّم ${name}";
+  static String m117(name) => "كلّم ${name}";
 
-  static String m117(day, days) => "اليوم ${day} من ${days}";
+  static String m118(day, days) => "اليوم ${day} من ${days}";
 
-  static String m118(h, m) => "بعد ${h} س ${m} د";
+  static String m119(h, m) => "بعد ${h} س ${m} د";
 
-  static String m119(m) => "بعد ${m} دقيقة";
+  static String m120(m) => "بعد ${m} دقيقة";
 
-  static String m120(slot) =>
+  static String m121(slot) =>
       "اتنقلت للساعة ${slot}. المورّد عنده المعاد الجديد.";
 
-  static String m121(kn) => "هوا ${kn} عقدة";
+  static String m122(kn) => "هوا ${kn} عقدة";
 
-  static String m122(wind, title, max) =>
+  static String m123(wind, title, max) =>
       "الهوا ${wind} عقدة دلوقتي. ${title} بتشتغل تحت ${max} عقدة.";
 
-  static String m123(title) => "الدنيا هوا. أعمل إيه بدل ${title}؟";
+  static String m124(title) => "الدنيا هوا. أعمل إيه بدل ${title}؟";
 
-  static String m124(slot, day) =>
+  static String m125(slot, day) =>
       "أول طلعة للمورّد: الساعة ${slot} يوم ${day}.";
 
-  static String m125(n) =>
+  static String m126(n) =>
       "${Intl.plural(n, one: 'فاضل يوم', two: 'فاضل يومين', few: 'فاضل ${n} أيام', other: 'فاضل ${n} يوم')}";
 
-  static String m126(usd) => "حوالي ${usd}\$";
+  static String m127(usd) => "حوالي ${usd}\$";
 
-  static String m127(title) => "${title} مناسبة ليا؟";
+  static String m128(title) => "${title} مناسبة ليا؟";
 
-  static String m128(clock) => "المغرب النهارده الساعة ${clock}";
+  static String m129(clock) => "المغرب النهارده الساعة ${clock}";
 
-  static String m129(wind, max) =>
+  static String m130(wind, max) =>
       "الهوا ${wind} عقدة النهارده، والمورّد بيشغّلها تحت ${max} عقدة";
 
-  static String m130(wind) => "الهوا ${wind} عقدة، جوه حدود المورّد";
+  static String m131(wind) => "الهوا ${wind} عقدة، جوه حدود المورّد";
 
-  static String m131(hours) => "إلغاء مجاني لحد ${hours} ساعة قبلها";
+  static String m132(hours) => "إلغاء مجاني لحد ${hours} ساعة قبلها";
 
-  static String m132(h) => "${h} ساعات";
+  static String m133(h) => "${h} ساعات";
 
-  static String m133(m) => "${m} دقيقة";
+  static String m134(m) => "${m} دقيقة";
 
-  static String m134(n) =>
+  static String m135(n) =>
       "${Intl.plural(n, one: 'الالتزام محسوب من رحلة واحدة', two: 'الالتزام محسوب من رحلتين', few: 'الالتزام محسوب من ${n} رحلات', other: 'الالتزام محسوب من ${n} رحلة')}";
 
-  static String m135(count) =>
+  static String m136(count) =>
       "${Intl.plural(count, one: 'من تقييم واحد موثّق', two: 'من تقييمين موثّقين', few: 'من ${count} تقييمات موثّقة', other: 'من ${count} تقييم موثّق')}";
 
-  static String m136(date) => " · آخر واحد ${date}";
+  static String m137(date) => " · آخر واحد ${date}";
 
-  static String m137(n) => "لحد ${n}";
+  static String m138(n) => "لحد ${n}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1360,6 +1362,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_hello_evening": MessageLookupByLibrary.simpleMessage("مساء الفل"),
     "home_hello_morning": MessageLookupByLibrary.simpleMessage("صباح الفل"),
     "home_hello_name": m56,
+    "home_live": MessageLookupByLibrary.simpleMessage("مباشر"),
     "home_live_from": m57,
     "home_location_km": m58,
     "home_nav_account": MessageLookupByLibrary.simpleMessage("حسابي"),
@@ -1892,6 +1895,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_results_titleOne": MessageLookupByLibrary.simpleMessage(
       "لقيتلك خطة على مقاسك",
     ),
+    "plan_save": MessageLookupByLibrary.simpleMessage("احفظ الخطة"),
+    "plan_saved": MessageLookupByLibrary.simpleMessage("اتحفظت"),
     "plan_showPlans": MessageLookupByLibrary.simpleMessage("وريني الخطط"),
     "plan_skipToAll": MessageLookupByLibrary.simpleMessage(
       "سيبك، وريني كل الخطط",
@@ -1927,8 +1932,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_when_flexible": MessageLookupByLibrary.simpleMessage("لسه مش متأكد"),
     "plan_when_nights": m108,
     "plan_when_nightsUnit": MessageLookupByLibrary.simpleMessage("ليالي"),
+    "plans_count": m109,
+    "plans_detail_title": MessageLookupByLibrary.simpleMessage("خطتك"),
+    "plans_new": MessageLookupByLibrary.simpleMessage("خطّط رحلة تانية"),
+    "plans_remove": MessageLookupByLibrary.simpleMessage("شيلها"),
+    "plans_saved_toast": MessageLookupByLibrary.simpleMessage("اتحفظت في خططك"),
+    "plans_see": MessageLookupByLibrary.simpleMessage("شوف خططك"),
+    "plans_subtitle": MessageLookupByLibrary.simpleMessage(
+      "محفوظة على موبايلك. قارن بينهم، وابعت اللي عاجبك والفريق يأكدها مع أهل المكان.",
+    ),
+    "plans_title": MessageLookupByLibrary.simpleMessage("خططك"),
     "prefs_appearance": MessageLookupByLibrary.simpleMessage("المظهر"),
-    "prefs_button_label": m109,
+    "prefs_button_label": m110,
     "prefs_done": MessageLookupByLibrary.simpleMessage("تم"),
     "prefs_language": MessageLookupByLibrary.simpleMessage("اللغة"),
     "prefs_title": MessageLookupByLibrary.simpleMessage("اللغة والعرض"),
@@ -1969,7 +1984,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
     "search_any_day": MessageLookupByLibrary.simpleMessage("أي يوم"),
     "search_any_price": MessageLookupByLibrary.simpleMessage("أي سعر"),
-    "search_ask_daygi": m110,
+    "search_ask_daygi": m111,
     "search_beginner": MessageLookupByLibrary.simpleMessage("مناسبة لأول مرة"),
     "search_clear": MessageLookupByLibrary.simpleMessage("امسح الفلاتر"),
     "search_dur_any": MessageLookupByLibrary.simpleMessage("أي مدة"),
@@ -1984,15 +1999,15 @@ class MessageLookup extends MessageLookupByLibrary {
       "مفيش طلعات مطابقة",
     ),
     "search_filters": MessageLookupByLibrary.simpleMessage("الفلاتر"),
-    "search_filters_count": m111,
+    "search_filters_count": m112,
     "search_price": MessageLookupByLibrary.simpleMessage("السعر"),
-    "search_price_up_to": m112,
+    "search_price_up_to": m113,
     "search_reset": MessageLookupByLibrary.simpleMessage("إعادة ضبط"),
-    "search_results": m113,
+    "search_results": m114,
     "search_services": MessageLookupByLibrary.simpleMessage(
       "DayGi يقدر يساعدك في",
     ),
-    "search_show_results": m114,
+    "search_show_results": m115,
     "search_sort": MessageLookupByLibrary.simpleMessage("ترتيب حسب"),
     "search_sort_best": MessageLookupByLibrary.simpleMessage("الأنسب"),
     "search_sort_price_high": MessageLookupByLibrary.simpleMessage(
@@ -2007,7 +2022,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "search_wind_ok": MessageLookupByLibrary.simpleMessage(
       "مناسبة لرياح النهارده",
     ),
-    "size_more_than_mg_error": m115,
+    "size_more_than_mg_error": m116,
     "something_went_wrong": MessageLookupByLibrary.simpleMessage("حدث خطأ ما"),
     "splash_brand": MessageLookupByLibrary.simpleMessage("دهب"),
     "splash_enter": MessageLookupByLibrary.simpleMessage("ادخل دهب"),
@@ -2069,9 +2084,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "terms_intro": MessageLookupByLibrary.simpleMessage(
       "الشروط دي بتغطي استخدامك لرحلة عشان تكتشف وتخطط وتحجز طلعات. لما تحجز، إنت موافق عليها.",
     ),
-    "today_call": m116,
+    "today_call": m117,
     "today_confirmed": MessageLookupByLibrary.simpleMessage("المورّد أكّد"),
-    "today_day_of": m117,
+    "today_day_of": m118,
     "today_done": MessageLookupByLibrary.simpleMessage("خلصت"),
     "today_driver": MessageLookupByLibrary.simpleMessage("السوّاق"),
     "today_em_hospital": MessageLookupByLibrary.simpleMessage(
@@ -2083,14 +2098,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "today_em_police": MessageLookupByLibrary.simpleMessage("شرطة السياحة"),
     "today_emergency": MessageLookupByLibrary.simpleMessage("طوارئ"),
     "today_guide": MessageLookupByLibrary.simpleMessage("المرشد"),
-    "today_in_hm": m118,
-    "today_in_m": m119,
+    "today_in_hm": m119,
+    "today_in_m": m120,
     "today_later": MessageLookupByLibrary.simpleMessage("بعدين"),
     "today_move_failed": MessageLookupByLibrary.simpleMessage(
       "معرفناش ننقلها. جرّب تاني أو كلّم المورّد.",
     ),
     "today_move_it": MessageLookupByLibrary.simpleMessage("انقلها"),
-    "today_moved": m120,
+    "today_moved": m121,
     "today_next": MessageLookupByLibrary.simpleMessage("اللي جاي"),
     "today_no_person": MessageLookupByLibrary.simpleMessage(
       "المورّد هيبعت مين جاي قبل اليوم.",
@@ -2127,14 +2142,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "today_waiting_operator": MessageLookupByLibrary.simpleMessage(
       "مستنيين المورّد يأكّد",
     ),
-    "today_wind": m121,
-    "today_wind_alert": m122,
-    "today_wind_ask": m123,
-    "today_wind_offer": m124,
+    "today_wind": m122,
+    "today_wind_alert": m123,
+    "today_wind_ask": m124,
+    "today_wind_offer": m125,
     "today_wind_other": MessageLookupByLibrary.simpleMessage("حاجة تانية"),
     "trip_change": MessageLookupByLibrary.simpleMessage("غيّر الخطة"),
     "trip_days_title": MessageLookupByLibrary.simpleMessage("الأيام"),
-    "trip_days_to_go": m125,
+    "trip_days_to_go": m126,
     "trip_empty_body": MessageLookupByLibrary.simpleMessage(
       "لما الخطة تتأكد، التاب ده يبقى يومك: المواعيد، والحجوزات، واللي جاي.",
     ),
@@ -2145,14 +2160,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "trip_sent_note": MessageLookupByLibrary.simpleMessage(
       "الفريق معاه الخطة، وهيأكدها مع المضيفين المحليين.",
     ),
-    "trip_status_draft": MessageLookupByLibrary.simpleMessage("خطتك"),
+    "trip_status_draft": MessageLookupByLibrary.simpleMessage("لسه ما اتبعتتش"),
     "trip_status_sent": MessageLookupByLibrary.simpleMessage("اتبعتت للفريق"),
     "trip_title": MessageLookupByLibrary.simpleMessage("رحلتك"),
     "tryAgain": MessageLookupByLibrary.simpleMessage("حاول مجددا"),
     "unit_knots": MessageLookupByLibrary.simpleMessage("عقدة"),
-    "xp_about_usd": m126,
+    "xp_about_usd": m127,
     "xp_ask_daygi": MessageLookupByLibrary.simpleMessage("اسأل DayGi عنها"),
-    "xp_ask_daygi_q": m127,
+    "xp_ask_daygi_q": m128,
     "xp_before": MessageLookupByLibrary.simpleMessage("قبل ما تروح"),
     "xp_book": MessageLookupByLibrary.simpleMessage("اختار معاد"),
     "xp_fact_duration": MessageLookupByLibrary.simpleMessage("المدة"),
@@ -2165,22 +2180,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "xp_fit_morning": MessageLookupByLibrary.simpleMessage(
       "طلعة الصبح، والميّة في أهدى وقت",
     ),
-    "xp_fit_sunset": m128,
-    "xp_fit_wind_high": m129,
-    "xp_fit_wind_ok": m130,
+    "xp_fit_sunset": m129,
+    "xp_fit_wind_high": m130,
+    "xp_fit_wind_ok": m131,
     "xp_for_you": MessageLookupByLibrary.simpleMessage("مناسبة ليك:"),
     "xp_free_cancel": MessageLookupByLibrary.simpleMessage("إلغاء مجاني"),
-    "xp_free_cancel_hours": m131,
+    "xp_free_cancel_hours": m132,
     "xp_hour_half": MessageLookupByLibrary.simpleMessage("ساعة ونص"),
     "xp_hour_one": MessageLookupByLibrary.simpleMessage("ساعة"),
     "xp_hour_two": MessageLookupByLibrary.simpleMessage("ساعتين"),
-    "xp_hours": m132,
+    "xp_hours": m133,
     "xp_included": MessageLookupByLibrary.simpleMessage("إيه اللي متضمّن"),
     "xp_level_advanced": MessageLookupByLibrary.simpleMessage("متقدّم"),
     "xp_level_all": MessageLookupByLibrary.simpleMessage("كل المستويات"),
     "xp_level_beginner": MessageLookupByLibrary.simpleMessage("مبتدئ"),
     "xp_level_intermediate": MessageLookupByLibrary.simpleMessage("متوسط"),
-    "xp_minutes": m133,
+    "xp_minutes": m134,
     "xp_operator_on": MessageLookupByLibrary.simpleMessage("مورّد على رحلة"),
     "xp_pay_on_arrival": MessageLookupByLibrary.simpleMessage(
       "الدفع عند الوصول",
@@ -2188,17 +2203,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "xp_per_person": MessageLookupByLibrary.simpleMessage("للفرد"),
     "xp_per_person_long": MessageLookupByLibrary.simpleMessage("للفرد"),
     "xp_reliability": MessageLookupByLibrary.simpleMessage("التزام"),
-    "xp_reliability_basis": m134,
+    "xp_reliability_basis": m135,
     "xp_reliability_new": MessageLookupByLibrary.simpleMessage(
       "جديد، لسه مفيش سجل",
     ),
-    "xp_reviews_from": m135,
-    "xp_reviews_latest": m136,
+    "xp_reviews_from": m136,
+    "xp_reviews_latest": m137,
     "xp_reviews_none": MessageLookupByLibrary.simpleMessage("لسه مفيش تقييمات"),
     "xp_reviews_none_hint": MessageLookupByLibrary.simpleMessage(
       "التقييمات بتظهر هنا بس من ناس راحت فعلاً. مش بنعرض تقييمات متألفة.",
     ),
     "xp_reviews_title": MessageLookupByLibrary.simpleMessage("الناس بتقول إيه"),
-    "xp_up_to": m137,
+    "xp_up_to": m138,
   };
 }

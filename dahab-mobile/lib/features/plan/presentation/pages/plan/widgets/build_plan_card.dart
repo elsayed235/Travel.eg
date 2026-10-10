@@ -6,7 +6,8 @@ class BuildPlanCard extends StatelessWidget {
   final bool emphasise;
   final bool busy;
   final VoidCallback onOpen;
-  final VoidCallback onKeep;
+  final bool saved;
+  final VoidCallback onSave;
   final VoidCallback onRequest;
 
   const BuildPlanCard({
@@ -15,7 +16,8 @@ class BuildPlanCard extends StatelessWidget {
     required this.emphasise,
     required this.busy,
     required this.onOpen,
-    required this.onKeep,
+    required this.saved,
+    required this.onSave,
     required this.onRequest,
   });
 
@@ -138,21 +140,7 @@ class BuildPlanCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(child: BuildPlanPrice(programme: p)),
-                    FilledButton(
-                      onPressed: onKeep,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: emphasise ? colors.button : colors.surface2,
-                        foregroundColor: emphasise ? colors.onButton : colors.text,
-                        disabledBackgroundColor: colors.surface2,
-                        minimumSize: const Size(0, 40),
-                        padding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.lg),
-                        shape: const RoundedRectangleBorder(borderRadius: AppRadius.chipAll),
-                      ),
-                      child: Text(
-                        Translate.s.trip_keep,
-                        style: AppTextStyle.s14_w600(color: emphasise ? colors.onButton : colors.text),
-                      ),
-                    ),
+                    BuildSavePlanButton(saved: saved, emphasise: emphasise, onTap: onSave),
                   ],
                 ),
                 Align(
