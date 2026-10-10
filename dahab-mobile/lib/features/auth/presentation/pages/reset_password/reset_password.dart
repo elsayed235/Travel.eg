@@ -33,7 +33,7 @@ class _ResetPasswordState extends State<ResetPassword> {
           BuildAuthHeader(
             title: Translate.s.auth_reset_title,
             subtitle: Translate.s.auth_reset_subtitle,
-            icon: Icons.password_rounded,
+            icon: AppIcons.lock,
           ),
           ResetPasswordForm(controller: controller),
           Gaps.vGap24,

@@ -51,8 +51,8 @@ class BuildEditProfileAvatar extends StatelessWidget {
                           borderRadius: AppRadius.buttonAll,
                           border: Border.all(color: context.colors.bg, width: 2),
                         ),
-                        child: Icon(
-                          Icons.camera_alt_outlined,
+                        child: AppIcon.ui(
+                          AppIcons.camera,
                           size: 16,
                           color: context.colors.onButton,
                         ),

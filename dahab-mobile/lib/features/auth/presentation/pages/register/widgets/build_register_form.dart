@@ -13,7 +13,7 @@ class BuildRegisterForm extends StatelessWidget {
         children: [
           BuildAuthTextField(
             label: Translate.s.label_full_name,
-            icon: Icons.person_outline_rounded,
+            icon: AppIcons.user,
             hint: Translate.s.auth_hint_name,
             controller: controller.nameController,
             fieldTypes: FieldTypes.normal,
@@ -24,7 +24,7 @@ class BuildRegisterForm extends StatelessWidget {
           Gaps.vGap16,
           BuildAuthTextField(
             label: Translate.s.label_email,
-            icon: Icons.mail_outline_rounded,
+            icon: AppIcons.mail,
             hint: Translate.s.auth_hint_email,
             controller: controller.emailController,
             fieldTypes: FieldTypes.normal,
@@ -36,7 +36,7 @@ class BuildRegisterForm extends StatelessWidget {
           Gaps.vGap16,
           BuildAuthTextField(
             label: Translate.s.label_phone,
-            icon: Icons.phone_iphone_rounded,
+            icon: AppIcons.device,
             hint: Translate.s.auth_hint_phone_optional,
             controller: controller.phoneController,
             fieldTypes: FieldTypes.normal,
@@ -48,7 +48,7 @@ class BuildRegisterForm extends StatelessWidget {
           Gaps.vGap16,
           BuildAuthTextField(
             label: Translate.s.label_password,
-            icon: Icons.lock_outline_rounded,
+            icon: AppIcons.lock,
             hint: Translate.s.auth_hint_password,
             controller: controller.passwordController,
             fieldTypes: FieldTypes.password,

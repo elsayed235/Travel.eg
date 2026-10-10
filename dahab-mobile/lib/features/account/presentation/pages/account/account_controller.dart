@@ -23,42 +23,21 @@ class AccountController {
     profileObs.setValue(profile);
   }
 
-  Future<void> openLanguageSheet(BuildContext context) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.colors.surface1,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetTop),
-      builder: (ctx) => BuildAccountLanguageSheet(
-        currentCode: ctx.read<DeviceCubit>().state.model.locale.languageCode,
-        onSelect: (locale) async {
-          Navigator.of(ctx).pop();
-          await DeviceSettings.setLanguage(context, locale);
-          if (context.mounted) {
-            AppSnackBar.showSimpleToast(msg: Translate.s.account_language_updated);
-          }
-        },
-      ),
-    );
+  void open(BuildContext context, Widget page) {
+    Navigator.of(context).push(RehlaPageRoute(builder: (_) => page));
   }
 
-  Future<void> openThemeSheet(BuildContext context) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.colors.surface1,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetTop),
-      builder: (ctx) => BuildAccountThemeSheet(
-        currentMode: ctx.read<DeviceCubit>().state.model.themeMode,
-        onSelect: (mode) async {
-          Navigator.of(ctx).pop();
-          await DeviceSettings.setTheme(context, mode);
-          if (context.mounted) {
-            AppSnackBar.showSimpleToast(msg: Translate.s.account_theme_updated);
-          }
-        },
-      ),
-    );
+  void askDaygiFrom(BuildContext context) {
+    Navigator.of(context).popUntil((route) => route.settings.name == HomeRoute.name || route.isFirst);
+    ShellActions.askDaygi(null);
+  }
+
+  void openLogin(BuildContext context) {
+    AutoRouter.of(context).push(const LoginRoute());
+  }
+
+  void openRegister(BuildContext context) {
+    AutoRouter.of(context).push(const RegisterRoute());
   }
 
   void openEditProfile(BuildContext context) {
@@ -69,23 +48,14 @@ class AccountController {
     AutoRouter.of(context).push(const AccountNotificationsRoute());
   }
 
-  void openHelp(BuildContext context) {
-    AutoRouter.of(context).push(const AccountHelpRoute());
-  }
-
-  void openPrivacy(BuildContext context) {
-    AutoRouter.of(context).push(const AccountPrivacyRoute());
-  }
-
-  void openTerms(BuildContext context) {
-    AutoRouter.of(context).push(const TermsRoute());
-  }
-
+  /// Signing out keeps the traveler where they are; the tab turns into the
+  /// guest view and everything public stays reachable.
   Future<void> confirmLogout(BuildContext context) async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: context.colors.surface1,
       elevation: 0,
+      showDragHandle: true,
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheetTop),
       builder: (ctx) => BuildAccountLogoutSheet(
         onConfirm: () => Navigator.of(ctx).pop(true),
@@ -94,27 +64,17 @@ class AccountController {
     );
     if (confirmed == true && context.mounted) {
       await AuthSession.signOut(context);
+      _loaded = false;
+      _profileApplied = false;
+      profileObs.setValue(null);
       if (!context.mounted) return;
       AppSnackBar.showSimpleToast(msg: Translate.s.account_logout_done);
-      AutoRouter.of(context).replace(const LoginRoute());
     }
   }
 
   String languageLabel(Locale locale) {
-    return locale.languageCode == 'en'
-        ? Translate.s.account_lang_en
-        : Translate.s.account_lang_ar;
+    return locale.languageCode == 'en' ? Translate.s.account_lang_en : Translate.s.account_lang_ar;
   }
-
-  String themeLabel(AdaptiveThemeMode mode) {
-    return switch (mode) {
-      AdaptiveThemeMode.light => Translate.s.account_theme_light,
-      AdaptiveThemeMode.dark => Translate.s.account_theme_dark,
-      AdaptiveThemeMode.system => Translate.s.account_theme_system,
-    };
-  }
-
-  String radiusLabel(int km) => Translate.s.account_radius_value(km.toLocaleDigits);
 
   void dispose() {}
 }

@@ -3,6 +3,7 @@ import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 /// Search bar with trailing tools (hashtag + search).
 class AppSearchField extends StatelessWidget {
@@ -71,7 +72,7 @@ class AppSearchField extends StatelessWidget {
 }
 
 class AppSearchToolButton extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final VoidCallback? onTap;
   final bool filled;
 
@@ -84,7 +85,7 @@ class AppSearchToolButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Icon(
+    final child = AppIcon.ui(
       icon,
       size: 18,
       color: filled ? context.colors.onButton : context.colors.text2,

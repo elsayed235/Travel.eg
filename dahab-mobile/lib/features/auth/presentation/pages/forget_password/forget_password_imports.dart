@@ -10,6 +10,7 @@ import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/features/auth/presentation/widgets/build_auth_chrome.dart';
 
 import 'widgets/forget_password_widgets_imports.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'forget_password.dart';
 part 'forget_password_controller.dart';

@@ -10,29 +10,29 @@ class Splash extends StatefulWidget {
 
 class _SplashState extends State<Splash> {
   final SplashController controller = SplashController();
-  var _ready = false;
+  late final Future<void> _ready;
+  var _onboarding = false;
 
   @override
   void initState() {
     super.initState();
-    _boot();
-  }
-
-  Future<void> _boot() async {
-    await controller.prepareSession(context);
-    if (!mounted) return;
-    if (SplashController.seen) {
-      await controller.goNext(context);
-      return;
-    }
-    setState(() => _ready = true);
+    _ready = controller.prepare(context);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    for (final asset in BuildSplashCinema.frames) {
+    for (final asset in BuildOnboarding.frames) {
       precacheImage(AssetImage(asset), context);
+    }
+  }
+
+  void _afterBrand() {
+    if (!mounted) return;
+    if (controller.needsOnboarding) {
+      setState(() => _onboarding = true);
+    } else {
+      controller.enterHome(context);
     }
   }
 
@@ -41,10 +41,14 @@ class _SplashState extends State<Splash> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: context.colors.scrim,
-        body: _ready
-            ? BuildSplashCinema(onDone: () => controller.goNext(context))
-            : const SizedBox.expand(),
+        backgroundColor: SplashInk.bottom,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          switchInCurve: Curves.easeOutCubic,
+          child: _onboarding
+              ? BuildOnboarding(key: const ValueKey('onboarding'), onDone: () => controller.finishOnboarding(context))
+              : BuildSplashBrand(key: const ValueKey('brand'), ready: _ready, onDone: _afterBrand),
+        ),
       ),
     );
   }

@@ -186,7 +186,7 @@ class _SheetHead extends StatelessWidget {
                 if (place != null) ...[
                   ExplorePill(
                     label: place.name(arabic),
-                    icon: Icons.close_rounded,
+                    icon: AppIcons.close,
                     selected: true,
                     onTap: () => controller.selectPlace(null),
                   ),

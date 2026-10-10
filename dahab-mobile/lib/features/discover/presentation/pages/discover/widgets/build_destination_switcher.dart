@@ -66,11 +66,11 @@ class BuildDestinationSwitcher extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.place_outlined, size: 18, color: colors.onImage),
+                    AppIcon.ui(AppIcons.pin, size: 18, color: colors.onImage),
                     Gaps.hGap6,
                     Text(current.label(context.isArabic), style: AppTextStyle.s14_w600(color: colors.onImage)),
                     Gaps.hGap4,
-                    Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: colors.onImage),
+                    AppIcon.ui(AppIcons.chevronDown, size: 20, color: colors.onImage),
                   ],
                 ),
               ),
@@ -118,7 +118,7 @@ class _DestinationOption extends StatelessWidget {
             if (selected)
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: AppSpacing.lg),
-                child: Icon(Icons.check_circle_rounded, color: colors.button),
+                child: AppIcon.ui(AppIcons.checkCircle, color: colors.button),
               ),
           ],
         ),

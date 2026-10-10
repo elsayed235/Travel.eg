@@ -18,7 +18,7 @@ class BuildPlanResults extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.cloud_off_rounded, size: 40, color: colors.text3),
+              AppIcon.ui(AppIcons.offline, size: 40, color: colors.text3),
               Gaps.vGap12,
               Text(
                 Translate.s.plan_loadFailed,
@@ -102,13 +102,13 @@ class _ResultsList extends StatelessWidget {
           children: [
             OutlinedButton.icon(
               onPressed: controller.editAnswers,
-              icon: const Icon(Icons.edit_outlined, size: 14),
+              icon: const AppIcon.ui(AppIcons.edit, size: 14),
               label: Text(Translate.s.plan_results_edit),
               style: _pill(colors.text, colors.line2),
             ),
             OutlinedButton.icon(
               onPressed: () => controller.showAllObs.setValue(!showAll),
-              icon: Icon(showAll ? Icons.auto_awesome_outlined : Icons.view_list_rounded, size: 14),
+              icon: AppIcon.ui(showAll ? AppIcons.sparkle : AppIcons.list, size: 14),
               label: Text(showAll ? Translate.s.plan_results_showMatches : Translate.s.plan_results_showAll),
               style: _pill(colors.button, colors.button),
             ),

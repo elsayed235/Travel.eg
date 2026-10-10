@@ -25,6 +25,7 @@ import 'package:rehla/features/experiences/domain/experience_fit.dart';
 import 'package:rehla/features/experiences/domain/models/experience.dart';
 import 'package:rehla/features/trip/data/trip_remote.dart';
 import 'package:rehla/features/trip/domain/trip_store.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'widgets/build_experience_card.dart';
 part 'widgets/build_experience_row.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
 import 'package:rehla/core/extensions/common_extension.dart';
@@ -11,6 +12,7 @@ import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/destination/rehla_destination.dart';
 import 'package:rehla/core/widgets/app_bottom_nav.dart';
+import 'package:rehla/core/widgets/rehla_photo.dart';
 import 'package:rehla/features/account/presentation/pages/account/account_imports.dart';
 import 'package:rehla/features/account/presentation/pages/account/widgets/account_widgets_imports.dart';
 import 'package:rehla/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
@@ -29,6 +31,7 @@ import 'package:rehla/features/trip/domain/trip_store.dart';
 import 'package:rehla/features/trip/presentation/trip_imports.dart';
 
 import 'widgets/home_widgets_imports.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'home.dart';
 part 'home_controller.dart';

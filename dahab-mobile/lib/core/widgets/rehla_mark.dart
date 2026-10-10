@@ -14,6 +14,20 @@ class RehlaMark extends StatelessWidget {
     required this.sunColor,
   });
 
+  /// The journey line in the mark's 64-unit grid; stroke it at width 5.
+  static Path journey() => Path()
+    ..moveTo(7, 45)
+    ..relativeLineTo(7, 0)
+    ..relativeLineTo(10, -15.5)
+    ..relativeCubicTo(1.2, -1.8, 3.8, -1.8, 5, 0)
+    ..lineTo(36, 40)
+    ..relativeCubicTo(1.6, 2.4, 4.6, 2.6, 6.4, 0.4)
+    ..relativeCubicTo(2.9, -3.6, 7, -3.6, 9.9, 0)
+    ..relativeCubicTo(1.2, 1.5, 2.9, 2.2, 4.7, 2.2);
+
+  static const sunCenter = Offset(43, 19);
+  static const sunRadius = 5.5;
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -43,17 +57,8 @@ class _RehlaMarkPainter extends CustomPainter {
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    final path = Path()
-      ..moveTo(7, 45)
-      ..relativeLineTo(7, 0)
-      ..relativeLineTo(10, -15.5)
-      ..relativeCubicTo(1.2, -1.8, 3.8, -1.8, 5, 0)
-      ..lineTo(36, 40)
-      ..relativeCubicTo(1.6, 2.4, 4.6, 2.6, 6.4, 0.4)
-      ..relativeCubicTo(2.9, -3.6, 7, -3.6, 9.9, 0)
-      ..relativeCubicTo(1.2, 1.5, 2.9, 2.2, 4.7, 2.2);
-    canvas.drawPath(path, stroke);
-    canvas.drawCircle(const Offset(43, 19), 5.5, Paint()..color = sun);
+    canvas.drawPath(RehlaMark.journey(), stroke);
+    canvas.drawCircle(RehlaMark.sunCenter, RehlaMark.sunRadius, Paint()..color = sun);
   }
 
   @override

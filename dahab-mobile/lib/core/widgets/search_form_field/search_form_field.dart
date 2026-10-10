@@ -4,6 +4,7 @@ import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 class SearchFormField extends StatefulWidget {
   final Function(String)? onSubmit;
@@ -92,7 +93,7 @@ class _SearchFormFieldState extends State<SearchFormField> {
                 widget.onSubmit!(_searchController.text);
               }
             },
-            child: Icon(Icons.search_rounded, color: context.colors.text2, size: 20),
+            child: AppIcon.ui(AppIcons.search, color: context.colors.text2, size: 20),
           ),
           border: OutlineInputBorder(
             borderRadius: AppRadius.buttonAll,

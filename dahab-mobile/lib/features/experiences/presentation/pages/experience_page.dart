@@ -73,7 +73,7 @@ class _ExperiencePageState extends State<ExperiencePage> {
                           top: top + AppSpacing.md,
                           start: AppSpacing.screenH,
                           child: _RoundButton(
-                            icon: arabic ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+                            icon: arabic ? AppIcons.arrow : AppIcons.back,
                             label: MaterialLocalizations.of(context).backButtonTooltip,
                             onTap: () => Navigator.of(context).maybePop(),
                           ),
@@ -85,8 +85,8 @@ class _ExperiencePageState extends State<ExperiencePage> {
                             spacing: AppSpacing.sm,
                             children: [
                               if (e.bookable.cancellationHours != null)
-                                XpChip(label: Translate.s.xp_free_cancel, icon: Icons.event_available_rounded, onImage: true),
-                              XpChip(label: Translate.s.xp_pay_on_arrival, icon: Icons.payments_outlined, onImage: true),
+                                XpChip(label: Translate.s.xp_free_cancel, icon: AppIcons.calendarCheck, onImage: true),
+                              XpChip(label: Translate.s.xp_pay_on_arrival, icon: AppIcons.wallet, onImage: true),
                             ],
                           ),
                         ),
@@ -122,16 +122,16 @@ class _ExperiencePageState extends State<ExperiencePage> {
                         Gaps.vGap24,
                         Text(Translate.s.xp_included, style: AppTextStyle.s16_w700(color: colors.text)),
                         Gaps.vGap12,
-                        for (final item in included) _Bullet(text: item, icon: Icons.check_rounded, tone: colors.green),
+                        for (final item in included) _Bullet(text: item, icon: AppIcons.check, tone: colors.green),
                       ],
                       if (e.prepEn.isNotEmpty || e.dependencies.isNotEmpty) ...[
                         Gaps.vGap18,
                         Text(Translate.s.xp_before, style: AppTextStyle.s16_w700(color: colors.text)),
                         Gaps.vGap12,
                         for (var i = 0; i < e.prepEn.length; i++)
-                          _Bullet(text: e.prep(arabic, i), icon: Icons.wb_sunny_outlined, tone: colors.text3),
+                          _Bullet(text: e.prep(arabic, i), icon: AppIcons.sun, tone: colors.text3),
                         for (final need in e.dependencies)
-                          _Bullet(text: need, icon: Icons.assignment_outlined, tone: colors.text3),
+                          _Bullet(text: need, icon: AppIcons.doc, tone: colors.text3),
                       ],
                       Gaps.vGap18,
                       Align(
@@ -141,7 +141,7 @@ class _ExperiencePageState extends State<ExperiencePage> {
                             Navigator.of(context).popUntil((r) => r.isFirst);
                             ShellActions.askDaygi(Translate.s.xp_ask_daygi_q(e.title(arabic)));
                           },
-                          icon: Icon(Icons.auto_awesome, size: 16, color: colors.button),
+                          icon: AppIcon.ui(AppIcons.sparkle, size: 16, color: colors.button),
                           label: Text(Translate.s.xp_ask_daygi, style: AppTextStyle.s13_w500(color: colors.button)),
                         ),
                       ),
@@ -159,7 +159,7 @@ class _ExperiencePageState extends State<ExperiencePage> {
 }
 
 class _RoundButton extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final VoidCallback onTap;
 
@@ -181,7 +181,7 @@ class _RoundButton extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: colors.onImage.withValues(alpha: 0.25)),
           ),
-          child: Icon(icon, size: 20, color: colors.onImage),
+          child: AppIcon.ui(icon, size: 20, color: colors.onImage),
         ),
       ),
     );
@@ -203,7 +203,7 @@ class _RatingLine extends StatelessWidget {
       spacing: AppSpacing.sm,
       children: [
         if (t != null && t.count > 0) ...[
-          Icon(Icons.star_rounded, size: 16, color: colors.highlight),
+          AppIcon.ui(AppIcons.starFill, size: 16, color: colors.highlight),
           Text(t.average.toStringAsFixed(1), style: AppTextStyle.s14_w600(color: colors.text)),
           Text('(${t.count})', style: AppTextStyle.s13_w500(color: colors.text3)),
         ] else if (t != null)
@@ -227,11 +227,11 @@ class _FactsStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final arabic = context.isArabic;
     final e = experience;
-    final facts = <(IconData, String, String)>[
-      if (e.durationMinutes > 0) (Icons.schedule_rounded, Translate.s.xp_fact_duration, ExperienceFit.duration(e.durationMinutes)),
-      if (e.bookable.meeting(arabic).isNotEmpty) (Icons.place_outlined, Translate.s.xp_fact_meet, e.bookable.meeting(arabic)),
-      (Icons.group_outlined, Translate.s.xp_fact_group, Translate.s.xp_up_to(e.bookable.maxPerSlot)),
-      if (e.difficulty.isNotEmpty) (Icons.terrain_outlined, Translate.s.xp_fact_level, _level(e.difficulty)),
+    final facts = <(String, String, String)>[
+      if (e.durationMinutes > 0) (AppIcons.clock, Translate.s.xp_fact_duration, ExperienceFit.duration(e.durationMinutes)),
+      if (e.bookable.meeting(arabic).isNotEmpty) (AppIcons.pin, Translate.s.xp_fact_meet, e.bookable.meeting(arabic)),
+      (AppIcons.group, Translate.s.xp_fact_group, Translate.s.xp_up_to(e.bookable.maxPerSlot)),
+      if (e.difficulty.isNotEmpty) (AppIcons.mountain, Translate.s.xp_fact_level, _level(e.difficulty)),
     ];
     return SizedBox(
       height: 92,
@@ -259,7 +259,7 @@ class _FactsStrip extends StatelessWidget {
 }
 
 class _Fact extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final String value;
 
@@ -279,7 +279,7 @@ class _Fact extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: colors.button),
+          AppIcon.ui(icon, size: 18, color: colors.button),
           const Spacer(),
           Text(label, style: AppTextStyle.micro(color: colors.text3)),
           Text(value, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyle.s12_w600(color: colors.text).copyWith(height: 1.25)),
@@ -312,7 +312,7 @@ class _GuestsSay extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.format_quote_rounded, size: 18, color: colors.highlight),
+              AppIcon.ui(AppIcons.quote, size: 18, color: colors.highlight),
               Gaps.hGap6,
               Text(Translate.s.xp_reviews_title, style: AppTextStyle.s14_w600(color: colors.text)),
             ],
@@ -407,7 +407,7 @@ class _OperatorCard extends StatelessWidget {
 
 class _Bullet extends StatelessWidget {
   final String text;
-  final IconData icon;
+  final String icon;
   final Color tone;
 
   const _Bullet({required this.text, required this.icon, required this.tone});
@@ -419,7 +419,7 @@ class _Bullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: tone),
+          AppIcon.ui(icon, size: 18, color: tone),
           Gaps.hGap10,
           Expanded(child: Text(text, style: AppTextStyle.s14_w400(color: context.colors.text))),
         ],

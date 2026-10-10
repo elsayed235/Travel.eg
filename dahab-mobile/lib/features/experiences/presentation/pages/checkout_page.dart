@@ -224,7 +224,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   Gaps.vGap12,
                   Row(
                     children: [
-                      Icon(Icons.event_available_rounded, size: 16, color: colors.green),
+                      AppIcon.ui(AppIcons.calendarCheck, size: 16, color: colors.green),
                       Gaps.hGap6,
                       Expanded(
                         child: Text(
@@ -251,7 +251,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.payments_outlined, color: colors.button),
+                  AppIcon.ui(AppIcons.wallet, color: colors.button),
                   Gaps.hGap12,
                   Expanded(
                     child: Column(
@@ -262,7 +262,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ],
                     ),
                   ),
-                  Icon(Icons.radio_button_checked_rounded, color: colors.button, size: 20),
+                  AppIcon.ui(AppIcons.radioOn, color: colors.button, size: 20),
                 ],
               ),
             ),
@@ -344,7 +344,7 @@ class _HoldTimer extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.timer_outlined, size: 18, color: ending ? colors.highlight : colors.button),
+          AppIcon.ui(AppIcons.clock, size: 18, color: ending ? colors.highlight : colors.button),
           Gaps.hGap8,
           Expanded(child: Text(Translate.s.pay_held, style: AppTextStyle.s13_w500(color: colors.text))),
           Text(
@@ -369,7 +369,7 @@ class _BookedStates extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    Widget row(IconData icon, Color tone, String text) => Padding(
+    Widget row(String icon, Color tone, String text) => Padding(
           padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.md),
           child: Row(
             children: [
@@ -377,7 +377,7 @@ class _BookedStates extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(color: tone.withValues(alpha: 0.14), shape: BoxShape.circle),
-                child: Icon(icon, size: 16, color: tone),
+                child: AppIcon.ui(icon, size: 16, color: tone),
               ),
               Gaps.hGap10,
               Expanded(child: Text(text, style: AppTextStyle.s14_w500(color: colors.text))),
@@ -394,9 +394,9 @@ class _BookedStates extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          row(Icons.check_rounded, colors.green, Translate.s.pay_state_booked(booked.reference)),
-          row(Icons.hourglass_top_rounded, colors.amber, Translate.s.pay_state_waiting(supplier)),
-          row(Icons.payments_outlined, colors.text3, Translate.s.pay_state_payment),
+          row(AppIcons.check, colors.green, Translate.s.pay_state_booked(booked.reference)),
+          row(AppIcons.hourglass, colors.amber, Translate.s.pay_state_waiting(supplier)),
+          row(AppIcons.wallet, colors.text3, Translate.s.pay_state_payment),
           Padding(
             padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.md),
             child: Text(Translate.s.pay_state_note, style: AppTextStyle.caption(color: colors.text3)),

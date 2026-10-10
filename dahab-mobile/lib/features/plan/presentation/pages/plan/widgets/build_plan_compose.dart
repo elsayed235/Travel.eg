@@ -149,7 +149,7 @@ class _Footer extends StatelessWidget {
               if (step.index > 0)
                 TextButton.icon(
                   onPressed: controller.back,
-                  icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                  icon: const AppIcon.ui(AppIcons.back, size: 18),
                   label: Text(Translate.s.plan_back),
                   style: TextButton.styleFrom(foregroundColor: colors.text2),
                 ),

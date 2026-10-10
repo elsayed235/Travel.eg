@@ -191,7 +191,7 @@ class _Check extends StatelessWidget {
         scale: selected ? 1 : 0,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutBack,
-        child: Icon(Icons.check_rounded, size: 13, color: colors.onButton),
+        child: AppIcon.ui(AppIcons.check, size: 13, color: colors.onButton),
       ),
     );
   }
@@ -313,7 +313,7 @@ class _VibesStep extends StatelessWidget {
                               color: selected ? colors.button : colors.surface2,
                               borderRadius: AppRadius.buttonAll,
                             ),
-                            child: Icon(
+                            child: AppIcon.ui(
                               PlanLabels.vibeIcon(v),
                               size: 16,
                               color: selected ? colors.onButton : colors.text2,

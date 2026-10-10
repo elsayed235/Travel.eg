@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
 import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/extensions/common_extension.dart';
@@ -13,6 +14,13 @@ import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/text/app_fonts.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/theme/destination/rehla_destination.dart';
+import 'package:rehla/core/widgets/app_entrance.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
+import 'package:rehla/core/widgets/grouped_list.dart';
+import 'package:rehla/core/utils/arabic_numerals.dart';
+import 'package:rehla/features/base/presentation/shell_actions.dart';
+import 'package:rehla/features/discover/domain/content/discover_content.dart';
 import 'package:rehla/features/experiences/domain/experience_catalogue.dart';
 import 'package:rehla/features/experiences/domain/models/experience.dart';
 import 'package:rehla/features/experiences/presentation/experiences_imports.dart';
@@ -21,3 +29,6 @@ part 'explore_controller.dart';
 part 'explore_tab.dart';
 part 'widgets/build_dahab_map.dart';
 part 'widgets/build_explore_filters.dart';
+part 'search/search_filters.dart';
+part 'search/search_filters_sheet.dart';
+part 'search/search_page.dart';

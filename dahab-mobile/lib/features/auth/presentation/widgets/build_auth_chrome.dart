@@ -10,6 +10,7 @@ import 'package:rehla/core/theme/text/app_fonts.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
 import 'package:rehla/core/utils/arabic_numerals.dart';
 import 'package:rehla/core/widgets/GenericTextField.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 import 'package:rehla/core/widgets/rehla_mark.dart';
 import 'package:rehla/features/general/presentation/widgets/build_preference_switches.dart';
 
@@ -72,29 +73,23 @@ class BuildAuthScaffold extends StatelessWidget {
                       AppSpacing.xl,
                       0,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          height: 44,
-                          child: Row(
-                            children: [
-                              if (showBack)
-                                _RoundBackButton(
-                                  label: backLabel,
-                                  onTap: onBack ?? () => AutoRouter.of(context).maybePop(),
-                                ),
-                              const Spacer(),
-                              if (step != null && totalSteps != null)
-                                BuildAuthSteps(step: step!, total: totalSteps!),
-                            ],
-                          ),
-                        ),
-                        const Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: BuildPreferenceSwitches(),
-                        ),
-                      ],
+                    child: SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          if (showBack)
+                            _RoundBackButton(
+                              label: backLabel,
+                              onTap: onBack ?? () => AutoRouter.of(context).maybePop(),
+                            ),
+                          const Spacer(),
+                          if (step != null && totalSteps != null) ...[
+                            BuildAuthSteps(step: step!, total: totalSteps!),
+                            Gaps.hGap10,
+                          ],
+                          const BuildPreferencesButton(),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(
@@ -133,8 +128,8 @@ class _RoundBackButton extends StatelessWidget {
           splashFactory: NoSplash.splashFactory,
           customBorder: const CircleBorder(),
           child: SizedBox.square(
-            dimension: 42,
-            child: Icon(Icons.arrow_back_rounded, size: 20, color: colors.text),
+            dimension: 44,
+            child: Center(child: AppIcon.ui(AppIcons.back, size: 20, color: colors.text, mirrorInRtl: true)),
           ),
         ),
       ),
@@ -273,13 +268,13 @@ class BuildAuthHero extends StatelessWidget {
 class BuildAuthHeader extends StatelessWidget {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final String icon;
 
   const BuildAuthHeader({
     super.key,
     required this.title,
     required this.subtitle,
-    this.icon = Icons.lock_reset_rounded,
+    this.icon = AppIcons.lock,
   });
 
   @override
@@ -296,7 +291,7 @@ class BuildAuthHeader extends StatelessWidget {
             borderRadius: AppRadius.buttonAll,
             border: Border.all(color: colors.line),
           ),
-          child: Icon(icon, size: 26, color: colors.button),
+          child: AppIcon.ui(icon, size: 26, color: colors.button),
         ),
         Gaps.vGap18,
         Text(
@@ -316,7 +311,7 @@ class BuildAuthHeader extends StatelessWidget {
 /// Auth text field: label above, icon inside, ink border on focus.
 class BuildAuthTextField extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final String icon;
   final TextEditingController controller;
   final FieldTypes fieldTypes;
   final TextInputType type;
@@ -361,7 +356,7 @@ class BuildAuthTextField extends StatelessWidget {
           fillColor: colors.surface2,
           enableBorderColor: colors.surface2,
           focusBorderColor: colors.text,
-          prefixIcon: Icon(icon, size: 20, color: colors.text2),
+          prefixIcon: AppIcon.ui(icon, size: 20, color: colors.text2),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.lg + 2,
@@ -426,8 +421,8 @@ class BuildAuthPasswordRules extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          ok ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                        AppIcon.ui(
+                          ok ? AppIcons.checkCircle : AppIcons.radioOff,
                           size: 14,
                           color: ok ? colors.green : colors.text3,
                         ),
@@ -448,7 +443,7 @@ class BuildAuthPasswordRules extends StatelessWidget {
 /// Full-width outlined action, paired with the primary LoadingButton.
 class BuildAuthSecondaryButton extends StatelessWidget {
   final String label;
-  final IconData? icon;
+  final String? icon;
   final VoidCallback onTap;
 
   const BuildAuthSecondaryButton({super.key, required this.label, required this.onTap, this.icon});
@@ -471,7 +466,7 @@ class BuildAuthSecondaryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 18, color: colors.text),
+                AppIcon.ui(icon!, size: 18, color: colors.text),
                 Gaps.hGap8,
               ],
               Text(label, style: AppTextStyle.s14_w500(color: colors.text)),

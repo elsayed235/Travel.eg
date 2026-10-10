@@ -1,23 +1,26 @@
 part of 'splash_imports.dart';
 
 class SplashController {
-  /// Once per process, same idea as the website's sessionStorage flag.
-  static var seen = false;
+  static const _onboardedKey = 'onboarded_v1';
 
-  bool _hasSession = false;
+  bool needsOnboarding = false;
 
-  Future<void> prepareSession(BuildContext context) async {
+  Future<void> prepare(BuildContext context) async {
     await AuthSession.hydrate(context);
-    _hasSession = await AuthSession.hasPersistedSession();
+    final prefs = await SharedPreferences.getInstance();
+    needsOnboarding = !(prefs.getBool(_onboardedKey) ?? false);
   }
 
-  Future<void> goNext(BuildContext context) async {
-    seen = true;
+  Future<void> finishOnboarding(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardedKey, true);
+    if (context.mounted) await enterHome(context);
+  }
+
+  /// Browsing never needs an account; sign-in is asked for at the moment it
+  /// matters (holding a booking, opening a trip).
+  Future<void> enterHome(BuildContext context) async {
     if (!context.mounted) return;
-    if (_hasSession || AuthSession.isAuthorized(context)) {
-      await AutoRouter.of(context).replace(const HomeRoute());
-    } else {
-      await AutoRouter.of(context).replace(const LoginRoute());
-    }
+    await AutoRouter.of(context).replace(const HomeRoute());
   }
 }

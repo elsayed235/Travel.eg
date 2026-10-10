@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:rehla/core/theme/destination/rehla_destination.dart';
 import 'package:rehla/features/discover/domain/models/discover_door.dart';
 import 'package:rehla/features/discover/domain/models/editorial_pick.dart';
@@ -17,28 +16,24 @@ class DiscoverContent {
     RehlaDestination.dahab => const [
       DiscoverDoor(
         id: 'dive',
-        icon: Icons.scuba_diving_outlined,
         labelEn: 'Dive & snorkel',
         labelAr: 'غطس وسنوركل',
         planVibes: [PlanVibe.diving, PlanVibe.sea],
       ),
       DiscoverDoor(
         id: 'kite',
-        icon: Icons.kitesurfing_outlined,
         labelEn: 'Kite & wind',
         labelAr: 'كايت',
         planVibes: [PlanVibe.adventure, PlanVibe.sea],
       ),
       DiscoverDoor(
         id: 'desert',
-        icon: Icons.landscape_outlined,
         labelEn: 'Desert & Sinai',
         labelAr: 'صحرا وسينا',
         planVibes: [PlanVibe.desert, PlanVibe.adventure],
       ),
       DiscoverDoor(
         id: 'stay',
-        icon: Icons.cottage_outlined,
         labelEn: 'Stay',
         labelAr: 'إقامة',
         askEn: 'Where should I stay in Dahab?',
@@ -46,7 +41,6 @@ class DiscoverContent {
       ),
       DiscoverDoor(
         id: 'food',
-        icon: Icons.restaurant_outlined,
         labelEn: 'Food',
         labelAr: 'أكل',
         askEn: 'Where should I eat in Dahab tonight?',
@@ -54,7 +48,6 @@ class DiscoverContent {
       ),
       DiscoverDoor(
         id: 'bike',
-        icon: Icons.pedal_bike_outlined,
         labelEn: 'Bike rentals',
         labelAr: 'إيجار عجل',
         askEn: 'How do I rent a bike in Dahab?',
@@ -62,7 +55,6 @@ class DiscoverContent {
       ),
       DiscoverDoor(
         id: 'rides',
-        icon: Icons.airport_shuttle_outlined,
         labelEn: 'Rides & airport',
         labelAr: 'مشاوير ومطار',
         askEn: 'How do I get from Sharm airport to Dahab?',
@@ -70,7 +62,6 @@ class DiscoverContent {
       ),
       DiscoverDoor(
         id: 'help',
-        icon: Icons.health_and_safety_outlined,
         labelEn: 'Help & SOS',
         labelAr: 'مساعدة وطوارئ',
         askEn: 'I need help in Dahab',
@@ -80,42 +71,36 @@ class DiscoverContent {
     RehlaDestination.nuweiba => const [
       DiscoverDoor(
         id: 'camps',
-        icon: Icons.holiday_village_outlined,
         labelEn: 'Beach camps',
         labelAr: 'كامبات',
         planVibes: [PlanVibe.unplug, PlanVibe.sea],
       ),
       DiscoverDoor(
         id: 'snorkel',
-        icon: Icons.pool_outlined,
         labelEn: 'Snorkel',
         labelAr: 'سنوركل',
         planVibes: [PlanVibe.sea],
       ),
       DiscoverDoor(
         id: 'canyons',
-        icon: Icons.terrain_outlined,
         labelEn: 'Canyons',
         labelAr: 'كانيونات',
         planVibes: [PlanVibe.nature, PlanVibe.adventure],
       ),
       DiscoverDoor(
         id: 'stars',
-        icon: Icons.nights_stay_outlined,
         labelEn: 'Stars',
         labelAr: 'نجوم',
         planVibes: [PlanVibe.stars],
       ),
       DiscoverDoor(
         id: 'unplug',
-        icon: Icons.self_improvement_outlined,
         labelEn: 'Unplug',
         labelAr: 'فصلان',
         planVibes: [PlanVibe.unplug],
       ),
       DiscoverDoor(
         id: 'desert',
-        icon: Icons.landscape_outlined,
         labelEn: 'Desert',
         labelAr: 'صحرا',
         planVibes: [PlanVibe.desert],
@@ -124,42 +109,36 @@ class DiscoverContent {
     RehlaDestination.siwa => const [
       DiscoverDoor(
         id: 'springs',
-        icon: Icons.water_drop_outlined,
         labelEn: 'Springs',
         labelAr: 'عيون',
         planVibes: [PlanVibe.wellness],
       ),
       DiscoverDoor(
         id: 'salt',
-        icon: Icons.waves_outlined,
         labelEn: 'Salt lakes',
         labelAr: 'بحيرات الملح',
         planVibes: [PlanVibe.wellness],
       ),
       DiscoverDoor(
         id: 'safari',
-        icon: Icons.directions_car_outlined,
         labelEn: 'Sand sea',
         labelAr: 'بحر الرمال',
         planVibes: [PlanVibe.desert, PlanVibe.adventure],
       ),
       DiscoverDoor(
         id: 'heritage',
-        icon: Icons.fort_outlined,
         labelEn: 'Heritage',
         labelAr: 'تاريخ',
         planVibes: [PlanVibe.culture],
       ),
       DiscoverDoor(
         id: 'wellness',
-        icon: Icons.spa_outlined,
         labelEn: 'Wellness',
         labelAr: 'استشفاء',
         planVibes: [PlanVibe.wellness, PlanVibe.unplug],
       ),
       DiscoverDoor(
         id: 'stars',
-        icon: Icons.nights_stay_outlined,
         labelEn: 'Stars',
         labelAr: 'نجوم',
         planVibes: [PlanVibe.stars],

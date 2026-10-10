@@ -13,7 +13,7 @@ class BuildLoginForm extends StatelessWidget {
         children: [
           BuildAuthTextField(
             label: Translate.s.auth_identifier,
-            icon: Icons.alternate_email_rounded,
+            icon: AppIcons.mail,
             hint: Translate.s.auth_hint_identifier,
             controller: controller.emailController,
             fieldTypes: FieldTypes.normal,
@@ -25,7 +25,7 @@ class BuildLoginForm extends StatelessWidget {
           Gaps.vGap16,
           BuildAuthTextField(
             label: Translate.s.label_password,
-            icon: Icons.lock_outline_rounded,
+            icon: AppIcons.lock,
             hint: Translate.s.auth_hint_password,
             controller: controller.passwordController,
             fieldTypes: FieldTypes.password,

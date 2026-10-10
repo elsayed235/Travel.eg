@@ -13,7 +13,7 @@ class ResetPasswordForm extends StatelessWidget {
         children: [
           BuildAuthTextField(
             label: Translate.s.label_password,
-            icon: Icons.lock_outline_rounded,
+            icon: AppIcons.lock,
             hint: Translate.s.auth_hint_password,
             controller: controller.password,
             fieldTypes: FieldTypes.password,
@@ -25,7 +25,7 @@ class ResetPasswordForm extends StatelessWidget {
           Gaps.vGap16,
           BuildAuthTextField(
             label: Translate.s.label_confirm_password,
-            icon: Icons.lock_reset_rounded,
+            icon: AppIcons.lock,
             hint: Translate.s.auth_hint_password,
             controller: controller.confirmPassword,
             fieldTypes: FieldTypes.password,

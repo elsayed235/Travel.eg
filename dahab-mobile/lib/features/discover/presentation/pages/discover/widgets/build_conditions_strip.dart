@@ -48,7 +48,7 @@ class _Panel extends StatelessWidget {
             child: Row(
               children: [
                 _Reading(
-                  icon: Icons.air_rounded,
+                  icon: AppIcons.wind,
                   tint: colors.button,
                   label: Translate.s.discover_wind,
                   value: '${c.windKnots.round()}',
@@ -57,7 +57,7 @@ class _Panel extends StatelessWidget {
                 ),
                 VerticalDivider(width: 1, color: colors.line),
                 _Reading(
-                  icon: Icons.water_drop_outlined,
+                  icon: AppIcons.drop,
                   tint: colors.button,
                   label: Translate.s.discover_water,
                   value: c.waterTemperatureC == null ? '—' : '${c.waterTemperatureC!.round()}',
@@ -66,7 +66,7 @@ class _Panel extends StatelessWidget {
                 ),
                 VerticalDivider(width: 1, color: colors.line),
                 _Reading(
-                  icon: Icons.wb_twilight_outlined,
+                  icon: AppIcons.sunset,
                   tint: colors.highlight,
                   label: Translate.s.discover_sunset,
                   value: sunset ?? '—',
@@ -98,7 +98,7 @@ class _Panel extends StatelessWidget {
 }
 
 class _Reading extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final Color tint;
   final String label;
   final String value;
@@ -125,7 +125,7 @@ class _Reading extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 14, color: tint),
+                AppIcon.ui(icon, size: 14, color: tint),
                 Gaps.hGap4,
                 Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: AppTextStyle.caption(color: colors.text3))),
               ],

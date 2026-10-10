@@ -84,20 +84,20 @@ class BuildProgrammeSheet extends StatelessWidget {
                         runSpacing: AppSpacing.xs,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          _Fact(icon: Icons.calendar_today_outlined, text: Translate.s.plan_card_days(p.durationDays)),
+                          _Fact(icon: AppIcons.calendar, text: Translate.s.plan_card_days(p.durationDays)),
                           BuildPaceMeter(score: p.intensityScore),
-                          _Fact(icon: Icons.schedule_rounded, text: Translate.s.plan_card_freeTime(p.freeTimeScore)),
+                          _Fact(icon: AppIcons.clock, text: Translate.s.plan_card_freeTime(p.freeTimeScore)),
                         ],
                       ),
                       if (p.highlights(arabic).isNotEmpty) ...[
                         Gaps.vGap18,
                         _SectionTitle(Translate.s.plan_detail_highlights),
-                        for (final h in p.highlights(arabic)) _Bullet(text: h, icon: Icons.auto_awesome_outlined),
+                        for (final h in p.highlights(arabic)) _Bullet(text: h, icon: AppIcons.sparkle),
                       ],
                       if (p.included(arabic).isNotEmpty) ...[
                         Gaps.vGap18,
                         _SectionTitle(Translate.s.plan_detail_included),
-                        for (final h in p.included(arabic)) _Bullet(text: h, icon: Icons.check_rounded),
+                        for (final h in p.included(arabic)) _Bullet(text: h, icon: AppIcons.check),
                       ],
                       if (p.days.isNotEmpty) ...[
                         Gaps.vGap18,
@@ -184,7 +184,7 @@ class _SectionTitle extends StatelessWidget {
 
 class _Bullet extends StatelessWidget {
   final String text;
-  final IconData icon;
+  final String icon;
 
   const _Bullet({required this.text, required this.icon});
 
@@ -198,7 +198,7 @@ class _Bullet extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsetsDirectional.only(top: 3),
-            child: Icon(icon, size: 14, color: colors.button),
+            child: AppIcon.ui(icon, size: 14, color: colors.button),
           ),
           Gaps.hGap9,
           Expanded(

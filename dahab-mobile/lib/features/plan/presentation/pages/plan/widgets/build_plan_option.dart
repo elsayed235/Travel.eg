@@ -5,7 +5,7 @@ part of 'plan_widgets_imports.dart';
 class BuildPlanOption extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
-  final IconData? icon;
+  final String? icon;
   final String title;
   final String? sub;
   final Widget? extra;
@@ -56,7 +56,7 @@ class BuildPlanOption extends StatelessWidget {
                         color: selected ? colors.button : colors.surface2,
                         borderRadius: AppRadius.buttonAll,
                       ),
-                      child: Icon(icon, size: 18, color: selected ? colors.onButton : colors.text2),
+                      child: AppIcon.ui(icon!, size: 18, color: selected ? colors.onButton : colors.text2),
                     ),
                     Gaps.hGap12,
                   ],
@@ -85,7 +85,7 @@ class BuildPlanOption extends StatelessWidget {
                       scale: selected ? 1 : 0,
                       duration: duration,
                       curve: Curves.easeOutBack,
-                      child: Icon(Icons.check_rounded, size: 13, color: colors.onButton),
+                      child: AppIcon.ui(AppIcons.check, size: 13, color: colors.onButton),
                     ),
                   ),
                 ],

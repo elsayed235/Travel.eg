@@ -12,6 +12,7 @@ import 'package:rehla/core/widgets/base_form_option/options_requester/option_con
 import 'package:rehla/core/widgets/base_form_option/sheet/hint_text.dart';
 import 'package:rehla/core/widgets/base_form_option/sheet/option_button_decoration.dart';
 import 'package:get/utils.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 class OptionsButton<T> extends StatefulWidget {
   final String hintText;
@@ -184,8 +185,8 @@ class _OptionsButtonState<T> extends State<OptionsButton<T>> {
                     widget.controller.clear();
                     widget.onClearPressed?.call();
                   },
-                  child: Icon(
-                    Icons.clear,
+                  child: AppIcon.ui(
+                    AppIcons.close,
                     size: 20,
                     color: AppColors.noContextInstance.blackOpacity,
                   ),
@@ -197,7 +198,7 @@ class _OptionsButtonState<T> extends State<OptionsButton<T>> {
 
             /// Suffix
             widget.customSuffixIcon ??
-                Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: AppColors.noContextInstance.blackOpacity),
+                AppIcon.ui(AppIcons.chevronDown, size: 20, color: AppColors.noContextInstance.blackOpacity),
           ],
         );
       },

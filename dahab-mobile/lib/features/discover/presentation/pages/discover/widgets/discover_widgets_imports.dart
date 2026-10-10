@@ -1,6 +1,9 @@
+import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rehla/core/bloc/value_state_manager/value_state_manager_import.dart';
 import 'package:rehla/core/constants/gaps.dart';
@@ -18,6 +21,7 @@ import 'package:rehla/core/theme/text/app_text_style.dart';
 import 'package:rehla/core/constants/app_config.dart';
 import 'package:rehla/core/helpers/app_money.dart';
 import 'package:rehla/core/widgets/app_entrance.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 import 'package:rehla/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'package:rehla/features/auth/presentation/manager/user_cubit/user_cubit.dart';
 import 'package:rehla/features/discover/domain/content/discover_content.dart';
@@ -35,6 +39,7 @@ import '../discover_imports.dart';
 
 part 'build_discover_body.dart';
 part 'build_discover_hero.dart';
+part 'build_discover_ask_line.dart';
 part 'build_destination_switcher.dart';
 part 'build_conditions_strip.dart';
 part 'build_discover_doors.dart';

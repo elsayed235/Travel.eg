@@ -49,6 +49,7 @@ class BuildDiscoverBody extends StatelessWidget {
                     destination: destination,
                     title: Translate.s.discover_doors_title(place),
                     onOpen: (door) => controller.openDoor(context, door),
+                    onSeeAll: destination.liveCatalogue ? controller.onSearch : null,
                   ),
                 ],
               ),

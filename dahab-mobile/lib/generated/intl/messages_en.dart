@@ -209,110 +209,124 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m85(count) => "${count} offers on your request";
 
-  static String m86(date, qty) => "Needed ${date} · ${qty}";
+  static String m86(current, total) => "${current} of ${total}";
 
-  static String m87(count) => "${count} orders are waiting on you for pickup";
+  static String m87(date, qty) => "Needed ${date} · ${qty}";
 
-  static String m88(provider, qty) => "${provider} · ${qty}";
+  static String m88(count) => "${count} orders are waiting on you for pickup";
 
-  static String m89(when) => "Free cancellation until ${when}";
+  static String m89(provider, qty) => "${provider} · ${qty}";
 
-  static String m90(supplier) =>
+  static String m90(when) => "Free cancellation until ${when}";
+
+  static String m91(supplier) =>
       "Pay ${supplier} in cash on the day. Nothing is charged now.";
 
-  static String m91(usd) => "about \$${usd} · charged in EGP";
+  static String m92(usd) => "about \$${usd} · charged in EGP";
 
-  static String m92(n) =>
+  static String m93(n) =>
       "${Intl.plural(n, one: '1 guest', other: '${n} guests')}";
 
-  static String m93(amount) =>
+  static String m94(amount) =>
       "The operator\'s price is now ${amount}. Check the total and confirm again.";
 
-  static String m94(ref) => "Booked · ref ${ref}";
+  static String m95(ref) => "Booked · ref ${ref}";
 
-  static String m95(supplier) => "Waiting for ${supplier} to confirm";
+  static String m96(supplier) => "Waiting for ${supplier} to confirm";
 
-  static String m96(n) => "${n} days";
+  static String m97(n) => "${n} days";
 
-  static String m97(n) => "${n}% free time";
+  static String m98(n) => "${n}% free time";
 
-  static String m98(n) => "Day ${n}";
+  static String m99(n) => "Day ${n}";
 
-  static String m99(place) =>
+  static String m100(place) =>
       "${place} is new on REHLA. Prices are estimates; request a plan and our team confirms it with local hosts.";
 
-  static String m100(days) => "Right length: ${days} days";
+  static String m101(days) => "Right length: ${days} days";
 
-  static String m101(matched, asked) =>
+  static String m102(matched, asked) =>
       "Matches ${matched} of ${asked} things you want";
 
-  static String m102(place) => "Every plan in ${place}";
+  static String m103(place) => "Every plan in ${place}";
 
-  static String m103(score) => "Best match · ${score}%";
+  static String m104(score) => "Best match · ${score}%";
 
-  static String m104(score) => "${score}% match";
+  static String m105(score) => "${score}% match";
 
-  static String m105(count) => "${count} plans that fit you";
+  static String m106(count) => "${count} plans that fit you";
 
-  static String m106(n, total) => "Step ${n} of ${total}";
+  static String m107(n, total) => "Step ${n} of ${total}";
 
-  static String m107(n) => "${n} nights";
+  static String m108(n) => "${n} nights";
 
-  static String m108(MB, files) =>
+  static String m109(language) => "Language and display, ${language}";
+
+  static String m110(query) => "Ask DayGi about “${query}”";
+
+  static String m111(count) => "Filters · ${count}";
+
+  static String m112(price) => "Up to ${price}";
+
+  static String m113(count) => "${count} outings";
+
+  static String m114(count) => "Show ${count} outings";
+
+  static String m115(MB, files) =>
       "These files must be under ${MB} MB: ${files}";
 
-  static String m109(name) => "Call ${name}";
+  static String m116(name) => "Call ${name}";
 
-  static String m110(day, days) => "Day ${day} of ${days}";
+  static String m117(day, days) => "Day ${day} of ${days}";
 
-  static String m111(h, m) => "in ${h} h ${m} min";
+  static String m118(h, m) => "in ${h} h ${m} min";
 
-  static String m112(m) => "in ${m} min";
+  static String m119(m) => "in ${m} min";
 
-  static String m113(slot) =>
+  static String m120(slot) =>
       "Moved to ${slot}. The operator has the new time.";
 
-  static String m114(kn) => "wind ${kn} kn";
+  static String m121(kn) => "wind ${kn} kn";
 
-  static String m115(wind, title, max) =>
+  static String m122(wind, title, max) =>
       "Wind is ${wind} kn now. ${title} runs below ${max} kn.";
 
-  static String m116(title) =>
+  static String m123(title) =>
       "It\'s windy. What can I do instead of ${title}?";
 
-  static String m117(slot, day) =>
+  static String m124(slot, day) =>
       "First departure the operator runs: ${slot} on ${day}.";
 
-  static String m118(n) =>
+  static String m125(n) =>
       "${Intl.plural(n, one: '1 day to go', other: '${n} days to go')}";
 
-  static String m119(usd) => "about \$${usd}";
+  static String m126(usd) => "about \$${usd}";
 
-  static String m120(title) => "Is ${title} a good fit for me?";
+  static String m127(title) => "Is ${title} a good fit for me?";
 
-  static String m121(clock) => "Sunset today is at ${clock}";
+  static String m128(clock) => "Sunset today is at ${clock}";
 
-  static String m122(wind, max) =>
+  static String m129(wind, max) =>
       "Wind is ${wind} kn today; the operator runs this below ${max} kn";
 
-  static String m123(wind) =>
+  static String m130(wind) =>
       "Wind is ${wind} kn, inside the operator\'s limit";
 
-  static String m124(hours) => "Free cancellation up to ${hours} h before";
+  static String m131(hours) => "Free cancellation up to ${hours} h before";
 
-  static String m125(h) => "${h} hours";
+  static String m132(h) => "${h} hours";
 
-  static String m126(m) => "${m} min";
+  static String m133(m) => "${m} min";
 
-  static String m127(n) =>
+  static String m134(n) =>
       "${Intl.plural(n, one: 'reliability from 1 trip', other: 'reliability from ${n} trips')}";
 
-  static String m128(count) =>
+  static String m135(count) =>
       "${Intl.plural(count, one: 'From 1 verified review', other: 'From ${count} verified reviews')}";
 
-  static String m129(date) => " · latest ${date}";
+  static String m136(date) => " · latest ${date}";
 
-  static String m130(n) => "Up to ${n}";
+  static String m137(n) => "Up to ${n}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -320,6 +334,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Please enter the address",
     ),
     "access_denied": MessageLookupByLibrary.simpleMessage("Access denied"),
+    "account_about": MessageLookupByLibrary.simpleMessage("About REHLA"),
     "account_address_default": MessageLookupByLibrary.simpleMessage("Default"),
     "account_address_home": MessageLookupByLibrary.simpleMessage("Home"),
     "account_address_work": MessageLookupByLibrary.simpleMessage("Work"),
@@ -328,9 +343,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_addresses_subtitle": MessageLookupByLibrary.simpleMessage(
       "Saved delivery and pickup places",
     ),
+    "account_ask_daygi": MessageLookupByLibrary.simpleMessage("Ask DayGi"),
+    "account_ask_daygi_hint": MessageLookupByLibrary.simpleMessage(
+      "Your local guide, any question",
+    ),
     "account_city": MessageLookupByLibrary.simpleMessage("City"),
-    "account_contact_body": MessageLookupByLibrary.simpleMessage(
-      "Email support@dabrha.com or chat in-app after an offer is accepted.",
+    "account_contact": MessageLookupByLibrary.simpleMessage("Contact us"),
+    "account_contact_hint": MessageLookupByLibrary.simpleMessage(
+      "Phone, WhatsApp and email",
     ),
     "account_contact_title": MessageLookupByLibrary.simpleMessage("Contact us"),
     "account_dark_mode": MessageLookupByLibrary.simpleMessage("Dark mode"),
@@ -346,31 +366,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_edit_section_personal": MessageLookupByLibrary.simpleMessage(
       "Personal details",
     ),
-    "account_faq_1_a": MessageLookupByLibrary.simpleMessage(
-      "Use Request, add description, quantity and date — it reaches matching owners in your radius.",
+    "account_emergency": MessageLookupByLibrary.simpleMessage(
+      "Emergency numbers",
     ),
-    "account_faq_1_q": MessageLookupByLibrary.simpleMessage(
-      "How do I request something I can\'t find?",
+    "account_emergency_hint": MessageLookupByLibrary.simpleMessage(
+      "Hyperbaric chamber, hospital, tourist police",
     ),
-    "account_faq_2_a": MessageLookupByLibrary.simpleMessage(
-      "Rent is for the event period; buy if you want to keep the item. Filter in Explore.",
-    ),
-    "account_faq_2_q": MessageLookupByLibrary.simpleMessage(
-      "What\'s the difference between rent and buy?",
-    ),
-    "account_faq_3_a": MessageLookupByLibrary.simpleMessage(
-      "After confirmation you\'ll see a pickup code in order details — show it to the owner.",
-    ),
-    "account_faq_3_q": MessageLookupByLibrary.simpleMessage(
-      "How do I pick up an order?",
-    ),
-    "account_faq_4_a": MessageLookupByLibrary.simpleMessage(
-      "From Account → My listings you track what you published. Cycle: insurance, then deposit, then late fee if return is delayed.",
-    ),
-    "account_faq_4_q": MessageLookupByLibrary.simpleMessage(
-      "How do I list something I own?",
-    ),
+    "account_faq": MessageLookupByLibrary.simpleMessage("FAQ"),
     "account_first_name": MessageLookupByLibrary.simpleMessage("First name"),
+    "account_guest_body": MessageLookupByLibrary.simpleMessage(
+      "Sign in to keep your trip, bookings and vouchers in one place. You can explore without an account.",
+    ),
+    "account_guest_title": MessageLookupByLibrary.simpleMessage(
+      "Welcome to REHLA",
+    ),
+    "account_guides": MessageLookupByLibrary.simpleMessage("Travel guides"),
     "account_help": MessageLookupByLibrary.simpleMessage("Help center"),
     "account_help_hint": MessageLookupByLibrary.simpleMessage(
       "FAQs and ways to contact us",
@@ -436,7 +446,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "account_logout_done": MessageLookupByLibrary.simpleMessage("Logged out"),
     "account_logout_subtitle": MessageLookupByLibrary.simpleMessage(
-      "You\'ll need to sign in again to track orders and offers.",
+      "Your trip stays saved to your account. Sign in again to see it here.",
     ),
     "account_logout_title": MessageLookupByLibrary.simpleMessage("Log out?"),
     "account_my_listings_cycle_hint": MessageLookupByLibrary.simpleMessage(
@@ -461,6 +471,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Reviews you wrote and reviews about you",
     ),
     "account_my_reviews_title": MessageLookupByLibrary.simpleMessage("Reviews"),
+    "account_my_trip": MessageLookupByLibrary.simpleMessage("My trip"),
+    "account_my_trip_hint": MessageLookupByLibrary.simpleMessage(
+      "Bookings, vouchers and Today",
+    ),
     "account_notif_offers": MessageLookupByLibrary.simpleMessage("New offers"),
     "account_notif_offers_hint": MessageLookupByLibrary.simpleMessage(
       "When an owner replies to your request",
@@ -490,18 +504,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_photo_title": MessageLookupByLibrary.simpleMessage(
       "Profile photo",
     ),
-    "account_privacy": MessageLookupByLibrary.simpleMessage("Privacy policy"),
-    "account_privacy_body": MessageLookupByLibrary.simpleMessage(
-      "We respect your privacy and use your data only to run Dabrha and improve renting and buying.",
-    ),
-    "account_privacy_point_1": MessageLookupByLibrary.simpleMessage(
-      "• Your location is used only to show nearby items.",
-    ),
-    "account_privacy_point_2": MessageLookupByLibrary.simpleMessage(
-      "• Your phone is shared with owners after an offer is accepted.",
-    ),
-    "account_privacy_point_3": MessageLookupByLibrary.simpleMessage(
-      "• You can request account deletion from support anytime.",
+    "account_privacy": MessageLookupByLibrary.simpleMessage(
+      "Privacy & your data",
     ),
     "account_profile_saved": MessageLookupByLibrary.simpleMessage(
       "Changes saved",
@@ -542,11 +546,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "account_section_activity": MessageLookupByLibrary.simpleMessage(
       "Activity",
     ),
+    "account_section_help": MessageLookupByLibrary.simpleMessage(
+      "Help & safety",
+    ),
     "account_section_preferences": MessageLookupByLibrary.simpleMessage(
       "Preferences",
     ),
     "account_section_profile": MessageLookupByLibrary.simpleMessage("Account"),
     "account_section_support": MessageLookupByLibrary.simpleMessage("Support"),
+    "account_section_trip": MessageLookupByLibrary.simpleMessage("Plan & ask"),
     "account_stat_listings": MessageLookupByLibrary.simpleMessage(
       "My listings",
     ),
@@ -926,6 +934,21 @@ class MessageLookup extends MessageLookupByLibrary {
     "confirmValidation": MessageLookupByLibrary.simpleMessage(
       "Passwords must match",
     ),
+    "contact_address": MessageLookupByLibrary.simpleMessage("Address"),
+    "contact_call": MessageLookupByLibrary.simpleMessage("Call"),
+    "contact_email": MessageLookupByLibrary.simpleMessage("Email"),
+    "contact_follow": MessageLookupByLibrary.simpleMessage("Follow us"),
+    "contact_holidays": MessageLookupByLibrary.simpleMessage("Holidays"),
+    "contact_hours": MessageLookupByLibrary.simpleMessage("Working hours"),
+    "contact_intro": MessageLookupByLibrary.simpleMessage(
+      "Our team answers during working hours. For anything urgent on a trip, use Emergency numbers.",
+    ),
+    "contact_unset": MessageLookupByLibrary.simpleMessage(
+      "Our contact details aren\'t published yet. DayGi can answer most questions right now.",
+    ),
+    "contact_weekdays": MessageLookupByLibrary.simpleMessage("Weekdays"),
+    "contact_weekend": MessageLookupByLibrary.simpleMessage("Weekend"),
+    "contact_whatsapp": MessageLookupByLibrary.simpleMessage("WhatsApp"),
     "create_request_admin_locked": MessageLookupByLibrary.simpleMessage(
       "Admin",
     ),
@@ -1251,6 +1274,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "discover_water": MessageLookupByLibrary.simpleMessage("Water"),
     "discover_wind": MessageLookupByLibrary.simpleMessage("Wind"),
     "done": MessageLookupByLibrary.simpleMessage("Done"),
+    "emergency_intro": MessageLookupByLibrary.simpleMessage(
+      "Tap a number to call. In a diving emergency, call the hyperbaric chamber first.",
+    ),
+    "emergency_saved": MessageLookupByLibrary.simpleMessage(
+      "Offline — showing the numbers saved in the app.",
+    ),
     "error_BadRequest_Error": MessageLookupByLibrary.simpleMessage(
       "Bad request",
     ),
@@ -1341,10 +1370,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_door_ask": MessageLookupByLibrary.simpleMessage("Ask DayGi"),
     "home_door_browse": MessageLookupByLibrary.simpleMessage("Browse outings"),
     "home_door_plan": MessageLookupByLibrary.simpleMessage("Start a plan"),
+    "home_doors_see_all": MessageLookupByLibrary.simpleMessage("See all"),
     "home_due_in_days": m54,
     "home_due_today": MessageLookupByLibrary.simpleMessage("Needed today"),
     "home_due_tomorrow": MessageLookupByLibrary.simpleMessage(
       "Needed tomorrow",
+    ),
+    "home_exit_hint": MessageLookupByLibrary.simpleMessage(
+      "Press back again to exit",
     ),
     "home_featured_label": MessageLookupByLibrary.simpleMessage(
       "Needed soonest",
@@ -1408,6 +1441,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "home_today_in": m63,
     "home_trip_day": m64,
     "home_view_all": m65,
+    "info_empty": MessageLookupByLibrary.simpleMessage("Nothing here yet."),
+    "info_load_failed": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t load this page. Check your connection and try again.",
+    ),
     "internet_connected": MessageLookupByLibrary.simpleMessage(
       "Internet connected",
     ),
@@ -1620,6 +1657,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "offers_why_fastest": MessageLookupByLibrary.simpleMessage("Fastest"),
     "offers_why_nearest": MessageLookupByLibrary.simpleMessage("Nearest"),
     "offers_why_top_rated": MessageLookupByLibrary.simpleMessage("Top rated"),
+    "onboard_1_body": MessageLookupByLibrary.simpleMessage(
+      "Reefs, canyons and slow beach days — every outing checked against today\'s wind and sea.",
+    ),
+    "onboard_1_eyebrow": MessageLookupByLibrary.simpleMessage(
+      "Dahab · South Sinai",
+    ),
+    "onboard_1_title": MessageLookupByLibrary.simpleMessage(
+      "Meet Dahab the way locals do",
+    ),
+    "onboard_2_body": MessageLookupByLibrary.simpleMessage(
+      "Say what you\'re in the mood for. DayGi suggests real outings you can book and builds your plan day by day.",
+    ),
+    "onboard_2_eyebrow": MessageLookupByLibrary.simpleMessage(
+      "DayGi · your guide",
+    ),
+    "onboard_2_title": MessageLookupByLibrary.simpleMessage(
+      "Ask DayGi, like a friend who lives here",
+    ),
+    "onboard_3_body": MessageLookupByLibrary.simpleMessage(
+      "Pickup time, your driver, the voucher offline and emergency numbers — all in Today.",
+    ),
+    "onboard_3_eyebrow": MessageLookupByLibrary.simpleMessage("On the day"),
+    "onboard_3_title": MessageLookupByLibrary.simpleMessage(
+      "Your day, quietly in your pocket",
+    ),
+    "onboard_next": MessageLookupByLibrary.simpleMessage("Next"),
+    "onboard_progress": m86,
+    "onboard_start": MessageLookupByLibrary.simpleMessage("Start exploring"),
     "order_detail_actions_hint": MessageLookupByLibrary.simpleMessage(
       "Update the order status for this deal stage",
     ),
@@ -1663,7 +1728,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "order_detail_enter_code_title": MessageLookupByLibrary.simpleMessage(
       "Confirm receipt with code",
     ),
-    "order_detail_event": m86,
+    "order_detail_event": m87,
     "order_detail_status_updated": MessageLookupByLibrary.simpleMessage(
       "Order status updated",
     ),
@@ -1671,7 +1736,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Order timeline",
     ),
     "order_detail_title": MessageLookupByLibrary.simpleMessage("Order details"),
-    "orders_action_needed": m87,
+    "orders_action_needed": m88,
     "orders_awaiting_peer": MessageLookupByLibrary.simpleMessage(
       "Awaiting offers",
     ),
@@ -1691,7 +1756,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Cancelled",
     ),
     "orders_filter_done": MessageLookupByLibrary.simpleMessage("Done"),
-    "orders_meta": m88,
+    "orders_meta": m89,
     "orders_next_details": MessageLookupByLibrary.simpleMessage("Details"),
     "orders_next_enter_code": MessageLookupByLibrary.simpleMessage(
       "Enter pickup code",
@@ -1735,11 +1800,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "passValidation": MessageLookupByLibrary.simpleMessage(
       "Enter at least 6 characters",
     ),
-    "pay_cancel_until": m89,
+    "pay_cancel_until": m90,
     "pay_cash": MessageLookupByLibrary.simpleMessage("Pay on arrival"),
-    "pay_cash_hint": m90,
+    "pay_cash_hint": m91,
     "pay_confirm": MessageLookupByLibrary.simpleMessage("Confirm booking"),
-    "pay_currency_note": m91,
+    "pay_currency_note": m92,
     "pay_currency_note_egp": MessageLookupByLibrary.simpleMessage(
       "Charged in EGP",
     ),
@@ -1750,20 +1815,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "pay_failed": MessageLookupByLibrary.simpleMessage(
       "We couldn\'t confirm the booking. Your hold is still on; try again.",
     ),
-    "pay_guests": m92,
+    "pay_guests": m93,
     "pay_held": MessageLookupByLibrary.simpleMessage("Held for you"),
     "pay_method": MessageLookupByLibrary.simpleMessage("How you pay"),
     "pay_open_trip": MessageLookupByLibrary.simpleMessage("Open my trip"),
     "pay_pick_again": MessageLookupByLibrary.simpleMessage("Pick a time again"),
-    "pay_price_changed": m93,
-    "pay_state_booked": m94,
+    "pay_price_changed": m94,
+    "pay_state_booked": m95,
     "pay_state_note": MessageLookupByLibrary.simpleMessage(
       "Booked and operator-confirmed are separate steps. We\'ll show it in your trip the moment the operator confirms.",
     ),
     "pay_state_payment": MessageLookupByLibrary.simpleMessage(
       "Payment: on arrival, nothing charged yet",
     ),
-    "pay_state_waiting": m95,
+    "pay_state_waiting": m96,
     "pay_title": MessageLookupByLibrary.simpleMessage("Review and confirm"),
     "pay_total": MessageLookupByLibrary.simpleMessage("Total"),
     "phoneValidation": MessageLookupByLibrary.simpleMessage(
@@ -1796,11 +1861,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "plan_building": MessageLookupByLibrary.simpleMessage("Shaping your plans"),
     "plan_card_book": MessageLookupByLibrary.simpleMessage("Book this plan"),
-    "plan_card_days": m96,
+    "plan_card_days": m97,
     "plan_card_estimate": MessageLookupByLibrary.simpleMessage(
       "Estimated price",
     ),
-    "plan_card_freeTime": m97,
+    "plan_card_freeTime": m98,
     "plan_card_from": MessageLookupByLibrary.simpleMessage("From"),
     "plan_card_included": MessageLookupByLibrary.simpleMessage(
       "What\'s included",
@@ -1816,7 +1881,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_card_viewDays": MessageLookupByLibrary.simpleMessage(
       "See it day by day",
     ),
-    "plan_detail_day": m98,
+    "plan_detail_day": m99,
     "plan_detail_dayByDay": MessageLookupByLibrary.simpleMessage("Day by day"),
     "plan_detail_highlights": MessageLookupByLibrary.simpleMessage(
       "Highlights",
@@ -1824,7 +1889,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_detail_included": MessageLookupByLibrary.simpleMessage(
       "What\'s included",
     ),
-    "plan_early_note": m99,
+    "plan_early_note": m100,
     "plan_loadFailed": MessageLookupByLibrary.simpleMessage(
       "We couldn\'t load the plans. Check your connection and try again.",
     ),
@@ -1885,9 +1950,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_reason_family": MessageLookupByLibrary.simpleMessage(
       "Easy for families",
     ),
-    "plan_reason_length": m100,
+    "plan_reason_length": m101,
     "plan_reason_pace": MessageLookupByLibrary.simpleMessage("Your pace"),
-    "plan_reason_vibes": m101,
+    "plan_reason_vibes": m102,
     "plan_request_failed": MessageLookupByLibrary.simpleMessage(
       "We couldn\'t send your request. Check your connection and try again.",
     ),
@@ -1897,12 +1962,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_request_signIn": MessageLookupByLibrary.simpleMessage(
       "Sign in so we can send your request",
     ),
-    "plan_results_allTitle": m102,
-    "plan_results_best": m103,
+    "plan_results_allTitle": m103,
+    "plan_results_best": m104,
     "plan_results_edit": MessageLookupByLibrary.simpleMessage(
       "Change my answers",
     ),
-    "plan_results_match": m104,
+    "plan_results_match": m105,
     "plan_results_showAll": MessageLookupByLibrary.simpleMessage(
       "See all plans",
     ),
@@ -1910,7 +1975,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Back to my matches",
     ),
     "plan_results_sort": MessageLookupByLibrary.simpleMessage("Sort plans"),
-    "plan_results_title": m105,
+    "plan_results_title": m106,
     "plan_results_titleOne": MessageLookupByLibrary.simpleMessage(
       "One plan that fits you",
     ),
@@ -1923,7 +1988,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "plan_sort_price": MessageLookupByLibrary.simpleMessage("Lowest price"),
     "plan_sort_short": MessageLookupByLibrary.simpleMessage("Shortest"),
     "plan_startOver": MessageLookupByLibrary.simpleMessage("Start over"),
-    "plan_step": m106,
+    "plan_step": m107,
     "plan_subtitle": MessageLookupByLibrary.simpleMessage(
       "A few quick questions, then plans that fit you. Change anything, any time.",
     ),
@@ -1951,11 +2016,89 @@ class MessageLookup extends MessageLookupByLibrary {
       "Healing & rest",
     ),
     "plan_when_flexible": MessageLookupByLibrary.simpleMessage("Not sure yet"),
-    "plan_when_nights": m107,
+    "plan_when_nights": m108,
     "plan_when_nightsUnit": MessageLookupByLibrary.simpleMessage("nights"),
+    "prefs_appearance": MessageLookupByLibrary.simpleMessage("Appearance"),
+    "prefs_button_label": m109,
+    "prefs_done": MessageLookupByLibrary.simpleMessage("Done"),
+    "prefs_language": MessageLookupByLibrary.simpleMessage("Language"),
+    "prefs_title": MessageLookupByLibrary.simpleMessage("Language & display"),
+    "privacy_1_body": MessageLookupByLibrary.simpleMessage(
+      "Your name, email or phone, your trips and bookings, and the messages you send to DayGi or our team.",
+    ),
+    "privacy_1_title": MessageLookupByLibrary.simpleMessage("What we keep"),
+    "privacy_2_body": MessageLookupByLibrary.simpleMessage(
+      "The operator of an outing you book sees your name, phone and booking details so they can meet you. We don\'t sell your data.",
+    ),
+    "privacy_2_title": MessageLookupByLibrary.simpleMessage("Who sees it"),
+    "privacy_3_body": MessageLookupByLibrary.simpleMessage(
+      "Your sign-in session, language and appearance are stored on this device. Your latest trip is saved here too, so your voucher opens without a connection.",
+    ),
+    "privacy_3_title": MessageLookupByLibrary.simpleMessage("On this phone"),
+    "privacy_4_body": MessageLookupByLibrary.simpleMessage(
+      "The app doesn\'t track your location. Maps show places, not you.",
+    ),
+    "privacy_4_title": MessageLookupByLibrary.simpleMessage("Location"),
+    "privacy_5_body": MessageLookupByLibrary.simpleMessage(
+      "We use Firebase to count app usage and report crashes so we can fix problems. These reports don\'t include your messages or payment details.",
+    ),
+    "privacy_5_title": MessageLookupByLibrary.simpleMessage("Diagnostics"),
+    "privacy_6_body": MessageLookupByLibrary.simpleMessage(
+      "Card payments are handled by our payment provider. We never see or store your full card number.",
+    ),
+    "privacy_6_title": MessageLookupByLibrary.simpleMessage("Payments"),
+    "privacy_7_body": MessageLookupByLibrary.simpleMessage(
+      "You can edit your profile any time. To delete your account and data, reach us from Contact us.",
+    ),
+    "privacy_7_title": MessageLookupByLibrary.simpleMessage("Your choices"),
+    "privacy_intro": MessageLookupByLibrary.simpleMessage(
+      "We collect only what we need to plan and run your trip.",
+    ),
     "retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
-    "size_more_than_mg_error": m108,
+    "search_any_day": MessageLookupByLibrary.simpleMessage("Any day"),
+    "search_any_price": MessageLookupByLibrary.simpleMessage("Any price"),
+    "search_ask_daygi": m110,
+    "search_beginner": MessageLookupByLibrary.simpleMessage(
+      "Good for first-timers",
+    ),
+    "search_clear": MessageLookupByLibrary.simpleMessage("Clear filters"),
+    "search_dur_any": MessageLookupByLibrary.simpleMessage("Any length"),
+    "search_dur_full": MessageLookupByLibrary.simpleMessage("Full day"),
+    "search_dur_half": MessageLookupByLibrary.simpleMessage("3–6 h"),
+    "search_dur_short": MessageLookupByLibrary.simpleMessage("Under 3 h"),
+    "search_duration": MessageLookupByLibrary.simpleMessage("Duration"),
+    "search_empty_body": MessageLookupByLibrary.simpleMessage(
+      "Try another day or fewer filters.",
+    ),
+    "search_empty_title": MessageLookupByLibrary.simpleMessage(
+      "No outings match",
+    ),
+    "search_filters": MessageLookupByLibrary.simpleMessage("Filters"),
+    "search_filters_count": m111,
+    "search_price": MessageLookupByLibrary.simpleMessage("Price"),
+    "search_price_up_to": m112,
+    "search_reset": MessageLookupByLibrary.simpleMessage("Reset"),
+    "search_results": m113,
+    "search_services": MessageLookupByLibrary.simpleMessage(
+      "DayGi can help with",
+    ),
+    "search_show_results": m114,
+    "search_sort": MessageLookupByLibrary.simpleMessage("Sort by"),
+    "search_sort_best": MessageLookupByLibrary.simpleMessage("Best fit"),
+    "search_sort_price_high": MessageLookupByLibrary.simpleMessage(
+      "Highest price",
+    ),
+    "search_sort_price_low": MessageLookupByLibrary.simpleMessage(
+      "Lowest price",
+    ),
+    "search_sort_short": MessageLookupByLibrary.simpleMessage("Shortest"),
+    "search_title": MessageLookupByLibrary.simpleMessage("Find an outing"),
+    "search_when": MessageLookupByLibrary.simpleMessage("When"),
+    "search_wind_ok": MessageLookupByLibrary.simpleMessage(
+      "Fits today\'s wind",
+    ),
+    "size_more_than_mg_error": m115,
     "something_went_wrong": MessageLookupByLibrary.simpleMessage(
       "Something went wrong",
     ),
@@ -1963,6 +2106,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "splash_enter": MessageLookupByLibrary.simpleMessage("Enter Dahab"),
     "splash_eyebrow": MessageLookupByLibrary.simpleMessage(
       "Dahab · Before you book, see it",
+    ),
+    "splash_line": MessageLookupByLibrary.simpleMessage(
+      "Dahab, Nuweiba & Siwa — planned around you",
     ),
     "splash_scroll": MessageLookupByLibrary.simpleMessage("Scroll to enter"),
     "splash_skip": MessageLookupByLibrary.simpleMessage("Skip"),
@@ -1978,11 +2124,51 @@ class MessageLookup extends MessageLookupByLibrary {
     "splash_trust": MessageLookupByLibrary.simpleMessage(
       "End-to-end encrypted identity & double-entry ledger",
     ),
-    "today_call": m109,
+    "splash_wordmark": MessageLookupByLibrary.simpleMessage("REHLA"),
+    "terms_1_body": MessageLookupByLibrary.simpleMessage(
+      "REHLA lists outings run by independent local operators. The operator named on each outing runs it and is responsible for it on the day.",
+    ),
+    "terms_1_title": MessageLookupByLibrary.simpleMessage(
+      "Who runs your outing",
+    ),
+    "terms_2_body": MessageLookupByLibrary.simpleMessage(
+      "When you book, we hold your place for a short time while you pay. Paid isn\'t the same as confirmed: the operator confirms your booking, and you\'ll see its status change in Trip.",
+    ),
+    "terms_2_title": MessageLookupByLibrary.simpleMessage(
+      "Holds, payment and confirmation",
+    ),
+    "terms_3_body": MessageLookupByLibrary.simpleMessage(
+      "Prices are in Egyptian pounds and cover what each outing lists as included. Anything not listed isn\'t included.",
+    ),
+    "terms_3_title": MessageLookupByLibrary.simpleMessage("Prices"),
+    "terms_4_body": MessageLookupByLibrary.simpleMessage(
+      "Each outing shows its cancellation terms before you pay, such as free cancellation up to 24 hours before. Refunds follow those terms and go back to your original payment method.",
+    ),
+    "terms_4_title": MessageLookupByLibrary.simpleMessage(
+      "Cancellations and refunds",
+    ),
+    "terms_5_body": MessageLookupByLibrary.simpleMessage(
+      "Sea and desert outings depend on conditions. If conditions make an outing unsafe, the operator may move or cancel it. Follow your guide\'s instructions, and bring any certification an outing asks for.",
+    ),
+    "terms_5_title": MessageLookupByLibrary.simpleMessage(
+      "Wind, sea and safety",
+    ),
+    "terms_6_body": MessageLookupByLibrary.simpleMessage(
+      "DayGi is an AI guide. Its suggestions are a starting point — check times, prices and conditions on the outing before you book.",
+    ),
+    "terms_6_title": MessageLookupByLibrary.simpleMessage("DayGi suggestions"),
+    "terms_7_body": MessageLookupByLibrary.simpleMessage(
+      "Keep your sign-in details private. You\'re responsible for bookings made from your account.",
+    ),
+    "terms_7_title": MessageLookupByLibrary.simpleMessage("Your account"),
+    "terms_intro": MessageLookupByLibrary.simpleMessage(
+      "These terms cover using REHLA to discover, plan and book outings. By booking, you agree to them.",
+    ),
+    "today_call": m116,
     "today_confirmed": MessageLookupByLibrary.simpleMessage(
       "Operator confirmed",
     ),
-    "today_day_of": m110,
+    "today_day_of": m117,
     "today_done": MessageLookupByLibrary.simpleMessage("Done"),
     "today_driver": MessageLookupByLibrary.simpleMessage("Driver"),
     "today_em_hospital": MessageLookupByLibrary.simpleMessage(
@@ -1994,14 +2180,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "today_em_police": MessageLookupByLibrary.simpleMessage("Tourist police"),
     "today_emergency": MessageLookupByLibrary.simpleMessage("Emergency"),
     "today_guide": MessageLookupByLibrary.simpleMessage("Guide"),
-    "today_in_hm": m111,
-    "today_in_m": m112,
+    "today_in_hm": m118,
+    "today_in_m": m119,
     "today_later": MessageLookupByLibrary.simpleMessage("Later"),
     "today_move_failed": MessageLookupByLibrary.simpleMessage(
       "We couldn\'t move it. Try again or ask the operator.",
     ),
     "today_move_it": MessageLookupByLibrary.simpleMessage("Move it"),
-    "today_moved": m113,
+    "today_moved": m120,
     "today_next": MessageLookupByLibrary.simpleMessage("Next"),
     "today_no_person": MessageLookupByLibrary.simpleMessage(
       "The operator will share who\'s coming before the day.",
@@ -2042,14 +2228,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "today_waiting_operator": MessageLookupByLibrary.simpleMessage(
       "Waiting for the operator to confirm",
     ),
-    "today_wind": m114,
-    "today_wind_alert": m115,
-    "today_wind_ask": m116,
-    "today_wind_offer": m117,
+    "today_wind": m121,
+    "today_wind_alert": m122,
+    "today_wind_ask": m123,
+    "today_wind_offer": m124,
     "today_wind_other": MessageLookupByLibrary.simpleMessage("Something else"),
     "trip_change": MessageLookupByLibrary.simpleMessage("Change plan"),
     "trip_days_title": MessageLookupByLibrary.simpleMessage("The days"),
-    "trip_days_to_go": m118,
+    "trip_days_to_go": m125,
     "trip_empty_body": MessageLookupByLibrary.simpleMessage(
       "Once a plan is confirmed, this tab becomes today: the day, the bookings, and what comes next.",
     ),
@@ -2069,11 +2255,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "trip_title": MessageLookupByLibrary.simpleMessage("Your trip"),
     "tryAgain": MessageLookupByLibrary.simpleMessage("Try again"),
     "unit_knots": MessageLookupByLibrary.simpleMessage("kn"),
-    "xp_about_usd": m119,
+    "xp_about_usd": m126,
     "xp_ask_daygi": MessageLookupByLibrary.simpleMessage(
       "Ask DayGi about this",
     ),
-    "xp_ask_daygi_q": m120,
+    "xp_ask_daygi_q": m127,
     "xp_before": MessageLookupByLibrary.simpleMessage("Before you go"),
     "xp_book": MessageLookupByLibrary.simpleMessage("Choose a time"),
     "xp_fact_duration": MessageLookupByLibrary.simpleMessage("Duration"),
@@ -2086,16 +2272,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "xp_fit_morning": MessageLookupByLibrary.simpleMessage(
       "Morning departure, when the water is calmest",
     ),
-    "xp_fit_sunset": m121,
-    "xp_fit_wind_high": m122,
-    "xp_fit_wind_ok": m123,
+    "xp_fit_sunset": m128,
+    "xp_fit_wind_high": m129,
+    "xp_fit_wind_ok": m130,
     "xp_for_you": MessageLookupByLibrary.simpleMessage("For you:"),
     "xp_free_cancel": MessageLookupByLibrary.simpleMessage("Free cancellation"),
-    "xp_free_cancel_hours": m124,
+    "xp_free_cancel_hours": m131,
     "xp_hour_half": MessageLookupByLibrary.simpleMessage("1.5 hours"),
     "xp_hour_one": MessageLookupByLibrary.simpleMessage("1 hour"),
     "xp_hour_two": MessageLookupByLibrary.simpleMessage("2 hours"),
-    "xp_hours": m125,
+    "xp_hours": m132,
     "xp_included": MessageLookupByLibrary.simpleMessage("What\'s included"),
     "xp_level_advanced": MessageLookupByLibrary.simpleMessage("Advanced"),
     "xp_level_all": MessageLookupByLibrary.simpleMessage("All levels"),
@@ -2103,23 +2289,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "xp_level_intermediate": MessageLookupByLibrary.simpleMessage(
       "Intermediate",
     ),
-    "xp_minutes": m126,
+    "xp_minutes": m133,
     "xp_operator_on": MessageLookupByLibrary.simpleMessage("Operator on REHLA"),
     "xp_pay_on_arrival": MessageLookupByLibrary.simpleMessage("Pay on arrival"),
     "xp_per_person": MessageLookupByLibrary.simpleMessage("pp"),
     "xp_per_person_long": MessageLookupByLibrary.simpleMessage("per person"),
     "xp_reliability": MessageLookupByLibrary.simpleMessage("reliable"),
-    "xp_reliability_basis": m127,
+    "xp_reliability_basis": m134,
     "xp_reliability_new": MessageLookupByLibrary.simpleMessage(
       "new here, no track record yet",
     ),
-    "xp_reviews_from": m128,
-    "xp_reviews_latest": m129,
+    "xp_reviews_from": m135,
+    "xp_reviews_latest": m136,
     "xp_reviews_none": MessageLookupByLibrary.simpleMessage("No reviews yet"),
     "xp_reviews_none_hint": MessageLookupByLibrary.simpleMessage(
       "Reviews appear here only from guests who actually went. We don\'t show made-up ratings.",
     ),
     "xp_reviews_title": MessageLookupByLibrary.simpleMessage("What guests say"),
-    "xp_up_to": m130,
+    "xp_up_to": m137,
   };
 }

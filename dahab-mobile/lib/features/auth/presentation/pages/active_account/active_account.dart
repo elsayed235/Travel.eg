@@ -76,7 +76,7 @@ class _ActiveAccountState extends State<ActiveAccount> {
           BuildAuthHeader(
             title: Translate.s.auth_otp_title,
             subtitle: Translate.s.auth_otp_subtitle(isolatedPhone),
-            icon: Icons.sms_outlined,
+            icon: AppIcons.chat,
           ),
           PinFieldWidget(onComplete: controller.onComplete),
           Gaps.vGap6,
@@ -91,7 +91,7 @@ class _ActiveAccountState extends State<ActiveAccount> {
                   )
                 : TextButton.icon(
                     onPressed: _resend,
-                    icon: Icon(Icons.refresh_rounded, size: 16, color: colors.text),
+                    icon: AppIcon.ui(AppIcons.refresh, size: 16, color: colors.text),
                     label: Text(
                       Translate.s.auth_otp_resend,
                       style: AppTextStyle.s13_w500(color: colors.text),

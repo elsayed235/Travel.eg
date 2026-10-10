@@ -59,7 +59,7 @@ class BuildPlanCard extends StatelessWidget {
                     top: AppSpacing.md,
                     start: AppSpacing.md,
                     child: _Badge(
-                      icon: emphasise ? Icons.auto_awesome_rounded : null,
+                      icon: emphasise ? AppIcons.sparkle : null,
                       label: emphasise
                           ? Translate.s.plan_results_best(match.score)
                           : Translate.s.plan_results_match(match.score),
@@ -99,16 +99,16 @@ class BuildPlanCard extends StatelessWidget {
                   runSpacing: AppSpacing.xs,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _Fact(icon: Icons.calendar_today_outlined, text: Translate.s.plan_card_days(p.durationDays)),
+                    _Fact(icon: AppIcons.calendar, text: Translate.s.plan_card_days(p.durationDays)),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.speed_rounded, size: 14, color: colors.button),
+                        AppIcon.ui(AppIcons.gauge, size: 14, color: colors.button),
                         Gaps.hGap6,
                         BuildPaceMeter(score: p.intensityScore),
                       ],
                     ),
-                    _Fact(icon: Icons.schedule_rounded, text: Translate.s.plan_card_freeTime(p.freeTimeScore)),
+                    _Fact(icon: AppIcons.clock, text: Translate.s.plan_card_freeTime(p.freeTimeScore)),
                   ],
                 ),
                 if (match.reasons.isNotEmpty) ...[
@@ -121,7 +121,7 @@ class BuildPlanCard extends StatelessWidget {
                         children: [
                           Padding(
                             padding: const EdgeInsetsDirectional.only(top: 2),
-                            child: Icon(Icons.check_rounded, size: 14, color: colors.green),
+                            child: AppIcon.ui(AppIcons.check, size: 14, color: colors.green),
                           ),
                           Gaps.hGap6,
                           Expanded(
@@ -241,7 +241,7 @@ class BuildPaceMeter extends StatelessWidget {
 }
 
 class _Fact extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String text;
 
   const _Fact({required this.icon, required this.text});
@@ -252,7 +252,7 @@ class _Fact extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: colors.button),
+        AppIcon.ui(icon, size: 14, color: colors.button),
         Gaps.hGap4,
         Text(text, style: AppTextStyle.s12_w500(color: colors.text2)),
       ],
@@ -261,7 +261,7 @@ class _Fact extends StatelessWidget {
 }
 
 class _Badge extends StatelessWidget {
-  final IconData? icon;
+  final String? icon;
   final String label;
 
   const _Badge({required this.icon, required this.label});
@@ -275,7 +275,7 @@ class _Badge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[Icon(icon, size: 13, color: colors.onImage), Gaps.hGap4],
+          if (icon != null) ...[AppIcon.ui(icon!, size: 13, color: colors.onImage), Gaps.hGap4],
           Text(label, style: AppTextStyle.s12_w600(color: colors.onImage)),
         ],
       ),

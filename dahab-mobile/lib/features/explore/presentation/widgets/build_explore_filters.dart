@@ -25,7 +25,7 @@ class BuildExploreTop extends StatelessWidget {
             child: Row(
               children: [
                 Gaps.hGap16,
-                Icon(Icons.search_rounded, size: 20, color: colors.text3),
+                AppIcon.ui(AppIcons.search, size: 18, color: colors.text3),
                 Gaps.hGap8,
                 Expanded(
                   child: TextField(
@@ -49,7 +49,7 @@ class BuildExploreTop extends StatelessWidget {
                       ? Gaps.hGap16
                       : IconButton(
                           onPressed: controller.search.clear,
-                          icon: Icon(Icons.close_rounded, size: 18, color: colors.text3),
+                          icon: AppIcon.ui(AppIcons.close, size: 16, color: colors.text3),
                           tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
                         ),
                 ),
@@ -96,7 +96,7 @@ class ExplorePill extends StatelessWidget {
   final String label;
   final bool selected;
   final bool floating;
-  final IconData? icon;
+  final String? icon;
   final VoidCallback onTap;
 
   const ExplorePill({
@@ -126,7 +126,7 @@ class ExplorePill extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[Icon(icon, size: 14, color: fg), Gaps.hGap4],
+            if (icon != null) ...[AppIcon.ui(icon!, size: 14, color: fg), Gaps.hGap4],
             Text(label, style: AppTextStyle.s13_w500(color: fg).copyWith(height: 1.3)),
           ],
         ),

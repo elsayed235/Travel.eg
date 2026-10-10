@@ -26,11 +26,11 @@ class BuildWindAlert extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome, size: 15, color: colors.amber),
+              AppIcon.ui(AppIcons.sparkle, size: 15, color: colors.amber),
               Gaps.hGap6,
               Text('DayGi', style: AppTextStyle.s12_w700(color: colors.amber)),
               Gaps.hGap6,
-              Icon(Icons.air_rounded, size: 15, color: colors.amber),
+              AppIcon.ui(AppIcons.wind, size: 15, color: colors.amber),
             ],
           ),
           Gaps.vGap8,
@@ -115,7 +115,7 @@ class BuildEmergency extends StatelessWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
             child: Row(
               children: [
-                Icon(Icons.emergency_outlined, size: 16, color: colors.red),
+                AppIcon.ui(AppIcons.sos, size: 16, color: colors.red),
                 Gaps.hGap6,
                 Text(Translate.s.today_emergency, style: AppTextStyle.s14_w600(color: colors.text)),
               ],
@@ -132,7 +132,7 @@ class BuildEmergency extends StatelessWidget {
                     Expanded(child: Text(_label(l.service), style: AppTextStyle.s13_w500(color: colors.text2))),
                     Text(l.number.split('/').first.trim(), textDirection: TextDirection.ltr, style: AppTextStyle.s13_w500(color: colors.text)),
                     Gaps.hGap8,
-                    Icon(Icons.call_rounded, size: 16, color: colors.red),
+                    AppIcon.ui(AppIcons.call, size: 16, color: colors.red),
                   ],
                 ),
               ),

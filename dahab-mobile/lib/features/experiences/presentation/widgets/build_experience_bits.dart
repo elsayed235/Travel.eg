@@ -3,7 +3,7 @@ part of '../experiences_imports.dart';
 /// Small pill on a photo or under a title ("Free cancellation").
 class XpChip extends StatelessWidget {
   final String label;
-  final IconData? icon;
+  final String? icon;
   final bool onImage;
 
   const XpChip({super.key, required this.label, this.icon, this.onImage = false});
@@ -22,7 +22,7 @@ class XpChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[Icon(icon, size: 13, color: fg), Gaps.hGap4],
+          if (icon != null) ...[AppIcon.ui(icon!, size: 13, color: fg), Gaps.hGap4],
           Text(label, style: AppTextStyle.s12_w600(color: fg).copyWith(height: 1.2)),
         ],
       ),
@@ -74,7 +74,7 @@ class XpFitLine extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsetsDirectional.only(top: 2),
-          child: Icon(reason.warning ? Icons.air_rounded : Icons.auto_awesome, size: 14, color: tone),
+          child: AppIcon.ui(reason.warning ? AppIcons.wind : AppIcons.sparkle, size: 14, color: tone),
         ),
         Gaps.hGap6,
         Expanded(

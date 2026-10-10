@@ -59,6 +59,9 @@ C:Users*
 # Local design explorations / untracked asset drops — keep local until curated.
 assets/
 design-system/
+# …but the Flutter app's bundled assets (fonts, images, icons, video) are
+# declared in its pubspec and must ship, or a fresh clone can't build it.
+!dahab-mobile/assets/
 
 # ── TRIAGE 2026-09-22: untracked files decision ─────────────────────────────
 # This block documents the triage of ~80 `??` paths reported by

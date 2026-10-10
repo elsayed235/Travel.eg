@@ -285,7 +285,7 @@ class _BookingSheetState extends State<BookingSheet> {
                 fillColor: colors.surface1,
                 isDense: true,
                 contentPadding: const EdgeInsetsDirectional.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
-                prefixIcon: Icon(Icons.phone_outlined, size: 18, color: colors.text3),
+                prefixIcon: AppIcon.ui(AppIcons.call, size: 18, color: colors.text3),
                 border: OutlineInputBorder(borderRadius: AppRadius.buttonAll, borderSide: BorderSide(color: colors.line)),
                 enabledBorder: OutlineInputBorder(borderRadius: AppRadius.buttonAll, borderSide: BorderSide(color: colors.line)),
                 focusedBorder: OutlineInputBorder(borderRadius: AppRadius.buttonAll, borderSide: BorderSide(color: colors.button)),
@@ -480,20 +480,20 @@ class _Stepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    Widget button(IconData icon, bool enabled, VoidCallback onTap) => GestureDetector(
+    Widget button(String icon, bool enabled, VoidCallback onTap) => GestureDetector(
           onTap: enabled ? onTap : null,
           child: Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: enabled ? colors.line2 : colors.line)),
-            child: Icon(icon, size: 18, color: enabled ? colors.text : colors.text3),
+            child: AppIcon.ui(icon, size: 18, color: enabled ? colors.text : colors.text3),
           ),
         );
     return Row(
       children: [
-        button(Icons.remove_rounded, value > min, () => onChanged(value - 1)),
+        button(AppIcons.minus, value > min, () => onChanged(value - 1)),
         SizedBox(width: 44, child: Text('$value', textAlign: TextAlign.center, style: AppTextStyle.s16_w700(color: colors.text))),
-        button(Icons.add_rounded, value < max, () => onChanged(value + 1)),
+        button(AppIcons.plus, value < max, () => onChanged(value + 1)),
       ],
     );
   }

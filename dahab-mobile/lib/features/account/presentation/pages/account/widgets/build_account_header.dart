@@ -72,16 +72,19 @@ class BuildAccountHeader extends StatelessWidget {
             ),
           ),
           Gaps.hGap9,
-          GestureDetector(
-            onTap: onEdit,
-            child: Container(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: context.colors.surface2,
-                borderRadius: AppRadius.buttonAll,
-                border: Border.all(color: context.colors.line),
+          Semantics(
+            button: true,
+            label: Translate.s.account_edit_profile,
+            excludeSemantics: true,
+            child: InkResponse(
+              onTap: onEdit,
+              radius: 22,
+              child: SizedBox.square(
+                dimension: 44,
+                child: Center(
+                  child: AppIcon.ui(AppIcons.chevron, size: 18, color: context.colors.text3, mirrorInRtl: true),
+                ),
               ),
-              child: Icon(Icons.edit_outlined, size: 18, color: context.colors.text2),
             ),
           ),
         ],

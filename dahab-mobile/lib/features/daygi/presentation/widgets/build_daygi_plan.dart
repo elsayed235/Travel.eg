@@ -38,7 +38,7 @@ class BuildDaygiPlan extends StatelessWidget {
                       padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.screenH, AppSpacing.md, AppSpacing.screenH, AppSpacing.md),
                       child: Row(
                         children: [
-                          Icon(Icons.view_agenda_outlined, size: 16, color: colors.button),
+                          AppIcon.ui(AppIcons.list, size: 16, color: colors.button),
                           Gaps.hGap8,
                           Expanded(
                             child: Text(
@@ -55,7 +55,7 @@ class BuildDaygiPlan extends StatelessWidget {
                           AnimatedRotation(
                             turns: open ? 0.5 : 0,
                             duration: const Duration(milliseconds: 240),
-                            child: Icon(Icons.keyboard_arrow_up_rounded, size: 20, color: colors.text2),
+                            child: AppIcon.ui(AppIcons.chevronUp, size: 20, color: colors.text2),
                           ),
                         ],
                       ),
@@ -183,9 +183,9 @@ class _Block extends StatelessWidget {
                     Gaps.vGap8,
                     Row(
                       children: [
-                        if (canSwap) _Action(icon: Icons.swap_horiz_rounded, label: Translate.s.dg_swap, onTap: onSwap),
+                        if (canSwap) _Action(icon: AppIcons.swap, label: Translate.s.dg_swap, onTap: onSwap),
                         if (canSwap) Gaps.hGap6,
-                        _Action(icon: Icons.close_rounded, label: Translate.s.dg_remove, onTap: onRemove),
+                        _Action(icon: AppIcons.close, label: Translate.s.dg_remove, onTap: onRemove),
                         const Spacer(),
                         Text(AppMoney.egp(e.bookable.priceEgp), style: AppTextStyle.s12_w600(color: colors.text2)),
                       ],
@@ -202,7 +202,7 @@ class _Block extends StatelessWidget {
 }
 
 class _Action extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String label;
   final VoidCallback onTap;
 
@@ -219,7 +219,7 @@ class _Action extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: colors.text2),
+            AppIcon.ui(icon, size: 14, color: colors.text2),
             Gaps.hGap4,
             Text(label, style: AppTextStyle.s12_w500(color: colors.text2)),
           ],

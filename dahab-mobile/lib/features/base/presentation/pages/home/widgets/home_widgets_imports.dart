@@ -12,7 +12,9 @@ import 'package:rehla/core/constants/app_config.dart';
 import 'package:rehla/core/helpers/app_money.dart';
 import 'package:rehla/features/plan/domain/models/kept_trip.dart';
 import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'build_home_tab_placeholder.dart';
 part 'build_trip_empty.dart';
 part 'build_trip_body.dart';
+part 'build_exit_hint.dart';

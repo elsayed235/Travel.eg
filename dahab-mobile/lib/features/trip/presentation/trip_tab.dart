@@ -82,7 +82,7 @@ class _TripView extends StatelessWidget {
             Gaps.vGap10,
             Row(
               children: [
-                Icon(Icons.cloud_off_rounded, size: 14, color: colors.text3),
+                AppIcon.ui(AppIcons.offline, size: 14, color: colors.text3),
                 Gaps.hGap6,
                 Expanded(child: Text(Translate.s.today_offline, style: AppTextStyle.caption(color: colors.text3))),
               ],
@@ -141,11 +141,11 @@ class _ConditionsChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.wb_sunny_outlined, size: 14, color: colors.highlight),
+              AppIcon.ui(AppIcons.sun, size: 14, color: colors.highlight),
               Gaps.hGap4,
               Text('${live.airC.round()}°', style: AppTextStyle.s12_w600(color: colors.text)),
               Text('  ·  ', style: AppTextStyle.micro(color: colors.text3)),
-              Icon(Icons.air_rounded, size: 14, color: colors.button),
+              AppIcon.ui(AppIcons.wind, size: 14, color: colors.button),
               Gaps.hGap4,
               Text(Translate.s.today_wind(live.windKnots.round()), style: AppTextStyle.s12_w600(color: colors.text)),
             ],

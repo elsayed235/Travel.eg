@@ -33,7 +33,7 @@ class BuildVoucherRow extends StatelessWidget {
                   Gaps.vGap4,
                   Row(
                     children: [
-                      Icon(Icons.offline_pin_outlined, size: 13, color: colors.green),
+                      AppIcon.ui(AppIcons.checkCircle, size: 13, color: colors.green),
                       Gaps.hGap4,
                       Flexible(child: Text(Translate.s.today_voucher_offline, style: AppTextStyle.caption(color: colors.text3))),
                     ],
@@ -43,7 +43,7 @@ class BuildVoucherRow extends StatelessWidget {
             ),
             Text(code, textDirection: TextDirection.ltr, style: AppTextStyle.s12_w600(color: colors.text2)),
             Gaps.hGap4,
-            Icon(Icons.chevron_right_rounded, size: 18, color: colors.text3, textDirection: Directionality.of(context)),
+            AppIcon.ui(AppIcons.chevron, size: 18, color: colors.text3, mirrorInRtl: true),
           ],
         ),
       ),

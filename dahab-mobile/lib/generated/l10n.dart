@@ -3244,51 +3244,11 @@ class S {
     );
   }
 
-  /// `Privacy policy`
+  /// `Privacy & your data`
   String get account_privacy {
     return Intl.message(
-      'Privacy policy',
+      'Privacy & your data',
       name: 'account_privacy',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `We respect your privacy and use your data only to run Dabrha and improve renting and buying.`
-  String get account_privacy_body {
-    return Intl.message(
-      'We respect your privacy and use your data only to run Dabrha and improve renting and buying.',
-      name: 'account_privacy_body',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `• Your location is used only to show nearby items.`
-  String get account_privacy_point_1 {
-    return Intl.message(
-      '• Your location is used only to show nearby items.',
-      name: 'account_privacy_point_1',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `• Your phone is shared with owners after an offer is accepted.`
-  String get account_privacy_point_2 {
-    return Intl.message(
-      '• Your phone is shared with owners after an offer is accepted.',
-      name: 'account_privacy_point_2',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `• You can request account deletion from support anytime.`
-  String get account_privacy_point_3 {
-    return Intl.message(
-      '• You can request account deletion from support anytime.',
-      name: 'account_privacy_point_3',
       desc: '',
       args: [],
     );
@@ -3314,10 +3274,10 @@ class S {
     );
   }
 
-  /// `You'll need to sign in again to track orders and offers.`
+  /// `Your trip stays saved to your account. Sign in again to see it here.`
   String get account_logout_subtitle {
     return Intl.message(
-      'You\'ll need to sign in again to track orders and offers.',
+      'Your trip stays saved to your account. Sign in again to see it here.',
       name: 'account_logout_subtitle',
       desc: '',
       args: [],
@@ -3429,81 +3389,11 @@ class S {
     );
   }
 
-  /// `How do I request something I can't find?`
-  String get account_faq_1_q {
-    return Intl.message(
-      'How do I request something I can\'t find?',
-      name: 'account_faq_1_q',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Use Request, add description, quantity and date — it reaches matching owners in your radius.`
-  String get account_faq_1_a {
-    return Intl.message(
-      'Use Request, add description, quantity and date — it reaches matching owners in your radius.',
-      name: 'account_faq_1_a',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `What's the difference between rent and buy?`
-  String get account_faq_2_q {
-    return Intl.message(
-      'What\'s the difference between rent and buy?',
-      name: 'account_faq_2_q',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Rent is for the event period; buy if you want to keep the item. Filter in Explore.`
-  String get account_faq_2_a {
-    return Intl.message(
-      'Rent is for the event period; buy if you want to keep the item. Filter in Explore.',
-      name: 'account_faq_2_a',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `How do I pick up an order?`
-  String get account_faq_3_q {
-    return Intl.message(
-      'How do I pick up an order?',
-      name: 'account_faq_3_q',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `After confirmation you'll see a pickup code in order details — show it to the owner.`
-  String get account_faq_3_a {
-    return Intl.message(
-      'After confirmation you\'ll see a pickup code in order details — show it to the owner.',
-      name: 'account_faq_3_a',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Contact us`
   String get account_contact_title {
     return Intl.message(
       'Contact us',
       name: 'account_contact_title',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Email support@dabrha.com or chat in-app after an offer is accepted.`
-  String get account_contact_body {
-    return Intl.message(
-      'Email support@dabrha.com or chat in-app after an offer is accepted.',
-      name: 'account_contact_body',
       desc: '',
       args: [],
     );
@@ -3994,26 +3884,6 @@ class S {
     return Intl.message(
       'Work',
       name: 'account_address_work',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `How do I list something I own?`
-  String get account_faq_4_q {
-    return Intl.message(
-      'How do I list something I own?',
-      name: 'account_faq_4_q',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `From Account → My listings you track what you published. Cycle: insurance, then deposit, then late fee if return is delayed.`
-  String get account_faq_4_a {
-    return Intl.message(
-      'From Account → My listings you track what you published. Cycle: insurance, then deposit, then late fee if return is delayed.',
-      name: 'account_faq_4_a',
       desc: '',
       args: [],
     );
@@ -7211,6 +7081,16 @@ class S {
     return Intl.message('Back', name: 'home_back', desc: '', args: []);
   }
 
+  /// `Press back again to exit`
+  String get home_exit_hint {
+    return Intl.message(
+      'Press back again to exit',
+      name: 'home_exit_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Wind is {wind} kn today; the operator runs this below {max} kn`
   String xp_fit_wind_high(Object wind, Object max) {
     return Intl.message(
@@ -8629,6 +8509,996 @@ class S {
     return Intl.message(
       'Tourist police',
       name: 'today_em_police',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `REHLA`
+  String get splash_wordmark {
+    return Intl.message('REHLA', name: 'splash_wordmark', desc: '', args: []);
+  }
+
+  /// `Dahab, Nuweiba & Siwa — planned around you`
+  String get splash_line {
+    return Intl.message(
+      'Dahab, Nuweiba & Siwa — planned around you',
+      name: 'splash_line',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next`
+  String get onboard_next {
+    return Intl.message('Next', name: 'onboard_next', desc: '', args: []);
+  }
+
+  /// `Start exploring`
+  String get onboard_start {
+    return Intl.message(
+      'Start exploring',
+      name: 'onboard_start',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{current} of {total}`
+  String onboard_progress(Object current, Object total) {
+    return Intl.message(
+      '$current of $total',
+      name: 'onboard_progress',
+      desc: '',
+      args: [current, total],
+    );
+  }
+
+  /// `Dahab · South Sinai`
+  String get onboard_1_eyebrow {
+    return Intl.message(
+      'Dahab · South Sinai',
+      name: 'onboard_1_eyebrow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meet Dahab the way locals do`
+  String get onboard_1_title {
+    return Intl.message(
+      'Meet Dahab the way locals do',
+      name: 'onboard_1_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reefs, canyons and slow beach days — every outing checked against today's wind and sea.`
+  String get onboard_1_body {
+    return Intl.message(
+      'Reefs, canyons and slow beach days — every outing checked against today\'s wind and sea.',
+      name: 'onboard_1_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DayGi · your guide`
+  String get onboard_2_eyebrow {
+    return Intl.message(
+      'DayGi · your guide',
+      name: 'onboard_2_eyebrow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ask DayGi, like a friend who lives here`
+  String get onboard_2_title {
+    return Intl.message(
+      'Ask DayGi, like a friend who lives here',
+      name: 'onboard_2_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Say what you're in the mood for. DayGi suggests real outings you can book and builds your plan day by day.`
+  String get onboard_2_body {
+    return Intl.message(
+      'Say what you\'re in the mood for. DayGi suggests real outings you can book and builds your plan day by day.',
+      name: 'onboard_2_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On the day`
+  String get onboard_3_eyebrow {
+    return Intl.message(
+      'On the day',
+      name: 'onboard_3_eyebrow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your day, quietly in your pocket`
+  String get onboard_3_title {
+    return Intl.message(
+      'Your day, quietly in your pocket',
+      name: 'onboard_3_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pickup time, your driver, the voucher offline and emergency numbers — all in Today.`
+  String get onboard_3_body {
+    return Intl.message(
+      'Pickup time, your driver, the voucher offline and emergency numbers — all in Today.',
+      name: 'onboard_3_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language & display`
+  String get prefs_title {
+    return Intl.message(
+      'Language & display',
+      name: 'prefs_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Language`
+  String get prefs_language {
+    return Intl.message('Language', name: 'prefs_language', desc: '', args: []);
+  }
+
+  /// `Appearance`
+  String get prefs_appearance {
+    return Intl.message(
+      'Appearance',
+      name: 'prefs_appearance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get prefs_done {
+    return Intl.message('Done', name: 'prefs_done', desc: '', args: []);
+  }
+
+  /// `Language and display, {language}`
+  String prefs_button_label(Object language) {
+    return Intl.message(
+      'Language and display, $language',
+      name: 'prefs_button_label',
+      desc: '',
+      args: [language],
+    );
+  }
+
+  /// `Welcome to REHLA`
+  String get account_guest_title {
+    return Intl.message(
+      'Welcome to REHLA',
+      name: 'account_guest_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in to keep your trip, bookings and vouchers in one place. You can explore without an account.`
+  String get account_guest_body {
+    return Intl.message(
+      'Sign in to keep your trip, bookings and vouchers in one place. You can explore without an account.',
+      name: 'account_guest_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan & ask`
+  String get account_section_trip {
+    return Intl.message(
+      'Plan & ask',
+      name: 'account_section_trip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ask DayGi`
+  String get account_ask_daygi {
+    return Intl.message(
+      'Ask DayGi',
+      name: 'account_ask_daygi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your local guide, any question`
+  String get account_ask_daygi_hint {
+    return Intl.message(
+      'Your local guide, any question',
+      name: 'account_ask_daygi_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My trip`
+  String get account_my_trip {
+    return Intl.message('My trip', name: 'account_my_trip', desc: '', args: []);
+  }
+
+  /// `Bookings, vouchers and Today`
+  String get account_my_trip_hint {
+    return Intl.message(
+      'Bookings, vouchers and Today',
+      name: 'account_my_trip_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Help & safety`
+  String get account_section_help {
+    return Intl.message(
+      'Help & safety',
+      name: 'account_section_help',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Emergency numbers`
+  String get account_emergency {
+    return Intl.message(
+      'Emergency numbers',
+      name: 'account_emergency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hyperbaric chamber, hospital, tourist police`
+  String get account_emergency_hint {
+    return Intl.message(
+      'Hyperbaric chamber, hospital, tourist police',
+      name: 'account_emergency_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact us`
+  String get account_contact {
+    return Intl.message(
+      'Contact us',
+      name: 'account_contact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone, WhatsApp and email`
+  String get account_contact_hint {
+    return Intl.message(
+      'Phone, WhatsApp and email',
+      name: 'account_contact_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FAQ`
+  String get account_faq {
+    return Intl.message('FAQ', name: 'account_faq', desc: '', args: []);
+  }
+
+  /// `Travel guides`
+  String get account_guides {
+    return Intl.message(
+      'Travel guides',
+      name: 'account_guides',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `About REHLA`
+  String get account_about {
+    return Intl.message(
+      'About REHLA',
+      name: 'account_about',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load this page. Check your connection and try again.`
+  String get info_load_failed {
+    return Intl.message(
+      'Couldn\'t load this page. Check your connection and try again.',
+      name: 'info_load_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing here yet.`
+  String get info_empty {
+    return Intl.message(
+      'Nothing here yet.',
+      name: 'info_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Our team answers during working hours. For anything urgent on a trip, use Emergency numbers.`
+  String get contact_intro {
+    return Intl.message(
+      'Our team answers during working hours. For anything urgent on a trip, use Emergency numbers.',
+      name: 'contact_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Call`
+  String get contact_call {
+    return Intl.message('Call', name: 'contact_call', desc: '', args: []);
+  }
+
+  /// `WhatsApp`
+  String get contact_whatsapp {
+    return Intl.message(
+      'WhatsApp',
+      name: 'contact_whatsapp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get contact_email {
+    return Intl.message('Email', name: 'contact_email', desc: '', args: []);
+  }
+
+  /// `Address`
+  String get contact_address {
+    return Intl.message('Address', name: 'contact_address', desc: '', args: []);
+  }
+
+  /// `Working hours`
+  String get contact_hours {
+    return Intl.message(
+      'Working hours',
+      name: 'contact_hours',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekdays`
+  String get contact_weekdays {
+    return Intl.message(
+      'Weekdays',
+      name: 'contact_weekdays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekend`
+  String get contact_weekend {
+    return Intl.message('Weekend', name: 'contact_weekend', desc: '', args: []);
+  }
+
+  /// `Holidays`
+  String get contact_holidays {
+    return Intl.message(
+      'Holidays',
+      name: 'contact_holidays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Follow us`
+  String get contact_follow {
+    return Intl.message(
+      'Follow us',
+      name: 'contact_follow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Our contact details aren't published yet. DayGi can answer most questions right now.`
+  String get contact_unset {
+    return Intl.message(
+      'Our contact details aren\'t published yet. DayGi can answer most questions right now.',
+      name: 'contact_unset',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap a number to call. In a diving emergency, call the hyperbaric chamber first.`
+  String get emergency_intro {
+    return Intl.message(
+      'Tap a number to call. In a diving emergency, call the hyperbaric chamber first.',
+      name: 'emergency_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offline — showing the numbers saved in the app.`
+  String get emergency_saved {
+    return Intl.message(
+      'Offline — showing the numbers saved in the app.',
+      name: 'emergency_saved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `These terms cover using REHLA to discover, plan and book outings. By booking, you agree to them.`
+  String get terms_intro {
+    return Intl.message(
+      'These terms cover using REHLA to discover, plan and book outings. By booking, you agree to them.',
+      name: 'terms_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Who runs your outing`
+  String get terms_1_title {
+    return Intl.message(
+      'Who runs your outing',
+      name: 'terms_1_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `REHLA lists outings run by independent local operators. The operator named on each outing runs it and is responsible for it on the day.`
+  String get terms_1_body {
+    return Intl.message(
+      'REHLA lists outings run by independent local operators. The operator named on each outing runs it and is responsible for it on the day.',
+      name: 'terms_1_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Holds, payment and confirmation`
+  String get terms_2_title {
+    return Intl.message(
+      'Holds, payment and confirmation',
+      name: 'terms_2_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When you book, we hold your place for a short time while you pay. Paid isn't the same as confirmed: the operator confirms your booking, and you'll see its status change in Trip.`
+  String get terms_2_body {
+    return Intl.message(
+      'When you book, we hold your place for a short time while you pay. Paid isn\'t the same as confirmed: the operator confirms your booking, and you\'ll see its status change in Trip.',
+      name: 'terms_2_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Prices`
+  String get terms_3_title {
+    return Intl.message('Prices', name: 'terms_3_title', desc: '', args: []);
+  }
+
+  /// `Prices are in Egyptian pounds and cover what each outing lists as included. Anything not listed isn't included.`
+  String get terms_3_body {
+    return Intl.message(
+      'Prices are in Egyptian pounds and cover what each outing lists as included. Anything not listed isn\'t included.',
+      name: 'terms_3_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancellations and refunds`
+  String get terms_4_title {
+    return Intl.message(
+      'Cancellations and refunds',
+      name: 'terms_4_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each outing shows its cancellation terms before you pay, such as free cancellation up to 24 hours before. Refunds follow those terms and go back to your original payment method.`
+  String get terms_4_body {
+    return Intl.message(
+      'Each outing shows its cancellation terms before you pay, such as free cancellation up to 24 hours before. Refunds follow those terms and go back to your original payment method.',
+      name: 'terms_4_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wind, sea and safety`
+  String get terms_5_title {
+    return Intl.message(
+      'Wind, sea and safety',
+      name: 'terms_5_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sea and desert outings depend on conditions. If conditions make an outing unsafe, the operator may move or cancel it. Follow your guide's instructions, and bring any certification an outing asks for.`
+  String get terms_5_body {
+    return Intl.message(
+      'Sea and desert outings depend on conditions. If conditions make an outing unsafe, the operator may move or cancel it. Follow your guide\'s instructions, and bring any certification an outing asks for.',
+      name: 'terms_5_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DayGi suggestions`
+  String get terms_6_title {
+    return Intl.message(
+      'DayGi suggestions',
+      name: 'terms_6_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DayGi is an AI guide. Its suggestions are a starting point — check times, prices and conditions on the outing before you book.`
+  String get terms_6_body {
+    return Intl.message(
+      'DayGi is an AI guide. Its suggestions are a starting point — check times, prices and conditions on the outing before you book.',
+      name: 'terms_6_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your account`
+  String get terms_7_title {
+    return Intl.message(
+      'Your account',
+      name: 'terms_7_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep your sign-in details private. You're responsible for bookings made from your account.`
+  String get terms_7_body {
+    return Intl.message(
+      'Keep your sign-in details private. You\'re responsible for bookings made from your account.',
+      name: 'terms_7_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We collect only what we need to plan and run your trip.`
+  String get privacy_intro {
+    return Intl.message(
+      'We collect only what we need to plan and run your trip.',
+      name: 'privacy_intro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `What we keep`
+  String get privacy_1_title {
+    return Intl.message(
+      'What we keep',
+      name: 'privacy_1_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your name, email or phone, your trips and bookings, and the messages you send to DayGi or our team.`
+  String get privacy_1_body {
+    return Intl.message(
+      'Your name, email or phone, your trips and bookings, and the messages you send to DayGi or our team.',
+      name: 'privacy_1_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Who sees it`
+  String get privacy_2_title {
+    return Intl.message(
+      'Who sees it',
+      name: 'privacy_2_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The operator of an outing you book sees your name, phone and booking details so they can meet you. We don't sell your data.`
+  String get privacy_2_body {
+    return Intl.message(
+      'The operator of an outing you book sees your name, phone and booking details so they can meet you. We don\'t sell your data.',
+      name: 'privacy_2_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On this phone`
+  String get privacy_3_title {
+    return Intl.message(
+      'On this phone',
+      name: 'privacy_3_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your sign-in session, language and appearance are stored on this device. Your latest trip is saved here too, so your voucher opens without a connection.`
+  String get privacy_3_body {
+    return Intl.message(
+      'Your sign-in session, language and appearance are stored on this device. Your latest trip is saved here too, so your voucher opens without a connection.',
+      name: 'privacy_3_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Location`
+  String get privacy_4_title {
+    return Intl.message(
+      'Location',
+      name: 'privacy_4_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The app doesn't track your location. Maps show places, not you.`
+  String get privacy_4_body {
+    return Intl.message(
+      'The app doesn\'t track your location. Maps show places, not you.',
+      name: 'privacy_4_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diagnostics`
+  String get privacy_5_title {
+    return Intl.message(
+      'Diagnostics',
+      name: 'privacy_5_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We use Firebase to count app usage and report crashes so we can fix problems. These reports don't include your messages or payment details.`
+  String get privacy_5_body {
+    return Intl.message(
+      'We use Firebase to count app usage and report crashes so we can fix problems. These reports don\'t include your messages or payment details.',
+      name: 'privacy_5_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payments`
+  String get privacy_6_title {
+    return Intl.message(
+      'Payments',
+      name: 'privacy_6_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Card payments are handled by our payment provider. We never see or store your full card number.`
+  String get privacy_6_body {
+    return Intl.message(
+      'Card payments are handled by our payment provider. We never see or store your full card number.',
+      name: 'privacy_6_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your choices`
+  String get privacy_7_title {
+    return Intl.message(
+      'Your choices',
+      name: 'privacy_7_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can edit your profile any time. To delete your account and data, reach us from Contact us.`
+  String get privacy_7_body {
+    return Intl.message(
+      'You can edit your profile any time. To delete your account and data, reach us from Contact us.',
+      name: 'privacy_7_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `See all`
+  String get home_doors_see_all {
+    return Intl.message(
+      'See all',
+      name: 'home_doors_see_all',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Find an outing`
+  String get search_title {
+    return Intl.message(
+      'Find an outing',
+      name: 'search_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filters`
+  String get search_filters {
+    return Intl.message('Filters', name: 'search_filters', desc: '', args: []);
+  }
+
+  /// `Filters · {count}`
+  String search_filters_count(Object count) {
+    return Intl.message(
+      'Filters · $count',
+      name: 'search_filters_count',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `When`
+  String get search_when {
+    return Intl.message('When', name: 'search_when', desc: '', args: []);
+  }
+
+  /// `Any day`
+  String get search_any_day {
+    return Intl.message('Any day', name: 'search_any_day', desc: '', args: []);
+  }
+
+  /// `Price`
+  String get search_price {
+    return Intl.message('Price', name: 'search_price', desc: '', args: []);
+  }
+
+  /// `Up to {price}`
+  String search_price_up_to(Object price) {
+    return Intl.message(
+      'Up to $price',
+      name: 'search_price_up_to',
+      desc: '',
+      args: [price],
+    );
+  }
+
+  /// `Any price`
+  String get search_any_price {
+    return Intl.message(
+      'Any price',
+      name: 'search_any_price',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Duration`
+  String get search_duration {
+    return Intl.message(
+      'Duration',
+      name: 'search_duration',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Any length`
+  String get search_dur_any {
+    return Intl.message(
+      'Any length',
+      name: 'search_dur_any',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Under 3 h`
+  String get search_dur_short {
+    return Intl.message(
+      'Under 3 h',
+      name: 'search_dur_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3–6 h`
+  String get search_dur_half {
+    return Intl.message('3–6 h', name: 'search_dur_half', desc: '', args: []);
+  }
+
+  /// `Full day`
+  String get search_dur_full {
+    return Intl.message(
+      'Full day',
+      name: 'search_dur_full',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Good for first-timers`
+  String get search_beginner {
+    return Intl.message(
+      'Good for first-timers',
+      name: 'search_beginner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fits today's wind`
+  String get search_wind_ok {
+    return Intl.message(
+      'Fits today\'s wind',
+      name: 'search_wind_ok',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort by`
+  String get search_sort {
+    return Intl.message('Sort by', name: 'search_sort', desc: '', args: []);
+  }
+
+  /// `Best fit`
+  String get search_sort_best {
+    return Intl.message(
+      'Best fit',
+      name: 'search_sort_best',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lowest price`
+  String get search_sort_price_low {
+    return Intl.message(
+      'Lowest price',
+      name: 'search_sort_price_low',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Highest price`
+  String get search_sort_price_high {
+    return Intl.message(
+      'Highest price',
+      name: 'search_sort_price_high',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shortest`
+  String get search_sort_short {
+    return Intl.message(
+      'Shortest',
+      name: 'search_sort_short',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset`
+  String get search_reset {
+    return Intl.message('Reset', name: 'search_reset', desc: '', args: []);
+  }
+
+  /// `Show {count} outings`
+  String search_show_results(Object count) {
+    return Intl.message(
+      'Show $count outings',
+      name: 'search_show_results',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{count} outings`
+  String search_results(Object count) {
+    return Intl.message(
+      '$count outings',
+      name: 'search_results',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No outings match`
+  String get search_empty_title {
+    return Intl.message(
+      'No outings match',
+      name: 'search_empty_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Try another day or fewer filters.`
+  String get search_empty_body {
+    return Intl.message(
+      'Try another day or fewer filters.',
+      name: 'search_empty_body',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Clear filters`
+  String get search_clear {
+    return Intl.message(
+      'Clear filters',
+      name: 'search_clear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ask DayGi about “{query}”`
+  String search_ask_daygi(Object query) {
+    return Intl.message(
+      'Ask DayGi about “$query”',
+      name: 'search_ask_daygi',
+      desc: '',
+      args: [query],
+    );
+  }
+
+  /// `DayGi can help with`
+  String get search_services {
+    return Intl.message(
+      'DayGi can help with',
+      name: 'search_services',
       desc: '',
       args: [],
     );

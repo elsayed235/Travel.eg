@@ -27,6 +27,16 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) controller.onBack();
+      },
+      child: _shell(context),
+    );
+  }
+
+  Widget _shell(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.bg,
       // Home's hero and the Discover map run under the status bar; the other
@@ -113,7 +123,7 @@ class _HomeState extends State<Home> {
                                     onPressed: controller.closePlan,
                                     tooltip: Translate.s.home_back,
                                     style: IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
-                                    icon: Icon(Icons.close_rounded, color: context.colors.text2),
+                                    icon: AppIcon.ui(AppIcons.close, color: context.colors.text2),
                                   ),
                                 ),
                               ),
@@ -131,6 +141,18 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
+              if (!keyboard)
+                PositionedDirectional(
+                  start: 0,
+                  end: 0,
+                  bottom: AppBottomNav.overlap(context),
+                  child: IgnorePointer(
+                    child: ObsValueConsumer(
+                      observable: controller.exitHintObs,
+                      builder: (context, show) => BuildExitHint(visible: show),
+                    ),
+                  ),
+                ),
               if (!keyboard)
                 PositionedDirectional(
                   start: 0,

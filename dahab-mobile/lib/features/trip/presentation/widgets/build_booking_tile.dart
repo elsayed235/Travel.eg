@@ -74,7 +74,7 @@ class BuildBookingTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.qr_code_2_rounded, size: 22, color: colors.text3),
+              AppIcon.ui(AppIcons.qr, size: 22, color: colors.text3),
             ],
           ),
         ),

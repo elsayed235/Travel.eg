@@ -5,6 +5,7 @@ import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 /// Short celebration — haptic + compact dialog (not a toast).
 abstract class AppQuietSuccess {
@@ -46,7 +47,7 @@ abstract class AppQuietSuccess {
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.check_rounded, color: context.colors.green, size: 24),
+                    child: AppIcon.ui(AppIcons.check, color: context.colors.green, size: 24),
                   ),
                   Gaps.vGap13,
                   Text(

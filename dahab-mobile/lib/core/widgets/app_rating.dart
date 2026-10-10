@@ -3,6 +3,7 @@ import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
 import 'package:rehla/core/theme/text/app_text_style.dart';
 import 'package:rehla/core/utils/arabic_numerals.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 class AppRating extends StatelessWidget {
   final double value;
@@ -19,7 +20,7 @@ class AppRating extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.star_rounded, size: 14, color: context.colors.amber),
+        AppIcon.ui(AppIcons.starFill, size: 14, color: context.colors.amber),
         Gaps.hGap4,
         Text(
           value.toStringAsFixed(1).toArabicDigits,

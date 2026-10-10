@@ -16,6 +16,7 @@ class HomeController {
     onDoor: _openDoor,
     onAsk: askDaygi,
     onSeeToday: () => _go(ShellActions.discover),
+    onSearch: () => _openSearch(),
   );
 
   /// What the planner should start with when a door opened it.
@@ -117,16 +118,52 @@ class HomeController {
       return;
     }
     final (kind, query) = switch (door.id) {
-      'kite' => (ExploreKind.sea, 'kite'),
+      'kite' => (ExploreKind.sea, _context.isArabic ? 'كايت' : 'kite'),
       'desert' => (ExploreKind.desert, ''),
       'dive' => (ExploreKind.sea, ''),
       _ => (ExploreKind.all, ''),
     };
-    exploreController.focus(kind: kind, query: query);
-    _go(ShellActions.discover);
+    _openSearch(kind: kind, query: query);
+  }
+
+  void _openSearch({ExploreKind kind = ExploreKind.all, String query = ''}) {
+    Navigator.of(_context).push(RehlaPageRoute<void>(builder: (_) => SearchPage(kind: kind, query: query)));
+  }
+
+  static const _exitWindow = Duration(seconds: 2);
+
+  /// Shows the "press back again to exit" hint above the bar.
+  final ObsValue<bool> exitHintObs = ObsValue.withInit(false);
+  DateTime? _exitArmedAt;
+  Timer? _exitHintTimer;
+
+  /// System back on the shell: out of the planner, then back to Home; on Home
+  /// a second press within [_exitWindow] leaves the app.
+  void onBack() {
+    final index = navIndexObs.getValue();
+    if (index == planIndex) {
+      closePlan();
+      return;
+    }
+    if (index != ShellActions.home) {
+      _go(ShellActions.home);
+      return;
+    }
+    final now = DateTime.now();
+    final armed = _exitArmedAt;
+    if (armed != null && now.difference(armed) < _exitWindow) {
+      SystemNavigator.pop();
+      return;
+    }
+    _exitArmedAt = now;
+    HapticFeedback.selectionClick();
+    exitHintObs.setValue(true);
+    _exitHintTimer?.cancel();
+    _exitHintTimer = Timer(_exitWindow, () => exitHintObs.setValue(false));
   }
 
   void dispose() {
+    _exitHintTimer?.cancel();
     for (final s in _subs) {
       s.cancel();
     }

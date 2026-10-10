@@ -3,7 +3,7 @@ part of 'discover_imports.dart';
 /// Home: the place on screen, what it is like right now, and the ways into
 /// it. The shell decides where a door, a question or "See all" goes.
 class DiscoverController {
-  DiscoverController({required this.onDoor, required this.onAsk, required this.onSeeToday});
+  DiscoverController({required this.onDoor, required this.onAsk, required this.onSeeToday, required this.onSearch});
 
   /// A door was tapped: the shell opens Discover filtered, or DayGi asking.
   final void Function(DiscoverDoor door) onDoor;
@@ -13,6 +13,9 @@ class DiscoverController {
 
   /// "See all" on today's rail.
   final VoidCallback onSeeToday;
+
+  /// "See all" beside the doors: every outing, searchable.
+  final VoidCallback onSearch;
 
   final ConditionsRequester conditionsRequester = ConditionsRequester();
 

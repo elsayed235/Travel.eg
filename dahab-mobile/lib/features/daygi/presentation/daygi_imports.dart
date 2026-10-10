@@ -23,6 +23,7 @@ import 'package:rehla/features/experiences/domain/experience_fit.dart';
 import 'package:rehla/features/experiences/domain/models/experience.dart';
 import 'package:rehla/features/experiences/presentation/experiences_imports.dart';
 import 'package:rehla/features/trip/domain/trip_store.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'daygi_controller.dart';
 part 'daygi_tab.dart';

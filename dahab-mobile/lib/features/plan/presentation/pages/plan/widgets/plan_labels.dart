@@ -32,17 +32,17 @@ class PlanLabels {
     PlanVibe.nature => Translate.s.plan_vibe_nature,
   };
 
-  static IconData vibeIcon(PlanVibe v) => switch (v) {
-    PlanVibe.sea => Icons.waves_rounded,
-    PlanVibe.diving => Icons.scuba_diving_outlined,
-    PlanVibe.adventure => Icons.terrain_outlined,
-    PlanVibe.desert => Icons.landscape_outlined,
-    PlanVibe.wellness => Icons.spa_outlined,
-    PlanVibe.culture => Icons.account_balance_outlined,
-    PlanVibe.food => Icons.restaurant_outlined,
-    PlanVibe.unplug => Icons.wifi_off_rounded,
-    PlanVibe.stars => Icons.auto_awesome_outlined,
-    PlanVibe.nature => Icons.hiking_outlined,
+  static String vibeIcon(PlanVibe v) => switch (v) {
+    PlanVibe.sea => AppIcons.waves,
+    PlanVibe.diving => AppIcons.dive,
+    PlanVibe.adventure => AppIcons.mountain,
+    PlanVibe.desert => AppIcons.mountain,
+    PlanVibe.wellness => AppIcons.wellness,
+    PlanVibe.culture => AppIcons.bank,
+    PlanVibe.food => AppIcons.food,
+    PlanVibe.unplug => AppIcons.offline,
+    PlanVibe.stars => AppIcons.sparkle,
+    PlanVibe.nature => AppIcons.hike,
   };
 
   static String party(PlanParty p) => switch (p) {
@@ -59,11 +59,11 @@ class PlanLabels {
     PlanParty.family => Translate.s.plan_party_familySub,
   };
 
-  static IconData partyIcon(PlanParty p) => switch (p) {
-    PlanParty.solo => Icons.person_outline_rounded,
-    PlanParty.couple => Icons.favorite_border_rounded,
-    PlanParty.friends => Icons.groups_outlined,
-    PlanParty.family => Icons.family_restroom_outlined,
+  static String partyIcon(PlanParty p) => switch (p) {
+    PlanParty.solo => AppIcons.user,
+    PlanParty.couple => AppIcons.heart,
+    PlanParty.friends => AppIcons.group,
+    PlanParty.family => AppIcons.group,
   };
 
   static String pace(PlanPace p) => switch (p) {

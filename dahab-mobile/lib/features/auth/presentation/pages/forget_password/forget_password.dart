@@ -31,7 +31,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           BuildAuthHeader(
             title: Translate.s.auth_forget_title,
             subtitle: Translate.s.auth_forget_subtitle,
-            icon: Icons.mail_outline_rounded,
+            icon: AppIcons.mail,
           ),
           BuildForgetForm(controller: controller),
           Gaps.vGap24,

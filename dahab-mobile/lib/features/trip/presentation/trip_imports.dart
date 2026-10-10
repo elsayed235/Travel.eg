@@ -20,6 +20,7 @@ import 'package:rehla/features/trip/data/trip_remote.dart';
 import 'package:rehla/features/trip/domain/models/trip_booking.dart';
 import 'package:rehla/features/trip/domain/trip_store.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'today_controller.dart';
 part 'trip_tab.dart';

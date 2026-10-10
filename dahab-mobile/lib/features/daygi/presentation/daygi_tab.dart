@@ -70,8 +70,8 @@ class DaygiTab extends StatelessWidget {
                         builder: (context, listening) => IconButton(
                           tooltip: Translate.s.dg_voice,
                           onPressed: () => controller.toggleVoice(context),
-                          icon: Icon(
-                            listening ? Icons.graphic_eq_rounded : Icons.mic_none_rounded,
+                          icon: AppIcon.ui(
+                            listening ? AppIcons.voice : AppIcons.mic,
                             color: listening ? colors.highlight : colors.text2,
                             size: 20,
                           ),
@@ -94,7 +94,7 @@ class DaygiTab extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(color: busy ? colors.surface3 : colors.button, shape: BoxShape.circle),
-                      child: Icon(Icons.arrow_upward_rounded, color: busy ? colors.text3 : colors.onButton, size: 20),
+                      child: AppIcon.ui(AppIcons.arrowUp, color: busy ? colors.text3 : colors.onButton, size: 20),
                     ),
                   ),
                 ),
@@ -131,7 +131,7 @@ class _Header extends StatelessWidget {
                 colors: [colors.button.withValues(alpha: 0.9), colors.button],
               ),
             ),
-            child: Icon(Icons.auto_awesome, size: 20, color: colors.onButton),
+            child: AppIcon.ui(AppIcons.sparkle, size: 20, color: colors.onButton),
           ),
           Gaps.hGap10,
           Expanded(
@@ -175,7 +175,7 @@ class _Header extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today_rounded, size: 13, color: colors.button),
+                      AppIcon.ui(AppIcons.calendar, size: 13, color: colors.button),
                       Gaps.hGap6,
                       Text('${Translate.s.dg_days(plan.days)}$range', style: AppTextStyle.s12_w600(color: colors.text)),
                     ],

@@ -22,6 +22,7 @@ import 'package:rehla/features/plan/domain/models/plan_vibe.dart';
 import 'package:rehla/features/plan/domain/models/programme_domain_model.dart';
 
 import '../plan_imports.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'plan_labels.dart';
 part 'build_plan_option.dart';

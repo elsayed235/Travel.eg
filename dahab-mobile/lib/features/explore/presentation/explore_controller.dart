@@ -54,8 +54,8 @@ class ExploreController {
         if (!ahead) return false;
       }
       if (place != null && e.placeId != place) return false;
-      if (!_kindMatches(e, kind)) return false;
-      if (q.isNotEmpty && !_queryMatches(e, q)) return false;
+      if (!kindMatches(e, kind)) return false;
+      if (q.isNotEmpty && !queryMatches(e, q)) return false;
       return true;
     }).toList();
     out.sort((a, b) {
@@ -67,7 +67,7 @@ class ExploreController {
     return out;
   }
 
-  bool _kindMatches(Experience e, ExploreKind kind) {
+  static bool kindMatches(Experience e, ExploreKind kind) {
     switch (kind) {
       case ExploreKind.all:
         return true;
@@ -97,7 +97,8 @@ class ExploreController {
     'تسلق': 'climb|boulder',
   };
 
-  bool _queryMatches(Experience e, String q) {
+  /// [q] is lower-cased; Arabic and mood words map onto English titles.
+  static bool queryMatches(Experience e, String q) {
     final hay = [
       e.titleEn,
       e.titleAr,

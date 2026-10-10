@@ -1,7 +1,7 @@
 part of 'home_widgets_imports.dart';
 
 class BuildHomeTabPlaceholder extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String title;
 
   const BuildHomeTabPlaceholder({
@@ -18,7 +18,7 @@ class BuildHomeTabPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 40, color: context.colors.text3),
+            AppIcon.ui(icon, size: 40, color: context.colors.text3),
             Gaps.vGap13,
             Text(
               title,

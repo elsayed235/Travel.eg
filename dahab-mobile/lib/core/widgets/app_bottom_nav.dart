@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rehla/core/constants/gaps.dart';
 import 'package:rehla/core/theme/app_radius.dart';
 import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/core/theme/colors/colors_extension.dart';
@@ -39,7 +38,8 @@ class AppBottomNav extends StatelessWidget {
     this.tempo = const Duration(milliseconds: 520),
   }) : assert(items.length == 5, 'AppBottomNav expects Home, Discover, DayGi, Trip, Account');
 
-  static const double _height = 64;
+  /// 56: each tab still gives a 48px-tall touch target inside the capsule.
+  static const double _height = 56;
   static const double _maxWidth = 520;
 
   /// Space between the capsule and the bottom edge: tucked into the home
@@ -228,19 +228,19 @@ class _TabState extends State<_Tab> {
                 child: SvgPicture.asset(
                   widget.selected ? widget.item.activeIcon : widget.item.icon,
                   key: ValueKey(widget.selected),
-                  width: 24,
-                  height: 24,
+                  width: 22,
+                  height: 22,
                   colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
                 ),
               ),
-              Gaps.vGap4,
+              const SizedBox(height: 2),
               Text(
                 widget.item.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyle.micro(
                   color: color,
-                ).copyWith(fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w500),
+                ).copyWith(fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w500, height: 1.2),
               ),
             ],
           ),

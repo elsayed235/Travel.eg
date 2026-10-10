@@ -13,6 +13,7 @@ import 'package:rehla/core/theme/text/app_text_style.dart';
 import 'package:rehla/core/widgets/app_button.dart';
 import 'package:rehla/core/widgets/default_app_bar.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'edit_profile.dart';
 part 'edit_profile_controller.dart';

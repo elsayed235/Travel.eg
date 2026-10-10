@@ -11,7 +11,7 @@ class BuildForgetForm extends StatelessWidget {
       key: controller.formKey,
       child: BuildAuthTextField(
         label: Translate.s.label_email,
-        icon: Icons.mail_outline_rounded,
+        icon: AppIcons.mail,
         hint: Translate.s.auth_hint_email,
         controller: controller.emailController,
         fieldTypes: FieldTypes.normal,

@@ -142,7 +142,7 @@ class BuildDiscoverHero extends StatelessWidget {
                     delay: const Duration(milliseconds: 320),
                     duration: destination.tempo,
                     offsetY: 16,
-                    child: _AskLine(onAsk: onAsk),
+                    child: BuildDiscoverAskLine(onAsk: onAsk),
                   ),
                 ],
               ),
@@ -207,59 +207,6 @@ class _Greeting extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-/// One line to DayGi. Tapping it opens DayGi; the mic opens it listening.
-class _AskLine extends StatelessWidget {
-  final void Function(bool voice) onAsk;
-
-  const _AskLine({required this.onAsk});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        onTap: () => onAsk(false),
-        child: Container(
-          height: 54,
-          padding: const EdgeInsetsDirectional.only(start: AppSpacing.lg, end: AppSpacing.xs),
-          decoration: BoxDecoration(
-            color: colors.bg.withValues(alpha: 0.94),
-            borderRadius: AppRadius.chipAll,
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.auto_awesome, size: 18, color: colors.button),
-              Gaps.hGap10,
-              Expanded(
-                child: Text(
-                  Translate.s.home_ask_hint,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.s14_w400(color: colors.text3),
-                ),
-              ),
-              Semantics(
-                button: true,
-                label: Translate.s.dg_voice,
-                child: GestureDetector(
-                  onTap: () => onAsk(true),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(color: colors.button, shape: BoxShape.circle),
-                    child: Icon(Icons.mic_none_rounded, size: 20, color: colors.onButton),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

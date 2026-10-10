@@ -69,7 +69,7 @@ class BuildTodayNext extends StatelessWidget {
                               Gaps.vGap4,
                               Row(
                                 children: [
-                                  Icon(Icons.place_outlined, size: 14, color: colors.text3),
+                                  AppIcon.ui(AppIcons.pin, size: 14, color: colors.text3),
                                   Gaps.hGap4,
                                   Expanded(child: Text(b.pickup, style: AppTextStyle.caption(color: colors.text2))),
                                 ],
@@ -194,7 +194,7 @@ class _Person extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(color: colors.button, shape: BoxShape.circle),
-                child: Icon(Icons.call_rounded, size: 20, color: colors.onButton),
+                child: AppIcon.ui(AppIcons.call, size: 20, color: colors.onButton),
               ),
             ),
           ),
@@ -216,7 +216,7 @@ class BuildStatusTimeline extends StatelessWidget {
     if (stage < 0) {
       return Row(
         children: [
-          Icon(Icons.hourglass_top_rounded, size: 16, color: colors.amber),
+          AppIcon.ui(AppIcons.hourglass, size: 16, color: colors.amber),
           Gaps.hGap6,
           Expanded(child: Text(Translate.s.today_waiting_operator, style: AppTextStyle.s13_w500(color: colors.amber))),
         ],

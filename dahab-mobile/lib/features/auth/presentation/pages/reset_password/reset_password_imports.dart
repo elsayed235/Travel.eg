@@ -9,6 +9,7 @@ import 'package:rehla/core/theme/app_spacing.dart';
 import 'package:rehla/features/auth/presentation/widgets/build_auth_chrome.dart';
 
 import 'widgets/reset_password_widgets_imports.dart';
+import 'package:rehla/core/widgets/app_icon.dart';
 
 part 'reset_password.dart';
 part 'reset_password_controller.dart';
