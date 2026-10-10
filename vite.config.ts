@@ -97,7 +97,13 @@ export default defineConfig(() => {
         ? { hmr: { port: Number(process.env.HMR_PORT) || (24678 + ((Number(process.env.PORT) || 3000) - 3000)) } }
         : { hmr: false, ws: false }),
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      // The Flutter app (dahab-mobile/) and stray root scripts are not part of
+      // the site; without this, any save or `flutter build` there reloads every
+      // open page.
+      watch:
+        process.env.DISABLE_HMR === 'true'
+          ? null
+          : { ignored: ['**/dahab-mobile/**', '**/tests/browser-qa/**', '**/data/**'] },
     },
   };
 });
